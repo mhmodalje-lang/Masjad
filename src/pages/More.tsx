@@ -1,7 +1,9 @@
 import { useLocale } from '@/hooks/useLocale';
-import { Link } from 'react-router-dom';
-import { Heart, Calendar, BarChart3, Calculator, Settings } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, Calendar, BarChart3, Calculator, Settings, LogIn, LogOut, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 const items = [
   { icon: Heart, labelKey: 'tasbeeh', path: '/tasbeeh', color: 'text-primary' },
@@ -13,6 +15,8 @@ const items = [
 
 export default function More() {
   const { t } = useLocale();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen">
@@ -22,12 +26,47 @@ export default function More() {
       </div>
 
       <div className="px-5 pt-4 space-y-3">
+        {/* User card */}
+        {user ? (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center gap-3"
+          >
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-foreground truncate">
+                {user.user_metadata?.full_name || user.email}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <Button variant="ghost" size="icon" onClick={signOut}>
+              <LogOut className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Link
+              to="/auth"
+              className="flex items-center gap-4 rounded-xl border border-primary bg-primary/5 p-4 hover:shadow-md transition-all"
+            >
+              <LogIn className="h-6 w-6 text-primary" />
+              <span className="text-primary font-semibold">تسجيل الدخول / إنشاء حساب</span>
+            </Link>
+          </motion.div>
+        )}
+
         {items.map((item, i) => (
           <motion.div
             key={item.path}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06 }}
+            transition={{ delay: (i + 1) * 0.06 }}
           >
             <Link
               to={item.path}
