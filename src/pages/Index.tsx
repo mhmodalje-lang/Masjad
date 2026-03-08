@@ -120,7 +120,7 @@ export default function Index() {
         <div className="absolute inset-0 islamic-pattern opacity-30" />
         
         {/* Top bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-4">
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-[calc(1rem+env(safe-area-inset-top,0px))]">
           <button
             onClick={toggleNotifications}
             className="p-2.5 rounded-2xl bg-black/25 backdrop-blur-xl border border-white/10 transition-all active:scale-95"

@@ -49,10 +49,10 @@ export default function Install() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="gradient-islamic relative px-5 pb-16 pt-12">
+      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">📲 تثبيت التطبيق</h1>
-          <p className="text-white/60 text-sm mt-1">أضف تأكد إلى شاشتك الرئيسية</p>
+          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">أضف تأكد إلى شاشتك الرئيسية</p>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>

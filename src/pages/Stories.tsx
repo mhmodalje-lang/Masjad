@@ -270,7 +270,7 @@ export default function Stories() {
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       {/* Header */}
-      <div className="gradient-islamic px-5 pb-14 pt-16">
+      <div className="gradient-islamic px-5 pb-14 pt-safe-header">
         <div className="flex items-center justify-between relative z-10">
           {viewMode !== 'categories' ? (
             <button onClick={goBack} className="glass-card rounded-full p-2.5">
@@ -279,7 +279,7 @@ export default function Stories() {
           ) : <div className="w-10" />}
           <div className="text-right">
             <h1 className="text-xl font-bold text-white">📖 قصص حقيقية</h1>
-            <p className="text-white/60 text-xs mt-1">شارك قصتك وألهم الآخرين</p>
+            <p className="text-white/70 text-sm mt-1.5 leading-relaxed">شارك قصتك وألهم الآخرين</p>
           </div>
         </div>
       </div>

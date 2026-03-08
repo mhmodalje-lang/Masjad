@@ -232,6 +232,14 @@
     box-shadow: 0 8px 32px -8px hsl(160 30% 8% / 0.08),
                 0 2px 8px -2px hsl(160 30% 8% / 0.04);
   }
+
+  .pt-safe-header {
+    padding-top: calc(4.5rem + env(safe-area-inset-top, 0px));
+  }
+
+  .pt-safe-header-compact {
+    padding-top: calc(3.75rem + env(safe-area-inset-top, 0px));
+  }
 }
 
 /* Bottom nav safe area */

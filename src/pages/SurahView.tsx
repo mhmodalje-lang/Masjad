@@ -91,7 +91,7 @@ export default function SurahView() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="gradient-islamic relative px-5 pb-8 pt-12">
+      <div className="gradient-islamic relative px-5 pb-8 pt-safe-header-compact">
         <div className="absolute inset-0 islamic-pattern opacity-20" />
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">

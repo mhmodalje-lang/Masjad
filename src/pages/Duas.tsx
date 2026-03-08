@@ -229,7 +229,7 @@ export default function Duas() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="px-5 pt-12 pb-3 flex items-center justify-between">
+      <div className="px-5 pt-safe-header-compact pb-3 flex items-center justify-between">
         <div className="flex gap-3">
           {(viewMode !== 'categories' || showFavorites) ? (
             <button onClick={goBack} className="p-1">
