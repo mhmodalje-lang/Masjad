@@ -12,6 +12,7 @@ const dhikrOptions = [
   { key: 'subhanAllah', arabic: 'سُبْحَانَ اللّهِ', target: 33 },
   { key: 'alhamdulillah', arabic: 'الْحَمْدُ لِلّهِ', target: 33 },
   { key: 'allahuAkbar', arabic: 'اللّهُ أَكْبَرُ', target: 34 },
+  { key: 'istighfar', arabic: 'أَسْتَغْفِرُ اللّهَ', target: 100 },
 ];
 
 function getTodayKey() {
