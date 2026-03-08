@@ -200,39 +200,39 @@ export default function Qibla() {
               exit={{ opacity: 0, height: 0 }}
               className="w-full max-w-sm mb-5 overflow-hidden"
             >
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
                 <div className="flex items-center gap-2 justify-end">
-                  <h3 className="font-bold text-foreground text-sm">📋 كيف تستخدم البوصلة</h3>
+                  <h3 className="font-bold text-foreground text-base">📋 كيف تستخدم البوصلة</h3>
                 </div>
-                <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
-                  <div className="flex items-start gap-2 justify-end">
-                    <p className="min-w-0 break-words text-right">
+                <div className="space-y-4 text-sm text-muted-foreground" style={{ lineHeight: '2' }}>
+                  <div className="flex items-start gap-3 justify-end">
+                    <p className="min-w-0 break-words text-right flex-1">
                       <span className="text-primary font-bold">١.</span> ضع الهاتف بشكل <span className="text-foreground font-medium">أفقي مسطّح</span> على راحة يدك
                     </p>
-                    <span className="text-lg">📱</span>
+                    <span className="text-2xl shrink-0 mt-0.5">📱</span>
                   </div>
-                  <div className="flex items-start gap-2 justify-end">
-                    <p className="min-w-0 break-words text-right">
+                  <div className="flex items-start gap-3 justify-end">
+                    <p className="min-w-0 break-words text-right flex-1">
                       <span className="text-primary font-bold">٢.</span> ابتعد عن <span className="text-foreground font-medium">المعادن والأجهزة الإلكترونية</span> (سماعات، لابتوب)
                     </p>
-                    <span className="text-lg">🧲</span>
+                    <span className="text-2xl shrink-0 mt-0.5">🧲</span>
                   </div>
-                  <div className="flex items-start gap-2 justify-end">
-                    <p className="min-w-0 break-words text-right">
+                  <div className="flex items-start gap-3 justify-end">
+                    <p className="min-w-0 break-words text-right flex-1">
                       <span className="text-primary font-bold">٣.</span> لمعايرة البوصلة: حرّك الهاتف بشكل <span className="text-foreground font-medium">رقم 8</span> عدة مرات
                     </p>
-                    <span className="text-lg">♾️</span>
+                    <span className="text-2xl shrink-0 mt-0.5">♾️</span>
                   </div>
-                  <div className="flex items-start gap-2 justify-end">
-                    <p className="min-w-0 break-words text-right">
+                  <div className="flex items-start gap-3 justify-end">
+                    <p className="min-w-0 break-words text-right flex-1">
                       <span className="text-primary font-bold">٤.</span> أدِر جسمك حتى تظهر <span className="text-foreground font-medium">🕋 في الأعلى</span> ويتحول اللون إلى <span className="text-primary font-medium">أخضر</span>
                     </p>
-                    <span className="text-lg">🧭</span>
+                    <span className="text-2xl shrink-0 mt-0.5">🧭</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowInstructions(false)}
-                  className="w-full text-center text-xs text-primary font-medium pt-1"
+                  className="w-full text-center text-sm text-primary font-medium pt-2"
                 >
                   فهمت ✓
                 </button>
