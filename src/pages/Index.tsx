@@ -8,7 +8,7 @@ import { useAutoTheme } from '@/hooks/useAutoTheme';
 import AthanAlert from '@/components/AthanAlert';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare, Sparkles } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare, Sparkles, Volume2 } from 'lucide-react';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
