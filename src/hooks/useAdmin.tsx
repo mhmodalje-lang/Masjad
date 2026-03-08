@@ -14,10 +14,16 @@ export function useAdmin() {
       return;
     }
 
+    setLoading(true);
     supabase
-      .rpc('has_role', { _user_id: user.id, _role: 'admin' })
+      .rpc('is_admin', { _user_id: user.id })
       .then(({ data, error }) => {
-        setIsAdmin(!!data && !error);
+        if (error) {
+          console.error('Admin check error:', error);
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
         setLoading(false);
       });
   }, [user]);
