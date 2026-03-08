@@ -123,7 +123,7 @@ export default function Install() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl bg-muted p-4">
+                <div className="rounded-xl bg-muted p-5">
                   <p className="text-sm text-muted-foreground text-center">
                     افتح التطبيق من متصفح Chrome ثم اضغط على قائمة المتصفح → "تثبيت التطبيق"
                   </p>
