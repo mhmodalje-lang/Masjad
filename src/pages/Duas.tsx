@@ -352,7 +352,7 @@ export default function Duas() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: j * 0.05 }}
-                      className="rounded-xl bg-card border border-border p-4"
+                      className="rounded-2xl bg-card border border-border/50 p-5 shadow-elevated"
                     >
                       <div className="flex items-center justify-end mb-2">
                         <button onClick={() => toggleFavorite(duaId)} className="p-1">
