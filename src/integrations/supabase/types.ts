@@ -17,9 +17,11 @@ export type Database = {
       ad_slots: {
         Row: {
           ad_code: string | null
+          clicks: number
           created_at: string
           id: string
           image_url: string | null
+          impressions: number
           is_active: boolean
           link_url: string | null
           name: string
@@ -30,9 +32,11 @@ export type Database = {
         }
         Insert: {
           ad_code?: string | null
+          clicks?: number
           created_at?: string
           id?: string
           image_url?: string | null
+          impressions?: number
           is_active?: boolean
           link_url?: string | null
           name: string
@@ -43,9 +47,11 @@ export type Database = {
         }
         Update: {
           ad_code?: string | null
+          clicks?: number
           created_at?: string
           id?: string
           image_url?: string | null
+          impressions?: number
           is_active?: boolean
           link_url?: string | null
           name?: string
@@ -322,6 +328,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      track_ad_click: { Args: { _ad_id: string }; Returns: undefined }
+      track_ad_impression: { Args: { _ad_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
