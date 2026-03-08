@@ -469,9 +469,9 @@ export default function Qibla() {
 
             {/* Info cards */}
             <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-              <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
                 <MapPin className="h-5 w-5 text-primary mx-auto mb-2" />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 leading-relaxed">
                   {t('distanceToMakkah')}
                 </p>
                 <p className="text-lg font-bold text-foreground">
@@ -479,9 +479,9 @@ export default function Qibla() {
                 </p>
                 <p className="text-[10px] text-muted-foreground">{t('km')}</p>
               </div>
-              <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
                 <span className="text-xl block mb-1">📍</span>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 leading-relaxed">
                   {t('location')}
                 </p>
                 <p className="text-sm font-bold text-foreground truncate">
