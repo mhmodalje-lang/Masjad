@@ -67,9 +67,8 @@ export async function schedulePrayerNotifications(
           badge: '/pwa-icon-192.png',
           tag: `prayer-reminder-${prayer.key}`,
           silent: false,
-          vibrate: [100, 50, 100],
           data: { url: '/' },
-        });
+        } as NotificationOptions);
       }, reminderDiff) as unknown as number;
 
       timers.push(reminderTimer);
