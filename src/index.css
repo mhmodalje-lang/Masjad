@@ -154,11 +154,11 @@
   }
 
   .gradient-islamic {
-    background: linear-gradient(135deg, hsl(220 25% 18%) 0%, hsl(220 20% 12%) 100%);
+    background: linear-gradient(135deg, hsl(215 60% 22%) 0%, hsl(215 50% 14%) 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, hsl(220 25% 22%) 0%, hsl(220 20% 16%) 100%);
+    background: linear-gradient(135deg, hsl(215 55% 26%) 0%, hsl(215 50% 18%) 100%);
   }
 
   .text-gradient-islamic {
