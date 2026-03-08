@@ -57,12 +57,12 @@ export default function PrayerTimes() {
       {/* Date + share */}
       <div className="px-5 mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{dayName}، {dateStr}</p>
-        <button className="p-2" onClick={handleShare}>
+        <button className="p-2.5 rounded-xl hover:bg-muted transition-colors" onClick={handleShare}>
           <Share2 className="h-5 w-5 text-muted-foreground" />
         </button>
       </div>
 
-      <div className="border-t border-border" />
+      <div className="border-t border-border/50" />
 
       {/* Prayer List */}
       <div className="px-5 py-2">
@@ -80,21 +80,18 @@ export default function PrayerTimes() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: i * 0.05 }}
                 className={cn(
-                  'flex items-center justify-between py-5 border-b border-border last:border-b-0',
-                  isNext && 'bg-primary/5 -mx-5 px-5 rounded-xl border-b-0'
+                  'flex items-center justify-between py-5 border-b border-border/50 last:border-b-0',
+                  isNext && 'bg-primary/5 -mx-5 px-5 rounded-2xl border-b-0'
                 )}
               >
                 <div className="flex items-center gap-3">
-                  <div className={cn(
-                    'flex items-center justify-center',
-                    isNext ? 'text-primary' : 'text-primary'
-                  )}>
+                  <div className="flex items-center justify-center">
                     <div className="relative">
                       <div className={cn(
-                        'h-6 w-6 rounded-full border-2 flex items-center justify-center',
+                        'h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all',
                         isNext ? 'border-primary bg-primary' : 'border-primary'
                       )}>
-                        {isNext && <div className="h-2 w-2 rounded-full bg-white" />}
+                        {isNext && <div className="h-2 w-2 rounded-full bg-primary-foreground" />}
                       </div>
                     </div>
                   </div>
@@ -127,7 +124,7 @@ export default function PrayerTimes() {
 
       {/* Location info */}
       <div className="px-5 mt-4 mb-8">
-        <div className="rounded-2xl bg-card border border-border p-4">
+        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
           <div className="flex items-center justify-between">
             <div className="text-right">
               <p className="text-sm font-bold text-foreground">📍 {location.city || '...'}</p>

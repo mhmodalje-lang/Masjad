@@ -13,15 +13,15 @@ import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
 
 const features = [
-  { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', bg: 'bg-primary' },
-  { icon: Heart, label: 'عداد التسبيح', path: '/tasbeeh', bg: 'bg-primary' },
-  { icon: Clock, label: 'مواقيت الصلاة', path: '/prayer-times', bg: 'bg-primary' },
-  { icon: BookOpen, label: 'القرآن', path: '/quran', bg: 'bg-primary' },
-  { icon: Moon, label: 'الأدعية', path: '/duas', bg: 'bg-primary' },
-  { icon: MessageSquare, label: 'قصص حقيقية', path: '/stories', bg: 'bg-primary' },
-  { icon: Calculator, label: 'حاسبة الزكاة', path: '/zakat', bg: 'bg-primary' },
-  { icon: CheckCircle2, label: 'متابعة الصلاة', path: '/tracker', bg: 'bg-primary' },
-  { icon: User, label: 'حسابي', path: '/auth', bg: 'bg-primary' },
+  { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', gradient: 'from-primary/15 to-islamic-teal/10' },
+  { icon: Heart, label: 'عداد التسبيح', path: '/tasbeeh', gradient: 'from-accent/15 to-islamic-gold/10' },
+  { icon: Clock, label: 'مواقيت الصلاة', path: '/prayer-times', gradient: 'from-primary/15 to-islamic-emerald/10' },
+  { icon: BookOpen, label: 'القرآن', path: '/quran', gradient: 'from-islamic-purple/15 to-primary/10' },
+  { icon: Moon, label: 'الأدعية', path: '/duas', gradient: 'from-islamic-copper/15 to-accent/10' },
+  { icon: MessageSquare, label: 'قصص حقيقية', path: '/stories', gradient: 'from-primary/15 to-accent/10' },
+  { icon: Calculator, label: 'حاسبة الزكاة', path: '/zakat', gradient: 'from-islamic-teal/15 to-primary/10' },
+  { icon: CheckCircle2, label: 'متابعة الصلاة', path: '/tracker', gradient: 'from-primary/15 to-islamic-emerald/10' },
+  { icon: User, label: 'حسابي', path: '/auth', gradient: 'from-accent/15 to-islamic-copper/10' },
 ];
 
 export default function More() {
@@ -30,7 +30,7 @@ export default function More() {
   const { isAdmin } = useAdmin();
 
   const allFeatures = isAdmin
-    ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', bg: 'bg-destructive' }]
+    ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', gradient: 'from-destructive/15 to-destructive/5' }]
     : features;
 
   return (
@@ -46,9 +46,9 @@ export default function More() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-border bg-card p-4 flex items-center gap-3"
+            className="rounded-3xl border border-border/50 bg-card p-5 flex items-center gap-3 shadow-elevated"
           >
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center">
               <User className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
@@ -57,7 +57,7 @@ export default function More() {
               </p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={signOut}>
+            <Button variant="ghost" size="icon" onClick={signOut} className="rounded-xl">
               <LogOut className="h-4 w-4 text-muted-foreground" />
             </Button>
           </motion.div>
@@ -65,7 +65,7 @@ export default function More() {
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
             <Link
               to="/auth"
-              className="flex items-center justify-center gap-3 rounded-2xl border border-primary bg-primary/5 p-4"
+              className="flex items-center justify-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-elevated transition-all active:scale-[0.98]"
             >
               <LogIn className="h-5 w-5 text-primary" />
               <span className="text-primary font-semibold text-sm">{t('loginSignup')}</span>
@@ -76,7 +76,7 @@ export default function More() {
 
       {/* Features grid */}
       <div className="px-5">
-        <div className="rounded-2xl bg-card border border-border p-5">
+        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
           <div className="grid grid-cols-3 gap-4">
             {allFeatures.map((item, i) => (
               <motion.div
@@ -89,8 +89,11 @@ export default function More() {
                   to={item.path}
                   className="flex flex-col items-center gap-2 min-w-0"
                 >
-                  <div className={cn('h-14 w-14 rounded-2xl flex items-center justify-center shrink-0', item.bg)}>
-                    <item.icon className="h-6 w-6 text-primary-foreground" />
+                  <div className={cn(
+                    'h-14 w-14 rounded-2xl bg-gradient-to-br border border-border/50 flex items-center justify-center shrink-0 transition-transform active:scale-95',
+                    item.gradient
+                  )}>
+                    <item.icon className="h-6 w-6 text-primary" />
                   </div>
                   <span className="text-[11px] font-medium text-foreground text-center leading-tight w-full break-words">
                     {item.label}
@@ -104,8 +107,10 @@ export default function More() {
 
       {/* Athan Sound Selector */}
       <div className="px-5 mt-5">
-        <h2 className="text-sm font-bold text-foreground mb-3">🔊 صوت الأذان</h2>
-        <AthanSelector />
+        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
+          <h2 className="text-sm font-bold text-foreground mb-3">🔊 صوت الأذان</h2>
+          <AthanSelector />
+        </div>
       </div>
     </div>
   );

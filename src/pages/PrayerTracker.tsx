@@ -22,12 +22,10 @@ export default function PrayerTracker() {
   const [allTracking, setAllTracking] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
-  // Load data
   useEffect(() => {
     if (user) {
       loadFromDB();
     } else {
-      // Fallback to localStorage for non-logged-in users
       const saved = localStorage.getItem('prayer-tracker');
       const parsed = saved ? JSON.parse(saved) : {};
       setAllTracking(parsed);
@@ -39,7 +37,6 @@ export default function PrayerTracker() {
   const loadFromDB = async () => {
     if (!user) return;
     setLoading(true);
-    // Load last 30 days for streak calculation
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -82,7 +79,6 @@ export default function PrayerTracker() {
     }
   };
 
-  // Calculate streak
   const streak = (() => {
     let count = 0;
     const d = new Date();
@@ -103,16 +99,16 @@ export default function PrayerTracker() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       <div className="gradient-islamic relative px-5 pb-8 pt-12">
-        <h1 className="text-2xl font-bold text-primary-foreground">{t('tracker')}</h1>
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <h1 className="text-2xl font-bold text-primary-foreground relative z-10">{t('tracker')}</h1>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       <div className="px-5 pt-2">
-        {/* Login prompt */}
         {!user && (
           <Link
             to="/auth"
-            className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3 mb-4 text-sm"
+            className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 mb-4 text-sm transition-all active:scale-[0.98]"
           >
             <LogIn className="h-4 w-4 text-primary" />
             <span className="text-primary">{t('loginToSaveProgress')}</span>
@@ -121,11 +117,11 @@ export default function PrayerTracker() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-xl border border-border bg-card p-4 text-center">
+          <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
             <p className="text-xs text-muted-foreground mb-1">{t('completed')}</p>
             <p className="text-3xl font-bold text-primary">{todayPrayers.length}/5</p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4 text-center">
+          <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <Flame className="h-3.5 w-3.5 text-accent" />
               <p className="text-xs text-muted-foreground">{t('streak')}</p>
@@ -141,6 +137,7 @@ export default function PrayerTracker() {
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.5 }}
+            style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.4)' }}
           />
         </div>
 
@@ -156,8 +153,8 @@ export default function PrayerTracker() {
                 transition={{ delay: i * 0.06 }}
                 onClick={() => togglePrayer(key)}
                 className={cn(
-                  'w-full flex items-center justify-between rounded-xl border p-4 transition-all',
-                  done ? 'border-primary bg-primary/5' : 'border-border bg-card'
+                  'w-full flex items-center justify-between rounded-2xl border p-4 transition-all',
+                  done ? 'border-primary/40 bg-primary/5 glow-emerald' : 'border-border/50 bg-card'
                 )}
               >
                 <span className={cn('font-semibold', done ? 'text-primary' : 'text-foreground')}>

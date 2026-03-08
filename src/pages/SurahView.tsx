@@ -36,7 +36,6 @@ export default function SurahView() {
       })
       .catch(() => setLoading(false));
 
-    // Check if bookmarked
     if (user && id) {
       supabase
         .from('quran_bookmarks')
@@ -93,7 +92,8 @@ export default function SurahView() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       <div className="gradient-islamic relative px-5 pb-8 pt-12">
-        <div className="flex items-center justify-between">
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <Link to="/quran">
               <BackIcon className="h-5 w-5 text-primary-foreground" />
@@ -104,7 +104,7 @@ export default function SurahView() {
             variant="ghost"
             size="icon"
             onClick={toggleBookmark}
-            className="text-primary-foreground hover:bg-primary-foreground/10"
+            className="text-primary-foreground hover:bg-primary-foreground/10 rounded-xl"
           >
             {bookmarked ? (
               <BookmarkCheck className="h-5 w-5 fill-current" />
@@ -133,16 +133,16 @@ export default function SurahView() {
               key={ayah.number}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="rounded-xl border border-border bg-card p-4"
+              className="rounded-2xl border border-border/50 bg-card p-5 shadow-elevated"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary text-xs font-bold">
                   {ayah.numberInSurah}
                 </div>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="h-8 w-8 rounded-xl"
                   onClick={() => playAyah(ayah)}
                 >
                   {playing === ayah.numberInSurah ? (
