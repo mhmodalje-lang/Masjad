@@ -63,6 +63,7 @@ export default function Index() {
   }, [remaining, nextPrayer]);
 
   useAthanNotifications(prayers, notificationsEnabled);
+  useAutoTheme(prayers);
 
   const toggleNotifications = async () => {
     if (!notificationsEnabled) {
