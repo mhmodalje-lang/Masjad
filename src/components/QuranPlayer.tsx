@@ -432,7 +432,7 @@ export default function QuranPlayer() {
                               <span className="text-xs text-muted-foreground">{s.numberOfAyahs} آية</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-foreground">{s.name}</span>
-                                <span className="text-[10px] text-muted-foreground w-6 text-center">{s.number}</span>
+                                <span className="text-xs text-muted-foreground w-6 text-center">{s.number}</span>
                               </div>
                             </button>
                           ))}
