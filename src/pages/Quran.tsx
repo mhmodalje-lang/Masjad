@@ -106,11 +106,24 @@ export default function Quran() {
     }
   };
 
-  const filtered = surahs.filter(s =>
-    s.name.includes(search) ||
-    s.englishName.toLowerCase().includes(search.toLowerCase()) ||
-    s.englishNameTranslation.toLowerCase().includes(search.toLowerCase())
-  );
+  // Strip Arabic diacritics (tashkeel) for fuzzy matching
+  const stripTashkeel = (str: string) =>
+    str.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7\u06E8\u06EA-\u06ED\u0890\u0891\u08D3-\u08FF\u0640]/g, '')
+       .replace(/[ٱإأآ]/g, 'ا')
+       .replace(/ة/g, 'ه')
+       .replace(/ى/g, 'ي')
+       .trim();
+
+  const normalizedSearch = stripTashkeel(search);
+
+  const filtered = surahs.filter(s => {
+    if (!search) return true;
+    const normalizedName = stripTashkeel(s.name);
+    return normalizedName.includes(normalizedSearch) ||
+      s.englishName.toLowerCase().includes(search.toLowerCase()) ||
+      s.englishNameTranslation.toLowerCase().includes(search.toLowerCase()) ||
+      String(s.number) === search.trim();
+  });
 
   const bookmarkedSurahs = surahs.filter(s => bookmarks.includes(s.number));
 
