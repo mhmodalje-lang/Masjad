@@ -38,7 +38,7 @@ export default function Index() {
         localStorage.setItem('athan-notifications', 'true');
         toast.success(t('notificationsEnabled'));
       } else {
-        toast.error('لم يتم السماح بالإشعارات');
+        toast.error(t('notificationsDenied'));
       }
     } else {
       setNotificationsEnabled(false);
