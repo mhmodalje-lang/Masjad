@@ -236,7 +236,7 @@ export default function Index() {
         >
           <div className="absolute inset-0 islamic-pattern opacity-20" />
           <div className="text-white text-sm relative z-10">
-            <span className="text-white/50 text-[10px] font-medium uppercase tracking-wider">إفطار</span>
+            <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
             <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
           </div>
           <span className="text-3xl relative z-10">🌙</span>
