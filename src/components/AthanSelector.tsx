@@ -15,6 +15,8 @@ export default function AthanSelector() {
     setSelectedAthan(id);
     stopAthan();
     setPlaying(null);
+    // Pre-load the newly selected athan for instant playback
+    preloadSelectedAthan();
   };
 
   const handlePreview = (id: string) => {
