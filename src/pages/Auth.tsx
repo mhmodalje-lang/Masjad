@@ -58,7 +58,7 @@ export default function Auth() {
       redirect_uri: window.location.origin,
     });
     if (error) {
-      toast.error(error.message);
+      toast.error('حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مرة أخرى');
     }
   };
 
