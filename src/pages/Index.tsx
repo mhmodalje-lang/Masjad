@@ -36,7 +36,7 @@ export default function Index() {
       if (granted) {
         setNotificationsEnabled(true);
         localStorage.setItem('athan-notifications', 'true');
-        toast.success('تم تفعيل إشعارات الأذان 🔔');
+        toast.success(t('notificationsEnabled'));
       } else {
         toast.error('لم يتم السماح بالإشعارات');
       }
