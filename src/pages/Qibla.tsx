@@ -322,7 +322,7 @@ export default function Qibla() {
         {viewMode === 'compass' ? (
           <>
             {/* Compass */}
-            <div className="relative w-[300px] h-[300px] mb-6">
+            <div className="relative mb-6 aspect-square w-full max-w-[300px]">
               {/* Outer decorative ring */}
               <div className="absolute inset-0 rounded-full border-2 border-border" />
               
