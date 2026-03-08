@@ -13,6 +13,7 @@ interface PrayerTimesData {
   hijriDay: string;
   hijriMonthAr: string;
   hijriMonthEn: string;
+  hijriMonthNumber: number;
   hijriYear: string;
   hijriMonth: string;
   loading: boolean;
