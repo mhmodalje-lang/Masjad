@@ -63,13 +63,13 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="gradient-islamic islamic-pattern px-5 pb-10 pt-16 text-center relative">
+    <div className="min-h-screen flex flex-col pb-24" dir="rtl">
+      <div className="gradient-islamic islamic-pattern relative px-5 pb-12 pt-16 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-4xl font-bold font-arabic text-primary-foreground mb-2">{t('appName')}</h1>
           <p className="text-primary-foreground/70 text-sm">{t('yourIslamicApp')}</p>
         </motion.div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[50%] bg-background" />
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       <div className="flex-1 px-5 pt-4 max-w-md mx-auto w-full">

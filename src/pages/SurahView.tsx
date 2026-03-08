@@ -91,8 +91,8 @@ export default function SurahView() {
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
 
   return (
-    <div className="min-h-screen">
-      <div className="gradient-islamic px-5 pb-6 pt-12">
+    <div className="min-h-screen pb-24" dir="rtl">
+      <div className="gradient-islamic relative px-5 pb-8 pt-12">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/quran">
@@ -113,7 +113,7 @@ export default function SurahView() {
             )}
           </Button>
         </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[50%] bg-background" />
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       {/* Bismillah */}

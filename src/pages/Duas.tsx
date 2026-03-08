@@ -228,7 +228,7 @@ export default function Duas() {
   );
 
   return (
-    <div className="min-h-screen pb-safe" dir="rtl">
+    <div className="min-h-screen pb-24" dir="rtl">
       <div className="px-5 pt-12 pb-3 flex items-center justify-between">
         <div className="flex gap-3">
           {(viewMode !== 'categories' || showFavorites) ? (
@@ -376,7 +376,7 @@ export default function Duas() {
         </motion.div>
       </AnimatePresence>
 
-      <div className="h-24" />
+      
     </div>
   );
 }

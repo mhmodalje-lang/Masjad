@@ -86,14 +86,14 @@ export default function Index() {
   // SVG circle params
   const circleR = 52;
   const circleC = 2 * Math.PI * circleR;
-  const strokeDashoffset = circleC * (1 - progress);
+  const strokeDashoffset = isNaN(circleC * (1 - progress)) ? 0 : circleC * (1 - progress);
 
   // Get fajr and maghrib for Ramadan bar
   const fajrTime = prayers.find(p => p.key === 'fajr')?.time || '--:--';
   const maghribTime = prayers.find(p => p.key === 'maghrib')?.time || '--:--';
 
   return (
-    <div className="min-h-screen pb-safe" dir="rtl">
+    <div className="min-h-screen pb-24" dir="rtl">
       {/* Header with Mecca image */}
       <div className="relative">
         <img
