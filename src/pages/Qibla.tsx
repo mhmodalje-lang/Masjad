@@ -274,7 +274,7 @@ export default function Qibla() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="mb-4 flex w-full max-w-sm flex-col gap-2 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="mb-4 flex w-full max-w-sm flex-col gap-2 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <button
                 onClick={calibrate}
