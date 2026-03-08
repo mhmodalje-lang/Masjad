@@ -451,7 +451,7 @@ export default function QuranPlayer() {
                       style={{ width: `${progress}%`, marginRight: 'auto', marginLeft: 0 }}
                     />
                   </div>
-                  <div className="flex justify-between text-[10px] text-muted-foreground mb-4 tabular-nums" dir="ltr">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-4 tabular-nums" dir="ltr">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
