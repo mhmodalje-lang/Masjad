@@ -21,7 +21,7 @@ const quickAccessItems = [
 export default function Index() {
   const { t, isRTL } = useLocale();
   const location = useGeoLocation();
-  const { prayers, hijriDate, loading } = usePrayerTimes(location.latitude, location.longitude);
+  const { prayers, hijriDate, hijriDay, hijriMonthNumber, hijriYear, loading } = usePrayerTimes(location.latitude, location.longitude);
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
@@ -108,7 +108,11 @@ export default function Index() {
       {/* Hijri Calendar & Events */}
       <div className="px-5 mb-5">
         <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('hijriCalendar')}</h2>
-        <HijriCalendar />
+        <HijriCalendar
+          hijriDay={hijriDay}
+          hijriMonth={hijriMonthNumber || undefined}
+          hijriYear={hijriYear}
+        />
       </div>
 
       {/* Today's Prayers Mini */}
