@@ -268,7 +268,7 @@ export default function ZakatCalculator() {
         </div>
 
         {/* Asset fields */}
-        <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-3 shadow-elevated">
           <h2 className="text-sm font-semibold text-foreground">أصولك ومدخراتك</h2>
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
