@@ -81,17 +81,17 @@ export default function Install() {
               <p className="text-sm text-muted-foreground mb-4">تطبيقك الإسلامي الشامل</p>
               
               <div className="grid grid-cols-3 gap-3 text-center mb-6">
-                <div className="rounded-xl bg-muted p-3">
+                <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">🕌</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">مواقيت الصلاة</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">مواقيت الصلاة</p>
                 </div>
-                <div className="rounded-xl bg-muted p-3">
+                <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">📖</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">القرآن</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">القرآن</p>
                 </div>
-                <div className="rounded-xl bg-muted p-3">
+                <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">🧭</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">القبلة</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">القبلة</p>
                 </div>
               </div>
 
@@ -101,7 +101,7 @@ export default function Install() {
                   تثبيت التطبيق
                 </Button>
               ) : isIOS ? (
-                <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 text-right space-y-3">
+                <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 text-right space-y-3">
                   <p className="text-sm font-bold text-foreground">لتثبيت التطبيق على iPhone:</p>
                   <div className="flex items-center gap-3 justify-end">
                     <p className="text-xs text-muted-foreground">
@@ -123,7 +123,7 @@ export default function Install() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl bg-muted p-4">
+                <div className="rounded-xl bg-muted p-5">
                   <p className="text-sm text-muted-foreground text-center">
                     افتح التطبيق من متصفح Chrome ثم اضغط على قائمة المتصفح → "تثبيت التطبيق"
                   </p>
@@ -145,7 +145,7 @@ export default function Install() {
                 { emoji: '🔔', text: 'تنبيهات مواقيت الصلاة' },
                 { emoji: '💾', text: 'تخزين البيانات محلياً' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 justify-end rounded-xl bg-card border border-border p-3">
+                <div key={i} className="flex items-center gap-3 justify-end rounded-xl bg-card border border-border p-4">
                   <p className="text-sm text-foreground">{item.text}</p>
                   <span className="text-xl shrink-0">{item.emoji}</span>
                 </div>

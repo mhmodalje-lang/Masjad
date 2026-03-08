@@ -131,7 +131,7 @@ export default function Quran() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
-      <div className="px-5 pt-12 pb-3 flex items-center justify-between">
+      <div className="px-5 pt-safe-header-compact pb-3 flex items-center justify-between">
         <div className="flex gap-3">
           <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={() => setShowSearch(!showSearch)}>
             {showSearch ? <X className="h-5 w-5 text-muted-foreground" /> : <Search className="h-5 w-5 text-muted-foreground" />}

@@ -200,7 +200,7 @@ export default function Qibla() {
               exit={{ opacity: 0, height: 0 }}
               className="w-full max-w-sm mb-5 overflow-hidden"
             >
-              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-4">
                 <div className="flex items-center gap-2 justify-end">
                   <h3 className="font-bold text-foreground text-base">📋 كيف تستخدم البوصلة</h3>
                 </div>
@@ -247,7 +247,7 @@ export default function Qibla() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={requestPermission}
-            className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-4 flex items-center gap-3 justify-center"
+            className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-5 flex items-center gap-3 justify-center"
           >
             <Smartphone className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-primary">اضغط هنا لتفعيل البوصلة</span>
@@ -256,7 +256,7 @@ export default function Qibla() {
 
         {/* No compass warning */}
         {hasCompass === false && (
-          <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
+          <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
             <div className="flex items-center gap-2 justify-end mb-2">
               <p className="text-sm font-bold text-destructive">البوصلة غير متاحة</p>
               <AlertTriangle className="h-5 w-5 text-destructive" />
@@ -274,7 +274,7 @@ export default function Qibla() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="mb-4 flex w-full max-w-sm flex-col gap-2 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-3 sm:flex-row sm:items-center sm:justify-between"
+              className="mb-4 flex w-full max-w-sm flex-col gap-2 rounded-xl border border-[hsl(var(--islamic-gold))]/30 bg-[hsl(var(--islamic-gold))]/5 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <button
                 onClick={calibrate}
@@ -298,7 +298,7 @@ export default function Qibla() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-full max-w-sm mb-4 rounded-xl bg-primary/5 border border-primary/20 p-4 text-center"
+              className="w-full max-w-sm mb-4 rounded-xl bg-primary/5 border border-primary/20 p-5 text-center"
             >
               <motion.div
                 animate={{ rotate: [0, 360] }}
@@ -314,7 +314,7 @@ export default function Qibla() {
 
         {/* No location warning */}
         {isNoLocation && (
-          <div className="mb-4 flex w-full max-w-sm items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 justify-end">
+          <div className="mb-4 flex w-full max-w-sm items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 justify-end">
             <p className="min-w-0 text-xs text-muted-foreground break-words text-right">لم يتم تحديد موقعك - فعّل خدمات الموقع</p>
             <MapPin className="h-4 w-4 shrink-0 text-destructive" />
           </div>
@@ -469,9 +469,9 @@ export default function Qibla() {
 
             {/* Info cards */}
             <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-              <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
                 <MapPin className="h-5 w-5 text-primary mx-auto mb-2" />
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 leading-relaxed">
                   {t('distanceToMakkah')}
                 </p>
                 <p className="text-lg font-bold text-foreground">
@@ -479,9 +479,9 @@ export default function Qibla() {
                 </p>
                 <p className="text-[10px] text-muted-foreground">{t('km')}</p>
               </div>
-              <div className="rounded-2xl border border-border bg-card p-4 text-center">
+              <div className="rounded-2xl border border-border bg-card p-5 text-center">
                 <span className="text-xl block mb-1">📍</span>
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 leading-relaxed">
                   {t('location')}
                 </p>
                 <p className="text-sm font-bold text-foreground truncate">

@@ -330,7 +330,7 @@ export default function Stories() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.06 }}
                       onClick={() => openCategory(cat.key)}
-                      className="w-full flex items-center justify-between p-4 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all"
+                      className="w-full flex items-center justify-between p-5 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all"
                     >
                       <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90 rtl:rotate-90" />
                       <div className="flex items-center gap-3">
