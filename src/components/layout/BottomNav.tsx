@@ -1,15 +1,15 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Clock, BookOpen, Heart, MoreHorizontal } from 'lucide-react';
+import { Home, Clock, BookOpen, MessageSquare, MoreHorizontal } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 import { cn } from '@/lib/utils';
 
-// Order: Right to Left in RTL → Home, PrayerTimes, Quran, Duas, More
+// Order: Right to Left in RTL → Home, PrayerTimes, Quran, Stories, More
 const navItems = [
-  { path: '/', icon: Home, labelKey: 'home' },
-  { path: '/prayer-times', icon: Clock, labelKey: 'prayerTimes' },
-  { path: '/quran', icon: BookOpen, labelKey: 'quran' },
-  { path: '/duas', icon: Heart, labelKey: 'duas' },
-  { path: '/more', icon: MoreHorizontal, labelKey: 'more' },
+  { path: '/', icon: Home, labelKey: 'home', label: '' },
+  { path: '/prayer-times', icon: Clock, labelKey: 'prayerTimes', label: '' },
+  { path: '/quran', icon: BookOpen, labelKey: 'quran', label: '' },
+  { path: '/stories', icon: MessageSquare, labelKey: '', label: 'قصص' },
+  { path: '/more', icon: MoreHorizontal, labelKey: 'more', label: '' },
 ];
 
 export function BottomNav() {
@@ -34,7 +34,7 @@ export function BottomNav() {
               )}
             >
               <item.icon className={cn('h-5 w-5', isActive && 'stroke-[2.5px]')} />
-              <span className="font-medium text-[10px] leading-tight">{t(item.labelKey)}</span>
+              <span className="font-medium text-[10px] leading-tight">{item.labelKey ? t(item.labelKey) : item.label}</span>
             </Link>
           );
         })}

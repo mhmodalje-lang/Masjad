@@ -61,6 +61,7 @@ export default function Stories() {
   const [newAuthorName, setNewAuthorName] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [maxChars, setMaxChars] = useState(5000);
 
   // Comment form
   const [commentText, setCommentText] = useState('');
@@ -154,8 +155,8 @@ export default function Stories() {
       toast.error('العنوان يجب أن يكون أقل من 100 حرف');
       return;
     }
-    if (newContent.trim().length > 5000) {
-      toast.error('القصة يجب أن تكون أقل من 5000 حرف');
+    if (newContent.trim().length > maxChars) {
+      toast.error(`القصة يجب أن تكون أقل من ${maxChars} حرف`);
       return;
     }
     setSubmitting(true);
@@ -547,9 +548,26 @@ export default function Stories() {
                       onChange={e => setNewContent(e.target.value)}
                       placeholder="اكتب قصتك هنا... شاركنا تجربتك الحقيقية مع ذكر التفاصيل التي تلهم الآخرين"
                       className="w-full min-h-[180px] rounded-xl bg-card border border-border p-4 text-sm text-foreground text-right leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      maxLength={5000}
+                      maxLength={maxChars}
                     />
-                    <p className="text-[10px] text-muted-foreground text-left mt-1">{newContent.length}/5000</p>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <p className={cn(
+                        "text-[10px] font-medium",
+                        newContent.length >= maxChars ? "text-destructive" : newContent.length >= maxChars * 0.9 ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground"
+                      )}>
+                        {newContent.length}/{maxChars}
+                      </p>
+                      {newContent.length >= maxChars * 0.8 && maxChars < 15000 && (
+                        <button
+                          type="button"
+                          onClick={() => setMaxChars(prev => Math.min(prev + 5000, 15000))}
+                          className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 hover:bg-primary/20 transition-colors"
+                        >
+                          <Plus className="h-3 w-3" />
+                          إضافة {Math.min(5000, 15000 - maxChars)} حرف
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <Button onClick={submitStory} disabled={submitting || !newTitle.trim() || !newContent.trim() || !newCategory} className="w-full rounded-xl h-12 gap-2">
