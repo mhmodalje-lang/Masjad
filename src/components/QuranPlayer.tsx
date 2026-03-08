@@ -152,9 +152,12 @@ export default function QuranPlayer() {
     };
 
     const onError = () => {
-      setLoading(false);
-      setIsPlaying(false);
-      toast.error('تعذر تشغيل الصوت لهذا القارئ/السورة');
+      // Only show error if we actually have a src set (avoid spurious errors on reset)
+      if (audio.src && audio.src !== window.location.href) {
+        setLoading(false);
+        setIsPlaying(false);
+        toast.error('تعذر تشغيل الصوت — جرّب قارئاً آخر');
+      }
     };
 
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
