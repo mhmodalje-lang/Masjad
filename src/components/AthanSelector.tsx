@@ -55,7 +55,7 @@ export default function AthanSelector() {
       </div>
 
       {/* Athan options */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {ATHAN_OPTIONS.map(athan => {
           const isSelected = selected === athan.id;
           const isPlaying = playing === athan.id;
@@ -73,16 +73,16 @@ export default function AthanSelector() {
             >
               {/* Selection indicator */}
               <div className={cn(
-                'h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
+                'h-7 w-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors',
                 isSelected ? 'border-primary bg-primary' : 'border-muted-foreground/30'
               )}>
-                {isSelected && <Check className="h-3.5 w-3.5 text-primary-foreground" />}
+                {isSelected && <Check className="h-4 w-4 text-primary-foreground" />}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-foreground">{athan.nameAr}</p>
-                <p className="text-xs text-muted-foreground">{athan.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{athan.name}</p>
               </div>
 
               {/* Preview button */}
@@ -90,16 +90,16 @@ export default function AthanSelector() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="shrink-0 h-8 w-8 p-0 rounded-full"
+                  className="shrink-0 h-10 w-10 p-0 rounded-full"
                   onClick={e => {
                     e.stopPropagation();
                     handlePreview(athan.id);
                   }}
                 >
                   {isPlaying ? (
-                    <Square className="h-3 w-3 fill-current" />
+                    <Square className="h-3.5 w-3.5 fill-current" />
                   ) : (
-                    <Play className="h-3 w-3 fill-current" />
+                    <Play className="h-3.5 w-3.5 fill-current" />
                   )}
                 </Button>
               )}

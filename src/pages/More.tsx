@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -37,7 +36,7 @@ export default function More() {
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
       <div className="px-5 pt-12 pb-4 text-center">
-        <h1 className="text-xl font-bold text-foreground">الميزات</h1>
+        <h1 className="text-foreground">الميزات</h1>
       </div>
 
       {/* User card */}
@@ -46,19 +45,19 @@ export default function More() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl border border-border/50 bg-card p-5 flex items-center gap-3 shadow-elevated"
+            className="rounded-3xl border border-border/50 bg-card p-5 flex items-center gap-4 shadow-elevated"
           >
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center">
-              <User className="h-6 w-6 text-primary" />
+            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center shrink-0">
+              <User className="h-7 w-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate">
+              <p className="font-semibold text-foreground truncate text-base">
                 {user.user_metadata?.full_name || user.email}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
             </div>
-            <Button variant="ghost" size="icon" onClick={signOut} className="rounded-xl">
-              <LogOut className="h-4 w-4 text-muted-foreground" />
+            <Button variant="ghost" size="icon" onClick={signOut} className="rounded-xl h-11 w-11 shrink-0">
+              <LogOut className="h-5 w-5 text-muted-foreground" />
             </Button>
           </motion.div>
         ) : (
@@ -68,7 +67,7 @@ export default function More() {
               className="flex items-center justify-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-elevated transition-all active:scale-[0.98]"
             >
               <LogIn className="h-5 w-5 text-primary" />
-              <span className="text-primary font-semibold text-sm">{t('loginSignup')}</span>
+              <span className="text-primary font-semibold">{t('loginSignup')}</span>
             </Link>
           </motion.div>
         )}
@@ -77,7 +76,7 @@ export default function More() {
       {/* Features grid */}
       <div className="px-5">
         <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-5">
             {allFeatures.map((item, i) => (
               <motion.div
                 key={i}
@@ -87,15 +86,15 @@ export default function More() {
               >
                 <Link
                   to={item.path}
-                  className="flex flex-col items-center gap-2 min-w-0"
+                  className="flex flex-col items-center gap-2.5 min-w-0"
                 >
                   <div className={cn(
-                    'h-14 w-14 rounded-2xl bg-gradient-to-br border border-border/50 flex items-center justify-center shrink-0 transition-transform active:scale-95',
+                    'h-16 w-16 rounded-2xl bg-gradient-to-br border border-border/50 flex items-center justify-center shrink-0 transition-transform active:scale-95',
                     item.gradient
                   )}>
-                    <item.icon className="h-6 w-6 text-primary" />
+                    <item.icon className="h-7 w-7 text-primary" />
                   </div>
-                  <span className="text-[11px] font-medium text-foreground text-center leading-tight w-full break-words">
+                  <span className="text-xs font-semibold text-foreground text-center leading-snug w-full break-words">
                     {item.label}
                   </span>
                 </Link>
@@ -108,7 +107,7 @@ export default function More() {
       {/* Athan Sound Selector */}
       <div className="px-5 mt-5">
         <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
-          <h2 className="text-sm font-bold text-foreground mb-3">🔊 صوت الأذان</h2>
+          <h2 className="text-foreground mb-3">🔊 صوت الأذان</h2>
           <AthanSelector />
         </div>
       </div>
