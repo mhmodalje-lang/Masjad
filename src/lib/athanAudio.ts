@@ -39,16 +39,22 @@ export const ATHAN_OPTIONS: AthanOption[] = [
     url: '/audio/athan/quds.mp3',
   },
   {
-    id: 'sudais',
-    name: 'Abdul Rahman Al-Sudais',
-    nameAr: 'عبد الرحمن السديس',
-    url: '/audio/athan/sudais.mp3',
-  },
-  {
     id: 'abdulbasit',
-    name: 'Abdul Basit Abdul Samad',
+    name: 'Abdul Basit',
     nameAr: 'عبد الباسط عبد الصمد',
     url: '/audio/athan/abdulbasit.mp3',
+  },
+  {
+    id: 'minshawi',
+    name: 'Al-Minshawi',
+    nameAr: 'محمد صدّيق المنشاوي',
+    url: '/audio/athan/minshawi.mp3',
+  },
+  {
+    id: 'naghshbandi',
+    name: 'Naghshbandi',
+    nameAr: 'النقشبندي',
+    url: '/audio/athan/naghshbandi.mp3',
   },
   {
     id: 'default',
