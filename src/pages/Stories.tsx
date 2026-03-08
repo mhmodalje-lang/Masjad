@@ -553,7 +553,7 @@ export default function Stories() {
                     <div className="flex items-center justify-between mt-1.5">
                       <p className={cn(
                         "text-[10px] font-medium",
-                        newContent.length >= maxChars ? "text-destructive" : newContent.length >= maxChars * 0.9 ? "text-amber-500" : "text-muted-foreground"
+                        newContent.length >= maxChars ? "text-destructive" : newContent.length >= maxChars * 0.9 ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground"
                       )}>
                         {newContent.length}/{maxChars}
                       </p>

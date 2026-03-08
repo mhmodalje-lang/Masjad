@@ -34,7 +34,7 @@ export function BottomNav() {
               )}
             >
               <item.icon className={cn('h-5 w-5', isActive && 'stroke-[2.5px]')} />
-              <span className="font-medium text-[10px] leading-tight">{t(item.labelKey)}</span>
+              <span className="font-medium text-[10px] leading-tight">{'labelKey' in item && item.labelKey ? t(item.labelKey) : ('label' in item ? item.label : '')}</span>
             </Link>
           );
         })}
