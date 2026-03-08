@@ -19,22 +19,13 @@ const islamicEvents: Record<string, { key: string; emoji: string }> = {
   '12-10': { key: 'eidAdha', emoji: '🐑' },
 };
 
-// Approximate Hijri date calculation
-function gregorianToHijri(date: Date): { year: number; month: number; day: number } {
-  const jd = Math.floor((date.getTime() / 86400000) + 2440587.5);
-  const l = jd - 1948440 + 10632;
-  const n = Math.floor((l - 1) / 10631);
-  const remainder = l - 10631 * n + 354;
-  const j = Math.floor((10985 - remainder) / 5316) * Math.floor((50 * remainder) / 17719) +
-    Math.floor(remainder / 5670) * Math.floor((43 * remainder) / 15238);
-  const newRemainder = remainder - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
-    Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
-  const month = Math.floor((24 * newRemainder) / 709);
-  const day = newRemainder - Math.floor((709 * month) / 24);
-  const year = 30 * n + j - 30;
-  return { year, month, day };
-}
+const hijriMonthsArabic = [
+  'مُحَرَّم', 'صَفَر', 'رَبيع الأوَّل', 'رَبيع الآخر',
+  'جُمادى الأولى', 'جُمادى الآخرة', 'رَجَب', 'شَعبان',
+  'رَمَضان', 'شَوّال', 'ذو القَعدة', 'ذو الحِجَّة',
+];
 
+// Use approximate conversion for calendar navigation (non-today months)
 function hijriToApproxGregorian(hYear: number, hMonth: number, hDay: number): Date {
   const jd = Math.floor((11 * hYear + 3) / 30) + 354 * hYear + 30 * hMonth -
     Math.floor((hMonth - 1) / 2) + hDay + 1948440 - 385;
@@ -51,18 +42,7 @@ function hijriToApproxGregorian(hYear: number, hMonth: number, hDay: number): Da
   return new Date(gYear, gMonth - 1, gDay);
 }
 
-const hijriMonthNames: Record<string, string> = {
-  ar: '',
-};
-
-const hijriMonthsArabic = [
-  'محرم', 'صفر', 'ربيع الأول', 'ربيع الآخر',
-  'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان',
-  'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة',
-];
-
 function getDaysInHijriMonth(month: number, year: number): number {
-  // Odd months = 30, even = 29, except month 12 in leap years = 30
   const isLeap = [2, 5, 7, 10, 13, 16, 18, 21, 24, 26, 29].includes(year % 30);
   if (month === 12 && isLeap) return 30;
   return month % 2 === 1 ? 30 : 29;
@@ -70,12 +50,42 @@ function getDaysInHijriMonth(month: number, year: number): number {
 
 function getFirstDayOfHijriMonth(year: number, month: number): number {
   const approx = hijriToApproxGregorian(year, month, 1);
-  return approx.getDay(); // 0=Sun
+  return approx.getDay();
 }
 
-export default function HijriCalendar() {
+interface HijriCalendarProps {
+  hijriDay?: string;
+  hijriMonth?: number;
+  hijriYear?: string;
+}
+
+export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: HijriCalendarProps) {
   const { t } = useLocale();
-  const today = useMemo(() => gregorianToHijri(new Date()), []);
+
+  // Use API data for today if available, otherwise fallback
+  const today = useMemo(() => {
+    if (hijriDay && hijriMonth && hijriYear) {
+      return {
+        year: parseInt(hijriYear),
+        month: hijriMonth,
+        day: parseInt(hijriDay),
+      };
+    }
+    // Fallback approximate
+    const jd = Math.floor((new Date().getTime() / 86400000) + 2440587.5);
+    const l = jd - 1948440 + 10632;
+    const n = Math.floor((l - 1) / 10631);
+    const remainder = l - 10631 * n + 354;
+    const j = Math.floor((10985 - remainder) / 5316) * Math.floor((50 * remainder) / 17719) +
+      Math.floor(remainder / 5670) * Math.floor((43 * remainder) / 15238);
+    const newRemainder = remainder - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) -
+      Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+    const month = Math.floor((24 * newRemainder) / 709);
+    const day = newRemainder - Math.floor((709 * month) / 24);
+    const year = 30 * n + j - 30;
+    return { year, month, day };
+  }, [hijriDay, hijriMonth, hijriYear]);
+
   const [viewYear, setViewYear] = useState(today.year);
   const [viewMonth, setViewMonth] = useState(today.month);
 
@@ -84,16 +94,13 @@ export default function HijriCalendar() {
 
   // Ramadan countdown
   const ramadanCountdown = useMemo(() => {
+    if (today.month === 9) return 0; // We're in Ramadan
     let targetYear = today.year;
-    let targetMonth = 9;
-    if (today.month > 9 || (today.month === 9 && today.day > 1)) {
-      targetYear++;
-    }
-    const ramadanDate = hijriToApproxGregorian(targetYear, targetMonth, 1);
+    if (today.month > 9) targetYear++;
+    const ramadanDate = hijriToApproxGregorian(targetYear, 9, 1);
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const diff = Math.ceil((ramadanDate.getTime() - now.getTime()) / 86400000);
-    if (today.month === 9) return 0; // We're in Ramadan
     return Math.max(0, diff);
   }, [today]);
 
@@ -133,7 +140,7 @@ export default function HijriCalendar() {
 
   return (
     <div className="space-y-4">
-      {/* Ramadan Countdown */}
+      {/* Ramadan Countdown or Mubarak */}
       {ramadanCountdown > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -148,7 +155,7 @@ export default function HijriCalendar() {
           <p className="text-xs text-muted-foreground">{t('daysRemaining')}</p>
         </motion.div>
       )}
-      {ramadanCountdown === 0 && today.month === 9 && (
+      {today.month === 9 && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -159,7 +166,7 @@ export default function HijriCalendar() {
         </motion.div>
       )}
 
-      {/* Calendar Header */}
+      {/* Calendar */}
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-4">
           <button onClick={() => navigate(1)} className="rounded-full p-1.5 hover:bg-muted transition-colors">
@@ -167,7 +174,7 @@ export default function HijriCalendar() {
           </button>
           <button onClick={goToToday} className="text-center">
             <p className="text-sm font-bold text-foreground">
-              {hijriMonthsArabic[viewMonth - 1]} {viewYear}
+              {hijriMonthsArabic[viewMonth - 1]} {viewYear} هـ
             </p>
           </button>
           <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-muted transition-colors">
@@ -175,14 +182,12 @@ export default function HijriCalendar() {
           </button>
         </div>
 
-        {/* Day labels */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {dayLabels.map(d => (
             <div key={d} className="text-center text-[10px] text-muted-foreground font-medium">{d}</div>
           ))}
         </div>
 
-        {/* Days grid */}
         <div className="grid grid-cols-7 gap-1">
           {Array.from({ length: firstDay }).map((_, i) => (
             <div key={`empty-${i}`} />
