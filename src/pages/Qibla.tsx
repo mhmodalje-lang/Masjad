@@ -247,7 +247,7 @@ export default function Qibla() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             onClick={requestPermission}
-            className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-4 flex items-center gap-3 justify-center"
+            className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-5 flex items-center gap-3 justify-center"
           >
             <Smartphone className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-primary">اضغط هنا لتفعيل البوصلة</span>

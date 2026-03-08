@@ -145,7 +145,7 @@ export default function Install() {
                 { emoji: '🔔', text: 'تنبيهات مواقيت الصلاة' },
                 { emoji: '💾', text: 'تخزين البيانات محلياً' },
               ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3 justify-end rounded-xl bg-card border border-border p-3">
+                <div key={i} className="flex items-center gap-3 justify-end rounded-xl bg-card border border-border p-4">
                   <p className="text-sm text-foreground">{item.text}</p>
                   <span className="text-xl shrink-0">{item.emoji}</span>
                 </div>
