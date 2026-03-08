@@ -1,5 +1,5 @@
 import { useLocale } from '@/hooks/useLocale';
-import { useLocation } from '@/hooks/useLocation';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { Link } from 'react-router-dom';
 import { MapPin, Compass, BookOpen, Heart, Calculator, Moon } from 'lucide-react';

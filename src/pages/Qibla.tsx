@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocale } from '@/hooks/useLocale';
-import { useLocation } from '@/hooks/useLocation';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
 
