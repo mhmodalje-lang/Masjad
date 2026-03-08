@@ -3,6 +3,7 @@ import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
+import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
 import { MapPin, Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff } from 'lucide-react';
 import { motion } from 'framer-motion';
