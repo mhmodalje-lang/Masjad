@@ -1,9 +1,10 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Link } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User,
-  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare
+  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare, Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -24,6 +25,11 @@ const features = [
 export default function More() {
   const { t } = useLocale();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
+
+  const allFeatures = isAdmin
+    ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', bg: 'bg-destructive' }]
+    : features;
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
@@ -70,7 +76,7 @@ export default function More() {
       <div className="px-5">
         <div className="rounded-2xl bg-card border border-border p-5">
           <div className="grid grid-cols-3 gap-4">
-            {features.map((item, i) => (
+            {allFeatures.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0.9 }}

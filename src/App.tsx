@@ -19,6 +19,7 @@ import ZakatCalculator from "./pages/ZakatCalculator";
 import Auth from "./pages/Auth";
 import Stories from "./pages/Stories";
 import Install from "./pages/Install";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/zakat" element={<ZakatCalculator />} />
                 <Route path="/stories" element={<Stories />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="*" element={<NotFound />} />
                 <Route path="*" element={<NotFound />} />

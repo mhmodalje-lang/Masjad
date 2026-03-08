@@ -6,33 +6,33 @@
 
 @layer base {
   :root {
-    --background: 35 30% 95%;
-    --foreground: 30 15% 15%;
+    --background: 210 30% 98%;
+    --foreground: 215 25% 12%;
 
-    --card: 35 25% 97%;
-    --card-foreground: 30 15% 15%;
+    --card: 210 25% 100%;
+    --card-foreground: 215 25% 12%;
 
-    --popover: 35 25% 97%;
-    --popover-foreground: 30 15% 15%;
+    --popover: 210 25% 100%;
+    --popover-foreground: 215 25% 12%;
 
-    --primary: 152 55% 32%;
+    --primary: 215 60% 22%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 20% 90%;
-    --secondary-foreground: 30 15% 30%;
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 215 20% 30%;
 
-    --muted: 35 15% 90%;
-    --muted-foreground: 30 10% 50%;
+    --muted: 210 15% 94%;
+    --muted-foreground: 215 10% 45%;
 
-    --accent: 152 55% 32%;
+    --accent: 215 60% 22%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 15% 85%;
-    --input: 35 15% 85%;
-    --ring: 152 55% 32%;
+    --border: 210 15% 90%;
+    --input: 210 15% 90%;
+    --ring: 215 60% 22%;
 
     --radius: 1rem;
 
@@ -40,71 +40,71 @@
     --islamic-green-foreground: 0 0% 100%;
     --islamic-gold: 43 90% 55%;
     --islamic-gold-foreground: 30 60% 15%;
-    --islamic-navy: 220 30% 20%;
+    --islamic-navy: 215 60% 22%;
     --islamic-navy-foreground: 0 0% 95%;
-    --islamic-teal: 175 60% 35%;
-    --islamic-teal-light: 175 30% 90%;
+    --islamic-teal: 200 55% 35%;
+    --islamic-teal-light: 200 30% 92%;
     --islamic-purple: 270 40% 50%;
-    --islamic-purple-light: 270 30% 90%;
+    --islamic-purple-light: 270 30% 92%;
 
-    --sidebar-background: 35 25% 97%;
-    --sidebar-foreground: 30 15% 25%;
-    --sidebar-primary: 152 55% 32%;
+    --sidebar-background: 210 25% 100%;
+    --sidebar-foreground: 215 25% 20%;
+    --sidebar-primary: 215 60% 22%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 20% 92%;
-    --sidebar-accent-foreground: 30 15% 30%;
-    --sidebar-border: 35 15% 85%;
-    --sidebar-ring: 152 55% 32%;
+    --sidebar-accent: 210 20% 94%;
+    --sidebar-accent-foreground: 215 20% 30%;
+    --sidebar-border: 210 15% 90%;
+    --sidebar-ring: 215 60% 22%;
   }
 
   .dark {
-    --background: 30 10% 8%;
-    --foreground: 35 15% 90%;
+    --background: 215 20% 8%;
+    --foreground: 210 15% 92%;
 
-    --card: 30 10% 12%;
-    --card-foreground: 35 15% 90%;
+    --card: 215 20% 12%;
+    --card-foreground: 210 15% 92%;
 
-    --popover: 30 10% 12%;
-    --popover-foreground: 35 15% 90%;
+    --popover: 215 20% 12%;
+    --popover-foreground: 210 15% 92%;
 
-    --primary: 152 50% 42%;
+    --primary: 210 50% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 10% 16%;
-    --secondary-foreground: 35 20% 75%;
+    --secondary: 215 15% 16%;
+    --secondary-foreground: 210 20% 75%;
 
-    --muted: 30 10% 14%;
-    --muted-foreground: 35 10% 55%;
+    --muted: 215 15% 14%;
+    --muted-foreground: 210 10% 55%;
 
-    --accent: 152 50% 42%;
+    --accent: 210 50% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 10% 18%;
-    --input: 30 10% 18%;
-    --ring: 152 50% 42%;
+    --border: 215 15% 18%;
+    --input: 215 15% 18%;
+    --ring: 210 50% 50%;
 
     --islamic-green: 152 45% 40%;
     --islamic-green-foreground: 0 0% 100%;
     --islamic-gold: 43 80% 50%;
     --islamic-gold-foreground: 30 60% 10%;
-    --islamic-navy: 220 20% 10%;
+    --islamic-navy: 215 40% 15%;
     --islamic-navy-foreground: 0 0% 95%;
-    --islamic-teal: 175 50% 40%;
-    --islamic-teal-light: 175 20% 18%;
+    --islamic-teal: 200 45% 40%;
+    --islamic-teal-light: 200 20% 18%;
     --islamic-purple: 270 35% 50%;
     --islamic-purple-light: 270 25% 18%;
 
-    --sidebar-background: 30 10% 10%;
-    --sidebar-foreground: 35 15% 88%;
-    --sidebar-primary: 152 50% 42%;
+    --sidebar-background: 215 20% 10%;
+    --sidebar-foreground: 210 15% 88%;
+    --sidebar-primary: 210 50% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 30 10% 16%;
-    --sidebar-accent-foreground: 35 20% 75%;
-    --sidebar-border: 30 10% 16%;
-    --sidebar-ring: 152 50% 42%;
+    --sidebar-accent: 215 15% 16%;
+    --sidebar-accent-foreground: 210 20% 75%;
+    --sidebar-border: 215 15% 16%;
+    --sidebar-ring: 210 50% 50%;
   }
 }
 
@@ -154,11 +154,11 @@
   }
 
   .gradient-islamic {
-    background: linear-gradient(135deg, hsl(220 25% 18%) 0%, hsl(220 20% 12%) 100%);
+    background: linear-gradient(135deg, hsl(215 60% 22%) 0%, hsl(215 50% 14%) 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, hsl(220 25% 22%) 0%, hsl(220 20% 16%) 100%);
+    background: linear-gradient(135deg, hsl(215 55% 26%) 0%, hsl(215 50% 18%) 100%);
   }
 
   .text-gradient-islamic {

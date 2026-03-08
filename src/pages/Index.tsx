@@ -8,6 +8,7 @@ import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, User, CheckCircle2, MessageSquare } from 'lucide-react';
 import QuranPlayer from '@/components/QuranPlayer';
+import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -127,6 +128,8 @@ export default function Index() {
           <div className="w-8" />
         </div>
       </div>
+
+      <AdBanner position="home-top" />
 
       {/* Goals card */}
       <div className="px-4 -mt-10 relative z-10 mb-4">
@@ -278,6 +281,8 @@ export default function Index() {
           })}
         </div>
       </div>
+
+      <AdBanner position="home-middle" />
 
       {/* Quick Access */}
       <div className="px-4 mb-4">
