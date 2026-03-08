@@ -93,7 +93,7 @@ export default function Index() {
   const maghribTime = prayers.find(p => p.key === 'maghrib')?.time || '--:--';
 
   return (
-    <div className="min-h-screen pb-safe" dir="rtl">
+    <div className="min-h-screen pb-24" dir="rtl">
       {/* Header with Mecca image */}
       <div className="relative">
         <img

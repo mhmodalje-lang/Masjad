@@ -113,7 +113,7 @@ export default function Tasbeeh() {
   const isComplete = count >= dhikr.target;
 
   return (
-    <div className="min-h-screen pb-safe" dir="rtl">
+    <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic relative px-5 pb-16 pt-12">
         <div className="flex items-center justify-between">

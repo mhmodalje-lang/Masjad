@@ -48,7 +48,7 @@ export default function PrayerTimes() {
   };
 
   return (
-    <div className="min-h-screen pb-safe" dir="rtl">
+    <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
       <div className="px-5 pt-12 pb-4">
         <h1 className="text-xl font-bold text-foreground text-center">{t('prayerTimes')}</h1>
