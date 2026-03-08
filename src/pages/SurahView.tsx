@@ -66,7 +66,7 @@ export default function SurahView() {
         .eq('surah_number', surahNum)
         .is('ayah_number', null);
       setBookmarked(false);
-      toast.success('تمت إزالة السورة من المفضلات');
+      toast.success(t('surahRemovedFromFav'));
     } else {
       await supabase
         .from('quran_bookmarks')
