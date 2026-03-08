@@ -284,7 +284,12 @@ function AdsManager() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{ad.name}</p>
               <p className="text-xs text-muted-foreground">
-                {ad.position} • {ad.slot_type === 'image' ? '🖼️ صورة' : '💻 كود'} • {ad.platform || 'custom'}
+                {ad.position} • {
+                  ad.slot_type === 'image' ? '🖼️ صورة' :
+                  ad.slot_type === 'native' ? '📰 أصلي' :
+                  ad.slot_type === 'popunder' ? '🪟 منبثق' :
+                  '💻 كود'
+                } • {ad.platform || 'custom'}
               </p>
             </div>
             <Button
