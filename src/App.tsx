@@ -18,6 +18,7 @@ import PrayerTracker from "./pages/PrayerTracker";
 import ZakatCalculator from "./pages/ZakatCalculator";
 import Auth from "./pages/Auth";
 import Stories from "./pages/Stories";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
