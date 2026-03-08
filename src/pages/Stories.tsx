@@ -111,26 +111,37 @@ export default function Stories() {
     return () => { supabase.removeChannel(channel); };
   }, [selectedCategory, selectedStory, loadStories, loadComments]);
 
+  // Browser back button support
+  useEffect(() => {
+    const handlePopState = () => {
+      if (viewMode === 'story') {
+        setSelectedStory(null);
+        setViewMode('stories');
+      } else if (viewMode === 'stories' || viewMode === 'new') {
+        setSelectedCategory(null);
+        setViewMode('categories');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [viewMode]);
+
   const openCategory = (key: string) => {
     setSelectedCategory(key);
     setViewMode('stories');
     loadStories(key);
+    window.history.pushState({ view: 'stories' }, '');
   };
 
   const openStory = (story: Story) => {
     setSelectedStory(story);
     setViewMode('story');
     loadComments(story.id);
+    window.history.pushState({ view: 'story' }, '');
   };
 
   const goBack = () => {
-    if (viewMode === 'story') {
-      setSelectedStory(null);
-      setViewMode('stories');
-    } else if (viewMode === 'stories' || viewMode === 'new') {
-      setSelectedCategory(null);
-      setViewMode('categories');
-    }
+    window.history.back();
   };
 
   const openNewStory = () => {
