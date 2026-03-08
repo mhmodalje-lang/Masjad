@@ -110,7 +110,7 @@ export default function Index() {
         <h2 className="text-sm font-semibold text-muted-foreground mb-3">{t('hijriCalendar')}</h2>
         <HijriCalendar
           hijriDay={hijriDay}
-          hijriMonth={hijriMonthAr === 'رَمَضان' ? 9 : undefined}
+          hijriMonth={hijriMonthNumber || undefined}
           hijriYear={hijriYear}
         />
       </div>
