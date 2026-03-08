@@ -141,18 +141,18 @@ export default function Index() {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
-              <div className="flex gap-3 mt-1">
+              <div className="flex flex-wrap gap-2 mt-1">
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="text-muted-foreground">{prayersDone}/5 الصلاة</span>
+                  <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">{prayersDone}/5 الصلاة</span>
                 </span>
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-islamic-teal" />
-                  <span className="text-muted-foreground">0/1 القرآن</span>
+                  <span className="h-2 w-2 rounded-full bg-islamic-teal shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">0/1 القرآن</span>
                 </span>
                 <span className="flex items-center gap-1 text-[10px]">
-                  <span className="h-2 w-2 rounded-full bg-islamic-gold" />
-                  <span className="text-muted-foreground">{tasbeehDone}/4 ذكر</span>
+                  <span className="h-2 w-2 rounded-full bg-islamic-gold shrink-0" />
+                  <span className="text-muted-foreground whitespace-nowrap">{tasbeehDone}/4 ذكر</span>
                 </span>
               </div>
             </div>
@@ -261,13 +261,13 @@ export default function Index() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 + i * 0.04 }}
                 className={cn(
-                  'rounded-2xl border p-3 text-center transition-all',
+                  'rounded-2xl border p-3 text-center transition-all min-w-0',
                   isNext
                     ? 'border-primary/50 bg-primary/10 shadow-sm'
                     : 'border-border bg-card'
                 )}
               >
-                <p className={cn('text-[10px] mb-0.5', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
+                <p className={cn('text-[11px] mb-0.5 truncate', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
                   {t(prayer.key)}
                 </p>
                 <p className={cn('text-base font-semibold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
@@ -282,23 +282,22 @@ export default function Index() {
       {/* Quick Access */}
       <div className="px-4 mb-4">
         <h2 className="text-sm font-semibold text-foreground mb-3">{t('quickAccess')}</h2>
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+        <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
           {quickAccessItems.map((item, i) => (
             <motion.div
               key={item.path}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.3 + i * 0.04 }}
-              className="flex-shrink-0"
             >
               <Link
                 to={item.path}
-                className="flex flex-col items-center gap-2"
+                className="flex flex-col items-center gap-2 min-w-0"
               >
-                <div className="h-14 w-14 rounded-2xl bg-card border border-border flex items-center justify-center shadow-sm">
+                <div className="h-14 w-14 rounded-2xl bg-card border border-border flex items-center justify-center shadow-sm shrink-0">
                   <item.icon className={cn('h-6 w-6', item.color)} />
                 </div>
-                <span className="text-[10px] font-medium text-foreground">{(item as any).label || t((item as any).labelKey)}</span>
+                <span className="text-[11px] font-medium text-foreground text-center w-full break-words leading-tight">{(item as any).label || t((item as any).labelKey)}</span>
               </Link>
             </motion.div>
           ))}

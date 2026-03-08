@@ -69,7 +69,7 @@ export default function More() {
       {/* Features grid */}
       <div className="px-5">
         <div className="rounded-2xl bg-card border border-border p-5">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             {features.map((item, i) => (
               <motion.div
                 key={i}
@@ -79,12 +79,12 @@ export default function More() {
               >
                 <Link
                   to={item.path}
-                  className="flex flex-col items-center gap-2"
+                  className="flex flex-col items-center gap-2 min-w-0"
                 >
-                  <div className={cn('h-14 w-14 rounded-2xl flex items-center justify-center', item.bg)}>
+                  <div className={cn('h-14 w-14 rounded-2xl flex items-center justify-center shrink-0', item.bg)}>
                     <item.icon className="h-6 w-6 text-primary-foreground" />
                   </div>
-                  <span className="text-[10px] font-medium text-foreground text-center leading-tight">
+                  <span className="text-[11px] font-medium text-foreground text-center leading-tight w-full break-words">
                     {item.label}
                   </span>
                 </Link>

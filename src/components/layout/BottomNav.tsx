@@ -27,14 +27,14 @@ export function BottomNav() {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex flex-col items-center gap-0.5 flex-1 py-2.5 text-xs transition-colors',
+                'flex flex-col items-center gap-0.5 flex-1 py-2.5 text-xs transition-colors min-w-0',
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <item.icon className={cn('h-5 w-5', isActive && 'stroke-[2.5px]')} />
-              <span className="font-medium text-[10px] leading-tight">{item.labelKey ? t(item.labelKey) : item.label}</span>
+              <item.icon className={cn('h-5 w-5 shrink-0', isActive && 'stroke-[2.5px]')} />
+              <span className="font-medium text-[10px] leading-tight text-center truncate w-full px-0.5">{item.labelKey ? t(item.labelKey) : item.label}</span>
             </Link>
           );
         })}

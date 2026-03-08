@@ -147,14 +147,14 @@ export default function Tasbeeh() {
               onClick={() => handleSelectDhikr(i)}
               whileTap={{ scale: 0.95 }}
               className={cn(
-                'flex flex-col items-center gap-1.5 rounded-2xl p-3 transition-all border',
+                'flex flex-col items-center gap-1.5 rounded-2xl p-3 transition-all border min-w-0',
                 selected === i
                   ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
                   : 'bg-card text-foreground border-border hover:border-primary/30'
               )}
             >
-              <span className="text-xl">{opt.emoji}</span>
-              <span className="text-[10px] font-medium leading-tight text-center">
+              <span className="text-xl shrink-0">{opt.emoji}</span>
+              <span className="text-[10px] font-medium leading-tight text-center w-full break-words">
                 {t(opt.key)}
               </span>
             </motion.button>

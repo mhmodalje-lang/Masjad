@@ -111,6 +111,8 @@
 @layer base {
   * {
     @apply border-border box-border;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   html,
@@ -133,6 +135,16 @@
 
   [dir="rtl"] {
     font-family: 'Cairo', 'Amiri', sans-serif;
+  }
+
+  /* Prevent text from being clipped inside flex/grid containers */
+  [dir="rtl"] p,
+  [dir="rtl"] span,
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] label {
+    min-width: 0;
   }
 }
 
