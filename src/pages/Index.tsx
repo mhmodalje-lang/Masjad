@@ -1,5 +1,5 @@
 import { useLocale } from '@/hooks/useLocale';
-import { useLocation } from '@/hooks/useLocation';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { Link } from 'react-router-dom';
 import { MapPin, Compass, BookOpen, Heart, Calculator, Moon } from 'lucide-react';
@@ -16,7 +16,7 @@ const quickAccessItems = [
 
 export default function Index() {
   const { t, isRTL } = useLocale();
-  const location = useLocation();
+  const location = useGeoLocation();
   const { prayers, hijriDate, loading } = usePrayerTimes(location.latitude, location.longitude);
   const { prayer: nextPrayer, remaining } = getNextPrayer(prayers);
 

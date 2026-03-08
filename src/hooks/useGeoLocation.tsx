@@ -9,7 +9,7 @@ interface LocationData {
   error: string | null;
 }
 
-export function useLocation() {
+export function useGeoLocation() {
   const [location, setLocation] = useState<LocationData>({
     latitude: 21.4225, // Makkah default
     longitude: 39.8262,
