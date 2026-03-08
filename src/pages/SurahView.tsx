@@ -53,7 +53,7 @@ export default function SurahView() {
 
   const toggleBookmark = async () => {
     if (!user) {
-      toast.error('سجّل دخولك لحفظ المفضلات');
+      toast.error(t('loginToSaveBookmarks'));
       return;
     }
     const surahNum = parseInt(id!);
