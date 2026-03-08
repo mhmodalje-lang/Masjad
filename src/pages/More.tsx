@@ -25,6 +25,11 @@ const features = [
 export default function More() {
   const { t } = useLocale();
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
+
+  const allFeatures = isAdmin
+    ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', bg: 'bg-destructive' }]
+    : features;
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
