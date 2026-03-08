@@ -44,7 +44,10 @@ export default function InstallBanner() {
     setDeferredPrompt(null);
   };
 
-  const dismiss = () => setShow(false);
+  const dismiss = () => {
+    localStorage.setItem(DISMISSED_KEY, '1');
+    setShow(false);
+  };
 
   if (typeof window !== 'undefined' && isInStandaloneMode()) {
     return null;
