@@ -258,7 +258,7 @@ export default function Stories() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-16 pt-12">
+      <div className="gradient-islamic px-5 pb-6 pt-12">
         <div className="flex items-center justify-between">
           {viewMode !== 'categories' ? (
             <button onClick={goBack} className="glass-card rounded-full p-2.5">
@@ -270,10 +270,9 @@ export default function Stories() {
             <p className="text-white/60 text-sm mt-1">شارك قصتك وألهم الآخرين</p>
           </div>
         </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-5 -mt-2">
+      <div className="px-5 pt-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={viewMode + (selectedCategory || '') + (selectedStory?.id || '')}
