@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 
 export interface PrayerTime {
   name: string;
-  time: string;
+  time: string;       // formatted for display (12h or 24h)
+  time24: string;     // always 24h for calculations
   key: string;
 }
 
@@ -15,6 +16,34 @@ interface PrayerTimesData {
   error: string | null;
 }
 
+/**
+ * Detect if user's device uses 12-hour format
+ */
+function detectIs12Hour(): boolean {
+  const formatted = new Intl.DateTimeFormat(navigator.language, {
+    hour: 'numeric',
+  }).resolvedOptions();
+  return formatted.hourCycle === 'h12' || formatted.hourCycle === 'h11';
+}
+
+/**
+ * Convert 24h time string to 12h format
+ */
+function to12Hour(time24: string): string {
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+/**
+ * Format time based on device preference
+ */
+function formatTime(time24: string, is12h: boolean): string {
+  if (!is12h) return time24;
+  return to12Hour(time24);
+}
+
 export function usePrayerTimes(latitude: number, longitude: number, method: number = 2) {
   const [data, setData] = useState<PrayerTimesData>({
     prayers: [],
@@ -24,6 +53,8 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
     loading: true,
     error: null,
   });
+
+  const is12h = detectIs12Hour();
 
   useEffect(() => {
     const fetchPrayers = async () => {
@@ -40,13 +71,16 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
         const timings = json.data.timings;
         const hijri = json.data.date.hijri;
 
+        // Strip timezone info like " (EET)" from API times
+        const cleanTime = (t: string) => t.replace(/\s*\(.*\)$/, '').trim();
+
         const prayers: PrayerTime[] = [
-          { name: 'fajr', time: timings.Fajr, key: 'fajr' },
-          { name: 'sunrise', time: timings.Sunrise, key: 'sunrise' },
-          { name: 'dhuhr', time: timings.Dhuhr, key: 'dhuhr' },
-          { name: 'asr', time: timings.Asr, key: 'asr' },
-          { name: 'maghrib', time: timings.Maghrib, key: 'maghrib' },
-          { name: 'isha', time: timings.Isha, key: 'isha' },
+          { name: 'fajr', time24: cleanTime(timings.Fajr), time: formatTime(cleanTime(timings.Fajr), is12h), key: 'fajr' },
+          { name: 'sunrise', time24: cleanTime(timings.Sunrise), time: formatTime(cleanTime(timings.Sunrise), is12h), key: 'sunrise' },
+          { name: 'dhuhr', time24: cleanTime(timings.Dhuhr), time: formatTime(cleanTime(timings.Dhuhr), is12h), key: 'dhuhr' },
+          { name: 'asr', time24: cleanTime(timings.Asr), time: formatTime(cleanTime(timings.Asr), is12h), key: 'asr' },
+          { name: 'maghrib', time24: cleanTime(timings.Maghrib), time: formatTime(cleanTime(timings.Maghrib), is12h), key: 'maghrib' },
+          { name: 'isha', time24: cleanTime(timings.Isha), time: formatTime(cleanTime(timings.Isha), is12h), key: 'isha' },
         ];
 
         setData({
@@ -63,7 +97,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
     };
 
     fetchPrayers();
-  }, [latitude, longitude, method]);
+  }, [latitude, longitude, method, is12h]);
 
   return data;
 }
@@ -74,7 +108,7 @@ export function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | nul
 
   for (const prayer of prayers) {
     if (prayer.key === 'sunrise') continue;
-    const [h, m] = prayer.time.split(':').map(Number);
+    const [h, m] = prayer.time24.split(':').map(Number);
     const prayerMinutes = h * 60 + m;
     if (prayerMinutes > currentMinutes) {
       const diff = prayerMinutes - currentMinutes;
@@ -90,7 +124,7 @@ export function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | nul
   // After Isha, next is Fajr tomorrow
   if (prayers.length > 0) {
     const fajr = prayers[0];
-    const [h, m] = fajr.time.split(':').map(Number);
+    const [h, m] = fajr.time24.split(':').map(Number);
     const fajrMinutes = h * 60 + m;
     const diff = (24 * 60 - currentMinutes) + fajrMinutes;
     const hours = Math.floor(diff / 60);
