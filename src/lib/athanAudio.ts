@@ -74,73 +74,121 @@ export function setSelectedAthan(id: string) {
 }
 
 let currentAudio: HTMLAudioElement | null = null;
-
-// Keep a pre-loaded audio element for faster playback
-let preloadedAudio: HTMLAudioElement | null = null;
+const preloadedAudios = new Map<string, HTMLAudioElement>();
+const preloadPromises = new Map<string, Promise<void>>();
 
 function getSavedVolume() {
   return parseFloat(localStorage.getItem('athan-volume') || '0.8');
 }
 
-/**
- * Pre-load the selected athan audio so it plays instantly when needed.
- * Called on page load and when the user changes athan selection.
- */
-export function preloadSelectedAthan() {
-  const athan = getSelectedAthan();
-  if (!athan.url) return;
-
-  // Don't re-preload the same URL
-  if (preloadedAudio && preloadedAudio.src.endsWith(athan.url)) return;
-
-  if (preloadedAudio) {
-    preloadedAudio.src = '';
-    preloadedAudio = null;
-  }
+function ensureAudio(url: string): HTMLAudioElement {
+  const existing = preloadedAudios.get(url);
+  if (existing) return existing;
 
   const audio = new Audio();
   audio.preload = 'auto';
-  audio.src = athan.url;
-  audio.load(); // Start buffering immediately
-  preloadedAudio = audio;
+  audio.src = url;
+  audio.load();
+
+  preloadedAudios.set(url, audio);
+  return audio;
+}
+
+function preloadUrl(url: string, highPriority: boolean = false): Promise<void> {
+  if (!url) return Promise.resolve();
+
+  const audio = ensureAudio(url);
+  if (highPriority) {
+    audio.preload = 'auto';
+    audio.load();
+  }
+
+  if (audio.readyState >= 3) {
+    return Promise.resolve();
+  }
+
+  const existingPromise = preloadPromises.get(url);
+  if (existingPromise) return existingPromise;
+
+  const promise = new Promise<void>((resolve) => {
+    let done = false;
+    const cleanup = () => {
+      audio.removeEventListener('canplaythrough', onReady);
+      audio.removeEventListener('loadeddata', onReady);
+      audio.removeEventListener('error', onReady);
+      clearTimeout(timeoutId);
+      preloadPromises.delete(url);
+    };
+
+    const onReady = () => {
+      if (done) return;
+      done = true;
+      cleanup();
+      resolve();
+    };
+
+    const timeoutId = window.setTimeout(onReady, 2000);
+
+    audio.addEventListener('canplaythrough', onReady);
+    audio.addEventListener('loadeddata', onReady);
+    audio.addEventListener('error', onReady);
+  });
+
+  preloadPromises.set(url, promise);
+  return promise;
+}
+
+export function preloadAthanById(id: string, highPriority: boolean = false) {
+  const athan = ATHAN_OPTIONS.find(a => a.id === id);
+  if (!athan) return;
+
+  if (athan.url) void preloadUrl(athan.url, highPriority);
+  if (athan.fajrUrl) void preloadUrl(athan.fajrUrl, highPriority);
 }
 
 /**
- * Create audio element and play it instantly.
- * Uses preloaded audio if available for zero-delay playback.
+ * Pre-load the selected athan audio so it plays instantly when needed.
  */
-function createAndPlayAudio(url: string): HTMLAudioElement {
-  let audio: HTMLAudioElement;
+export function preloadSelectedAthan(highPriority: boolean = false) {
+  const athan = getSelectedAthan();
+  if (!athan.url) return;
 
-  // Use preloaded audio if it matches the URL
-  if (preloadedAudio && preloadedAudio.src.endsWith(url)) {
-    audio = preloadedAudio;
-    preloadedAudio = null; // Consumed
-  } else {
-    audio = new Audio();
-    audio.preload = 'auto';
-    audio.src = url;
+  void preloadUrl(athan.url, highPriority);
+  if (athan.fajrUrl) void preloadUrl(athan.fajrUrl, highPriority);
+}
+
+/**
+ * Warm up all athan options in the background to avoid first-play delay
+ * when users switch to another voice.
+ */
+export function preloadAllAthans() {
+  for (const athan of ATHAN_OPTIONS) {
+    if (athan.url) void preloadUrl(athan.url);
+    if (athan.fajrUrl) void preloadUrl(athan.fajrUrl);
   }
+}
 
-  audio.volume = getSavedVolume();
+function createAndPlayAudio(url: string): HTMLAudioElement {
+  const audio = ensureAudio(url);
+
+  audio.pause();
   audio.currentTime = 0;
+  audio.volume = getSavedVolume();
 
-  audio.addEventListener('error', () => {
+  audio.onerror = () => {
     console.warn('Athan audio failed to load:', url);
     if (currentAudio === audio) {
       currentAudio = null;
     }
-  });
+  };
 
-  audio.addEventListener('ended', () => {
+  audio.onended = () => {
     if (currentAudio === audio) {
       currentAudio = null;
     }
-    // Re-preload for next time
-    preloadSelectedAthan();
-  });
+    void preloadUrl(url);
+  };
 
-  // Play immediately — if already buffered this is instant
   audio.play().catch(() => {
     console.warn('Athan audio failed to play:', url);
     if (currentAudio === audio) {
@@ -158,6 +206,7 @@ export function playAthan(prayerKey?: string): HTMLAudioElement | null {
   if (!athan.url) return null;
 
   const url = prayerKey === 'fajr' && athan.fajrUrl ? athan.fajrUrl : athan.url;
+  void preloadUrl(url, true);
   currentAudio = createAndPlayAudio(url);
 
   return currentAudio;
@@ -176,9 +225,20 @@ export function previewAthan(id: string): HTMLAudioElement | null {
   const athan = ATHAN_OPTIONS.find(a => a.id === id);
   if (!athan?.url) return null;
 
+  void preloadUrl(athan.url, true);
   currentAudio = createAndPlayAudio(athan.url);
   return currentAudio;
 }
 
-// Auto-preload on module load
-preloadSelectedAthan();
+// Warm selected athan immediately, then warm all in idle background.
+preloadSelectedAthan(true);
+
+if (typeof window !== 'undefined') {
+  const warmAll = () => preloadAllAthans();
+
+  if ('requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(warmAll, { timeout: 2000 });
+  } else {
+    globalThis.setTimeout(warmAll, 1200);
+  }
+}
