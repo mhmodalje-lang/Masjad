@@ -4,7 +4,7 @@ import { Float, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 function Mosque() {
-  const groupRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null!);
 
   useFrame((_, delta) => {
     if (groupRef.current) {
@@ -87,14 +87,10 @@ function Mosque() {
           <boxGeometry args={[0.3, 0.45, 0.02]} />
           <meshStandardMaterial color={darkPurple} metalness={0.4} roughness={0.3} />
         </mesh>
-        <mesh position={[0, 0.63, 0.61]}>
-          <sphereGeometry args={[0.15, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
-          <meshStandardMaterial color={darkPurple} metalness={0.4} roughness={0.3} />
-        </mesh>
 
         {/* Side domes */}
         {[-0.55, 0.55].map((x) => (
-          <group key={x}>
+          <group key={`dome-${x}`}>
             <mesh position={[x, 1.0, 0]}>
               <sphereGeometry args={[0.22, 24, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
               <meshStandardMaterial color={teal} metalness={0.5} roughness={0.25} />
@@ -108,7 +104,7 @@ function Mosque() {
 
         {/* Windows */}
         {[-0.6, -0.3, 0.3, 0.6].map((x) => (
-          <mesh key={x} position={[x, 0.5, 0.61]}>
+          <mesh key={`win-${x}`} position={[x, 0.5, 0.61]}>
             <boxGeometry args={[0.08, 0.15, 0.01]} />
             <meshStandardMaterial color={gold} metalness={0.7} roughness={0.1} emissive={gold} emissiveIntensity={0.2} />
           </mesh>
