@@ -154,6 +154,7 @@ export default function Stories() {
     setNewContent('');
     setNewAuthorName('');
     setViewMode('new');
+    window.history.pushState({ view: 'new' }, '');
   };
 
   const submitStory = async () => {
