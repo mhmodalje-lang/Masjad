@@ -27,31 +27,34 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Confirm your email for {siteName}</Preview>
+  <Html lang="ar" dir="rtl">
+    <Head>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+    </Head>
+    <Preview>أكّد بريدك الإلكتروني في تأكد</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Text style={brand}>🕌 تأكد</Text>
+        <Heading style={h1}>أهلاً وسهلاً بك</Heading>
         <Text style={text}>
-          Thanks for signing up for{' '}
+          شكراً لانضمامك إلى{' '}
           <Link href={siteUrl} style={link}>
-            <strong>{siteName}</strong>
+            <strong>تأكد</strong>
           </Link>
-          !
+          ، رفيقك الإسلامي اليومي.
         </Text>
         <Text style={text}>
-          Please confirm your email address (
+          يرجى تأكيد بريدك الإلكتروني (
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) by clicking the button below:
+          ) بالضغط على الزر أدناه:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Verify Email
+          تأكيد البريد الإلكتروني
         </Button>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          إذا لم تقم بإنشاء حساب، يمكنك تجاهل هذه الرسالة.
         </Text>
       </Container>
     </Body>
@@ -60,27 +63,35 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = { backgroundColor: '#ffffff', fontFamily: "'Cairo', Arial, sans-serif" }
+const container = { padding: '30px 25px', textAlign: 'right' as const }
+const brand = {
+  fontSize: '28px',
+  fontWeight: 'bold' as const,
+  color: '#257a4d',
+  margin: '0 0 24px',
+  textAlign: 'center' as const,
+}
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#2c2621',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
+  color: '#8c8073',
+  lineHeight: '1.8',
   margin: '0 0 25px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#257a4d', textDecoration: 'underline' }
 const button = {
-  backgroundColor: '#000000',
+  backgroundColor: '#257a4d',
   color: '#ffffff',
   fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  fontWeight: 'bold' as const,
+  borderRadius: '16px',
+  padding: '12px 24px',
   textDecoration: 'none',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

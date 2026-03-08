@@ -17,17 +17,19 @@ interface ReauthenticationEmailProps {
 }
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
-    <Preview>Your verification code</Preview>
+  <Html lang="ar" dir="rtl">
+    <Head>
+      <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+    </Head>
+    <Preview>رمز التحقق الخاص بك</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm reauthentication</Heading>
-        <Text style={text}>Use the code below to confirm your identity:</Text>
+        <Text style={brand}>🕌 تأكد</Text>
+        <Heading style={h1}>تأكيد الهوية</Heading>
+        <Text style={text}>استخدم الرمز أدناه لتأكيد هويتك:</Text>
         <Text style={codeStyle}>{token}</Text>
         <Text style={footer}>
-          This code will expire shortly. If you didn't request this, you can
-          safely ignore this email.
+          صلاحية هذا الرمز محدودة. إذا لم تطلب ذلك، يمكنك تجاهل هذه الرسالة.
         </Text>
       </Container>
     </Body>
@@ -36,25 +38,34 @@ export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => 
 
 export default ReauthenticationEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = { backgroundColor: '#ffffff', fontFamily: "'Cairo', Arial, sans-serif" }
+const container = { padding: '30px 25px', textAlign: 'right' as const }
+const brand = {
+  fontSize: '28px',
+  fontWeight: 'bold' as const,
+  color: '#257a4d',
+  margin: '0 0 24px',
+  textAlign: 'center' as const,
+}
 const h1 = {
   fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#2c2621',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
+  color: '#8c8073',
+  lineHeight: '1.8',
   margin: '0 0 25px',
 }
 const codeStyle = {
   fontFamily: 'Courier, monospace',
-  fontSize: '22px',
+  fontSize: '28px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#257a4d',
   margin: '0 0 30px',
+  textAlign: 'center' as const,
+  letterSpacing: '6px',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
