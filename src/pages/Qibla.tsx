@@ -180,7 +180,6 @@ export default function Qibla() {
               )}
             </button>
           </div>
-          </button>
           <div className="text-right">
             <h1 className="text-2xl font-bold text-white">{t('qibla')}</h1>
             <p className="text-white/60 text-sm mt-1">{t('qiblaDirection')}</p>
