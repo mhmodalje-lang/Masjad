@@ -68,7 +68,6 @@ export default function Quran() {
       .catch(() => setLoading(false));
   }, []);
 
-  // Load bookmarks
   useEffect(() => {
     if (user) {
       supabase
@@ -120,10 +119,10 @@ export default function Quran() {
       {/* Header */}
       <div className="px-5 pt-12 pb-3 flex items-center justify-between">
         <div className="flex gap-3">
-          <button className="p-1" onClick={() => setShowSearch(!showSearch)}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={() => setShowSearch(!showSearch)}>
             {showSearch ? <X className="h-5 w-5 text-muted-foreground" /> : <Search className="h-5 w-5 text-muted-foreground" />}
           </button>
-          <button className="p-1" onClick={() => setTab('bookmarks')}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={() => setTab('bookmarks')}>
             <Bookmark className={cn("h-5 w-5", tab === 'bookmarks' ? 'text-primary fill-primary' : 'text-muted-foreground')} />
           </button>
         </div>
@@ -145,7 +144,7 @@ export default function Quran() {
                 placeholder={t('search')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pl-9 rounded-xl bg-card border-border"
+                className="pl-9 rounded-2xl bg-card border-border/50"
                 autoFocus
               />
             </div>
@@ -155,12 +154,12 @@ export default function Quran() {
 
       {/* Tabs */}
       <div className="px-5 mb-4">
-        <div className="flex rounded-xl border border-border overflow-hidden">
+        <div className="flex rounded-2xl border border-border/50 overflow-hidden">
           <button
             onClick={() => setTab('juz')}
             className={cn(
-              'flex-1 py-2.5 text-sm font-medium transition-colors',
-              tab === 'juz' ? 'bg-card text-foreground' : 'bg-muted text-muted-foreground'
+              'flex-1 py-2.5 text-sm font-medium transition-all',
+              tab === 'juz' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground'
             )}
           >
             {t('juz')}
@@ -168,8 +167,8 @@ export default function Quran() {
           <button
             onClick={() => setTab('surah')}
             className={cn(
-              'flex-1 py-2.5 text-sm font-medium transition-colors',
-              tab === 'surah' ? 'bg-card text-foreground' : 'bg-muted text-muted-foreground'
+              'flex-1 py-2.5 text-sm font-medium transition-all',
+              tab === 'surah' ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground'
             )}
           >
             {t('surah')}
@@ -201,7 +200,7 @@ export default function Quran() {
               <Link
                 key={juz.number}
                 to={`/quran/${juz.startSurah}`}
-                className="flex items-center gap-3 py-4 border-b border-border active:bg-muted/50 transition-colors"
+                className="flex items-center gap-3 py-4 border-b border-border/50 active:bg-muted/50 transition-colors"
               >
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-bold text-foreground">{juz.name}</p>
@@ -210,8 +209,8 @@ export default function Quran() {
                   </p>
                 </div>
                 <div className="relative h-12 w-12 flex items-center justify-center flex-shrink-0">
-                  <svg viewBox="0 0 48 48" className="absolute inset-0 w-full h-full text-primary/30">
-                    <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1" />
+                  <svg viewBox="0 0 48 48" className="absolute inset-0 w-full h-full text-primary/20">
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" />
                   </svg>
                   <span className="text-sm font-bold text-foreground z-10">
                     {juz.number.toLocaleString('ar-EG')}
@@ -221,7 +220,6 @@ export default function Quran() {
             );
           })
         ) : (
-          // Bookmarks tab
           bookmarkedSurahs.length === 0 ? (
             <div className="text-center py-20">
               <Bookmark className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
@@ -246,9 +244,6 @@ export default function Quran() {
   );
 }
 
-
-
-
 const SurahRow = forwardRef<HTMLDivElement, {
   surah: Surah;
   index: number;
@@ -263,21 +258,21 @@ const SurahRow = forwardRef<HTMLDivElement, {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: Math.min(index * 0.015, 0.4) }}
-      className="border-b border-border last:border-b-0"
+      className="border-b border-border/50 last:border-b-0"
     >
       <div
         onClick={() => navigate(`/quran/${surah.number}`)}
         className="flex items-center gap-3 py-4 active:bg-muted/50 transition-colors cursor-pointer"
       >
         <div className="flex gap-2">
-          <button className="p-1" onClick={(e) => { e.stopPropagation(); onToggleBookmark(e, surah.number); }}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); onToggleBookmark(e, surah.number); }}>
             {isBookmarked ? (
               <BookmarkCheck className="h-4 w-4 text-primary fill-primary" />
             ) : (
               <Bookmark className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
-          <button className="p-1" onClick={(e) => { e.stopPropagation(); navigate(`/quran/${surah.number}`); }}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); navigate(`/quran/${surah.number}`); }}>
             <Play className="h-4 w-4 text-primary fill-primary" />
           </button>
         </div>
@@ -290,8 +285,8 @@ const SurahRow = forwardRef<HTMLDivElement, {
         </div>
 
         <div className="relative h-12 w-12 flex items-center justify-center flex-shrink-0">
-          <svg viewBox="0 0 48 48" className="absolute inset-0 w-full h-full text-primary/30">
-            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1" />
+          <svg viewBox="0 0 48 48" className="absolute inset-0 w-full h-full text-primary/20">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="1.5" />
             <circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" strokeWidth="0.5" />
           </svg>
           <span className="text-sm font-bold text-foreground z-10">

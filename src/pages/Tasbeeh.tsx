@@ -72,7 +72,6 @@ export default function Tasbeeh() {
 
     if (navigator.vibrate) navigator.vibrate(30);
 
-    // Show completion animation
     if (newCount === dhikr.target) {
       setShowComplete(true);
       if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
@@ -116,10 +115,11 @@ export default function Tasbeeh() {
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic relative px-5 pb-16 pt-12">
-        <div className="flex items-center justify-between">
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <div className="flex items-center justify-between relative z-10">
           <button
             onClick={handleReset}
-            className="glass-card rounded-full p-2.5 transition-transform active:scale-90"
+            className="glass-card rounded-2xl p-2.5 transition-transform active:scale-90"
           >
             <RotateCcw className="h-5 w-5 text-white/80" />
           </button>
@@ -132,7 +132,7 @@ export default function Tasbeeh() {
         {!user && (
           <Link
             to="/auth"
-            className="flex items-center justify-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3 mb-5 text-sm"
+            className="flex items-center justify-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 mb-5 text-sm transition-all active:scale-[0.98]"
           >
             <span className="text-primary font-medium">{t('loginPrompt')}</span>
             <LogIn className="h-4 w-4 text-primary" />
@@ -149,8 +149,8 @@ export default function Tasbeeh() {
               className={cn(
                 'flex flex-col items-center gap-1.5 rounded-2xl p-3 transition-all border min-w-0',
                 selected === i
-                  ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
-                  : 'bg-card text-foreground border-border hover:border-primary/30'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-lg glow-emerald'
+                  : 'bg-card text-foreground border-border/50 hover:border-primary/30'
               )}
             >
               <span className="text-xl shrink-0">{opt.emoji}</span>
@@ -163,7 +163,6 @@ export default function Tasbeeh() {
 
         {/* Main counter area */}
         <div className="flex flex-col items-center">
-          {/* Arabic text */}
           <motion.p
             key={selected}
             initial={{ opacity: 0, y: 10 }}
@@ -175,7 +174,6 @@ export default function Tasbeeh() {
 
           {/* Circular counter */}
           <div className="relative mb-8">
-            {/* Outer glow ring on completion */}
             <AnimatePresence>
               {showComplete && (
                 <motion.div
@@ -189,27 +187,24 @@ export default function Tasbeeh() {
             </AnimatePresence>
 
             <svg className="w-64 h-64 -rotate-90" viewBox="0 0 200 200">
-              {/* Background track */}
               <circle
                 cx="100" cy="100" r="92"
                 fill="none"
                 className="stroke-muted"
                 strokeWidth="5"
               />
-              {/* Subtle inner ring */}
               <circle
                 cx="100" cy="100" r="82"
                 fill="none"
                 className="stroke-muted/30"
                 strokeWidth="1"
               />
-              {/* Progress arc */}
               <motion.circle
                 cx="100" cy="100" r="92"
                 fill="none"
                 className={cn(
                   'transition-colors duration-500',
-                  isComplete ? 'stroke-[hsl(var(--islamic-gold))]' : 'stroke-primary'
+                  isComplete ? 'stroke-accent' : 'stroke-primary'
                 )}
                 strokeWidth="5"
                 strokeLinecap="round"
@@ -219,21 +214,20 @@ export default function Tasbeeh() {
                   strokeDashoffset: circumference * (1 - progress / 100),
                 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
+                style={isComplete ? {} : { filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.3))' }}
               />
-              {/* Progress dot */}
               {count > 0 && (
                 <circle
                   cx={100 + 92 * Math.cos((progress / 100) * 2 * Math.PI - Math.PI / 2)}
                   cy={100 + 92 * Math.sin((progress / 100) * 2 * Math.PI - Math.PI / 2)}
                   r="4"
                   className={cn(
-                    isComplete ? 'fill-[hsl(var(--islamic-gold))]' : 'fill-primary'
+                    isComplete ? 'fill-accent' : 'fill-primary'
                   )}
                 />
               )}
             </svg>
 
-            {/* Tap area */}
             <motion.button
               className="absolute inset-0 flex flex-col items-center justify-center rounded-full active:bg-primary/5 transition-colors"
               onClick={handleTap}
@@ -248,8 +242,8 @@ export default function Tasbeeh() {
                     exit={{ scale: 0 }}
                     className="flex flex-col items-center gap-1"
                   >
-                    <Sparkles className="h-10 w-10 text-[hsl(var(--islamic-gold))]" />
-                    <span className="text-sm font-bold text-[hsl(var(--islamic-gold))]">
+                    <Sparkles className="h-10 w-10 text-accent" />
+                    <span className="text-sm font-bold text-accent">
                       {t('completed')}!
                     </span>
                   </motion.div>
@@ -276,13 +270,13 @@ export default function Tasbeeh() {
 
           {/* Stats row */}
           <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+            <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                 {t('today')}
               </p>
               <p className="text-2xl font-bold text-foreground tabular-nums">{count}</p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-4 text-center">
+            <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
                 {t('total')}
               </p>
@@ -292,7 +286,6 @@ export default function Tasbeeh() {
             </div>
           </div>
 
-          {/* Reset hint */}
           <p className="text-[10px] text-muted-foreground mt-6">{t('tasbeeh')} — {t('count')}</p>
         </div>
       </div>

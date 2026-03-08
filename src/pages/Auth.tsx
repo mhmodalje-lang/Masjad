@@ -74,7 +74,7 @@ export default function Auth() {
 
       <div className="flex-1 px-5 pt-4 max-w-md mx-auto w-full">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <Button onClick={handleGoogleLogin} variant="outline" className="w-full rounded-xl h-12 gap-3 text-foreground mb-6">
+          <Button onClick={handleGoogleLogin} variant="outline" className="w-full rounded-2xl h-12 gap-3 text-foreground mb-6 border-border/50 shadow-elevated">
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
               <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -86,27 +86,27 @@ export default function Auth() {
         </motion.div>
 
         <div className="flex items-center gap-3 mb-6">
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-border/50" />
           <span className="text-xs text-muted-foreground">{t('or')}</span>
-          <div className="flex-1 h-px bg-border" />
+          <div className="flex-1 h-px bg-border/50" />
         </div>
 
         <motion.form onSubmit={handleEmailAuth} className="space-y-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           {!isLogin && (
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder={t('name')} value={name} onChange={e => setName(e.target.value)} className="pl-9 rounded-xl h-12" />
+              <Input placeholder={t('name')} value={name} onChange={e => setName(e.target.value)} className="pl-9 rounded-2xl h-12 border-border/50" />
             </div>
           )}
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input type="email" placeholder={t('email')} value={email} onChange={e => setEmail(e.target.value)} className="pl-9 rounded-xl h-12" required />
+            <Input type="email" placeholder={t('email')} value={email} onChange={e => setEmail(e.target.value)} className="pl-9 rounded-2xl h-12 border-border/50" required />
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input type="password" placeholder={t('password')} value={password} onChange={e => setPassword(e.target.value)} className="pl-9 rounded-xl h-12" required minLength={6} />
+            <Input type="password" placeholder={t('password')} value={password} onChange={e => setPassword(e.target.value)} className="pl-9 rounded-2xl h-12 border-border/50" required minLength={6} />
           </div>
-          <Button type="submit" className="w-full rounded-xl h-12" disabled={loading}>
+          <Button type="submit" className="w-full rounded-2xl h-12 font-bold" disabled={loading}>
             {loading ? '...' : isLogin ? t('login') : t('signup')}
           </Button>
         </motion.form>

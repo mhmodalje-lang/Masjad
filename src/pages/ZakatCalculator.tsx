@@ -211,8 +211,9 @@ export default function ZakatCalculator() {
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
       <div className="gradient-islamic relative px-5 pb-8 pt-12">
-        <h1 className="text-2xl font-bold text-primary-foreground">{t('zakatCalculator')}</h1>
-        <p className="text-primary-foreground/70 text-sm mt-1">حاسبة ذكية متعددة العملات</p>
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <h1 className="text-2xl font-bold text-primary-foreground relative z-10">{t('zakatCalculator')}</h1>
+        <p className="text-primary-foreground/70 text-sm mt-1 relative z-10">حاسبة ذكية متعددة العملات</p>
 
         {/* Location badge */}
         {city && country && (
@@ -225,15 +226,15 @@ export default function ZakatCalculator() {
             <span>{city}، {country}</span>
           </motion.div>
         )}
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[50%] bg-background" />
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       <div className="px-5 pt-2 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
           <label className="text-sm font-semibold text-foreground mb-2 block">العملة</label>
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
-            <SelectTrigger className="rounded-xl">
+            <SelectTrigger className="rounded-2xl">
               <SelectValue placeholder={geoLoading ? 'جاري التحديد...' : 'اختر العملة'} />
             </SelectTrigger>
             <SelectContent>
@@ -250,7 +251,7 @@ export default function ZakatCalculator() {
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
-              className="mt-3 rounded-xl bg-primary/5 border border-primary/10 p-3"
+              className="mt-3 rounded-2xl bg-primary/5 border border-primary/10 p-3"
             >
               <div className="flex items-start gap-2">
                 <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -268,7 +269,7 @@ export default function ZakatCalculator() {
         </div>
 
         {/* Asset fields */}
-        <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-3 shadow-elevated">
           <h2 className="text-sm font-semibold text-foreground">أصولك ومدخراتك</h2>
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
@@ -288,7 +289,7 @@ export default function ZakatCalculator() {
                   placeholder="0.00"
                   value={value}
                   onChange={(e) => set(e.target.value)}
-                  className="rounded-xl pr-12 text-left"
+                  className="rounded-2xl pr-12 text-left"
                   dir="ltr"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
@@ -301,11 +302,11 @@ export default function ZakatCalculator() {
 
         {/* Action buttons */}
         <div className="flex gap-3">
-          <Button onClick={calculate} className="flex-1 rounded-xl gap-2 h-12">
+          <Button onClick={calculate} className="flex-1 rounded-2xl gap-2 h-12 font-bold">
             <Calculator className="h-4 w-4" />
             {t('calculateZakat')}
           </Button>
-          <Button variant="outline" onClick={resetAll} className="rounded-xl h-12 px-4">
+          <Button variant="outline" onClick={resetAll} className="rounded-2xl h-12 px-4 border-border/50">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -317,7 +318,7 @@ export default function ZakatCalculator() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="rounded-2xl border border-primary bg-card overflow-hidden"
+              className="rounded-3xl border border-primary bg-card overflow-hidden shadow-elevated"
             >
               {result.aboveNisab ? (
                 <>
@@ -385,7 +386,7 @@ export default function ZakatCalculator() {
         </AnimatePresence>
 
         {/* Islamic note */}
-        <div className="rounded-xl bg-muted/50 p-4 text-xs text-muted-foreground leading-relaxed">
+        <div className="rounded-2xl bg-muted/50 p-5 text-xs text-muted-foreground leading-relaxed shadow-elevated border border-border/50">
           <p className="font-semibold text-foreground mb-1">📌 ملاحظة</p>
           <p>
             تعتمد هذه الحاسبة على نصاب الفضة (595 غرام) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
