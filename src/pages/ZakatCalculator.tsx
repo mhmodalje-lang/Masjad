@@ -317,7 +317,7 @@ export default function ZakatCalculator() {
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="rounded-2xl border border-primary bg-card overflow-hidden"
+              className="rounded-3xl border border-primary bg-card overflow-hidden shadow-elevated"
             >
               {result.aboveNisab ? (
                 <>
