@@ -208,7 +208,7 @@ export default function Index() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.15, type: 'spring', damping: 20 }}
-            className="rounded-3xl bg-card border border-border/50 p-4 flex items-center justify-center shadow-elevated"
+            className="rounded-3xl bg-card border border-border/50 p-5 flex items-center justify-center shadow-elevated"
           >
             <div className="relative">
               <svg width="120" height="120" viewBox="0 0 120 120">
