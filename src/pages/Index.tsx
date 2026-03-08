@@ -151,6 +151,10 @@ export default function Index() {
 
       <AdBanner position="home-top" />
 
+      {/* Islamic Occasion Banner */}
+      {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
+
+
       {/* Goals card */}
       <div className="px-4 -mt-12 relative z-10 mb-5">
         <motion.div
