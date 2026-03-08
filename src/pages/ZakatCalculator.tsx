@@ -225,7 +225,7 @@ export default function ZakatCalculator() {
             <span>{city}، {country}</span>
           </motion.div>
         )}
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[50%] bg-background" />
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       <div className="px-5 pt-2 space-y-4 max-w-md mx-auto">
