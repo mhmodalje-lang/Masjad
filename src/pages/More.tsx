@@ -1,5 +1,6 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { Link } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User,
