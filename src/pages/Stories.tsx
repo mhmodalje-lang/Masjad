@@ -271,13 +271,13 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title="📖 قصص حقيقية"
         subtitle="شارك قصتك وألهم الآخرين"
         actionsLeft={
           viewMode !== 'categories' ? (
-            <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
-              <ArrowRight className="h-4 w-4 text-white" />
+            <button onClick={goBack} className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95">
+              <ArrowRight className="h-4 w-4 text-primary" />
             </button>
           ) : undefined
         }
