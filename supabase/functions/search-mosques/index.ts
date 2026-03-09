@@ -5,6 +5,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+type MosqueResult = {
+  osm_id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  websiteUrl?: string;
+};
+
+function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 async function searchOverpass(lat: number, lon: number, radius: number) {
   const query = `
     [out:json][timeout:30];
@@ -24,15 +41,16 @@ async function searchOverpass(lat: number, lon: number, radius: number) {
   `;
 
   const endpoints = [
-    "https://overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.nchc.org.tw/api/interpreter",
   ];
 
   for (const endpoint of endpoints) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 12000);
-      
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
       const response = await fetch(endpoint, {
         method: "POST",
         body: `data=${encodeURIComponent(query)}`,
@@ -53,10 +71,11 @@ async function searchOverpass(lat: number, lon: number, radius: number) {
       continue;
     }
   }
+
   return [];
 }
 
-async function searchNominatim(query: string, lat: number, lon: number) {
+async function searchNominatim(query: string, lat: number, lon: number): Promise<MosqueResult[]> {
   try {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + " mosque")}&format=json&limit=30&viewbox=${lon - 0.5},${lat + 0.5},${lon + 0.5},${lat - 0.5}&bounded=0&addressdetails=1`;
     const response = await fetch(url, {
@@ -64,21 +83,22 @@ async function searchNominatim(query: string, lat: number, lon: number) {
     });
     if (!response.ok) return [];
     const results = await response.json();
+
     return results
       .filter((r: any) => {
-        const type = r.type || '';
-        const category = r.class || '';
-        return type === 'place_of_worship' || type === 'mosque' || 
-               category === 'amenity' || category === 'building' ||
-               (r.display_name || '').toLowerCase().includes('mosch') ||
-               (r.display_name || '').toLowerCase().includes('mosque') ||
-               (r.display_name || '').toLowerCase().includes('مسجد') ||
-               (r.display_name || '').toLowerCase().includes('cami');
+        const type = r.type || "";
+        const category = r.class || "";
+        return type === "place_of_worship" || type === "mosque" ||
+          category === "amenity" || category === "building" ||
+          (r.display_name || "").toLowerCase().includes("mosch") ||
+          (r.display_name || "").toLowerCase().includes("mosque") ||
+          (r.display_name || "").toLowerCase().includes("مسجد") ||
+          (r.display_name || "").toLowerCase().includes("cami");
       })
-      .map((r: any) => ({
+      .map((r: any): MosqueResult => ({
         osm_id: `nom_${r.osm_id}`,
-        name: r.display_name?.split(',')[0] || r.name || 'مسجد',
-        address: r.display_name?.split(',').slice(1, 4).join(',').trim() || '',
+        name: r.display_name?.split(",")[0] || r.name || "مسجد",
+        address: r.display_name?.split(",").slice(1, 4).join(",").trim() || "",
         latitude: parseFloat(r.lat),
         longitude: parseFloat(r.lon),
       }));
@@ -88,45 +108,102 @@ async function searchNominatim(query: string, lat: number, lon: number) {
   }
 }
 
-// Simple name similarity check
+async function searchMawaqit(lat: number, lon: number, word?: string): Promise<MosqueResult[]> {
+  const base = "https://mawaqit.net/api/2.0/mosque/search";
+
+  const seeds = [
+    (word ?? "").trim(),
+    "mos",
+    "cami",
+    "مسجد",
+  ].filter((v, i, arr) => v && arr.indexOf(v) === i);
+
+  const urls = seeds.map((w) => `${base}?lat=${lat}&lon=${lon}&word=${encodeURIComponent(w)}`);
+
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "Accept": "application/json",
+          "User-Agent": "Mozilla/5.0 (compatible; QiblaApp/1.0)",
+        },
+      });
+      if (!res.ok) continue;
+
+      const mosques = await res.json();
+      if (!Array.isArray(mosques) || mosques.length === 0) continue;
+
+      const mapped = mosques
+        .map((m: any): MosqueResult | null => {
+          const id = m.id ?? m._id ?? m.uuid ?? m.slug;
+          const latitude = Number(m.latitude ?? m.lat);
+          const longitude = Number(m.longitude ?? m.lon);
+          const name = String(m.name ?? "").trim();
+          if (!id || !name || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+
+          const addressParts = [m.address, m.city, m.country]
+            .filter(Boolean)
+            .map((x: any) => String(x).trim());
+
+          return {
+            osm_id: `maw_${String(id)}`,
+            name,
+            address: addressParts.join(", "),
+            latitude,
+            longitude,
+          };
+        })
+        .filter(Boolean) as MosqueResult[];
+
+      return mapped.sort(
+        (a, b) => distanceKm(lat, lon, a.latitude, a.longitude) - distanceKm(lat, lon, b.latitude, b.longitude),
+      );
+    } catch {
+      // try next URL
+    }
+  }
+
+  return [];
+}
+
 function namesMatch(requested: string, found: string): boolean {
   const normalize = (s: string) =>
-    s.toLowerCase()
-      .replace(/[^\w\s\u0600-\u06FF]/g, '')
-      .replace(/\b(moschee|mosque|masjid|camii|cami|مسجد|جامع)\b/gi, '')
+    s
+      .toLowerCase()
+      .replace(/[\"'’“”]/g, " ")
+      .replace(/[^\w\s\u0600-\u06FF]/g, " ")
+      .replace(/\b(moschee|mosque|masjid|camii|cami|cmii|cmi|مسجد|جامع)\b/gi, " ")
+      .replace(/\s+/g, " ")
       .trim();
+
   const a = normalize(requested);
   const b = normalize(found);
   if (!a || !b) return false;
   if (a === b) return true;
   if (a.includes(b) || b.includes(a)) return true;
+
   const wordsA = a.split(/\s+/).filter(w => w.length > 2);
   const wordsB = b.split(/\s+/).filter(w => w.length > 2);
   if (wordsA.length === 0 || wordsB.length === 0) return false;
+
   const matches = wordsA.filter(w => wordsB.some(wb => wb.includes(w) || w.includes(wb)));
   return matches.length >= 1;
 }
 
-// Check if mosque has Mawaqit times available — with name matching
 async function checkMawaqitAvailability(mosqueName: string, lat: number, lon: number): Promise<boolean> {
   try {
     const searchUrl = `https://mawaqit.net/api/2.0/mosque/search?lat=${lat}&lon=${lon}&word=${encodeURIComponent(mosqueName)}`;
     const searchRes = await fetch(searchUrl, {
-      headers: { 'Accept': 'application/json' },
+      headers: { "Accept": "application/json" },
     });
-    
-    if (searchRes.ok) {
-      const mosques = await searchRes.json();
-      if (Array.isArray(mosques)) {
-        // Only return true if there's a name match
-        for (const m of mosques) {
-          if (namesMatch(mosqueName, m.name || '')) {
-            return true;
-          }
-        }
-      }
+
+    if (!searchRes.ok) return false;
+    const mosques = await searchRes.json();
+    if (!Array.isArray(mosques)) return false;
+
+    for (const m of mosques) {
+      if (namesMatch(mosqueName, m.name || "")) return true;
     }
-    
     return false;
   } catch {
     return false;
@@ -148,50 +225,47 @@ serve(async (req) => {
       });
     }
 
-    // Default to 10km radius
     const r = radius || 10000;
 
-    // If text query provided, search both Overpass AND Nominatim
-    const [overpassElements, nominatimResults] = await Promise.all([
+    const [overpassElements, nominatimResults, mawaqitResults] = await Promise.all([
       searchOverpass(lat, lon, r),
       textQuery ? searchNominatim(textQuery, lat, lon) : Promise.resolve([]),
+      searchMawaqit(lat, lon, textQuery),
     ]);
 
-    // Process Overpass results
     const seen = new Set<string>();
-    const overpassMosques = overpassElements
-      .map((el: any) => {
+    const overpassMosques: MosqueResult[] = overpassElements
+      .map((el: any): MosqueResult | null => {
         const id = String(el.id);
         if (seen.has(id)) return null;
         seen.add(id);
+
+        const websiteUrl = el.tags?.website || el.tags?.["contact:website"] || el.tags?.["website:iqama"];
+
         return {
           osm_id: id,
           name: el.tags?.name || el.tags?.["name:ar"] || el.tags?.["name:en"] || el.tags?.["name:de"] || "مسجد",
           address: [el.tags?.["addr:street"], el.tags?.["addr:housenumber"], el.tags?.["addr:city"]].filter(Boolean).join(", ") || "",
           latitude: el.lat || el.center?.lat,
           longitude: el.lon || el.center?.lon,
+          websiteUrl: typeof websiteUrl === "string" ? websiteUrl : undefined,
         };
       })
       .filter((m: any) => m && m.latitude && m.longitude);
 
-    // Merge: Overpass first, then Nominatim results not already found
-    const allMosques = [...overpassMosques];
-    for (const nom of nominatimResults) {
-      // Check if already in list by proximity (within 50m)
-      const isDuplicate = allMosques.some((m: any) => {
-        const dlat = Math.abs(m.latitude - nom.latitude);
-        const dlon = Math.abs(m.longitude - nom.longitude);
-        return dlat < 0.0005 && dlon < 0.0005;
-      });
-      if (!isDuplicate) {
-        allMosques.push(nom);
-      }
-    }
+    const allMosques: MosqueResult[] = [...overpassMosques];
 
-    // Optionally check Mawaqit availability for each mosque
+    const addIfNotDuplicate = (candidate: MosqueResult) => {
+      const isDuplicate = allMosques.some((m) => distanceKm(m.latitude, m.longitude, candidate.latitude, candidate.longitude) < 0.05);
+      if (!isDuplicate) allMosques.push(candidate);
+    };
+
+    for (const nom of nominatimResults) addIfNotDuplicate(nom);
+    for (const maw of mawaqitResults) addIfNotDuplicate(maw);
+
     if (checkAvailability) {
       const mosquesWithAvailability = await Promise.all(
-        allMosques.slice(0, 20).map(async (mosque: any) => {
+        allMosques.slice(0, 20).map(async (mosque) => {
           const hasAutoSync = await checkMawaqitAvailability(mosque.name, mosque.latitude, mosque.longitude);
           return { ...mosque, hasAutoSync };
         })
