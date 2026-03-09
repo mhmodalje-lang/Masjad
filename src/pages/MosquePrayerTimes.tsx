@@ -733,7 +733,8 @@ export default function MosquePrayerTimesPage() {
                 {timesSource === 'manual' && 'أوقات يدوية محفوظة'}
                 {timesSource === 'mawaqit' && '⚡ أوقات مباشرة من Mawaqit'}
                 {timesSource === 'website' && '🌐 أوقات من موقع المسجد'}
-                {timesSource === 'api' && 'أوقات فلكية حسب إحداثيات المسجد'}
+                {timesSource === 'api' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
+                {timesSource === 'calculated' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
                 {timesSource === 'adjusted' && '⏱️ أوقات معدلة (تحديث يومي تلقائي)'}
                 {(timesSource === 'manual' || timesSource === 'adjusted') && (
                   <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
