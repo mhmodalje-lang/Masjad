@@ -395,6 +395,7 @@ export default function Index() {
           hijriYear={hijriYear}
         />
       </div>
+      </div>{/* end content layer */}
     </div>
   );
 }
