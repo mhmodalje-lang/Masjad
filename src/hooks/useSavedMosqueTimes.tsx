@@ -122,7 +122,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
 
   useEffect(() => {
     const is12h = detectIs12Hour();
-    const calcMethod = getCalcMethod();
+    const { method: calcMethod, school: calcSchool } = getCalcSettings();
 
     const load = async () => {
       const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
