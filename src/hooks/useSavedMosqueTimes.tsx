@@ -225,7 +225,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             timings = JSON.parse(cached);
           } else {
             const res = await fetch(
-              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=${calcMethod}`,
+              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=${calcMethod}&school=${calcSchool}&adjustment=0`,
               { cache: 'no-store' }
             );
             const json = await res.json();
