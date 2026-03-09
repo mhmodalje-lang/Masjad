@@ -43,12 +43,17 @@ export default function Account() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
-      <div className="px-5 pt-safe-header-compact pb-4 text-center">
-        <h1 className="text-foreground">حسابي</h1>
+      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <div className="text-center relative z-10">
+          <h1 className="text-2xl font-bold text-white">حسابي</h1>
+          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">إدارة حسابك الشخصي</p>
+        </div>
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       {/* Avatar & Name */}
-      <div className="px-5 mb-5">
+      <div className="px-5 -mt-8 relative z-10 mb-5">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -72,51 +77,54 @@ export default function Account() {
       </div>
 
       {/* Info cards */}
-      <div className="px-5 space-y-3 mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-border/50 bg-card p-5 flex items-center gap-4"
-        >
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Mail className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground leading-relaxed">البريد الإلكتروني</p>
-            <p className="text-sm font-semibold text-foreground truncate">{email}</p>
-          </div>
-        </motion.div>
+      <div className="px-5 mb-5">
+        <h3 className="text-sm font-bold text-foreground mb-3">معلومات الحساب</h3>
+        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="p-5 flex items-center gap-4"
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Mail className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground leading-relaxed">البريد الإلكتروني</p>
+              <p className="text-sm font-semibold text-foreground truncate">{email}</p>
+            </div>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-border/50 bg-card p-5 flex items-center gap-4"
-        >
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Shield className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground leading-relaxed">طريقة الدخول</p>
-            <p className="text-sm font-semibold text-foreground capitalize">{provider === 'google' ? 'Google' : 'بريد إلكتروني'}</p>
-          </div>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="p-5 flex items-center gap-4"
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Shield className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground leading-relaxed">طريقة الدخول</p>
+              <p className="text-sm font-semibold text-foreground capitalize">{provider === 'google' ? 'Google' : 'بريد إلكتروني'}</p>
+            </div>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-2xl border border-border/50 bg-card p-5 flex items-center gap-4"
-        >
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Calendar className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground">تاريخ الانضمام</p>
-            <p className="text-sm font-semibold text-foreground">{createdAt}</p>
-          </div>
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="p-5 flex items-center gap-4"
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Calendar className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground leading-relaxed">تاريخ الانضمام</p>
+              <p className="text-sm font-semibold text-foreground">{createdAt}</p>
+            </div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Sign out */}

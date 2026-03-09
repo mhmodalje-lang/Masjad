@@ -34,7 +34,8 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       <div className="gradient-islamic px-5 pb-16 pt-safe-header-compact relative">
-        <div className="text-center">
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <div className="text-center relative z-10">
           <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
             <Shield className="h-6 w-6" /> لوحة التحكم
           </h1>
@@ -43,22 +44,22 @@ export default function AdminDashboard() {
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-4 pt-4 max-w-4xl mx-auto">
+      <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto">
         <Tabs defaultValue="ads" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6 h-auto">
-            <TabsTrigger value="ads" className="text-xs py-2 flex flex-col gap-1">
+          <TabsList className="grid w-full grid-cols-4 mb-6 h-auto rounded-2xl">
+            <TabsTrigger value="ads" className="text-xs py-2.5 flex flex-col gap-1 rounded-xl">
               <Megaphone className="h-4 w-4" />
               الإعلانات
             </TabsTrigger>
-            <TabsTrigger value="content" className="text-xs py-2 flex flex-col gap-1">
+            <TabsTrigger value="content" className="text-xs py-2.5 flex flex-col gap-1 rounded-xl">
               <BookOpen className="h-4 w-4" />
               المحتوى
             </TabsTrigger>
-            <TabsTrigger value="users" className="text-xs py-2 flex flex-col gap-1">
+            <TabsTrigger value="users" className="text-xs py-2.5 flex flex-col gap-1 rounded-xl">
               <Users className="h-4 w-4" />
               المستخدمين
             </TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs py-2 flex flex-col gap-1">
+            <TabsTrigger value="settings" className="text-xs py-2.5 flex flex-col gap-1 rounded-xl">
               <Settings className="h-4 w-4" />
               الإعدادات
             </TabsTrigger>
@@ -162,79 +163,89 @@ function AdsManager() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* AdSense Setup */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-bold text-foreground mb-3">⚙️ إعداد Google AdSense</h3>
+      <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
+        <h3 className="font-bold text-foreground mb-1">⚙️ إعداد Google AdSense</h3>
+        <p className="text-xs text-muted-foreground mb-3 leading-relaxed">أدخل معرّف حساب AdSense الخاص بك</p>
         <div className="flex gap-2">
           <Input
             value={adsenseId}
             onChange={e => setAdsenseId(e.target.value)}
             placeholder="ca-pub-XXXXXXXXXXXXXXXX"
-            className="flex-1"
+            className="flex-1 rounded-xl"
             dir="ltr"
           />
-          <Button onClick={saveAdsenseId} size="sm"><Save className="h-4 w-4" /></Button>
+          <Button onClick={saveAdsenseId} size="sm" className="rounded-xl"><Save className="h-4 w-4" /></Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">أدخل معرّف حساب AdSense الخاص بك</p>
       </div>
 
       {/* Add new ad */}
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h3 className="font-bold text-foreground mb-3">➕ إضافة مساحة إعلانية</h3>
+      <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
+        <h3 className="font-bold text-foreground mb-1">➕ إضافة مساحة إعلانية</h3>
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">أضف إعلان جديد في الموقع</p>
         <div className="space-y-3">
-          <Input value={newAd.name} onChange={e => setNewAd({ ...newAd, name: e.target.value })} placeholder="اسم الإعلان" />
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">اسم الإعلان</label>
+            <Input value={newAd.name} onChange={e => setNewAd({ ...newAd, name: e.target.value })} placeholder="اسم الإعلان" className="rounded-xl" />
+          </div>
 
-          {/* Platform */}
-          <select
-            value={newAd.platform}
-            onChange={e => setNewAd({ ...newAd, platform: e.target.value })}
-            className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-          >
-            {platforms.map(p => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">المنصة الإعلانية</label>
+            <select
+              value={newAd.platform}
+              onChange={e => setNewAd({ ...newAd, platform: e.target.value })}
+              className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
+            >
+              {platforms.map(p => (
+                <option key={p.value} value={p.value}>{p.label}</option>
+              ))}
+            </select>
+          </div>
 
-          {/* Position */}
-          <select
-            value={newAd.position}
-            onChange={e => setNewAd({ ...newAd, position: e.target.value })}
-            className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="home-top">الصفحة الرئيسية - أعلى</option>
-            <option value="home-middle">الصفحة الرئيسية - وسط</option>
-            <option value="home-bottom">الصفحة الرئيسية - أسفل</option>
-            <option value="prayer-times">صفحة الصلاة</option>
-            <option value="quran">صفحة القرآن</option>
-            <option value="duas">صفحة الأدعية</option>
-            <option value="stories">صفحة القصص</option>
-          </select>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">الموقع في الصفحة</label>
+            <select
+              value={newAd.position}
+              onChange={e => setNewAd({ ...newAd, position: e.target.value })}
+              className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
+            >
+              <option value="home-top">الصفحة الرئيسية - أعلى</option>
+              <option value="home-middle">الصفحة الرئيسية - وسط</option>
+              <option value="home-bottom">الصفحة الرئيسية - أسفل</option>
+              <option value="prayer-times">صفحة الصلاة</option>
+              <option value="quran">صفحة القرآن</option>
+              <option value="duas">صفحة الأدعية</option>
+              <option value="stories">صفحة القصص</option>
+            </select>
+          </div>
 
-          {/* Ad Type */}
-          <select
-            value={newAd.slot_type}
-            onChange={e => setNewAd({ ...newAd, slot_type: e.target.value })}
-            className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="manual">كود HTML/JS (Adsterra Banner, PropellerAds...)</option>
-            <option value="native">Native Ads (إعلانات أصلية - Adsterra)</option>
-            <option value="popunder">PopUnder (إعلان منبثق - Adsterra)</option>
-            <option value="script">كود Script (سكربت خارجي)</option>
-            <option value="adsense">Google AdSense</option>
-            <option value="image">صورة + رابط</option>
-          </select>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">نوع الإعلان</label>
+            <select
+              value={newAd.slot_type}
+              onChange={e => setNewAd({ ...newAd, slot_type: e.target.value })}
+              className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
+            >
+              <option value="manual">كود HTML/JS (Adsterra Banner, PropellerAds...)</option>
+              <option value="native">Native Ads (إعلانات أصلية - Adsterra)</option>
+              <option value="popunder">PopUnder (إعلان منبثق - Adsterra)</option>
+              <option value="script">كود Script (سكربت خارجي)</option>
+              <option value="adsense">Google AdSense</option>
+              <option value="image">صورة + رابط</option>
+            </select>
+          </div>
 
           {/* Help text */}
           {newAd.slot_type === 'native' && (
-            <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
-              <p>📌 <strong>Native Ads:</strong> الصق كود الإعلان الأصلي من Adsterra</p>
+            <div className="rounded-2xl bg-muted/50 border border-border/50 p-4 text-xs text-muted-foreground space-y-1.5 leading-relaxed">
+              <p>📌 <strong className="text-foreground">Native Ads:</strong> الصق كود الإعلان الأصلي من Adsterra</p>
               <p>يتضمن عادةً وسم <code dir="ltr">&lt;script&gt;</code> مع <code dir="ltr">src</code> و <code dir="ltr">div</code> للعرض</p>
             </div>
           )}
           {newAd.slot_type === 'popunder' && (
-            <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
-              <p>📌 <strong>PopUnder:</strong> الصق كود PopUnder من Adsterra</p>
+            <div className="rounded-2xl bg-muted/50 border border-border/50 p-4 text-xs text-muted-foreground space-y-1.5 leading-relaxed">
+              <p>📌 <strong className="text-foreground">PopUnder:</strong> الصق كود PopUnder من Adsterra</p>
               <p>هذا الإعلان يعمل بالخلفية ولا يظهر في الصفحة مباشرة</p>
               <p>الموقع لا يهم — سيتم تحميله تلقائياً عند فتح الموقع</p>
             </div>
@@ -242,79 +253,98 @@ function AdsManager() {
 
           {/* Conditional fields */}
           {newAd.slot_type === 'image' ? (
-            <>
-              <Input
-                value={newAd.image_url}
-                onChange={e => setNewAd({ ...newAd, image_url: e.target.value })}
-                placeholder="رابط الصورة (URL)"
-                dir="ltr"
-              />
-              <Input
-                value={newAd.link_url}
-                onChange={e => setNewAd({ ...newAd, link_url: e.target.value })}
-                placeholder="رابط الإعلان عند الضغط (اختياري)"
-                dir="ltr"
-              />
-            </>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">رابط الصورة</label>
+                <Input
+                  value={newAd.image_url}
+                  onChange={e => setNewAd({ ...newAd, image_url: e.target.value })}
+                  placeholder="https://..."
+                  dir="ltr"
+                  className="rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">رابط الإعلان (اختياري)</label>
+                <Input
+                  value={newAd.link_url}
+                  onChange={e => setNewAd({ ...newAd, link_url: e.target.value })}
+                  placeholder="https://..."
+                  dir="ltr"
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
           ) : (
-            <textarea
-              value={newAd.ad_code}
-              onChange={e => setNewAd({ ...newAd, ad_code: e.target.value })}
-              placeholder="الصق كود الإعلان هنا من المنصة الإعلانية"
-              className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm min-h-[100px] font-mono"
-              dir="ltr"
-            />
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">كود الإعلان</label>
+              <textarea
+                value={newAd.ad_code}
+                onChange={e => setNewAd({ ...newAd, ad_code: e.target.value })}
+                placeholder="الصق كود الإعلان هنا من المنصة الإعلانية"
+                className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm min-h-[100px] font-mono"
+                dir="ltr"
+              />
+            </div>
           )}
 
-          <Button onClick={addAd} className="w-full">
-            <Plus className="h-4 w-4 ml-2" /> إضافة
+          <Button onClick={addAd} className="w-full rounded-2xl h-11">
+            <Plus className="h-4 w-4 ml-2" /> إضافة الإعلان
           </Button>
         </div>
       </div>
 
       {/* Ads list */}
-      <div className="space-y-2">
-        <h3 className="font-bold text-foreground">📋 الإعلانات الحالية ({ads.length})</h3>
-        {ads.length === 0 && <p className="text-sm text-muted-foreground">لا توجد إعلانات بعد</p>}
-        {ads.map(ad => (
-          <div key={ad.id} className="rounded-xl border border-border bg-card p-3 space-y-2">
-            <div className="flex items-center gap-3">
-              {ad.slot_type === 'image' && ad.image_url && (
-                <img src={ad.image_url} alt="" className="h-12 w-12 rounded-lg object-cover shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{ad.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {ad.position} • {
-                    ad.slot_type === 'image' ? '🖼️ صورة' :
-                    ad.slot_type === 'native' ? '📰 أصلي' :
-                    ad.slot_type === 'popunder' ? '🪟 منبثق' :
-                    '💻 كود'
-                  } • {ad.platform || 'custom'}
-                </p>
-              </div>
-              <Button
-                variant={ad.is_active ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleAd(ad.id, ad.is_active)}
-                className="text-xs"
-              >
-                {ad.is_active ? 'مفعّل' : 'معطّل'}
-              </Button>
-              <Button variant="destructive" size="sm" onClick={() => deleteAd(ad.id)}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-            {/* Stats */}
-            <div className="flex gap-4 px-1">
-              <span className="text-xs text-muted-foreground">👁️ مشاهدات: <strong className="text-foreground">{ad.impressions ?? 0}</strong></span>
-              <span className="text-xs text-muted-foreground">👆 نقرات: <strong className="text-foreground">{ad.clicks ?? 0}</strong></span>
-              {(ad.impressions ?? 0) > 0 && (
-                <span className="text-xs text-muted-foreground">📊 CTR: <strong className="text-foreground">{((ad.clicks ?? 0) / (ad.impressions ?? 1) * 100).toFixed(1)}%</strong></span>
-              )}
-            </div>
+      <div>
+        <h3 className="font-bold text-foreground mb-3">📋 الإعلانات الحالية ({ads.length})</h3>
+        {ads.length === 0 && (
+          <div className="rounded-3xl border border-border/50 bg-card p-8 text-center shadow-elevated">
+            <p className="text-sm text-muted-foreground">لا توجد إعلانات بعد</p>
           </div>
-        ))}
+        )}
+        <div className="space-y-3">
+          {ads.map(ad => (
+            <div key={ad.id} className="rounded-2xl border border-border/50 bg-card p-4 shadow-elevated space-y-3">
+              <div className="flex items-center gap-3">
+                {ad.slot_type === 'image' && ad.image_url && (
+                  <img src={ad.image_url} alt="" className="h-12 w-12 rounded-xl object-cover shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground truncate">{ad.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                    📍 {ad.position} • {
+                      ad.slot_type === 'image' ? '🖼️ صورة' :
+                      ad.slot_type === 'native' ? '📰 أصلي' :
+                      ad.slot_type === 'popunder' ? '🪟 منبثق' :
+                      '💻 كود'
+                    } • {ad.platform || 'custom'}
+                  </p>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <Button
+                    variant={ad.is_active ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => toggleAd(ad.id, ad.is_active)}
+                    className="text-xs rounded-xl"
+                  >
+                    {ad.is_active ? 'مفعّل' : 'معطّل'}
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => deleteAd(ad.id)} className="rounded-xl">
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+              {/* Stats */}
+              <div className="flex gap-4 px-1 pt-2 border-t border-border/50">
+                <span className="text-xs text-muted-foreground">👁️ مشاهدات: <strong className="text-foreground">{ad.impressions ?? 0}</strong></span>
+                <span className="text-xs text-muted-foreground">👆 نقرات: <strong className="text-foreground">{ad.clicks ?? 0}</strong></span>
+                {(ad.impressions ?? 0) > 0 && (
+                  <span className="text-xs text-muted-foreground">📊 CTR: <strong className="text-foreground">{((ad.clicks ?? 0) / (ad.impressions ?? 1) * 100).toFixed(1)}%</strong></span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -323,7 +353,6 @@ function AdsManager() {
 /* ======= CONTENT MANAGER ======= */
 function ContentManager() {
   const [stories, setStories] = useState<any[]>([]);
-  const [tab, setTab] = useState<'stories'>('stories');
 
   useEffect(() => {
     loadStories();
@@ -343,18 +372,22 @@ function ContentManager() {
   return (
     <div className="space-y-4">
       <h3 className="font-bold text-foreground">📖 إدارة القصص ({stories.length})</h3>
-      {stories.length === 0 && <p className="text-sm text-muted-foreground">لا توجد قصص</p>}
+      {stories.length === 0 && (
+        <div className="rounded-3xl border border-border/50 bg-card p-8 text-center shadow-elevated">
+          <p className="text-sm text-muted-foreground">لا توجد قصص</p>
+        </div>
+      )}
       {stories.map(story => (
-        <div key={story.id} className="rounded-xl border border-border bg-card p-4">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-foreground text-sm">{story.title}</p>
-              <p className="text-xs text-muted-foreground mt-1">{story.author_name} • {story.category}</p>
-              <p className="text-xs text-muted-foreground">❤️ {story.likes_count} • 💬 {story.comments_count}</p>
-            </div>
-            <Button variant="destructive" size="sm" onClick={() => deleteStory(story.id)}>
+        <div key={story.id} className="rounded-2xl border border-border/50 bg-card p-5 shadow-elevated">
+          <div className="flex items-start justify-between gap-3">
+            <Button variant="destructive" size="sm" onClick={() => deleteStory(story.id)} className="rounded-xl shrink-0">
               <Trash2 className="h-3 w-3" />
             </Button>
+            <div className="flex-1 min-w-0 text-right">
+              <p className="font-bold text-foreground text-sm mb-1">{story.title}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{story.author_name} • {story.category}</p>
+              <p className="text-xs text-muted-foreground mt-1">❤️ {story.likes_count} إعجاب • 💬 {story.comments_count} تعليق</p>
+            </div>
           </div>
         </div>
       ))}
@@ -393,10 +426,15 @@ function UsersManager() {
   return (
     <div className="space-y-4">
       <h3 className="font-bold text-foreground">👥 المستخدمين ({profiles.length})</h3>
+      {profiles.length === 0 && (
+        <div className="rounded-3xl border border-border/50 bg-card p-8 text-center shadow-elevated">
+          <p className="text-sm text-muted-foreground">لا يوجد مستخدمين</p>
+        </div>
+      )}
       {profiles.map(profile => {
         const isAdmin = roles.some(r => r.user_id === profile.user_id && r.role === 'admin');
         return (
-          <div key={profile.id} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
+          <div key={profile.id} className="rounded-2xl border border-border/50 bg-card p-4 shadow-elevated flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
@@ -405,14 +443,14 @@ function UsersManager() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{profile.display_name || 'بدون اسم'}</p>
-              <p className="text-xs text-muted-foreground">{isAdmin ? '👑 مدير' : '👤 مستخدم'}</p>
+              <p className="text-sm font-bold text-foreground truncate">{profile.display_name || 'بدون اسم'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{isAdmin ? '👑 مدير' : '👤 مستخدم'}</p>
             </div>
             <Button
               variant={isAdmin ? "destructive" : "outline"}
               size="sm"
               onClick={() => toggleAdmin(profile.user_id)}
-              className="text-xs"
+              className="text-xs rounded-xl shrink-0"
             >
               {isAdmin ? 'إزالة مدير' : 'جعله مدير'}
             </Button>
@@ -445,50 +483,34 @@ function SettingsManager() {
     toast.success('تم الحفظ');
   };
 
+  const settingFields = [
+    { key: 'site_name', label: 'اسم الموقع', placeholder: 'اسم موقعك', dir: 'rtl' as const },
+    { key: 'site_description', label: 'وصف الموقع', placeholder: 'وصف مختصر للموقع', dir: 'rtl' as const },
+    { key: 'adsense_client_id', label: 'معرف Google AdSense', placeholder: 'ca-pub-XXXXXXXXXXXXXXXX', dir: 'ltr' as const },
+  ];
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <h3 className="font-bold text-foreground">⚙️ إعدادات الموقع</h3>
-      
-      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-        <label className="text-sm font-medium text-foreground">اسم الموقع</label>
-        <div className="flex gap-2">
-          <Input
-            value={settings.site_name || ''}
-            onChange={e => setSettings({ ...settings, site_name: e.target.value })}
-          />
-          <Button size="sm" onClick={() => saveSetting('site_name', settings.site_name)}>
-            <Save className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
 
-      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-        <label className="text-sm font-medium text-foreground">وصف الموقع</label>
-        <div className="flex gap-2">
-          <Input
-            value={settings.site_description || ''}
-            onChange={e => setSettings({ ...settings, site_description: e.target.value })}
-          />
-          <Button size="sm" onClick={() => saveSetting('site_description', settings.site_description)}>
-            <Save className="h-4 w-4" />
-          </Button>
+      {settingFields.map(field => (
+        <div key={field.key} className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
+          <label className="text-sm font-bold text-foreground mb-1 block">{field.label}</label>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">قم بتعديل {field.label} وحفظه</p>
+          <div className="flex gap-2">
+            <Input
+              value={settings[field.key] || ''}
+              onChange={e => setSettings({ ...settings, [field.key]: e.target.value })}
+              placeholder={field.placeholder}
+              dir={field.dir}
+              className="flex-1 rounded-xl"
+            />
+            <Button size="sm" onClick={() => saveSetting(field.key, settings[field.key])} className="rounded-xl">
+              <Save className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-        <label className="text-sm font-medium text-foreground">معرف Google AdSense</label>
-        <div className="flex gap-2">
-          <Input
-            value={settings.adsense_client_id || ''}
-            onChange={e => setSettings({ ...settings, adsense_client_id: e.target.value })}
-            placeholder="ca-pub-XXXXXXXXXXXXXXXX"
-            dir="ltr"
-          />
-          <Button size="sm" onClick={() => saveSetting('adsense_client_id', settings.adsense_client_id)}>
-            <Save className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

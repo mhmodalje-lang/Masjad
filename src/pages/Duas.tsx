@@ -229,24 +229,33 @@ export default function Duas() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="px-5 pt-safe-header-compact pb-3 flex items-center justify-between">
-        <div className="flex gap-3">
-          {(viewMode !== 'categories' || showFavorites) ? (
-            <button onClick={goBack} className="p-1">
-              <ArrowRight className="h-5 w-5 text-muted-foreground" />
-            </button>
-          ) : (
-            <>
-              <button className="p-1" onClick={() => { setShowSearch(!showSearch); setShowFavorites(false); }}>
-                {showSearch ? <X className="h-5 w-5 text-muted-foreground" /> : <Search className="h-5 w-5 text-muted-foreground" />}
+      {/* Header */}
+      <div className="gradient-islamic relative px-5 pb-12 pt-safe-header-compact">
+        <div className="absolute inset-0 islamic-pattern opacity-20" />
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex gap-2">
+            {(viewMode !== 'categories' || showFavorites) ? (
+              <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
+                <ArrowRight className="h-4 w-4 text-white" />
               </button>
-              <button className="p-1" onClick={() => { setShowFavorites(!showFavorites); setShowSearch(false); }}>
-                <Bookmark className={cn("h-5 w-5", showFavorites ? "text-primary fill-primary" : "text-muted-foreground")} />
-              </button>
-            </>
-          )}
+            ) : (
+              <>
+                <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={() => { setShowSearch(!showSearch); setShowFavorites(false); }}>
+                  {showSearch ? <X className="h-4 w-4 text-white" /> : <Search className="h-4 w-4 text-white" />}
+                </button>
+                <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={() => { setShowFavorites(!showFavorites); setShowSearch(false); }}>
+                  <Bookmark className={cn("h-4 w-4", showFavorites ? "text-white fill-white" : "text-white/70")} />
+                </button>
+              </>
+            )}
+          </div>
+          <div className="text-center flex-1">
+            <h1 className="text-2xl font-bold text-white">الدُعاء والذكر</h1>
+            <p className="text-white/70 text-sm mt-1 leading-relaxed">أدعية وأذكار من الكتاب والسنة</p>
+          </div>
+          <div className="w-20" />
         </div>
-        <h1 className="text-xl font-bold text-foreground">الدُعاء والذكر</h1>
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
       {/* Search bar */}
@@ -256,7 +265,7 @@ export default function Duas() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="px-5 mb-4 overflow-hidden"
+            className="px-5 -mt-4 relative z-10 mb-4 overflow-hidden"
           >
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

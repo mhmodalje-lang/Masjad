@@ -114,7 +114,7 @@ export default function Tasbeeh() {
   return (
     <div className="min-h-screen pb-24" dir="rtl">
       {/* Header */}
-      <div className="gradient-islamic relative px-4 pb-20 pt-safe-header">
+      <div className="gradient-islamic relative px-4 pb-16 pt-safe-header">
         <div className="absolute inset-0 islamic-pattern opacity-20" />
         <div className="relative z-10 flex items-center justify-between gap-3">
           <button
@@ -124,13 +124,16 @@ export default function Tasbeeh() {
           >
             <RotateCcw className="h-5 w-5 text-white/85" />
           </button>
-          <h1 className="text-2xl font-bold text-white leading-relaxed">{t('tasbeeh')}</h1>
+          <div className="text-center flex-1">
+            <h1 className="text-2xl font-bold text-white leading-relaxed">{t('tasbeeh')}</h1>
+            <p className="text-white/70 text-sm mt-1 leading-relaxed">اذكر الله وسبّحه</p>
+          </div>
           <div className="w-10" />
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-4 -mt-2">
+      <div className="px-4 -mt-8 relative z-10">
         {!user && (
           <Link
             to="/auth"
@@ -142,37 +145,41 @@ export default function Tasbeeh() {
         )}
 
         {/* Dhikr selector cards */}
-        <div className="mb-7 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {dhikrOptions.map((opt, i) => (
-            <motion.button
-              key={opt.key}
-              onClick={() => handleSelectDhikr(i)}
-              whileTap={{ scale: 0.97 }}
-              className={cn(
-                'min-h-[88px] rounded-2xl border p-4 text-center transition-all',
-                'flex flex-col items-center justify-center gap-2',
-                selected === i
-                  ? 'border-primary bg-primary text-primary-foreground shadow-lg glow-emerald'
-                  : 'border-border/50 bg-card text-foreground hover:border-primary/30'
-              )}
-            >
-              <span className="shrink-0 text-xl" aria-hidden="true">{opt.emoji}</span>
-              <span className="w-full text-xs font-semibold leading-relaxed break-words">
-                {t(opt.key)}
-              </span>
-            </motion.button>
-          ))}
+        <div className="mb-6">
+          <h2 className="text-sm font-bold text-foreground mb-3">اختر الذكر</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {dhikrOptions.map((opt, i) => (
+              <motion.button
+                key={opt.key}
+                onClick={() => handleSelectDhikr(i)}
+                whileTap={{ scale: 0.97 }}
+                className={cn(
+                  'min-h-[88px] rounded-2xl border p-4 text-center transition-all',
+                  'flex flex-col items-center justify-center gap-2',
+                  selected === i
+                    ? 'border-primary bg-primary text-primary-foreground shadow-lg glow-emerald'
+                    : 'border-border/50 bg-card text-foreground hover:border-primary/30'
+                )}
+              >
+                <span className="shrink-0 text-xl" aria-hidden="true">{opt.emoji}</span>
+                <span className="w-full text-xs font-semibold leading-relaxed break-words">
+                  {t(opt.key)}
+                </span>
+              </motion.button>
+            ))}
+          </div>
         </div>
 
         {/* Main counter area */}
         <div className="flex flex-col items-center">
+          {/* Arabic text card */}
           <motion.div
             key={selected}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-5 w-full max-w-md rounded-2xl border border-border/50 bg-card p-4 text-center shadow-elevated"
+            className="mb-5 w-full max-w-md rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated"
           >
-            <p className="text-4xl font-arabic text-foreground leading-[1.9] break-words sm:text-5xl">
+            <p className="text-3xl font-arabic text-foreground leading-[2] break-words sm:text-4xl">
               {dhikr.arabic}
             </p>
           </motion.div>
@@ -254,7 +261,7 @@ export default function Tasbeeh() {
           </div>
 
           {/* Stats row */}
-          <div className="grid w-full max-w-sm grid-cols-2 gap-3">
+          <div className="grid w-full max-w-sm grid-cols-2 gap-3 mb-6">
             <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
               <p className="mb-1 text-xs text-muted-foreground">{t('today')}</p>
               <p className="tabular-nums text-2xl font-bold text-foreground">{count}</p>
@@ -264,10 +271,6 @@ export default function Tasbeeh() {
               <p className="tabular-nums text-2xl font-bold text-foreground">{total.toLocaleString()}</p>
             </div>
           </div>
-
-          <p className="mt-6 text-xs text-muted-foreground">
-            {t('tasbeeh')} — {t('count')}
-          </p>
         </div>
       </div>
     </div>

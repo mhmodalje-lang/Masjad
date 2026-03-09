@@ -229,10 +229,11 @@ export default function ZakatCalculator() {
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-5 pt-2 space-y-4 max-w-md mx-auto">
+      <div className="px-5 -mt-2 relative z-10 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
-          <label className="text-sm font-semibold text-foreground mb-2 block">العملة</label>
+          <label className="text-sm font-bold text-foreground mb-1 block">العملة</label>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">اختر عملة بلدك لحساب النصاب</p>
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="rounded-2xl">
               <SelectValue placeholder={geoLoading ? 'جاري التحديد...' : 'اختر العملة'} />
@@ -269,8 +270,11 @@ export default function ZakatCalculator() {
         </div>
 
         {/* Asset fields */}
-        <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-3 shadow-elevated">
-          <h2 className="text-sm font-semibold text-foreground">أصولك ومدخراتك</h2>
+        <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
+          <div>
+            <h2 className="text-sm font-bold text-foreground">أصولك ومدخراتك</h2>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">أدخل قيمة كل نوع من الأصول بالعملة المختارة</p>
+          </div>
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
               key={labelKey || label}
@@ -386,8 +390,8 @@ export default function ZakatCalculator() {
         </AnimatePresence>
 
         {/* Islamic note */}
-        <div className="rounded-2xl bg-muted/50 p-5 text-xs text-muted-foreground leading-relaxed shadow-elevated border border-border/50">
-          <p className="font-semibold text-foreground mb-1">📌 ملاحظة</p>
+        <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/50">
+          <p className="font-bold text-foreground mb-2 text-sm">📌 ملاحظة شرعية</p>
           <p>
             تعتمد هذه الحاسبة على نصاب الفضة (595 غرام) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
             نسبة الزكاة الثابتة هي 2.5% من إجمالي المال الذي بلغ النصاب ومرّ عليه حول كامل.

@@ -98,13 +98,16 @@ export default function PrayerTracker() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="gradient-islamic relative px-5 pb-20 pt-safe-header">
+      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header">
         <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <h1 className="text-xl font-bold text-primary-foreground relative z-10">{t('tracker')}</h1>
+        <div className="text-center relative z-10">
+          <h1 className="text-2xl font-bold text-primary-foreground">{t('tracker')}</h1>
+          <p className="text-primary-foreground/70 text-sm mt-1.5 leading-relaxed">تابع صلواتك اليومية</p>
+        </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      <div className="px-5 pt-2">
+      <div className="px-5 -mt-8 relative z-10">
         {!user && (
           <Link
             to="/auth"
@@ -116,13 +119,13 @@ export default function PrayerTracker() {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
-            <p className="text-xs text-muted-foreground mb-1">{t('completed')}</p>
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <p className="text-xs text-muted-foreground mb-2">{t('completed')}</p>
             <p className="text-3xl font-bold text-primary">{todayPrayers.length}/5</p>
           </div>
-          <div className="rounded-3xl border border-border/50 bg-card p-4 text-center shadow-elevated">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
+          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
               <Flame className="h-3.5 w-3.5 text-accent" />
               <p className="text-xs text-muted-foreground">{t('streak')}</p>
             </div>
@@ -131,18 +134,25 @@ export default function PrayerTracker() {
         </div>
 
         {/* Progress bar */}
-        <div className="h-2 w-full rounded-full bg-muted mb-6 overflow-hidden">
-          <motion.div
-            className="h-full rounded-full bg-primary"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5 }}
-            style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.4)' }}
-          />
+        <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated mb-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-muted-foreground">{Math.round(progress)}%</span>
+            <p className="text-sm font-bold text-foreground">تقدم اليوم</p>
+          </div>
+          <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-primary"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+              style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.4)' }}
+            />
+          </div>
         </div>
 
         {/* Prayer checklist */}
-        <div className="space-y-3">
+        <h2 className="text-sm font-bold text-foreground mb-3">صلوات اليوم</h2>
+        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);
             return (
@@ -153,19 +163,19 @@ export default function PrayerTracker() {
                 transition={{ delay: i * 0.06 }}
                 onClick={() => togglePrayer(key)}
                 className={cn(
-                  'w-full flex items-center justify-between rounded-2xl border p-5 transition-all',
-                  done ? 'border-primary/40 bg-primary/5 glow-emerald' : 'border-border/50 bg-card'
+                  'w-full flex items-center justify-between p-5 transition-all',
+                  done && 'bg-primary/5'
                 )}
               >
-                <span className={cn('font-semibold', done ? 'text-primary' : 'text-foreground')}>
-                  {t(key)}
-                </span>
                 <div className={cn(
                   'h-7 w-7 rounded-full flex items-center justify-center transition-all',
                   done ? 'bg-primary' : 'border-2 border-muted-foreground/30'
                 )}>
                   {done && <Check className="h-4 w-4 text-primary-foreground" />}
                 </div>
+                <span className={cn('font-semibold text-base', done ? 'text-primary' : 'text-foreground')}>
+                  {t(key)}
+                </span>
               </motion.button>
             );
           })}
