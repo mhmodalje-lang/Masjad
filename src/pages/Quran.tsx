@@ -104,7 +104,7 @@ export default function Quran() {
         .from('quran_bookmarks')
         .insert({ user_id: user.id, surah_number: surahNum });
       setBookmarks(prev => [...prev, surahNum]);
-      toast.success('تم الإضافة للمفضلة');
+      toast.success(t('addedToBookmarks'));
     }
   };
 

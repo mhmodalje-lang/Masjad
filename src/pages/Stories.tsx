@@ -432,11 +432,11 @@ export default function Stories() {
                 ) : stories.length === 0 ? (
                   <div className="text-center py-16">
                     <span className="text-5xl mb-4 block">📝</span>
-                    <p className="text-sm font-bold text-foreground mb-1">لا توجد قصص بعد</p>
-                    <p className="text-xs text-muted-foreground mb-4">كن أول من يشارك قصته!</p>
+                    <p className="text-sm font-bold text-foreground mb-1">{t('noStoriesYet')}</p>
+                    <p className="text-xs text-muted-foreground mb-4">{t('beFirstToShare')}</p>
                     <Button onClick={openNewStory} className="rounded-full gap-2">
                       <Plus className="h-4 w-4" />
-                      انشر أول قصة
+                      {t('publishFirstStory')}
                     </Button>
                   </div>
                 ) : (
