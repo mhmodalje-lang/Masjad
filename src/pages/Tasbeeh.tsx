@@ -115,25 +115,19 @@ export default function Tasbeeh() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-4 pb-16 pt-safe-header">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="relative z-10 flex items-center justify-between gap-3">
+      <PageHeader
+        title={t('tasbeeh')}
+        subtitle="اذكر الله وسبّحه"
+        actionsLeft={
           <button
             onClick={handleReset}
-            className="glass-card rounded-2xl p-2.5 transition-transform active:scale-90"
+            className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
             aria-label="إعادة تعيين العداد"
           >
-            <RotateCcw className="h-5 w-5 text-white/85" />
+            <RotateCcw className="h-4 w-4 text-white" />
           </button>
-          <div className="text-center flex-1">
-            <h1 className="text-2xl font-bold text-white leading-relaxed">{t('tasbeeh')}</h1>
-            <p className="text-white/70 text-sm mt-1 leading-relaxed">اذكر الله وسبّحه</p>
-          </div>
-          <div className="w-10" />
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+        }
+      />
 
       <div className="px-4 -mt-8 relative z-10">
         {!user && (
