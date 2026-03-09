@@ -382,46 +382,31 @@ export default function MosquePrayerTimesPage() {
 
   // Auto-check availability for all mosques after load
   const autoCheckAvailability = useCallback(async (mosqueList: Mosque[]) => {
-    // Check top 15 mosques in parallel (batches of 5)
-    const unchecked = mosqueList.filter(m => m.hasAutoSync === undefined).slice(0, 15);
-    if (unchecked.length === 0) return;
+    const unchecked = mosqueList.filter(m => m.hasAutoSync === undefined).slice(0, 10);
+    if (!unchecked.length) return;
 
-    const batchSize = 5;
-    for (let i = 0; i < unchecked.length; i += batchSize) {
-      const batch = unchecked.slice(i, i + batchSize);
-      const results = await Promise.all(
-        batch.map(async (mosque) => {
-          try {
-            const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
-              body: {
-                mosqueName: mosque.name,
-                mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
-                latitude: mosque.latitude,
-                longitude: mosque.longitude,
-                ...getCalcSettings(),
-              },
-            });
-            const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
-            return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && !!data?.times && isRealSource };
-          } catch {
-            return { osm_id: mosque.osm_id, hasAutoSync: false };
-          }
-        })
-      );
+    const results = await Promise.all(
+      unchecked.map(async (mosque) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
+            body: { mosqueName: mosque.name, latitude: mosque.latitude, longitude: mosque.longitude, ...getCalcSettings() },
+          });
+          return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && data?.source === 'mawaqit' };
+        } catch { return { osm_id: mosque.osm_id, hasAutoSync: false }; }
+      })
+    );
 
-      setMosques(prev => {
-        const updated = prev.map(m => {
-          const result = results.find(r => r.osm_id === m.osm_id);
-          return result ? { ...m, hasAutoSync: result.hasAutoSync } : m;
-        });
-        // Sort: auto-sync mosques first, then by distance
-        return updated.sort((a, b) => {
-          if (a.hasAutoSync === true && b.hasAutoSync !== true) return -1;
-          if (b.hasAutoSync === true && a.hasAutoSync !== true) return 1;
-          return (a._dist || 999) - (b._dist || 999);
-        });
+    setMosques(prev => {
+      const updated = prev.map(m => {
+        const r = results.find(r => r.osm_id === m.osm_id);
+        return r ? { ...m, hasAutoSync: r.hasAutoSync } : m;
       });
-    }
+      return updated.sort((a, b) => {
+        if (a.hasAutoSync === true && b.hasAutoSync !== true) return -1;
+        if (b.hasAutoSync === true && a.hasAutoSync !== true) return 1;
+        return (a._dist || 999) - (b._dist || 999);
+      });
+    });
   }, []);
 
   useEffect(() => {
