@@ -88,7 +88,7 @@ export default function MosquePrayerTimesPage() {
   const [editTimes, setEditTimes] = useState<PrayerTimesMap>(emptyTimes);
   const [saving, setSaving] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [timesSource, setTimesSource] = useState<'api' | 'manual'>('api');
+  const [timesSource, setTimesSource] = useState<'api' | 'manual' | 'mawaqit' | 'website'>('api');
   const [textSearch, setTextSearch] = useState('');
   const [textSearching, setTextSearching] = useState(false);
   const autoSearched = useRef(false);
