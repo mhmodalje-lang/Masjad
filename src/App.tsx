@@ -98,6 +98,9 @@ const App = () => {
                       <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="/notifications" element={<NotificationSettings />} />
                       <Route path="/ruqyah" element={<Ruqyah />} />
+                      <Route path="/ramadan-cards" element={<RamadanCards />} />
+                      <Route path="/ramadan-book" element={<RamadanBook />} />
+                      <Route path="/period-tracker" element={<PeriodTracker />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
