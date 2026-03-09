@@ -62,6 +62,36 @@ export type Database = {
         }
         Relationships: []
       }
+      favorite_duas: {
+        Row: {
+          arabic: string
+          context: string
+          count: number
+          created_at: string
+          id: string
+          reference: string
+          user_id: string
+        }
+        Insert: {
+          arabic: string
+          context?: string
+          count?: number
+          created_at?: string
+          id?: string
+          reference?: string
+          user_id: string
+        }
+        Update: {
+          arabic?: string
+          context?: string
+          count?: number
+          created_at?: string
+          id?: string
+          reference?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       prayer_tracking: {
         Row: {
           created_at: string
