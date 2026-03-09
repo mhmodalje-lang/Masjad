@@ -7,6 +7,7 @@ const SAVED_TIMES_PREFIX = 'mosque_times_';
 interface SavedMosqueData {
   mosqueName: string | null;
   prayers: PrayerTime[] | null;
+  loading: boolean;
 }
 
 function detectIs12Hour(): boolean {
@@ -24,53 +25,100 @@ function to12Hour(time24: string): string {
   return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function makePrayerTime(key: string, time24: string, is12h: boolean): PrayerTime {
+  const fmt = (t: string) => (!t ? '' : is12h ? to12Hour(t) : t);
+  return { name: key, time24, time: fmt(time24), key };
+}
+
 /**
- * Loads saved mosque and its manually-entered prayer times from localStorage.
- * Returns null prayers if no mosque or no saved times.
+ * Loads saved mosque. If mosque has manually saved times, uses those.
+ * Otherwise auto-fetches from Aladhan API using mosque coordinates.
+ * Falls back to null (so the main page uses location-based times).
  */
 export function useSavedMosqueTimes(): SavedMosqueData {
-  const [data, setData] = useState<SavedMosqueData>({ mosqueName: null, prayers: null });
+  const [data, setData] = useState<SavedMosqueData>({ mosqueName: null, prayers: null, loading: true });
 
   useEffect(() => {
-    const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
-    if (!saved) return;
+    const is12h = detectIs12Hour();
 
-    try {
-      const mosque = JSON.parse(saved);
+    const load = async () => {
+      const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
+      if (!saved) {
+        setData({ mosqueName: null, prayers: null, loading: false });
+        return;
+      }
+
+      let mosque: any;
+      try { mosque = JSON.parse(saved); } catch {
+        setData({ mosqueName: null, prayers: null, loading: false });
+        return;
+      }
+
+      // 1. Check for manually saved times first
       const timesKey = SAVED_TIMES_PREFIX + mosque.osm_id;
       const timesStr = localStorage.getItem(timesKey);
-      if (!timesStr) {
-        setData({ mosqueName: mosque.name, prayers: null });
-        return;
+      if (timesStr) {
+        try {
+          const times = JSON.parse(timesStr);
+          const hasAny = times.fajr || times.dhuhr || times.asr || times.maghrib || times.isha;
+          if (hasAny) {
+            const prayers: PrayerTime[] = [
+              makePrayerTime('fajr', times.fajr || '', is12h),
+              makePrayerTime('sunrise', times.sunrise || '', is12h),
+              makePrayerTime('dhuhr', times.dhuhr || '', is12h),
+              makePrayerTime('asr', times.asr || '', is12h),
+              makePrayerTime('maghrib', times.maghrib || '', is12h),
+              makePrayerTime('isha', times.isha || '', is12h),
+            ];
+            setData({ mosqueName: mosque.name, prayers, loading: false });
+            return;
+          }
+        } catch { /* fall through */ }
       }
 
-      const times = JSON.parse(timesStr);
-      const is12h = detectIs12Hour();
-      const fmt = (t: string) => {
-        if (!t) return '';
-        return is12h ? to12Hour(t) : t;
-      };
+      // 2. Auto-fetch from Aladhan API using mosque coordinates
+      if (mosque.latitude && mosque.longitude) {
+        try {
+          const today = new Date();
+          const dd = String(today.getDate()).padStart(2, '0');
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const yyyy = today.getFullYear();
 
-      // Only use if at least one prayer time is set (excluding jumuah)
-      const hasAny = times.fajr || times.dhuhr || times.asr || times.maghrib || times.isha;
-      if (!hasAny) {
-        setData({ mosqueName: mosque.name, prayers: null });
-        return;
+          // Check cache (same day)
+          const cacheKey = `mosque_api_${mosque.osm_id}_${dd}${mm}${yyyy}`;
+          const cached = localStorage.getItem(cacheKey);
+          
+          let timings: any;
+          if (cached) {
+            timings = JSON.parse(cached);
+          } else {
+            const res = await fetch(
+              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=3`
+            );
+            const json = await res.json();
+            timings = json.data.timings;
+            // Cache for the day
+            localStorage.setItem(cacheKey, JSON.stringify(timings));
+          }
+
+          const clean = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
+          const prayers: PrayerTime[] = [
+            makePrayerTime('fajr', clean(timings.Fajr), is12h),
+            makePrayerTime('sunrise', clean(timings.Sunrise), is12h),
+            makePrayerTime('dhuhr', clean(timings.Dhuhr), is12h),
+            makePrayerTime('asr', clean(timings.Asr), is12h),
+            makePrayerTime('maghrib', clean(timings.Maghrib), is12h),
+            makePrayerTime('isha', clean(timings.Isha), is12h),
+          ];
+          setData({ mosqueName: mosque.name, prayers, loading: false });
+          return;
+        } catch { /* fall through */ }
       }
 
-      const prayers: PrayerTime[] = [
-        { name: 'fajr', time24: times.fajr || '', time: fmt(times.fajr), key: 'fajr' },
-        { name: 'sunrise', time24: times.sunrise || '', time: fmt(times.sunrise), key: 'sunrise' },
-        { name: 'dhuhr', time24: times.dhuhr || '', time: fmt(times.dhuhr), key: 'dhuhr' },
-        { name: 'asr', time24: times.asr || '', time: fmt(times.asr), key: 'asr' },
-        { name: 'maghrib', time24: times.maghrib || '', time: fmt(times.maghrib), key: 'maghrib' },
-        { name: 'isha', time24: times.isha || '', time: fmt(times.isha), key: 'isha' },
-      ];
+      setData({ mosqueName: mosque.name, prayers: null, loading: false });
+    };
 
-      setData({ mosqueName: mosque.name, prayers });
-    } catch {
-      setData({ mosqueName: null, prayers: null });
-    }
+    load();
   }, []);
 
   return data;
