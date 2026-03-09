@@ -45,11 +45,22 @@ function namesMatch(requested: string, found: string): boolean {
   if (!a || !b) return false;
   if (a === b) return true;
   if (a.includes(b) || b.includes(a)) return true;
-  // Check aliases
-  const aliases = getAliasSearchNames(requested);
-  if (aliases.length > 0) {
+  // Check if both names belong to the same alias group
+  const aliasesA = getAliasSearchNames(requested);
+  const aliasesB = getAliasSearchNames(found);
+  if (aliasesA.length > 0 && aliasesB.length > 0) {
+    // If they share any alias, they're the same mosque
+    const setA = new Set(aliasesA.map(normalize));
+    if (aliasesB.some(al => setA.has(normalize(al)))) return true;
+  }
+  // Check one-directional alias match
+  if (aliasesA.length > 0) {
     const nf = normalize(found);
-    if (aliases.some(al => { const na = normalize(al); return na && (nf.includes(na) || na.includes(nf)); })) return true;
+    if (aliasesA.some(al => { const na = normalize(al); return na && (nf.includes(na) || na.includes(nf)); })) return true;
+  }
+  if (aliasesB.length > 0) {
+    const na2 = normalize(requested);
+    if (aliasesB.some(al => { const nb = normalize(al); return nb && (na2.includes(nb) || nb.includes(na2)); })) return true;
   }
   const wordsA = a.split(/\s+/).filter(w => w.length > 2);
   const wordsB = b.split(/\s+/).filter(w => w.length > 2);
