@@ -123,7 +123,7 @@ export default function Index() {
   const todayDua = dailyDuas[Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) % dailyDuas.length];
 
   const prayerNames: Record<string, string> = {
-    fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
+    fajr: t('fajr'), sunrise: t('sunrise'), dhuhr: t('dhuhr'), asr: t('asr'), maghrib: t('maghrib'), isha: t('isha')
   };
 
   const prayerIcons: Record<string, string> = {
