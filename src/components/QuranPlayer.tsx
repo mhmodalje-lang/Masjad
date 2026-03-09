@@ -458,7 +458,7 @@ export default function QuranPlayer() {
                   </div>
 
                   <div className="flex items-center justify-center gap-5">
-                    <button onClick={cycleRepeat} className="p-2">
+                    <button onClick={cycleRepeat} aria-label="تغيير وضع التكرار" className="p-2">
                       {repeatMode === 'one' ? (
                         <Repeat1 className="h-5 w-5 text-primary" />
                       ) : (
