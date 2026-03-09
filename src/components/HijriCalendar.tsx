@@ -169,7 +169,11 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
       {/* Calendar */}
       <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={() => navigate(1)} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+          <button
+            onClick={() => navigate(1)}
+            aria-label="الشهر التالي"
+            className="rounded-full p-1.5 hover:bg-muted transition-colors"
+          >
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </button>
           <button onClick={goToToday} className="text-center">
@@ -177,7 +181,11 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
               {hijriMonthsArabic[viewMonth - 1]} {viewYear} هـ
             </p>
           </button>
-          <button onClick={() => navigate(-1)} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+          <button
+            onClick={() => navigate(-1)}
+            aria-label="الشهر السابق"
+            className="rounded-full p-1.5 hover:bg-muted transition-colors"
+          >
             <ChevronLeft className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
