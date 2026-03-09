@@ -471,7 +471,7 @@ export default function QuranPlayer() {
                       )}
                     </button>
 
-                    <button onClick={() => void nextSurah()} className="p-2">
+                    <button onClick={() => void nextSurah()} aria-label="السورة التالية" className="p-2">
                       <SkipForward className="h-5 w-5 text-foreground" />
                     </button>
 
