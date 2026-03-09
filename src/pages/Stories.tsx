@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Heart, MessageCircle, Send, ArrowRight, Plus, X,
-  BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen
+  BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen,
+  Video, Mic, FileText, Upload, Play, Square, Clock
 } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
@@ -23,6 +24,12 @@ const CATEGORIES = [
   { key: 'rizq', label: 'قصص الرزق', emoji: '✨', icon: Coins, color: 'bg-primary' },
 ];
 
+const MEDIA_TYPES = [
+  { key: 'text', label: 'نص', icon: FileText },
+  { key: 'video', label: 'فيديو', icon: Video },
+  { key: 'audio', label: 'صوت', icon: Mic },
+];
+
 interface Story {
   id: string;
   user_id: string;
@@ -33,6 +40,9 @@ interface Story {
   likes_count: number;
   comments_count: number;
   created_at: string;
+  status: string;
+  media_type: string;
+  media_url: string | null;
 }
 
 interface Comment {
@@ -62,13 +72,16 @@ export default function Stories() {
   const [newContent, setNewContent] = useState('');
   const [newAuthorName, setNewAuthorName] = useState('');
   const [newCategory, setNewCategory] = useState('');
+  const [newMediaType, setNewMediaType] = useState('text');
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [maxChars, setMaxChars] = useState(5000);
+  const maxChars = 5000;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Comment form
   const [commentText, setCommentText] = useState('');
 
-  // Load stories for a category
   const loadStories = useCallback(async (category: string) => {
     setLoading(true);
     const { data } = await supabase
@@ -78,7 +91,6 @@ export default function Stories() {
       .order('created_at', { ascending: false });
     setStories((data as Story[]) || []);
     
-    // Load user's likes
     if (user) {
       const { data: likes } = await supabase
         .from('story_likes')
@@ -89,7 +101,6 @@ export default function Stories() {
     setLoading(false);
   }, [user]);
 
-  // Load comments for a story
   const loadComments = useCallback(async (storyId: string) => {
     const { data } = await supabase
       .from('story_comments')
@@ -99,7 +110,6 @@ export default function Stories() {
     setComments((data as Comment[]) || []);
   }, []);
 
-  // Realtime subscriptions
   useEffect(() => {
     const channel = supabase
       .channel('stories-realtime')
@@ -113,7 +123,6 @@ export default function Stories() {
     return () => { supabase.removeChannel(channel); };
   }, [selectedCategory, selectedStory, loadStories, loadComments]);
 
-  // Browser back button support
   useEffect(() => {
     const handlePopState = () => {
       if (viewMode === 'story') {
@@ -142,9 +151,7 @@ export default function Stories() {
     window.history.pushState({ view: 'story' }, '');
   };
 
-  const goBack = () => {
-    window.history.back();
-  };
+  const goBack = () => { window.history.back(); };
 
   const openNewStory = () => {
     if (!user) {
@@ -155,8 +162,46 @@ export default function Stories() {
     setNewTitle('');
     setNewContent('');
     setNewAuthorName('');
+    setNewMediaType('text');
+    setMediaFile(null);
     setViewMode('new');
     window.history.pushState({ view: 'new' }, '');
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      toast.error('حجم الملف يجب أن يكون أقل من 50 ميغابايت');
+      return;
+    }
+    setMediaFile(file);
+  };
+
+  const uploadMedia = async (): Promise<string | null> => {
+    if (!mediaFile || !user) return null;
+    setUploading(true);
+    
+    const ext = mediaFile.name.split('.').pop();
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    
+    const { error } = await supabase.storage
+      .from('story-media')
+      .upload(path, mediaFile);
+    
+    setUploading(false);
+    if (error) {
+      toast.error('فشل رفع الملف');
+      return null;
+    }
+    
+    const { data: urlData } = supabase.storage
+      .from('story-media')
+      .getPublicUrl(path);
+    
+    return urlData.publicUrl;
   };
 
   const submitStory = async () => {
@@ -173,19 +218,37 @@ export default function Stories() {
       toast.error(`القصة يجب أن تكون أقل من ${maxChars} حرف`);
       return;
     }
+    if (newMediaType !== 'text' && !mediaFile) {
+      toast.error('يرجى رفع ملف الوسائط');
+      return;
+    }
+
     setSubmitting(true);
+
+    let mediaUrl: string | null = null;
+    if (newMediaType !== 'text' && mediaFile) {
+      mediaUrl = await uploadMedia();
+      if (!mediaUrl) {
+        setSubmitting(false);
+        return;
+      }
+    }
+
     const { error } = await supabase.from('stories').insert({
       user_id: user.id,
       author_name: newAuthorName.trim() || 'مجهول',
       category: newCategory,
       title: newTitle.trim(),
       content: newContent.trim(),
+      status: 'pending',
+      media_type: newMediaType,
+      media_url: mediaUrl,
     });
     setSubmitting(false);
     if (error) {
       toast.error('حدث خطأ في نشر القصة');
     } else {
-      toast.success('تم نشر قصتك بنجاح! ✨');
+      toast.success('تم إرسال قصتك وستُعرض بعد موافقة المشرف ✨');
       setSelectedCategory(newCategory);
       setViewMode('stories');
       loadStories(newCategory);
@@ -269,6 +332,12 @@ export default function Stories() {
 
   const getCategoryInfo = (key: string) => CATEGORIES.find(c => c.key === key);
 
+  const getMediaIcon = (type: string) => {
+    if (type === 'video') return <Video className="h-3 w-3" />;
+    if (type === 'audio') return <Mic className="h-3 w-3" />;
+    return null;
+  };
+
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
       <PageHeader
@@ -295,7 +364,6 @@ export default function Stories() {
           >
             {viewMode === 'categories' && (
               <>
-                {/* Motivational banner */}
                 <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-5 mb-6">
                   <div className="text-center">
                     <span className="text-3xl mb-2 block">✨</span>
@@ -303,8 +371,8 @@ export default function Stories() {
                       قصتك قد تكون سبباً في هداية شخص
                     </h2>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                      شارك تجربتك الحقيقية مع الاستغفار، الرقية، الحوقلة أو أي تجربة إيمانية.
-                      كلماتك قد تكون نوراً لشخص يمر بنفس ما مررت به.
+                      شارك تجربتك الحقيقية — نص، فيديو، أو صوت.
+                      يتم مراجعة القصص قبل نشرها لضمان جودة المحتوى.
                     </p>
                     {user ? (
                       <Button onClick={() => { setNewCategory(''); setViewMode('new'); }} className="rounded-full gap-2">
@@ -320,7 +388,6 @@ export default function Stories() {
                   </div>
                 </div>
 
-                {/* Categories */}
                 <SectionHeader icon={FolderOpen} title="اختر الفئة" />
                 <div className="space-y-3">
                   {CATEGORIES.map((cat, i) => (
@@ -385,8 +452,21 @@ export default function Stories() {
                         onClick={() => openStory(story)}
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <span className="text-[10px] text-muted-foreground">{formatTime(story.created_at)}</span>
                           <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-muted-foreground">{formatTime(story.created_at)}</span>
+                            {story.status === 'pending' && story.user_id === user?.id && (
+                              <span className="text-[10px] bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <Clock className="h-2.5 w-2.5" /> بانتظار الموافقة
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {story.media_type !== 'text' && (
+                              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
+                                {getMediaIcon(story.media_type)}
+                                {story.media_type === 'video' ? 'فيديو' : 'صوت'}
+                              </span>
+                            )}
                             <span className="text-xs font-medium text-foreground">{story.author_name}</span>
                             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                               <span className="text-sm">👤</span>
@@ -419,178 +499,218 @@ export default function Stories() {
 
             {viewMode === 'story' && selectedStory && (
               <>
-                {/* Story detail */}
                 <div className="rounded-2xl bg-card border border-border p-5 mb-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-muted-foreground">{formatTime(selectedStory.created_at)}</span>
                       {user?.id === selectedStory.user_id && (
-                        <button onClick={() => deleteStory(selectedStory.id)} className="p-1">
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </button>
+                        <Button variant="destructive" size="sm" onClick={() => deleteStory(selectedStory.id)} className="rounded-xl h-8">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        <span className="text-sm font-medium text-foreground block">{selectedStory.author_name}</span>
-                        <span className="text-[10px] text-primary">{getCategoryInfo(selectedStory.category)?.label}</span>
-                      </div>
+                      <span className="text-xs text-foreground font-medium">{selectedStory.author_name}</span>
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
                         <span className="text-lg">👤</span>
                       </div>
                     </div>
                   </div>
+
                   <h2 className="text-lg font-bold text-foreground text-right mb-3 break-words">{selectedStory.title}</h2>
-                  <p className="text-sm text-foreground/80 text-right leading-[1.8] whitespace-pre-wrap break-words">
+
+                  {/* Media player */}
+                  {selectedStory.media_url && selectedStory.media_type === 'video' && (
+                    <div className="rounded-xl overflow-hidden mb-4">
+                      <video
+                        src={selectedStory.media_url}
+                        controls
+                        className="w-full rounded-xl"
+                        preload="metadata"
+                      />
+                    </div>
+                  )}
+                  {selectedStory.media_url && selectedStory.media_type === 'audio' && (
+                    <div className="rounded-xl bg-muted/50 p-4 mb-4">
+                      <audio
+                        src={selectedStory.media_url}
+                        controls
+                        className="w-full"
+                        preload="metadata"
+                      />
+                    </div>
+                  )}
+
+                  <p className="text-sm text-foreground text-right leading-[2] whitespace-pre-wrap break-words">
                     {selectedStory.content}
                   </p>
-                  <div className="flex items-center justify-between border-t border-border pt-3 mt-4">
-                    <button onClick={() => toggleLike(selectedStory.id)} className="flex items-center gap-1.5">
-                      <Heart className={cn("h-5 w-5", likedStories.has(selectedStory.id) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
-                      <span className="text-sm text-muted-foreground">{selectedStory.likes_count}</span>
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                    <button onClick={() => toggleLike(selectedStory.id)} className="flex items-center gap-1.5 text-xs">
+                      <Heart className={cn("h-4 w-4", likedStories.has(selectedStory.id) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
+                      <span className="text-muted-foreground">{selectedStory.likes_count}</span>
                     </button>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <span>{selectedStory.comments_count}</span>
-                      <MessageCircle className="h-5 w-5" />
-                    </div>
+                    <span className="text-[10px] text-muted-foreground">{formatTime(selectedStory.created_at)}</span>
                   </div>
                 </div>
 
                 {/* Comments */}
-                <h3 className="text-sm font-bold text-foreground mb-3">💬 التعليقات ({comments.length})</h3>
-                <div className="space-y-3 mb-4">
+                <div className="rounded-2xl bg-card border border-border p-5">
+                  <h3 className="font-bold text-foreground text-sm mb-4">💬 التعليقات ({comments.length})</h3>
+                  
+                  {user && (
+                    <div className="flex gap-2 mb-4">
+                      <Button onClick={submitComment} size="sm" className="rounded-full shrink-0">
+                        <Send className="h-3.5 w-3.5" />
+                      </Button>
+                      <Input
+                        value={commentText}
+                        onChange={e => setCommentText(e.target.value)}
+                        placeholder="اكتب تعليقاً..."
+                        className="flex-1 rounded-full text-sm"
+                        onKeyDown={e => e.key === 'Enter' && submitComment()}
+                        maxLength={1000}
+                      />
+                    </div>
+                  )}
+
                   {comments.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-6">لا توجد تعليقات بعد - كن أول من يعلّق!</p>
+                    <p className="text-xs text-muted-foreground text-center py-4">لا توجد تعليقات بعد</p>
                   ) : (
-                    comments.map((c) => (
-                      <div key={c.id} className="rounded-xl bg-muted/50 border border-border p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-muted-foreground">{formatTime(c.created_at)}</span>
-                            {user?.id === c.user_id && (
-                              <button onClick={() => deleteComment(c.id)} className="p-0.5">
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </button>
-                            )}
+                    <div className="space-y-3">
+                      {comments.map(comment => (
+                        <div key={comment.id} className="rounded-xl bg-muted/30 p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-muted-foreground">{formatTime(comment.created_at)}</span>
+                              {user?.id === comment.user_id && (
+                                <button onClick={() => deleteComment(comment.id)} className="text-destructive">
+                                  <Trash2 className="h-3 w-3" />
+                                </button>
+                              )}
+                            </div>
+                            <span className="text-xs font-medium text-foreground">{comment.author_name}</span>
                           </div>
-                          <span className="text-xs font-medium text-foreground">{c.author_name}</span>
+                          <p className="text-xs text-foreground text-right leading-relaxed break-words">{comment.content}</p>
                         </div>
-                        <p className="text-xs text-foreground/80 text-right">{c.content}</p>
-                      </div>
-                    ))
+                      ))}
+                    </div>
                   )}
                 </div>
-
-                {/* Add comment */}
-                {user ? (
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      value={commentText}
-                      onChange={e => setCommentText(e.target.value)}
-                      placeholder="أضف تعليقك..."
-                      className="rounded-full"
-                      onKeyDown={e => e.key === 'Enter' && submitComment()}
-                      maxLength={1000}
-                    />
-                    <Button size="icon" onClick={submitComment} disabled={!commentText.trim()} className="rounded-full flex-shrink-0">
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Link to="/auth" className="block text-center text-sm text-primary font-medium py-3 rounded-xl border border-primary/20 bg-primary/5">
-                    سجّل دخولك للتعليق
-                  </Link>
-                )}
               </>
             )}
 
             {viewMode === 'new' && (
-              <>
-                <h2 className="text-lg font-bold text-foreground text-right mb-5">✍️ انشر قصتك</h2>
-                <div className="space-y-4">
-                  {/* Category selection */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block text-right">الفئة</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {CATEGORIES.map(cat => (
-                        <button
-                          key={cat.key}
-                          onClick={() => setNewCategory(cat.key)}
-                          className={cn(
-                            'flex items-center gap-2 p-3 rounded-xl border text-right transition-all',
-                            newCategory === cat.key
-                              ? 'border-primary bg-primary/10'
-                              : 'border-border bg-card'
-                          )}
-                        >
-                          <span className="text-lg">{cat.emoji}</span>
-                          <span className="text-xs font-medium text-foreground flex-1">{cat.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+              <div className="space-y-4">
+                <h2 className="text-lg font-bold text-foreground text-center mb-2">📝 شارك قصتك</h2>
+                <p className="text-xs text-muted-foreground text-center leading-relaxed mb-4">
+                  ⚠️ ستتم مراجعة قصتك قبل نشرها لضمان جودة المحتوى
+                </p>
 
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block text-right">اسمك (اختياري)</label>
-                    <Input
-                      value={newAuthorName}
-                      onChange={e => setNewAuthorName(e.target.value)}
-                      placeholder="مجهول"
-                      className="rounded-xl text-right"
-                      maxLength={50}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block text-right">عنوان القصة</label>
-                    <Input
-                      value={newTitle}
-                      onChange={e => setNewTitle(e.target.value)}
-                      placeholder="عنوان مختصر لقصتك..."
-                      className="rounded-xl text-right"
-                      maxLength={100}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block text-right">القصة</label>
-                    <textarea
-                      value={newContent}
-                      onChange={e => setNewContent(e.target.value)}
-                      placeholder="اكتب قصتك هنا... شاركنا تجربتك الحقيقية مع ذكر التفاصيل التي تلهم الآخرين"
-                      className="w-full min-h-[180px] rounded-xl bg-card border border-border p-4 text-sm text-foreground text-right leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                      maxLength={maxChars}
-                    />
-                    <div className="flex items-center justify-between mt-1.5">
-                      <p className={cn(
-                        "text-[10px] font-medium",
-                        newContent.length >= maxChars ? "text-destructive" : newContent.length >= maxChars * 0.9 ? "text-orange-500 dark:text-orange-400" : "text-muted-foreground"
-                      )}>
-                        {newContent.length}/{maxChars}
-                      </p>
-                      {newContent.length >= maxChars * 0.8 && maxChars < 15000 && (
-                        <button
-                          type="button"
-                          onClick={() => setMaxChars(prev => Math.min(prev + 5000, 15000))}
-                          className="flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 hover:bg-primary/20 transition-colors"
-                        >
-                          <Plus className="h-3 w-3" />
-                          إضافة {Math.min(5000, 15000 - maxChars)} حرف
-                        </button>
+                {/* Media type selector */}
+                <div className="flex gap-2 justify-center mb-4">
+                  {MEDIA_TYPES.map(mt => (
+                    <button
+                      key={mt.key}
+                      onClick={() => { setNewMediaType(mt.key); setMediaFile(null); }}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
+                        newMediaType === mt.key
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground'
                       )}
-                    </div>
-                  </div>
+                    >
+                      <mt.icon className="h-4 w-4" />
+                      {mt.label}
+                    </button>
+                  ))}
+                </div>
 
-                  <Button onClick={submitStory} disabled={submitting || !newTitle.trim() || !newContent.trim() || !newCategory} className="w-full rounded-xl h-12 gap-2">
-                    {submitting ? '...' : (
-                      <>
-                        <Send className="h-4 w-4" />
-                        انشر القصة
-                      </>
-                    )}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">الفئة</label>
+                  <select
+                    value={newCategory}
+                    onChange={e => setNewCategory(e.target.value)}
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
+                  >
+                    <option value="">اختر الفئة</option>
+                    {CATEGORIES.map(c => (
+                      <option key={c.key} value={c.key}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">اسمك (اختياري)</label>
+                  <Input value={newAuthorName} onChange={e => setNewAuthorName(e.target.value)} placeholder="مجهول" className="rounded-xl" maxLength={50} />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">العنوان</label>
+                  <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="عنوان قصتك..." className="rounded-xl" maxLength={100} />
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">القصة</label>
+                  <textarea
+                    value={newContent}
+                    onChange={e => setNewContent(e.target.value)}
+                    placeholder="اكتب قصتك هنا..."
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm min-h-[150px] leading-relaxed"
+                    maxLength={maxChars}
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">{newContent.length}/{maxChars}</p>
+                </div>
+
+                {/* File upload */}
+                {newMediaType !== 'text' && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                      {newMediaType === 'video' ? '📹 رفع فيديو (mp4, webm - أقصى 50MB)' : '🎙️ رفع ملف صوتي (mp3, wav, m4a - أقصى 50MB)'}
+                    </label>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={newMediaType === 'video' ? 'video/mp4,video/webm' : 'audio/mpeg,audio/wav,audio/ogg,audio/m4a'}
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className={cn(
+                        'w-full rounded-xl border-2 border-dashed p-6 text-center transition-colors',
+                        mediaFile ? 'border-primary/30 bg-primary/5' : 'border-border hover:border-primary/30'
+                      )}
+                    >
+                      {mediaFile ? (
+                        <div className="flex items-center justify-center gap-2">
+                          {newMediaType === 'video' ? <Video className="h-5 w-5 text-primary" /> : <Mic className="h-5 w-5 text-primary" />}
+                          <span className="text-sm text-foreground font-medium">{mediaFile.name}</span>
+                          <button onClick={(e) => { e.stopPropagation(); setMediaFile(null); }} className="text-destructive">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">اضغط لرفع الملف</p>
+                        </div>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={submitStory}
+                    disabled={submitting || uploading}
+                    className="flex-1 rounded-2xl h-12"
+                  >
+                    {submitting || uploading ? 'جاري الإرسال...' : '📤 إرسال للمراجعة'}
+                  </Button>
+                  <Button variant="outline" onClick={goBack} className="rounded-2xl h-12">
+                    إلغاء
                   </Button>
                 </div>
-              </>
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
