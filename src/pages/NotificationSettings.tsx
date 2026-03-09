@@ -86,7 +86,7 @@ function SettingRow({ setting }: { setting: NotifSetting }) {
 function SettingsSection({ title, settings }: { title: string; settings: NotifSetting[] }) {
   return (
     <div className="px-4 mt-5">
-      <p className="text-xs font-bold text-muted-foreground mb-2 mr-1">{title}</p>
+      <p className="text-xs font-bold text-muted-foreground mb-2 me-1">{title}</p>
       <div className="rounded-2xl bg-card border border-border/40 px-4">
         {settings.map(s => <SettingRow key={s.key} setting={s} />)}
       </div>
@@ -125,7 +125,7 @@ export default function NotificationSettings() {
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3">
-          <Link to="/more" className="p-2 -mr-2 rounded-xl transition-all active:scale-90">
+          <Link to="/more" className="p-2 -me-2 rounded-xl transition-all active:scale-90">
             <ArrowRight className="h-5 w-5 text-foreground" />
           </Link>
           <h1 className="text-base font-bold text-foreground">الإشعارات والأذان</h1>

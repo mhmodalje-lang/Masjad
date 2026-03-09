@@ -243,7 +243,7 @@ export default function Index() {
                   to="/notifications"
                   className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-xl transition-all active:scale-95"
                 >
-                  <Volume2 className="h-3 w-3 inline ml-1" />
+                  <Volume2 className="h-3 w-3 inline me-1" />
                   الأذان
                 </Link>
               </div>
@@ -372,7 +372,7 @@ export default function Index() {
                 <span className="text-3xl">🌙</span>
                 <p className="text-white/70 text-[10px] mt-1">تحدي رمضان</p>
               </div>
-              <div className="text-white text-sm text-left relative z-10">
+              <div className="text-white text-sm text-start relative z-10">
                 <span className="text-white/50 text-xs font-medium">الفجر</span>
                 <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
               </div>
@@ -412,7 +412,7 @@ export default function Index() {
             {todayDua.arabic}
           </p>
           <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2 text-xs font-bold text-primary transition-all">
-            اقرأ مع الترجمة ←
+            اقرأ مع الترجمة →
           </span>
         </motion.div>
       </div>
@@ -467,7 +467,7 @@ export default function Index() {
             to="/quran-goal"
             className="inline-block rounded-2xl bg-primary/10 border border-primary/20 px-5 py-2 text-xs font-bold text-primary transition-all active:scale-95"
           >
-            حدّد هدف القرآن ←
+            حدّد هدف القرآن →
           </Link>
         </motion.div>
       </div>

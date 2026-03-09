@@ -410,12 +410,12 @@ export default function QuranPlayer() {
                     >
                       <div className="pt-3">
                         <div className="relative mb-2">
-                          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                          <Search className="absolute end-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                           <Input
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder="ابحث عن سورة..."
-                            className="pl-8 rounded-2xl text-right text-xs h-9 border-border/50"
+                            className="pe-8 rounded-2xl text-start text-xs h-9 border-border/50"
                           />
                         </div>
                         <div className="max-h-48 overflow-y-auto space-y-0.5">
@@ -449,7 +449,7 @@ export default function QuranPlayer() {
                   <div className="w-full h-1.5 rounded-full bg-muted mb-2 cursor-pointer" onClick={seekTo}>
                     <div
                       className="h-full rounded-full bg-primary transition-all duration-300"
-                      style={{ width: `${progress}%`, marginRight: 'auto', marginLeft: 0 }}
+                      style={{ width: `${progress}%`, marginInlineEnd: 'auto', marginInlineStart: 0 }}
                     />
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground mb-4 tabular-nums" dir="ltr">
@@ -486,7 +486,7 @@ export default function QuranPlayer() {
                       ) : isPlaying ? (
                         <Pause className="h-6 w-6 text-primary-foreground" />
                       ) : (
-                        <Play className="h-6 w-6 text-primary-foreground mr-[-2px]" />
+                        <Play className="h-6 w-6 text-primary-foreground" />
                       )}
                     </button>
 
