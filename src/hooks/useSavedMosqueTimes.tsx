@@ -91,19 +91,18 @@ function parseStoredTimes(raw: string): { times: Record<string, string> | null; 
   }
 }
 
-function getCalcMethod(): number {
+function getCalcSettings(): { method: number; school: number } {
   try {
-    // First check explicit setting
-    const explicit = localStorage.getItem('calculation_method');
-    if (explicit) return parseInt(explicit, 10) || 3;
-    // Then check cached-location (same source as useGeoLocation)
     const cached = localStorage.getItem('cached-location');
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (parsed.calculationMethod) return parsed.calculationMethod;
+      return {
+        method: parsed.calculationMethod || 3,
+        school: parsed.school ?? 0,
+      };
     }
   } catch { /* ignore */ }
-  return 3; // Default: Muslim World League (matches useGeoLocation default for Europe)
+  return { method: 3, school: 0 };
 }
 
 export function useSavedMosqueTimes(): SavedMosqueData {
@@ -123,7 +122,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
 
   useEffect(() => {
     const is12h = detectIs12Hour();
-    const calcMethod = getCalcMethod();
+    const { method: calcMethod, school: calcSchool } = getCalcSettings();
 
     const load = async () => {
       const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
@@ -226,7 +225,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             timings = JSON.parse(cached);
           } else {
             const res = await fetch(
-              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=${calcMethod}`,
+              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=${calcMethod}&school=${calcSchool}&adjustment=0`,
               { cache: 'no-store' }
             );
             const json = await res.json();

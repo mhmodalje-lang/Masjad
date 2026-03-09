@@ -94,17 +94,18 @@ function applyTimeDiff(time: string, diffMinutes: number): string {
   return `${String(newH).padStart(2, '0')}:${String(newM).padStart(2, '0')}`;
 }
 
-function getCalcMethod(): number {
+function getCalcSettings(): { method: number; school: number } {
   try {
-    const explicit = localStorage.getItem('calculation_method');
-    if (explicit) return parseInt(explicit, 10) || 3;
     const cached = localStorage.getItem('cached-location');
     if (cached) {
       const parsed = JSON.parse(cached);
-      if (parsed.calculationMethod) return parsed.calculationMethod;
+      return {
+        method: parsed.calculationMethod || 3,
+        school: parsed.school ?? 0,
+      };
     }
   } catch { /* ignore */ }
-  return 3;
+  return { method: 3, school: 0 };
 }
 
 async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesMap | null> {
@@ -112,9 +113,9 @@ async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesM
     const d = new Date();
     const dd = String(d.getDate()).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const method = getCalcMethod();
+    const { method, school } = getCalcSettings();
     const res = await fetch(
-      `https://api.aladhan.com/v1/timings/${dd}-${mm}-${d.getFullYear()}?latitude=${lat}&longitude=${lon}&method=${method}`,
+      `https://api.aladhan.com/v1/timings/${dd}-${mm}-${d.getFullYear()}?latitude=${lat}&longitude=${lon}&method=${method}&school=${school}&adjustment=0`,
       { cache: 'no-store' }
     );
     const json = await res.json();
