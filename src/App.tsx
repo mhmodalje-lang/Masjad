@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
+import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
