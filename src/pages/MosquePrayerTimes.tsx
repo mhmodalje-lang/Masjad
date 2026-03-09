@@ -58,6 +58,7 @@ const PRAYER_LABELS: Record<string, string> = {
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
 const COUNTDOWN_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 const SAVED_MOSQUE_KEY = 'selected_mosque';
+const LIVE_CACHE_PREFIX = 'mosque_live_';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
 const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
 const emptyTimes: PrayerTimesMap = { fajr: '', sunrise: '', dhuhr: '', asr: '', maghrib: '', isha: '', jumuah: '' };
@@ -95,10 +96,15 @@ function applyTimeDiff(time: string, diffMinutes: number): string {
 
 function getCalcMethod(): number {
   try {
-    const v = localStorage.getItem('calculation_method');
-    if (v) return parseInt(v, 10) || 2;
+    const explicit = localStorage.getItem('calculation_method');
+    if (explicit) return parseInt(explicit, 10) || 3;
+    const cached = localStorage.getItem('cached-location');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed.calculationMethod) return parsed.calculationMethod;
+    }
   } catch { /* ignore */ }
-  return 2;
+  return 3;
 }
 
 async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesMap | null> {
@@ -285,6 +291,10 @@ export default function MosquePrayerTimesPage() {
         const adjustedTimes = applyAllDiffs(liveTimes, diffs);
         setTimes(adjustedTimes);
         setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : liveData.source === 'calculated' ? 'calculated' : 'website'));
+        // Save to shared cache so Index page reads the same times
+        const dateKey = today.replace(/-/g, '');
+        const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
+        try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: liveTimes, source: liveData.source })); } catch {}
         setTimesLoading(false);
         mosque.hasAutoSync = true;
         toast.success(`تم سحب أوقات ${mosque.name} تلقائياً ✅`);
@@ -299,6 +309,10 @@ export default function MosquePrayerTimesPage() {
       const adjustedTimes = applyAllDiffs(result, diffs);
       setTimes(adjustedTimes);
       setTimesSource(hasDiffs(diffs) ? 'adjusted' : 'api');
+      // Save to shared cache
+      const dateKey = today.replace(/-/g, '');
+      const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
+      try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: result, source: 'api' })); } catch {}
       mosque.hasAutoSync = false;
     } else {
       setBaseTimes(emptyTimes);
