@@ -28,6 +28,9 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Account = lazy(() => import("./pages/Account"));
 const DailyDuas = lazy(() => import("./pages/DailyDuas"));
 const MosquePrayerTimes = lazy(() => import("./pages/MosquePrayerTimes"));
+const RamadanChallenge = lazy(() => import("./pages/RamadanChallenge"));
+const QuranGoal = lazy(() => import("./pages/QuranGoal"));
+const DhikrSettings = lazy(() => import("./pages/DhikrSettings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
