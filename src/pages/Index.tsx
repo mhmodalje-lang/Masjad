@@ -10,7 +10,7 @@ import OccasionBanner from '@/components/OccasionBanner';
 import HijriCalendar from '@/components/HijriCalendar';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, CheckCircle2, MessageSquare, Sparkles, Clock, Zap } from 'lucide-react';
-import SectionHeader from '@/components/SectionHeader';
+import SectionTitle from '@/components/SectionTitle';
 import QuranPlayer from '@/components/QuranPlayer';
 import { AdBanner } from '@/components/AdBanner';
 import { motion } from 'framer-motion';
@@ -43,11 +43,8 @@ export default function Index() {
     return localStorage.getItem('athan-notifications') === 'true';
   });
 
-  // Current Islamic occasion
-  // hijriDay is a string like "14", we need to parse it to a number
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
 
-  // Full-screen athan alert state
   const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
 
   const handleAthanAlert = useCallback((prayerKey: string, prayerTime: string) => {
@@ -106,7 +103,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Full-screen Athan Alert with Occasion support */}
       {alertPrayer && (
         <OccasionAthanAlert
           prayerKey={alertPrayer.key}
@@ -125,9 +121,7 @@ export default function Index() {
           width="1335"
           height="224"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
-        
-        {/* Decorative geometric overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
         <div className="absolute inset-0 islamic-pattern opacity-30" />
         
         {/* Top bar */}
@@ -135,19 +129,19 @@ export default function Index() {
           <button
             onClick={toggleNotifications}
             aria-label={notificationsEnabled ? 'إيقاف الإشعارات' : 'تفعيل الإشعارات'}
-            className="p-2.5 rounded-2xl bg-black/25 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+            className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95"
           >
             {notificationsEnabled ? (
-              <Bell className="h-4 w-4 text-white fill-current" />
+              <Bell className="h-4 w-4 text-primary fill-current" />
             ) : (
-              <BellOff className="h-4 w-4 text-white/70" />
+              <BellOff className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
           <div className="text-center">
-            <p className="text-white font-semibold text-sm tracking-wide">
+            <p className="text-accent font-semibold text-sm tracking-wide">
               {location.loading ? '...' : location.city}
             </p>
-            <p className="text-white/60 text-xs font-arabic mt-0.5">
+            <p className="text-primary/50 text-xs font-arabic mt-0.5">
               {loading ? '...' : hijriDate}
             </p>
           </div>
@@ -157,21 +151,17 @@ export default function Index() {
 
       <AdBanner position="home-top" />
 
-      {/* Islamic Occasion Banner */}
       {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
-
 
       {/* Goals card */}
       <div className="px-4 -mt-12 relative z-10 mb-5">
-        <div
-          className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated"
-        >
+        <div className="rounded-3xl glass-futuristic border-neon p-5 shadow-elevated">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center">
+            <div className="h-12 w-12 rounded-2xl glass-futuristic border border-primary/30 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
+              <p className="text-sm font-bold text-accent">أكمل أهداف اليوم</p>
               <div className="flex flex-wrap gap-3 mt-1.5">
                 <span className="flex items-center gap-1.5 text-xs leading-relaxed">
                   <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
@@ -190,7 +180,7 @@ export default function Index() {
           </div>
           <Link
             to="/tracker"
-            className="block w-full text-center rounded-2xl bg-primary text-primary-foreground py-3 text-sm font-bold transition-all active:scale-[0.98]"
+            className="block w-full text-center rounded-2xl bg-primary text-primary-foreground py-3 text-sm font-bold transition-all active:scale-[0.98] glow-cyan"
           >
             متابعة الصلاة اليوم
           </Link>
@@ -204,15 +194,15 @@ export default function Index() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="rounded-3xl bg-card border border-border/50 p-5 flex flex-col items-center justify-center shadow-elevated"
+            className="rounded-3xl glass-futuristic border-neon p-5 flex flex-col items-center justify-center shadow-elevated"
           >
-            <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
+            <div className="h-8 w-8 rounded-xl glass-futuristic border border-primary/30 flex items-center justify-center mb-2">
               <CheckCircle2 className="h-4 w-4 text-primary" />
             </div>
-            <p className="text-lg font-bold text-foreground">
+            <p className="text-lg font-bold text-accent">
               {nextPrayer ? t(nextPrayer.key) : '—'}
             </p>
-            <p className="text-2xl font-light tabular-nums text-muted-foreground mt-1">
+            <p className="text-2xl font-light tabular-nums text-primary mt-1">
               {nextPrayer?.time || '—'}
             </p>
           </motion.div>
@@ -221,7 +211,7 @@ export default function Index() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="rounded-3xl bg-card border border-border/50 p-5 flex items-center justify-center shadow-elevated"
+            className="rounded-3xl glass-futuristic border-neon p-5 flex items-center justify-center shadow-elevated"
           >
             <div className="relative">
               <svg width="120" height="120" viewBox="0 0 120 120">
@@ -241,11 +231,11 @@ export default function Index() {
                   strokeDashoffset={strokeDashoffset}
                   transform="rotate(-90 60 60)"
                   className="transition-all duration-1000"
-                  style={{ filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.3))' }}
+                  style={{ filter: 'drop-shadow(0 0 8px hsl(180 100% 50% / 0.4))' }}
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-semibold tabular-nums text-foreground">
+                <span className="text-sm font-semibold tabular-nums text-accent">
                   -{remaining || '00:00'}
                 </span>
               </div>
@@ -254,24 +244,24 @@ export default function Index() {
         </div>
       </div>
 
-      {/* Ramadan Fajr/Maghrib bar - only in Ramadan */}
+      {/* Ramadan Fajr/Maghrib bar */}
       {isRamadan(hijriMonthNumber) && (
         <div className="px-4 mb-5">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden"
+            className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden border border-neon"
           >
             <div className="absolute inset-0 islamic-pattern opacity-20" />
-            <div className="text-white text-sm relative z-10">
-              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
-              <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
+            <div className="text-foreground text-sm relative z-10">
+              <span className="text-primary/50 text-xs font-medium uppercase tracking-wider">إفطار</span>
+              <p className="font-bold tabular-nums text-lg text-accent">{maghribTime}</p>
             </div>
             <span className="text-3xl relative z-10">🌙</span>
-            <div className="text-white text-sm text-left relative z-10">
-              <span className="text-white/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
-              <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
+            <div className="text-foreground text-sm text-left relative z-10">
+              <span className="text-primary/50 text-xs font-medium uppercase tracking-wider">الفجر</span>
+              <p className="font-bold tabular-nums text-lg text-accent">{fajrTime}</p>
             </div>
           </motion.div>
         </div>
@@ -280,7 +270,7 @@ export default function Index() {
       {/* Today's Prayers */}
       <div className="px-4 mb-5">
         <div className="flex items-center justify-between mb-1">
-          <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
+          <SectionTitle icon={Clock} title={t('prayerTimes')} className="flex-1" />
           <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">
             {t('more')}
             <ChevronLeft className="h-3 w-3" />
@@ -298,14 +288,14 @@ export default function Index() {
                 className={cn(
                   'rounded-2xl border p-4 text-center transition-all min-w-0',
                   isNext
-                    ? 'border-primary/40 bg-primary/8 shadow-sm glow-emerald'
-                    : 'border-border/50 bg-card'
+                    ? 'border-primary/40 glass-futuristic glow-cyan'
+                    : 'border-border/50 glass-futuristic'
                 )}
               >
               <p className={cn('text-xs mb-1 truncate leading-relaxed', isNext ? 'text-primary font-bold' : 'text-muted-foreground')}>
                 {t(prayer.key)}
               </p>
-              <p className={cn('text-base font-semibold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
+              <p className={cn('text-base font-semibold tabular-nums', isNext ? 'text-accent' : 'text-foreground')}>
                   {prayer.time}
                 </p>
               </motion.div>
@@ -318,7 +308,7 @@ export default function Index() {
 
       {/* Quick Access */}
       <div className="px-4 mb-5">
-        <SectionHeader icon={Zap} title={t('quickAccess')} />
+        <SectionTitle icon={Zap} title={t('quickAccess')} />
         <div className="grid grid-cols-4 gap-3 sm:grid-cols-6">
           {quickAccessItems.map((item, i) => (
             <motion.div
@@ -332,8 +322,7 @@ export default function Index() {
                 className="flex flex-col items-center gap-2 min-w-0"
               >
                 <div className={cn(
-                  'h-14 w-14 rounded-2xl bg-gradient-to-br border border-border/50 flex items-center justify-center shadow-elevated shrink-0 transition-transform active:scale-95',
-                  item.gradient
+                  'h-14 w-14 rounded-2xl glass-futuristic border border-primary/20 flex items-center justify-center shrink-0 transition-transform active:scale-95'
                 )}>
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
@@ -352,19 +341,19 @@ export default function Index() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden"
+          className="rounded-3xl glass-futuristic border-neon p-6 shadow-elevated relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
-          <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary mb-3">
+          <span className="inline-block rounded-full glass-futuristic border border-primary/30 px-3 py-1 text-xs font-semibold text-primary mb-3">
             دعاء اليوم
           </span>
-          <p className="text-sm font-bold text-foreground mb-3">قل هذه الكلمات عند الشدة</p>
+          <p className="text-sm font-bold text-accent mb-3">قل هذه الكلمات عند الشدة</p>
           <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4">
             اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا
           </p>
           <Link
             to="/duas"
-            className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
+            className="inline-block rounded-2xl glass-futuristic border border-primary/30 px-5 py-2.5 text-xs font-semibold text-primary transition-all active:scale-95 hover:border-primary/50"
           >
             اقرأ مع الترجمة
           </Link>
@@ -380,17 +369,17 @@ export default function Index() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden"
+          className="rounded-3xl glass-futuristic border-neon p-6 shadow-elevated relative overflow-hidden"
         >
           <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-accent/5 to-transparent rounded-tr-full" />
-          <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-xs font-semibold text-accent-foreground mb-3">
+          <span className="inline-block rounded-full glass-futuristic border border-accent/30 px-3 py-1 text-xs font-semibold text-accent mb-3">
             إتمام القرآن
           </span>
           <p className="text-sm font-bold text-foreground mb-1">ابدأ تلاوة القرآن يوميًا</p>
           <p className="text-xs text-muted-foreground mb-4">حدّد وتيرتك، احصل على تذكيرات يومية وتابع تقدمك</p>
           <Link
             to="/quran"
-            className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
+            className="inline-block rounded-2xl glass-futuristic border border-primary/30 px-5 py-2.5 text-xs font-semibold text-primary transition-all active:scale-95 hover:border-primary/50"
           >
             حدّد هدف القرآن
           </Link>
@@ -399,7 +388,7 @@ export default function Index() {
 
       {/* Hijri Calendar */}
       <div className="px-4 mb-8">
-        <SectionHeader emoji="📅" title={t('hijriCalendar')} />
+        <SectionTitle emoji="📅" title={t('hijriCalendar')} />
         <HijriCalendar
           hijriDay={hijriDay}
           hijriMonth={hijriMonthNumber || undefined}

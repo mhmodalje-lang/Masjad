@@ -194,7 +194,7 @@ export default function Duas() {
   const renderSection = (title: string, items: CatItem[], emoji?: string) => (
     <>
       <div className="px-5 mt-6 mb-2">
-        <SectionHeader emoji={emoji} title={title} />
+        <SectionTitle emoji={emoji} title={title} />
       </div>
       <div className="px-5">
         {items.map((cat) => {

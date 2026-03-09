@@ -6,8 +6,8 @@ import { RotateCcw, LogIn, Sparkles, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 
 const dhikrOptions = [
   { key: 'subhanAllah', arabic: 'سُبْحَانَ اللّهِ', target: 33, emoji: '📿' },
@@ -115,16 +115,16 @@ export default function Tasbeeh() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title={t('tasbeeh')}
         subtitle="اذكر الله وسبّحه"
         actionsLeft={
           <button
             onClick={handleReset}
-            className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+            className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95"
             aria-label="إعادة تعيين العداد"
           >
-            <RotateCcw className="h-4 w-4 text-white" />
+            <RotateCcw className="h-4 w-4 text-primary" />
           </button>
         }
       />
@@ -133,7 +133,7 @@ export default function Tasbeeh() {
         {!user && (
           <Link
             to="/auth"
-            className="mb-5 flex items-center justify-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed transition-all active:scale-[0.98]"
+            className="mb-5 flex items-center justify-center gap-3 rounded-2xl border border-primary/20 glass-futuristic p-4 text-sm leading-relaxed transition-all active:scale-[0.98]"
           >
             <span className="font-medium text-primary">{t('loginPrompt')}</span>
             <LogIn className="h-4 w-4 text-primary" />
@@ -142,7 +142,7 @@ export default function Tasbeeh() {
 
         {/* Dhikr selector cards */}
         <div className="mb-6">
-          <SectionHeader icon={Heart} title="اختر الذكر" subtitle="اختر من الأذكار المأثورة" />
+          <SectionTitle icon={Heart} title="اختر الذكر" subtitle="اختر من الأذكار المأثورة" />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {dhikrOptions.map((opt, i) => (
               <motion.button
@@ -153,8 +153,8 @@ export default function Tasbeeh() {
                   'min-h-[88px] rounded-2xl border p-4 text-center transition-all',
                   'flex flex-col items-center justify-center gap-2',
                   selected === i
-                    ? 'border-primary bg-primary text-primary-foreground shadow-lg glow-emerald'
-                    : 'border-border/50 bg-card text-foreground hover:border-primary/30'
+                    ? 'border-primary bg-primary text-primary-foreground glow-cyan'
+                    : 'border-border/50 glass-futuristic text-foreground hover:border-primary/30'
                 )}
               >
                 <span className="shrink-0 text-xl" aria-hidden="true">{opt.emoji}</span>
@@ -173,9 +173,9 @@ export default function Tasbeeh() {
             key={selected}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-5 w-full max-w-md rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated"
+            className="mb-5 w-full max-w-md rounded-3xl glass-futuristic border-neon p-5 text-center shadow-elevated"
           >
-            <p className="text-3xl font-arabic text-foreground leading-[2] break-words sm:text-4xl">
+            <p className="text-3xl font-arabic text-accent leading-[2] break-words sm:text-4xl">
               {dhikr.arabic}
             </p>
           </motion.div>
@@ -209,7 +209,7 @@ export default function Tasbeeh() {
                 initial={false}
                 animate={{ strokeDashoffset: circumference * (1 - progress / 100) }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
-                style={isComplete ? {} : { filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.3))' }}
+                style={isComplete ? {} : { filter: 'drop-shadow(0 0 8px hsl(180 100% 50% / 0.4))' }}
               />
               {count > 0 && (
                 <circle
@@ -258,13 +258,13 @@ export default function Tasbeeh() {
 
           {/* Stats row */}
           <div className="grid w-full max-w-sm grid-cols-2 gap-3 mb-6">
-            <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <div className="rounded-3xl glass-futuristic border-neon p-5 text-center shadow-elevated">
               <p className="mb-1 text-xs text-muted-foreground">{t('today')}</p>
-              <p className="tabular-nums text-2xl font-bold text-foreground">{count}</p>
+              <p className="tabular-nums text-2xl font-bold text-primary">{count}</p>
             </div>
-            <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <div className="rounded-3xl glass-futuristic border-neon p-5 text-center shadow-elevated">
               <p className="mb-1 text-xs text-muted-foreground">{t('total')}</p>
-              <p className="tabular-nums text-2xl font-bold text-foreground">{total.toLocaleString()}</p>
+              <p className="tabular-nums text-2xl font-bold text-accent">{total.toLocaleString()}</p>
             </div>
           </div>
         </div>

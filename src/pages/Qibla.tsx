@@ -160,25 +160,25 @@ export default function Qibla() {
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title={t('qibla')}
         subtitle={t('qiblaDirection')}
         actionsLeft={
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowInstructions(!showInstructions)}
-              className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+              className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95"
             >
-              <Info className="h-4 w-4 text-white" />
+              <Info className="h-4 w-4 text-primary" />
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'compass' ? 'map' : 'compass')}
-              className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+              className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95"
             >
               {viewMode === 'compass' ? (
-                <Map className="h-4 w-4 text-white" />
+                <Map className="h-4 w-4 text-primary" />
               ) : (
-                <Compass className="h-4 w-4 text-white" />
+                <Compass className="h-4 w-4 text-primary" />
               )}
             </button>
           </div>
