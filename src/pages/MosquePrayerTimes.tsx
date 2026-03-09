@@ -304,8 +304,11 @@ export default function MosquePrayerTimesPage() {
       }
     } catch { /* fall through */ }
 
-    // Fallback: Aladhan API using mosque coordinates
-    const result = await fetchAladhanTimes(mosque.latitude, mosque.longitude);
+    // Fallback: Aladhan API using USER's coordinates for consistency
+    const calcSettings = getCalcSettings();
+    const fallbackLat = calcSettings.latitude || mosque.latitude;
+    const fallbackLon = calcSettings.longitude || mosque.longitude;
+    const result = await fetchAladhanTimes(fallbackLat, fallbackLon);
     if (result) {
       setBaseTimes(result);
       const adjustedTimes = applyAllDiffs(result, diffs);

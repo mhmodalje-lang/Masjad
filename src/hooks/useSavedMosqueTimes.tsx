@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { PrayerTime } from './usePrayerTimes';
 
@@ -73,25 +73,16 @@ function getTodayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-/** Extract times from localStorage value, handling both old and new format */
 function parseStoredTimes(raw: string): { times: Record<string, string> | null; date: string | null } {
   try {
     const parsed = JSON.parse(raw);
-    // New format: { _date: "...", times: { fajr: "..." } }
-    if (parsed._date && parsed.times) {
-      return { times: parsed.times, date: parsed._date };
-    }
-    // Old format: { fajr: "...", dhuhr: "..." }
-    if (parsed.fajr || parsed.dhuhr || parsed.asr || parsed.maghrib || parsed.isha) {
-      return { times: parsed, date: null };
-    }
+    if (parsed._date && parsed.times) return { times: parsed.times, date: parsed._date };
+    if (parsed.fajr || parsed.dhuhr || parsed.asr || parsed.maghrib || parsed.isha) return { times: parsed, date: null };
     return { times: null, date: null };
-  } catch {
-    return { times: null, date: null };
-  }
+  } catch { return { times: null, date: null }; }
 }
 
-function getCalcSettings(): { method: number; school: number } {
+function getCalcSettings(): { method: number; school: number; latitude?: number; longitude?: number } {
   try {
     const cached = localStorage.getItem('cached-location');
     if (cached) {
@@ -99,10 +90,26 @@ function getCalcSettings(): { method: number; school: number } {
       return {
         method: parsed.calculationMethod || 3,
         school: parsed.school ?? 0,
+        latitude: parsed.latitude,
+        longitude: parsed.longitude,
       };
     }
   } catch { /* ignore */ }
   return { method: 3, school: 0 };
+}
+
+// Clear stale caches from previous days
+function clearStaleCaches(mosqueOsmId: string, todayKey: string) {
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    if (key.startsWith(LIVE_CACHE_PREFIX + mosqueOsmId) && !key.endsWith(todayKey)) {
+      localStorage.removeItem(key);
+    }
+    if (key.startsWith('mosque_api_' + mosqueOsmId) && !key.includes(todayKey)) {
+      localStorage.removeItem(key);
+    }
+  }
 }
 
 export function useSavedMosqueTimes(): SavedMosqueData {
@@ -110,19 +117,38 @@ export function useSavedMosqueTimes(): SavedMosqueData {
     mosqueName: null, prayers: null, loading: true, source: 'none'
   });
   const [todayStr, setTodayStr] = useState(getTodayStr);
+  const lastFetchRef = useRef<number>(0);
 
-  // Midnight refresh
+  // Refresh check every 30s: midnight change OR hourly re-fetch
   useEffect(() => {
     const interval = setInterval(() => {
       const now = getTodayStr();
-      setTodayStr(prev => prev !== now ? now : prev);
+      if (now !== todayStr) {
+        setTodayStr(now);
+        return;
+      }
+      // Hourly refresh: force re-fetch if >60 min since last fetch
+      if (Date.now() - lastFetchRef.current > 60 * 60 * 1000) {
+        // Clear live cache to force re-fetch
+        const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
+        if (saved) {
+          try {
+            const mosque = JSON.parse(saved);
+            const dateKey = now.replace(/-/g, '');
+            const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
+            localStorage.removeItem(liveCacheKey);
+          } catch { /* ignore */ }
+        }
+        lastFetchRef.current = Date.now();
+        setTodayStr(prev => prev + '_' + Date.now()); // force re-render
+      }
     }, 30_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [todayStr]);
 
   useEffect(() => {
     const is12h = detectIs12Hour();
-    const { method: calcMethod, school: calcSchool } = getCalcSettings();
+    const calcSettings = getCalcSettings();
 
     const load = async () => {
       const saved = localStorage.getItem(SAVED_MOSQUE_KEY);
@@ -137,7 +163,12 @@ export function useSavedMosqueTimes(): SavedMosqueData {
         return;
       }
 
-      // 1. Check for manually saved times (persist until user changes them)
+      const dateKey = todayStr.split('_')[0].replace(/-/g, '');
+
+      // Clear stale caches from previous days
+      clearStaleCaches(mosque.osm_id, dateKey);
+
+      // 1. Check for manually saved times
       const timesStr = localStorage.getItem(SAVED_TIMES_PREFIX + mosque.osm_id);
       if (timesStr) {
         const { times } = parseStoredTimes(timesStr);
@@ -159,8 +190,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
         try { diffs = JSON.parse(diffsStr); } catch { /* ignore */ }
       }
 
-      // 2. Try live sync (daily cache)
-      const dateKey = todayStr.replace(/-/g, '');
+      // 2. Try live cache (valid for current hour window)
       const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
       const liveCache = localStorage.getItem(liveCacheKey);
 
@@ -172,14 +202,15 @@ export function useSavedMosqueTimes(): SavedMosqueData {
               mosqueName: mosque.name,
               prayers: timesMapToPrayers(applyDiffsToTimes(cached.times, diffs), is12h),
               loading: false,
-              source: cached.source || 'website',
+              source: (cached.source || 'calculated') as TimesSource,
             });
+            lastFetchRef.current = Date.now();
             return;
           }
         } catch { /* fall through */ }
       }
 
-      // Try fetching live times
+      // 3. Fetch from edge function (accepts ALL sources including calculated)
       try {
         const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
           body: {
@@ -190,12 +221,12 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             latitude: mosque.latitude || null,
             longitude: mosque.longitude || null,
             countryCode: mosque.countryCode || null,
-            method: calcMethod,
-            school: calcSchool,
+            method: calcSettings.method,
+            school: calcSettings.school,
           },
         });
 
-        if (!error && liveData?.success && liveData?.times && liveData?.source !== 'calculated') {
+        if (!error && liveData?.success && liveData?.times) {
           localStorage.setItem(liveCacheKey, JSON.stringify({
             times: liveData.times,
             source: liveData.source,
@@ -205,36 +236,29 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             mosqueName: mosque.name,
             prayers: timesMapToPrayers(applyDiffsToTimes(liveData.times, diffs), is12h),
             loading: false,
-            source: liveData.source as TimesSource,
+            source: (liveData.source as TimesSource) || 'calculated',
           });
+          lastFetchRef.current = Date.now();
           return;
         }
-      } catch { /* fall through to Aladhan */ }
+      } catch { /* fall through to direct Aladhan */ }
 
-      // 3. Aladhan API with user's calc method
-      if (mosque.latitude && mosque.longitude) {
+      // 4. Direct Aladhan fallback using USER's coordinates for consistency
+      const fallbackLat = calcSettings.latitude || mosque.latitude;
+      const fallbackLon = calcSettings.longitude || mosque.longitude;
+      if (fallbackLat && fallbackLon) {
         try {
           const today = new Date();
           const dd = String(today.getDate()).padStart(2, '0');
           const mm = String(today.getMonth() + 1).padStart(2, '0');
           const yyyy = today.getFullYear();
 
-          const apiCacheKey = `mosque_api_${mosque.osm_id}_${dd}${mm}${yyyy}`;
-          const cached = localStorage.getItem(apiCacheKey);
-          
-          let timings: any;
-          if (cached) {
-            timings = JSON.parse(cached);
-          } else {
-            const res = await fetch(
-              `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${mosque.latitude}&longitude=${mosque.longitude}&method=${calcMethod}&school=${calcSchool}&adjustment=0`,
-              { cache: 'no-store' }
-            );
-            const json = await res.json();
-            timings = json.data.timings;
-            localStorage.setItem(apiCacheKey, JSON.stringify(timings));
-          }
-
+          const res = await fetch(
+            `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${fallbackLat}&longitude=${fallbackLon}&method=${calcSettings.method}&school=${calcSettings.school}&adjustment=0`,
+            { cache: 'no-store' }
+          );
+          const json = await res.json();
+          const timings = json.data.timings;
           const clean = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
           const times = {
             fajr: clean(timings.Fajr),
@@ -245,12 +269,16 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             isha: clean(timings.Isha),
           };
 
+          // Cache it
+          localStorage.setItem(liveCacheKey, JSON.stringify({ times, source: 'calculated' }));
+
           setData({
             mosqueName: mosque.name,
             prayers: timesMapToPrayers(applyDiffsToTimes(times, diffs), is12h),
             loading: false,
             source: 'api',
           });
+          lastFetchRef.current = Date.now();
           return;
         } catch { /* fall through */ }
       }
@@ -258,6 +286,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
       setData({ mosqueName: mosque.name, prayers: null, loading: false, source: 'none' });
     };
 
+    lastFetchRef.current = Date.now();
     load();
   }, [todayStr]);
 
