@@ -153,7 +153,7 @@ export default function PrayerTracker() {
             return (
               <motion.button
                 key={key}
-                initial={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.06 }}
                 onClick={() => togglePrayer(key)}

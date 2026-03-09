@@ -288,9 +288,9 @@ export default function Stories() {
         <AnimatePresence mode="wait">
           <motion.div
             key={viewMode + (selectedCategory || '') + (selectedStory?.id || '')}
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
+            exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
             {viewMode === 'categories' && (
@@ -484,17 +484,17 @@ export default function Stories() {
                 {/* Add comment */}
                 {user ? (
                   <div className="flex gap-2 items-center">
-                    <Button size="icon" onClick={submitComment} disabled={!commentText.trim()} className="rounded-full flex-shrink-0">
-                      <Send className="h-4 w-4" />
-                    </Button>
                     <Input
                       value={commentText}
                       onChange={e => setCommentText(e.target.value)}
                       placeholder="أضف تعليقك..."
-                      className="rounded-full text-right"
+                      className="rounded-full"
                       onKeyDown={e => e.key === 'Enter' && submitComment()}
                       maxLength={1000}
                     />
+                    <Button size="icon" onClick={submitComment} disabled={!commentText.trim()} className="rounded-full flex-shrink-0">
+                      <Send className="h-4 w-4" />
+                    </Button>
                   </div>
                 ) : (
                   <Link to="/auth" className="block text-center text-sm text-primary font-medium py-3 rounded-xl border border-primary/20 bg-primary/5">

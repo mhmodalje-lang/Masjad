@@ -739,7 +739,7 @@ export default function MosquePrayerTimesPage() {
                 {timesSource === 'calculated' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
                 {timesSource === 'adjusted' && '⏱️ أوقات معدلة (تحديث يومي تلقائي)'}
                 {(timesSource === 'manual' || timesSource === 'adjusted') && (
-                  <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
+                  <button onClick={resetToAuto} className="ms-auto text-[10px] underline text-muted-foreground">
                     إعادة للتلقائي
                   </button>
                 )}
@@ -922,7 +922,7 @@ export default function MosquePrayerTimesPage() {
                           {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
                         </div>
                         {mosque.address && (
-                          <p className="text-xs text-muted-foreground truncate pr-6">{mosque.address}</p>
+                          <p className="text-xs text-muted-foreground truncate pe-6">{mosque.address}</p>
                         )}
                         <div className="flex items-center gap-2 mt-1">
                           {mosque._dist !== undefined && (
@@ -981,7 +981,7 @@ export default function MosquePrayerTimesPage() {
           <p className="text-xs text-muted-foreground leading-relaxed">
             بعض المساجد لا تتوفر أوقاتها على الإنترنت. يمكنك:
           </p>
-          <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pr-4">
+          <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pe-4">
             <li>إدخال الأوقات يدوياً مرة واحدة</li>
             <li>أو ضبط فرق الدقائق عن التوقيت الفلكي (مثال: +5 للفجر)</li>
             <li>سيتم التحديث تلقائياً يومياً بناءً على إعداداتك</li>

@@ -281,7 +281,7 @@ function AdsManager() {
           )}
 
           <Button onClick={addAd} className="w-full rounded-2xl h-11">
-            <Plus className="h-4 w-4 ml-2" /> إضافة الإعلان
+            <Plus className="h-4 w-4 me-2" /> إضافة الإعلان
           </Button>
         </div>
       </div>
