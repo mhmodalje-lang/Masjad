@@ -110,13 +110,22 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
     return Math.max(0, diff);
   }, [today]);
 
-  const navigate = (dir: number) => {
+  const navigateHijri = (dir: number) => {
     let newMonth = viewMonth + dir;
     let newYear = viewYear;
     if (newMonth > 12) { newMonth = 1; newYear++; }
     if (newMonth < 1) { newMonth = 12; newYear--; }
     setViewMonth(newMonth);
     setViewYear(newYear);
+  };
+
+  const navigateGregorian = (dir: number) => {
+    let newMonth = gMonth + dir;
+    let newYear = gYear;
+    if (newMonth > 11) { newMonth = 0; newYear++; }
+    if (newMonth < 0) { newMonth = 11; newYear--; }
+    setGMonth(newMonth);
+    setGYear(newYear);
   };
 
   const goToToday = () => {
