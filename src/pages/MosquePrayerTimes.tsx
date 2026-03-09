@@ -5,8 +5,14 @@ import { cn } from '@/lib/utils';
 import {
   ArrowRight, MapPin, Search, Clock, Building2,
   Check, Loader2, RefreshCw, Edit3, Save, X, Unlink,
-  AlertCircle, Plus, Minus, Settings2, Share2
+  AlertCircle, Plus, Minus, Settings2, Share2, MessageCircle, Send, Copy, ExternalLink
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
