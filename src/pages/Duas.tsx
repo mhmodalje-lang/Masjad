@@ -309,10 +309,10 @@ export default function Duas() {
             </div>
           ) : viewMode === 'categories' ? (
             <>
-              {renderSection('يومي', dailyCategories, '📅')}
-              {renderSection('أذكار', adhkarCategories, '📿')}
-              {renderSection('أخرى', moreCategories, '📂')}
-              {renderSection('متقطع', occasionalCategories, '🗓️')}
+              {renderSection(t('daily'), getDailyCategories(t), '📅')}
+              {renderSection(t('adhkar'), getAdhkarCategories(t), '📿')}
+              {renderSection(t('otherDuas'), getMoreCategories(t), '📂')}
+              {renderSection(t('occasional'), getOccasionalCategories(t), '🗓️')}
             </>
           ) : viewMode === 'subCategories' ? (
             <div className="px-5 pt-4">
