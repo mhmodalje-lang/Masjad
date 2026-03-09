@@ -243,7 +243,7 @@ export default function Quran() {
             <div className="text-center py-20">
               <Bookmark className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">
-                {user ? 'لا توجد سور محفوظة بعد' : 'سجّل دخولك لحفظ المفضلة'}
+                {user ? t('noBookmarksYet') : t('loginToSaveBookmarksQuran')}
               </p>
             </div>
           ) : (
