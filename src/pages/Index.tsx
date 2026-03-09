@@ -263,7 +263,7 @@ export default function Index() {
               onClick={() => location.detectLocation()}
               className="rounded-2xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-bold transition-all active:scale-95"
             >
-              تفعيل الموقع
+              {t('enableLocation')}
             </button>
           </div>
         </div>
