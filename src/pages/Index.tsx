@@ -54,7 +54,6 @@ export default function Index() {
   });
 
   // Current Islamic occasion
-  // hijriDay is a string like "14", we need to parse it to a number
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
 
   // Full-screen athan alert state
@@ -81,7 +80,6 @@ export default function Index() {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (!remaining || !nextPrayer) return;
-    // Parse "Xh Ym" or "Xm" format
     const hMatch = remaining.match(/(\d+)h/);
     const mMatch = remaining.match(/(\d+)m/);
     const hours = hMatch ? parseInt(hMatch[1]) : 0;
@@ -169,26 +167,44 @@ export default function Index() {
         </div>
       </div>
 
+      {/* Goals card — right after hero so -mt-12 overlaps into hero correctly */}
+      <div className="px-4 -mt-12 relative z-10 mb-5">
+        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
+              <div className="flex flex-wrap gap-3 mt-1.5">
+                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
+                  <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                  <span className="text-muted-foreground">{prayersDone}/5 الصلاة</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
+                  <span className="h-2 w-2 rounded-full bg-islamic-teal shrink-0" />
+                  <span className="text-muted-foreground">0/1 القرآن</span>
+                </span>
+                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
+                  <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
+                  <span className="text-muted-foreground">{tasbeehDone}/4 ذكر</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <Link
+            to="/tracker"
+            className="block w-full text-center rounded-2xl bg-primary text-primary-foreground py-3 text-sm font-bold transition-all active:scale-[0.98]"
+          >
+            متابعة الصلاة اليوم
+          </Link>
+        </div>
+      </div>
+
       <AdBanner position="home-top" />
 
       {/* Islamic Occasion Banner */}
       {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
-
-      {/* Location error banner */}
-      {location.error && prayers.length === 0 && (
-        <div className="px-4 mb-4">
-          <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-5 flex flex-col items-center gap-3">
-            <MapPinOff className="h-8 w-8 text-destructive" />
-            <p className="text-sm font-bold text-foreground text-center">{location.error}</p>
-            <button
-              onClick={() => location.detectLocation()}
-              className="rounded-2xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-bold transition-all active:scale-95"
-            >
-              تفعيل الموقع
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Notification permission prompt */}
       {showNotifPrompt && (
@@ -220,41 +236,21 @@ export default function Index() {
         </div>
       )}
 
-      {/* Goals card */}
-      <div className="px-4 -mt-12 relative z-10 mb-5">
-        <div
-          className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-bold text-foreground">أكمل أهداف اليوم</p>
-              <div className="flex flex-wrap gap-3 mt-1.5">
-                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
-                  <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
-                  <span className="text-muted-foreground">{prayersDone}/5 الصلاة</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
-                  <span className="h-2 w-2 rounded-full bg-islamic-teal shrink-0" />
-                  <span className="text-muted-foreground">0/1 القرآن</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-xs leading-relaxed">
-                  <span className="h-2 w-2 rounded-full bg-accent shrink-0" />
-                  <span className="text-muted-foreground">{tasbeehDone}/4 ذكر</span>
-                </span>
-              </div>
-            </div>
+      {/* Location error banner */}
+      {location.error && prayers.length === 0 && (
+        <div className="px-4 mb-4">
+          <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-5 flex flex-col items-center gap-3">
+            <MapPinOff className="h-8 w-8 text-destructive" />
+            <p className="text-sm font-bold text-foreground text-center">{location.error}</p>
+            <button
+              onClick={() => location.detectLocation()}
+              className="rounded-2xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-bold transition-all active:scale-95"
+            >
+              تفعيل الموقع
+            </button>
           </div>
-          <Link
-            to="/tracker"
-            className="block w-full text-center rounded-2xl bg-primary text-primary-foreground py-3 text-sm font-bold transition-all active:scale-[0.98]"
-          >
-            متابعة الصلاة اليوم
-          </Link>
         </div>
-      </div>
+      )}
 
       {/* Next prayer + countdown */}
       <div className="px-4 mb-5">
