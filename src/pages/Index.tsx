@@ -200,9 +200,9 @@ export default function Index() {
       <div className="px-4 mb-5">
         <div className="grid grid-cols-2 gap-3">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1, type: 'spring', damping: 20 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
             className="rounded-3xl bg-card border border-border/50 p-5 flex flex-col items-center justify-center shadow-elevated"
           >
             <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
