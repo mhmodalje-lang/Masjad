@@ -5,11 +5,11 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const navItems = [
-  { path: '/more', icon: MoreHorizontal, label: 'المزيد' },
-  { path: '/duas', icon: Moon, label: 'ادعية' },
-  { path: '/quran', icon: BookOpen, label: 'القرآن' },
-  { path: '/prayer-times', icon: Clock, label: 'أوقات الصلاة' },
   { path: '/', icon: Home, label: 'الرئيسية' },
+  { path: '/prayer-times', icon: Clock, label: 'أوقات الصلاة' },
+  { path: '/quran', icon: BookOpen, label: 'القرآن' },
+  { path: '/duas', icon: Moon, label: 'ادعية' },
+  { path: '/more', icon: MoreHorizontal, label: 'المزيد' },
 ];
 
 export function BottomNav() {
