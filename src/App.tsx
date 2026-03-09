@@ -38,45 +38,60 @@ function SEOWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LocaleProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <SEOWrapper>
-              <AppLayout>
-                <Suspense fallback={<div className="min-h-screen" />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/prayer-times" element={<PrayerTimes />} />
-                    <Route path="/qibla" element={<Qibla />} />
-                    <Route path="/quran" element={<Quran />} />
-                    <Route path="/quran/:id" element={<SurahView />} />
-                    <Route path="/tasbeeh" element={<Tasbeeh />} />
-                    <Route path="/duas" element={<Duas />} />
-                    <Route path="/more" element={<More />} />
-                    <Route path="/tracker" element={<PrayerTracker />} />
-                    <Route path="/zakat" element={<ZakatCalculator />} />
-                    <Route path="/stories" element={<Stories />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/account" element={<Account />} />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/install" element={<Install />} />
-                    <Route path="/daily-duas" element={<DailyDuas />} />
-                    <Route path="/mosque-times" element={<MosquePrayerTimes />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </AppLayout>
-            </SEOWrapper>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </LocaleProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [splashDone, setSplashDone] = useState(() => {
+    return sessionStorage.getItem('splash_shown') === '1';
+  });
+
+  const handleSplashComplete = useCallback(() => {
+    sessionStorage.setItem('splash_shown', '1');
+    setSplashDone(true);
+  }, []);
+
+  if (!splashDone) {
+    return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LocaleProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <SEOWrapper>
+                <AppLayout>
+                  <Suspense fallback={<div className="min-h-screen" />}>
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/prayer-times" element={<PrayerTimes />} />
+                      <Route path="/qibla" element={<Qibla />} />
+                      <Route path="/quran" element={<Quran />} />
+                      <Route path="/quran/:id" element={<SurahView />} />
+                      <Route path="/tasbeeh" element={<Tasbeeh />} />
+                      <Route path="/duas" element={<Duas />} />
+                      <Route path="/more" element={<More />} />
+                      <Route path="/tracker" element={<PrayerTracker />} />
+                      <Route path="/zakat" element={<ZakatCalculator />} />
+                      <Route path="/stories" element={<Stories />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/account" element={<Account />} />
+                      <Route path="/admin" element={<AdminDashboard />} />
+                      <Route path="/install" element={<Install />} />
+                      <Route path="/daily-duas" element={<DailyDuas />} />
+                      <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Suspense>
+                </AppLayout>
+              </SEOWrapper>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </LocaleProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
