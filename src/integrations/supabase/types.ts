@@ -62,6 +62,39 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_goals: {
+        Row: {
+          completed: boolean | null
+          created_at: string
+          date: string
+          goal_key: string
+          id: string
+          progress: number | null
+          target: number | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          created_at?: string
+          date: string
+          goal_key: string
+          id?: string
+          progress?: number | null
+          target?: number | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          created_at?: string
+          date?: string
+          goal_key?: string
+          id?: string
+          progress?: number | null
+          target?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorite_duas: {
         Row: {
           arabic: string
