@@ -114,13 +114,15 @@ export default function Index() {
           onDismiss={() => setAlertPrayer(null)}
         />
       )}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden h-56">
         <img
           src={meccaImage}
           alt="المسجد الحرام"
           className="w-full h-56 object-cover"
           loading="eager"
           fetchPriority="high"
+          width="1335"
+          height="224"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-background" />
         
