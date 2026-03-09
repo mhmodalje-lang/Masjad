@@ -290,7 +290,7 @@ export default function Index() {
               <Building2 className="h-3.5 w-3.5" />
               {mosqueName}
               {mosqueSource === 'mawaqit' && (
-                <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">مباشر</span>
+                <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">{t('liveLabel')}</span>
               )}
             </p>
             <button
