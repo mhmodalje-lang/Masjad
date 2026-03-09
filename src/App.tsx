@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,21 +8,22 @@ import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
-import PrayerTimes from "./pages/PrayerTimes";
-import Qibla from "./pages/Qibla";
-import Quran from "./pages/Quran";
-import SurahView from "./pages/SurahView";
-import Tasbeeh from "./pages/Tasbeeh";
-import Duas from "./pages/Duas";
-import More from "./pages/More";
-import PrayerTracker from "./pages/PrayerTracker";
-import ZakatCalculator from "./pages/ZakatCalculator";
-import Auth from "./pages/Auth";
-import Stories from "./pages/Stories";
-import Install from "./pages/Install";
-import AdminDashboard from "./pages/AdminDashboard";
-import Account from "./pages/Account";
-import NotFound from "./pages/NotFound";
+
+const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
+const Qibla = lazy(() => import("./pages/Qibla"));
+const Quran = lazy(() => import("./pages/Quran"));
+const SurahView = lazy(() => import("./pages/SurahView"));
+const Tasbeeh = lazy(() => import("./pages/Tasbeeh"));
+const Duas = lazy(() => import("./pages/Duas"));
+const More = lazy(() => import("./pages/More"));
+const PrayerTracker = lazy(() => import("./pages/PrayerTracker"));
+const ZakatCalculator = lazy(() => import("./pages/ZakatCalculator"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Stories = lazy(() => import("./pages/Stories"));
+const Install = lazy(() => import("./pages/Install"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Account = lazy(() => import("./pages/Account"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -34,24 +36,26 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <AppLayout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/prayer-times" element={<PrayerTimes />} />
-                <Route path="/qibla" element={<Qibla />} />
-                <Route path="/quran" element={<Quran />} />
-                <Route path="/quran/:id" element={<SurahView />} />
-                <Route path="/tasbeeh" element={<Tasbeeh />} />
-                <Route path="/duas" element={<Duas />} />
-                <Route path="/more" element={<More />} />
-                <Route path="/tracker" element={<PrayerTracker />} />
-                <Route path="/zakat" element={<ZakatCalculator />} />
-                <Route path="/stories" element={<Stories />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <Suspense fallback={<div className="min-h-screen" />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/prayer-times" element={<PrayerTimes />} />
+                  <Route path="/qibla" element={<Qibla />} />
+                  <Route path="/quran" element={<Quran />} />
+                  <Route path="/quran/:id" element={<SurahView />} />
+                  <Route path="/tasbeeh" element={<Tasbeeh />} />
+                  <Route path="/duas" element={<Duas />} />
+                  <Route path="/more" element={<More />} />
+                  <Route path="/tracker" element={<PrayerTracker />} />
+                  <Route path="/zakat" element={<ZakatCalculator />} />
+                  <Route path="/stories" element={<Stories />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </AppLayout>
           </BrowserRouter>
         </TooltipProvider>
