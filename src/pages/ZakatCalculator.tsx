@@ -390,8 +390,8 @@ export default function ZakatCalculator() {
         </AnimatePresence>
 
         {/* Islamic note */}
-        <div className="rounded-2xl bg-muted/50 p-5 text-xs text-muted-foreground leading-relaxed shadow-elevated border border-border/50">
-          <p className="font-semibold text-foreground mb-1">📌 ملاحظة</p>
+        <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/50">
+          <p className="font-bold text-foreground mb-2 text-sm">📌 ملاحظة شرعية</p>
           <p>
             تعتمد هذه الحاسبة على نصاب الفضة (595 غرام) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
             نسبة الزكاة الثابتة هي 2.5% من إجمالي المال الذي بلغ النصاب ومرّ عليه حول كامل.
