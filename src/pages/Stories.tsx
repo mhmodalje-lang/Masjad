@@ -271,20 +271,17 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic px-5 pb-14 pt-safe-header">
-        <div className="flex items-center justify-between relative z-10">
-          {viewMode !== 'categories' ? (
-            <button onClick={goBack} className="glass-card rounded-full p-2.5">
-              <ArrowRight className="h-5 w-5 text-white/80" />
+      <PageHeader
+        title="📖 قصص حقيقية"
+        subtitle="شارك قصتك وألهم الآخرين"
+        actionsLeft={
+          viewMode !== 'categories' ? (
+            <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
+              <ArrowRight className="h-4 w-4 text-white" />
             </button>
-          ) : <div className="w-10" />}
-          <div className="text-right">
-            <h1 className="text-xl font-bold text-white">📖 قصص حقيقية</h1>
-            <p className="text-white/70 text-sm mt-1.5 leading-relaxed">شارك قصتك وألهم الآخرين</p>
-          </div>
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
       <div className="px-5 pt-4">
         <AnimatePresence mode="wait">
