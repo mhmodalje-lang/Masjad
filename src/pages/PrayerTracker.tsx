@@ -6,8 +6,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Check, Flame, LogIn, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 
 const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
@@ -100,13 +100,13 @@ export default function PrayerTracker() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader title={t('tracker')} subtitle="تابع صلواتك اليومية" />
+      <FuturisticHeader title={t('tracker')} subtitle="تابع صلواتك اليومية" />
 
       <div className="px-5 -mt-8 relative z-10">
         {!user && (
           <Link
             to="/auth"
-            className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-3 mb-4 text-sm transition-all active:scale-[0.98]"
+            className="flex items-center gap-3 rounded-2xl border border-primary/20 glass-futuristic p-3 mb-4 text-sm transition-all active:scale-[0.98]"
           >
             <LogIn className="h-4 w-4 text-primary" />
             <span className="text-primary">{t('loginToSaveProgress')}</span>
@@ -115,11 +115,11 @@ export default function PrayerTracker() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+          <div className="rounded-3xl glass-futuristic border-neon p-5 text-center shadow-elevated">
             <p className="text-xs text-muted-foreground mb-2">{t('completed')}</p>
             <p className="text-3xl font-bold text-primary">{todayPrayers.length}/5</p>
           </div>
-          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+          <div className="rounded-3xl glass-futuristic border-neon p-5 text-center shadow-elevated">
             <div className="flex items-center justify-center gap-1.5 mb-2">
               <Flame className="h-3.5 w-3.5 text-accent" />
               <p className="text-xs text-muted-foreground">{t('streak')}</p>
@@ -129,7 +129,7 @@ export default function PrayerTracker() {
         </div>
 
         {/* Progress bar */}
-        <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated mb-5">
+        <div className="rounded-3xl glass-futuristic border-neon p-5 shadow-elevated mb-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-muted-foreground">{Math.round(progress)}%</span>
             <p className="text-sm font-bold text-foreground">تقدم اليوم</p>
@@ -140,14 +140,14 @@ export default function PrayerTracker() {
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5 }}
-              style={{ boxShadow: '0 0 8px hsl(var(--primary) / 0.4)' }}
+              style={{ boxShadow: '0 0 12px hsl(180 100% 50% / 0.5)' }}
             />
           </div>
         </div>
 
         {/* Prayer checklist */}
-        <SectionHeader icon={ListChecks} title="صلوات اليوم" />
-        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
+        <SectionTitle icon={ListChecks} title="صلوات اليوم" />
+        <div className="rounded-3xl glass-futuristic border-neon shadow-elevated overflow-hidden divide-y divide-border/30">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);
             return (
@@ -164,7 +164,7 @@ export default function PrayerTracker() {
               >
                 <div className={cn(
                   'h-7 w-7 rounded-full flex items-center justify-center transition-all',
-                  done ? 'bg-primary' : 'border-2 border-muted-foreground/30'
+                  done ? 'bg-primary glow-cyan' : 'border-2 border-muted-foreground/30'
                 )}>
                   {done && <Check className="h-4 w-4 text-primary-foreground" />}
                 </div>

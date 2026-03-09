@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Shield, Users, Megaphone, Settings, BookOpen, Heart, MessageSquare, Trash2, Plus, Save, ArrowRight } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -34,7 +34,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader title="🛡️ لوحة التحكم" subtitle="إدارة كاملة للموقع" compact />
+      <FuturisticHeader title="🛡️ لوحة التحكم" subtitle="إدارة كاملة للموقع" compact />
 
       <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto">
         <Tabs defaultValue="ads" className="w-full">

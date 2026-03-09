@@ -17,7 +17,7 @@ export function BottomNav() {
   const { t } = useLocale();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-card/85 backdrop-blur-2xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-futuristic border-t border-neon">
       <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path ||
@@ -38,6 +38,7 @@ export function BottomNav() {
                   layoutId="nav-indicator"
                   className="absolute -top-px left-1/2 -translate-x-1/2 h-0.5 w-10 rounded-full bg-primary"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  style={{ boxShadow: '0 0 10px hsl(180 100% 50% / 0.5)' }}
                 />
               )}
               <item.icon className={cn('h-[22px] w-[22px] shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />

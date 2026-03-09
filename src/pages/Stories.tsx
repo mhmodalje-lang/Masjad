@@ -8,8 +8,8 @@ import {
   Heart, MessageCircle, Send, ArrowRight, Plus, X,
   BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen
 } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -271,13 +271,13 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title="📖 قصص حقيقية"
         subtitle="شارك قصتك وألهم الآخرين"
         actionsLeft={
           viewMode !== 'categories' ? (
-            <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
-              <ArrowRight className="h-4 w-4 text-white" />
+            <button onClick={goBack} className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95">
+              <ArrowRight className="h-4 w-4 text-primary" />
             </button>
           ) : undefined
         }
@@ -320,7 +320,7 @@ export default function Stories() {
                 </div>
 
                 {/* Categories */}
-                <SectionHeader icon={FolderOpen} title="اختر الفئة" />
+                <SectionTitle icon={FolderOpen} title="اختر الفئة" />
                 <div className="space-y-3">
                   {CATEGORIES.map((cat, i) => (
                     <motion.button

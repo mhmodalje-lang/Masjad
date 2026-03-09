@@ -4,8 +4,8 @@ import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
 import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 import { toast } from 'sonner';
 
 const prayerIcons: Record<string, React.ReactNode> = {
@@ -51,25 +51,25 @@ export default function PrayerTimes() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title={t('prayerTimes')}
         subtitle={`${dayName}، ${dateStr}`}
         compact
         actionsLeft={
-          <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={handleShare}>
-            <Share2 className="h-4 w-4 text-white" />
+          <button className="p-2.5 rounded-2xl glass-futuristic border-neon transition-all active:scale-95" onClick={handleShare}>
+            <Share2 className="h-4 w-4 text-primary" />
           </button>
         }
       />
 
       {/* Location card */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
-        <div className="rounded-3xl bg-card border border-border/50 p-4 shadow-elevated flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+        <div className="rounded-3xl glass-futuristic border-neon p-4 shadow-elevated flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl glass-futuristic border border-primary/30 flex items-center justify-center shrink-0">
             <MapPin className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground truncate">{location.city || '...'}</p>
+            <p className="text-sm font-bold text-accent truncate">{location.city || '...'}</p>
             <p className="text-xs text-muted-foreground truncate">{location.country || ''} • {hijriDate}</p>
           </div>
         </div>
@@ -77,8 +77,8 @@ export default function PrayerTimes() {
 
       {/* Prayer List */}
       <div className="px-5 mb-5">
-        <SectionHeader icon={Clock} title="أوقات الصلاة اليوم" />
-        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
+        <SectionTitle icon={Clock} title="أوقات الصلاة اليوم" />
+        <div className="rounded-3xl border-neon glass-futuristic shadow-elevated overflow-hidden divide-y divide-border/30">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Clock className="h-6 w-6 animate-spin text-primary" />
@@ -99,7 +99,7 @@ export default function PrayerTimes() {
                 >
                   <p className={cn(
                     'text-lg tabular-nums font-semibold',
-                    isNext ? 'text-primary' : 'text-foreground'
+                    isNext ? 'text-accent' : 'text-foreground'
                   )}>
                     {prayer.time}
                   </p>
@@ -113,7 +113,7 @@ export default function PrayerTimes() {
                     </p>
                     <div className={cn(
                       'h-9 w-9 rounded-xl flex items-center justify-center',
-                      isNext ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
+                      isNext ? 'glass-futuristic border border-primary/30 text-primary' : 'bg-muted text-muted-foreground'
                     )}>
                       {prayerIcons[prayer.key]}
                     </div>
@@ -128,9 +128,9 @@ export default function PrayerTimes() {
       {/* Next prayer indicator */}
       {nextPrayer && (
         <div className="px-5 mb-5">
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
+          <div className="rounded-2xl border border-primary/30 glass-futuristic p-4 text-center glow-cyan">
             <p className="text-xs text-muted-foreground mb-1">الصلاة القادمة</p>
-            <p className="text-lg font-bold text-primary">{t(nextPrayer.key)} — {nextPrayer.time}</p>
+            <p className="text-lg font-bold text-accent">{t(nextPrayer.key)} — <span className="text-primary">{nextPrayer.time}</span></p>
           </div>
         </div>
       )}

@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calculator, MapPin, RefreshCw, Info, ChevronDown, ChevronUp, Coins, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
+import SectionTitle from '@/components/SectionTitle';
 
 // Comprehensive currency data by country code
 const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; name: string }> = {
@@ -211,7 +211,7 @@ export default function ZakatCalculator() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader
+      <FuturisticHeader
         title={t('zakatCalculator')}
         subtitle={city && country ? `${city}، ${country}` : 'حاسبة ذكية متعددة العملات'}
         compact
@@ -220,7 +220,7 @@ export default function ZakatCalculator() {
       <div className="px-5 -mt-2 relative z-10 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
-          <SectionHeader icon={Coins} title="العملة" subtitle="اختر عملة بلدك لحساب النصاب" className="mb-3" />
+          <SectionTitle icon={Coins} title="العملة" subtitle="اختر عملة بلدك لحساب النصاب" className="mb-3" />
           
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="rounded-2xl">
@@ -259,7 +259,7 @@ export default function ZakatCalculator() {
 
         {/* Asset fields */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
-          <SectionHeader icon={ClipboardList} title="أصولك ومدخراتك" subtitle="أدخل قيمة كل نوع من الأصول بالعملة المختارة" />
+          <SectionTitle icon={ClipboardList} title="أصولك ومدخراتك" subtitle="أدخل قيمة كل نوع من الأصول بالعملة المختارة" />
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
               key={labelKey || label}
