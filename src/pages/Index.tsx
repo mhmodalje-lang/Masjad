@@ -49,6 +49,10 @@ export default function Index() {
     return localStorage.getItem('athan-notifications') === 'true';
   });
 
+  const [showNotifPrompt, setShowNotifPrompt] = useState(() => {
+    return !localStorage.getItem('notification-prompt-shown') && !localStorage.getItem('athan-notifications');
+  });
+
   // Current Islamic occasion
   // hijriDay is a string like "14", we need to parse it to a number
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
