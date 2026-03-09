@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Play, Square, ExternalLink, Shield, Volume2 } from 'lucide-react';
+import { ArrowRight, Play, Square, ExternalLink, Shield, Volume2, X, Youtube } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,7 @@ export default function Ruqyah() {
   const [viewMode, setViewMode] = useState<ViewMode>('categories');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioEl, setAudioEl] = useState<HTMLAudioElement | null>(null);
+  const [activeYoutubeId, setActiveYoutubeId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function Ruqyah() {
 
   const goBack = () => {
     stopAudio();
+    setActiveYoutubeId(null);
     window.history.back();
   };
 
@@ -82,6 +84,7 @@ export default function Ruqyah() {
         setViewMode('categories');
         setSelectedCategory(null);
         stopAudio();
+        setActiveYoutubeId(null);
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -99,7 +102,8 @@ export default function Ruqyah() {
 
   const playTrack = (track: RuqyahTrack) => {
     if (track.media_type === 'youtube' && track.youtube_id) {
-      window.open(`https://www.youtube.com/watch?v=${track.youtube_id}`, '_blank', 'noopener');
+      stopAudio();
+      setActiveYoutubeId(prev => prev === track.youtube_id ? null : track.youtube_id!);
       return;
     }
 
@@ -109,6 +113,7 @@ export default function Ruqyah() {
     }
 
     stopAudio();
+    setActiveYoutubeId(null);
     if (track.media_url) {
       const audio = new Audio(track.media_url);
       audio.volume = 0.8;
@@ -122,7 +127,6 @@ export default function Ruqyah() {
     }
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (audioEl) {
@@ -147,13 +151,42 @@ export default function Ruqyah() {
       />
 
       <div className="px-5 pt-4">
-        {/* Disclaimer */}
         <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4 mb-5">
           <p className="text-xs text-muted-foreground leading-relaxed text-center">
             ⚠️ الرقية الشرعية مأخوذة من القرآن الكريم والسنة النبوية الشريفة.
             هذا القسم للاستماع والتحصين وليس بديلاً عن العلاج الطبي.
           </p>
         </div>
+
+        {/* Embedded YouTube Player */}
+        <AnimatePresence>
+          {activeYoutubeId && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-5 overflow-hidden"
+            >
+              <div className="relative rounded-2xl overflow-hidden bg-black">
+                <button
+                  onClick={() => setActiveYoutubeId(null)}
+                  className="absolute top-2 left-2 z-10 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+                <div className="aspect-video">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${activeYoutubeId}?autoplay=1&rel=0`}
+                    title="Ruqyah Video"
+                    className="w-full h-full"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -221,6 +254,7 @@ export default function Ruqyah() {
                     {tracks.map((track, i) => {
                       const isPlaying = playingId === track.id;
                       const isYoutube = track.media_type === 'youtube';
+                      const isYoutubeActive = isYoutube && activeYoutubeId === track.youtube_id;
 
                       return (
                         <motion.div
@@ -230,20 +264,19 @@ export default function Ruqyah() {
                           transition={{ delay: i * 0.04 }}
                           className={cn(
                             'flex items-center gap-4 p-4 rounded-2xl border transition-all',
-                            isPlaying
+                            isPlaying || isYoutubeActive
                               ? 'bg-primary/5 border-primary/30'
                               : 'bg-card border-border hover:border-primary/20'
                           )}
                         >
-                          {/* Play button */}
                           <Button
-                            variant={isPlaying ? 'default' : 'outline'}
+                            variant={isPlaying || isYoutubeActive ? 'default' : 'outline'}
                             size="sm"
                             className="h-12 w-12 shrink-0 rounded-full p-0"
                             onClick={() => playTrack(track)}
                           >
                             {isYoutube ? (
-                              <ExternalLink className="h-4 w-4" />
+                              isYoutubeActive ? <Square className="h-4 w-4 fill-current" /> : <Youtube className="h-4 w-4" />
                             ) : isPlaying ? (
                               <Square className="h-4 w-4 fill-current" />
                             ) : (
@@ -251,13 +284,11 @@ export default function Ruqyah() {
                             )}
                           </Button>
 
-                          {/* Info */}
                           <div className="flex-1 min-w-0" onClick={() => playTrack(track)}>
                             <p className="text-sm font-bold text-foreground line-clamp-1">{track.title_ar}</p>
                             <p className="text-xs text-muted-foreground mt-0.5">🎙️ {track.reciter_ar}</p>
                           </div>
 
-                          {/* Audio indicator */}
                           {isPlaying && (
                             <div className="flex items-center gap-1 shrink-0">
                               <Volume2 className="h-4 w-4 text-primary animate-pulse" />
@@ -265,7 +296,7 @@ export default function Ruqyah() {
                           )}
 
                           {isYoutube && (
-                            <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 shrink-0">YouTube</span>
+                            <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5 shrink-0">فيديو</span>
                           )}
                         </motion.div>
                       );
