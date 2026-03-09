@@ -138,6 +138,22 @@ export default function PrayerTimes() {
           </div>
         </div>
       )}
+
+      {/* Mosque times link */}
+      <div className="px-5 mb-5">
+        <button
+          onClick={() => navigate('/mosque-times')}
+          className="w-full rounded-2xl border border-border/50 bg-card p-4 shadow-elevated flex items-center gap-3 transition-all active:scale-[0.98] hover:border-primary/30"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Building2 className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 text-right">
+            <p className="text-sm font-bold text-foreground">أوقات المساجد القريبة</p>
+            <p className="text-xs text-muted-foreground">اختر مسجدك وأدخل أوقات الصلاة يدوياً</p>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
