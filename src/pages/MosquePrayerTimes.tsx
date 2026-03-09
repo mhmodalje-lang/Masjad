@@ -210,7 +210,7 @@ export default function MosquePrayerTimesPage() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('search-mosques', {
-        body: { lat: location.latitude, lon: location.longitude, radius: 5000 },
+        body: { lat: location.latitude, lon: location.longitude, radius: 10000 },
       });
       if (error) throw error;
       const sorted = (data?.mosques || [])
