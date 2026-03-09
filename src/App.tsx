@@ -90,6 +90,7 @@ const App = () => {
                       <Route path="/daily-duas" element={<DailyDuas />} />
                       <Route path="/mosque-times" element={<MosquePrayerTimes />} />
                       <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                      <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
                       <Route path="/quran-goal" element={<QuranGoal />} />
                       <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="/notifications" element={<NotificationSettings />} />
