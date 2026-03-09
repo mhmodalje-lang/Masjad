@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Shield, Users, Megaphone, Settings, BookOpen, Heart, MessageSquare, Trash2, Plus, Save, ArrowRight } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import FuturisticHeader from '@/components/FuturisticHeader';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
