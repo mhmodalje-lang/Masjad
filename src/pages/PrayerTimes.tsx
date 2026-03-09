@@ -1,7 +1,10 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes, getNextPrayer } from '@/hooks/usePrayerTimes';
-import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin } from 'lucide-react';
+import { Clock, Sun, Sunrise, Sunset, Moon, CloudSun, Share2, MapPin, Building2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
