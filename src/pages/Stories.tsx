@@ -6,8 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Heart, MessageCircle, Send, ArrowRight, Plus, X,
-  BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2
+  BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen
 } from 'lucide-react';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
