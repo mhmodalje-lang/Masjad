@@ -283,15 +283,40 @@ export default function Index() {
         </div>
       )}
 
-      {/* Today's Prayers - Location based (always shown) */}
+      {/* Today's Prayers — single source */}
       <div className="px-4 mb-5">
         <div className="flex items-center justify-between mb-1">
           <div className="flex-1">
-            <SectionHeader icon={Clock} title="مواقيت الصلاة" className="flex-1" />
-            <p className="text-[10px] text-muted-foreground mr-7 -mt-1 flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              توقيت فلكي حسب موقعك — {location.city || '...'}
-            </p>
+            <SectionHeader icon={Clock} title={t('prayerTimes')} className="flex-1" />
+            {usingMosque && mosqueName ? (
+              <div className="flex items-center gap-2 mr-7 -mt-1">
+                <p className="text-[10px] text-primary flex items-center gap-1">
+                  <Building2 className="h-3 w-3" />
+                  {mosqueName}
+                  {mosqueSource === 'mawaqit' && (
+                    <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">مباشر ✓</span>
+                  )}
+                  {mosqueSource === 'website' && (
+                    <span className="bg-accent/15 text-accent text-[8px] px-1.5 py-0.5 rounded-full font-bold">ويب ✓</span>
+                  )}
+                </p>
+                <button
+                  onClick={() => {
+                    unlinkMosque();
+                    toast.success('تم إلغاء ربط المسجد — الأوقات تلقائية حسب موقعك الآن');
+                  }}
+                  className="flex items-center gap-0.5 text-[10px] text-destructive hover:underline"
+                >
+                  <Unlink className="h-2.5 w-2.5" />
+                  إلغاء
+                </button>
+              </div>
+            ) : (
+              <p className="text-[10px] text-muted-foreground mr-7 -mt-1 flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                حسب موقعك — {location.city || '...'}
+              </p>
+            )}
           </div>
           <Link to="/prayer-times" className="text-xs text-primary font-medium flex items-center gap-0.5 mr-2">
             {t('more')}
@@ -299,7 +324,7 @@ export default function Index() {
           </Link>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          {apiPrayers.filter(p => p.key !== 'sunrise').map((prayer, i) => {
+          {prayers.filter(p => p.key !== 'sunrise').map((prayer, i) => {
             const isNext = !usingMosque && nextPrayer?.key === prayer.key;
             return (
               <motion.div
