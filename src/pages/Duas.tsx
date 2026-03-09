@@ -308,10 +308,10 @@ export default function Duas() {
             </div>
           ) : viewMode === 'categories' ? (
             <>
-              {renderSection('يومي', dailyCategories)}
-              {renderSection('أذكار', adhkarCategories)}
-              {renderSection('أخرى', moreCategories)}
-              {renderSection('متقطع', occasionalCategories)}
+              {renderSection('يومي', dailyCategories, '📅')}
+              {renderSection('أذكار', adhkarCategories, '📿')}
+              {renderSection('أخرى', moreCategories, '📂')}
+              {renderSection('متقطع', occasionalCategories, '🗓️')}
             </>
           ) : viewMode === 'subCategories' ? (
             <div className="px-5 pt-4">

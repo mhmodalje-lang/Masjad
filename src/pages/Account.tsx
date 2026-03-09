@@ -72,7 +72,7 @@ export default function Account() {
 
       {/* Info cards */}
       <div className="px-5 mb-5">
-        <h3 className="text-sm font-bold text-foreground mb-3">معلومات الحساب</h3>
+        <SectionHeader icon={Info} title="معلومات الحساب" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           <motion.div
             initial={{ opacity: 0, y: 10 }}

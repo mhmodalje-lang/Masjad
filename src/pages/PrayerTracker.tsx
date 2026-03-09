@@ -146,7 +146,7 @@ export default function PrayerTracker() {
         </div>
 
         {/* Prayer checklist */}
-        <h2 className="text-sm font-bold text-foreground mb-3">صلوات اليوم</h2>
+        <SectionHeader icon={ListChecks} title="صلوات اليوم" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);

@@ -160,35 +160,30 @@ export default function Qibla() {
 
   return (
     <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-24 pt-safe-header">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="flex items-center justify-between relative z-10">
+      <PageHeader
+        title={t('qibla')}
+        subtitle={t('qiblaDirection')}
+        actionsLeft={
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowInstructions(!showInstructions)}
-              className="glass-card rounded-full p-2.5"
+              className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
             >
-              <Info className="h-5 w-5 text-white/80" />
+              <Info className="h-4 w-4 text-white" />
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'compass' ? 'map' : 'compass')}
-              className="glass-card rounded-full p-2.5"
+              className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
             >
               {viewMode === 'compass' ? (
-                <Map className="h-5 w-5 text-white/80" />
+                <Map className="h-4 w-4 text-white" />
               ) : (
-                <Compass className="h-5 w-5 text-white/80" />
+                <Compass className="h-4 w-4 text-white" />
               )}
             </button>
           </div>
-          <div className="text-right">
-            <h1 className="text-xl font-bold text-white">{t('qibla')}</h1>
-            <p className="text-white/70 text-sm mt-1.5 leading-relaxed">{t('qiblaDirection')}</p>
-          </div>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+        }
+      />
 
       <div className="-mt-2 flex w-full flex-col items-center px-5 pt-2">
 

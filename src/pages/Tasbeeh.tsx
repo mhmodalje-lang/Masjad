@@ -142,7 +142,7 @@ export default function Tasbeeh() {
 
         {/* Dhikr selector cards */}
         <div className="mb-6">
-          <h2 className="text-sm font-bold text-foreground mb-3">اختر الذكر</h2>
+          <SectionHeader icon={Heart} title="اختر الذكر" subtitle="اختر من الأذكار المأثورة" />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {dhikrOptions.map((opt, i) => (
               <motion.button

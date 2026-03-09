@@ -34,16 +34,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <div className="gradient-islamic px-5 pb-16 pt-safe-header-compact relative">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="text-center relative z-10">
-          <h1 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
-            <Shield className="h-6 w-6" /> لوحة التحكم
-          </h1>
-          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">إدارة كاملة للموقع</p>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+      <PageHeader title="🛡️ لوحة التحكم" subtitle="إدارة كاملة للموقع" compact />
 
       <div className="px-4 -mt-4 relative z-10 max-w-4xl mx-auto">
         <Tabs defaultValue="ads" className="w-full">

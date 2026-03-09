@@ -259,10 +259,7 @@ export default function ZakatCalculator() {
 
         {/* Asset fields */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
-          <div>
-            <h2 className="text-sm font-bold text-foreground">أصولك ومدخراتك</h2>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">أدخل قيمة كل نوع من الأصول بالعملة المختارة</p>
-          </div>
+          <SectionHeader icon={ClipboardList} title="أصولك ومدخراتك" subtitle="أدخل قيمة كل نوع من الأصول بالعملة المختارة" />
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
               key={labelKey || label}

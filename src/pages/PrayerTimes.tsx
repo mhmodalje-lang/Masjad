@@ -77,7 +77,7 @@ export default function PrayerTimes() {
 
       {/* Prayer List */}
       <div className="px-5 mb-5">
-        <h2 className="text-sm font-bold text-foreground mb-3">أوقات الصلاة اليوم</h2>
+        <SectionHeader icon={Clock} title="أوقات الصلاة اليوم" />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {loading ? (
             <div className="flex items-center justify-center py-20">

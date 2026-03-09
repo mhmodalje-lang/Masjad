@@ -320,7 +320,7 @@ export default function Stories() {
                 </div>
 
                 {/* Categories */}
-                <h3 className="text-sm font-bold text-foreground mb-3">📂 اختر الفئة</h3>
+                <SectionHeader icon={FolderOpen} title="اختر الفئة" />
                 <div className="space-y-3">
                   {CATEGORIES.map((cat, i) => (
                     <motion.button
