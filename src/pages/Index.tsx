@@ -398,14 +398,14 @@ export default function Index() {
         >
           <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-3">
-            دعاء اليوم
+            {t('duaOfDay')}
           </span>
           <p className="text-sm font-bold text-foreground mb-2">{todayDua.subtitle}</p>
           <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-3 line-clamp-2">
             {todayDua.arabic}
           </p>
           <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2 text-xs font-bold text-primary transition-all">
-            اقرأ مع الترجمة →
+            {t('readWithTranslation')}
           </span>
         </div>
       </div>
