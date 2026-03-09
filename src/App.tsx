@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { useSEO } from "@/hooks/useSEO";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -29,6 +30,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+function SEOWrapper({ children }: { children: React.ReactNode }) {
+  useSEO();
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LocaleProvider>
@@ -37,30 +43,32 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <AppLayout>
-              <Suspense fallback={<div className="min-h-screen" />}>
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/prayer-times" element={<PrayerTimes />} />
-                  <Route path="/qibla" element={<Qibla />} />
-                  <Route path="/quran" element={<Quran />} />
-                  <Route path="/quran/:id" element={<SurahView />} />
-                  <Route path="/tasbeeh" element={<Tasbeeh />} />
-                  <Route path="/duas" element={<Duas />} />
-                  <Route path="/more" element={<More />} />
-                  <Route path="/tracker" element={<PrayerTracker />} />
-                  <Route path="/zakat" element={<ZakatCalculator />} />
-                  <Route path="/stories" element={<Stories />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/account" element={<Account />} />
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/install" element={<Install />} />
-                  <Route path="/daily-duas" element={<DailyDuas />} />
-                  <Route path="/mosque-times" element={<MosquePrayerTimes />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </AppLayout>
+            <SEOWrapper>
+              <AppLayout>
+                <Suspense fallback={<div className="min-h-screen" />}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/prayer-times" element={<PrayerTimes />} />
+                    <Route path="/qibla" element={<Qibla />} />
+                    <Route path="/quran" element={<Quran />} />
+                    <Route path="/quran/:id" element={<SurahView />} />
+                    <Route path="/tasbeeh" element={<Tasbeeh />} />
+                    <Route path="/duas" element={<Duas />} />
+                    <Route path="/more" element={<More />} />
+                    <Route path="/tracker" element={<PrayerTracker />} />
+                    <Route path="/zakat" element={<ZakatCalculator />} />
+                    <Route path="/stories" element={<Stories />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="/daily-duas" element={<DailyDuas />} />
+                    <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </AppLayout>
+            </SEOWrapper>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
