@@ -92,7 +92,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
     if (latitude === 0 && longitude === 0) return;
 
     // Create a stable fetch key including today's date
-    const fetchKey = `${latitude}-${longitude}-${method}-${todayStr}`;
+    const fetchKey = `${latitude}-${longitude}-${method}-${school}-${todayStr}`;
     if (fetchKey === lastFetchKey.current) return;
     lastFetchKey.current = fetchKey;
 
