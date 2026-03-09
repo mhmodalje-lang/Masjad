@@ -2,9 +2,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { User, LogOut, Mail, Calendar, Shield } from 'lucide-react';
+import { User, LogOut, Mail, Calendar, Shield, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 export default function Account() {
   const { user, loading, signOut } = useAuth();
