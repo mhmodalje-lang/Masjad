@@ -33,15 +33,13 @@ export function useAthanNotifications(
     };
   }, [enabled, onAlert]);
 
+  // Build a stable key from prayer times to detect real changes
+  const prayersKey = prayers.map(p => `${p.key}:${p.time24}`).join(',');
+
   useEffect(() => {
     if (!enabled || prayers.length === 0) return;
-    if (scheduledRef.current) return;
 
-    scheduledRef.current = true;
+    // Schedule (or re-schedule) notifications whenever prayers actually change
     schedulePrayerNotifications(prayers);
-
-    return () => {
-      scheduledRef.current = false;
-    };
-  }, [prayers, enabled]);
+  }, [prayersKey, enabled]);
 }
