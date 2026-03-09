@@ -467,7 +467,7 @@ export default function Index() {
             to="/quran-goal"
             className="inline-block rounded-2xl bg-primary/10 border border-primary/20 px-5 py-2 text-xs font-bold text-primary transition-all active:scale-95"
           >
-            حدّد هدف القرآن ←
+            حدّد هدف القرآن →
           </Link>
         </motion.div>
       </div>
