@@ -275,6 +275,7 @@ export default function MosquePrayerTimesPage() {
               websiteUrl: mosque.websiteUrl,
               latitude: mosque.latitude,
               longitude: mosque.longitude,
+              ...getCalcSettings(),
             },
           });
 
