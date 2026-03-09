@@ -14,7 +14,7 @@ export default function PageHeader({ title, subtitle, actions, actionsLeft, comp
     <div className={`relative overflow-hidden ${image ? 'pb-20 pt-safe-header' : compact ? 'pb-14 pt-safe-header-compact' : 'pb-16 pt-safe-header'}`}>
       {image ? (
         <>
-          <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover animate-[heroZoom_8s_ease-out_forwards]" loading="eager" />
+          <img src={image} alt="" className="absolute inset-0 w-full h-full object-cover animate-heroZoom" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background" />
         </>
       ) : (
