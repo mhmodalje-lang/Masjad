@@ -60,6 +60,9 @@ const COUNTDOWN_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as
 const SAVED_MOSQUE_KEY = 'selected_mosque';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
 const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
+const LIVE_CACHE_PREFIX = 'mosque_live_';
+const SAVED_TIMES_PREFIX = 'mosque_times_';
+const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
 const emptyTimes: PrayerTimesMap = { fajr: '', sunrise: '', dhuhr: '', asr: '', maghrib: '', isha: '', jumuah: '' };
 const emptyDiffs: TimeDiffs = { fajr_diff: 0, sunrise_diff: 0, dhuhr_diff: 0, asr_diff: 0, maghrib_diff: 0, isha_diff: 0 };
 
