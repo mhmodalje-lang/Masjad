@@ -353,7 +353,7 @@ export default function QuranPlayer() {
             <div className="rounded-3xl bg-card border border-border/50 overflow-hidden shadow-elevated">
               <div className="gradient-islamic p-4 flex items-center justify-between relative overflow-hidden">
                 <div className="absolute inset-0 islamic-pattern opacity-20" />
-                <button onClick={closePlayer} className="p-1.5 rounded-full bg-white/10 relative z-10">
+                <button onClick={closePlayer} aria-label="إغلاق المشغّل" className="p-1.5 rounded-full bg-white/10 relative z-10">
                   <X className="h-4 w-4 text-white" />
                 </button>
                 <div className="text-right relative z-10">
@@ -458,7 +458,7 @@ export default function QuranPlayer() {
                   </div>
 
                   <div className="flex items-center justify-center gap-5">
-                    <button onClick={cycleRepeat} className="p-2">
+                    <button onClick={cycleRepeat} aria-label="تغيير وضع التكرار" className="p-2">
                       {repeatMode === 'one' ? (
                         <Repeat1 className="h-5 w-5 text-primary" />
                       ) : (
@@ -471,13 +471,14 @@ export default function QuranPlayer() {
                       )}
                     </button>
 
-                    <button onClick={() => void nextSurah()} className="p-2">
+                    <button onClick={() => void nextSurah()} aria-label="السورة التالية" className="p-2">
                       <SkipForward className="h-5 w-5 text-foreground" />
                     </button>
 
                     <button
                       onClick={() => void togglePlay()}
                       disabled={loading}
+                      aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
                       className="h-14 w-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20"
                     >
                       {loading ? (
@@ -489,7 +490,7 @@ export default function QuranPlayer() {
                       )}
                     </button>
 
-                    <button onClick={() => void prevSurah()} className="p-2">
+                    <button onClick={() => void prevSurah()} aria-label="السورة السابقة" className="p-2">
                       <SkipBack className="h-5 w-5 text-foreground" />
                     </button>
 
