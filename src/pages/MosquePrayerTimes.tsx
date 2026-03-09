@@ -566,7 +566,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">أوقات المساجد</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — نطاق 10 كم` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
