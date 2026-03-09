@@ -353,7 +353,7 @@ export default function QuranPlayer() {
             <div className="rounded-3xl bg-card border border-border/50 overflow-hidden shadow-elevated">
               <div className="gradient-islamic p-4 flex items-center justify-between relative overflow-hidden">
                 <div className="absolute inset-0 islamic-pattern opacity-20" />
-                <button onClick={closePlayer} className="p-1.5 rounded-full bg-white/10 relative z-10">
+                <button onClick={closePlayer} aria-label="إغلاق المشغّل" className="p-1.5 rounded-full bg-white/10 relative z-10">
                   <X className="h-4 w-4 text-white" />
                 </button>
                 <div className="text-right relative z-10">
