@@ -22,6 +22,7 @@ const prayerIcons: Record<string, React.ReactNode> = {
 
 export default function PrayerTimes() {
   const { t } = useLocale();
+  const navigate = useNavigate();
   const location = useGeoLocation();
   const { prayers, hijriDate, loading } = usePrayerTimes(
     location.latitude,
