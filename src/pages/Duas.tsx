@@ -20,46 +20,46 @@ interface CatItem {
   useEmoji?: boolean;
 }
 
-const dailyCategories: CatItem[] = [
-  { icon: Bed, label: 'النوم', dataKey: 'sleep' },
-  { icon: Droplets, label: 'الوضوء', dataKey: 'wudu' },
-  { icon: Landmark, label: 'مسجد', dataKey: 'mosque' },
-  { icon: Heart, label: 'صلاة', dataKey: 'salah' },
-  { icon: Home, label: 'منزل', dataKey: 'home' },
-  { icon: Shirt, label: 'ملابس', dataKey: 'clothes' },
-  { icon: Plane, label: 'سفر', dataKey: 'travel' },
-  { icon: UtensilsCrossed, label: 'طعام', dataKey: 'food' },
+const getDailyCategories = (t: (k: string) => string): CatItem[] => [
+  { icon: Bed, label: t('catSleep'), dataKey: 'sleep' },
+  { icon: Droplets, label: t('catWudu'), dataKey: 'wudu' },
+  { icon: Landmark, label: t('catMosque'), dataKey: 'mosque' },
+  { icon: Heart, label: t('catSalah'), dataKey: 'salah' },
+  { icon: Home, label: t('catHome'), dataKey: 'home' },
+  { icon: Shirt, label: t('catClothes'), dataKey: 'clothes' },
+  { icon: Plane, label: t('catTravel'), dataKey: 'travel' },
+  { icon: UtensilsCrossed, label: t('catFood'), dataKey: 'food' },
 ];
 
-const adhkarCategories: CatItem[] = [
-  { icon: '📿', label: 'الذكر اليومي', dataKey: 'daily-dhikr', useEmoji: true },
-  { icon: '🌙', label: 'إحياء الذكرى اليومي', dataKey: 'daily-revival', useEmoji: true },
-  { icon: '🤲', label: 'بعد الصلوات', dataKey: 'after-prayer', useEmoji: true },
-  { icon: '🍎', label: 'رزق', dataKey: 'rizq', useEmoji: true },
-  { icon: '📖', label: 'معرفة', dataKey: 'knowledge', useEmoji: true },
-  { icon: '🕌', label: 'الإيمان', dataKey: 'faith', useEmoji: true },
-  { icon: '⚖️', label: 'يوم الحساب', dataKey: 'judgment', useEmoji: true },
-  { icon: '💚', label: 'مغفرة', dataKey: 'forgiveness', useEmoji: true },
-  { icon: '🤲', label: 'مشيداً بالله', dataKey: 'praising', useEmoji: true },
+const getAdhkarCategories = (t: (k: string) => string): CatItem[] => [
+  { icon: '📿', label: t('catDailyDhikr'), dataKey: 'daily-dhikr', useEmoji: true },
+  { icon: '🌙', label: t('catDailyRevival'), dataKey: 'daily-revival', useEmoji: true },
+  { icon: '🤲', label: t('catAfterPrayer'), dataKey: 'after-prayer', useEmoji: true },
+  { icon: '🍎', label: t('catRizq'), dataKey: 'rizq', useEmoji: true },
+  { icon: '📖', label: t('catKnowledge'), dataKey: 'knowledge', useEmoji: true },
+  { icon: '🕌', label: t('catFaith'), dataKey: 'faith', useEmoji: true },
+  { icon: '⚖️', label: t('catJudgment'), dataKey: 'judgment', useEmoji: true },
+  { icon: '💚', label: t('catForgiveness'), dataKey: 'forgiveness', useEmoji: true },
+  { icon: '🤲', label: t('catPraising'), dataKey: 'praising', useEmoji: true },
 ];
 
-const moreCategories: CatItem[] = [
-  { icon: Users, label: 'عائلة', dataKey: 'family' },
-  { icon: Stethoscope, label: 'الصحة / المرض', dataKey: 'health' },
-  { icon: Frown, label: 'الخسارة / الفشل', dataKey: 'loss' },
-  { icon: SmilePlus, label: 'الحزن / السعادة', dataKey: 'sadness' },
-  { icon: Shield, label: 'الصبر', dataKey: 'patience' },
-  { icon: Heart, label: 'الدّين', dataKey: 'debt' },
-  { icon: Heart, label: 'أثناء الحيض', dataKey: 'menstruation' },
+const getMoreCategories = (t: (k: string) => string): CatItem[] => [
+  { icon: Users, label: t('catFamily'), dataKey: 'family' },
+  { icon: Stethoscope, label: t('catHealth'), dataKey: 'health' },
+  { icon: Frown, label: t('catLoss'), dataKey: 'loss' },
+  { icon: SmilePlus, label: t('catSadness'), dataKey: 'sadness' },
+  { icon: Shield, label: t('catPatience'), dataKey: 'patience' },
+  { icon: Heart, label: t('catDebt'), dataKey: 'debt' },
+  { icon: Heart, label: t('catMenstruation'), dataKey: 'menstruation' },
 ];
 
-const occasionalCategories: CatItem[] = [
-  { icon: '🪦', label: 'المتوفى', dataKey: 'deceased', useEmoji: true },
-  { icon: '🕋', label: 'الحج / العمرة', dataKey: 'hajj', useEmoji: true },
-  { icon: '🌙', label: 'رمضان', dataKey: 'ramadan', useEmoji: true },
-  { icon: '🌳', label: 'طبيعة', dataKey: 'nature', useEmoji: true },
-  { icon: '🤝', label: 'السلوكيات الحميدة', dataKey: 'goodManners', useEmoji: true },
-  { icon: '🪧', label: 'إتخاذ القرار / التوجيه', dataKey: 'guidance', useEmoji: true },
+const getOccasionalCategories = (t: (k: string) => string): CatItem[] => [
+  { icon: '🪦', label: t('catDeceased'), dataKey: 'deceased', useEmoji: true },
+  { icon: '🕋', label: t('catHajj'), dataKey: 'hajj', useEmoji: true },
+  { icon: '🌙', label: t('catRamadan'), dataKey: 'ramadan', useEmoji: true },
+  { icon: '🌳', label: t('catNature'), dataKey: 'nature', useEmoji: true },
+  { icon: '🤝', label: t('catGoodManners'), dataKey: 'goodManners', useEmoji: true },
+  { icon: '🪧', label: t('catGuidance'), dataKey: 'guidance', useEmoji: true },
 ];
 
 const allCategories = [...dailyCategories, ...adhkarCategories, ...moreCategories, ...occasionalCategories];
