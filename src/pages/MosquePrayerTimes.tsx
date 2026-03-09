@@ -253,7 +253,7 @@ export default function MosquePrayerTimesPage() {
         if (instant && instant.length > 0) {
           const sorted = instant
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 10)
+            .filter((m: Mosque) => m._dist! <= 5)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -266,7 +266,7 @@ export default function MosquePrayerTimesPage() {
         if (awaited && awaited.length > 0) {
           const sorted = awaited
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 10)
+            .filter((m: Mosque) => m._dist! <= 5)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -276,13 +276,13 @@ export default function MosquePrayerTimesPage() {
         }
       }
 
-      const body: any = { lat: location.latitude, lon: location.longitude, radius: 10000 };
+      const body: any = { lat: location.latitude, lon: location.longitude, radius: 5000 };
       if (query) body.textQuery = query;
       const { data, error } = await supabase.functions.invoke('search-mosques', { body });
       if (error) throw error;
       const sorted = (data?.mosques || [])
         .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-        .filter((m: Mosque) => m._dist! <= 10)
+        .filter((m: Mosque) => m._dist! <= 5)
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
       if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
@@ -566,7 +566,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">أوقات المساجد</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — نطاق 10 كم` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -813,7 +813,7 @@ export default function MosquePrayerTimesPage() {
               اختر مسجدك لعرض أوقات الصلاة حسبه
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              المساجد المحيطة بك ضمن نطاق 10 كم
+              المساجد المحيطة بك ضمن نطاق 5 كم
             </p>
           </div>
         )}
