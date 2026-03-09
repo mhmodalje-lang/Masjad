@@ -110,22 +110,7 @@ function getCalcSettings(): { method: number; school: number; latitude?: number;
   return { method: 3, school: 0 };
 }
 
-async function fetchAladhanTimes(lat: number, lon: number): Promise<PrayerTimesMap | null> {
-  try {
-    const d = new Date();
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const { method, school } = getCalcSettings();
-    const res = await fetch(
-      `https://api.aladhan.com/v1/timings/${dd}-${mm}-${d.getFullYear()}?latitude=${lat}&longitude=${lon}&method=${method}&school=${school}&adjustment=0`,
-      { cache: 'no-store' }
-    );
-    const json = await res.json();
-    const t = json.data.timings;
-    const c = (s: string) => s.replace(/\s*\(.*\)$/, '').trim();
-    return { fajr: c(t.Fajr), sunrise: c(t.Sunrise), dhuhr: c(t.Dhuhr), asr: c(t.Asr), maghrib: c(t.Maghrib), isha: c(t.Isha), jumuah: '' };
-  } catch { return null; }
-}
+// Removed fetchAladhanTimes — edge function handles all fallbacks
 
 export default function MosquePrayerTimesPage() {
   const navigate = useNavigate();
@@ -268,18 +253,16 @@ export default function MosquePrayerTimesPage() {
       } catch { /* fall through */ }
     }
 
-    // Try live sync from mosque website/Mawaqit
+    // Fetch from edge function (Mawaqit first, Aladhan fallback — all server-side)
     try {
-          const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
-            body: {
-              mosqueName: mosque.name,
-              mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
-              websiteUrl: mosque.websiteUrl,
-              latitude: mosque.latitude,
-              longitude: mosque.longitude,
-              ...getCalcSettings(),
-            },
-          });
+      const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
+        body: {
+          mosqueName: mosque.name,
+          latitude: mosque.latitude,
+          longitude: mosque.longitude,
+          ...getCalcSettings(),
+        },
+      });
 
       if (!error && liveData?.success && liveData?.times) {
         const liveTimes: PrayerTimesMap = {
@@ -289,43 +272,26 @@ export default function MosquePrayerTimesPage() {
           asr: liveData.times.asr || '',
           maghrib: liveData.times.maghrib || '',
           isha: liveData.times.isha || '',
-          jumuah: '',
+          jumuah: liveData.jumua || '',
         };
         setBaseTimes(liveTimes);
         const adjustedTimes = applyAllDiffs(liveTimes, diffs);
         setTimes(adjustedTimes);
-        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source === 'mawaqit' ? 'mawaqit' : liveData.source === 'calculated' ? 'calculated' : 'website'));
-        // Save to shared cache so Index page reads the same times
+        setTimesSource(hasDiffs(diffs) ? 'adjusted' : (liveData.source as any) || 'calculated');
+        // Cache for Index page
         const dateKey = today.replace(/-/g, '');
         const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
         try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: liveTimes, source: liveData.source })); } catch {}
+        mosque.hasAutoSync = liveData.source === 'mawaqit';
+        if (liveData.source === 'mawaqit') toast.success(`تم سحب أوقات ${mosque.name} من Mawaqit ✅`);
         setTimesLoading(false);
-        mosque.hasAutoSync = true;
-        toast.success(`تم سحب أوقات ${mosque.name} تلقائياً ✅`);
         return;
       }
-    } catch { /* fall through */ }
+    } catch {}
 
-    // Fallback: Aladhan API using USER's coordinates for consistency
-    const calcSettings = getCalcSettings();
-    const fallbackLat = calcSettings.latitude || mosque.latitude;
-    const fallbackLon = calcSettings.longitude || mosque.longitude;
-    const result = await fetchAladhanTimes(fallbackLat, fallbackLon);
-    if (result) {
-      setBaseTimes(result);
-      const adjustedTimes = applyAllDiffs(result, diffs);
-      setTimes(adjustedTimes);
-      setTimesSource(hasDiffs(diffs) ? 'adjusted' : 'api');
-      // Save to shared cache
-      const dateKey = today.replace(/-/g, '');
-      const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
-      try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: result, source: 'api' })); } catch {}
-      mosque.hasAutoSync = false;
-    } else {
-      setBaseTimes(emptyTimes);
-      setTimes(emptyTimes);
-      setTimesSource('api');
-    }
+    setBaseTimes(emptyTimes);
+    setTimes(emptyTimes);
+    setTimesSource('calculated');
     setTimesLoading(false);
   };
 
@@ -404,68 +370,43 @@ export default function MosquePrayerTimesPage() {
     setCheckingAvailability(mosque.osm_id);
     try {
       const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
-        body: {
-          mosqueName: mosque.name,
-          mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
-          latitude: mosque.latitude,
-          longitude: mosque.longitude,
-          ...getCalcSettings(),
-        },
+        body: { mosqueName: mosque.name, latitude: mosque.latitude, longitude: mosque.longitude, ...getCalcSettings() },
       });
-      const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
-      const hasSync = !error && data?.success && !!data?.times && isRealSource;
+      const hasSync = !error && data?.success && data?.source === 'mawaqit';
       mosque.hasAutoSync = hasSync;
       setMosques(prev => prev.map(m => m.osm_id === mosque.osm_id ? { ...m, hasAutoSync: hasSync } : m));
       return hasSync;
-    } catch {
-      return false;
-    } finally {
-      setCheckingAvailability(null);
-    }
+    } catch { return false; }
+    finally { setCheckingAvailability(null); }
   };
 
   // Auto-check availability for all mosques after load
   const autoCheckAvailability = useCallback(async (mosqueList: Mosque[]) => {
-    // Check top 15 mosques in parallel (batches of 5)
-    const unchecked = mosqueList.filter(m => m.hasAutoSync === undefined).slice(0, 15);
-    if (unchecked.length === 0) return;
+    const unchecked = mosqueList.filter(m => m.hasAutoSync === undefined).slice(0, 10);
+    if (!unchecked.length) return;
 
-    const batchSize = 5;
-    for (let i = 0; i < unchecked.length; i += batchSize) {
-      const batch = unchecked.slice(i, i + batchSize);
-      const results = await Promise.all(
-        batch.map(async (mosque) => {
-          try {
-            const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
-              body: {
-                mosqueName: mosque.name,
-                mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
-                latitude: mosque.latitude,
-                longitude: mosque.longitude,
-                ...getCalcSettings(),
-              },
-            });
-            const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
-            return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && !!data?.times && isRealSource };
-          } catch {
-            return { osm_id: mosque.osm_id, hasAutoSync: false };
-          }
-        })
-      );
+    const results = await Promise.all(
+      unchecked.map(async (mosque) => {
+        try {
+          const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
+            body: { mosqueName: mosque.name, latitude: mosque.latitude, longitude: mosque.longitude, ...getCalcSettings() },
+          });
+          return { osm_id: mosque.osm_id, hasAutoSync: !error && data?.success && data?.source === 'mawaqit' };
+        } catch { return { osm_id: mosque.osm_id, hasAutoSync: false }; }
+      })
+    );
 
-      setMosques(prev => {
-        const updated = prev.map(m => {
-          const result = results.find(r => r.osm_id === m.osm_id);
-          return result ? { ...m, hasAutoSync: result.hasAutoSync } : m;
-        });
-        // Sort: auto-sync mosques first, then by distance
-        return updated.sort((a, b) => {
-          if (a.hasAutoSync === true && b.hasAutoSync !== true) return -1;
-          if (b.hasAutoSync === true && a.hasAutoSync !== true) return 1;
-          return (a._dist || 999) - (b._dist || 999);
-        });
+    setMosques(prev => {
+      const updated = prev.map(m => {
+        const r = results.find(r => r.osm_id === m.osm_id);
+        return r ? { ...m, hasAutoSync: r.hasAutoSync } : m;
       });
-    }
+      return updated.sort((a, b) => {
+        if (a.hasAutoSync === true && b.hasAutoSync !== true) return -1;
+        if (b.hasAutoSync === true && a.hasAutoSync !== true) return 1;
+        return (a._dist || 999) - (b._dist || 999);
+      });
+    });
   }, []);
 
   useEffect(() => {
