@@ -5,16 +5,19 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { isRamadan } from '@/data/islamicOccasions';
+import { dhikrDetails } from '@/data/dhikrDetails';
+import DhikrCounterDrawer from '@/components/DhikrCounterDrawer';
 
 interface Goal {
   key: string;
   label: string;
   description: string;
   icon: React.ReactNode;
-  color: string;       // ring color
-  bgColor: string;     // bg for icon circle
+  color: string;
+  bgColor: string;
   target: number;
   category: 'prayer' | 'dhikr' | 'quran' | 'general';
+  hasDhikrDrawer?: boolean;
 }
 
 const defaultGoals: Goal[] = [
@@ -37,6 +40,7 @@ const defaultGoals: Goal[] = [
     bgColor: 'bg-accent/15',
     target: 7,
     category: 'dhikr',
+    hasDhikrDrawer: true,
   },
   {
     key: 'quran_reward',
@@ -47,6 +51,7 @@ const defaultGoals: Goal[] = [
     bgColor: 'bg-islamic-purple/15',
     target: 3,
     category: 'quran',
+    hasDhikrDrawer: true,
   },
   {
     key: 'repentance',
@@ -57,6 +62,7 @@ const defaultGoals: Goal[] = [
     bgColor: 'bg-primary/15',
     target: 11,
     category: 'dhikr',
+    hasDhikrDrawer: true,
   },
   {
     key: 'listen_quran',
@@ -94,7 +100,11 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
     return saved ? JSON.parse(saved) : {};
   });
 
-  // Sync from DB on mount if logged in
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeDhikrKey, setActiveDhikrKey] = useState<string | null>(null);
+
+  const activeDhikr = activeDhikrKey ? dhikrDetails.find(d => d.key === activeDhikrKey) || null : null;
+
   useEffect(() => {
     if (!user) return;
     supabase
@@ -138,6 +148,26 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
     }
   };
 
+  const completeFromDrawer = async (goalKey: string, target: number) => {
+    const updated = {
+      ...goals,
+      [goalKey]: { progress: target, completed: true },
+    };
+    setGoals(updated);
+    localStorage.setItem(`daily-goals-${todayKey}`, JSON.stringify(updated));
+
+    if (user) {
+      await supabase.from('daily_goals').upsert({
+        user_id: user.id,
+        date: todayKey,
+        goal_key: goalKey,
+        progress: target,
+        completed: true,
+        target,
+      }, { onConflict: 'user_id,date,goal_key' });
+    }
+  };
+
   const resetGoal = async (goalKey: string) => {
     const updated = { ...goals, [goalKey]: { progress: 0, completed: false } };
     setGoals(updated);
@@ -155,10 +185,32 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
     }
   };
 
+  const handleGoalClick = (goal: Goal) => {
+    const state = goals[goal.key] || { progress: 0, completed: false };
+    if (state.completed) {
+      resetGoal(goal.key);
+      return;
+    }
+    if (goal.hasDhikrDrawer) {
+      setActiveDhikrKey(goal.key);
+      setDrawerOpen(true);
+    } else {
+      updateGoal(goal.key, goal.target);
+    }
+  };
+
   const visibleGoals = ramadan ? defaultGoals : defaultGoals.filter(g => g.key !== 'fasting');
 
   return (
     <div className="px-4 mb-5">
+      <DhikrCounterDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        dhikr={activeDhikr}
+        currentProgress={activeDhikrKey ? (goals[activeDhikrKey]?.progress || 0) : 0}
+        onComplete={completeFromDrawer}
+      />
+
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-foreground">الأهداف اليومية</h3>
         <span className="text-xs text-muted-foreground">
@@ -180,15 +232,12 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               className={cn(
-                'rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 transition-all',
+                'rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 transition-all cursor-pointer active:scale-[0.98]',
                 state.completed && 'border-primary/30 bg-primary/5'
               )}
+              onClick={() => handleGoalClick(goal)}
             >
-              {/* Circular progress */}
-              <button
-                onClick={() => state.completed ? resetGoal(goal.key) : updateGoal(goal.key, goal.target)}
-                className="relative shrink-0"
-              >
+              <div className="relative shrink-0">
                 <svg width="40" height="40" viewBox="0 0 40 40">
                   <circle cx="20" cy="20" r={circleR} fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
                   <circle
@@ -212,9 +261,8 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
                     </span>
                   )}
                 </div>
-              </button>
+              </div>
 
-              {/* Content */}
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   'text-sm font-bold',
@@ -225,7 +273,6 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
                 <p className="text-xs text-muted-foreground truncate">{goal.description}</p>
               </div>
 
-              {/* Icon */}
               <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', goal.bgColor)}>
                 <span className={goal.color}>{goal.icon}</span>
               </div>

@@ -486,7 +486,7 @@ export default function Index() {
           <p className="text-sm font-bold text-foreground mb-1">ابدأ تلاوة القرآن يوميًا</p>
           <p className="text-xs text-muted-foreground mb-4">حدّد وتيرتك، احصل على تذكيرات يومية وتابع تقدمك</p>
           <Link
-            to="/quran"
+            to="/quran-goal"
             className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
           >
             حدّد هدف القرآن

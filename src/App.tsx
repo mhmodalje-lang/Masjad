@@ -84,6 +84,9 @@ const App = () => {
                       <Route path="/install" element={<Install />} />
                       <Route path="/daily-duas" element={<DailyDuas />} />
                       <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                      <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                      <Route path="/quran-goal" element={<QuranGoal />} />
+                      <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
