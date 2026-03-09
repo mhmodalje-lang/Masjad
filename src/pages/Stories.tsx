@@ -16,18 +16,18 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
-const CATEGORIES = [
-  { key: 'istighfar', label: 'قصص الاستغفار', emoji: '🤲', icon: Sparkles, color: 'bg-primary' },
-  { key: 'sahaba', label: 'قصص الصحابة', emoji: '📖', icon: BookOpen, color: 'bg-primary' },
-  { key: 'ruqyah', label: 'قصص الرقية الشرعية', emoji: '🛡️', icon: Shield, color: 'bg-primary' },
-  { key: 'hawqala', label: 'قصص الحوقلة', emoji: '💚', icon: Heart, color: 'bg-primary' },
-  { key: 'rizq', label: 'قصص الرزق', emoji: '✨', icon: Coins, color: 'bg-primary' },
+const getCATEGORIES = (t: (k: string) => string) => [
+  { key: 'istighfar', label: t('catIstighfar'), emoji: '🤲', icon: Sparkles, color: 'bg-primary' },
+  { key: 'sahaba', label: t('catSahaba'), emoji: '📖', icon: BookOpen, color: 'bg-primary' },
+  { key: 'ruqyah', label: t('catRuqyahStory'), emoji: '🛡️', icon: Shield, color: 'bg-primary' },
+  { key: 'hawqala', label: t('catHawqala'), emoji: '💚', icon: Heart, color: 'bg-primary' },
+  { key: 'rizq', label: t('catRizqStory'), emoji: '✨', icon: Coins, color: 'bg-primary' },
 ];
 
-const MEDIA_TYPES = [
-  { key: 'text', label: 'نص', icon: FileText },
-  { key: 'video', label: 'فيديو', icon: Video },
-  { key: 'audio', label: 'صوت', icon: Mic },
+const getMEDIA_TYPES = (t: (k: string) => string) => [
+  { key: 'text', label: t('mediaText'), icon: FileText },
+  { key: 'video', label: t('mediaVideo'), icon: Video },
+  { key: 'audio', label: t('mediaAudio'), icon: Mic },
 ];
 
 interface Story {
