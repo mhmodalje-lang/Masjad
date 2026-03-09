@@ -267,7 +267,26 @@ export default function MosquePrayerTimesPage() {
       </div>
 
       <div className="px-5 -mt-4 relative z-10">
-        {/* Selected mosque card */}
+        {/* Text search bar */}
+        <div className="mb-4 flex gap-2">
+          <Input
+            type="text"
+            placeholder="ابحث باسم المسجد (مثل: Tawba Moschee)..."
+            value={textSearch}
+            onChange={(e) => setTextSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleTextSearch()}
+            className="flex-1 rounded-2xl h-11 text-sm"
+            dir="auto"
+          />
+          <Button
+            onClick={handleTextSearch}
+            disabled={textSearching || !textSearch.trim()}
+            size="sm"
+            className="rounded-2xl h-11 px-4"
+          >
+            {textSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+          </Button>
+        </div>
         {selectedMosque && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
             <div className="rounded-3xl border border-primary/20 bg-card p-5 shadow-elevated">
