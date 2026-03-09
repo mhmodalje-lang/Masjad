@@ -60,7 +60,7 @@ export default function RamadanCalendar() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader title="تقويم رمضان ١٤٤٧" backPath="/" />
+      <PageHeader title="تقويم رمضان ١٤٤٧" backTo="/" />
 
       {/* Ramadan Progress Hero */}
       <div className="px-4 mb-4">
