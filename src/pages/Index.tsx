@@ -77,8 +77,12 @@ export default function Index() {
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     if (!remaining || !nextPrayer) return;
-    const parts = remaining.split(':');
-    const totalSecs = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + (parseInt(parts[2]) || 0);
+    // Parse "Xh Ym" or "Xm" format
+    const hMatch = remaining.match(/(\d+)h/);
+    const mMatch = remaining.match(/(\d+)m/);
+    const hours = hMatch ? parseInt(hMatch[1]) : 0;
+    const mins = mMatch ? parseInt(mMatch[1]) : 0;
+    const totalSecs = hours * 3600 + mins * 60;
     const maxSecs = 6 * 3600;
     setProgress(Math.max(0, Math.min(1, 1 - totalSecs / maxSecs)));
   }, [remaining, nextPrayer]);
