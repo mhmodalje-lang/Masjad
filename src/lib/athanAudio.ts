@@ -67,13 +67,8 @@ export function preloadAllAthans() {
 }
 
 function createAndPlayAudio(url: string): HTMLAudioElement {
-  // Create audio element synchronously in user gesture context
-  const audio = new Audio();
+  const audio = new Audio(url);
   audio.volume = getSavedVolume();
-  audio.preload = 'auto';
-  
-  // Unlock audio on mobile by playing immediately (empty src is fine)
-  audio.play().catch(() => {});
 
   audio.onerror = (e) => {
     console.warn('Athan audio failed:', url, e);
@@ -83,17 +78,10 @@ function createAndPlayAudio(url: string): HTMLAudioElement {
     if (currentAudio === audio) currentAudio = null;
   };
 
-  // Set src after unlock attempt, then play
-  audio.src = url;
-  audio.load();
-  
-  const playPromise = audio.play();
-  if (playPromise) {
-    playPromise.catch(err => {
-      console.warn('Athan play blocked:', err.message);
-      if (currentAudio === audio) currentAudio = null;
-    });
-  }
+  audio.play().catch(err => {
+    console.warn('Athan play blocked:', err.message);
+    if (currentAudio === audio) currentAudio = null;
+  });
 
   return audio;
 }
