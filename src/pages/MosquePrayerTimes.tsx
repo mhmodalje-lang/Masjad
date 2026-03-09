@@ -922,7 +922,7 @@ export default function MosquePrayerTimesPage() {
                           {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
                         </div>
                         {mosque.address && (
-                          <p className="text-xs text-muted-foreground truncate pr-6">{mosque.address}</p>
+                          <p className="text-xs text-muted-foreground truncate pe-6">{mosque.address}</p>
                         )}
                         <div className="flex items-center gap-2 mt-1">
                           {mosque._dist !== undefined && (
