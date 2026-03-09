@@ -478,6 +478,7 @@ export default function QuranPlayer() {
                     <button
                       onClick={() => void togglePlay()}
                       disabled={loading}
+                      aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
                       className="h-14 w-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20"
                     >
                       {loading ? (
