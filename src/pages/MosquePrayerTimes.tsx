@@ -139,22 +139,29 @@ export default function MosquePrayerTimesPage() {
     setTimesLoading(false);
   };
 
-  const searchMosques = useCallback(async () => {
+  const searchMosques = useCallback(async (query?: string) => {
     if (!location.latitude || !location.longitude) { toast.error('يرجى تفعيل الموقع أولاً'); return; }
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('search-mosques', {
-        body: { lat: location.latitude, lon: location.longitude, radius: 10000 },
-      });
+      const body: any = { lat: location.latitude, lon: location.longitude, radius: 15000 };
+      if (query) body.textQuery = query;
+      const { data, error } = await supabase.functions.invoke('search-mosques', { body });
       if (error) throw error;
       const sorted = (data?.mosques || [])
         .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
-      if (sorted.length === 0) toast('لم يتم العثور على مساجد قريبة');
+      if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
     } catch { toast.error('خطأ في البحث عن المساجد'); }
     finally { setLoading(false); }
   }, [location.latitude, location.longitude]);
+
+  const handleTextSearch = useCallback(async () => {
+    if (!textSearch.trim()) return;
+    setTextSearching(true);
+    await searchMosques(textSearch.trim());
+    setTextSearching(false);
+  }, [textSearch, searchMosques]);
 
   useEffect(() => {
     if (location.latitude && location.longitude && !autoSearched.current) {
