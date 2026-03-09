@@ -4,8 +4,10 @@ import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator, MapPin, RefreshCw, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calculator, MapPin, RefreshCw, Info, ChevronDown, ChevronUp, Coins, ClipboardList } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 // Comprehensive currency data by country code
 const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; name: string }> = {
