@@ -232,7 +232,6 @@ export default function Index() {
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Link
-235
                   to="/tracker"
                   className="text-xs text-primary font-bold bg-primary/10 px-3 py-1.5 rounded-xl transition-all active:scale-95"
                 >
