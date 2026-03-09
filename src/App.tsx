@@ -90,6 +90,7 @@ const App = () => {
                       <Route path="/quran-goal" element={<QuranGoal />} />
                       <Route path="/dhikr-settings" element={<DhikrSettings />} />
                       <Route path="/notifications" element={<NotificationSettings />} />
+                      <Route path="/ruqyah" element={<Ruqyah />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>

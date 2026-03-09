@@ -19,6 +19,7 @@ const features = [
   { icon: Clock, label: 'مواقيت الصلاة', path: '/prayer-times', gradient: 'from-primary/15 to-islamic-emerald/10' },
   { icon: BookOpen, label: 'القرآن', path: '/quran', gradient: 'from-islamic-purple/15 to-primary/10' },
   { icon: Moon, label: 'الأدعية', path: '/duas', gradient: 'from-islamic-copper/15 to-accent/10' },
+  { icon: ShieldCheck, label: 'الرقية الشرعية', path: '/ruqyah', gradient: 'from-islamic-emerald/15 to-primary/10' },
   { icon: MessageSquare, label: 'قصص حقيقية', path: '/stories', gradient: 'from-primary/15 to-accent/10' },
   { icon: Calculator, label: 'حاسبة الزكاة', path: '/zakat', gradient: 'from-islamic-teal/15 to-primary/10' },
   { icon: CheckCircle2, label: 'متابعة الصلاة', path: '/tracker', gradient: 'from-primary/15 to-islamic-emerald/10' },
