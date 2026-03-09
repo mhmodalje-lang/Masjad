@@ -87,7 +87,7 @@ export default function Quran() {
     e.preventDefault();
     e.stopPropagation();
     if (!user) {
-      toast.error('سجّل دخولك لحفظ المفضلة');
+      toast.error(t('loginToSaveBookmarks'));
       return;
     }
     if (bookmarks.includes(surahNum)) {
