@@ -739,7 +739,7 @@ export default function MosquePrayerTimesPage() {
                 {timesSource === 'calculated' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
                 {timesSource === 'adjusted' && '⏱️ أوقات معدلة (تحديث يومي تلقائي)'}
                 {(timesSource === 'manual' || timesSource === 'adjusted') && (
-                  <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
+                  <button onClick={resetToAuto} className="ms-auto text-[10px] underline text-muted-foreground">
                     إعادة للتلقائي
                   </button>
                 )}
