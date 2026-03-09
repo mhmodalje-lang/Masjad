@@ -368,11 +368,10 @@ export default function Stories() {
                   <div className="text-center">
                     <span className="text-3xl mb-2 block">✨</span>
                     <h2 className="text-lg font-bold text-foreground mb-2">
-                      قصتك قد تكون سبباً في هداية شخص
+                      {t('yourStoryMayGuide')}
                     </h2>
                     <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                      شارك تجربتك الحقيقية — نص، فيديو، أو صوت.
-                      يتم مراجعة القصص قبل نشرها لضمان جودة المحتوى.
+                      {t('shareYourExperience')}
                     </p>
                     {user ? (
                       <Button onClick={() => { setNewCategory(''); setViewMode('new'); }} className="rounded-full gap-2">
