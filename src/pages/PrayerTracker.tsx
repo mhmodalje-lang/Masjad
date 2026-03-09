@@ -4,8 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Check, Flame, LogIn } from 'lucide-react';
+import { Check, Flame, LogIn, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 
 const prayerKeys = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
 
