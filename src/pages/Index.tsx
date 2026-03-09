@@ -443,15 +443,15 @@ export default function Index() {
         <div className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/5 to-transparent rounded-tr-full" />
           <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-[11px] font-bold text-accent-foreground mb-2">
-            📖 إتمام القرآن
+            {t('quranCompletion')}
           </span>
-          <p className="text-sm font-bold text-foreground mb-1">ابدأ تلاوة القرآن يوميًا</p>
-          <p className="text-xs text-muted-foreground mb-3">حدّد وتيرتك واحصل على تذكيرات يومية</p>
+          <p className="text-sm font-bold text-foreground mb-1">{t('startDailyRecitation')}</p>
+          <p className="text-xs text-muted-foreground mb-3">{t('setYourPace')}</p>
           <Link
             to="/quran-goal"
             className="inline-block rounded-2xl bg-primary/10 border border-primary/20 px-5 py-2 text-xs font-bold text-primary transition-all active:scale-95"
           >
-            حدّد هدف القرآن →
+            {t('setQuranGoal')}
           </Link>
         </div>
       </div>
