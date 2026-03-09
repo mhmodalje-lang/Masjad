@@ -50,7 +50,7 @@ function formatTime(time24: string, is12h: boolean): string {
   return to12Hour(time24);
 }
 
-export function usePrayerTimes(latitude: number, longitude: number, method: number = 2) {
+export function usePrayerTimes(latitude: number, longitude: number, method: number = 2, school: number = 0) {
   const [data, setData] = useState<PrayerTimesData>({
     prayers: [],
     hijriDate: '',
@@ -92,7 +92,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
     if (latitude === 0 && longitude === 0) return;
 
     // Create a stable fetch key including today's date
-    const fetchKey = `${latitude}-${longitude}-${method}-${todayStr}`;
+    const fetchKey = `${latitude}-${longitude}-${method}-${school}-${todayStr}`;
     if (fetchKey === lastFetchKey.current) return;
     lastFetchKey.current = fetchKey;
 
@@ -104,7 +104,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
         const yyyy = today.getFullYear();
 
         const res = await fetch(
-          `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${method}`,
+          `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}&adjustment=0`,
           { cache: 'no-store' }
         );
         const json = await res.json();
@@ -140,7 +140,7 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
     };
 
     fetchPrayers();
-  }, [latitude, longitude, method, is12h, todayStr]);
+  }, [latitude, longitude, method, school, is12h, todayStr]);
 
   return data;
 }
