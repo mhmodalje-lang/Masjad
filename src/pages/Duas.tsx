@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/PageHeader';
+import SectionHeader from '@/components/SectionHeader';
 import {
   Search, Bookmark, ChevronRight, ArrowRight, X,
   Bed, Droplets, Home, Shirt, Plane, UtensilsCrossed,
