@@ -419,28 +419,25 @@ export default function Index() {
       {/* ===== QURAN PLAYER ===== */}
       <QuranPlayer />
 
-      {/* ===== DUA OF THE DAY ===== */}
       <div className="px-4 mb-5">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden"
+          onClick={() => setDuaDrawerOpen(true)}
+          className="rounded-3xl bg-card border border-border/50 p-6 shadow-elevated relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary mb-3">
             دعاء اليوم
           </span>
-          <p className="text-sm font-bold text-foreground mb-3">قل هذه الكلمات عند الشدة</p>
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4">
-            اللَّهُ اللَّهُ رَبِّي لَا أُشْرِكُ بِهِ شَيْئًا
+          <p className="text-sm font-bold text-foreground mb-3">{todayDua.subtitle}</p>
+          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4 line-clamp-2">
+            {todayDua.arabic}
           </p>
-          <Link
-            to="/duas"
-            className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all active:scale-95 hover:bg-muted/50"
-          >
+          <span className="inline-block rounded-2xl border border-border/50 px-5 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-muted/50">
             اقرأ مع الترجمة
-          </Link>
+          </span>
         </motion.div>
       </div>
 
