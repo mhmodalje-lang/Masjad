@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, forwardRef } from 'react';
 import { toast } from 'sonner';
 
-export function PWAUpdatePrompt() {
+export const PWAUpdatePrompt = forwardRef<HTMLDivElement>(function PWAUpdatePrompt(_, ref) {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
 
@@ -12,10 +12,8 @@ export function PWAUpdatePrompt() {
       }
     };
 
-    // Check for updates every 30 minutes
     const interval = setInterval(checkForUpdate, 30 * 60 * 1000);
 
-    // Listen for new service worker
     let refreshing = false;
     const onControllerChange = () => {
       if (refreshing) return;
@@ -25,7 +23,6 @@ export function PWAUpdatePrompt() {
 
     navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
 
-    // Detect waiting SW and prompt user
     const detectWaiting = async () => {
       const reg = await navigator.serviceWorker.getRegistration();
       if (!reg) return;
@@ -66,5 +63,5 @@ export function PWAUpdatePrompt() {
     };
   }, []);
 
-  return null;
-}
+  return <div ref={ref} style={{ display: 'none' }} />;
+});
