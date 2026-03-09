@@ -399,7 +399,7 @@ export default function Index() {
 
       {/* Hijri Calendar */}
       <div className="px-4 mb-8">
-        <h2 className="text-sm font-bold text-foreground mb-3">{t('hijriCalendar')}</h2>
+        <SectionHeader emoji="📅" title={t('hijriCalendar')} />
         <HijriCalendar
           hijriDay={hijriDay}
           hijriMonth={hijriMonthNumber || undefined}
