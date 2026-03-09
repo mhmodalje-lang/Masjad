@@ -275,6 +275,7 @@ export default function MosquePrayerTimesPage() {
               websiteUrl: mosque.websiteUrl,
               latitude: mosque.latitude,
               longitude: mosque.longitude,
+              ...getCalcSettings(),
             },
           });
 
@@ -403,6 +404,7 @@ export default function MosquePrayerTimesPage() {
           mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
           latitude: mosque.latitude,
           longitude: mosque.longitude,
+          ...getCalcSettings(),
         },
       });
       const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';
@@ -435,6 +437,7 @@ export default function MosquePrayerTimesPage() {
                 mosqueCity: mosque.address?.split(',').pop()?.trim() || '',
                 latitude: mosque.latitude,
                 longitude: mosque.longitude,
+                ...getCalcSettings(),
               },
             });
             const isRealSource = data?.source === 'mawaqit' || data?.source === 'website';

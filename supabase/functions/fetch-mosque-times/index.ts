@@ -136,13 +136,13 @@ async function fetchByMawaqitSlug(slug: string): Promise<{ times: MosqueTimes; s
 }
 
 // ─── 3. Aladhan API fallback (calculated, NOT mosque-specific) ───
-async function fetchCalculatedTimes(lat: number, lon: number, method: number = 3): Promise<{ times: MosqueTimes; source: string } | null> {
+async function fetchCalculatedTimes(lat: number, lon: number, method: number = 3, school: number = 0): Promise<{ times: MosqueTimes; source: string } | null> {
   try {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, '0');
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const yyyy = today.getFullYear();
-    const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lon}&method=${method}`;
+    const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lon}&method=${method}&school=${school}&adjustment=0`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const json = await res.json();
@@ -217,8 +217,12 @@ serve(async (req) => {
   }
 
   try {
-    const { mosqueName, mosqueCity, websiteUrl, mawaqitSlug, latitude, longitude, countryCode } = await req.json();
-    console.log("fetch-mosque-times:", { mosqueName, mosqueCity, mawaqitSlug, latitude, longitude, countryCode });
+    const { mosqueName, mosqueCity, websiteUrl, mawaqitSlug, latitude, longitude, countryCode, method, school } = await req.json();
+    console.log("fetch-mosque-times:", { mosqueName, mosqueCity, mawaqitSlug, latitude, longitude, countryCode, method, school });
+
+    // Use client-provided method/school, or detect from country
+    const userMethod = method ?? 3;
+    const userSchool = school ?? 0;
 
     let result: { times: MosqueTimes; source: string; matchedName?: string } | null = null;
 
@@ -239,12 +243,9 @@ serve(async (req) => {
       if (!result) result = await extractTimesWithAI(websiteUrl);
     }
 
-    // Priority 4: Aladhan calculated times (NOT mosque-specific)
-    // Uses Diyanet method (13) for Turkey, standard method (3) elsewhere
+    // Priority 4: Aladhan calculated times using client's method and school
     if (!result && latitude && longitude) {
-      const region = countryCode?.toUpperCase() || getCountryFromCoords(latitude, longitude);
-      const method = region === 'TR' ? 13 : 3;
-      result = await fetchCalculatedTimes(latitude, longitude, method);
+      result = await fetchCalculatedTimes(latitude, longitude, userMethod, userSchool);
     }
 
     return new Response(JSON.stringify({

@@ -190,6 +190,8 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             latitude: mosque.latitude || null,
             longitude: mosque.longitude || null,
             countryCode: mosque.countryCode || null,
+            method: calcMethod,
+            school: calcSchool,
           },
         });
 
