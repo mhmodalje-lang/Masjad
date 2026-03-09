@@ -44,15 +44,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
-        <div className="absolute inset-0 islamic-pattern opacity-20" />
-        <div className="text-center relative z-10">
-          <h1 className="text-2xl font-bold text-white">حسابي</h1>
-          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">إدارة حسابك الشخصي</p>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
+      <PageHeader title="حسابي" subtitle="إدارة حسابك الشخصي" compact />
 
       {/* Avatar & Name */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
