@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun, Sunrise, Star, ChevronLeft, ChevronRight, BookOpen, Heart, Clock, Sparkles } from 'lucide-react';
+import { Moon, Sun, Sunrise, Star, ChevronLeft, ChevronRight, BookOpen, Heart, Clock, Sparkles, Share2, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { usePrayerTimes } from '@/hooks/usePrayerTimes';
