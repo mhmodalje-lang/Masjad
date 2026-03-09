@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   ArrowRight, MapPin, Search, Clock, Building2,
   Check, Loader2, RefreshCw, Edit3, Save, X, Unlink,
-  AlertCircle, Plus, Minus, Settings2
+  AlertCircle, Plus, Minus, Settings2, Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -433,6 +433,38 @@ export default function MosquePrayerTimesPage() {
 
   const fmt = (t: string) => (!t ? '—' : is12h ? to12Hour(t) : t);
 
+  const shareMosqueTimes = async () => {
+    if (!selectedMosque) return;
+    const lines = [
+      `🕌 أوقات الصلاة — ${selectedMosque.name}`,
+      selectedMosque.address ? `📍 ${selectedMosque.address}` : '',
+      '',
+      `الفجر: ${fmt(times.fajr)}`,
+      `الشروق: ${fmt(times.sunrise)}`,
+      `الظهر: ${fmt(times.dhuhr)}`,
+      `العصر: ${fmt(times.asr)}`,
+      `المغرب: ${fmt(times.maghrib)}`,
+      `العشاء: ${fmt(times.isha)}`,
+      times.jumuah ? `الجمعة: ${fmt(times.jumuah)}` : '',
+      '',
+      `📅 ${new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
+    ].filter(Boolean).join('\n');
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `أوقات ${selectedMosque.name}`, text: lines });
+        return;
+      } catch { /* user cancelled or not supported */ }
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(lines);
+      toast.success('تم نسخ الأوقات إلى الحافظة 📋');
+    } catch {
+      toast.error('تعذر النسخ');
+    }
+  };
+
   const getDiffKey = (key: string): keyof TimeDiffs => `${key}_diff` as keyof TimeDiffs;
 
   return (
@@ -500,6 +532,9 @@ export default function MosquePrayerTimesPage() {
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => startEditing('diffs')} className="gap-1 text-xs h-8 px-2" title="ضبط فرق الدقائق">
                         <Settings2 className="h-3 w-3" />
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={shareMosqueTimes} className="text-xs h-8 px-2" title="مشاركة الأوقات">
+                        <Share2 className="h-3 w-3" />
                       </Button>
                       <Button size="sm" variant="ghost" onClick={unlinkMosque} className="text-xs h-8 px-2 text-destructive">
                         <Unlink className="h-3 w-3" />
