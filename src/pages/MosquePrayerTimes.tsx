@@ -56,6 +56,7 @@ const PRAYER_LABELS: Record<string, string> = {
   asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء', jumuah: 'الجمعة',
 };
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
+const COUNTDOWN_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
 const SAVED_MOSQUE_KEY = 'selected_mosque';
 const SAVED_TIMES_PREFIX = 'mosque_times_';
 const SAVED_DIFFS_PREFIX = 'mosque_diffs_';
@@ -127,11 +128,59 @@ export default function MosquePrayerTimesPage() {
   const [textSearch, setTextSearch] = useState('');
   const [textSearching, setTextSearching] = useState(false);
   const [checkingAvailability, setCheckingAvailability] = useState<string | null>(null);
+  const [mosqueFilter, setMosqueFilter] = useState<'all' | 'auto' | 'manual'>('all');
+  const [countdown, setCountdown] = useState<{ key: string; label: string; remaining: string } | null>(null);
   const autoSearched = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user?.id ?? null));
   }, []);
+
+  // Countdown timer for next prayer
+  useEffect(() => {
+    if (!selectedMosque || !times.fajr) return;
+    const tick = () => {
+      const now = new Date();
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const nowSec = nowMin * 60 + now.getSeconds();
+
+      for (const key of COUNTDOWN_KEYS) {
+        const t = times[key];
+        if (!t) continue;
+        const [h, m] = t.split(':').map(Number);
+        const prayerSec = h * 60 * 60 + m * 60;
+        if (prayerSec > nowSec) {
+          const diff = prayerSec - nowSec;
+          const hh = Math.floor(diff / 3600);
+          const mm = Math.floor((diff % 3600) / 60);
+          const ss = diff % 60;
+          setCountdown({
+            key,
+            label: PRAYER_LABELS[key],
+            remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
+          });
+          return;
+        }
+      }
+      // All prayers passed — next is tomorrow's fajr
+      if (times.fajr) {
+        const [h, m] = times.fajr.split(':').map(Number);
+        const fajrSec = h * 60 * 60 + m * 60;
+        const diff = (24 * 3600 - nowSec) + fajrSec;
+        const hh = Math.floor(diff / 3600);
+        const mm = Math.floor((diff % 3600) / 60);
+        const ss = diff % 60;
+        setCountdown({
+          key: 'fajr',
+          label: PRAYER_LABELS.fajr,
+          remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
+        });
+      }
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [selectedMosque, times]);
 
   // Load saved mosque
   useEffect(() => {
@@ -252,7 +301,7 @@ export default function MosquePrayerTimesPage() {
         if (instant && instant.length > 0) {
           const sorted = instant
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 10)
+            .filter((m: Mosque) => m._dist! <= 5)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -265,7 +314,7 @@ export default function MosquePrayerTimesPage() {
         if (awaited && awaited.length > 0) {
           const sorted = awaited
             .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-            .filter((m: Mosque) => m._dist! <= 10)
+            .filter((m: Mosque) => m._dist! <= 5)
             .sort((a: any, b: any) => a._dist - b._dist);
           if (sorted.length > 0) {
             setMosques(sorted);
@@ -275,13 +324,13 @@ export default function MosquePrayerTimesPage() {
         }
       }
 
-      const body: any = { lat: location.latitude, lon: location.longitude, radius: 10000 };
+      const body: any = { lat: location.latitude, lon: location.longitude, radius: 5000 };
       if (query) body.textQuery = query;
       const { data, error } = await supabase.functions.invoke('search-mosques', { body });
       if (error) throw error;
       const sorted = (data?.mosques || [])
         .map((m: Mosque) => ({ ...m, _dist: distanceKm(location.latitude!, location.longitude!, m.latitude, m.longitude) }))
-        .filter((m: Mosque) => m._dist! <= 10)
+        .filter((m: Mosque) => m._dist! <= 5)
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
       if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
@@ -565,7 +614,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">أوقات المساجد</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — نطاق 10 كم` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -693,7 +742,22 @@ export default function MosquePrayerTimesPage() {
                 )}
               </div>
 
-              {/* Edit mode indicator */}
+              {/* Countdown to next prayer */}
+              {countdown && !editing && !timesLoading && (
+                <div className="rounded-2xl bg-primary/10 border border-primary/20 px-4 py-3 mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium text-foreground">
+                      {countdown.label} بعد
+                    </span>
+                  </div>
+                  <span className="text-lg font-bold font-mono text-primary tracking-wider" dir="ltr">
+                    {countdown.remaining}
+                  </span>
+                </div>
+              )}
+
+
               {editing && (
                 <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2 mb-3 text-xs text-amber-700 dark:text-amber-400">
                   {editMode === 'times' ? (
@@ -781,6 +845,30 @@ export default function MosquePrayerTimesPage() {
           </motion.div>
         )}
 
+        {/* Filter tabs */}
+        {mosques.length > 0 && (
+          <div className="flex gap-2 mb-4 overflow-x-auto">
+            {([
+              { key: 'all' as const, label: 'الكل', count: mosques.length },
+              { key: 'auto' as const, label: '⚡ تلقائي', count: mosques.filter(m => m.hasAutoSync === true).length },
+              { key: 'manual' as const, label: '✏️ يدوي', count: mosques.filter(m => m.hasAutoSync === false).length },
+            ]).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setMosqueFilter(tab.key)}
+                className={cn(
+                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap",
+                  mosqueFilter === tab.key
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-muted-foreground border-border/50 hover:border-primary/30"
+                )}
+              >
+                {tab.label} ({tab.count})
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* No mosque selected info */}
         {!selectedMosque && !loading && mosques.length > 0 && (
           <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
@@ -788,7 +876,7 @@ export default function MosquePrayerTimesPage() {
               اختر مسجدك لعرض أوقات الصلاة حسبه
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              المساجد المحيطة بك ضمن نطاق 10 كم
+              المساجد المحيطة بك ضمن نطاق 5 كم
             </p>
           </div>
         )}
@@ -801,7 +889,9 @@ export default function MosquePrayerTimesPage() {
             </motion.div>
           ) : mosques.length > 0 ? (
             <div className="space-y-2">
-              {mosques.map((mosque, idx) => {
+              {mosques
+                .filter(m => mosqueFilter === 'all' ? true : mosqueFilter === 'auto' ? m.hasAutoSync === true : m.hasAutoSync === false)
+                .map((mosque, idx) => {
                 const isSelected = selectedMosque?.osm_id === mosque.osm_id;
                 return (
                   <motion.div

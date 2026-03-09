@@ -153,6 +153,7 @@ export function useSavedMosqueTimes(): SavedMosqueData {
             mawaqitSlug: mosque.mawaqitSlug || null,
             latitude: mosque.latitude || null,
             longitude: mosque.longitude || null,
+            countryCode: mosque.countryCode || null,
           },
         });
 
