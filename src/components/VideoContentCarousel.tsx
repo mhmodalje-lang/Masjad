@@ -46,7 +46,7 @@ export default function VideoContentCarousel() {
               />
               <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                 <div className="h-10 w-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                  <Play className="h-4 w-4 text-primary fill-primary mr-[-2px]" />
+                  <Play className="h-4 w-4 text-primary fill-primary" />
                 </div>
               </div>
               <div className="absolute top-2 left-2">
