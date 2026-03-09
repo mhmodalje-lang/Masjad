@@ -118,7 +118,7 @@ export default function Duas() {
   const totalDuasInCategory = subCategories.reduce((sum, sub) => sum + sub.duas.length, 0);
 
   const findCatLabel = (dataKey: string) => {
-    return allCategories.find(c => c.dataKey === dataKey)?.label || '';
+    return getAllCategories(t).find(c => c.dataKey === dataKey)?.label || '';
   };
 
   // Search results
