@@ -357,12 +357,17 @@ export default function MosquePrayerTimesPage() {
                 "rounded-xl px-3 py-1.5 mb-3 text-[11px] font-medium flex items-center gap-1.5",
                 timesSource === 'manual'
                   ? "bg-primary/10 text-primary border border-primary/20"
+                  : timesSource === 'mawaqit'
+                  ? "bg-primary/15 text-primary border border-primary/30"
+                  : timesSource === 'website'
+                  ? "bg-accent/10 text-accent border border-accent/20"
                   : "bg-muted text-muted-foreground border border-border/30"
               )}>
                 <Clock className="h-3 w-3" />
-                {timesSource === 'manual'
-                  ? 'أوقات يدوية محفوظة'
-                  : 'أوقات تلقائية حسب إحداثيات المسجد'}
+                {timesSource === 'manual' && 'أوقات يدوية محفوظة'}
+                {timesSource === 'mawaqit' && '⚡ أوقات مباشرة من Mawaqit'}
+                {timesSource === 'website' && '🌐 أوقات من موقع المسجد'}
+                {timesSource === 'api' && 'أوقات فلكية حسب إحداثيات المسجد'}
                 {timesSource === 'manual' && (
                   <button onClick={resetToAuto} className="mr-auto text-[10px] underline text-muted-foreground">
                     إعادة للتلقائي
