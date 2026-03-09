@@ -85,10 +85,12 @@ export function useGeoLocation() {
       const cached = localStorage.getItem('cached-location');
       if (cached) {
         const parsed = JSON.parse(cached);
+        const cc = parsed.countryCode || '';
         return {
           ...parsed,
-          countryCode: parsed.countryCode || '',
-          calculationMethod: parsed.calculationMethod || getCalculationMethodByCountry(parsed.countryCode || ''),
+          countryCode: cc,
+          calculationMethod: parsed.calculationMethod || getCalculationMethodByCountry(cc),
+          school: parsed.school ?? getSchoolByCountry(cc),
           loading: true,
           error: null,
         };
@@ -102,6 +104,7 @@ export function useGeoLocation() {
       country: '',
       countryCode: '',
       calculationMethod: 3,
+      school: 0,
       loading: true,
       error: null,
     };
