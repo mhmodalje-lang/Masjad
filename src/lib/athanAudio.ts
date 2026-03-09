@@ -67,23 +67,26 @@ export function preloadAllAthans() {
 }
 
 function createAndPlayAudio(url: string): HTMLAudioElement {
-  const audio = ensureAudio(url);
-  audio.pause();
-  audio.currentTime = 0;
+  // Create a fresh audio element each time for reliable playback
+  const audio = new Audio(url);
   audio.volume = getSavedVolume();
+  audio.preload = 'auto';
 
-  audio.onerror = () => {
-    console.warn('Athan audio failed:', url);
+  audio.onerror = (e) => {
+    console.warn('Athan audio failed:', url, e);
     if (currentAudio === audio) currentAudio = null;
   };
   audio.onended = () => {
     if (currentAudio === audio) currentAudio = null;
   };
 
-  audio.play().catch(err => {
-    console.warn('Athan play blocked:', err.message);
-    if (currentAudio === audio) currentAudio = null;
-  });
+  const playPromise = audio.play();
+  if (playPromise) {
+    playPromise.catch(err => {
+      console.warn('Athan play blocked:', err.message);
+      if (currentAudio === audio) currentAudio = null;
+    });
+  }
 
   return audio;
 }
