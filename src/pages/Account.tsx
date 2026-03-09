@@ -44,7 +44,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader title="حسابي" subtitle="إدارة حسابك الشخصي" compact />
+      <FuturisticHeader title="حسابي" subtitle="إدارة حسابك الشخصي" compact />
 
       {/* Avatar & Name */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
