@@ -192,6 +192,20 @@ export async function schedulePrayerNotifications(
   checkInterval = setInterval(checkPrayers, 15_000);
 
   console.log(`[PrayerNotifications] Scheduled checker for ${prayers.filter(p => p.key !== 'sunrise').length} prayers`);
+
+  // Store prayer data in Cache API for service worker background checks
+  try {
+    const cache = await caches.open('prayer-bg-data');
+    await cache.put('/bg-prayer-data', new Response(JSON.stringify({
+      prayers: prayers.map(p => ({ key: p.key, time24: p.time24 })),
+      updated: new Date().toISOString(),
+    })));
+  } catch (e) {
+    console.warn('[PrayerNotifications] Failed to cache for background:', e);
+  }
+
+  // Register periodic background sync if supported
+  registerBackgroundSync();
 }
 
 // Re-check on visibility change (tab comes back from background)
