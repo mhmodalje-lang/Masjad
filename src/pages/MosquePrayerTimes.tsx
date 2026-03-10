@@ -255,12 +255,14 @@ export default function MosquePrayerTimesPage() {
 
     // Fetch from edge function (Mawaqit first, Aladhan fallback — all server-side)
     try {
+      const calcS = getCalcSettings();
       const { data: liveData, error } = await supabase.functions.invoke('fetch-mosque-times', {
         body: {
           mosqueName: mosque.name,
           latitude: mosque.latitude,
           longitude: mosque.longitude,
-          ...getCalcSettings(),
+          method: calcS.method,
+          school: calcS.school,
         },
       });
 
