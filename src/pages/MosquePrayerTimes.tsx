@@ -369,8 +369,15 @@ export default function MosquePrayerTimesPage() {
   const checkMosqueAvailability = async (mosque: Mosque): Promise<boolean> => {
     setCheckingAvailability(mosque.osm_id);
     try {
+      const calcS = getCalcSettings();
       const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
-        body: { mosqueName: mosque.name, latitude: mosque.latitude, longitude: mosque.longitude, ...getCalcSettings() },
+        body: {
+          mosqueName: mosque.name,
+          latitude: mosque.latitude,
+          longitude: mosque.longitude,
+          method: calcS.method,
+          school: calcS.school,
+        },
       });
       const hasSync = !error && data?.success && data?.source === 'mawaqit';
       mosque.hasAutoSync = hasSync;
@@ -380,8 +387,39 @@ export default function MosquePrayerTimesPage() {
     finally { setCheckingAvailability(null); }
   };
 
-  // Removed autoCheckAvailability — was flooding edge function with 10+ parallel calls
-  // Availability is now checked only when user selects a specific mosque
+  // Batched auto-check availability for all mosques (3 at a time, 500ms delay)
+  const batchCheckRef = useRef(false);
+  const autoCheckAvailability = useCallback(async (mosqueList: Mosque[]) => {
+    if (batchCheckRef.current) return;
+    batchCheckRef.current = true;
+    const unchecked = mosqueList.filter(m => m.hasAutoSync === undefined);
+    const batchSize = 3;
+    for (let i = 0; i < unchecked.length; i += batchSize) {
+      const batch = unchecked.slice(i, i + batchSize);
+      await Promise.all(batch.map(async (mosque) => {
+        try {
+          const calcS = getCalcSettings();
+          const { data, error } = await supabase.functions.invoke('fetch-mosque-times', {
+            body: {
+              mosqueName: mosque.name,
+              latitude: mosque.latitude,
+              longitude: mosque.longitude,
+              method: calcS.method,
+              school: calcS.school,
+            },
+          });
+          const hasSync = !error && data?.success && data?.source === 'mawaqit';
+          setMosques(prev => prev.map(m => m.osm_id === mosque.osm_id ? { ...m, hasAutoSync: hasSync } : m));
+        } catch {
+          setMosques(prev => prev.map(m => m.osm_id === mosque.osm_id ? { ...m, hasAutoSync: false } : m));
+        }
+      }));
+      if (i + batchSize < unchecked.length) {
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+    batchCheckRef.current = false;
+  }, []);
 
   useEffect(() => {
     if (location.latitude && location.longitude && !autoSearched.current) {
