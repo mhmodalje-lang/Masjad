@@ -400,7 +400,6 @@ export default function MosquePrayerTimesPage() {
   };
 
   // Batched auto-check availability for all mosques (3 at a time, 500ms delay)
-  const batchCheckRef = useRef(false);
   const autoCheckAvailability = useCallback(async (mosqueList: Mosque[]) => {
     if (batchCheckRef.current) return;
     batchCheckRef.current = true;
