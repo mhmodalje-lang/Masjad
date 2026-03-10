@@ -328,6 +328,8 @@ export default function MosquePrayerTimesPage() {
           if (sorted.length > 0) {
             setMosques(sorted);
             setLoading(false);
+            batchCheckRef.current = false;
+            autoCheckAvailability(sorted);
             return;
           }
         }
