@@ -1,245 +1,242 @@
-// Prayer notification system with interval-based checking for reliability
-import { playAthan } from './athanAudio';
+/**
+ * Prayer Notification Scheduler using Adhan.js
+ * Schedules real prayer time notifications and athan audio
+ */
+import { Coordinates, PrayerTimes, CalculationMethod, Madhab, Prayer, Qibla } from 'adhan';
 
-const PRAYER_NAMES: Record<string, string> = {
-  fajr: '🌅 الفجر',
-  dhuhr: '🌞 الظهر',
-  asr: '🌤️ العصر',
-  maghrib: '🌅 المغرب',
-  isha: '🌙 العشاء',
+export type PrayerMethod = 'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura' | 'Dubai' | 'MoonsightingCommittee' | 'NorthAmerica' | 'Kuwait' | 'Qatar' | 'Singapore' | 'Tehran' | 'Turkey';
+
+interface PrayerTimesResult {
+  fajr: Date;
+  sunrise: Date;
+  dhuhr: Date;
+  asr: Date;
+  maghrib: Date;
+  isha: Date;
+}
+
+const PRAYER_NAMES_AR: Record<string, string> = {
+  fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر',
+  asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
 };
 
-export type AthanAlertCallback = (prayerKey: string, prayerTime: string) => void;
+const PRAYER_EMOJIS: Record<string, string> = {
+  fajr: '🌙', dhuhr: '☀️', asr: '🌤️', maghrib: '🌅', isha: '🌙'
+};
 
-let onAthanAlert: AthanAlertCallback | null = null;
-
-export function setAthanAlertCallback(cb: AthanAlertCallback | null) {
-  onAthanAlert = cb;
+export function calculatePrayerTimes(lat: number, lon: number, method: PrayerMethod = 'UmmAlQura', school: 'shafi' | 'hanafi' = 'shafi'): PrayerTimesResult {
+  const coords = new Coordinates(lat, lon);
+  const date = new Date();
+  
+  const methodMap: Record<PrayerMethod, any> = {
+    MuslimWorldLeague: CalculationMethod.MuslimWorldLeague(),
+    Egyptian: CalculationMethod.Egyptian(),
+    Karachi: CalculationMethod.Karachi(),
+    UmmAlQura: CalculationMethod.UmmAlQura(),
+    Dubai: CalculationMethod.Dubai(),
+    MoonsightingCommittee: CalculationMethod.MoonsightingCommittee(),
+    NorthAmerica: CalculationMethod.NorthAmerica(),
+    Kuwait: CalculationMethod.Kuwait(),
+    Qatar: CalculationMethod.Qatar(),
+    Singapore: CalculationMethod.Singapore(),
+    Tehran: CalculationMethod.Tehran(),
+    Turkey: CalculationMethod.Turkey(),
+  };
+  
+  const params = methodMap[method] || CalculationMethod.UmmAlQura();
+  params.madhab = school === 'hanafi' ? Madhab.Hanafi : Madhab.Shafi;
+  
+  const times = new PrayerTimes(coords, date, params);
+  
+  return {
+    fajr: times.fajr,
+    sunrise: times.sunrise,
+    dhuhr: times.dhuhr,
+    asr: times.asr,
+    maghrib: times.maghrib,
+    isha: times.isha,
+  };
 }
 
-/** Get reminder minutes from localStorage (default 10) */
-function getReminderMinutes(): number {
-  const saved = localStorage.getItem('prayer-reminder-minutes');
-  return saved ? parseInt(saved, 10) : 10;
-}
-
-/** Play a short alert tone using Web Audio API */
-function playReminderTone() {
+export function getNextPrayer(lat: number, lon: number, method: PrayerMethod = 'UmmAlQura'): { name: string; nameAr: string; time: Date; minutesLeft: number } | null {
   try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    const vol = parseFloat(localStorage.getItem('athan-volume') || '0.8');
-
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.15);
-    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.3);
-
-    gain.gain.setValueAtTime(vol * 0.5, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.5);
-
-    const osc2 = ctx.createOscillator();
-    const gain2 = ctx.createGain();
-    osc2.connect(gain2);
-    gain2.connect(ctx.destination);
-
-    osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.7);
-    osc2.frequency.setValueAtTime(1320, ctx.currentTime + 0.85);
-
-    gain2.gain.setValueAtTime(vol * 0.5, ctx.currentTime + 0.7);
-    gain2.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.2);
-
-    osc2.start(ctx.currentTime + 0.7);
-    osc2.stop(ctx.currentTime + 1.2);
-
-    setTimeout(() => ctx.close(), 2000);
-  } catch {
-    // Web Audio not supported
+    const coords = new Coordinates(lat, lon);
+    const params = CalculationMethod.UmmAlQura();
+    const times = new PrayerTimes(coords, new Date(), params);
+    const nextPrayer = times.nextPrayer();
+    
+    if (nextPrayer === Prayer.None) return null;
+    
+    const prayerNames: Record<string, string> = {
+      [Prayer.Fajr]: 'fajr', [Prayer.Sunrise]: 'sunrise', [Prayer.Dhuhr]: 'dhuhr',
+      [Prayer.Asr]: 'asr', [Prayer.Maghrib]: 'maghrib', [Prayer.Isha]: 'isha'
+    };
+    
+    const name = prayerNames[nextPrayer] || '';
+    const time = times.timeForPrayer(nextPrayer);
+    const minutesLeft = Math.floor((time.getTime() - Date.now()) / 60000);
+    
+    return { name, nameAr: PRAYER_NAMES_AR[name] || name, time, minutesLeft };
+  } catch (_e) {
+    return null;
   }
 }
 
-/** Send a browser notification */
-function sendNotification(title: string, body: string, tag: string, silent: boolean = false) {
+export function calculateQiblaDirection(lat: number, lon: number): number {
+  const qibla = new Qibla(new Coordinates(lat, lon));
+  return qibla.direction;
+}
+
+export function formatPrayerTime(date: Date, is12h = false): string {
+  return date.toLocaleTimeString('ar-SA', {
+    hour: '2-digit', minute: '2-digit',
+    hour12: is12h
+  });
+}
+
+// ==================== NOTIFICATION SCHEDULER ====================
+
+let scheduledTimers: ReturnType<typeof setTimeout>[] = [];
+
+export function schedulePrayerNotifications(lat: number, lon: number, method: PrayerMethod = 'UmmAlQura', enabledPrayers: string[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'], reminderMinutes = 0) {
+  // Clear existing timers
+  clearPrayerSchedule();
+  
+  try {
+    const times = calculatePrayerTimes(lat, lon, method);
+    const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
+    
+    for (const prayer of prayers) {
+      if (!enabledPrayers.includes(prayer)) continue;
+      
+      const prayerTime = times[prayer];
+      const now = Date.now();
+      const diff = prayerTime.getTime() - now;
+      
+      // Schedule main notification (at prayer time)
+      if (diff > 0 && diff < 24 * 60 * 60 * 1000) {
+        const timer = setTimeout(() => {
+          showPrayerNotification(prayer);
+        }, diff);
+        scheduledTimers.push(timer);
+        
+        // Schedule reminder (X minutes before)
+        if (reminderMinutes > 0) {
+          const reminderDiff = diff - reminderMinutes * 60 * 1000;
+          if (reminderDiff > 0) {
+            const reminderTimer = setTimeout(() => {
+              showPrayerReminder(prayer, reminderMinutes);
+            }, reminderDiff);
+            scheduledTimers.push(reminderTimer);
+          }
+        }
+      }
+    }
+    
+    return true;
+  } catch (_e) {
+    return false;
+  }
+}
+
+export function clearPrayerSchedule() {
+  scheduledTimers.forEach(t => clearTimeout(t));
+  scheduledTimers = [];
+}
+
+function showPrayerNotification(prayer: string) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
-
-  const options: NotificationOptions = {
-    body,
-    icon: '/pwa-icon-192.png',
-    badge: '/pwa-icon-192.png',
-    tag,
-    requireInteraction: true,
-    silent,
-    data: { url: '/', prayer: tag.replace('prayer-', '') },
-  };
-
-  // Try service worker notification first (works in background)
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  
+  const title = `🕌 حان وقت صلاة ${PRAYER_NAMES_AR[prayer]}`;
+  const body = 'الصلاة خير من النوم • استعد بالوضوء';
+  
+  // Try service worker notification first (works even with app closed)
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(title, {
-        ...options,
-        vibrate: [200, 100, 200, 100, 200],
-      } as NotificationOptions);
-    }).catch(() => {
-      try { new Notification(title, options); } catch {}
+        body,
+        icon: '/pwa-icon-192.png',
+        badge: '/pwa-icon-192.png',
+        tag: `prayer-${prayer}`,
+        requireInteraction: true,
+        vibrate: [300, 100, 300, 100, 300],
+        // @ts-ignore
+        renotify: true,
+        data: { prayer, type: 'athan', url: '/' },
+        actions: [
+          { action: 'open', title: 'فتح التطبيق' },
+          { action: 'dismiss', title: 'تجاهل' },
+        ],
+      });
     });
   } else {
-    try { new Notification(title, options); } catch {}
+    new Notification(title, { body, icon: '/pwa-icon-192.png' });
+  }
+  
+  // Play athan audio
+  playAthan(prayer);
+  
+  // Store last notification time
+  localStorage.setItem(`last_notification_${prayer}`, new Date().toISOString());
+}
+
+function showPrayerReminder(prayer: string, minutes: number) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  
+  const title = `⏰ بعد ${minutes} دقيقة صلاة ${PRAYER_NAMES_AR[prayer]}`;
+  const body = 'استعد للصلاة - حي على الصلاة';
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(title, {
+        body,
+        icon: '/pwa-icon-192.png',
+        tag: `reminder-${prayer}`,
+        vibrate: [200, 100, 200],
+        data: { prayer, type: 'reminder', url: '/prayer-times' },
+      });
+    });
   }
 }
 
-/** Send a test notification to verify everything works */
-export function sendTestNotification(): boolean {
-  if (!('Notification' in window)) return false;
-  if (Notification.permission !== 'granted') return false;
+// Athan audio player
+const ATHAN_SOURCES = [
+  '/audio/athan-fajr.mp3',
+  'https://download.quranicaudio.com/quran/Abdul_Basit_Murattal_192kbps/001.mp3', // fallback
+];
 
-  sendNotification(
-    'إشعار تجريبي ✅',
-    'الإشعارات تعمل بنجاح! سيتم إعلامك عند وقت كل صلاة.',
-    'test-notification',
-    false
-  );
-  return true;
-}
+let athanAudio: HTMLAudioElement | null = null;
 
-// ─── Interval-based prayer checker (more reliable than setTimeout) ───
-
-interface ScheduledPrayer {
-  key: string;
-  time: string;
-  time24: string;
-  minuteOfDay: number;
-}
-
-let scheduledPrayers: ScheduledPrayer[] = [];
-let firedToday = new Set<string>();
-let checkInterval: ReturnType<typeof setInterval> | null = null;
-
-function resetFiredIfNewDay() {
-  const todayKey = new Date().toISOString().split('T')[0];
-  const lastDay = (window as any).__prayerLastDay;
-  if (lastDay !== todayKey) {
-    firedToday.clear();
-    (window as any).__prayerLastDay = todayKey;
-  }
-}
-
-function checkPrayers() {
-  resetFiredIfNewDay();
-
-  const now = new Date();
-  const currentMin = now.getHours() * 60 + now.getMinutes();
-  const reminderMin = getReminderMinutes();
-  const reminderEnabled = localStorage.getItem('notif-prayer-reminder') !== 'false';
-
-  for (const prayer of scheduledPrayers) {
-    if (prayer.key === 'sunrise') continue;
-
-    // Main athan - fire if we're within 1 minute of the prayer time
-    const athanKey = `athan-${prayer.key}`;
-    if (!firedToday.has(athanKey) && currentMin >= prayer.minuteOfDay && currentMin <= prayer.minuteOfDay + 1) {
-      firedToday.add(athanKey);
-      console.log(`[PrayerNotifications] Firing athan for ${prayer.key}`);
-
-      playAthan(prayer.key);
-      if (onAthanAlert) onAthanAlert(prayer.key, prayer.time);
-      sendNotification(
-        `الأذان ${prayer.time}`,
-        `${PRAYER_NAMES[prayer.key] || prayer.key} - ${prayer.time}\nصل الآن. فتأخير الصلاة يجعلها أصعب.`,
-        `prayer-${prayer.key}`,
-        false // NOT silent — play sound
-      );
-    }
-
-    // Pre-prayer reminder
-    if (reminderEnabled) {
-      const reminderKey = `reminder-${prayer.key}`;
-      const reminderMinute = prayer.minuteOfDay - reminderMin;
-      if (!firedToday.has(reminderKey) && reminderMinute >= 0 && currentMin >= reminderMinute && currentMin <= reminderMinute + 1) {
-        firedToday.add(reminderKey);
-        playReminderTone();
-        sendNotification(
-          'تذكير بالصلاة 🔔',
-          `${PRAYER_NAMES[prayer.key] || prayer.key} بعد ${reminderMin} دقائق`,
-          `prayer-reminder-${prayer.key}`,
-          false
-        );
-      }
-    }
-  }
-}
-
-export async function schedulePrayerNotifications(
-  prayers: { key: string; time24: string; time: string }[]
-) {
-  // Clear previous interval
-  if (checkInterval) {
-    clearInterval(checkInterval);
-    checkInterval = null;
-  }
-
-  // Build schedule
-  scheduledPrayers = prayers.map(p => {
-    const [h, m] = p.time24.split(':').map(Number);
-    return { ...p, minuteOfDay: h * 60 + m };
-  });
-
-  // Reset fired set for a fresh schedule
-  resetFiredIfNewDay();
-
-  // Check immediately then every 15 seconds
-  checkPrayers();
-  checkInterval = setInterval(checkPrayers, 15_000);
-
-  console.log(`[PrayerNotifications] Scheduled checker for ${prayers.filter(p => p.key !== 'sunrise').length} prayers`);
-
-  // Store prayer data in Cache API for service worker background checks
+export function playAthan(prayer: string) {
   try {
-    const cache = await caches.open('prayer-bg-data');
-    await cache.put('/bg-prayer-data', new Response(JSON.stringify({
-      prayers: prayers.map(p => ({ key: p.key, time24: p.time24 })),
-      updated: new Date().toISOString(),
-    })));
-  } catch (e) {
-    console.warn('[PrayerNotifications] Failed to cache for background:', e);
-  }
-
-  // Register periodic background sync if supported
-  registerBackgroundSync();
-}
-
-// Re-check on visibility change (tab comes back from background)
-if (typeof document !== 'undefined') {
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && scheduledPrayers.length > 0) {
-      console.log('[PrayerNotifications] Tab visible, re-checking prayers');
-      checkPrayers();
-    }
-  });
-}
-
-/** Register periodic background sync for prayer notifications */
-async function registerBackgroundSync() {
-  try {
-    if (!('serviceWorker' in navigator)) return;
-    const reg = await navigator.serviceWorker.ready;
+    // Stop any existing athan
+    stopAthan();
     
-    // Try periodic sync (works on Chrome Android when PWA installed)
-    if ('periodicSync' in reg) {
-      const status = await navigator.permissions.query({ name: 'periodic-background-sync' as any });
-      if (status.state === 'granted') {
-        await (reg as any).periodicSync.register('prayer-check', {
-          minInterval: 60 * 1000,
-        });
-        console.log('[PrayerNotifications] Periodic background sync registered');
-      }
-    }
-  } catch (e) {
-    console.warn('[PrayerNotifications] Background sync not supported:', e);
+    const athanSrc = prayer === 'fajr' ? '/audio/athan-fajr.mp3' : '/audio/athan.mp3';
+    athanAudio = new Audio(athanSrc);
+    athanAudio.volume = 0.8;
+    athanAudio.play().catch((_e) => {
+      // Browser might block autoplay - this is okay
+      console.log('Athan autoplay blocked (user interaction required)');
+    });
+  } catch (_e) {
+    // Audio not available
   }
+}
+
+export function stopAthan() {
+  if (athanAudio) {
+    athanAudio.pause();
+    athanAudio.currentTime = 0;
+    athanAudio = null;
+  }
+}
+
+export function getMethodNumber(method: string): number {
+  const map: Record<string, number> = {
+    MuslimWorldLeague: 3, Egyptian: 5, Karachi: 1, UmmAlQura: 4,
+    Dubai: 16, Kuwait: 9, Qatar: 10, Singapore: 11, Turkey: 13,
+    Tehran: 7, NorthAmerica: 2, MoonsightingCommittee: 15,
+  };
+  return map[method] || 4;
 }

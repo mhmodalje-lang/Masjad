@@ -1,4 +1,8 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends
+"""
+المؤذن العالمي - Backend API
+Full Islamic App with Prayer Times, Notifications, AI Athkar, Mosque Search
+"""
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -8,14 +12,14 @@ import os
 import logging
 import httpx
 from pathlib import Path
-from pydantic import BaseModel, Field, EmailStr
-from typing import List, Optional, Any, Dict
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, date, timedelta
 import asyncio
 import math
 import hashlib
-import hmac
+import hmac as hmac_lib
 import base64
 import json as json_module
 import re
@@ -23,93 +27,83 @@ import re
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# JWT Secret (use env variable or generate one)
-JWT_SECRET = os.environ.get('JWT_SECRET', 'islamic-app-secret-key-2025-change-in-production')
+# ==================== CONFIG ====================
+JWT_SECRET = os.environ.get('JWT_SECRET', 'almuadhin-global-secret-2026')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
+FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID', 'hxhdh-78bec')
+VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY', '')
+VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY', '')
+VAPID_EMAIL = os.environ.get('VAPID_EMAIL', 'mailto:admin@almuadhin.com')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+DB_NAME = os.environ.get('DB_NAME', 'almuadhin')
 
-# MongoDB connection
-mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-db_name = os.environ.get('DB_NAME', 'islamic_app')
-client = AsyncIOMotorClient(mongo_url)
-db = client[db_name]
+# MongoDB
+client_db = AsyncIOMotorClient(MONGO_URL)
+db = client_db[DB_NAME]
 
-# Create the main app without a prefix
-app = FastAPI(title="Islamic App API")
-
-# Create a router with the /api prefix
+# App
+app = FastAPI(title="المؤذن العالمي API", version="2.0")
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer(auto_error=False)
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# ==================== JWT UTILITIES ====================
-
-def _b64_encode(data: bytes) -> str:
+# ==================== JWT ====================
+def _b64enc(data: bytes) -> str:
     return base64.urlsafe_b64encode(data).rstrip(b'=').decode()
 
-def _b64_decode(s: str) -> bytes:
+def _b64dec(s: str) -> bytes:
     s += '=' * (-len(s) % 4)
     return base64.urlsafe_b64decode(s)
 
-def create_jwt(payload: dict, expires_in_hours: int = 24 * 30) -> str:
-    """Create a simple JWT token."""
-    header = _b64_encode(json_module.dumps({"alg": "HS256", "typ": "JWT"}).encode())
-    exp = datetime.utcnow() + timedelta(hours=expires_in_hours)
-    full_payload = {**payload, "exp": exp.isoformat(), "iat": datetime.utcnow().isoformat()}
-    payload_enc = _b64_encode(json_module.dumps(full_payload).encode())
-    sig_input = f"{header}.{payload_enc}".encode()
-    sig = hmac.new(JWT_SECRET.encode(), sig_input, hashlib.sha256).digest()
-    return f"{header}.{payload_enc}.{_b64_encode(sig)}"
+def create_jwt(payload: dict, hours: int = 720) -> str:
+    header = _b64enc(json_module.dumps({"alg":"HS256","typ":"JWT"}).encode())
+    exp = datetime.utcnow() + timedelta(hours=hours)
+    pl = {**payload, "exp": exp.isoformat(), "iat": datetime.utcnow().isoformat()}
+    pl_enc = _b64enc(json_module.dumps(pl).encode())
+    sig = hmac_lib.new(JWT_SECRET.encode(), f"{header}.{pl_enc}".encode(), hashlib.sha256).digest()
+    return f"{header}.{pl_enc}.{_b64enc(sig)}"
 
 def verify_jwt(token: str) -> Optional[dict]:
-    """Verify and decode a JWT token."""
     try:
-        parts = token.split('.')
-        if len(parts) != 3:
+        h, p, s = token.split('.')
+        expected = hmac_lib.new(JWT_SECRET.encode(), f"{h}.{p}".encode(), hashlib.sha256).digest()
+        if not hmac_lib.compare_digest(expected, _b64dec(s)):
             return None
-        header_enc, payload_enc, sig_enc = parts
-        sig_input = f"{header_enc}.{payload_enc}".encode()
-        expected_sig = hmac.new(JWT_SECRET.encode(), sig_input, hashlib.sha256).digest()
-        actual_sig = _b64_decode(sig_enc)
-        if not hmac.compare_digest(expected_sig, actual_sig):
-            return None
-        payload = json_module.loads(_b64_decode(payload_enc))
-        # Check expiry
-        exp = datetime.fromisoformat(payload.get("exp", ""))
-        if datetime.utcnow() > exp:
+        payload = json_module.loads(_b64dec(p))
+        if datetime.utcnow() > datetime.fromisoformat(payload["exp"]):
             return None
         return payload
     except Exception:
         return None
 
-def hash_password(password: str) -> str:
-    """Hash a password using PBKDF2."""
+def hash_password(pw: str) -> str:
     salt = os.urandom(16)
-    dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
+    dk = hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 100000)
     return f"{base64.b64encode(salt).decode()}:{base64.b64encode(dk).decode()}"
 
-def verify_password(password: str, hashed: str) -> bool:
-    """Verify a password against its hash."""
+def check_password(pw: str, hashed: str) -> bool:
     try:
-        salt_b64, dk_b64 = hashed.split(':')
-        salt = base64.b64decode(salt_b64)
-        stored_dk = base64.b64decode(dk_b64)
-        dk = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
-        return hmac.compare_digest(dk, stored_dk)
+        s, dk = hashed.split(':')
+        return hmac_lib.compare_digest(
+            hashlib.pbkdf2_hmac('sha256', pw.encode(), base64.b64decode(s), 100000),
+            base64.b64decode(dk)
+        )
     except Exception:
         return False
 
-async def get_current_user(creds: HTTPAuthorizationCredentials = Depends(security)) -> Optional[dict]:
-    """Get current user from JWT token."""
+async def get_user(creds: HTTPAuthorizationCredentials = Depends(security)) -> Optional[dict]:
     if not creds:
         return None
     payload = verify_jwt(creds.credentials)
     if not payload:
         return None
-    user = await db.users.find_one({"id": payload.get("user_id")})
-    return user
+    return await db.users.find_one({"id": payload.get("user_id")})
 
-
-# ==================== AUTH MODELS ====================
-
+# ==================== MODELS ====================
 class UserRegister(BaseModel):
     email: str
     password: str
@@ -119,518 +113,649 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-class UserResponse(BaseModel):
-    id: str
-    email: str
-    name: Optional[str] = None
-    created_at: Optional[str] = None
+class PushSubscription(BaseModel):
+    endpoint: str
+    p256dh: str
+    auth: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    method: Optional[int] = 3
+    school: Optional[int] = 0
+    timezone: Optional[str] = "Asia/Riyadh"
+    user_id: Optional[str] = None
 
-
-# ==================== MODELS ====================
-
-class StatusCheck(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-class MosqueSearchResult(BaseModel):
-    osm_id: str
-    name: str
-    address: str
-    latitude: float
-    longitude: float
-    websiteUrl: Optional[str] = None
-
-class MosquePrayerTimesRequest(BaseModel):
+class MosqueTimesRequest(BaseModel):
     mosqueName: str
     latitude: float
     longitude: float
     method: int = 3
     school: int = 0
+    mosqueUuid: Optional[str] = None
 
-class PrayerTimesResult(BaseModel):
-    success: bool
-    source: str
-    times: Optional[Dict[str, str]] = None
-    jumua: Optional[str] = None
-    message: Optional[str] = None
-
+class DhikrAIRequest(BaseModel):
+    time_of_day: str = "morning"
+    occasion: Optional[str] = None
+    language: str = "ar"
+    count: int = 5
 
 # ==================== UTILS ====================
-
-def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-    """Calculate distance in km between two coordinates."""
-    R = 6371
-    d_lat = math.radians(lat2 - lat1)
-    d_lon = math.radians(lon2 - lon1)
-    a = (math.sin(d_lat / 2) ** 2 +
-         math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(d_lon / 2) ** 2)
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-
-
-# ==================== STATUS ROUTES ====================
-
-@api_router.get("/")
-async def root():
-    return {"message": "Islamic App API - Running", "version": "2.0"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**s) for s in status_checks]
-
-
-# ==================== AUTH ROUTES ====================
-
-@api_router.post("/auth/register")
-async def register_user(data: UserRegister):
-    """Register a new user."""
-    email = data.email.lower().strip()
-    # Check if email already exists
-    existing = await db.users.find_one({"email": email})
-    if existing:
-        raise HTTPException(status_code=400, detail="البريد الإلكتروني مسجل بالفعل")
-
-    user_id = str(uuid.uuid4())
-    user_doc = {
-        "id": user_id,
-        "email": email,
-        "name": data.name or email.split("@")[0],
-        "password_hash": hash_password(data.password),
-        "created_at": datetime.utcnow().isoformat(),
-        "updated_at": datetime.utcnow().isoformat(),
-    }
-    await db.users.insert_one(user_doc)
-
-    token = create_jwt({"user_id": user_id, "email": email})
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user_id,
-            "email": email,
-            "name": user_doc["name"],
-            "created_at": user_doc["created_at"],
-        }
-    }
-
-
-@api_router.post("/auth/login")
-async def login_user(data: UserLogin):
-    """Login with email and password."""
-    email = data.email.lower().strip()
-    user = await db.users.find_one({"email": email})
-    if not user:
-        raise HTTPException(status_code=401, detail="بريد إلكتروني أو كلمة مرور غير صحيحة")
-
-    if not verify_password(data.password, user.get("password_hash", "")):
-        raise HTTPException(status_code=401, detail="بريد إلكتروني أو كلمة مرور غير صحيحة")
-
-    token = create_jwt({"user_id": user["id"], "email": email})
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": user["id"],
-            "email": email,
-            "name": user.get("name", ""),
-            "created_at": user.get("created_at", ""),
-        }
-    }
-
-
-@api_router.get("/auth/me")
-async def get_me(current_user: dict = Depends(get_current_user)):
-    """Get current user info."""
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    return {
-        "id": current_user["id"],
-        "email": current_user["email"],
-        "name": current_user.get("name", ""),
-        "created_at": current_user.get("created_at", ""),
-    }
-
-
-@api_router.post("/auth/logout")
-async def logout():
-    """Logout (client should delete the token)."""
-    return {"message": "Logged out successfully"}
-
-
-@api_router.put("/auth/profile")
-async def update_profile(
-    data: dict,
-    current_user: dict = Depends(get_current_user)
-):
-    """Update user profile."""
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    update_data = {k: v for k, v in data.items() if k in ("name",)}
-    update_data["updated_at"] = datetime.utcnow().isoformat()
-    await db.users.update_one({"id": current_user["id"]}, {"$set": update_data})
-    return {"success": True, "message": "Profile updated"}
-
-
-# ==================== MOSQUE SEARCH ====================
-
 OVERPASS_ENDPOINTS = [
     "https://overpass-api.de/api/interpreter",
     "https://lz4.overpass-api.de/api/interpreter",
-    "https://z.overpass-api.de/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
 ]
 
-async def query_overpass(overpass_query: str) -> Optional[dict]:
-    """Query Overpass API with multiple endpoint fallbacks."""
-    for endpoint in OVERPASS_ENDPOINTS:
+def haversine(lat1, lon1, lat2, lon2) -> float:
+    R = 6371
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1))*math.cos(math.radians(lat2))*math.sin(dlon/2)**2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+
+async def query_overpass(q: str) -> Optional[dict]:
+    for ep in OVERPASS_ENDPOINTS:
         try:
-            async with httpx.AsyncClient(timeout=30) as client_http:
-                resp = await client_http.post(
-                    endpoint,
-                    content=overpass_query,
-                    headers={"Content-Type": "text/plain"}
-                )
-                if resp.status_code == 200:
-                    return resp.json()
-                elif resp.status_code == 429:
-                    await asyncio.sleep(1)
-                    continue
-        except Exception as e:
-            logger.debug(f"Overpass endpoint {endpoint} failed: {e}")
+            async with httpx.AsyncClient(timeout=20) as c:
+                r = await c.post(ep, content=q, headers={"Content-Type":"text/plain"})
+                if r.status_code == 200:
+                    return r.json()
+        except Exception:
             continue
     return None
 
+def clean_time(t: str) -> str:
+    return re.sub(r'\s*\(.*?\)', '', t).strip()
 
-@api_router.get("/mosques/search")
-async def search_mosques(
-    lat: float = Query(..., description="Latitude"),
-    lon: float = Query(..., description="Longitude"),
-    radius: int = Query(5000, description="Search radius in meters"),
-    query: Optional[str] = Query(None, description="Text search query")
-):
-    """
-    Search for nearby mosques using OpenStreetMap Overpass API.
-    Falls back to text search if a query is provided.
-    """
-    try:
-        mosques = []
-
-        if query:
-            # Text search using Overpass API
-            overpass_query = f"""
-[out:json][timeout:25];
-(
-  node["amenity"="place_of_worship"]["religion"="muslim"]["name"~"{query}",i](around:{radius},{lat},{lon});
-  way["amenity"="place_of_worship"]["religion"="muslim"]["name"~"{query}",i](around:{radius},{lat},{lon});
-  relation["amenity"="place_of_worship"]["religion"="muslim"]["name"~"{query}",i](around:{radius},{lat},{lon});
-);
-out center body;
-"""
-        else:
-            # Proximity search
-            overpass_query = f"""
-[out:json][timeout:25];
-(
-  node["amenity"="place_of_worship"]["religion"="muslim"](around:{radius},{lat},{lon});
-  way["amenity"="place_of_worship"]["religion"="muslim"](around:{radius},{lat},{lon});
-  relation["amenity"="place_of_worship"]["religion"="muslim"](around:{radius},{lat},{lon});
-);
-out center body;
-"""
-
-        data = await query_overpass(overpass_query)
-        if not data:
-            return {"mosques": [], "count": 0, "error": "Overpass API unavailable"}
-
-        for element in data.get("elements", []):
-            tags = element.get("tags", {})
-            name = tags.get("name") or tags.get("name:ar") or tags.get("name:en")
-            if not name:
-                continue
-
-            # Get coordinates
-            if element["type"] == "node":
-                e_lat = element.get("lat", 0)
-                e_lon = element.get("lon", 0)
-            else:
-                center = element.get("center", {})
-                e_lat = center.get("lat", 0)
-                e_lon = center.get("lon", 0)
-
-            if not e_lat or not e_lon:
-                continue
-
-            # Build address
-            city = tags.get("addr:city") or tags.get("addr:suburb") or ""
-            street = tags.get("addr:street") or tags.get("addr:full") or ""
-            address_parts = [p for p in [street, city] if p]
-            address = ", ".join(address_parts) if address_parts else tags.get("addr:full", "")
-
-            osm_id = str(element.get("id", ""))
-            website = tags.get("website") or tags.get("url") or None
-
-            mosque = {
-                "osm_id": osm_id,
-                "name": name,
-                "address": address,
-                "latitude": e_lat,
-                "longitude": e_lon,
-                "websiteUrl": website,
-                "_dist": haversine_km(lat, lon, e_lat, e_lon)
-            }
-            mosques.append(mosque)
-
-        # Sort by distance and limit
-        mosques.sort(key=lambda m: m["_dist"])
-        mosques = mosques[:50]
-
-        return {"mosques": mosques, "count": len(mosques)}
-
-    except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Overpass API timeout")
-    except Exception as e:
-        logger.error(f"Mosque search error: {e}")
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
-
-
-# ==================== MOSQUE PRAYER TIMES ====================
-
-@api_router.post("/mosques/prayer-times")
-async def get_mosque_prayer_times(request: MosquePrayerTimesRequest):
-    """
-    Get prayer times for a mosque.
-    Tries Mawaqit API first (for mosques registered there),
-    then falls back to Aladhan API calculation based on coordinates.
-    """
-    try:
-        # Try Mawaqit first
-        mawaqit_result = await try_mawaqit(request.mosqueName, request.latitude, request.longitude)
-        if mawaqit_result:
-            return mawaqit_result
-
-        # Fallback to Aladhan API
-        aladhan_result = await fetch_aladhan_times(request.latitude, request.longitude, request.method, request.school)
-        if aladhan_result:
-            return aladhan_result
-
-        return PrayerTimesResult(
-            success=False,
-            source="none",
-            message="Could not fetch prayer times"
-        )
-
-    except Exception as e:
-        logger.error(f"Prayer times error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-async def try_mawaqit(mosque_name: str, latitude: float, longitude: float) -> Optional[PrayerTimesResult]:
-    """Try to get prayer times from Mawaqit.net API."""
-    try:
-        # Search for mosque on Mawaqit
-        search_url = "https://mawaqit.net/api/2.0/mosque/search"
-        params = {
-            "lat": latitude,
-            "lon": longitude,
-            "word": mosque_name[:30],  # Limit search word
-        }
-        
-        headers = {
-            "Api-Access-Token": "58d4dcef-f581-4a4b-bfb5-5d7628c16753",
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-
-        async with httpx.AsyncClient(timeout=10) as client_http:
-            resp = await client_http.get(search_url, params=params, headers=headers)
-            if resp.status_code != 200:
-                return None
-
-            mosques_data = resp.json()
-            if not mosques_data:
-                return None
-
-            # Find the closest mosque
-            for mosque_info in mosques_data[:3]:
-                m_lat = mosque_info.get("latitude", 0)
-                m_lon = mosque_info.get("longitude", 0)
-                dist = haversine_km(latitude, longitude, m_lat, m_lon)
-                
-                if dist < 0.3:  # Within 300m
-                    mosque_slug = mosque_info.get("slug") or mosque_info.get("id")
-                    if not mosque_slug:
-                        continue
-
-                    # Get times for this mosque
-                    times_url = f"https://mawaqit.net/api/2.0/mosque/{mosque_slug}/prayer-times"
-                    times_resp = await client_http.get(times_url, headers=headers)
-                    if times_resp.status_code != 200:
-                        continue
-
-                    times_data = times_resp.json()
-                    today_str = date.today().isoformat()
-                    
-                    # Get today's prayer times
-                    today_times = None
-                    times_list = times_data.get("times", []) or times_data.get("calendar", [])
-                    
-                    if isinstance(times_list, dict):
-                        day_num = str(date.today().day)
-                        today_times = times_list.get(day_num) or times_list.get(today_str)
-                    elif isinstance(times_list, list):
-                        day = date.today().day
-                        if day <= len(times_list):
-                            today_times = times_list[day - 1]
-
-                    if today_times and len(today_times) >= 5:
-                        # Format: [fajr, sunrise, dhuhr, asr, maghrib, isha]
-                        prayer_keys = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha']
-                        times_map = {}
-                        for i, key in enumerate(prayer_keys):
-                            if i < len(today_times):
-                                times_map[key] = today_times[i]
-
-                        return PrayerTimesResult(
-                            success=True,
-                            source="mawaqit",
-                            times=times_map,
-                            jumua=times_data.get("jumua") or times_data.get("jumuaTime") or ""
-                        )
-
-        return None
-    except Exception as e:
-        logger.debug(f"Mawaqit fetch failed: {e}")
-        return None
-
-
-async def fetch_aladhan_times(latitude: float, longitude: float, method: int, school: int) -> Optional[PrayerTimesResult]:
-    """Fetch prayer times from Aladhan API."""
-    try:
-        today = date.today()
-        url = f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}"
-        params = {
-            "latitude": latitude,
-            "longitude": longitude,
-            "method": method,
-            "school": school,
-            "adjustment": 0
-        }
-
-        async with httpx.AsyncClient(timeout=15) as client_http:
-            resp = await client_http.get(url, params=params)
-            resp.raise_for_status()
-            data = resp.json()
-
-        timings = data["data"]["timings"]
-
-        def clean_time(t: str) -> str:
-            import re
-            return re.sub(r'\s*\(.*\)$', '', t).strip()
-
-        times_map = {
-            "fajr": clean_time(timings.get("Fajr", "")),
-            "sunrise": clean_time(timings.get("Sunrise", "")),
-            "dhuhr": clean_time(timings.get("Dhuhr", "")),
-            "asr": clean_time(timings.get("Asr", "")),
-            "maghrib": clean_time(timings.get("Maghrib", "")),
-            "isha": clean_time(timings.get("Isha", ""))
-        }
-
-        return PrayerTimesResult(
-            success=True,
-            source="calculated",
-            times=times_map
-        )
-
-    except Exception as e:
-        logger.debug(f"Aladhan fallback failed: {e}")
-        return None
-
-
-# ==================== PRAYER TIMES API ====================
-
-@api_router.get("/prayer-times")
-async def get_prayer_times(
-    lat: float = Query(...),
-    lon: float = Query(...),
-    method: int = Query(3),
-    school: int = Query(0)
-):
-    """Get prayer times for a location."""
-    result = await fetch_aladhan_times(lat, lon, method, school)
-    if result and result.success:
-        return result
-    raise HTTPException(status_code=500, detail="Failed to fetch prayer times")
-
-
-# ==================== HIJRI DATE API ====================
-
-@api_router.get("/hijri-date")
-async def get_hijri_date(
-    lat: float = Query(...),
-    lon: float = Query(...)
-):
-    """Get current Hijri date."""
-    try:
-        today = date.today()
-        url = f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}"
-        params = {"latitude": lat, "longitude": lon, "method": 3}
-
-        async with httpx.AsyncClient(timeout=15) as client_http:
-            resp = await client_http.get(url, params=params)
-            resp.raise_for_status()
-            data = resp.json()
-
-        hijri = data["data"]["date"]["hijri"]
-        return {
-            "hijriDate": f"{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ",
-            "hijriDay": hijri["day"],
-            "hijriMonth": hijri["month"]["ar"],
-            "hijriMonthEn": hijri["month"]["en"],
-            "hijriMonthNumber": hijri["month"]["number"],
-            "hijriYear": hijri["year"]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ==================== HEALTH CHECK ====================
+# ==================== STATUS ====================
+@api_router.get("/")
+async def root():
+    return {"message": "المؤذن العالمي API", "version": "2.0", "status": "running"}
 
 @api_router.get("/health")
-async def health_check():
-    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat()}
+async def health():
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat(), "app": "المؤذن العالمي"}
 
+# ==================== AUTH ====================
+@api_router.post("/auth/register")
+async def register(data: UserRegister):
+    email = data.email.lower().strip()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(400, "البريد الإلكتروني مسجل مسبقاً")
+    uid = str(uuid.uuid4())
+    user = {
+        "id": uid, "email": email,
+        "name": data.name or email.split("@")[0],
+        "password_hash": hash_password(data.password),
+        "provider": "email",
+        "created_at": datetime.utcnow().isoformat(),
+        "avatar": None,
+    }
+    await db.users.insert_one(user)
+    token = create_jwt({"user_id": uid, "email": email})
+    return {"access_token": token, "token_type": "bearer", "user": {k: user[k] for k in ("id","email","name","avatar","provider")}}
 
-# Include the router in the main app
+@api_router.post("/auth/login")
+async def login(data: UserLogin):
+    email = data.email.lower().strip()
+    user = await db.users.find_one({"email": email})
+    if not user or not check_password(data.password, user.get("password_hash", "")):
+        raise HTTPException(401, "بيانات الدخول غير صحيحة")
+    token = create_jwt({"user_id": user["id"], "email": email})
+    return {"access_token": token, "token_type": "bearer", "user": {k: user[k] for k in ("id","email","name","avatar","provider") if k in user}}
+
+@api_router.post("/auth/google")
+async def google_login(data: dict):
+    """Exchange Firebase ID token for app JWT"""
+    id_token = data.get("id_token")
+    if not id_token:
+        raise HTTPException(400, "id_token مطلوب")
+    
+    # Verify Firebase ID token via Firebase REST API
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.post(
+                f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={os.environ.get('FIREBASE_API_KEY','')}",
+                json={"idToken": id_token}
+            )
+            if r.status_code != 200:
+                raise HTTPException(401, "Token Firebase غير صالح")
+            firebase_user = r.json().get("users", [{}])[0]
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(401, "فشل التحقق من Google")
+
+    email = firebase_user.get("email", "")
+    name = firebase_user.get("displayName", email.split("@")[0])
+    photo = firebase_user.get("photoUrl", None)
+    firebase_uid = firebase_user.get("localId", "")
+
+    # Upsert user
+    user = await db.users.find_one({"$or": [{"email": email}, {"firebase_uid": firebase_uid}]})
+    if not user:
+        uid = str(uuid.uuid4())
+        user = {
+            "id": uid, "email": email, "name": name,
+            "avatar": photo, "provider": "google",
+            "firebase_uid": firebase_uid,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        await db.users.insert_one(user)
+    else:
+        await db.users.update_one({"id": user["id"]}, {"$set": {"name": name, "avatar": photo, "firebase_uid": firebase_uid}})
+
+    token = create_jwt({"user_id": user["id"], "email": email})
+    return {"access_token": token, "token_type": "bearer", "user": {k: user.get(k) for k in ("id","email","name","avatar","provider")}}
+
+@api_router.get("/auth/me")
+async def get_me(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "غير مصادق")
+    return {k: user.get(k) for k in ("id","email","name","avatar","provider","created_at")}
+
+@api_router.post("/auth/logout")
+async def logout():
+    return {"message": "تم تسجيل الخروج"}
+
+# ==================== PRAYER TIMES ====================
+@api_router.get("/prayer-times")
+async def prayer_times(lat: float = Query(...), lon: float = Query(...), method: int = Query(4), school: int = Query(0)):
+    """Get prayer times using Aladhan API"""
+    try:
+        today = date.today()
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}",
+                params={"latitude": lat, "longitude": lon, "method": method, "school": school})
+            r.raise_for_status()
+            data = r.json()["data"]
+
+        timings = data["timings"]
+        hijri = data["date"]["hijri"]
+        
+        return {
+            "success": True,
+            "source": "aladhan",
+            "times": {
+                "fajr": clean_time(timings["Fajr"]),
+                "sunrise": clean_time(timings["Sunrise"]),
+                "dhuhr": clean_time(timings["Dhuhr"]),
+                "asr": clean_time(timings["Asr"]),
+                "maghrib": clean_time(timings["Maghrib"]),
+                "isha": clean_time(timings["Isha"]),
+                "midnight": clean_time(timings.get("Midnight", "")),
+            },
+            "hijri": {
+                "date": f"{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ",
+                "day": hijri["day"],
+                "month_ar": hijri["month"]["ar"],
+                "month_en": hijri["month"]["en"],
+                "month_num": hijri["month"]["number"],
+                "year": hijri["year"],
+            },
+            "meta": data.get("meta", {})
+        }
+    except Exception as e:
+        raise HTTPException(500, f"خطأ في جلب أوقات الصلاة: {str(e)}")
+
+# ==================== MOSQUE SEARCH ====================
+@api_router.get("/mosques/search")
+async def search_mosques(
+    lat: float = Query(...), lon: float = Query(...),
+    radius: int = Query(5000), query: Optional[str] = Query(None)
+):
+    """Search mosques using Mawaqit API first, fallback to Overpass"""
+    
+    # Try Mawaqit first (has real prayer times!)
+    try:
+        async with httpx.AsyncClient(timeout=20) as c:
+            params = {"lat": lat, "lon": lon, "radius": radius}
+            if query:
+                params["word"] = query
+            r = await c.get("https://mawaqit.net/api/2.0/mosque/search", params=params)
+            if r.status_code == 200:
+                mosques_raw = r.json()
+                mosques = []
+                for m in mosques_raw:
+                    mosque = {
+                        "osm_id": m.get("uuid", str(uuid.uuid4())),
+                        "mawaqit_uuid": m.get("uuid"),
+                        "name": m.get("name", ""),
+                        "address": m.get("localisation", ""),
+                        "latitude": float(m.get("latitude", 0)),
+                        "longitude": float(m.get("longitude", 0)),
+                        "websiteUrl": m.get("site"),
+                        "phone": m.get("phone"),
+                        "image": m.get("image"),
+                        "hasAutoSync": True,
+                        "hasMawaqit": True,
+                        "times": m.get("times", []),
+                        "iqama": m.get("iqama", []),
+                        "jumua": m.get("jumua"),
+                        "facilities": {
+                            "womenSpace": m.get("womenSpace", False),
+                            "parking": m.get("parking", False),
+                            "ablutions": m.get("ablutions", False),
+                            "handicapAccessibility": m.get("handicapAccessibility", False),
+                            "childrenCourses": m.get("childrenCourses", False),
+                            "adultCourses": m.get("adultCourses", False),
+                        },
+                        "_dist": float(m.get("proximity", 9999)) / 1000,
+                    }
+                    mosques.append(mosque)
+                
+                mosques.sort(key=lambda x: x["_dist"])
+                return {"mosques": mosques[:50], "count": len(mosques), "source": "mawaqit"}
+    except Exception as e:
+        logger.warning(f"Mawaqit search failed: {e}")
+
+    # Fallback to Overpass API
+    try:
+        if query:
+            overpass_q = f'[out:json][timeout:20];(node["amenity"="place_of_worship"]["religion"="muslim"]["name"~"{query}",i](around:{radius},{lat},{lon});way["amenity"="place_of_worship"]["religion"="muslim"]["name"~"{query}",i](around:{radius},{lat},{lon}););out center body;'
+        else:
+            overpass_q = f'[out:json][timeout:20];(node["amenity"="place_of_worship"]["religion"="muslim"](around:{radius},{lat},{lon});way["amenity"="place_of_worship"]["religion"="muslim"](around:{radius},{lat},{lon}););out center body;'
+        
+        data = await query_overpass(overpass_q)
+        mosques = []
+        for el in (data or {}).get("elements", []):
+            tags = el.get("tags", {})
+            name = tags.get("name") or tags.get("name:ar")
+            if not name:
+                continue
+            e_lat = el.get("lat") or el.get("center", {}).get("lat", 0)
+            e_lon = el.get("lon") or el.get("center", {}).get("lon", 0)
+            mosques.append({
+                "osm_id": str(el.get("id")),
+                "name": name,
+                "address": tags.get("addr:street", "") + " " + tags.get("addr:city", ""),
+                "latitude": e_lat, "longitude": e_lon,
+                "hasAutoSync": False, "hasMawaqit": False,
+                "_dist": haversine(lat, lon, e_lat, e_lon)
+            })
+        mosques.sort(key=lambda x: x["_dist"])
+        return {"mosques": mosques[:50], "count": len(mosques), "source": "openstreetmap"}
+    except Exception as e:
+        raise HTTPException(500, f"خطأ في البحث: {str(e)}")
+
+@api_router.post("/mosques/prayer-times")
+async def mosque_times(req: MosqueTimesRequest):
+    """Get mosque prayer times from Mawaqit or Aladhan"""
+    
+    # If we have UUID, use Mawaqit directly
+    if req.mosqueUuid:
+        try:
+            async with httpx.AsyncClient(timeout=15) as c:
+                r = await c.get(f"https://mawaqit.net/api/2.0/mosque/{req.mosqueUuid}/prayer-times")
+                if r.status_code == 200:
+                    data = r.json()
+                    today_day = date.today().day
+                    times_raw = data.get("times", {})
+                    
+                    if isinstance(times_raw, dict):
+                        today_times = times_raw.get(str(today_day))
+                    elif isinstance(times_raw, list) and len(times_raw) >= today_day:
+                        today_times = times_raw[today_day - 1]
+                    else:
+                        today_times = None
+                    
+                    if today_times and len(today_times) >= 5:
+                        keys = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]
+                        times_map = {keys[i]: today_times[i] for i in range(min(len(keys), len(today_times)))}
+                        return {
+                            "success": True, "source": "mawaqit",
+                            "times": times_map,
+                            "jumua": data.get("jumua"),
+                            "iqama": data.get("iqama"),
+                        }
+        except Exception as e:
+            logger.warning(f"Mawaqit times error: {e}")
+
+    # Try Mawaqit search by name
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get("https://mawaqit.net/api/2.0/mosque/search",
+                params={"lat": req.latitude, "lon": req.longitude, "word": req.mosqueName[:20]})
+            if r.status_code == 200:
+                mosques = r.json()
+                for m in mosques[:3]:
+                    m_lat, m_lon = float(m.get("latitude", 0)), float(m.get("longitude", 0))
+                    if haversine(req.latitude, req.longitude, m_lat, m_lon) < 0.5:
+                        times = m.get("times", [])
+                        if len(times) >= 5:
+                            keys = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]
+                            return {
+                                "success": True, "source": "mawaqit",
+                                "times": {keys[i]: times[i] for i in range(min(6, len(times)))},
+                                "jumua": m.get("jumua"),
+                                "iqama": m.get("iqama"),
+                            }
+    except Exception:
+        pass
+
+    # Fallback to Aladhan
+    try:
+        today = date.today()
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}",
+                params={"latitude": req.latitude, "longitude": req.longitude, "method": req.method, "school": req.school})
+            r.raise_for_status()
+            t = r.json()["data"]["timings"]
+            return {
+                "success": True, "source": "calculated",
+                "times": {
+                    "fajr": clean_time(t["Fajr"]), "sunrise": clean_time(t["Sunrise"]),
+                    "dhuhr": clean_time(t["Dhuhr"]), "asr": clean_time(t["Asr"]),
+                    "maghrib": clean_time(t["Maghrib"]), "isha": clean_time(t["Isha"]),
+                }
+            }
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+# ==================== PUSH NOTIFICATIONS ====================
+@api_router.get("/push/vapid-key")
+async def get_vapid_key():
+    return {"publicKey": VAPID_PUBLIC_KEY}
+
+@api_router.post("/push/subscribe")
+async def subscribe_push(sub: PushSubscription, user: dict = Depends(get_user)):
+    """Save push subscription to DB"""
+    doc = {
+        "id": str(uuid.uuid4()),
+        "endpoint": sub.endpoint,
+        "p256dh": sub.p256dh,
+        "auth": sub.auth,
+        "latitude": sub.latitude,
+        "longitude": sub.longitude,
+        "method": sub.method,
+        "school": sub.school,
+        "timezone": sub.timezone,
+        "user_id": user["id"] if user else sub.user_id,
+        "created_at": datetime.utcnow().isoformat(),
+        "active": True,
+    }
+    await db.push_subscriptions.update_one(
+        {"endpoint": sub.endpoint}, {"$set": doc}, upsert=True
+    )
+    return {"success": True, "message": "تم تسجيل الإشعارات بنجاح"}
+
+@api_router.post("/push/test")
+async def test_push(data: dict, user: dict = Depends(get_user)):
+    """Send a test push notification"""
+    endpoint = data.get("endpoint")
+    if not endpoint:
+        raise HTTPException(400, "endpoint مطلوب")
+    
+    sub = await db.push_subscriptions.find_one({"endpoint": endpoint})
+    if not sub:
+        raise HTTPException(404, "الاشتراك غير موجود")
+    
+    result = await send_push_notification(sub, {
+        "title": "المؤذن العالمي 🕌",
+        "body": "تم تفعيل الإشعارات بنجاح!",
+        "icon": "/pwa-icon-192.png",
+        "badge": "/pwa-icon-192.png",
+        "tag": "test",
+    })
+    return {"success": result}
+
+async def send_push_notification(sub: dict, payload: dict) -> bool:
+    """Send a web push notification using pywebpush"""
+    try:
+        from pywebpush import webpush, WebPushException
+        webpush(
+            subscription_info={
+                "endpoint": sub["endpoint"],
+                "keys": {"p256dh": sub["p256dh"], "auth": sub["auth"]},
+            },
+            data=json_module.dumps(payload),
+            vapid_private_key=VAPID_PRIVATE_KEY,
+            vapid_claims={"sub": VAPID_EMAIL},
+        )
+        return True
+    except Exception as e:
+        logger.error(f"Push failed: {e}")
+        return False
+
+@api_router.post("/push/send-prayer")
+async def send_prayer_notifications(data: dict):
+    """Send prayer time notifications to all subscribed users"""
+    prayer_name = data.get("prayer", "")
+    prayer_ar = {"fajr": "الفجر", "dhuhr": "الظهر", "asr": "العصر", "maghrib": "المغرب", "isha": "العشاء"}.get(prayer_name, prayer_name)
+    
+    subs = await db.push_subscriptions.find({"active": True}).to_list(None)
+    sent = 0
+    for sub in subs:
+        payload = {
+            "title": f"🕌 حان وقت صلاة {prayer_ar}",
+            "body": "استعد للصلاة، حي على الصلاة، حي على الفلاح",
+            "icon": "/pwa-icon-192.png",
+            "badge": "/pwa-icon-192.png",
+            "tag": f"prayer-{prayer_name}",
+            "requireInteraction": True,
+            "vibrate": [200, 100, 200, 100, 200],
+            "actions": [{"action": "open", "title": "فتح التطبيق"}],
+            "data": {"prayer": prayer_name, "type": "athan"}
+        }
+        if await send_push_notification(sub, payload):
+            sent += 1
+    
+    return {"success": True, "sent": sent, "total": len(subs)}
+
+# ==================== AI FEATURES ====================
+@api_router.post("/ai/daily-athkar")
+async def get_daily_athkar(req: DhikrAIRequest):
+    """Generate contextual daily Athkar using Gemini AI"""
+    
+    prompts = {
+        "morning": "أعطني 5 أذكار صباح مختلفة مع فضلها من الكتاب والسنة، بشكل JSON array من objects {text, virtue, count, reference}",
+        "evening": "أعطني 5 أذكار مساء مختلفة مع فضلها من الكتاب والسنة، بشكل JSON array من objects {text, virtue, count, reference}",
+        "after_prayer": "أعطني 5 أذكار بعد الصلاة مع فضلها، بشكل JSON array من objects {text, virtue, count, reference}",
+        "sleep": "أعطني 5 أذكار النوم مع فضلها، بشكل JSON array من objects {text, virtue, count, reference}",
+        "general": "أعطني 5 أذكار عامة يومية مع فضلها، بشكل JSON array من objects {text, virtue, count, reference}",
+    }
+    
+    prompt = prompts.get(req.time_of_day, prompts["general"])
+    if req.occasion:
+        prompt += f". المناسبة: {req.occasion}"
+    
+    # Try Gemini first
+    if GEMINI_API_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=20) as c:
+                r = await c.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}",
+                    json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1024}}
+                )
+                if r.status_code == 200:
+                    text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
+                    # Extract JSON from response
+                    json_match = re.search(r'\[.*\]', text, re.DOTALL)
+                    if json_match:
+                        athkar = json_module.loads(json_match.group())
+                        return {"success": True, "source": "gemini", "athkar": athkar, "time_of_day": req.time_of_day}
+        except Exception as e:
+            logger.warning(f"Gemini failed: {e}")
+    
+    # Fallback to Emergent LLM (OpenAI compatible)
+    if EMERGENT_LLM_KEY:
+        try:
+            async with httpx.AsyncClient(timeout=20) as c:
+                r = await c.post(
+                    "https://api.openai.com/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {EMERGENT_LLM_KEY}"},
+                    json={
+                        "model": "gpt-4o-mini",
+                        "messages": [
+                            {"role": "system", "content": "أنت عالم إسلامي متخصص في الأذكار والأدعية. أجب دائماً بـ JSON صحيح فقط."},
+                            {"role": "user", "content": prompt}
+                        ],
+                        "temperature": 0.7, "max_tokens": 1024
+                    }
+                )
+                if r.status_code == 200:
+                    text = r.json()["choices"][0]["message"]["content"]
+                    json_match = re.search(r'\[.*\]', text, re.DOTALL)
+                    if json_match:
+                        athkar = json_module.loads(json_match.group())
+                        return {"success": True, "source": "ai", "athkar": athkar, "time_of_day": req.time_of_day}
+        except Exception as e:
+            logger.warning(f"LLM fallback failed: {e}")
+    
+    # Fallback to static athkar
+    return {
+        "success": True, "source": "static",
+        "time_of_day": req.time_of_day,
+        "athkar": get_static_athkar(req.time_of_day)
+    }
+
+def get_static_athkar(time_of_day: str) -> list:
+    morning = [
+        {"text": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", "virtue": "يُقال عند الصباح", "count": 1, "reference": "رواه مسلم"},
+        {"text": "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ", "virtue": "من أذكار الصباح", "count": 1, "reference": "رواه الترمذي"},
+        {"text": "اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ", "virtue": "سيد الاستغفار", "count": 1, "reference": "رواه البخاري"},
+        {"text": "أَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", "virtue": "حماية من الشر", "count": 3, "reference": "رواه مسلم"},
+        {"text": "بِسْمِ اللهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", "virtue": "من قالها 3 مرات لم تضره مصيبة", "count": 3, "reference": "رواه أبو داود والترمذي"},
+    ]
+    evening = [
+        {"text": "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ", "virtue": "يُقال عند المساء", "count": 1, "reference": "رواه مسلم"},
+        {"text": "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ الْمَصِيرُ", "virtue": "من أذكار المساء", "count": 1, "reference": "رواه الترمذي"},
+        {"text": "اللَّهُمَّ عَافِنِي فِي بَدَنِي، اللَّهُمَّ عَافِنِي فِي سَمْعِي، اللَّهُمَّ عَافِنِي فِي بَصَرِي", "virtue": "طلب العافية", "count": 3, "reference": "رواه أبو داود"},
+        {"text": "أَعُوذُ بِكَلِمَاتِ اللهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ", "virtue": "حماية من الشر", "count": 3, "reference": "رواه مسلم"},
+        {"text": "حَسْبُنَا اللهُ وَنِعْمَ الْوَكِيلُ", "virtue": "من قالها صباحاً ومساءً كفاه الله", "count": 7, "reference": "رواه أبو داود"},
+    ]
+    return evening if "evening" in time_of_day else morning
+
+@api_router.post("/ai/smart-reminder")
+async def smart_reminder(data: dict):
+    """Generate smart contextual Islamic reminder"""
+    context = data.get("context", {})
+    prayer = context.get("nextPrayer", "")
+    minutes_left = context.get("minutesLeft", 0)
+    
+    prompt = f"أعطني تذكير إسلامي قصير (جملة واحدة) مناسب لشخص يبقى {minutes_left} دقيقة قبل صلاة {prayer}. أجب بالعربية فقط."
+    
+    for api_key, model, base_url in [
+        (GEMINI_API_KEY, "gemini-1.5-flash", None),
+        (EMERGENT_LLM_KEY, "gpt-4o-mini", "https://api.openai.com/v1"),
+    ]:
+        if not api_key:
+            continue
+        try:
+            async with httpx.AsyncClient(timeout=10) as c:
+                if model.startswith("gemini"):
+                    r = await c.post(
+                        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}",
+                        json={"contents": [{"parts": [{"text": prompt}]}]}
+                    )
+                    if r.status_code == 200:
+                        return {"reminder": r.json()["candidates"][0]["content"]["parts"][0]["text"]}
+                else:
+                    r = await c.post(f"{base_url}/chat/completions",
+                        headers={"Authorization": f"Bearer {api_key}"},
+                        json={"model": model, "messages": [{"role": "user", "content": prompt}], "max_tokens": 100}
+                    )
+                    if r.status_code == 200:
+                        return {"reminder": r.json()["choices"][0]["message"]["content"]}
+        except Exception:
+            continue
+    
+    reminders = [
+        "تذكر أن الصلاة عماد الدين، استعد لها بالوضوء",
+        "قال النبي ﷺ: أبرد بالظهر فإن شدة الحر من فيح جهنم",
+        "الصلاة على وقتها من أحب الأعمال إلى الله",
+        "لا تؤخر صلاتك، فإن الموت لا يستأذن",
+    ]
+    import random
+    return {"reminder": random.choice(reminders)}
+
+# ==================== HIJRI DATE ====================
+@api_router.get("/hijri-date")
+async def hijri_date(lat: float = Query(24.68), lon: float = Query(46.72)):
+    try:
+        today = date.today()
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}",
+                params={"latitude": lat, "longitude": lon, "method": 4})
+            r.raise_for_status()
+            hijri = r.json()["data"]["date"]["hijri"]
+        return {
+            "hijriDate": f"{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ",
+            "day": hijri["day"], "month_ar": hijri["month"]["ar"],
+            "month_en": hijri["month"]["en"], "year": hijri["year"],
+            "month_num": hijri["month"]["number"],
+        }
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+# ==================== QURAN ====================
+@api_router.get("/quran/surah/{number}")
+async def get_surah(number: int, reciter: str = Query("ar.alafasy")):
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"https://api.alquran.cloud/v1/surah/{number}/{reciter}")
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+@api_router.get("/quran/search")
+async def search_quran(q: str = Query(...)):
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"https://api.alquran.cloud/v1/search/{q}/all/ar")
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, str(e))
+
+# ==================== USER DATA SYNC ====================
+@api_router.post("/user/sync")
+async def sync_user_data(data: dict, user: dict = Depends(get_user)):
+    """Sync user data to cloud"""
+    if not user:
+        raise HTTPException(401, "مطلوب تسجيل الدخول")
+    
+    sync_doc = {
+        "user_id": user["id"],
+        "updated_at": datetime.utcnow().isoformat(),
+        **{k: data[k] for k in data if k not in ("user_id", "_id")}
+    }
+    await db.user_data.update_one({"user_id": user["id"]}, {"$set": sync_doc}, upsert=True)
+    return {"success": True}
+
+@api_router.get("/user/sync")
+async def get_user_data(user: dict = Depends(get_user)):
+    """Get synced user data"""
+    if not user:
+        raise HTTPException(401, "مطلوب تسجيل الدخول")
+    doc = await db.user_data.find_one({"user_id": user["id"]}, {"_id": 0})
+    return doc or {}
+
+# ==================== STATUS (legacy) ====================
+class StatusCheckCreate(BaseModel):
+    client_name: str
+
+@api_router.post("/status")
+async def create_status(data: StatusCheckCreate):
+    doc = {"id": str(uuid.uuid4()), "client_name": data.client_name, "timestamp": datetime.utcnow().isoformat()}
+    await db.status_checks.insert_one(doc)
+    return doc
+
+@api_router.get("/status")
+async def get_status():
+    docs = await db.status_checks.find({}, {"_id": 0}).to_list(100)
+    return docs
+
+# ==================== APP ====================
 app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
-    allow_credentials=True,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-
 @app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+async def shutdown():
+    client_db.close()

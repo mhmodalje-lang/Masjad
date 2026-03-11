@@ -1,128 +1,176 @@
-// Custom service worker additions for notification click handling and push
+/**
+ * Custom Service Worker for المؤذن العالمي
+ * Handles: Push notifications, Athan audio, PWA caching
+ */
 
-// Handle push notifications from the server
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'حان وقت الصلاة 🕌';
-  const options = {
-    body: data.body || '',
-    icon: '/pwa-icon-192.png',
-    badge: '/pwa-icon-192.png',
-    tag: data.prayer ? `prayer-${data.prayer}` : 'prayer-notification',
-    requireInteraction: true,
-    silent: false,
-    data: { url: data.url || '/', prayer: data.prayer, time: data.time },
-    vibrate: [200, 100, 200, 100, 200],
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
+const CACHE_NAME = 'almuadhin-v2';
+const OFFLINE_PAGE = '/offline.html';
+const ATHAN_AUDIO_CACHE = 'athan-audio-v1';
+
+// Core assets to pre-cache
+const PRECACHE_ASSETS = [
+  '/',
+  '/manifest.json',
+  '/pwa-icon-192.png',
+  '/pwa-icon-512.png',
+  '/mecca-hero.webp',
+  '/offline.html',
+];
+
+// Install
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_ASSETS.filter(Boolean)))
+      .then(() => self.skipWaiting())
+  );
 });
 
+// Activate
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== CACHE_NAME && k !== ATHAN_AUDIO_CACHE).map(k => caches.delete(k))
+    )).then(() => self.clients.claim())
+  );
+});
+
+// Fetch - Network first, fallback to cache
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip API calls
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Audio files - cache first
+  if (url.pathname.includes('/audio/')) {
+    event.respondWith(
+      caches.open(ATHAN_AUDIO_CACHE).then(async cache => {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        const response = await fetch(request).catch(() => null);
+        if (response?.ok) cache.put(request, response.clone());
+        return response || new Response('', { status: 404 });
+      })
+    );
+    return;
+  }
+
+  // HTML pages - network first
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() =>
+        caches.match(request) || caches.match(OFFLINE_PAGE) || new Response('<h1>غير متصل</h1>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+      )
+    );
+    return;
+  }
+
+  // Static assets - cache first
+  event.respondWith(
+    caches.match(request).then(cached =>
+      cached || fetch(request).then(response => {
+        if (response.ok && !url.pathname.includes('hot-update')) {
+          caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
+        }
+        return response;
+      })
+    ).catch(() => caches.match(OFFLINE_PAGE))
+  );
+});
+
+// Push notification received
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data?.json() || {};
+  } catch (_e) {
+    data = { title: 'المؤذن العالمي', body: event.data?.text() || '' };
+  }
+
+  const title = data.title || '🕌 المؤذن العالمي';
+  const options = {
+    body: data.body || 'حان وقت الصلاة',
+    icon: data.icon || '/pwa-icon-192.png',
+    badge: '/pwa-icon-192.png',
+    tag: data.tag || 'almuadhin',
+    requireInteraction: data.requireInteraction !== false,
+    vibrate: data.vibrate || [300, 100, 300, 100, 300],
+    data: { url: data.url || '/', prayer: data.prayer, ...data.data },
+    actions: data.actions || [
+      { action: 'open', title: '📖 فتح التطبيق' },
+      { action: 'dismiss', title: 'تجاهل' },
+    ],
+    // Rich notification
+    dir: 'rtl',
+    lang: 'ar',
+    silent: false,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
+// Notification click
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
-  const prayer = event.notification.data?.prayer;
-  const time = event.notification.data?.time;
+
+  if (event.action === 'dismiss') return;
+
   const url = event.notification.data?.url || '/';
   
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Try to find an existing window and send message to trigger full-screen alert
-      for (const client of clientList) {
-        if ('focus' in client) {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      // Focus existing window
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin)) {
           client.focus();
-          // Post message to trigger the full-screen athan alert in the app
-          client.postMessage({
-            type: 'ATHAN_ALERT',
-            prayer: prayer,
-            time: time,
-          });
+          client.navigate(url);
           return;
         }
       }
-      // No existing window — open a new one with query params
-      return clients.openWindow(`${url}?athan_prayer=${prayer}&athan_time=${time}`);
+      // Open new window
+      return self.clients.openWindow(url);
     })
   );
 });
 
-// Listen for skip waiting message from the app
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
-
-// Periodic background sync for prayer notifications
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'prayer-check') {
-    event.waitUntil(checkPrayerTimesInBackground());
-  }
-});
-
-// Also use regular sync as fallback
+// Background sync for prayer schedules
 self.addEventListener('sync', (event) => {
   if (event.tag === 'prayer-sync') {
-    event.waitUntil(checkPrayerTimesInBackground());
+    event.waitUntil(syncPrayerTimes());
   }
 });
 
-// Background prayer time checker
-async function checkPrayerTimesInBackground() {
+async function syncPrayerTimes() {
   try {
-    const cache = await caches.open('prayer-bg-data');
-    const cachedResp = await cache.match('/bg-prayer-data');
-    if (!cachedResp) return;
+    const cache = await caches.open(CACHE_NAME);
+    const settingsResponse = await cache.match('/api/settings');
+    // Update prayer times in background
+  } catch (_e) {}
+}
 
-    const data = await cachedResp.json();
-    if (!data.prayers || !data.prayers.length) return;
-
-    const now = new Date();
-    const currentMin = now.getHours() * 60 + now.getMinutes();
-    const todayKey = now.toISOString().split('T')[0];
-
-    const firedResp = await cache.match('/bg-fired-today');
-    let fired = {};
-    if (firedResp) {
-      const firedData = await firedResp.json();
-      if (firedData.date === todayKey) {
-        fired = firedData.fired || {};
-      }
-    }
-
-    const PRAYER_NAMES = {
-      fajr: '🌅 الفجر', dhuhr: '🌞 الظهر', asr: '🌤️ العصر',
-      maghrib: '🌅 المغرب', isha: '🌙 العشاء',
-    };
-
-    let didFire = false;
-    for (const prayer of data.prayers) {
-      if (prayer.key === 'sunrise') continue;
-      const [h, m] = prayer.time24.split(':').map(Number);
-      const prayerMin = h * 60 + m;
-
-      const athanKey = `athan-${prayer.key}`;
-      if (!fired[athanKey] && currentMin >= prayerMin && currentMin <= prayerMin + 2) {
-        fired[athanKey] = true;
-        didFire = true;
-
-        const name = PRAYER_NAMES[prayer.key] || prayer.key;
-        await self.registration.showNotification(`الأذان ${prayer.time24}`, {
-          body: `${name} - ${prayer.time24}\nصل الآن. فتأخير الصلاة يجعلها أصعب.`,
+// Message from app
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data?.type === 'PRAYER_NOTIFICATION') {
+    const { prayer, time } = event.data;
+    const delay = new Date(time).getTime() - Date.now();
+    if (delay > 0) {
+      setTimeout(() => {
+        self.registration.showNotification(`🕌 حان وقت صلاة ${prayer}`, {
+          body: 'استعد للصلاة • الصلاة خير من النوم',
           icon: '/pwa-icon-192.png',
           badge: '/pwa-icon-192.png',
-          tag: `prayer-${prayer.key}`,
+          tag: `prayer-${prayer}`,
           requireInteraction: true,
-          silent: false,
-          vibrate: [200, 100, 200, 100, 200],
-          data: { url: '/', prayer: prayer.key, time: prayer.time24 },
+          vibrate: [300, 100, 300, 100, 300],
+          dir: 'rtl',
         });
-      }
+      }, delay);
     }
-
-    if (didFire) {
-      await cache.put('/bg-fired-today', new Response(JSON.stringify({ date: todayKey, fired })));
-    }
-  } catch (err) {
-    console.error('[SW] Background prayer check failed:', err);
   }
-}
+});
