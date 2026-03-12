@@ -41,6 +41,9 @@ const Ruqyah = lazy(() => import("./pages/Ruqyah"));
 const RamadanCards = lazy(() => import("./pages/RamadanCards"));
 const RamadanBook = lazy(() => import("./pages/RamadanBook"));
 const PeriodTracker = lazy(() => import("./pages/PeriodTracker"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Sohba = lazy(() => import("./pages/Sohba"));
+const Messages = lazy(() => import("./pages/Messages"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -107,6 +110,9 @@ const App = () => {
                           <Route path="/ramadan-cards" element={<RamadanCards />} />
                           <Route path="/ramadan-book" element={<RamadanBook />} />
                           <Route path="/period-tracker" element={<PeriodTracker />} />
+                          <Route path="/profile" element={<Profile />} />
+                          <Route path="/sohba" element={<Sohba />} />
+                          <Route path="/messages" element={<Messages />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
