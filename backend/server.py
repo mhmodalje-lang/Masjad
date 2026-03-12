@@ -257,6 +257,230 @@ async def get_me(user: dict = Depends(get_user)):
 async def logout():
     return {"message": "تم تسجيل الخروج"}
 
+# ==================== SOCIAL PLATFORM (صُحبة) ====================
+
+SOHBA_CATEGORIES = [
+    {"key": "general", "label": "عام", "icon": "globe"},
+    {"key": "quran", "label": "القرآن الكريم", "icon": "book"},
+    {"key": "hadith", "label": "الحديث الشريف", "icon": "scroll"},
+    {"key": "ramadan", "label": "رمضان", "icon": "moon"},
+    {"key": "dua", "label": "الدعاء والأذكار", "icon": "hands"},
+    {"key": "stories", "label": "قصص وعبر", "icon": "feather"},
+    {"key": "hajj", "label": "الحج والعمرة", "icon": "kaaba"},
+    {"key": "halal", "label": "السفر الحلال", "icon": "plane"},
+    {"key": "family", "label": "الأسرة المسلمة", "icon": "heart"},
+    {"key": "youth", "label": "الشباب", "icon": "users"},
+]
+
+class CreatePostRequest(BaseModel):
+    content: str = Field(..., min_length=1, max_length=5000)
+    category: str = "general"
+    image_url: Optional[str] = None
+
+class CreateCommentRequest(BaseModel):
+    content: str = Field(..., min_length=1, max_length=2000)
+
+class CreatePageRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    description: Optional[str] = ""
+    category: str = "general"
+    avatar_url: Optional[str] = None
+
+@api_router.get("/sohba/categories")
+async def get_categories():
+    return {"categories": SOHBA_CATEGORIES}
+
+@api_router.get("/sohba/posts")
+async def get_posts(category: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+    query = {}
+    if category != "all":
+        query["category"] = category
+    skip = (page - 1) * limit
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    posts = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    user_id = user["id"] if user else None
+    for post in posts:
+        post["liked"] = False
+        post["saved"] = False
+        if user_id:
+            post["liked"] = bool(await db.likes.find_one({"post_id": post["id"], "user_id": user_id}))
+            post["saved"] = bool(await db.saves.find_one({"post_id": post["id"], "user_id": user_id}))
+        post["likes_count"] = await db.likes.count_documents({"post_id": post["id"]})
+        post["comments_count"] = await db.comments.count_documents({"post_id": post["id"]})
+    
+    return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.post("/sohba/posts")
+async def create_post(data: CreatePostRequest, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول للنشر")
+    
+    post_id = str(uuid.uuid4())
+    post = {
+        "id": post_id,
+        "author_id": user["id"],
+        "author_name": user.get("name", "مستخدم"),
+        "author_avatar": user.get("avatar"),
+        "content": data.content,
+        "category": data.category,
+        "image_url": data.image_url,
+        "created_at": datetime.utcnow().isoformat(),
+        "shares_count": 0,
+    }
+    await db.posts.insert_one(post)
+    post.pop("_id", None)
+    post["liked"] = False
+    post["saved"] = False
+    post["likes_count"] = 0
+    post["comments_count"] = 0
+    return {"post": post}
+
+@api_router.post("/sohba/posts/{post_id}/like")
+async def toggle_like(post_id: str, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    existing = await db.likes.find_one({"post_id": post_id, "user_id": user["id"]})
+    if existing:
+        await db.likes.delete_one({"post_id": post_id, "user_id": user["id"]})
+        return {"liked": False}
+    else:
+        await db.likes.insert_one({"post_id": post_id, "user_id": user["id"], "created_at": datetime.utcnow().isoformat()})
+        return {"liked": True}
+
+@api_router.post("/sohba/posts/{post_id}/save")
+async def toggle_save(post_id: str, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    existing = await db.saves.find_one({"post_id": post_id, "user_id": user["id"]})
+    if existing:
+        await db.saves.delete_one({"post_id": post_id, "user_id": user["id"]})
+        return {"saved": False}
+    else:
+        await db.saves.insert_one({"post_id": post_id, "user_id": user["id"], "created_at": datetime.utcnow().isoformat()})
+        return {"saved": True}
+
+@api_router.get("/sohba/posts/{post_id}/comments")
+async def get_comments(post_id: str, page: int = 1, limit: int = 50):
+    skip = (page - 1) * limit
+    cursor = db.comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", 1).skip(skip).limit(limit)
+    comments = await cursor.to_list(length=limit)
+    return {"comments": comments}
+
+@api_router.post("/sohba/posts/{post_id}/comments")
+async def create_comment(post_id: str, data: CreateCommentRequest, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول للتعليق")
+    comment = {
+        "id": str(uuid.uuid4()),
+        "post_id": post_id,
+        "author_id": user["id"],
+        "author_name": user.get("name", "مستخدم"),
+        "author_avatar": user.get("avatar"),
+        "content": data.content,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.comments.insert_one(comment)
+    comment.pop("_id", None)
+    return {"comment": comment}
+
+@api_router.delete("/sohba/posts/{post_id}")
+async def delete_post(post_id: str, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(404, "المنشور غير موجود")
+    is_admin = user.get("email") in ["mhmd321324t@gmail.com"]
+    if post["author_id"] != user["id"] and not is_admin:
+        raise HTTPException(403, "غير مصرح بالحذف")
+    await db.posts.delete_one({"id": post_id})
+    await db.likes.delete_many({"post_id": post_id})
+    await db.comments.delete_many({"post_id": post_id})
+    await db.saves.delete_many({"post_id": post_id})
+    return {"deleted": True}
+
+# ==================== FOLLOW SYSTEM ====================
+@api_router.post("/sohba/follow/{target_id}")
+async def toggle_follow(target_id: str, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    if target_id == user["id"]:
+        raise HTTPException(400, "لا يمكنك متابعة نفسك")
+    existing = await db.follows.find_one({"follower_id": user["id"], "following_id": target_id})
+    if existing:
+        await db.follows.delete_one({"follower_id": user["id"], "following_id": target_id})
+        return {"following": False}
+    else:
+        await db.follows.insert_one({"follower_id": user["id"], "following_id": target_id, "created_at": datetime.utcnow().isoformat()})
+        return {"following": True}
+
+@api_router.get("/sohba/profile/{user_id}")
+async def get_profile(user_id: str, user: dict = Depends(get_user)):
+    profile = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    if not profile:
+        raise HTTPException(404, "المستخدم غير موجود")
+    stats = {
+        "posts_count": await db.posts.count_documents({"author_id": user_id}),
+        "followers_count": await db.follows.count_documents({"following_id": user_id}),
+        "following_count": await db.follows.count_documents({"follower_id": user_id}),
+    }
+    is_following = False
+    if user and user["id"] != user_id:
+        is_following = bool(await db.follows.find_one({"follower_id": user["id"], "following_id": user_id}))
+    return {"profile": {k: profile.get(k) for k in ("id","email","name","avatar","created_at")}, "stats": stats, "is_following": is_following}
+
+@api_router.get("/sohba/my-stats")
+async def get_my_stats(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    uid = user["id"]
+    return {
+        "posts": await db.posts.count_documents({"author_id": uid}),
+        "followers": await db.follows.count_documents({"following_id": uid}),
+        "following": await db.follows.count_documents({"follower_id": uid}),
+        "likes_received": 0,
+    }
+
+# ==================== PAGES SYSTEM ====================
+@api_router.post("/sohba/pages")
+async def create_page(data: CreatePageRequest, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    page_id = str(uuid.uuid4())
+    page = {
+        "id": page_id,
+        "owner_id": user["id"],
+        "name": data.name,
+        "description": data.description,
+        "category": data.category,
+        "avatar_url": data.avatar_url,
+        "followers_count": 0,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.pages.insert_one(page)
+    page.pop("_id", None)
+    return {"page": page}
+
+@api_router.get("/sohba/pages")
+async def list_pages(category: str = "all", page: int = 1, limit: int = 20):
+    query = {} if category == "all" else {"category": category}
+    skip = (page - 1) * limit
+    cursor = db.pages.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    pages = await cursor.to_list(length=limit)
+    return {"pages": pages}
+
+# ==================== IMAGE UPLOAD ====================
+@api_router.post("/upload/image")
+async def upload_image(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    # For now return a placeholder - real upload will use cloud storage
+    return {"url": "", "message": "رفع الصور قيد التطوير"}
+
+
+
 # ==================== PRAYER TIMES ====================
 @api_router.get("/prayer-times")
 async def prayer_times(lat: float = Query(...), lon: float = Query(...), method: int = Query(4), school: int = Query(0)):

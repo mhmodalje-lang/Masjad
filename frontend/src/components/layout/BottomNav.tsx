@@ -1,23 +1,18 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Clock, Users, MessageCircle, UserCircle } from 'lucide-react';
+import { Home, Clock, Users, MessageCircle, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { path: '/', icon: Home, label: 'الرئيسية', exact: true },
   { path: '/prayer-times', icon: Clock, label: 'الصلاة' },
   { path: '/sohba', icon: Users, label: 'صُحبة' },
   { path: '/messages', icon: MessageCircle, label: 'الرسائل' },
-  { path: '/profile', icon: UserCircle, label: 'حسابي' },
+  { path: '/more', icon: LayoutGrid, label: 'المزيد' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
-  const { user } = useAuth();
-
-  // Check for unread messages (stored in localStorage for now)
-  const unreadCount = parseInt(localStorage.getItem('unread_messages') || '0');
 
   return (
     <nav
@@ -37,9 +32,7 @@ export function BottomNav() {
               data-testid={`nav-${item.path.replace('/', '') || 'home'}`}
               className={cn(
                 'relative flex flex-col items-center gap-0.5 flex-1 py-2.5 transition-all duration-300 min-w-0',
-                isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               {isActive && (
@@ -49,20 +42,7 @@ export function BottomNav() {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <div className="relative">
-                <item.icon
-                  className={cn(
-                    'h-[21px] w-[21px] shrink-0 transition-transform',
-                    isActive && 'scale-110 stroke-[2.5px]'
-                  )}
-                />
-                {/* Unread badge for messages */}
-                {item.path === '/messages' && unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -end-2 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </span>
-                )}
-              </div>
+              <item.icon className={cn('h-[21px] w-[21px] shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />
               <span className="font-semibold text-[10px] leading-tight text-center truncate w-full px-0.5">
                 {item.label}
               </span>

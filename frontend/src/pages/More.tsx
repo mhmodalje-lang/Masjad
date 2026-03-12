@@ -1,222 +1,228 @@
-import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useTheme } from '@/components/ThemeProvider';
 import { useDailyReminders } from '@/hooks/useDailyReminders';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  Compass, Heart, Calculator, User,
-  LogIn, LogOut, Moon, BookOpen, Clock, CheckCircle2, MessageSquare, Shield, Bell, BellOff, ShieldCheck
+  Compass, Heart, Calculator, User, LogIn, LogOut, Moon, BookOpen, Clock,
+  CheckCircle2, Shield, Bell, BellOff, ShieldCheck, ChevronLeft, Star,
+  Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
 import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
 
-const features = [
-  { icon: Compass, label: 'اتجاه القبلة', path: '/qibla', gradient: 'from-primary/15 to-islamic-teal/10' },
-  { icon: Heart, label: 'عداد التسبيح', path: '/tasbeeh', gradient: 'from-accent/15 to-islamic-gold/10' },
-  { icon: Clock, label: 'مواقيت الصلاة', path: '/prayer-times', gradient: 'from-primary/15 to-islamic-emerald/10' },
-  { icon: BookOpen, label: 'القرآن', path: '/quran', gradient: 'from-islamic-purple/15 to-primary/10' },
-  { icon: Moon, label: 'الأدعية', path: '/duas', gradient: 'from-islamic-copper/15 to-accent/10' },
-  { icon: ShieldCheck, label: 'الرقية الشرعية', path: '/ruqyah', gradient: 'from-islamic-emerald/15 to-primary/10' },
-  { icon: MessageSquare, label: 'قصص حقيقية', path: '/stories', gradient: 'from-primary/15 to-accent/10' },
-  { icon: Calculator, label: 'حاسبة الزكاة', path: '/zakat', gradient: 'from-islamic-teal/15 to-primary/10' },
-  { icon: CheckCircle2, label: 'متابعة الصلاة', path: '/tracker', gradient: 'from-primary/15 to-islamic-emerald/10' },
-  { icon: Heart, label: 'تتبع الدورة', path: '/period-tracker', gradient: 'from-islamic-rose/15 to-islamic-copper/10' },
-  { icon: User, label: 'حسابي', path: '/account', gradient: 'from-accent/15 to-islamic-copper/10' },
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
+const tools = [
+  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-teal-500', bg: 'bg-teal-500/10' },
+  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-500', bg: 'bg-green-500/10' },
+  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
 ];
 
+interface QuickLinkProps { icon: typeof User; label: string; to?: string; onClick?: () => void; trailing?: React.ReactNode; }
+function QuickLink({ icon: Icon, label, to, onClick, trailing }: QuickLinkProps) {
+  const inner = (
+    <div className="flex items-center justify-between py-3 px-1 border-b border-border/20 last:border-0">
+      <div className="flex items-center gap-3">
+        <Icon className="h-4.5 w-4.5 text-muted-foreground" />
+        <span className="text-sm text-foreground">{label}</span>
+      </div>
+      {trailing || <ChevronLeft className="h-4 w-4 text-muted-foreground/40" />}
+    </div>
+  );
+  if (to) return <Link to={to}>{inner}</Link>;
+  return <div onClick={onClick} className="cursor-pointer active:bg-muted/30 rounded-lg transition-colors">{inner}</div>;
+}
+
 export default function More() {
-  const { t } = useLocale();
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
+  const { theme, mode, setMode } = useTheme();
   const { enabled: remindersEnabled, toggle: toggleReminders } = useDailyReminders();
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
+  const [loginStreak, setLoginStreak] = useState(0);
 
-  const allFeatures = isAdmin
-    ? [...features, { icon: Shield, label: 'لوحة التحكم', path: '/admin', gradient: 'from-destructive/15 to-destructive/5' }]
-    : features;
+  useEffect(() => {
+    if (!user) return;
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    fetch(`${BACKEND_URL}/api/sohba/my-stats`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setStats(d); })
+      .catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
+    const streakData = localStorage.getItem('login_streak');
+    const today = new Date().toISOString().split('T')[0];
+    if (streakData) {
+      try {
+        const { count, lastDate } = JSON.parse(streakData);
+        if (lastDate === today) { setLoginStreak(count); }
+        else {
+          const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+          const newCount = lastDate === yesterday ? count + 1 : 1;
+          setLoginStreak(newCount);
+          localStorage.setItem('login_streak', JSON.stringify({ count: newCount, lastDate: today }));
+        }
+      } catch { setLoginStreak(1); }
+    } else {
+      localStorage.setItem('login_streak', JSON.stringify({ count: 1, lastDate: today }));
+      setLoginStreak(1);
+    }
+  }, []);
 
   const handleToggleReminders = async () => {
     const result = await toggleReminders();
-    if (result) {
-      if (!remindersEnabled) {
-        toast.success('تم تفعيل التذكيرات اليومية 🔔');
-      } else {
-        toast.info('تم إيقاف التذكيرات اليومية');
-      }
-    } else {
-      toast.error('يرجى السماح بالإشعارات من إعدادات المتصفح');
-    }
+    if (result) { toast.success(remindersEnabled ? 'تم إيقاف التذكيرات' : 'تم تفعيل التذكيرات'); }
+    else { toast.error('يرجى السماح بالإشعارات'); }
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
-      <div className="px-5 pt-safe-header-compact pb-4 text-center">
-        <h1 className="text-foreground">الميزات</h1>
-      </div>
+    <div className="min-h-screen pb-24" dir="rtl" data-testid="more-page">
+      {/* Profile Section */}
+      <div className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 px-5 pb-16 pt-safe-header overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'.3\'%3E%3Cpath d=\'M20 0l5 10h10l-8 6 3 10-10-7-10 7 3-10-8-6h10z\'/%3E%3C/g%3E%3C/svg%3E")' }} />
+        <div className="relative flex items-center justify-between mb-5 pt-3">
+          <h1 className="text-lg font-bold text-white">المزيد</h1>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Link to="/admin" className="p-2 rounded-xl bg-white/10" data-testid="admin-link">
+                <Shield className="h-4 w-4 text-amber-400" />
+              </Link>
+            )}
+            <Link to="/notifications" className="p-2 rounded-xl bg-white/10">
+              <Settings className="h-4 w-4 text-white/70" />
+            </Link>
+          </div>
+        </div>
 
-      {/* User card */}
-      <div className="px-5 mb-5">
         {user ? (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="rounded-3xl border border-border/50 bg-card p-5 flex items-center gap-4 shadow-elevated"
-          >
-            <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/15 to-accent/10 border border-primary/20 flex items-center justify-center shrink-0">
-              <User className="h-7 w-7 text-primary" />
+          <div className="relative flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/15 border-2 border-white/20 flex items-center justify-center shrink-0">
+              {user.avatar ? (
+                <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <span className="text-2xl text-white/80">{user.name?.[0] || user.email?.[0] || '؟'}</span>
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate text-base">
-                {user.name || user.user_metadata?.full_name || user.email}
-              </p>
-              <p className="text-sm text-muted-foreground truncate mt-0.5">{user.email}</p>
+              <h2 className="text-lg font-bold text-white truncate">{user.name || 'مستخدم'}</h2>
+              <p className="text-white/40 text-xs truncate">{user.email}</p>
+              {loginStreak > 1 && (
+                <span className="inline-flex items-center gap-1 mt-1 bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  <Gem className="h-3 w-3" /> {loginStreak} يوم متتابع
+                </span>
+              )}
             </div>
-            <Button variant="ghost" size="icon" onClick={signOut} className="rounded-xl h-11 w-11 shrink-0">
-              <LogOut className="h-5 w-5 text-muted-foreground" />
-            </Button>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-            <Link
-              to="/auth"
-              className="flex items-center justify-center gap-3 rounded-3xl border border-primary/30 bg-primary/5 p-5 shadow-elevated transition-all active:scale-[0.98]"
-            >
-              <LogIn className="h-5 w-5 text-primary" />
-              <span className="text-primary font-semibold">{t('loginSignup')}</span>
-            </Link>
-          </motion.div>
+          <Link to="/auth" className="relative flex items-center gap-3 bg-white/10 rounded-2xl p-4 active:scale-[0.98] transition-transform">
+            <LogIn className="h-5 w-5 text-white" />
+            <span className="text-white font-bold text-sm">تسجيل الدخول / إنشاء حساب</span>
+          </Link>
         )}
+        <div className="absolute -bottom-5 left-0 right-0 h-10 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Features grid */}
-      <div className="px-5">
-        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
-          <div className="grid grid-cols-3 gap-5">
-            {allFeatures.map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.04 }}
-              >
-                <Link
-                  to={item.path}
-                  className="flex flex-col items-center gap-2.5 min-w-0"
-                >
-                  <div className={cn(
-                    'h-16 w-16 rounded-2xl bg-gradient-to-br border border-border/50 flex items-center justify-center shrink-0 transition-transform active:scale-95',
-                    item.gradient
-                  )}>
-                    <item.icon className="h-7 w-7 text-primary" />
-                  </div>
-                  <span className="text-xs font-semibold text-foreground text-center leading-snug w-full break-words">
-                    {item.label}
-                  </span>
-                </Link>
-              </motion.div>
+      {/* Stats */}
+      {user && (
+        <div className="px-5 -mt-1 mb-4">
+          <div className="rounded-2xl bg-card border border-border/30 p-4 flex items-center justify-around">
+            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.posts}</span><p className="text-[10px] text-muted-foreground">منشورات</p></div>
+            <div className="w-px h-8 bg-border/30" />
+            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.followers}</span><p className="text-[10px] text-muted-foreground">متابعين</p></div>
+            <div className="w-px h-8 bg-border/30" />
+            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.following}</span><p className="text-[10px] text-muted-foreground">متابَعين</p></div>
+          </div>
+        </div>
+      )}
+
+      {/* Tools Grid */}
+      <div className="px-5 mb-4">
+        <h3 className="text-sm font-bold text-foreground mb-3">الأدوات الإسلامية</h3>
+        <div className="rounded-2xl bg-card border border-border/30 p-4">
+          <div className="grid grid-cols-4 gap-4">
+            {tools.map((item, i) => (
+              <Link key={i} to={item.path} className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                <div className={cn('h-12 w-12 rounded-2xl flex items-center justify-center', item.bg)}>
+                  <item.icon className={cn('h-5 w-5', item.color)} />
+                </div>
+                <span className="text-[10px] font-medium text-foreground text-center">{item.label}</span>
+              </Link>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Daily Reminders Toggle */}
-      <div className="px-5 mt-5">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className={cn(
-                'h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 transition-colors',
-                remindersEnabled ? 'bg-primary/10' : 'bg-muted'
-              )}>
-                {remindersEnabled ? (
-                  <Bell className="h-6 w-6 text-primary" />
-                ) : (
-                  <BellOff className="h-6 w-6 text-muted-foreground" />
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-foreground text-sm">التذكيرات اليومية</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                  {remindersEnabled 
-                    ? 'أذكار الصباح • الأدعية • القرآن • أذكار النوم' 
-                    : 'فعّل التذكيرات لتتلقى إشعارات يومية بالأذكار والأدعية'}
-                </p>
-              </div>
+      {/* Settings */}
+      <div className="px-5 mb-4">
+        <h3 className="text-sm font-bold text-foreground mb-3">الإعدادات</h3>
+        <div className="rounded-2xl bg-card border border-border/30 px-4">
+          <QuickLink icon={user ? User : LogIn} label={user ? 'حسابي' : 'تسجيل الدخول'} to={user ? '/account' : '/auth'} />
+          <div className="flex items-center justify-between py-3 px-1 border-b border-border/20">
+            <div className="flex items-center gap-3">
+              <Moon className="h-4.5 w-4.5 text-muted-foreground" />
+              <span className="text-sm text-foreground">المظهر</span>
             </div>
-            <Button
-              onClick={handleToggleReminders}
-              variant={remindersEnabled ? 'default' : 'outline'}
-              size="sm"
-              className={cn(
-                'rounded-xl shrink-0 h-10 px-4',
-                remindersEnabled && 'bg-primary hover:bg-primary/90'
-              )}
-            >
-              {remindersEnabled ? 'مُفعّل ✓' : 'تفعيل'}
-            </Button>
+            <ThemeToggle />
           </div>
-
-          {remindersEnabled && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mt-4 pt-4 border-t border-border/50 space-y-2.5"
-            >
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="text-base">☀️</span>
-                <span>7:30 صباحاً — أذكار الخروج من المنزل</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="text-base">🤲</span>
-                <span>1:00 ظهراً — دعاء للوالدين والتسبيح</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="text-base">📖</span>
-                <span>8:00 مساءً — قراءة القرآن</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="text-base">🌙</span>
-                <span>10:00 مساءً — أذكار قبل النوم</span>
-              </div>
-            </motion.div>
-          )}
-        </motion.div>
+          <QuickLink
+            icon={remindersEnabled ? Bell : BellOff}
+            label="التذكيرات اليومية"
+            onClick={handleToggleReminders}
+            trailing={
+              <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', remindersEnabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground')}>
+                {remindersEnabled ? 'مفعّل' : 'معطّل'}
+              </span>
+            }
+          />
+        </div>
       </div>
 
-      {/* Athan Sound Selector */}
-      <div className="px-5 mt-5">
-        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
-          <h2 className="text-foreground mb-3">🔊 صوت الأذان</h2>
+      {/* Athan */}
+      <div className="px-5 mb-4">
+        <div className="rounded-2xl bg-card border border-border/30 p-4">
+          <h3 className="text-sm font-bold text-foreground mb-3">صوت الأذان</h3>
           <AthanSelector />
         </div>
       </div>
 
-      {/* Theme Toggle */}
-      <div className="px-5 mt-5 mb-8">
-        <div className="rounded-3xl bg-card border border-border/50 p-5 shadow-elevated">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
-                <Moon className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground text-sm">المظهر</p>
-                <p className="text-xs text-muted-foreground">تبديل الوضع الداكن / الفاتح</p>
-              </div>
-            </div>
-            <ThemeToggle />
-          </div>
+      {/* Quick Links */}
+      <div className="px-5 mb-4">
+        <div className="rounded-2xl bg-card border border-border/30 px-4">
+          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
+          <QuickLink icon={Share2} label="دعوة صديق" onClick={() => {
+            if (navigator.share) navigator.share({ title: 'المؤذن العالمي', url: window.location.origin });
+            else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+          }} />
+          <QuickLink icon={HelpCircle} label="المساعدة والدعم" onClick={() => toast.info('ادعمنا@almuadhin.com')} />
         </div>
       </div>
+
+      {/* Logout */}
+      {user && (
+        <div className="px-5 mb-8">
+          <button
+            onClick={() => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); }}
+            data-testid="logout-btn"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold active:scale-[0.98] transition-all"
+          >
+            <LogOut className="h-4 w-4" /> تسجيل الخروج
+          </button>
+        </div>
+      )}
     </div>
   );
 }
