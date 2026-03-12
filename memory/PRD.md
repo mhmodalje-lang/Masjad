@@ -3,94 +3,63 @@
 ## Original Problem Statement
 Build an Islamic prayer and lifestyle app named "المؤذن العالمي" with:
 - Accurate prayer times via Aladhan.com API
-- Quran text and audio from Alquran.cloud and Mp3Quran.net
-- Ruqyah page with relevant content
-- Daily Hadith
-- AI-powered daily Athkar and smart reminders via Gemini
-- Push notifications for Athan with audio (persistent, lock screen)
-- Islamic-themed UI with manual Dark/Light mode toggle
+- Quran text and audio from Alquran.cloud
+- Ruqyah content, Daily Hadith
+- AI-powered Athkar and smart reminders via Gemini
+- Persistent push notifications for Athan
+- Islamic UI with manual Dark/Light mode toggle
 - PWA installation for mobile users
-- Admin dashboard for full app control
+- Full Admin Dashboard with ads management, page management, notification scheduling
 - Google Play Store readiness
 
 ## Tech Stack
-- **Frontend:** React 18, TypeScript, Vite, Tailwind CSS, Shadcn/UI, Framer Motion
-- **Backend:** FastAPI, Python 3.11, MongoDB (Motor async driver)
-- **AI:** Gemini 2.0 Flash via Emergent LLM Key (emergentintegrations library)
-- **APIs:** Aladhan.com (Prayer Times), Alquran.cloud (Quran)
-- **Auth:** Custom JWT (email/password)
-- **PWA:** Service Worker with periodic prayer check, Web App Manifest
+- Frontend: React 18, TypeScript, Vite, Tailwind CSS, Shadcn/UI
+- Backend: FastAPI, Python 3.11, MongoDB (Motor)
+- AI: Gemini 2.0 Flash via Emergent LLM Key
+- PWA: Service Worker with periodic prayer check
 
-## Architecture
-```
-/app
-├── backend/
-│   ├── server.py          # FastAPI: auth, prayer, AI, admin endpoints
-│   ├── .env               # MONGO_URL, DB_NAME, EMERGENT_LLM_KEY
-│   ├── requirements.txt
-│   └── tests/             # test_api.py, test_admin_api.py
-├── frontend/
-│   ├── src/
-│   │   ├── App.tsx                    # Router + UnifiedPrayerProvider
-│   │   ├── main.tsx                   # Theme init + SW registration
-│   │   ├── pages/
-│   │   │   ├── Index.tsx              # Home (unified prayer context)
-│   │   │   ├── PrayerTimes.tsx        # Prayer times (unified context)
-│   │   │   ├── AdminDashboard.tsx     # Admin (4 tabs)
-│   │   │   ├── Quran.tsx, Ruqyah.tsx  # Content pages
-│   │   │   ├── Auth.tsx               # Login/Register
-│   │   │   └── More.tsx               # Settings + Theme toggle
-│   │   ├── hooks/
-│   │   │   ├── useUnifiedPrayer.tsx   # Centralized prayer times
-│   │   │   ├── useAuth.tsx, useAdmin.tsx
-│   │   │   └── usePrayerTimes.tsx, useGeoLocation.tsx
-│   │   └── lib/
-│   │       └── prayerNotifications.ts # SW notification scheduling
-│   └── public/
-│       ├── manifest.json, sw-custom.js
-│       └── audio/athan/              # 11 athan audio files
-```
+## Admin Dashboard (6 Tabs)
+- **Overview**: Stats (users, subscribers, ads)
+- **Users**: List/delete users
+- **Ads**: CRUD for 11 platforms (Google AdSense, AdMob, ExoClick, PopAds, Clickadu, HilltopAds, Monetag, Adsterra, ySense, YouTube, Custom)
+- **Notifications**: Instant send + scheduled notifications
+- **Pages**: Custom page management (for Ruqyah sub-pages etc.)
+- **Settings**: Maintenance mode, announcements
 
-## Admin
-- Email: mhmd321324t@gmail.com
-- Password: admin123
-- Dashboard: /admin (4 tabs: overview, users, notifications, settings)
+Admin email: mhmd321324t@gmail.com / password: admin123
 
-## What's Implemented (March 12, 2026)
-- [x] Backend server with all API endpoints (18 tests passing)
-- [x] Prayer times via Aladhan.com API
-- [x] **Unified Prayer Times** - All pages share same prayer source
-- [x] Daily Hadith (30 curated hadiths, rotating daily)
-- [x] AI Athkar via Gemini (Emergent LLM key) - confirmed source: "gemini"
-- [x] AI Smart Reminders via Gemini
-- [x] Quran page with 114 surahs from Alquran.cloud
+## Implemented Features (March 12, 2026)
+- [x] Prayer times via Aladhan.com API (unified across all pages)
+- [x] Daily Hadith (30 curated, rotating daily)
+- [x] AI Athkar + Smart Reminders via Gemini
+- [x] Quran page (114 surahs from Alquran.cloud)
 - [x] Ruqyah page with 6 categories
-- [x] Prayer tracker with localStorage persistence
-- [x] **Manual Dark/Light theme toggle** (localStorage: almuadhin_theme)
-- [x] PWA manifest.json and service worker
-- [x] **Service Worker with periodic prayer check** (every 30s for notifications)
-- [x] **Admin Dashboard** (stats, users, notifications, settings)
-- [x] Admin API endpoints secured with JWT + email whitelist
-- [x] Auth (email/password login/register)
-- [x] Bottom navigation between all pages
-- [x] Islamic-themed UI (RTL, Arabic)
-- [x] App name "المؤذن العالمي" everywhere
-- [x] Athan audio (11 files: makkah, madinah, quds, etc.)
+- [x] Prayer tracker (localStorage)
+- [x] Manual Dark/Light theme toggle
+- [x] PWA manifest + new app icons
+- [x] Service Worker with periodic prayer check (30s interval)
+- [x] Admin Dashboard with 6 tabs
+- [x] Ad management system (11 platforms)
+- [x] Custom pages management
+- [x] Scheduled notifications
+- [x] Story moderation API
+- [x] Auth (email/password)
+- [x] All branding updated to "المؤذن العالمي"
+- [x] Backend: 30+ API endpoints tested
+- [x] Frontend: All pages rendering correctly
 
-## Prioritized Backlog
-### P0 (Critical)
-- [ ] Test push notifications on real mobile device with Athan audio
-- [ ] Test Google social login with real Firebase credentials
-- [ ] Verify notification persistence on lock screen
+## Backlog
+### P0
+- [ ] Test notifications on real device with Athan audio
+- [ ] Full-screen Athan overlay at prayer time
 
-### P1 (Important)
-- [ ] Hadith from Sunnah.com API (currently local collection)
-- [ ] Quran audio playback from Mp3Quran.net
-- [ ] Qibla direction compass
-- [ ] Phone storage optimization
+### P1
+- [ ] Google social login
+- [ ] Quran audio from Mp3Quran.net
+- [ ] Qibla compass
+- [ ] Sunnah.com API integration
 
-### P2 (Nice to have)
-- [ ] Google Play Store compliance
-- [ ] Offline mode improvements
-- [ ] User preferences cloud sync
-- [ ] Social sharing of prayer times
+### P2
+- [ ] Google Play Store publishing
+- [ ] YouTube videos section
+- [ ] Offline mode
