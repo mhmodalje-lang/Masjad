@@ -2,10 +2,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/ThemeProvider';
 import { useDailyReminders } from '@/hooks/useDailyReminders';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Compass, Heart, Calculator, User, LogIn, LogOut, Moon, BookOpen, Clock,
+  Compass, Heart, Calculator, User, LogIn, LogOut, Moon, Sun, BookOpen, Clock,
   CheckCircle2, Shield, Bell, BellOff, ShieldCheck, ChevronLeft, Star,
   Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare
 } from 'lucide-react';
@@ -171,13 +170,16 @@ export default function More() {
         <h3 className="text-sm font-bold text-foreground mb-3">الإعدادات</h3>
         <div className="rounded-2xl bg-card border border-border/30 px-4">
           <QuickLink icon={user ? User : LogIn} label={user ? 'حسابي' : 'تسجيل الدخول'} to={user ? '/account' : '/auth'} />
-          <div className="flex items-center justify-between py-3 px-1 border-b border-border/20">
-            <div className="flex items-center gap-3">
-              <Moon className="h-4.5 w-4.5 text-muted-foreground" />
-              <span className="text-sm text-foreground">المظهر</span>
-            </div>
-            <ThemeToggle />
-          </div>
+          <QuickLink
+            icon={theme === 'dark' ? Moon : Sun}
+            label={`المظهر: ${mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}`}
+            onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
+            trailing={
+              <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full',
+                theme === 'dark' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-600'
+              )}>{mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}</span>
+            }
+          />
           <QuickLink
             icon={remindersEnabled ? Bell : BellOff}
             label="التذكيرات اليومية"
