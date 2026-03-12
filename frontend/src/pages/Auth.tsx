@@ -1,128 +1,138 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useLocale } from '@/hooks/useLocale';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 export default function Auth() {
-  const { t } = useLocale();
   const { user, loading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
+  const [showForgot, setShowForgot] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+
+  // Handle Emergent Google Auth callback (session_id in hash)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.includes('session_id=')) return;
+    const sessionId = new URLSearchParams(hash.substring(1)).get('session_id');
+    if (!sessionId) return;
+
+    // Clear hash immediately
+    window.history.replaceState(null, '', window.location.pathname);
+
+    setGoogleLoading(true);
+    fetch(`${BACKEND_URL}/api/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.access_token) {
+          localStorage.setItem('auth_token', data.access_token);
+          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          toast.success(`أهلاً ${data.user?.name || ''}!`);
+          window.location.href = '/';
+        } else {
+          toast.error(data.detail || 'فشل تسجيل الدخول بـ Google');
+        }
+      })
+      .catch(() => toast.error('حدث خطأ في الاتصال'))
+      .finally(() => setGoogleLoading(false));
+  }, []);
 
   useEffect(() => {
-    if (!authLoading && user) navigate('/', { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user && !googleLoading) navigate('/', { replace: true });
+  }, [user, authLoading, navigate, googleLoading]);
 
-  if (authLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
+  if (authLoading || googleLoading) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-3">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      {googleLoading && <p className="text-sm text-muted-foreground">جارٍ تسجيل الدخول بـ Google...</p>}
     </div>
   );
   if (user) return null;
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast.error('يرجى ملء جميع الحقول');
-      return;
-    }
-    if (password.length < 6) {
-      toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
-      return;
-    }
+    if (!email.trim() || !password.trim()) { toast.error('يرجى ملء جميع الحقول'); return; }
+    if (password.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
     setLoading(true);
     try {
       if (isLogin) {
         const { error } = await signIn(email.trim(), password);
-        if (error) {
-          const msg = error.message || '';
-          if (msg.includes('غير صحيحة') || msg.includes('401')) {
-            toast.error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
-          } else {
-            toast.error(msg || 'حدث خطأ أثناء تسجيل الدخول');
-          }
-        } else {
-          toast.success('أهلاً بك!');
-          navigate('/');
-        }
+        if (error) toast.error(error.message || 'البريد أو كلمة المرور غير صحيحة');
+        else { toast.success('أهلاً بك!'); navigate('/'); }
       } else {
         const { error } = await signUp(email.trim(), password, name.trim());
-        if (error) {
-          const msg = error.message || '';
-          if (msg.includes('مسجل')) {
-            toast.error('هذا البريد الإلكتروني مسجل مسبقاً');
-          } else {
-            toast.error(msg || 'حدث خطأ أثناء إنشاء الحساب');
-          }
-        } else {
-          toast.success('تم إنشاء حسابك بنجاح');
-          navigate('/');
-        }
+        if (error) toast.error(error.message || 'حدث خطأ أثناء إنشاء الحساب');
+        else { toast.success('تم إنشاء حسابك بنجاح'); navigate('/'); }
       }
-    } catch {
-      toast.error('حدث خطأ في الاتصال. تأكد من اتصالك بالإنترنت');
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error('حدث خطأ في الاتصال'); }
+    finally { setLoading(false); }
   };
 
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
+  const handleGoogleLogin = () => {
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    const redirectUrl = window.location.origin + '/auth';
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  };
+
+  const handleForgotPassword = async () => {
+    if (!forgotEmail.trim()) { toast.error('أدخل بريدك الإلكتروني'); return; }
+    setForgotLoading(true);
     try {
-      // Dynamically import firebase to avoid issues if not configured
-      const { signInWithGoogle } = await import('@/lib/firebase');
-      const result = await signInWithGoogle();
-      if (!result) {
-        toast.error('تم إلغاء تسجيل الدخول بـ Google');
-        return;
-      }
-
-      // Exchange Firebase token for app JWT
-      const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_token: result.idToken }),
+      const r = await fetch(`${BACKEND_URL}/api/auth/forgot-password`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail.trim() }),
       });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        toast.error(errData.detail || 'فشل التحقق من حساب Google');
-        return;
-      }
-
-      const data = await res.json();
-      localStorage.setItem('auth_token', data.access_token);
-      localStorage.setItem('auth_user', JSON.stringify(data.user));
-      toast.success('أهلاً بك!');
-      window.location.href = '/';
-    } catch (err: any) {
-      console.error('Google login error:', err);
-      const code = err?.code || '';
-      if (code === 'auth/popup-closed-by-user') {
-        toast.error('تم إغلاق نافذة Google');
-      } else if (code === 'auth/unauthorized-domain') {
-        toast.error('هذا النطاق غير مصرح به في إعدادات Firebase');
-      } else if (code.includes('invalid')) {
-        toast.error('حدث خطأ في إعدادات Google. استخدم البريد وكلمة المرور');
-      } else {
-        toast.error('حدث خطأ أثناء تسجيل الدخول بـ Google');
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
+      const d = await r.json();
+      toast.success(d.message || 'تم إرسال رابط إعادة التعيين');
+      setShowForgot(false);
+    } catch { toast.error('حدث خطأ'); }
+    finally { setForgotLoading(false); }
   };
+
+  // Forgot password view
+  if (showForgot) return (
+    <div className="min-h-screen flex flex-col pb-24" dir="rtl" data-testid="forgot-password-page">
+      <div className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 px-5 pb-14 pt-safe-header text-center overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[url('/mecca-hero.webp')] bg-cover bg-center" />
+        <div className="relative pt-8 pb-4">
+          <h1 className="text-2xl font-bold text-white mb-1">نسيت كلمة المرور</h1>
+          <p className="text-white/60 text-sm">أدخل بريدك لاستعادة حسابك</p>
+        </div>
+        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
+      </div>
+      <div className="flex-1 px-5 pt-8 max-w-md mx-auto w-full">
+        <div className="relative mb-4">
+          <Mail className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input type="email" placeholder="البريد الإلكتروني" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
+            className="pe-9 rounded-2xl h-12 bg-card" data-testid="forgot-email-input" />
+        </div>
+        <Button onClick={handleForgotPassword} disabled={forgotLoading}
+          className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold" data-testid="forgot-submit-btn">
+          {forgotLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'إرسال رابط الاستعادة'}
+        </Button>
+        <button onClick={() => setShowForgot(false)} className="w-full mt-4 text-sm text-primary font-bold" data-testid="back-to-login-btn">
+          العودة لتسجيل الدخول
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col pb-24" dir="rtl" data-testid="auth-page">
@@ -143,29 +153,16 @@ export default function Auth() {
         {/* Tabs */}
         <div className="flex bg-muted rounded-2xl p-1 mb-6" data-testid="auth-tabs">
           {(['login', 'signup'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setIsLogin(tab === 'login')}
-              data-testid={`auth-tab-${tab}`}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                isLogin === (tab === 'login')
-                  ? 'bg-background shadow-sm text-foreground'
-                  : 'text-muted-foreground'
-              }`}
-            >
+            <button key={tab} onClick={() => setIsLogin(tab === 'login')} data-testid={`auth-tab-${tab}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${isLogin === (tab === 'login') ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}>
               {tab === 'login' ? 'تسجيل الدخول' : 'حساب جديد'}
             </button>
           ))}
         </div>
 
         {/* Google Login */}
-        <motion.button
-          onClick={handleGoogleLogin}
-          disabled={googleLoading}
-          whileTap={{ scale: 0.98 }}
-          data-testid="google-login-btn"
-          className="w-full flex items-center justify-center gap-3 bg-card border border-border rounded-2xl py-3 mb-4 hover:bg-accent/50 transition-all active:scale-[0.98]"
-        >
+        <motion.button onClick={handleGoogleLogin} disabled={googleLoading} whileTap={{ scale: 0.98 }} data-testid="google-login-btn"
+          className="w-full flex items-center justify-center gap-3 bg-card border border-border rounded-2xl py-3 mb-4 hover:bg-accent/50 transition-all active:scale-[0.98]">
           {googleLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -184,77 +181,39 @@ export default function Auth() {
         </div>
 
         {/* Email Form */}
-        <motion.form
-          onSubmit={handleEmailAuth}
-          className="space-y-3"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          data-testid="auth-form"
-        >
+        <motion.form onSubmit={handleEmailAuth} className="space-y-3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} data-testid="auth-form">
           {!isLogin && (
             <div className="relative">
               <User className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="الاسم الكامل"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                className="pe-9 rounded-2xl h-12 bg-card"
-                data-testid="auth-name-input"
-              />
+              <Input placeholder="الاسم الكامل" value={name} onChange={e => setName(e.target.value)} className="pe-9 rounded-2xl h-12 bg-card" data-testid="auth-name-input" />
             </div>
           )}
           <div className="relative">
             <Mail className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="email"
-              placeholder="البريد الإلكتروني"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="pe-9 rounded-2xl h-12 bg-card"
-              required
-              data-testid="auth-email-input"
-            />
+            <Input type="email" placeholder="البريد الإلكتروني" value={email} onChange={e => setEmail(e.target.value)} className="pe-9 rounded-2xl h-12 bg-card" required data-testid="auth-email-input" />
           </div>
           <div className="relative">
             <Lock className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="password"
-              placeholder="كلمة المرور (6 أحرف على الأقل)"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="pe-9 rounded-2xl h-12 bg-card"
-              required
-              minLength={6}
-              data-testid="auth-password-input"
-            />
+            <Input type="password" placeholder="كلمة المرور (6 أحرف على الأقل)" value={password} onChange={e => setPassword(e.target.value)} className="pe-9 rounded-2xl h-12 bg-card" required minLength={6} data-testid="auth-password-input" />
           </div>
-          <Button
-            type="submit"
-            className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base"
-            disabled={loading}
-            data-testid="auth-submit-btn"
-          >
+          <Button type="submit" className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base" disabled={loading} data-testid="auth-submit-btn">
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : isLogin ? 'دخول' : 'إنشاء حساب'}
           </Button>
         </motion.form>
 
+        {/* Forgot password */}
+        {isLogin && (
+          <button onClick={() => setShowForgot(true)} className="block mx-auto mt-3 text-xs text-primary font-medium" data-testid="forgot-password-btn">
+            نسيت كلمة المرور؟
+          </button>
+        )}
+
         <p className="text-center text-sm text-muted-foreground mt-4">
           {isLogin ? 'ليس لديك حساب؟' : 'لديك حساب؟'}{' '}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-emerald-600 font-bold"
-            data-testid="auth-toggle-mode"
-          >
+          <button onClick={() => setIsLogin(!isLogin)} className="text-emerald-600 font-bold" data-testid="auth-toggle-mode">
             {isLogin ? 'سجّل الآن' : 'ادخل الآن'}
           </button>
         </p>
-
-        <div className="mt-6 p-4 bg-emerald-500/5 rounded-2xl text-center">
-          <p className="text-xs text-muted-foreground font-arabic leading-relaxed">
-            معظم الميزات تعمل بدون تسجيل دخول<br/>
-            <span className="text-emerald-600">التسجيل يتيح مزامنة بياناتك عبر أجهزتك</span>
-          </p>
-        </div>
       </div>
     </div>
   );

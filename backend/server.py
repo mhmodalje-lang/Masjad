@@ -205,47 +205,65 @@ async def login(data: UserLogin):
 
 @api_router.post("/auth/google")
 async def google_login(data: dict):
-    """Exchange Firebase ID token for app JWT"""
-    id_token = data.get("id_token")
-    if not id_token:
-        raise HTTPException(400, "id_token مطلوب")
-    
-    # Verify Firebase ID token via Firebase REST API
+    """Exchange Emergent OAuth session_id for app JWT"""
+    session_id = data.get("session_id")
+    if not session_id:
+        raise HTTPException(400, "session_id مطلوب")
+
+    # REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     try:
         async with httpx.AsyncClient(timeout=15) as c:
-            r = await c.post(
-                f"https://identitytoolkit.googleapis.com/v1/accounts:lookup?key={os.environ.get('FIREBASE_API_KEY','')}",
-                json={"idToken": id_token}
+            r = await c.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": session_id}
             )
             if r.status_code != 200:
-                raise HTTPException(401, "Token Firebase غير صالح")
-            firebase_user = r.json().get("users", [{}])[0]
+                raise HTTPException(401, "جلسة Google غير صالحة")
+            gdata = r.json()
     except HTTPException:
         raise
     except Exception:
         raise HTTPException(401, "فشل التحقق من Google")
 
-    email = firebase_user.get("email", "")
-    name = firebase_user.get("displayName", email.split("@")[0])
-    photo = firebase_user.get("photoUrl", None)
-    firebase_uid = firebase_user.get("localId", "")
+    email = gdata.get("email", "")
+    name = gdata.get("name", email.split("@")[0])
+    photo = gdata.get("picture", None)
+    google_id = gdata.get("id", "")
+
+    if not email:
+        raise HTTPException(400, "لم يتم الحصول على البريد الإلكتروني من Google")
 
     # Upsert user
-    user = await db.users.find_one({"$or": [{"email": email}, {"firebase_uid": firebase_uid}]})
+    user = await db.users.find_one({"email": email})
     if not user:
         uid = str(uuid.uuid4())
         user = {
             "id": uid, "email": email, "name": name,
             "avatar": photo, "provider": "google",
-            "firebase_uid": firebase_uid,
+            "google_id": google_id,
             "created_at": datetime.utcnow().isoformat(),
         }
         await db.users.insert_one(user)
     else:
-        await db.users.update_one({"id": user["id"]}, {"$set": {"name": name, "avatar": photo, "firebase_uid": firebase_uid}})
+        await db.users.update_one({"id": user["id"]}, {"$set": {"name": name, "avatar": photo, "google_id": google_id, "provider": "google"}})
+        user["name"] = name
+        user["avatar"] = photo
 
     token = create_jwt({"user_id": user["id"], "email": email})
     return {"access_token": token, "token_type": "bearer", "user": {k: user.get(k) for k in ("id","email","name","avatar","provider")}}
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: dict):
+    """Send password reset (placeholder - shows message to user)"""
+    email = data.get("email", "").lower().strip()
+    if not email:
+        raise HTTPException(400, "البريد الإلكتروني مطلوب")
+    user = await db.users.find_one({"email": email})
+    if not user:
+        # Don't reveal if email exists
+        return {"message": "إذا كان البريد مسجلاً سيتم إرسال رابط إعادة تعيين كلمة المرور"}
+    # For now return success message - real email sending would need SendGrid/etc
+    return {"message": "إذا كان البريد مسجلاً سيتم إرسال رابط إعادة تعيين كلمة المرور"}
 
 @api_router.get("/auth/me")
 async def get_me(user: dict = Depends(get_user)):
