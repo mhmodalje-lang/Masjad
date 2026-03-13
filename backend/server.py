@@ -317,17 +317,37 @@ async def get_posts(category: str = "all", page: int = 1, limit: int = 20, user:
     cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     posts = await cursor.to_list(length=limit)
     total = await db.posts.count_documents(query)
-    
+
+    # Bulk fetch likes/saves/counts to avoid N+1 queries
+    post_ids = [p["id"] for p in posts]
     user_id = user["id"] if user else None
+
+    likes_set = set()
+    saves_set = set()
+    if user_id and post_ids:
+        user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in user_likes}
+        user_saves = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        saves_set = {d["post_id"] for d in user_saves}
+
+    # Bulk count likes and comments via aggregation
+    likes_counts = {}
+    comments_counts = {}
+    if post_ids:
+        lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in lc:
+            likes_counts[doc["_id"]] = doc["c"]
+        cc = db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in cc:
+            comments_counts[doc["_id"]] = doc["c"]
+
     for post in posts:
-        post["liked"] = False
-        post["saved"] = False
-        if user_id:
-            post["liked"] = bool(await db.likes.find_one({"post_id": post["id"], "user_id": user_id}))
-            post["saved"] = bool(await db.saves.find_one({"post_id": post["id"], "user_id": user_id}))
-        post["likes_count"] = await db.likes.count_documents({"post_id": post["id"]})
-        post["comments_count"] = await db.comments.count_documents({"post_id": post["id"]})
-    
+        pid = post["id"]
+        post["liked"] = pid in likes_set
+        post["saved"] = pid in saves_set
+        post["likes_count"] = likes_counts.get(pid, 0)
+        post["comments_count"] = comments_counts.get(pid, 0)
+
     return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
 
 @api_router.post("/sohba/posts")
@@ -1276,6 +1296,22 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def create_indexes():
+    """Create MongoDB indexes for performance"""
+    try:
+        await db.posts.create_index([("created_at", -1)])
+        await db.posts.create_index([("category", 1), ("created_at", -1)])
+        await db.posts.create_index("author_id")
+        await db.likes.create_index([("post_id", 1), ("user_id", 1)], unique=True)
+        await db.saves.create_index([("post_id", 1), ("user_id", 1)], unique=True)
+        await db.comments.create_index([("post_id", 1), ("created_at", 1)])
+        await db.follows.create_index([("follower_id", 1), ("following_id", 1)], unique=True)
+        await db.users.create_index("email", unique=True)
+        await db.users.create_index("id", unique=True)
+    except Exception as e:
+        print(f"Index creation note: {e}")
 
 @app.on_event("shutdown")
 async def shutdown():
