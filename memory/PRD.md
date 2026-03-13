@@ -1,123 +1,101 @@
 # المؤذن العالمي - PRD (Product Requirements Document)
 
 ## Original Problem Statement
-Build a world-class, commercial-grade Islamic prayer and lifestyle app. The app is a complete ecosystem with social features, monetization, AI assistant, marketplace, and Islamic tools.
+Build a world-class, commercial-grade Islamic prayer and lifestyle app - a complete ecosystem with TikTok-style social features, managed e-commerce marketplace, monetization via virtual credits, AI Islamic assistant, and comprehensive admin dashboard.
 
 ## User Personas
-- **Muslim Users**: Daily prayer, Quran, Duas, Tasbeeh, Qibla, Islamic tools
-- **Content Creators**: Post content on صُحبة, receive gifts and support
-- **Vendors**: List Islamic products in the marketplace
-- **Advertisers**: Submit video ads for review by admin
-- **Admin**: Manage platform, approve ads, set commissions, receive revenue
+- **Muslim Users**: Prayer times, Quran, Duas, Tasbeeh, Qibla, Islamic tools
+- **Content Creators**: Post on صُحبة, receive gifts (50/50 revenue), earn credits
+- **Vendors**: Register shop, list products (admin-approved), sell with auto-commission
+- **Advertisers**: Submit video ads, get approved by admin, earn views
+- **Admin**: Full control - bank account, broadcast, vendor approval, ad review, commission rates
 
-## Core Architecture
-```
-/app
-├── backend/server.py          # FastAPI - All APIs
-├── backend/.env               # MONGO_URL, STRIPE, EMERGENT_LLM_KEY
-├── frontend/src/
-│   ├── App.tsx                # Router + Providers
-│   ├── pages/                 # All pages
-│   ├── components/layout/     # TopNav, BottomNav, AppLayout
-│   ├── hooks/useAuth.tsx      # Auth context
-│   └── index.css              # Theme (Emerald Gold)
-```
-
-## Tech Stack
-- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Shadcn/ui, Framer Motion
+## Architecture
+- **Frontend**: React, TypeScript, Vite, Tailwind CSS, Shadcn/ui, Framer Motion, Lottie-React
 - **Backend**: FastAPI, Python, MongoDB (motor), emergentintegrations
-- **AI**: GPT-5.2 via Emergent LLM Key
+- **AI**: GPT-5.2 via Emergent LLM Key (5 free/day, then credits, max 20/day)
 - **Payments**: Stripe via emergentintegrations
 - **Auth**: JWT + Emergent Google Auth
 
-## Implemented Features (as of March 2026)
+## All Implemented Features
 
-### Phase 1 - Core Islamic Tools ✅
-- Prayer Times (Aladhan API)
-- Qibla Compass
-- Tasbeeh Counter
-- Quran Reader
-- Duas Collection
-- Ruqyah Player
-- Zakat Calculator
-- Asma Allah Al-Husna (99 names)
-- Prayer Tracker
+### Social Platform - صُحبة (TikTok-Style) ✅
+- Full-screen vertical scroll feed
+- Real image/video uploads (unlimited size via multipart streaming)
+- Like, Comment sheets with real-time display
+- Gift buttons on every post (12 Islamic gifts)
+- User Profile sheets (posts, followers, following stats)
+- Category filtering (عام, القرآن, الحديث, رمضان, etc.)
+- 50/50 revenue split on gifts (admin/creator)
 
-### Phase 2 - Social Platform (صُحبة) ✅
-- Post creation with real image/video uploads
-- Like, comment system
+### Managed E-Commerce Marketplace ✅
+- Vendor registration with admin approval
+- Products only listed after admin approves vendor
+- GPS-based product sorting (nearest first)
 - Category filtering
-- 2-column masonry grid
+- Admin-configurable commission rate
 
-### Phase 3 - Monetization ✅
-- **Virtual Credits System** (like TikTok coins)
-  - GPS-based currency detection (30+ countries)
-  - 8 credit packages (0.05€ to 1000€)
-  - Credits used for AI questions, gifts
-- **Islamic Gift Store** (12 Islamic-themed gifts)
-  - 50/50 revenue split (admin/creator)
-  - Gifts on posts (lion, crescent, kaaba, etc.)
-- **Gold/Rewards System**
-  - Daily login rewards, streak bonuses
-  - Earn by watching ads, tasbeeh, quran
-- **Digital Store** (themes, badges, effects, memberships)
-- **Stripe Integration** for real payments
+### Virtual Credits System ✅
+- GPS-based currency detection (30+ countries)
+- 8 credit packages (0.05€ to 1000€)
+- Credits for AI questions, gifts, ad rewards
+- Stripe checkout integration
 
-### Phase 4 - Commercial Platform ✅
-- **AI Religious Assistant** (GPT-5.2)
-  - 5 free questions/day, then credits
-  - Max 20 questions/day
-  - Islamic-only filtering
-  - Session-based conversation
-- **Ad Manager**
-  - Users submit video ads (YouTube/Facebook embed)
-  - Admin approval system
-  - Users earn credits watching approved ads
-- **Vendor Marketplace**
-  - GPS-sorted product listings
-  - Category filtering
-  - Admin-configurable commission rate
-- **User Bank Accounts** for receiving earnings
+### AI Religious Assistant (GPT-5.2) ✅
+- 5 free questions/day, then credits
+- Max 20 questions/day, auto-locks
+- Islamic-only filtering with system prompt
+- Session-based conversation history
+- Earn credits by watching ads
 
-### Phase 5 - Admin Dashboard ✅
-- 8 tabs: Overview, Users, Ads, User Ads, Notifications, Pages, Revenue, Settings
-- Admin bank account settings
-- Marketplace commission control
-- User ad approval/rejection
-- Revenue tracking
+### Admin Dashboard (10 Tabs) ✅
+1. نظرة عامة (Overview) - Stats, users, ads count
+2. البث (Broadcast) - Publish announcements to all users on homepage
+3. المستخدمين (Users) - User management
+4. الإعلانات (Ads) - Manage banner ads
+5. إعلانات القنوات (Channel Ads) - Approve/reject user video ads
+6. البائعين (Vendors) - Approve/reject vendor registrations
+7. الإشعارات (Notifications) - Push notification scheduling
+8. الصفحات (Pages) - Custom pages
+9. الإيرادات (Revenue) - Gift revenue tracking, Stripe summary
+10. الإعدادات (Settings) - IBAN bank account, maintenance mode, commission rate
 
-### Phase 6 - UI/UX ✅
-- Emerald Gold theme (dark + light)
-- Professional bottom nav with centered indicator
+### Homepage Announcements ✅
+- Admin publishes broadcast → shows immediately on homepage for ALL users
+- Dismissible by users
+- Types: info, warning, promo
+
+### Islamic Tools (All Functional) ✅
+- Prayer Times, Qibla Compass, Tasbeeh Counter, Quran Reader
+- Duas Collection, Ruqyah Player, Zakat Calculator
+- Prayer Tracker, Asma Allah Al-Husna (99 names)
+
+### Rewards System ✅
+- Daily login rewards with streak bonuses
+- Gold currency + Virtual credits
+- Store with themes, badges, effects, memberships
+- Transaction history
+
+### File Uploads ✅
+- Multipart streaming (unlimited size)
+- Base64 for small files
+- Supports images + videos
+- Served via /api/uploads/{filename}
+
+### UI/UX ✅
+- Islamic Gold + Deep Emerald theme (dark + light)
+- Animated backgrounds (CSS + Lottie-ready)
+- Bottom nav with centered Spring indicator
+- RTL Arabic layout throughout
 - PWA ready
-- RTL Arabic layout
 
 ## Key API Endpoints
-- Auth: `/api/auth/login`, `/api/auth/register`, `/api/auth/google`
-- Social: `/api/sohba/posts`, `/api/sohba/posts/{id}/like`
-- Gifts: `/api/gifts/list`, `/api/gifts/send`
-- Credits: `/api/credits/packages`, `/api/credits/detect-currency`
-- AI: `/api/ai/ask`, `/api/ai/history`
-- Ads: `/api/ads/submit`, `/api/ads/approved`, `/api/ads/watch/{id}`
-- Marketplace: `/api/marketplace/products`
-- Store: `/api/store/items`, `/api/store/buy-gold`
-- Rewards: `/api/rewards/balance`, `/api/rewards/claim`
-- Payments: `/api/payments/checkout`, `/api/payments/packages`
-- Admin: `/api/admin/*`
-
-## P0 Remaining
-- None critical
+Auth, Social, Gifts, Credits, AI, Ads, Marketplace, Store, Rewards, Payments, Admin, Announcements, Vendors, Bank Accounts, Upload (multipart + base64)
 
 ## P1 Backlog
-- Lottie animations for page transitions
-- Enhanced Qibla compass with calibration
-- Multi-language support
-- Native notifications (Athan on lock screen)
-- Capacitor for mobile app deployment
-
-## P2 Future
-- Full Stripe webhook processing
-- User withdrawal system (credits to bank)
+- Full Stripe Connect for real bank transfers
+- User withdrawal system (credits → bank)
 - Advanced analytics dashboard
-- Push notification campaigns
-- A/B testing for ads
+- Multi-language support
+- Capacitor for mobile app deployment
+- Native Athan notifications on lock screen
