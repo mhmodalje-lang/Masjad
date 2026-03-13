@@ -6,7 +6,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User, LogIn, LogOut, Moon, Sun, BookOpen, Clock,
   CheckCircle2, Shield, Bell, BellOff, ShieldCheck, ChevronLeft, Star,
-  Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare, Coins
+  Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare, Coins,
+  Bot, Store, ShoppingBag
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -154,12 +155,26 @@ export default function More() {
         <Link to="/rewards" className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="rewards-link">
           <Coins className="h-6 w-6 text-amber-500 mb-2" />
           <p className="text-sm font-bold text-foreground">المكافآت</p>
-          <p className="text-[10px] text-muted-foreground">اجمع الذهب يومياً</p>
+          <p className="text-[10px] text-muted-foreground">اجمع النقاط يومياً</p>
         </Link>
         <Link to="/store" className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="store-link">
           <Crown className="h-6 w-6 text-purple-500 mb-2" />
           <p className="text-sm font-bold text-foreground">المتجر</p>
           <p className="text-[10px] text-muted-foreground">عناصر مميزة</p>
+        </Link>
+      </div>
+
+      {/* AI & Marketplace */}
+      <div className="px-5 mb-4 grid grid-cols-2 gap-3">
+        <Link to="/ai-assistant" className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="ai-assistant-link">
+          <Bot className="h-6 w-6 text-blue-500 mb-2" />
+          <p className="text-sm font-bold text-foreground">المساعد الديني</p>
+          <p className="text-[10px] text-muted-foreground">اسأل عن دينك</p>
+        </Link>
+        <Link to="/marketplace" className="rounded-2xl bg-gradient-to-br from-teal-500/10 to-green-500/5 border border-teal-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="marketplace-link">
+          <ShoppingBag className="h-6 w-6 text-teal-500 mb-2" />
+          <p className="text-sm font-bold text-foreground">السوق</p>
+          <p className="text-[10px] text-muted-foreground">منتجات إسلامية</p>
         </Link>
       </div>
 

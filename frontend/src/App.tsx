@@ -47,6 +47,8 @@ const Sohba = lazy(() => import("./pages/Sohba"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Store = lazy(() => import("./pages/Store"));
 const Rewards = lazy(() => import("./pages/Rewards"));
+const AiAssistant = lazy(() => import("./pages/AiAssistant"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -119,6 +121,8 @@ const App = () => {
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/store" element={<Store />} />
                           <Route path="/rewards" element={<Rewards />} />
+                          <Route path="/ai-assistant" element={<AiAssistant />} />
+                          <Route path="/marketplace" element={<Marketplace />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>

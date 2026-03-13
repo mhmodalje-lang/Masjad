@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, Bell, Settings, BarChart3, Shield, Send, Trash2, Plus,
   ChevronLeft, ChevronRight, RefreshCw, Megaphone, AlertTriangle,
-  Monitor, FileText, Clock, BookOpen, Check, X, Eye, EyeOff
+  Monitor, FileText, Clock, BookOpen, Check, X, Eye, EyeOff,
+  Coins, ShoppingBag, Film, CreditCard, Building2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -51,9 +52,16 @@ export default function AdminDashboard() {
   // Scheduled notif form
   const [showNotifForm, setShowNotifForm] = useState(false);
   const [notifForm, setNotifForm] = useState({ title:'', body:'', schedule_time:'', repeat:'once', enabled:true });
+  // User Ads
+  const [userAds, setUserAds] = useState<any[]>([]);
+  // Bank
+  const [bankForm, setBankForm] = useState({ bank_name:'', account_holder:'', iban:'', swift:'' });
+  const [adminRevenue, setAdminRevenue] = useState<any>(null);
+  // Marketplace
+  const [commissionRate, setCommissionRate] = useState(10);
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
-  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); } }, [isAdmin]);
+  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
 
   const api = async (path: string, method='GET', body?: any) => {
@@ -69,6 +77,8 @@ export default function AdminDashboard() {
   async function fetchAds() { try { const d = await api('/admin/ads'); setAds(d.ads||[]); } catch {} }
   async function fetchPages() { try { const d = await api('/admin/pages'); setPages(d.pages||[]); } catch {} }
   async function fetchNotifs() { try { const d = await api('/admin/scheduled-notifications'); setScheduledNotifs(d.notifications||[]); } catch {} }
+  async function fetchUserAds() { try { const d = await api('/admin/user-ads'); setUserAds(d.ads||[]); } catch {} }
+  async function fetchBankInfo() { try { const d = await api('/admin/bank-account'); setBankForm(d.account||{}); setAdminRevenue(d.revenue); } catch {} }
 
   async function deleteUser(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/users/${id}`,'DELETE'); toast.success('تم'); fetchUsers(usersPage); fetchStats(); }
   async function sendNotif() { if(!nTitle||!nBody) return toast.error('املأ الحقول'); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
@@ -79,6 +89,9 @@ export default function AdminDashboard() {
   async function deletePage(id: string) { await api(`/admin/pages/${id}`,'DELETE'); toast.success('تم'); fetchPages(); }
   async function saveSchedNotif() { const d = await api('/admin/scheduled-notifications','POST',notifForm); if(d.success) { toast.success('تم'); setShowNotifForm(false); fetchNotifs(); } }
   async function deleteSchedNotif(id: string) { await api(`/admin/scheduled-notifications/${id}`,'DELETE'); toast.success('تم'); fetchNotifs(); }
+  async function updateAdStatus(id: string, status: string) { await api(`/admin/user-ads/${id}`,'PUT',{status}); toast.success('تم التحديث'); fetchUserAds(); }
+  async function saveBankInfo() { await api('/admin/bank-account','POST',bankForm); toast.success('تم حفظ الحساب البنكي'); }
+  async function saveCommission() { await api('/admin/marketplace/commission','PUT',{commission_rate:commissionRate}); toast.success('تم'); }
 
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
@@ -94,8 +107,10 @@ export default function AdminDashboard() {
     { key:'overview', label:'نظرة عامة', icon:BarChart3 },
     { key:'users', label:'المستخدمين', icon:Users },
     { key:'ads', label:'الإعلانات', icon:Monitor },
+    { key:'user-ads', label:'إعلانات المستخدمين', icon:Film },
     { key:'notifications', label:'الإشعارات', icon:Bell },
     { key:'pages', label:'الصفحات', icon:FileText },
+    { key:'revenue', label:'الإيرادات', icon:CreditCard },
     { key:'settings', label:'الإعدادات', icon:Settings },
   ];
 
@@ -118,33 +133,33 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen pb-28" dir="rtl" data-testid="admin-dashboard">
-      <div className="bg-gradient-to-b from-primary/20 to-transparent px-4 pt-7 pb-5">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-5 w-5 text-primary" /></div>
-          <div><h1 className="text-lg font-bold text-foreground">لوحة الإدارة</h1><p className="text-[11px] text-muted-foreground">{user?.email}</p></div>
+      <div className="bg-gradient-to-b from-primary/20 to-transparent px-5 pt-7 pb-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-6 w-6 text-primary" /></div>
+          <div><h1 className="text-xl font-bold text-foreground">لوحة الإدارة</h1><p className="text-xs text-muted-foreground">{user?.email}</p></div>
         </div>
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {tabs.map(t=>(
             <button key={t.key} onClick={()=>setTab(t.key)} data-testid={`admin-tab-${t.key}`}
-              className={cn('flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all',
-                tab===t.key ? 'bg-primary text-primary-foreground shadow' : 'bg-card border border-border/50 text-muted-foreground')}>
-              <t.icon className="h-3.5 w-3.5" />{t.label}
+              className={cn('flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all min-w-fit',
+                tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border/50 text-muted-foreground hover:bg-muted')}>
+              <t.icon className="h-4 w-4" /><span>{t.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="px-4 mt-3">
+      <div className="px-5 mt-4">
         {/* ===== OVERVIEW ===== */}
         {tab==='overview' && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-3">
               {[{l:'مستخدمين',v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},{l:'مشتركين',v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},{l:'إعلانات',v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'}]
               .map(s=>(
-                <div key={s.l} className="rounded-2xl bg-card border border-border/50 p-3 text-center">
-                  <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center mx-auto mb-1",s.c)}><s.i className="h-4 w-4"/></div>
-                  <p className="text-xl font-bold text-foreground">{s.v}</p>
-                  <p className="text-[10px] text-muted-foreground">{s.l}</p>
+                <div key={s.l} className="rounded-2xl bg-card border border-border/50 p-4 text-center">
+                  <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center mx-auto mb-2",s.c)}><s.i className="h-5 w-5"/></div>
+                  <p className="text-2xl font-bold text-foreground">{s.v}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.l}</p>
                 </div>
               ))}
             </div>
@@ -292,21 +307,109 @@ export default function AdminDashboard() {
 
         {/* ===== SETTINGS ===== */}
         {tab==='settings' && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h2 className="text-base font-bold text-foreground">إعدادات التطبيق</h2>
-            <div className="rounded-xl bg-card border border-border/50 p-3 space-y-3">
+            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">وضع الصيانة</p><p className="text-[10px] text-muted-foreground">إيقاف مؤقت</p></div></div>
                 <Switch checked={maintenance} onCheckedChange={setMaintenance} />
               </div>
               <InputField label="إعلان عام" value={announcement} onChange={setAnnouncement} placeholder="رسالة للجميع..." />
-              <Button onClick={saveSettings} size="sm" className="w-full rounded-lg gap-1"><Settings className="h-3 w-3"/>حفظ</Button>
+              <Button onClick={saveSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ</Button>
             </div>
-            <div className="rounded-xl bg-card border border-border/50 p-3 space-y-1 text-xs text-muted-foreground">
+            
+            {/* Admin Bank Account */}
+            <h2 className="text-base font-bold text-foreground">الحساب البنكي (لاستقبال الأرباح)</h2>
+            <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
+              <InputField label="اسم البنك" value={bankForm.bank_name||''} onChange={(v:string)=>setBankForm({...bankForm,bank_name:v})} placeholder="بنك..." />
+              <InputField label="صاحب الحساب" value={bankForm.account_holder||''} onChange={(v:string)=>setBankForm({...bankForm,account_holder:v})} placeholder="الاسم..." />
+              <InputField label="IBAN" value={bankForm.iban||''} onChange={(v:string)=>setBankForm({...bankForm,iban:v})} placeholder="SA00..." />
+              <InputField label="SWIFT" value={bankForm.swift||''} onChange={(v:string)=>setBankForm({...bankForm,swift:v})} placeholder="SWIFT..." />
+              <Button onClick={saveBankInfo} size="sm" className="w-full rounded-xl gap-1"><Building2 className="h-3 w-3"/>حفظ الحساب البنكي</Button>
+            </div>
+
+            {/* Marketplace Commission */}
+            <h2 className="text-base font-bold text-foreground">عمولة السوق</h2>
+            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <InputField label="نسبة العمولة %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
+                <Button onClick={saveCommission} size="sm" className="rounded-xl mt-5">حفظ</Button>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-1 text-xs text-muted-foreground">
               <p className="font-bold text-foreground text-sm">معلومات</p>
-              <p>المؤذن العالمي v2.0</p>
+              <p>المؤذن العالمي v3.0</p>
               <p>المسؤول: {user?.email}</p>
-              <p>الذكاء الاصطناعي: Gemini 2.0</p>
+              <p>الذكاء الاصطناعي: GPT-5.2</p>
+            </div>
+          </div>
+        )}
+
+        {/* ===== USER ADS (إعلانات المستخدمين) ===== */}
+        {tab==='user-ads' && (
+          <div className="space-y-3">
+            <h2 className="text-base font-bold text-foreground">إعلانات المستخدمين ({userAds.length})</h2>
+            <p className="text-xs text-muted-foreground">الإعلانات المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
+            {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد إعلانات بعد</p> :
+            userAds.map(ad => (
+              <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{ad.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{ad.channel_name} • {ad.user_name}</p>
+                  </div>
+                  <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
+                    ad.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                    ad.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                    'bg-amber-500/10 text-amber-500'
+                  )}>
+                    {ad.status === 'approved' ? 'موافق' : ad.status === 'rejected' ? 'مرفوض' : 'في الانتظار'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{ad.description}</p>
+                {ad.video_url && (
+                  <div className="text-[10px] text-blue-500 truncate">{ad.video_url}</div>
+                )}
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                  <span>المشاهدات: {ad.views || 0}</span>
+                  <span>السعر: {ad.price_credits} نقطة</span>
+                </div>
+                {ad.status === 'pending' && (
+                  <div className="flex gap-2">
+                    <Button onClick={() => updateAdStatus(ad.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>موافقة</Button>
+                    <Button onClick={() => updateAdStatus(ad.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>رفض</Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== REVENUE (الإيرادات) ===== */}
+        {tab==='revenue' && (
+          <div className="space-y-4">
+            <h2 className="text-base font-bold text-foreground">الإيرادات</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-card border border-amber-500/20 p-4 text-center">
+                <Coins className="h-8 w-8 text-amber-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">{adminRevenue?.total_credits || 0}</p>
+                <p className="text-xs text-muted-foreground">نقاط من الهدايا (50%)</p>
+              </div>
+              <div className="rounded-2xl bg-card border border-green-500/20 p-4 text-center">
+                <CreditCard className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-foreground">-</p>
+                <p className="text-xs text-muted-foreground">Stripe (قريباً)</p>
+              </div>
+            </div>
+            <div className="rounded-xl bg-muted/50 border border-border/30 p-4 text-sm text-muted-foreground">
+              <p className="font-bold text-foreground mb-2">كيف يعمل نظام الإيرادات:</p>
+              <ul className="space-y-1 text-xs list-disc list-inside">
+                <li>عند إرسال هدية: 50% للإدارة و 50% لصانع المحتوى</li>
+                <li>المستخدمون يشترون النقاط عبر Stripe</li>
+                <li>أصحاب القنوات يرفعون إعلانات وتحدد الإدارة السعر</li>
+                <li>عمولة السوق تُخصم تلقائياً من كل عملية بيع</li>
+              </ul>
             </div>
           </div>
         )}

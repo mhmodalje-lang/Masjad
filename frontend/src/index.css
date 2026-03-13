@@ -6,54 +6,54 @@
 
 @layer base {
   :root {
-    /* LIGHT THEME: Warm ivory + deep emerald + royal gold */
-    --background: 42 28% 96%;
-    --foreground: 155 35% 8%;
+    /* LIGHT THEME: Luxurious Islamic Gold + Deep Emerald */
+    --background: 38 35% 92%;
+    --foreground: 155 40% 6%;
 
-    --card: 42 22% 98%;
-    --card-foreground: 155 35% 8%;
+    --card: 38 30% 95%;
+    --card-foreground: 155 40% 6%;
 
-    --popover: 42 22% 98%;
-    --popover-foreground: 155 35% 8%;
+    --popover: 38 30% 95%;
+    --popover-foreground: 155 40% 6%;
 
-    --primary: 155 60% 25%;
-    --primary-foreground: 42 80% 96%;
+    --primary: 155 65% 22%;
+    --primary-foreground: 40 80% 95%;
 
-    --secondary: 42 18% 92%;
-    --secondary-foreground: 155 25% 20%;
+    --secondary: 38 22% 88%;
+    --secondary-foreground: 155 30% 18%;
 
-    --muted: 42 14% 91%;
-    --muted-foreground: 155 12% 38%;
+    --muted: 38 18% 86%;
+    --muted-foreground: 155 15% 35%;
 
-    --accent: 40 85% 52%;
-    --accent-foreground: 38 50% 10%;
+    --accent: 40 88% 48%;
+    --accent-foreground: 38 55% 8%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 42 14% 87%;
-    --input: 42 14% 87%;
-    --ring: 155 60% 25%;
+    --border: 38 16% 82%;
+    --input: 38 16% 82%;
+    --ring: 155 65% 22%;
     --radius: 1.25rem;
 
     /* Extended Islamic palette */
-    --islamic-green: 155 60% 25%;
-    --islamic-gold: 40 85% 52%;
-    --islamic-emerald: 155 55% 30%;
-    --islamic-emerald-glow: 155 70% 40%;
-    --islamic-navy: 200 45% 15%;
-    --islamic-teal: 175 50% 30%;
-    --islamic-rose: 350 45% 55%;
-    --islamic-copper: 25 60% 50%;
+    --islamic-green: 155 65% 22%;
+    --islamic-gold: 40 88% 48%;
+    --islamic-emerald: 155 55% 28%;
+    --islamic-emerald-glow: 155 70% 38%;
+    --islamic-navy: 200 45% 12%;
+    --islamic-teal: 175 50% 28%;
+    --islamic-rose: 350 45% 52%;
+    --islamic-copper: 25 60% 48%;
 
-    --sidebar-background: 42 22% 98%;
-    --sidebar-foreground: 155 25% 18%;
-    --sidebar-primary: 155 60% 25%;
-    --sidebar-primary-foreground: 42 80% 96%;
-    --sidebar-accent: 42 18% 92%;
-    --sidebar-accent-foreground: 155 25% 20%;
-    --sidebar-border: 42 14% 87%;
-    --sidebar-ring: 155 60% 25%;
+    --sidebar-background: 38 25% 94%;
+    --sidebar-foreground: 155 30% 15%;
+    --sidebar-primary: 155 65% 22%;
+    --sidebar-primary-foreground: 40 80% 95%;
+    --sidebar-accent: 38 22% 88%;
+    --sidebar-accent-foreground: 155 30% 18%;
+    --sidebar-border: 38 16% 82%;
+    --sidebar-ring: 155 65% 22%;
   }
 
   .dark {

@@ -17,7 +17,7 @@ export function BottomNav() {
   return (
     <nav
       data-testid="bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-card/90 backdrop-blur-2xl"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-card/95 backdrop-blur-2xl"
     >
       <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir="rtl">
         {navItems.map((item) => {
@@ -38,12 +38,12 @@ export function BottomNav() {
               {isActive && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute -top-px left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full bg-primary"
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  className="absolute top-0 inset-x-0 mx-auto h-[3px] w-10 rounded-b-full bg-primary"
+                  transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                 />
               )}
-              <item.icon className={cn('h-[22px] w-[22px] shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />
-              <span className="font-semibold text-[11px] leading-tight text-center truncate w-full px-0.5">
+              <item.icon className={cn('h-[22px] w-[22px] shrink-0 transition-transform duration-200', isActive && 'scale-110 stroke-[2.5px]')} />
+              <span className={cn("font-semibold text-[11px] leading-tight text-center truncate w-full px-0.5", isActive && 'font-bold')}>
                 {item.label}
               </span>
             </Link>

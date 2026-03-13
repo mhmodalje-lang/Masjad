@@ -36,6 +36,7 @@ VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY', '')
 VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY', '')
 VAPID_EMAIL = os.environ.get('VAPID_EMAIL', 'mailto:admin@almuadhin.com')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'almuadhin')
 
@@ -751,6 +752,702 @@ async def get_membership(user: dict = Depends(get_user)):
         if exp < datetime.utcnow():
             return {"active": False, "plan": "free", "expires_at": membership["expires_at"], "was": membership.get("plan")}
     return {"active": True, "plan": membership.get("plan", "premium"), "expires_at": membership.get("expires_at")}
+
+# ==================== STRIPE PAYMENTS ====================
+from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
+from starlette.requests import Request
+
+# Store packages (server-side defined prices - NEVER accept from frontend)
+STORE_PACKAGES = {
+    "frame": {"name": "إطار ذهبي", "price": 0.99},
+    "theme": {"name": "خلفية رمضانية", "price": 0.49},
+    "badge": {"name": "شارة حافظ", "price": 1.99},
+    "effect": {"name": "تأثير نجوم", "price": 1.49},
+    "membership_monthly": {"name": "عضوية مميزة (شهر)", "price": 4.99},
+    "gold_100": {"name": "100 ذهب", "price": 0.99},
+    "gold_500": {"name": "500 ذهب", "price": 3.99},
+    "gold_1000": {"name": "1000 ذهب", "price": 6.99},
+}
+
+@api_router.post("/payments/checkout")
+async def create_checkout(data: dict, request: Request, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    package_id = data.get("package_id", "")
+    origin_url = data.get("origin_url", "")
+    item_id = data.get("item_id", "")
+    
+    if not origin_url:
+        raise HTTPException(400, "origin_url مطلوب")
+    
+    # Get price from server-side packages OR from store item
+    amount = 0.0
+    package_name = ""
+    
+    if package_id in STORE_PACKAGES:
+        amount = STORE_PACKAGES[package_id]["price"]
+        package_name = STORE_PACKAGES[package_id]["name"]
+    elif item_id:
+        item = await db.store_items.find_one({"id": item_id}, {"_id": 0})
+        if not item:
+            raise HTTPException(404, "المنتج غير موجود")
+        if item.get("price_usd", 0) <= 0:
+            raise HTTPException(400, "هذا المنتج مجاني أو غير متاح للشراء بالمال")
+        amount = float(item["price_usd"])
+        package_name = item["name"]
+    else:
+        raise HTTPException(400, "يجب تحديد المنتج")
+    
+    success_url = f"{origin_url}/store?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{origin_url}/store"
+    
+    metadata = {
+        "user_id": user["id"],
+        "user_email": user.get("email", ""),
+        "package_id": package_id,
+        "item_id": item_id,
+        "package_name": package_name,
+    }
+    
+    host_url = str(request.base_url).rstrip("/")
+    webhook_url = f"{host_url}api/webhook/stripe"
+    
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    checkout_req = CheckoutSessionRequest(
+        amount=amount,
+        currency="usd",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata=metadata,
+    )
+    
+    session = await stripe_checkout.create_checkout_session(checkout_req)
+    
+    # Create payment transaction record
+    txn = {
+        "id": str(uuid.uuid4()),
+        "session_id": session.session_id,
+        "user_id": user["id"],
+        "user_email": user.get("email", ""),
+        "package_id": package_id,
+        "item_id": item_id,
+        "package_name": package_name,
+        "amount": amount,
+        "currency": "usd",
+        "payment_status": "pending",
+        "status": "initiated",
+        "metadata": metadata,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.payment_transactions.insert_one(txn)
+    
+    return {"url": session.url, "session_id": session.session_id}
+
+@api_router.get("/payments/status/{session_id}")
+async def get_payment_status(session_id: str, request: Request, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    txn = await db.payment_transactions.find_one({"session_id": session_id, "user_id": user["id"]}, {"_id": 0})
+    if not txn:
+        raise HTTPException(404, "المعاملة غير موجودة")
+    
+    # If already processed, return cached status
+    if txn.get("payment_status") in ["paid", "expired"]:
+        return {"status": txn["status"], "payment_status": txn["payment_status"], "amount": txn["amount"]}
+    
+    host_url = str(request.base_url).rstrip("/")
+    webhook_url = f"{host_url}api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    checkout_status = await stripe_checkout.get_checkout_status(session_id)
+    
+    update_data = {
+        "status": checkout_status.status,
+        "payment_status": checkout_status.payment_status,
+        "updated_at": datetime.utcnow().isoformat(),
+    }
+    
+    # Process successful payment (idempotent - check if already processed)
+    if checkout_status.payment_status == "paid" and txn.get("payment_status") != "paid":
+        update_data["payment_status"] = "paid"
+        
+        # Grant benefits based on package
+        pkg_id = txn.get("package_id", "")
+        if pkg_id.startswith("gold_"):
+            gold_amount = int(pkg_id.split("_")[1])
+            await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"gold": gold_amount, "total_earned": gold_amount}}, upsert=True)
+            await db.gold_transactions.insert_one({"user_id": user["id"], "type": "purchase", "amount": gold_amount, "created_at": datetime.utcnow().isoformat(), "description": f"شراء {gold_amount} ذهب"})
+        elif pkg_id == "membership_monthly":
+            exp = (datetime.utcnow() + timedelta(days=30)).isoformat()
+            await db.memberships.update_one({"user_id": user["id"]}, {"$set": {"plan": "premium", "expires_at": exp, "started_at": datetime.utcnow().isoformat()}}, upsert=True)
+        
+        # Record purchase for store items
+        if txn.get("item_id"):
+            await db.purchases.insert_one({"id": str(uuid.uuid4()), "user_id": user["id"], "item_id": txn["item_id"], "item_name": txn.get("package_name", ""), "price_usd": txn["amount"], "payment_method": "stripe", "created_at": datetime.utcnow().isoformat()})
+    
+    await db.payment_transactions.update_one({"session_id": session_id}, {"$set": update_data})
+    
+    return {"status": checkout_status.status, "payment_status": checkout_status.payment_status, "amount": txn["amount"]}
+
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhooks"""
+    try:
+        body = await request.body()
+        sig = request.headers.get("Stripe-Signature", "")
+        host_url = str(request.base_url).rstrip("/")
+        webhook_url = f"{host_url}api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        webhook_response = await stripe_checkout.handle_webhook(body, sig)
+        
+        if webhook_response.payment_status == "paid":
+            txn = await db.payment_transactions.find_one({"session_id": webhook_response.session_id})
+            if txn and txn.get("payment_status") != "paid":
+                await db.payment_transactions.update_one(
+                    {"session_id": webhook_response.session_id},
+                    {"$set": {"payment_status": "paid", "status": "complete", "updated_at": datetime.utcnow().isoformat()}}
+                )
+        
+        return {"received": True}
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
+        return {"received": True}
+
+@api_router.get("/payments/packages")
+async def get_packages():
+    """Get available gold/membership packages"""
+    return {"packages": [
+        {"id": "gold_100", "name": "100 ذهب", "price": 0.99, "type": "gold", "amount": 100},
+        {"id": "gold_500", "name": "500 ذهب", "price": 3.99, "type": "gold", "amount": 500},
+        {"id": "gold_1000", "name": "1000 ذهب", "price": 6.99, "type": "gold", "amount": 1000},
+        {"id": "membership_monthly", "name": "عضوية مميزة (شهر)", "price": 4.99, "type": "membership"},
+    ]}
+
+
+# ==================== VIRTUAL CREDITS SYSTEM (مثل تيك توك) ====================
+# Currency conversion rates (approximate, updated periodically)
+CURRENCY_DATA = {
+    "US": {"code": "USD", "symbol": "$", "rate": 1.0},
+    "GB": {"code": "GBP", "symbol": "£", "rate": 0.79},
+    "EU": {"code": "EUR", "symbol": "€", "rate": 0.92},
+    "DE": {"code": "EUR", "symbol": "€", "rate": 0.92},
+    "FR": {"code": "EUR", "symbol": "€", "rate": 0.92},
+    "SA": {"code": "SAR", "symbol": "ر.س", "rate": 3.75},
+    "AE": {"code": "AED", "symbol": "د.إ", "rate": 3.67},
+    "EG": {"code": "EGP", "symbol": "ج.م", "rate": 50.5},
+    "MA": {"code": "MAD", "symbol": "د.م", "rate": 10.1},
+    "DZ": {"code": "DZD", "symbol": "د.ج", "rate": 134.5},
+    "TN": {"code": "TND", "symbol": "د.ت", "rate": 3.12},
+    "TR": {"code": "TRY", "symbol": "₺", "rate": 36.5},
+    "PK": {"code": "PKR", "symbol": "Rs", "rate": 278.0},
+    "ID": {"code": "IDR", "symbol": "Rp", "rate": 15900.0},
+    "MY": {"code": "MYR", "symbol": "RM", "rate": 4.48},
+    "QA": {"code": "QAR", "symbol": "ر.ق", "rate": 3.64},
+    "KW": {"code": "KWD", "symbol": "د.ك", "rate": 0.31},
+    "BH": {"code": "BHD", "symbol": "د.ب", "rate": 0.376},
+    "OM": {"code": "OMR", "symbol": "ر.ع", "rate": 0.385},
+    "JO": {"code": "JOD", "symbol": "د.أ", "rate": 0.709},
+    "LB": {"code": "LBP", "symbol": "ل.ل", "rate": 89500.0},
+    "IQ": {"code": "IQD", "symbol": "د.ع", "rate": 1310.0},
+    "IN": {"code": "INR", "symbol": "₹", "rate": 83.5},
+    "BD": {"code": "BDT", "symbol": "৳", "rate": 110.0},
+    "NG": {"code": "NGN", "symbol": "₦", "rate": 1580.0},
+}
+
+# Credit packages: price in EUR (base), credits given
+CREDIT_PACKAGES = [
+    {"id": "credits_5", "credits": 65, "price_eur": 0.05, "label": "65 نقطة", "popular": False},
+    {"id": "credits_50", "credits": 650, "price_eur": 0.50, "label": "650 نقطة", "popular": False},
+    {"id": "credits_100", "credits": 1300, "price_eur": 1.0, "label": "1,300 نقطة", "popular": True},
+    {"id": "credits_500", "credits": 6800, "price_eur": 5.0, "label": "6,800 نقطة", "popular": False},
+    {"id": "credits_1000", "credits": 14000, "price_eur": 10.0, "label": "14,000 نقطة", "popular": False},
+    {"id": "credits_5000", "credits": 75000, "price_eur": 50.0, "label": "75,000 نقطة", "popular": False},
+    {"id": "credits_10000", "credits": 160000, "price_eur": 100.0, "label": "160,000 نقطة", "popular": False},
+    {"id": "credits_100000", "credits": 1700000, "price_eur": 1000.0, "label": "1,700,000 نقطة", "popular": False},
+]
+
+@api_router.get("/credits/detect-currency")
+async def detect_currency(lat: float = Query(0), lon: float = Query(0)):
+    """Detect user's currency based on GPS coordinates"""
+    country_code = "US"
+    try:
+        if lat != 0 and lon != 0:
+            async with httpx.AsyncClient(timeout=5) as client:
+                r = await client.get(f"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat}&longitude={lon}&localityLanguage=ar")
+                if r.status_code == 200:
+                    data = r.json()
+                    country_code = data.get("countryCode", "US")
+    except Exception:
+        pass
+    
+    currency = CURRENCY_DATA.get(country_code, CURRENCY_DATA["US"])
+    return {"country_code": country_code, "currency": currency}
+
+@api_router.get("/credits/packages")
+async def get_credit_packages(country: str = "US"):
+    """Get credit packages with local currency pricing"""
+    currency = CURRENCY_DATA.get(country, CURRENCY_DATA["US"])
+    packages = []
+    for pkg in CREDIT_PACKAGES:
+        local_price = round(pkg["price_eur"] * currency["rate"] / CURRENCY_DATA.get("EU", {"rate": 0.92})["rate"], 2)
+        packages.append({
+            **pkg,
+            "local_price": local_price,
+            "currency_code": currency["code"],
+            "currency_symbol": currency["symbol"],
+            "display_price": f"{currency['symbol']} {local_price:,.2f}",
+        })
+    return {"packages": packages, "currency": currency}
+
+@api_router.get("/credits/balance")
+async def get_credits_balance(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
+    credits = wallet.get("credits", 0) if wallet else 0
+    return {"credits": credits}
+
+@api_router.post("/credits/purchase")
+async def purchase_credits(data: dict, request: Request, user: dict = Depends(get_user)):
+    """Create checkout session to purchase credits"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    package_id = data.get("package_id", "")
+    origin_url = data.get("origin_url", "")
+    pkg = next((p for p in CREDIT_PACKAGES if p["id"] == package_id), None)
+    if not pkg:
+        raise HTTPException(400, "الباقة غير صالحة")
+    
+    success_url = f"{origin_url}/rewards?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{origin_url}/rewards"
+    
+    host_url = str(request.base_url).rstrip("/")
+    webhook_url = f"{host_url}api/webhook/stripe"
+    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    
+    checkout_req = CheckoutSessionRequest(
+        amount=pkg["price_eur"],
+        currency="eur",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={"user_id": user["id"], "package_id": package_id, "credits": str(pkg["credits"]), "type": "credit_purchase"},
+    )
+    session = await stripe_checkout.create_checkout_session(checkout_req)
+    
+    await db.payment_transactions.insert_one({
+        "id": str(uuid.uuid4()), "session_id": session.session_id, "user_id": user["id"],
+        "package_id": package_id, "amount": pkg["price_eur"], "currency": "eur",
+        "credits": pkg["credits"], "type": "credit_purchase", "payment_status": "pending",
+        "created_at": datetime.utcnow().isoformat(),
+    })
+    
+    return {"url": session.url, "session_id": session.session_id}
+
+
+# ==================== GIFT STORE (هدايا إسلامية) ====================
+ISLAMIC_GIFTS = [
+    {"id": "gift_lion", "name": "الأسد", "emoji": "🦁", "price_credits": 50, "description": "أسد الإسلام - هدية القوة"},
+    {"id": "gift_crescent", "name": "الهلال الذهبي", "emoji": "🌙", "price_credits": 100, "description": "رمز الإسلام المتألق"},
+    {"id": "gift_kaaba", "name": "الكعبة المشرفة", "emoji": "🕋", "price_credits": 500, "description": "هدية مميزة بيت الله الحرام"},
+    {"id": "gift_star", "name": "النجمة", "emoji": "⭐", "price_credits": 30, "description": "نجمة الإبداع"},
+    {"id": "gift_rose", "name": "الوردة", "emoji": "🌹", "price_credits": 20, "description": "وردة التقدير"},
+    {"id": "gift_book", "name": "القرآن", "emoji": "📖", "price_credits": 200, "description": "نور المعرفة والهداية"},
+    {"id": "gift_mosque", "name": "المسجد", "emoji": "🕌", "price_credits": 300, "description": "بيت من بيوت الله"},
+    {"id": "gift_prayer", "name": "سجادة الصلاة", "emoji": "🧎", "price_credits": 150, "description": "للعابدين المخلصين"},
+    {"id": "gift_crown", "name": "التاج الذهبي", "emoji": "👑", "price_credits": 1000, "description": "تاج الملوك - أغلى هدية"},
+    {"id": "gift_diamond", "name": "الماسة", "emoji": "💎", "price_credits": 2000, "description": "ألماسة نادرة للمميزين"},
+    {"id": "gift_dove", "name": "حمامة السلام", "emoji": "🕊️", "price_credits": 75, "description": "رسالة سلام ومحبة"},
+    {"id": "gift_palm", "name": "النخلة", "emoji": "🌴", "price_credits": 40, "description": "نخلة البركة"},
+]
+
+@api_router.get("/gifts/list")
+async def list_gifts():
+    return {"gifts": ISLAMIC_GIFTS}
+
+@api_router.post("/gifts/send")
+async def send_gift(data: dict, user: dict = Depends(get_user)):
+    """Send a gift to a content creator. 50% admin, 50% creator."""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    gift_id = data.get("gift_id", "")
+    recipient_id = data.get("recipient_id", "")
+    post_id = data.get("post_id", "")
+    
+    gift = next((g for g in ISLAMIC_GIFTS if g["id"] == gift_id), None)
+    if not gift:
+        raise HTTPException(400, "الهدية غير صالحة")
+    
+    if not recipient_id:
+        raise HTTPException(400, "يجب تحديد المستلم")
+    
+    if recipient_id == user["id"]:
+        raise HTTPException(400, "لا يمكنك إهداء نفسك")
+    
+    # Check sender credits
+    wallet = await db.wallets.find_one({"user_id": user["id"]})
+    sender_credits = wallet.get("credits", 0) if wallet else 0
+    if sender_credits < gift["price_credits"]:
+        raise HTTPException(400, "رصيد النقاط غير كافٍ")
+    
+    # Deduct from sender
+    await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"credits": -gift["price_credits"]}})
+    
+    # 50/50 split: half to creator, half to admin pool
+    creator_share = gift["price_credits"] // 2
+    admin_share = gift["price_credits"] - creator_share
+    
+    # Add to creator's earnings
+    await db.wallets.update_one(
+        {"user_id": recipient_id},
+        {"$inc": {"credits": creator_share, "total_earned_credits": creator_share}},
+        upsert=True
+    )
+    
+    # Add to admin pool
+    await db.admin_pool.update_one(
+        {"type": "gift_revenue"},
+        {"$inc": {"total_credits": admin_share}},
+        upsert=True
+    )
+    
+    # Record gift transaction
+    gift_record = {
+        "id": str(uuid.uuid4()),
+        "sender_id": user["id"],
+        "sender_name": user.get("name", ""),
+        "recipient_id": recipient_id,
+        "post_id": post_id,
+        "gift_id": gift_id,
+        "gift_name": gift["name"],
+        "gift_emoji": gift["emoji"],
+        "credits": gift["price_credits"],
+        "creator_share": creator_share,
+        "admin_share": admin_share,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.gift_transactions.insert_one(gift_record)
+    gift_record.pop("_id", None)
+    
+    new_credits = sender_credits - gift["price_credits"]
+    return {"success": True, "credits_remaining": new_credits, "gift": gift, "message": f"تم إرسال {gift['emoji']} {gift['name']}!"}
+
+@api_router.get("/gifts/received")
+async def get_received_gifts(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    gifts = await db.gift_transactions.find({"recipient_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"gifts": gifts}
+
+@api_router.get("/gifts/on-post/{post_id}")
+async def get_post_gifts(post_id: str):
+    gifts = await db.gift_transactions.find({"post_id": post_id}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"gifts": gifts}
+
+
+# ==================== AD MANAGER (إعلانات بنظام موافقة) ====================
+@api_router.post("/ads/submit")
+async def submit_ad(data: dict, user: dict = Depends(get_user)):
+    """Submit an ad for admin review. Channels can embed their videos."""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    ad = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "user_name": user.get("name", ""),
+        "title": data.get("title", ""),
+        "description": data.get("description", ""),
+        "video_url": data.get("video_url", ""),  # YouTube/Facebook embed URL
+        "embed_type": data.get("embed_type", "youtube"),  # youtube, facebook, instagram, custom
+        "channel_name": data.get("channel_name", ""),
+        "price_credits": data.get("price_credits", 50),  # Admin sets price
+        "status": "pending",  # pending -> approved -> active / rejected
+        "views": 0,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.user_ads.insert_one(ad)
+    ad.pop("_id", None)
+    return {"success": True, "ad": ad, "message": "تم إرسال الإعلان للمراجعة"}
+
+@api_router.get("/ads/my-ads")
+async def get_my_ads(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    ads = await db.user_ads.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"ads": ads}
+
+@api_router.get("/ads/approved")
+async def get_approved_ads():
+    """Get approved ads for display"""
+    ads = await db.user_ads.find({"status": "approved"}, {"_id": 0}).to_list(20)
+    return {"ads": ads}
+
+@api_router.post("/ads/watch/{ad_id}")
+async def watch_ad(ad_id: str, user: dict = Depends(get_user)):
+    """User watches an ad to earn credits"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    ad = await db.user_ads.find_one({"id": ad_id, "status": "approved"})
+    if not ad:
+        raise HTTPException(404, "الإعلان غير متاح")
+    
+    # Check if already watched today
+    today = date.today().isoformat()
+    already = await db.ad_views.find_one({"user_id": user["id"], "ad_id": ad_id, "date": today})
+    if already:
+        return {"earned": 0, "message": "شاهدت هذا الإعلان اليوم"}
+    
+    # Earn credits for watching
+    earn_credits = 2  # Fixed earn per ad view
+    await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"credits": earn_credits}}, upsert=True)
+    await db.ad_views.insert_one({"user_id": user["id"], "ad_id": ad_id, "date": today, "created_at": datetime.utcnow().isoformat()})
+    await db.user_ads.update_one({"id": ad_id}, {"$inc": {"views": 1}})
+    
+    return {"earned": earn_credits, "message": f"حصلت على {earn_credits} نقطة"}
+
+# Admin ad management
+@api_router.get("/admin/user-ads")
+async def admin_get_user_ads(user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    ads = await db.user_ads.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"ads": ads}
+
+@api_router.put("/admin/user-ads/{ad_id}")
+async def admin_update_ad(ad_id: str, data: dict, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    
+    update = {}
+    if "status" in data:
+        update["status"] = data["status"]
+    if "price_credits" in data:
+        update["price_credits"] = data["price_credits"]
+    
+    if update:
+        await db.user_ads.update_one({"id": ad_id}, {"$set": update})
+    return {"success": True}
+
+
+# ==================== VENDOR MARKETPLACE (سوق المنتجات) ====================
+@api_router.post("/marketplace/products")
+async def create_product(data: dict, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    product = {
+        "id": str(uuid.uuid4()),
+        "vendor_id": user["id"],
+        "vendor_name": user.get("name", ""),
+        "name": data.get("name", ""),
+        "description": data.get("description", ""),
+        "price": float(data.get("price", 0)),
+        "currency": data.get("currency", "EUR"),
+        "category": data.get("category", "general"),
+        "image_url": data.get("image_url", ""),
+        "location": data.get("location", {}),  # {lat, lon, city}
+        "status": "active",
+        "views": 0,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.products.insert_one(product)
+    product.pop("_id", None)
+    return {"success": True, "product": product}
+
+@api_router.get("/marketplace/products")
+async def list_products(lat: float = Query(0), lon: float = Query(0), category: str = "all", limit: int = 20):
+    """List products sorted by distance (nearest first)"""
+    query = {"status": "active"}
+    if category != "all":
+        query["category"] = category
+    
+    products = await db.products.find(query, {"_id": 0}).to_list(200)
+    
+    # Sort by distance if location provided
+    if lat != 0 and lon != 0:
+        def distance(p):
+            loc = p.get("location", {})
+            plat = loc.get("lat", 0)
+            plon = loc.get("lon", 0)
+            if plat == 0:
+                return 999999
+            dlat = math.radians(plat - lat)
+            dlon = math.radians(plon - lon)
+            a = math.sin(dlat/2)**2 + math.cos(math.radians(lat)) * math.cos(math.radians(plat)) * math.sin(dlon/2)**2
+            return 6371 * 2 * math.asin(math.sqrt(a))
+        products.sort(key=distance)
+    
+    # Get admin commission rate
+    settings = await db.admin_settings.find_one({"type": "marketplace"}, {"_id": 0})
+    commission_rate = settings.get("commission_rate", 10) if settings else 10
+    
+    return {"products": products[:limit], "commission_rate": commission_rate}
+
+@api_router.get("/marketplace/my-products")
+async def my_products(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    products = await db.products.find({"vendor_id": user["id"]}, {"_id": 0}).to_list(100)
+    return {"products": products}
+
+# Admin marketplace settings
+@api_router.put("/admin/marketplace/commission")
+async def set_commission_rate(data: dict, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    rate = data.get("commission_rate", 10)
+    await db.admin_settings.update_one({"type": "marketplace"}, {"$set": {"commission_rate": rate}}, upsert=True)
+    return {"success": True, "commission_rate": rate}
+
+
+# ==================== AI RELIGIOUS ASSISTANT (المساعد الديني) ====================
+@api_router.post("/ai/ask")
+async def ai_ask(data: dict, user: dict = Depends(get_user)):
+    """AI Islamic assistant. 5 free questions, then requires credits. Max 20/day."""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    question = data.get("question", "").strip()
+    session_id = data.get("session_id", str(uuid.uuid4()))
+    if not question:
+        raise HTTPException(400, "يجب كتابة السؤال")
+    
+    today = date.today().isoformat()
+    
+    # Count today's questions
+    today_count = await db.ai_questions.count_documents({"user_id": user["id"], "date": today})
+    
+    if today_count >= 20:
+        return {"answer": "", "error": "daily_limit", "message": "وصلت للحد الأقصى (20 سؤال). عُد غداً إن شاء الله.", "remaining": 0}
+    
+    # Check if needs credits (after 5 free)
+    needs_credits = today_count >= 5
+    if needs_credits:
+        wallet = await db.wallets.find_one({"user_id": user["id"]})
+        user_credits = wallet.get("credits", 0) if wallet else 0
+        if user_credits < 5:
+            return {"answer": "", "error": "no_credits", "message": "انتهت أسئلتك المجانية. شاهد فيديوهات لكسب نقاط أو اشترِ نقاطاً.", "remaining": 0, "credits": user_credits}
+        # Deduct 5 credits per question
+        await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"credits": -5}})
+    
+    # Call GPT-5.2 via emergent integrations
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage as LlmUserMessage
+        
+        system_prompt = """أنت مساعد إسلامي متخصص. تجيب فقط على الأسئلة المتعلقة بالإسلام والشريعة والقرآن والسنة والفقه والعقيدة والسيرة النبوية والأخلاق الإسلامية.
+إذا سُئلت عن موضوع غير إسلامي، أجب بلطف: "أنا مختص بالأسئلة الإسلامية فقط. كيف أساعدك في أمور دينك؟"
+أجب بالعربية دائماً. كن دقيقاً واذكر المصادر (القرآن، الحديث) كلما أمكن. لا تفتِ بدون دليل شرعي."""
+        
+        EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
+        
+        chat = LlmChat(
+            api_key=EMERGENT_KEY,
+            session_id=f"islamic_assistant_{user['id']}_{session_id}",
+            system_message=system_prompt,
+        ).with_model("openai", "gpt-5.2")
+        
+        user_msg = LlmUserMessage(text=question)
+        answer = await chat.send_message(user_msg)
+        
+    except Exception as e:
+        logger.error(f"AI error: {e}")
+        answer = "عذراً، حدث خطأ في الاتصال بالمساعد. حاول مرة أخرى."
+    
+    # Save question
+    await db.ai_questions.insert_one({
+        "user_id": user["id"],
+        "session_id": session_id,
+        "question": question,
+        "answer": answer,
+        "date": today,
+        "credits_used": 5 if needs_credits else 0,
+        "created_at": datetime.utcnow().isoformat(),
+    })
+    
+    remaining = 20 - today_count - 1
+    free_remaining = max(0, 5 - today_count - 1)
+    
+    return {
+        "answer": answer,
+        "remaining": remaining,
+        "free_remaining": free_remaining,
+        "credits_used": 5 if needs_credits else 0,
+        "session_id": session_id,
+    }
+
+@api_router.get("/ai/history")
+async def ai_history(user: dict = Depends(get_user), session_id: str = ""):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    query = {"user_id": user["id"]}
+    if session_id:
+        query["session_id"] = session_id
+    history = await db.ai_questions.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"history": history}
+
+# ==================== USER BANK ACCOUNTS (للأرباح) ====================
+@api_router.post("/user/bank-account")
+async def set_bank_account(data: dict, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    bank_info = {
+        "user_id": user["id"],
+        "bank_name": data.get("bank_name", ""),
+        "account_holder": data.get("account_holder", ""),
+        "iban": data.get("iban", ""),
+        "swift": data.get("swift", ""),
+        "updated_at": datetime.utcnow().isoformat(),
+    }
+    await db.bank_accounts.update_one({"user_id": user["id"]}, {"$set": bank_info}, upsert=True)
+    return {"success": True, "message": "تم حفظ معلومات الحساب البنكي"}
+
+@api_router.get("/user/bank-account")
+async def get_bank_account(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    account = await db.bank_accounts.find_one({"user_id": user["id"]}, {"_id": 0})
+    return {"account": account}
+
+@api_router.get("/user/earnings")
+async def get_earnings(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
+    gifts_received = await db.gift_transactions.count_documents({"recipient_id": user["id"]})
+    total_earned = wallet.get("total_earned_credits", 0) if wallet else 0
+    return {"total_earned_credits": total_earned, "gifts_received": gifts_received, "current_credits": wallet.get("credits", 0) if wallet else 0}
+
+# Admin bank account settings
+@api_router.post("/admin/bank-account")
+async def admin_set_bank(data: dict, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    await db.admin_settings.update_one(
+        {"type": "bank_account"},
+        {"$set": {"bank_name": data.get("bank_name",""), "iban": data.get("iban",""), "swift": data.get("swift",""), "account_holder": data.get("account_holder",""), "updated_at": datetime.utcnow().isoformat()}},
+        upsert=True
+    )
+    return {"success": True}
+
+@api_router.get("/admin/bank-account")
+async def admin_get_bank(user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    account = await db.admin_settings.find_one({"type": "bank_account"}, {"_id": 0})
+    pool = await db.admin_pool.find_one({"type": "gift_revenue"}, {"_id": 0})
+    return {"account": account, "revenue": pool}
 
 
 
