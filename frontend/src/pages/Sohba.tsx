@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Users, Search, Heart, MessageCircle, Plus, Send, X, Loader2, Play, Image, Video } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Users, Search, Heart, MessageCircle, Plus, Send, X, Loader2, Play, Image, Video, Gift, Share2, Bookmark, User, ChevronDown, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -18,6 +19,9 @@ interface Post {
 interface Comment {
   id: string; author_name: string; author_avatar?: string; content: string; created_at: string;
 }
+interface GiftItem {
+  id: string; name: string; emoji: string; price_credits: number;
+}
 
 function getToken() { return localStorage.getItem('auth_token') || ''; }
 function authHeaders() { return { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` }; }
@@ -29,274 +33,406 @@ function timeAgo(iso: string): string {
   if (m < 60) return `${m}د`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}س`;
-  const d = Math.floor(h / 24);
-  if (d < 7) return `${d}ي`;
-  return `${Math.floor(d / 7)}أ`;
+  return `${Math.floor(h / 24)}ي`;
 }
 
-const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600', 'bg-cyan-600', 'bg-orange-600'];
+const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'];
 
-// Sample media for visual posts (placeholders to make the feed look rich)
-const sampleMedia = [
-  { url: 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=400&q=60', type: 'image' },
-  { url: 'https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&q=60', type: 'image' },
-  { url: 'https://images.unsplash.com/photo-1519817650390-64a93db51149?w=400&q=60', type: 'image' },
-  { url: 'https://images.unsplash.com/photo-1542816417-0983c9c9ad53?w=400&q=60', type: 'video' },
-  { url: 'https://images.unsplash.com/photo-1585036156171-384164a8c596?w=400&q=60', type: 'image' },
-  { url: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&q=60', type: 'image' },
-];
-
-// Grid Card Component
-function GridCard({ post, onLike, onOpenDetail, index }: { post: Post; onLike: () => void; onOpenDetail: () => void; index: number }) {
+// ============ FULL-SCREEN POST CARD (TikTok-style) ============
+function FullScreenPost({ post, onLike, onOpenComments, onOpenGifts, onOpenProfile }: {
+  post: Post; onLike: () => void; onOpenComments: () => void; onOpenGifts: () => void; onOpenProfile: () => void;
+}) {
   const ci = (post.author_name || '').charCodeAt(0) % avatarColors.length;
-  const rawMedia = post.image_url || sampleMedia[index % sampleMedia.length]?.url;
-  const media = rawMedia?.startsWith('/api/') ? `${BACKEND_URL}${rawMedia}` : rawMedia;
-  const isVideo = post.media_type === 'video' || (!post.image_url && sampleMedia[index % sampleMedia.length]?.type === 'video');
-  const shortContent = post.content.length > 80 ? post.content.slice(0, 80) + '...' : post.content;
+  const mediaUrl = post.image_url ? (post.image_url.startsWith('/api/') ? `${BACKEND_URL}${post.image_url}` : post.image_url) : null;
+  const isVideo = post.media_type === 'video';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.05 }}
-      className="break-inside-avoid mb-3"
-      data-testid={`grid-post-${post.id}`}
-    >
-      <div onClick={onOpenDetail} className="rounded-2xl overflow-hidden bg-card border border-border/20 shadow-sm active:scale-[0.98] transition-transform cursor-pointer">
-        {/* Media */}
-        <div className="relative aspect-[3/4] bg-muted overflow-hidden">
-          <img src={media} alt="" className="w-full h-full object-cover" loading="lazy" />
-          {isVideo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <div className="h-12 w-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                <Play className="h-5 w-5 text-foreground fill-current ms-0.5" />
-              </div>
+    <div className="relative h-[calc(100vh-8rem)] snap-start flex flex-col bg-card" data-testid={`post-${post.id}`}>
+      {/* Media / Content Area */}
+      <div className="flex-1 relative overflow-hidden">
+        {mediaUrl ? (
+          <>
+            {isVideo ? (
+              <video src={mediaUrl} className="w-full h-full object-cover" controls playsInline />
+            ) : (
+              <img src={mediaUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+            )}
+            {/* Gradient overlay for text */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
+          </>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 p-8">
+            <p className="text-base text-foreground leading-relaxed font-arabic text-center">{post.content}</p>
+          </div>
+        )}
+
+        {/* Author info - bottom left */}
+        <div className="absolute bottom-4 right-4 left-16 z-10">
+          <button onClick={onOpenProfile} className="flex items-center gap-2 mb-2">
+            <div className={cn('h-9 w-9 rounded-full flex items-center justify-center text-xs text-white font-bold border-2 border-white/50', avatarColors[ci])}>
+              {post.author_avatar ? <img src={post.author_avatar} className="h-full w-full rounded-full object-cover" /> : (post.author_name?.[0] || '؟')}
             </div>
-          )}
-          {/* Like overlay */}
-          <button
-            onClick={(e) => { e.stopPropagation(); onLike(); }}
-            className="absolute top-2 left-2 p-1.5 rounded-full bg-black/30 backdrop-blur-sm"
-          >
-            <Heart className={cn('h-4 w-4', post.liked ? 'text-red-400 fill-current' : 'text-white')} />
+            <div className="text-start">
+              <p className="text-sm font-bold text-white drop-shadow-lg">{post.author_name}</p>
+              <p className="text-[10px] text-white/60">{timeAgo(post.created_at)}</p>
+            </div>
           </button>
+          {mediaUrl && post.content && (
+            <p className="text-xs text-white/90 line-clamp-2 drop-shadow-md">{post.content}</p>
+          )}
         </div>
 
-        {/* Content */}
-        <div className="p-2.5">
-          <p className="text-xs text-foreground leading-relaxed line-clamp-3 font-arabic mb-2">{shortContent}</p>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <div className={cn('h-5 w-5 rounded-full flex items-center justify-center text-[8px] text-white font-bold', avatarColors[ci])}>
-                {post.author_avatar ? <img src={post.author_avatar} className="h-full w-full rounded-full object-cover" /> : (post.author_name?.[0] || '؟')}
-              </div>
-              <span className="text-[10px] text-muted-foreground truncate max-w-[70px]">{post.author_name}</span>
+        {/* Action buttons - right side (TikTok style) */}
+        <div className="absolute bottom-6 left-3 flex flex-col items-center gap-5 z-10">
+          <button onClick={onLike} className="flex flex-col items-center gap-0.5" data-testid={`like-${post.id}`}>
+            <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', post.liked ? 'bg-red-500' : 'bg-black/30 backdrop-blur-sm')}>
+              <Heart className={cn('h-5 w-5', post.liked ? 'text-white fill-current' : 'text-white')} />
             </div>
-            <div className="flex items-center gap-1">
-              <Heart className={cn('h-3 w-3', post.liked ? 'text-red-500 fill-current' : 'text-muted-foreground')} />
-              <span className="text-[10px] text-muted-foreground">{post.likes_count || ''}</span>
+            <span className="text-[10px] text-white font-bold drop-shadow-lg">{post.likes_count || ''}</span>
+          </button>
+
+          <button onClick={onOpenComments} className="flex flex-col items-center gap-0.5" data-testid={`comments-${post.id}`}>
+            <div className="h-10 w-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
+              <MessageCircle className="h-5 w-5 text-white" />
             </div>
-          </div>
+            <span className="text-[10px] text-white font-bold drop-shadow-lg">{post.comments_count || ''}</span>
+          </button>
+
+          <button onClick={onOpenGifts} className="flex flex-col items-center gap-0.5" data-testid={`gift-${post.id}`}>
+            <div className="h-10 w-10 rounded-full bg-amber-500/80 backdrop-blur-sm flex items-center justify-center">
+              <Gift className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-[10px] text-white font-bold drop-shadow-lg">ادعم</span>
+          </button>
+
+          <button className="flex flex-col items-center gap-0.5">
+            <div className="h-10 w-10 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
+              <Share2 className="h-5 w-5 text-white" />
+            </div>
+          </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// Post Detail Modal
-function PostDetail({ post, onClose, onLike, onSave }: { post: Post; onClose: () => void; onLike: () => void; onSave: () => void }) {
-  const ci = (post.author_name || '').charCodeAt(0) % avatarColors.length;
+// ============ COMMENTS SHEET ============
+function CommentsSheet({ post, onClose }: { post: Post; onClose: () => void }) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [commentText, setCommentText] = useState('');
+  const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/sohba/posts/${post.id}/comments`).then(r => r.json()).then(d => setComments(d.comments || [])).catch(() => {});
   }, [post.id]);
 
-  const sendComment = async () => {
-    if (!commentText.trim()) return;
+  const send = async () => {
+    if (!text.trim()) return;
     setSending(true);
     try {
-      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${post.id}/comments`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: commentText.trim() }) });
-      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${post.id}/comments`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: text.trim() }) });
+      if (r.status === 401) { toast.error('سجّل دخولك'); setSending(false); return; }
       const d = await r.json();
-      if (d.comment) { setComments(prev => [...prev, d.comment]); setCommentText(''); }
-    } catch { toast.error('حدث خطأ'); }
+      if (d.comment) { setComments(prev => [...prev, d.comment]); setText(''); }
+    } catch { toast.error('خطأ'); }
     setSending(false);
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[999] bg-black/70 backdrop-blur-sm flex flex-col" dir="rtl">
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto bg-card min-h-full">
-          {/* Header */}
-          <div className="sticky top-0 z-10 flex items-center justify-between p-3 bg-card/95 backdrop-blur-xl border-b border-border/20">
-            <button onClick={onClose} className="p-2 rounded-full bg-muted/50"><X className="h-5 w-5 text-foreground" /></button>
-            <div className="flex items-center gap-2">
-              <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-xs text-white font-bold', avatarColors[ci])}>
-                {post.author_avatar ? <img src={post.author_avatar} className="h-full w-full rounded-full object-cover" /> : (post.author_name?.[0] || '؟')}
+    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      <div className="flex-1 bg-black/50" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[65vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border/20">
+          <span className="text-sm font-bold text-foreground">{comments.length} تعليق</span>
+          <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-3">
+          {comments.length === 0 && <p className="text-center text-xs text-muted-foreground py-8">لا توجد تعليقات</p>}
+          {comments.map(c => (
+            <div key={c.id} className="flex gap-2">
+              <div className={cn('h-7 w-7 rounded-full flex items-center justify-center text-[9px] text-white font-bold shrink-0', avatarColors[(c.author_name||'').charCodeAt(0) % avatarColors.length])}>
+                {c.author_name?.[0] || '؟'}
               </div>
-              <div>
-                <p className="text-xs font-bold text-foreground">{post.author_name}</p>
-                <p className="text-[9px] text-muted-foreground">{timeAgo(post.created_at)}</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-foreground">{c.author_name}</span>
+                  <span className="text-[9px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                </div>
+                <p className="text-xs text-foreground/80 mt-0.5">{c.content}</p>
               </div>
             </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-4">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-line font-arabic">{post.content}</p>
-            {post.image_url && <img src={post.image_url} alt="" className="w-full rounded-2xl mt-3" />}
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-around py-3 border-y border-border/20 px-4">
-            <button onClick={onLike} className={cn('flex items-center gap-1.5 text-sm', post.liked ? 'text-red-500' : 'text-muted-foreground')}>
-              <Heart className={cn('h-5 w-5', post.liked && 'fill-current')} />
-              <span>{post.likes_count}</span>
-            </button>
-            <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MessageCircle className="h-5 w-5" />
-              <span>{comments.length}</span>
-            </span>
-            <button onClick={onSave} className={cn('text-sm', post.saved ? 'text-primary' : 'text-muted-foreground')}>
-              {post.saved ? 'محفوظ' : 'حفظ'}
-            </button>
-          </div>
-
-          {/* Comments */}
-          <div className="p-4 space-y-3">
-            {comments.length === 0 && <p className="text-center text-xs text-muted-foreground py-4">لا توجد تعليقات — كن أول من يعلّق</p>}
-            {comments.map(c => (
-              <div key={c.id} className="flex gap-2">
-                <div className={cn('h-7 w-7 rounded-full flex items-center justify-center text-[9px] text-white font-bold shrink-0', avatarColors[(c.author_name||'').charCodeAt(0) % avatarColors.length])}>
-                  {c.author_name?.[0] || '؟'}
-                </div>
-                <div className="bg-muted/40 rounded-2xl px-3 py-2 flex-1">
-                  <p className="text-[10px] font-bold text-foreground">{c.author_name}</p>
-                  <p className="text-xs text-foreground/80">{c.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-      </div>
-
-      {/* Comment input fixed at bottom */}
-      <div className="bg-card border-t border-border/20 p-3 flex gap-2 max-w-lg mx-auto w-full">
-        <input value={commentText} onChange={e => setCommentText(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendComment()}
-          placeholder="اكتب تعليقاً..." className="flex-1 bg-muted/50 rounded-2xl px-4 py-2.5 text-sm outline-none" data-testid="comment-input" />
-        <button onClick={sendComment} disabled={!commentText.trim() || sending} className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40" data-testid="send-comment-btn">
-          {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-        </button>
+        <div className="px-4 py-3 border-t border-border/20 flex gap-2">
+          <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+            placeholder="اكتب تعليقاً..." className="flex-1 bg-muted/50 rounded-2xl px-4 py-2 text-sm outline-none" data-testid="comment-input" />
+          <button onClick={send} disabled={!text.trim() || sending} className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40" data-testid="send-comment-btn">
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
 }
 
-// Create Post Sheet
+// ============ GIFTS SHEET ============
+function GiftsSheet({ post, onClose }: { post: Post; onClose: () => void }) {
+  const [gifts, setGifts] = useState<GiftItem[]>([]);
+  const [sending, setSending] = useState('');
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/gifts/list`).then(r => r.json()).then(d => setGifts(d.gifts || [])).catch(() => {});
+  }, []);
+
+  const sendGift = async (gift: GiftItem) => {
+    setSending(gift.id);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/gifts/send`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ gift_id: gift.id, recipient_id: post.author_id, post_id: post.id }),
+      });
+      const d = await r.json();
+      if (r.ok) {
+        toast.success(d.message);
+        onClose();
+      } else {
+        toast.error(d.detail || 'فشل الإرسال');
+      }
+    } catch { toast.error('خطأ'); }
+    setSending('');
+  };
+
+  return (
+    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      <div className="flex-1 bg-black/50" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[50vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-border/20">
+          <div>
+            <span className="text-sm font-bold text-foreground">إرسال هدية</span>
+            <p className="text-[10px] text-muted-foreground">لـ {post.author_name}</p>
+          </div>
+          <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-4 py-3">
+          <div className="grid grid-cols-4 gap-3">
+            {gifts.map(g => (
+              <button key={g.id} onClick={() => sendGift(g)} disabled={sending === g.id}
+                className="flex flex-col items-center gap-1 p-3 rounded-2xl bg-muted/50 hover:bg-primary/10 active:scale-95 transition-all"
+                data-testid={`send-gift-${g.id}`}>
+                <span className="text-2xl">{g.emoji}</span>
+                <span className="text-[9px] font-bold text-foreground">{g.name}</span>
+                <span className="flex items-center gap-0.5 text-[8px] text-amber-500">
+                  <Coins className="h-2.5 w-2.5" />{g.price_credits}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============ USER PROFILE SHEET ============
+function ProfileSheet({ userId, onClose }: { userId: string; onClose: () => void }) {
+  const [profile, setProfile] = useState<any>(null);
+  const [stats, setStats] = useState<any>({});
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  useEffect(() => {
+    const token = getToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    fetch(`${BACKEND_URL}/api/sohba/profile/${userId}`, { headers })
+      .then(r => r.json())
+      .then(d => { setProfile(d.profile); setStats(d.stats); setIsFollowing(d.is_following); });
+
+    fetch(`${BACKEND_URL}/api/sohba/posts?author=${userId}&limit=20`, { headers })
+      .then(r => r.json())
+      .then(d => setPosts(d.posts || [])).catch(() => {});
+  }, [userId]);
+
+  const toggleFollow = async () => {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/follow/${userId}`, { method: 'POST', headers: authHeaders() });
+      if (r.status === 401) { toast.error('سجّل دخولك'); return; }
+      const d = await r.json();
+      setIsFollowing(d.following);
+      setStats((prev: any) => ({ ...prev, followers_count: prev.followers_count + (d.following ? 1 : -1) }));
+    } catch { }
+  };
+
+  if (!profile) return null;
+  const ci = (profile.name || '').charCodeAt(0) % avatarColors.length;
+
+  return (
+    <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} className="fixed inset-0 z-[999] bg-background" dir="rtl">
+      <div className="h-full overflow-y-auto pb-20">
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-primary/15 to-accent/10 px-5 pt-safe-header pb-8">
+          <button onClick={onClose} className="absolute top-4 left-4 p-2 rounded-full bg-black/20"><X className="h-5 w-5 text-foreground" /></button>
+          <div className="text-center pt-4">
+            <div className={cn('h-20 w-20 mx-auto rounded-full flex items-center justify-center text-2xl text-white font-bold border-4 border-background', avatarColors[ci])}>
+              {profile.avatar ? <img src={profile.avatar} className="h-full w-full rounded-full object-cover" /> : (profile.name?.[0] || '؟')}
+            </div>
+            <h2 className="text-lg font-bold text-foreground mt-3">{profile.name}</h2>
+            <div className="flex items-center justify-center gap-6 mt-3">
+              <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.posts_count || 0}</p><p className="text-[10px] text-muted-foreground">منشور</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.followers_count || 0}</p><p className="text-[10px] text-muted-foreground">متابع</p></div>
+              <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.following_count || 0}</p><p className="text-[10px] text-muted-foreground">متابَع</p></div>
+            </div>
+            <div className="flex gap-2 mt-4 justify-center">
+              <Button onClick={toggleFollow} variant={isFollowing ? "outline" : "default"} className="rounded-xl px-6" data-testid="follow-btn">
+                {isFollowing ? 'إلغاء المتابعة' : 'متابعة'}
+              </Button>
+              <Button variant="outline" className="rounded-xl" asChild><Link to="/rewards">ادعم</Link></Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Posts grid */}
+        <div className="px-3 mt-4 grid grid-cols-3 gap-1">
+          {posts.map(p => (
+            <div key={p.id} className="aspect-square bg-muted rounded-lg overflow-hidden">
+              {p.image_url ? (
+                <img src={p.image_url.startsWith('/api/') ? `${BACKEND_URL}${p.image_url}` : p.image_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-2">
+                  <p className="text-[9px] text-muted-foreground line-clamp-4 text-center">{p.content}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============ CREATE POST SHEET ============
 function CreatePostSheet({ categories, onClose, onCreated }: { categories: Category[]; onClose: () => void; onCreated: (p: Post) => void }) {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('general');
   const [posting, setPosting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<{ data: string; filename: string } | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (accept: string) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = accept;
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      if (file.size > 10 * 1024 * 1024) { toast.error('حجم الملف يتجاوز 10 ميجابايت'); return; }
+  const handleFile = async (file: File) => {
+    // For small files, use base64
+    if (file.size < 5 * 1024 * 1024) {
       const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        setImagePreview(result);
-        setImageFile({ data: result, filename: file.name });
-      };
+      reader.onload = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
-    };
-    input.click();
+    } else {
+      // Large files: use multipart streaming upload
+      setUploadProgress(1);
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok && data.url) {
+          setImagePreview(`${BACKEND_URL}${data.url}`);
+          setUploadProgress(100);
+        } else {
+          toast.error('فشل رفع الملف');
+          setUploadProgress(0);
+        }
+      } catch {
+        toast.error('خطأ في الرفع');
+        setUploadProgress(0);
+      }
+    }
   };
 
   const submit = async () => {
-    if (!content.trim()) { toast.error('اكتب شيئاً أولاً'); return; }
+    if (!content.trim() && !imagePreview) { toast.error('اكتب شيئاً أو أضف صورة'); return; }
     setPosting(true);
-    let uploadedUrl: string | undefined;
+    let uploadedUrl = '';
 
-    // Upload image if present
-    if (imageFile) {
-      setUploading(true);
-      try {
-        const upRes = await fetch(`${BACKEND_URL}/api/upload/file`, {
-          method: 'POST', headers: authHeaders(),
-          body: JSON.stringify({ data: imageFile.data, filename: imageFile.filename }),
-        });
-        const upData = await upRes.json();
-        if (upRes.ok && upData.url) {
-          uploadedUrl = upData.url;
-        }
-      } catch { /* continue without image */ }
-      setUploading(false);
+    if (imagePreview) {
+      if (imagePreview.startsWith('data:')) {
+        // Base64 upload
+        try {
+          const upRes = await fetch(`${BACKEND_URL}/api/upload/file`, {
+            method: 'POST', headers: authHeaders(),
+            body: JSON.stringify({ data: imagePreview, filename: 'post.jpg' }),
+          });
+          const upData = await upRes.json();
+          if (upRes.ok) uploadedUrl = upData.url;
+        } catch { }
+      } else if (imagePreview.includes('/api/uploads/')) {
+        uploadedUrl = imagePreview.replace(BACKEND_URL, '');
+      }
     }
 
     try {
       const body: any = { content: content.trim(), category };
       if (uploadedUrl) body.image_url = uploadedUrl;
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
-      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setPosting(false); return; }
+      if (r.status === 401) { toast.error('سجّل دخولك'); setPosting(false); return; }
       const d = await r.json();
-      if (d.post) { onCreated(d.post); toast.success('تم نشر منشورك'); onClose(); }
-    } catch { toast.error('حدث خطأ في النشر'); }
+      if (d.post) { onCreated(d.post); toast.success('تم النشر!'); onClose(); }
+    } catch { toast.error('خطأ في النشر'); }
     setPosting(false);
   };
 
   return (
     <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
-      <div className="flex-1 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-card rounded-t-3xl max-h-[80vh] flex flex-col border-t border-border/30">
+      <div className="flex-1 bg-black/50" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col border-t border-border/30">
         <div className="flex items-center justify-between p-4 border-b border-border/20">
           <button onClick={onClose} className="text-sm text-muted-foreground">إلغاء</button>
           <h3 className="text-sm font-bold text-foreground">منشور جديد</h3>
-          <button onClick={submit} disabled={!content.trim() || posting} className="text-sm font-bold text-primary disabled:opacity-40" data-testid="submit-post-btn">
+          <button onClick={submit} disabled={(!content.trim() && !imagePreview) || posting}
+            className="text-sm font-bold text-primary disabled:opacity-40" data-testid="submit-post-btn">
             {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'نشر'}
           </button>
         </div>
         <div className="p-4 flex-1 overflow-y-auto">
-          <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="شارك فكرة، آية، حديث، أو دعاء..."
-            className="w-full h-32 bg-transparent resize-none outline-none text-sm text-foreground placeholder:text-muted-foreground leading-relaxed" autoFocus data-testid="post-content-input" />
-          
-          {/* Image Preview */}
+          <textarea value={content} onChange={e => setContent(e.target.value)}
+            placeholder="شارك فكرة، آية، حديث، أو دعاء..."
+            className="w-full h-28 bg-transparent resize-none outline-none text-sm text-foreground placeholder:text-muted-foreground leading-relaxed" autoFocus data-testid="post-content-input" />
+
           {imagePreview && (
             <div className="relative mb-3 rounded-xl overflow-hidden">
-              <img src={imagePreview} alt="preview" className="w-full max-h-48 object-cover rounded-xl" />
-              <button onClick={() => { setImagePreview(null); setImageFile(null); }}
+              {imagePreview.includes('.mp4') || imagePreview.includes('.webm') ? (
+                <video src={imagePreview} className="w-full max-h-48 object-cover rounded-xl" controls />
+              ) : (
+                <img src={imagePreview} alt="preview" className="w-full max-h-48 object-cover rounded-xl" />
+              )}
+              <button onClick={() => { setImagePreview(null); setUploadProgress(0); }}
                 className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white">
                 <X className="h-3.5 w-3.5" />
               </button>
-              {uploading && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
+              {uploadProgress > 0 && uploadProgress < 100 && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 text-white animate-spin" />
+                </div>
+              )}
             </div>
           )}
 
-          {/* Media buttons */}
           <div className="flex gap-2 mt-2 mb-4">
-            <button onClick={() => handleFileSelect('image/*')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-image-btn">
-              <Image className="h-3.5 w-3.5" /> صورة
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            <button onClick={() => fileRef.current?.click()} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-image-btn">
+              <Image className="h-4 w-4" /> صورة
             </button>
-            <button onClick={() => handleFileSelect('video/*')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-video-btn">
-              <Video className="h-3.5 w-3.5" /> فيديو
+            <button onClick={() => videoRef.current?.click()} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-video-btn">
+              <Video className="h-4 w-4" /> فيديو
             </button>
           </div>
 
-          <p className="text-xs font-bold text-muted-foreground mb-2">اختر الفئة:</p>
+          <p className="text-xs font-bold text-muted-foreground mb-2">الفئة:</p>
           <div className="flex flex-wrap gap-2">
             {categories.map(c => (
               <button key={c.key} onClick={() => setCategory(c.key)} data-testid={`cat-${c.key}`}
-                className={cn('px-3 py-1.5 rounded-full text-xs font-medium transition-all', category === c.key ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground')}>
+                className={cn('px-4 py-2 rounded-full text-xs font-bold transition-all', category === c.key ? 'bg-primary text-primary-foreground' : 'bg-muted/50 text-muted-foreground')}>
                 {c.label}
               </button>
             ))}
@@ -307,7 +443,7 @@ function CreatePostSheet({ categories, onClose, onCreated }: { categories: Categ
   );
 }
 
-// Main Sohba Page
+// ============ MAIN SOHBA PAGE ============
 export default function Sohba() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -316,7 +452,9 @@ export default function Sohba() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [detailPost, setDetailPost] = useState<Post | null>(null);
+  const [commentPost, setCommentPost] = useState<Post | null>(null);
+  const [giftPost, setGiftPost] = useState<Post | null>(null);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
@@ -335,7 +473,7 @@ export default function Sohba() {
       if (append) setPosts(prev => [...prev, ...(d.posts || [])]);
       else setPosts(d.posts || []);
       setHasMore(d.has_more || false);
-    } catch {}
+    } catch { }
     setLoading(false);
   }, []);
 
@@ -346,74 +484,63 @@ export default function Sohba() {
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${postId}/like`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
-      const update = (p: Post) => p.id === postId ? { ...p, liked: d.liked, likes_count: p.likes_count + (d.liked ? 1 : -1) } : p;
-      setPosts(prev => prev.map(update));
-      if (detailPost?.id === postId) setDetailPost(prev => prev ? update(prev) : null);
-    } catch {}
-  };
-
-  const toggleSave = async (postId: string) => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
-    try {
-      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${postId}/save`, { method: 'POST', headers: authHeaders() });
-      const d = await r.json();
-      const update = (p: Post) => p.id === postId ? { ...p, saved: d.saved } : p;
-      setPosts(prev => prev.map(update));
-      if (detailPost?.id === postId) setDetailPost(prev => prev ? update(prev) : null);
-    } catch {}
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, liked: d.liked, likes_count: p.likes_count + (d.liked ? 1 : -1) } : p));
+    } catch { }
   };
 
   const allTabs = [{ key: 'all', label: 'الكل' }, ...categories];
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="sohba-page">
+    <div className="min-h-screen" dir="rtl" data-testid="sohba-page">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/15">
-        <div className="flex items-center justify-between px-4 py-3 pt-safe-header">
+        <div className="flex items-center justify-between px-4 py-2.5 pt-safe-header">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-bold text-foreground">صُحبة</h1>
           </div>
           <button className="p-2 rounded-xl bg-muted/50"><Search className="h-4 w-4 text-muted-foreground" /></button>
         </div>
-
-        {/* Category tabs */}
-        <div className="flex gap-1 px-3 pb-2.5 overflow-x-auto no-scrollbar">
+        <div className="flex gap-1.5 px-3 pb-2 overflow-x-auto no-scrollbar">
           {allTabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} data-testid={`sohba-tab-${tab.key}`}
-              className={cn('shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all',
-                activeTab === tab.key ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-muted/40 text-muted-foreground')}>
+              className={cn('shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all',
+                activeTab === tab.key ? 'bg-primary text-primary-foreground' : 'bg-muted/40 text-muted-foreground')}>
               {tab.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Content */}
+      {/* Feed - TikTok style vertical scroll */}
       {loading && posts.length === 0 ? (
         <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : posts.length === 0 ? (
         <div className="p-10 text-center">
           <Users className="h-14 w-14 text-muted-foreground/15 mx-auto mb-3" />
           <p className="text-base font-bold text-muted-foreground">لا توجد منشورات بعد</p>
-          <p className="text-xs text-muted-foreground/50 mt-1">كن أول من ينشر!</p>
           {user && (
-            <button onClick={() => setShowCreate(true)} className="mt-4 bg-primary text-primary-foreground px-6 py-2.5 rounded-2xl text-sm font-bold active:scale-95 transition-transform">
-              أنشئ منشوراً
+            <button onClick={() => setShowCreate(true)} className="mt-4 bg-primary text-primary-foreground px-6 py-2.5 rounded-2xl text-sm font-bold" data-testid="first-post-btn">
+              أنشئ أول منشور
             </button>
           )}
         </div>
       ) : (
-        <div className="px-2.5 pt-3">
-          {/* 2-Column Masonry Grid */}
-          <div className="columns-2 gap-2.5">
-            {posts.map((post, i) => (
-              <GridCard key={post.id} post={post} index={i} onLike={() => toggleLike(post.id)} onOpenDetail={() => setDetailPost(post)} />
-            ))}
-          </div>
+        <div className="snap-y snap-mandatory pb-20">
+          {posts.map((post) => (
+            <FullScreenPost
+              key={post.id}
+              post={post}
+              onLike={() => toggleLike(post.id)}
+              onOpenComments={() => setCommentPost(post)}
+              onOpenGifts={() => { if (!user) { toast.error('سجّل دخولك'); return; } setGiftPost(post); }}
+              onOpenProfile={() => setProfileUserId(post.author_id)}
+            />
+          ))}
           {hasMore && (
-            <button onClick={() => { const np = page + 1; setPage(np); loadPosts(activeTab, np, true); }} className="w-full py-4 text-sm text-primary font-bold">
-              تحميل المزيد
+            <button onClick={() => { const np = page + 1; setPage(np); loadPosts(activeTab, np, true); }}
+              className="w-full py-6 text-sm text-primary font-bold flex items-center justify-center gap-2">
+              <ChevronDown className="h-4 w-4" /> تحميل المزيد
             </button>
           )}
         </div>
@@ -421,7 +548,7 @@ export default function Sohba() {
 
       {/* Create FAB */}
       <button data-testid="create-post-btn"
-        onClick={() => { if (!user) { toast.error('سجّل دخولك أولاً'); navigate('/auth'); return; } setShowCreate(true); }}
+        onClick={() => { if (!user) { toast.error('سجّل دخولك'); navigate('/auth'); return; } setShowCreate(true); }}
         className="fixed bottom-20 left-5 z-40 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/25 flex items-center justify-center active:scale-90 transition-transform">
         <Plus className="h-6 w-6" />
       </button>
@@ -429,7 +556,9 @@ export default function Sohba() {
       {/* Sheets */}
       <AnimatePresence>
         {showCreate && <CreatePostSheet categories={categories} onClose={() => setShowCreate(false)} onCreated={p => setPosts(prev => [p, ...prev])} />}
-        {detailPost && <PostDetail post={detailPost} onClose={() => setDetailPost(null)} onLike={() => toggleLike(detailPost.id)} onSave={() => toggleSave(detailPost.id)} />}
+        {commentPost && <CommentsSheet post={commentPost} onClose={() => setCommentPost(null)} />}
+        {giftPost && <GiftsSheet post={giftPost} onClose={() => setGiftPost(null)} />}
+        {profileUserId && <ProfileSheet userId={profileUserId} onClose={() => setProfileUserId(null)} />}
       </AnimatePresence>
     </div>
   );

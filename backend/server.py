@@ -310,10 +310,12 @@ async def get_categories():
     return {"categories": SOHBA_CATEGORIES}
 
 @api_router.get("/sohba/posts")
-async def get_posts(category: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+async def get_posts(category: str = "all", page: int = 1, limit: int = 20, author: str = "", user: dict = Depends(get_user)):
     query = {}
     if category != "all":
         query["category"] = category
+    if author:
+        query["author_id"] = author
     skip = (page - 1) * limit
     cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     posts = await cursor.to_list(length=limit)
@@ -520,15 +522,14 @@ class UploadResponse(BaseModel):
 
 @api_router.post("/upload/image")
 async def upload_image(user: dict = Depends(get_user)):
-    """Upload base64 image. Body: { "data": "base64...", "filename": "photo.jpg" }"""
+    """Redirect to /upload/file"""
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
-    from starlette.requests import Request
     return {"url": "", "message": "استخدم /api/upload/file"}
 
 @api_router.post("/upload/file")
 async def upload_file_base64(data: dict, user: dict = Depends(get_user)):
-    """Upload file as base64. Body: { "data": "base64...", "filename": "photo.jpg", "content_type": "image/jpeg" }"""
+    """Upload file as base64. No size limit - uses chunked writing."""
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
     
@@ -547,10 +548,6 @@ async def upload_file_base64(data: dict, user: dict = Depends(get_user)):
     except Exception:
         raise HTTPException(400, "بيانات غير صالحة")
     
-    # Max 10MB
-    if len(file_bytes) > 10 * 1024 * 1024:
-        raise HTTPException(400, "حجم الملف يتجاوز 10 ميجابايت")
-    
     ext = original_filename.rsplit(".", 1)[-1] if "." in original_filename else "jpg"
     safe_ext = ext.lower()[:5]
     unique_name = f"{uuid.uuid4().hex[:12]}.{safe_ext}"
@@ -560,6 +557,27 @@ async def upload_file_base64(data: dict, user: dict = Depends(get_user)):
     
     file_url = f"/api/uploads/{unique_name}"
     return {"url": file_url, "filename": unique_name}
+
+from fastapi import UploadFile, File as FastAPIFile
+
+@api_router.post("/upload/multipart")
+async def upload_multipart(file: UploadFile = FastAPIFile(...)):
+    """Upload file via multipart form - unlimited size, streaming write."""
+    ext = file.filename.rsplit(".", 1)[-1] if file.filename and "." in file.filename else "bin"
+    safe_ext = ext.lower()[:5]
+    unique_name = f"{uuid.uuid4().hex[:12]}.{safe_ext}"
+    filepath = UPLOAD_DIR / unique_name
+    
+    # Stream write in chunks (no memory limit)
+    with open(filepath, "wb") as f:
+        while True:
+            chunk = await file.read(1024 * 1024)  # 1MB chunks
+            if not chunk:
+                break
+            f.write(chunk)
+    
+    file_url = f"/api/uploads/{unique_name}"
+    return {"url": file_url, "filename": unique_name, "size": filepath.stat().st_size}
 
 from fastapi.responses import FileResponse
 
@@ -1243,17 +1261,22 @@ async def create_product(data: dict, user: dict = Depends(get_user)):
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
     
+    # Check if approved vendor
+    vendor = await db.vendors.find_one({"user_id": user["id"], "status": "approved"})
+    if not vendor:
+        raise HTTPException(403, "يجب التسجيل كبائع والحصول على موافقة الإدارة أولاً")
+    
     product = {
         "id": str(uuid.uuid4()),
         "vendor_id": user["id"],
-        "vendor_name": user.get("name", ""),
+        "vendor_name": vendor.get("shop_name", user.get("name", "")),
         "name": data.get("name", ""),
         "description": data.get("description", ""),
         "price": float(data.get("price", 0)),
         "currency": data.get("currency", "EUR"),
         "category": data.get("category", "general"),
         "image_url": data.get("image_url", ""),
-        "location": data.get("location", {}),  # {lat, lon, city}
+        "location": data.get("location", vendor.get("location", {})),
         "status": "active",
         "views": 0,
         "created_at": datetime.utcnow().isoformat(),
@@ -1448,6 +1471,92 @@ async def admin_get_bank(user: dict = Depends(get_user)):
     account = await db.admin_settings.find_one({"type": "bank_account"}, {"_id": 0})
     pool = await db.admin_pool.find_one({"type": "gift_revenue"}, {"_id": 0})
     return {"account": account, "revenue": pool}
+
+
+# ==================== ADMIN ANNOUNCEMENTS ====================
+@api_router.post("/admin/announcements")
+async def create_announcement(data: dict, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    ann = {
+        "id": str(uuid.uuid4()),
+        "title": data.get("title", ""),
+        "body": data.get("body", ""),
+        "type": data.get("type", "info"),  # info, warning, promo
+        "active": True,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.announcements.insert_one(ann)
+    ann.pop("_id", None)
+    return {"success": True, "announcement": ann}
+
+@api_router.get("/announcements")
+async def get_announcements():
+    """Public: get active announcements for homepage"""
+    anns = await db.announcements.find({"active": True}, {"_id": 0}).sort("created_at", -1).to_list(5)
+    return {"announcements": anns}
+
+@api_router.delete("/admin/announcements/{ann_id}")
+async def delete_announcement(ann_id: str, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    await db.announcements.update_one({"id": ann_id}, {"$set": {"active": False}})
+    return {"success": True}
+
+# ==================== VENDOR REGISTRATION ====================
+@api_router.post("/marketplace/register-vendor")
+async def register_vendor(data: dict, user: dict = Depends(get_user)):
+    """Vendor registers shop for admin approval"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    existing = await db.vendors.find_one({"user_id": user["id"]})
+    if existing:
+        return {"vendor": {k: v for k, v in existing.items() if k != "_id"}, "message": "لديك طلب مسبق"}
+    vendor = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "user_name": user.get("name", ""),
+        "shop_name": data.get("shop_name", ""),
+        "description": data.get("description", ""),
+        "phone": data.get("phone", ""),
+        "location": data.get("location", {}),
+        "iban": data.get("iban", ""),
+        "status": "pending",  # pending -> approved -> rejected
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.vendors.insert_one(vendor)
+    vendor.pop("_id", None)
+    return {"vendor": vendor, "message": "تم إرسال طلبك للمراجعة"}
+
+@api_router.get("/marketplace/vendor-status")
+async def vendor_status(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    vendor = await db.vendors.find_one({"user_id": user["id"]}, {"_id": 0})
+    return {"vendor": vendor}
+
+@api_router.get("/admin/vendors")
+async def admin_list_vendors(user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    vendors = await db.vendors.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"vendors": vendors}
+
+@api_router.put("/admin/vendors/{vendor_id}")
+async def admin_update_vendor(vendor_id: str, data: dict, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or not admin.get("is_admin"):
+        raise HTTPException(403, "غير مصرح")
+    update = {}
+    if "status" in data:
+        update["status"] = data["status"]
+    if update:
+        await db.vendors.update_one({"id": vendor_id}, {"$set": update})
+    return {"success": True}
+
 
 
 

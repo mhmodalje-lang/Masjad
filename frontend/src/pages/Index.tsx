@@ -10,7 +10,7 @@ import OccasionBanner from '@/components/OccasionBanner';
 import DailyGoals from '@/components/DailyGoals';
 import NotificationCard from '@/components/NotificationCard';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2 } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X } from 'lucide-react';
 import { AdBanner } from '@/components/AdBanner';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -18,6 +18,7 @@ const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
 import { useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Lazy load below-the-fold components
 const DailyHadith = lazy(() => import('@/components/DailyHadith'));
@@ -126,6 +127,25 @@ export default function Index() {
       updatePushMosqueTimes(null).catch(console.error);
     }
   }, [prayers, usingMosque, notificationsEnabled]);
+
+  // ======= ADMIN ANNOUNCEMENTS =======
+  const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [dismissedAnn, setDismissedAnn] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('dismissed_announcements') || '[]'); } catch { return []; }
+  });
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/announcements`).then(r => r.json()).then(d => setAnnouncements(d.announcements || [])).catch(() => {});
+  }, []);
+
+  const dismissAnn = (id: string) => {
+    const updated = [...dismissedAnn, id];
+    setDismissedAnn(updated);
+    localStorage.setItem('dismissed_announcements', JSON.stringify(updated));
+  };
+
+  const visibleAnn = announcements.filter(a => !dismissedAnn.includes(a.id));
 
   const toggleNotifications = async () => {
     if (!notificationsEnabled) {
@@ -291,6 +311,31 @@ export default function Index() {
 
       {/* ===== OCCASION BANNER ===== */}
       {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
+
+      {/* ===== ADMIN ANNOUNCEMENTS (BROADCAST) ===== */}
+      <AnimatePresence>
+        {visibleAnn.map(ann => (
+          <motion.div key={ann.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }}
+            className="px-4 mb-3">
+            <div className={cn('rounded-2xl p-4 relative border',
+              ann.type === 'warning' ? 'bg-amber-500/10 border-amber-500/30' :
+              ann.type === 'promo' ? 'bg-primary/10 border-primary/30' :
+              'bg-blue-500/10 border-blue-500/30'
+            )} data-testid={`announcement-${ann.id}`}>
+              <button onClick={() => dismissAnn(ann.id)} className="absolute top-2 left-2 p-1 rounded-full bg-black/10"><X className="h-3.5 w-3.5 text-foreground/60" /></button>
+              <div className="flex items-start gap-3">
+                <Megaphone className={cn('h-5 w-5 shrink-0 mt-0.5',
+                  ann.type === 'warning' ? 'text-amber-500' : ann.type === 'promo' ? 'text-primary' : 'text-blue-500'
+                )} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">{ann.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{ann.body}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </AnimatePresence>
 
       {/* ===== LOCATION ERROR ===== */}
       {locationError && prayers.length === 0 && (

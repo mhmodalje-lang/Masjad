@@ -6,7 +6,7 @@ import {
   Users, Bell, Settings, BarChart3, Shield, Send, Trash2, Plus,
   ChevronLeft, ChevronRight, RefreshCw, Megaphone, AlertTriangle,
   Monitor, FileText, Clock, BookOpen, Check, X, Eye, EyeOff,
-  Coins, ShoppingBag, Film, CreditCard, Building2
+  Coins, ShoppingBag, Film, CreditCard, Building2, Store
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -59,13 +59,20 @@ export default function AdminDashboard() {
   const [adminRevenue, setAdminRevenue] = useState<any>(null);
   // Marketplace
   const [commissionRate, setCommissionRate] = useState(10);
+  // Announcements (Broadcast)
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
+  const [broadcastType, setBroadcastType] = useState('info');
+  const [broadcastList, setBroadcastList] = useState<any[]>([]);
+  // Vendors
+  const [vendors, setVendors] = useState<any[]>([]);
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
-  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); } }, [isAdmin]);
+  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
 
-  const api = async (path: string, method='GET', body?: any) => {
-    const opts: any = { method, headers: authHeaders() };
+  const api = async (path: string, method='GET', body?: any, useAuth=true) => {
+    const opts: any = { method, headers: useAuth ? authHeaders() : {'Content-Type':'application/json'} };
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(`${BACKEND_URL}/api${path}`, opts);
     return res.json();
@@ -79,6 +86,8 @@ export default function AdminDashboard() {
   async function fetchNotifs() { try { const d = await api('/admin/scheduled-notifications'); setScheduledNotifs(d.notifications||[]); } catch {} }
   async function fetchUserAds() { try { const d = await api('/admin/user-ads'); setUserAds(d.ads||[]); } catch {} }
   async function fetchBankInfo() { try { const d = await api('/admin/bank-account'); setBankForm(d.account||{}); setAdminRevenue(d.revenue); } catch {} }
+  async function fetchBroadcasts() { try { const d = await api('/announcements', 'GET', null, false); setBroadcastList(d.announcements||[]); } catch {} }
+  async function fetchVendors() { try { const d = await api('/admin/vendors'); setVendors(d.vendors||[]); } catch {} }
 
   async function deleteUser(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/users/${id}`,'DELETE'); toast.success('تم'); fetchUsers(usersPage); fetchStats(); }
   async function sendNotif() { if(!nTitle||!nBody) return toast.error('املأ الحقول'); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
@@ -92,6 +101,14 @@ export default function AdminDashboard() {
   async function updateAdStatus(id: string, status: string) { await api(`/admin/user-ads/${id}`,'PUT',{status}); toast.success('تم التحديث'); fetchUserAds(); }
   async function saveBankInfo() { await api('/admin/bank-account','POST',bankForm); toast.success('تم حفظ الحساب البنكي'); }
   async function saveCommission() { await api('/admin/marketplace/commission','PUT',{commission_rate:commissionRate}); toast.success('تم'); }
+  async function publishBroadcast() {
+    if (!broadcastTitle.trim() || !broadcastBody.trim()) { toast.error('يجب ملء العنوان والمحتوى'); return; }
+    await api('/admin/announcements','POST',{title:broadcastTitle,body:broadcastBody,type:broadcastType});
+    toast.success('تم النشر للجميع!');
+    setBroadcastTitle(''); setBroadcastBody(''); fetchBroadcasts();
+  }
+  async function deleteBroadcast(id: string) { await api(`/admin/announcements/${id}`,'DELETE'); toast.success('تم'); fetchBroadcasts(); }
+  async function updateVendorStatus(id: string, status: string) { await api(`/admin/vendors/${id}`,'PUT',{status}); toast.success('تم'); fetchVendors(); }
 
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
@@ -105,9 +122,11 @@ export default function AdminDashboard() {
 
   const tabs = [
     { key:'overview', label:'نظرة عامة', icon:BarChart3 },
+    { key:'broadcast', label:'البث', icon:Megaphone },
     { key:'users', label:'المستخدمين', icon:Users },
     { key:'ads', label:'الإعلانات', icon:Monitor },
-    { key:'user-ads', label:'إعلانات المستخدمين', icon:Film },
+    { key:'user-ads', label:'إعلانات القنوات', icon:Film },
+    { key:'vendors', label:'البائعين', icon:ShoppingBag },
     { key:'notifications', label:'الإشعارات', icon:Bell },
     { key:'pages', label:'الصفحات', icon:FileText },
     { key:'revenue', label:'الإيرادات', icon:CreditCard },
@@ -163,6 +182,34 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ===== BROADCAST (البث) ===== */}
+        {tab==='broadcast' && (
+          <div className="space-y-4">
+            <h2 className="text-base font-bold text-foreground">نشر إعلان عام</h2>
+            <p className="text-xs text-muted-foreground">سيظهر فوراً في الصفحة الرئيسية لجميع المستخدمين</p>
+            <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
+              <InputField label="العنوان" value={broadcastTitle} onChange={setBroadcastTitle} placeholder="عنوان الإعلان..." />
+              <InputField label="المحتوى" value={broadcastBody} onChange={setBroadcastBody} placeholder="نص الإعلان..." multiline />
+              <SelectField label="النوع" value={broadcastType} onChange={setBroadcastType} options={['info','warning','promo']} />
+              <Button onClick={publishBroadcast} className="w-full rounded-xl gap-2" data-testid="publish-broadcast-btn">
+                <Megaphone className="h-4 w-4" />نشر للجميع
+              </Button>
+            </div>
+            
+            <h3 className="text-sm font-bold text-foreground mt-4">الإعلانات النشطة ({broadcastList.length})</h3>
+            {broadcastList.map(a => (
+              <div key={a.id} className="rounded-xl bg-card border border-border/50 p-4 flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-foreground">{a.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{a.body}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{a.type} • {new Date(a.created_at).toLocaleDateString('ar')}</p>
+                </div>
+                <button onClick={() => deleteBroadcast(a.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
+            ))}
           </div>
         )}
 
@@ -346,20 +393,20 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ===== USER ADS (إعلانات المستخدمين) ===== */}
+        {/* ===== USER ADS (إعلانات القنوات) ===== */}
         {tab==='user-ads' && (
           <div className="space-y-3">
-            <h2 className="text-base font-bold text-foreground">إعلانات المستخدمين ({userAds.length})</h2>
+            <h2 className="text-base font-bold text-foreground">إعلانات القنوات ({userAds.length})</h2>
             <p className="text-xs text-muted-foreground">الإعلانات المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
             {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد إعلانات بعد</p> :
             userAds.map(ad => (
               <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-foreground">{ad.title}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-foreground truncate">{ad.title}</p>
                     <p className="text-[10px] text-muted-foreground">{ad.channel_name} • {ad.user_name}</p>
                   </div>
-                  <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
+                  <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0',
                     ad.status === 'approved' ? 'bg-green-500/10 text-green-500' :
                     ad.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
@@ -368,17 +415,49 @@ export default function AdminDashboard() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{ad.description}</p>
-                {ad.video_url && (
-                  <div className="text-[10px] text-blue-500 truncate">{ad.video_url}</div>
-                )}
-                <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                {ad.video_url && <p className="text-[10px] text-blue-500 truncate">{ad.video_url}</p>}
+                <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                   <span>المشاهدات: {ad.views || 0}</span>
                   <span>السعر: {ad.price_credits} نقطة</span>
                 </div>
                 {ad.status === 'pending' && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 pt-1">
                     <Button onClick={() => updateAdStatus(ad.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>موافقة</Button>
                     <Button onClick={() => updateAdStatus(ad.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>رفض</Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== VENDORS (البائعين) ===== */}
+        {tab==='vendors' && (
+          <div className="space-y-3">
+            <h2 className="text-base font-bold text-foreground">طلبات البائعين ({vendors.length})</h2>
+            <p className="text-xs text-muted-foreground">لا يُنشر أي منتج إلا بعد موافقتك على البائع</p>
+            {vendors.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد طلبات</p> :
+            vendors.map(v => (
+              <div key={v.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-foreground truncate">{v.shop_name || v.user_name}</p>
+                    <p className="text-[10px] text-muted-foreground">{v.user_name} • {v.phone}</p>
+                  </div>
+                  <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0',
+                    v.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                    v.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                    'bg-amber-500/10 text-amber-500'
+                  )}>
+                    {v.status === 'approved' ? 'موافق' : v.status === 'rejected' ? 'مرفوض' : 'في الانتظار'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{v.description}</p>
+                {v.iban && <p className="text-[10px] text-muted-foreground">IBAN: {v.iban}</p>}
+                {v.status === 'pending' && (
+                  <div className="flex gap-2 pt-1">
+                    <Button onClick={() => updateVendorStatus(v.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>موافقة</Button>
+                    <Button onClick={() => updateVendorStatus(v.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>رفض</Button>
                   </div>
                 )}
               </div>
