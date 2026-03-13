@@ -510,12 +510,247 @@ async def list_pages(category: str = "all", page: int = 1, limit: int = 20):
     return {"pages": pages}
 
 # ==================== IMAGE UPLOAD ====================
+UPLOAD_DIR = Path("/app/backend/uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+class UploadResponse(BaseModel):
+    url: str
+    filename: str
+
 @api_router.post("/upload/image")
 async def upload_image(user: dict = Depends(get_user)):
+    """Upload base64 image. Body: { "data": "base64...", "filename": "photo.jpg" }"""
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
-    # For now return a placeholder - real upload will use cloud storage
-    return {"url": "", "message": "رفع الصور قيد التطوير"}
+    from starlette.requests import Request
+    return {"url": "", "message": "استخدم /api/upload/file"}
+
+@api_router.post("/upload/file")
+async def upload_file_base64(data: dict, user: dict = Depends(get_user)):
+    """Upload file as base64. Body: { "data": "base64...", "filename": "photo.jpg", "content_type": "image/jpeg" }"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    b64_data = data.get("data", "")
+    original_filename = data.get("filename", "upload.jpg")
+    
+    if not b64_data:
+        raise HTTPException(400, "لا توجد بيانات للرفع")
+    
+    # Remove data URL prefix if present
+    if "," in b64_data:
+        b64_data = b64_data.split(",", 1)[1]
+    
+    try:
+        file_bytes = base64.b64decode(b64_data)
+    except Exception:
+        raise HTTPException(400, "بيانات غير صالحة")
+    
+    # Max 10MB
+    if len(file_bytes) > 10 * 1024 * 1024:
+        raise HTTPException(400, "حجم الملف يتجاوز 10 ميجابايت")
+    
+    ext = original_filename.rsplit(".", 1)[-1] if "." in original_filename else "jpg"
+    safe_ext = ext.lower()[:5]
+    unique_name = f"{uuid.uuid4().hex[:12]}.{safe_ext}"
+    
+    filepath = UPLOAD_DIR / unique_name
+    filepath.write_bytes(file_bytes)
+    
+    file_url = f"/api/uploads/{unique_name}"
+    return {"url": file_url, "filename": unique_name}
+
+from fastapi.responses import FileResponse
+
+@api_router.get("/uploads/{filename}")
+async def serve_upload(filename: str):
+    """Serve uploaded files"""
+    filepath = UPLOAD_DIR / filename
+    if not filepath.exists():
+        raise HTTPException(404, "الملف غير موجود")
+    content_types = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp", "mp4": "video/mp4", "webm": "video/webm"}
+    ext = filename.rsplit(".", 1)[-1].lower()
+    return FileResponse(str(filepath), media_type=content_types.get(ext, "application/octet-stream"))
+
+# ==================== REWARDS & GOLD SYSTEM ====================
+class ClaimRewardRequest(BaseModel):
+    reward_type: str  # "daily_login", "post_created", "tasbeeh_100", "quran_page"
+
+REWARD_VALUES = {
+    "daily_login": 10,
+    "post_created": 5,
+    "tasbeeh_100": 3,
+    "quran_page": 5,
+    "comment_added": 2,
+    "like_given": 1,
+    "streak_bonus": 15,
+}
+
+@api_router.get("/rewards/balance")
+async def get_gold_balance(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
+    if not wallet:
+        wallet = {"user_id": user["id"], "gold": 0, "total_earned": 0, "streak": 0, "last_daily": None}
+        await db.wallets.insert_one(wallet)
+        wallet.pop("_id", None)
+    return {"gold": wallet.get("gold", 0), "total_earned": wallet.get("total_earned", 0), "streak": wallet.get("streak", 0)}
+
+@api_router.post("/rewards/claim")
+async def claim_reward(data: ClaimRewardRequest, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    reward_type = data.reward_type
+    gold_amount = REWARD_VALUES.get(reward_type, 0)
+    if gold_amount == 0:
+        raise HTTPException(400, "نوع المكافأة غير صالح")
+    
+    wallet = await db.wallets.find_one({"user_id": user["id"]})
+    if not wallet:
+        wallet = {"user_id": user["id"], "gold": 0, "total_earned": 0, "streak": 0, "last_daily": None}
+        await db.wallets.insert_one(wallet)
+    
+    today = date.today().isoformat()
+    
+    # Check daily login (once per day)
+    if reward_type == "daily_login":
+        if wallet.get("last_daily") == today:
+            return {"gold": wallet.get("gold", 0), "earned": 0, "message": "تم استلام مكافأة اليوم مسبقاً"}
+        
+        # Calculate streak
+        yesterday = (date.today() - timedelta(days=1)).isoformat()
+        streak = wallet.get("streak", 0)
+        if wallet.get("last_daily") == yesterday:
+            streak += 1
+        else:
+            streak = 1
+        
+        # Streak bonus every 7 days
+        bonus = REWARD_VALUES["streak_bonus"] if streak > 0 and streak % 7 == 0 else 0
+        total_earn = gold_amount + bonus
+        
+        await db.wallets.update_one(
+            {"user_id": user["id"]},
+            {"$inc": {"gold": total_earn, "total_earned": total_earn}, "$set": {"last_daily": today, "streak": streak}}
+        )
+        
+        # Log transaction
+        await db.gold_transactions.insert_one({
+            "user_id": user["id"], "type": reward_type, "amount": total_earn,
+            "created_at": datetime.utcnow().isoformat(), "description": f"مكافأة يومية (سلسلة {streak} يوم)"
+        })
+        
+        new_gold = wallet.get("gold", 0) + total_earn
+        return {"gold": new_gold, "earned": total_earn, "streak": streak, "message": f"حصلت على {total_earn} ذهب!" + (f" (مكافأة سلسلة {streak} يوم!)" if bonus else "")}
+    
+    # Other rewards (max 5 per type per day)
+    today_claims = await db.gold_transactions.count_documents({"user_id": user["id"], "type": reward_type, "created_at": {"$regex": f"^{today}"}})
+    if today_claims >= 5:
+        return {"gold": wallet.get("gold", 0), "earned": 0, "message": "وصلت للحد الأقصى اليوم"}
+    
+    await db.wallets.update_one(
+        {"user_id": user["id"]},
+        {"$inc": {"gold": gold_amount, "total_earned": gold_amount}},
+        upsert=True
+    )
+    await db.gold_transactions.insert_one({
+        "user_id": user["id"], "type": reward_type, "amount": gold_amount,
+        "created_at": datetime.utcnow().isoformat()
+    })
+    
+    new_gold = wallet.get("gold", 0) + gold_amount
+    return {"gold": new_gold, "earned": gold_amount, "message": f"حصلت على {gold_amount} ذهب!"}
+
+@api_router.get("/rewards/history")
+async def get_reward_history(user: dict = Depends(get_user), page: int = 1, limit: int = 20):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    skip = (page - 1) * limit
+    cursor = db.gold_transactions.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    transactions = await cursor.to_list(length=limit)
+    return {"transactions": transactions}
+
+# ==================== STORE ====================
+class StoreItem(BaseModel):
+    name: str
+    description: str
+    price_gold: int = 0
+    price_usd: float = 0
+    category: str = "theme"
+    image_url: Optional[str] = None
+
+@api_router.get("/store/items")
+async def get_store_items(category: str = "all"):
+    query = {} if category == "all" else {"category": category}
+    items = await db.store_items.find(query, {"_id": 0}).to_list(100)
+    if not items:
+        # Seed default items
+        defaults = [
+            {"id": str(uuid.uuid4()), "name": "إطار ذهبي", "description": "إطار ذهبي مميز لصورتك الشخصية", "price_gold": 50, "price_usd": 0.99, "category": "frame", "image_url": None, "active": True},
+            {"id": str(uuid.uuid4()), "name": "خلفية رمضانية", "description": "خلفية خاصة بشهر رمضان المبارك", "price_gold": 30, "price_usd": 0.49, "category": "theme", "image_url": None, "active": True},
+            {"id": str(uuid.uuid4()), "name": "شارة حافظ", "description": "شارة مميزة تظهر بجانب اسمك", "price_gold": 100, "price_usd": 1.99, "category": "badge", "image_url": None, "active": True},
+            {"id": str(uuid.uuid4()), "name": "تأثير نجوم", "description": "تأثير نجوم متحركة على منشوراتك", "price_gold": 75, "price_usd": 1.49, "category": "effect", "image_url": None, "active": True},
+            {"id": str(uuid.uuid4()), "name": "عضوية مميزة (شهر)", "description": "وصول لميزات حصرية لمدة شهر", "price_gold": 500, "price_usd": 4.99, "category": "membership", "image_url": None, "active": True},
+            {"id": str(uuid.uuid4()), "name": "صدقة جارية", "description": "تبرع بالذهب لمشاريع خيرية", "price_gold": 10, "price_usd": 0, "category": "charity", "image_url": None, "active": True},
+        ]
+        for item in defaults:
+            await db.store_items.insert_one(item)
+        items = [{k: v for k, v in d.items() if k != "_id"} for d in defaults]
+    return {"items": items}
+
+@api_router.post("/store/buy-gold")
+async def buy_with_gold(data: dict, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    item_id = data.get("item_id")
+    item = await db.store_items.find_one({"id": item_id}, {"_id": 0})
+    if not item:
+        raise HTTPException(404, "المنتج غير موجود")
+    
+    wallet = await db.wallets.find_one({"user_id": user["id"]})
+    if not wallet or wallet.get("gold", 0) < item["price_gold"]:
+        raise HTTPException(400, "رصيد الذهب غير كافٍ")
+    
+    await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"gold": -item["price_gold"]}})
+    
+    purchase = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "item_id": item_id,
+        "item_name": item["name"],
+        "price_gold": item["price_gold"],
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.purchases.insert_one(purchase)
+    
+    new_gold = wallet.get("gold", 0) - item["price_gold"]
+    return {"success": True, "gold_remaining": new_gold, "message": f"تم شراء {item['name']}!"}
+
+@api_router.get("/store/my-purchases")
+async def get_my_purchases(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    purchases = await db.purchases.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"purchases": purchases}
+
+# ==================== MEMBERSHIP ====================
+@api_router.get("/membership/status")
+async def get_membership(user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    membership = await db.memberships.find_one({"user_id": user["id"]}, {"_id": 0})
+    if not membership:
+        return {"active": False, "plan": "free", "expires_at": None}
+    # Check if expired
+    if membership.get("expires_at"):
+        from datetime import timezone
+        exp = datetime.fromisoformat(membership["expires_at"])
+        if exp < datetime.utcnow():
+            return {"active": False, "plan": "free", "expires_at": membership["expires_at"], "was": membership.get("plan")}
+    return {"active": True, "plan": membership.get("plan", "premium"), "expires_at": membership.get("expires_at")}
 
 
 
@@ -1310,6 +1545,11 @@ async def create_indexes():
         await db.follows.create_index([("follower_id", 1), ("following_id", 1)], unique=True)
         await db.users.create_index("email", unique=True)
         await db.users.create_index("id", unique=True)
+        await db.wallets.create_index("user_id", unique=True)
+        await db.gold_transactions.create_index([("user_id", 1), ("created_at", -1)])
+        await db.store_items.create_index("category")
+        await db.purchases.create_index([("user_id", 1), ("created_at", -1)])
+        await db.memberships.create_index("user_id", unique=True)
     except Exception as e:
         print(f"Index creation note: {e}")
 

@@ -49,8 +49,9 @@ const sampleMedia = [
 // Grid Card Component
 function GridCard({ post, onLike, onOpenDetail, index }: { post: Post; onLike: () => void; onOpenDetail: () => void; index: number }) {
   const ci = (post.author_name || '').charCodeAt(0) % avatarColors.length;
-  const media = post.image_url || sampleMedia[index % sampleMedia.length]?.url;
-  const isVideo = post.media_type === 'video' || sampleMedia[index % sampleMedia.length]?.type === 'video';
+  const rawMedia = post.image_url || sampleMedia[index % sampleMedia.length]?.url;
+  const media = rawMedia?.startsWith('/api/') ? `${BACKEND_URL}${rawMedia}` : rawMedia;
+  const isVideo = post.media_type === 'video' || (!post.image_url && sampleMedia[index % sampleMedia.length]?.type === 'video');
   const shortContent = post.content.length > 80 ? post.content.slice(0, 80) + '...' : post.content;
 
   return (
@@ -199,12 +200,54 @@ function CreatePostSheet({ categories, onClose, onCreated }: { categories: Categ
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('general');
   const [posting, setPosting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<{ data: string; filename: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileSelect = (accept: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      if (file.size > 10 * 1024 * 1024) { toast.error('حجم الملف يتجاوز 10 ميجابايت'); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setImageFile({ data: result, filename: file.name });
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
 
   const submit = async () => {
     if (!content.trim()) { toast.error('اكتب شيئاً أولاً'); return; }
     setPosting(true);
+    let uploadedUrl: string | undefined;
+
+    // Upload image if present
+    if (imageFile) {
+      setUploading(true);
+      try {
+        const upRes = await fetch(`${BACKEND_URL}/api/upload/file`, {
+          method: 'POST', headers: authHeaders(),
+          body: JSON.stringify({ data: imageFile.data, filename: imageFile.filename }),
+        });
+        const upData = await upRes.json();
+        if (upRes.ok && upData.url) {
+          uploadedUrl = upData.url;
+        }
+      } catch { /* continue without image */ }
+      setUploading(false);
+    }
+
     try {
-      const r = await fetch(`${BACKEND_URL}/api/sohba/posts`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: content.trim(), category }) });
+      const body: any = { content: content.trim(), category };
+      if (uploadedUrl) body.image_url = uploadedUrl;
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
       if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setPosting(false); return; }
       const d = await r.json();
       if (d.post) { onCreated(d.post); toast.success('تم نشر منشورك'); onClose(); }
@@ -227,12 +270,24 @@ function CreatePostSheet({ categories, onClose, onCreated }: { categories: Categ
           <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="شارك فكرة، آية، حديث، أو دعاء..."
             className="w-full h-32 bg-transparent resize-none outline-none text-sm text-foreground placeholder:text-muted-foreground leading-relaxed" autoFocus data-testid="post-content-input" />
           
+          {/* Image Preview */}
+          {imagePreview && (
+            <div className="relative mb-3 rounded-xl overflow-hidden">
+              <img src={imagePreview} alt="preview" className="w-full max-h-48 object-cover rounded-xl" />
+              <button onClick={() => { setImagePreview(null); setImageFile(null); }}
+                className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white">
+                <X className="h-3.5 w-3.5" />
+              </button>
+              {uploading && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Loader2 className="h-6 w-6 text-white animate-spin" /></div>}
+            </div>
+          )}
+
           {/* Media buttons */}
           <div className="flex gap-2 mt-2 mb-4">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground">
+            <button onClick={() => handleFileSelect('image/*')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-image-btn">
               <Image className="h-3.5 w-3.5" /> صورة
             </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground">
+            <button onClick={() => handleFileSelect('video/*')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors" data-testid="upload-video-btn">
               <Video className="h-3.5 w-3.5" /> فيديو
             </button>
           </div>

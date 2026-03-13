@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 export default function Auth() {
-  const { user, loading: authLoading, signIn, signUp } = useAuth();
+  const { user, loading: authLoading, signIn, signUp, setAuthFromGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isLogin, setIsLogin] = useState(true);
@@ -42,10 +42,9 @@ export default function Auth() {
       .then(r => r.json())
       .then(data => {
         if (data.access_token) {
-          localStorage.setItem('auth_token', data.access_token);
-          localStorage.setItem('auth_user', JSON.stringify(data.user));
+          setAuthFromGoogle(data.access_token, data.user);
           toast.success(`أهلاً ${data.user?.name || ''}!`);
-          window.location.href = '/';
+          navigate('/', { replace: true });
         } else {
           toast.error(data.detail || 'فشل تسجيل الدخول بـ Google');
         }

@@ -22,6 +22,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, name?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   getToken: () => string | null;
+  setAuthFromGoogle: (token: string, userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null }),
   signOut: async () => {},
   getToken: () => null,
+  setAuthFromGoogle: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -118,8 +120,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return localStorage.getItem(AUTH_TOKEN_KEY);
   }, []);
 
+  const setAuthFromGoogle = useCallback((token: string, userData: User) => {
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userData));
+    setUser(userData);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, getToken }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, getToken, setAuthFromGoogle }}>
       {children}
     </AuthContext.Provider>
   );

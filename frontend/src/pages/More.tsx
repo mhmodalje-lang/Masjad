@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User, LogIn, LogOut, Moon, Sun, BookOpen, Clock,
   CheckCircle2, Shield, Bell, BellOff, ShieldCheck, ChevronLeft, Star,
-  Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare
+  Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare, Coins
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ const tools = [
   { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-500', bg: 'bg-green-500/10' },
   { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-500', bg: 'bg-orange-500/10' },
   { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
 ];
 
 interface QuickLinkProps { icon: typeof User; label: string; to?: string; onClick?: () => void; trailing?: React.ReactNode; }
@@ -147,6 +148,20 @@ export default function More() {
           </div>
         </div>
       )}
+
+      {/* Rewards & Store */}
+      <div className="px-5 mb-4 grid grid-cols-2 gap-3">
+        <Link to="/rewards" className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="rewards-link">
+          <Coins className="h-6 w-6 text-amber-500 mb-2" />
+          <p className="text-sm font-bold text-foreground">المكافآت</p>
+          <p className="text-[10px] text-muted-foreground">اجمع الذهب يومياً</p>
+        </Link>
+        <Link to="/store" className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="store-link">
+          <Crown className="h-6 w-6 text-purple-500 mb-2" />
+          <p className="text-sm font-bold text-foreground">المتجر</p>
+          <p className="text-[10px] text-muted-foreground">عناصر مميزة</p>
+        </Link>
+      </div>
 
       {/* Tools Grid */}
       <div className="px-5 mb-4">

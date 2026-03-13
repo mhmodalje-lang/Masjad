@@ -42,8 +42,8 @@ export function BottomNav() {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <item.icon className={cn('h-[21px] w-[21px] shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />
-              <span className="font-semibold text-[10px] leading-tight text-center truncate w-full px-0.5">
+              <item.icon className={cn('h-[22px] w-[22px] shrink-0 transition-transform', isActive && 'scale-110 stroke-[2.5px]')} />
+              <span className="font-semibold text-[11px] leading-tight text-center truncate w-full px-0.5">
                 {item.label}
               </span>
             </Link>

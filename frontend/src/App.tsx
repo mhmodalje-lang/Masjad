@@ -38,12 +38,15 @@ const QuranGoal = lazy(() => import("./pages/QuranGoal"));
 const DhikrSettings = lazy(() => import("./pages/DhikrSettings"));
 const NotificationSettings = lazy(() => import("./pages/NotificationSettings"));
 const Ruqyah = lazy(() => import("./pages/Ruqyah"));
+const AsmaAlHusna = lazy(() => import("./pages/AsmaAlHusna"));
 const RamadanCards = lazy(() => import("./pages/RamadanCards"));
 const RamadanBook = lazy(() => import("./pages/RamadanBook"));
 const PeriodTracker = lazy(() => import("./pages/PeriodTracker"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Sohba = lazy(() => import("./pages/Sohba"));
 const Messages = lazy(() => import("./pages/Messages"));
+const Store = lazy(() => import("./pages/Store"));
+const Rewards = lazy(() => import("./pages/Rewards"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -107,12 +110,15 @@ const App = () => {
                           <Route path="/dhikr-settings" element={<DhikrSettings />} />
                           <Route path="/notifications" element={<NotificationSettings />} />
                           <Route path="/ruqyah" element={<Ruqyah />} />
+                          <Route path="/asma-al-husna" element={<AsmaAlHusna />} />
                           <Route path="/ramadan-cards" element={<RamadanCards />} />
                           <Route path="/ramadan-book" element={<RamadanBook />} />
                           <Route path="/period-tracker" element={<PeriodTracker />} />
                           <Route path="/profile" element={<Profile />} />
                           <Route path="/sohba" element={<Sohba />} />
                           <Route path="/messages" element={<Messages />} />
+                          <Route path="/store" element={<Store />} />
+                          <Route path="/rewards" element={<Rewards />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>

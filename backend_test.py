@@ -11,7 +11,7 @@ import time
 from typing import Optional, Dict, Any
 
 # Backend URL from frontend .env configuration
-BASE_URL = "https://prayer-times-ai-1.preview.emergentagent.com/api"
+BASE_URL = "https://prayer-social-hub.preview.emergentagent.com/api"
 
 class TestResults:
     def __init__(self):
