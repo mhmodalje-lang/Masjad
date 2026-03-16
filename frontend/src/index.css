@@ -287,3 +287,22 @@ html {
 .animate-fade-in {
   animation: fade-in 0.4s ease-out;
 }
+
+/* Arabic text input support */
+input[dir="auto"],
+textarea[dir="auto"],
+input[type="text"],
+input[type="search"],
+textarea {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
+/* Ensure proper RTL rendering in all form elements */
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+

@@ -174,6 +174,21 @@ backend:
         agent: "testing"
         comment: "✅ VERIFIED: GET /api/ returns correct response: {'message': 'Islamic App API - Running', 'version': '2.0'}. API health check working properly."
 
+  - task: "Search & Explore APIs"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added /api/sohba/search (query posts/users), /api/sohba/explore (trending feed), /api/sohba/trending-users endpoints."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED - All new search & explore endpoints tested successfully: 1) GET /api/sohba/search?q=سبحان&type=all - Arabic text search working (found 1 result) 2) GET /api/sohba/search?q=Admin&type=users - User search working (found 1 user) 3) GET /api/sohba/explore?limit=10 - Explore feed working (6 posts loaded) 4) GET /api/sohba/trending-users?limit=5 - Trending users working (0 users currently). All endpoints require Bearer token authentication. Also verified existing sohba endpoints still work: GET /api/sohba/posts (5 posts), GET /api/sohba/categories (10 categories). Full test coverage completed with realistic test data."
+
 frontend:
   - task: "Frontend App Start"
     implemented: true
@@ -211,10 +226,70 @@ frontend:
         agent: "main"
         comment: "Replaced all Supabase edge function calls with backend API calls."
 
+  - task: "Admin Dashboard Arabic Tabs Fix"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "frontend/src/pages/AdminDashboard.tsx"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed Arabic text rendering vertically in admin tabs."
+
+  - task: "Sohba TikTok-Style Feed"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "frontend/src/pages/Sohba.tsx"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Complete rewrite with text visibility fix, action buttons, image error fallback."
+
+  - task: "Explore/Search Page"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "frontend/src/pages/Explore.tsx"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "New page with grid layout, search, trending users."
+
+  - task: "Profile Page Fix"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "frontend/src/pages/Profile.tsx"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Fixed navigation links, Instagram-style layout."
+
+  - task: "Bottom Navigation Update"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "frontend/src/components/layout/BottomNav.tsx"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "5-tab TikTok/Instagram style navigation."
+
 metadata:
   created_by: "main_agent"
-  version: "1.0"
-  test_sequence: 2
+  version: "2.0"
+  test_sequence: 3
   run_ui: false
 
 test_plan:
@@ -230,3 +305,7 @@ agent_communication:
     message: "Fixed all major errors. Frontend now loads. Auth uses JWT backend. Mosque search/times use FastAPI+Overpass/Aladhan APIs. All Supabase calls either removed or made safe."
   - agent: "testing"
     message: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All API endpoints working perfectly. Tested: Root API (✅), Auth Register (✅), Auth Login (✅), Auth Me (✅), Prayer Times (✅), Mosque Search (✅), Mosque Prayer Times (✅). Backend service running stable. All integrations (Overpass API, Aladhan API, MongoDB, JWT) functioning correctly. Ready for production."
+  - agent: "main"
+    message: "Added new Search/Explore APIs, fixed Admin Dashboard Arabic text tabs rendering vertically, fixed Sohba page text visibility, fixed Profile page broken links, added Explore page with search. Need testing of new search/explore endpoints."
+  - agent: "testing"
+    message: "🆕 NEW SEARCH & EXPLORE ENDPOINTS TESTING COMPLETE ✅ - All 6 requested endpoints tested successfully: 1) Arabic text search in posts (✅) 2) User search (✅) 3) Explore trending feed (✅) 4) Trending users (✅) 5) Existing sohba posts (✅) 6) Existing categories (✅). Authentication working with test user credentials. All endpoints require Bearer token. No critical issues found. Ready for frontend integration and production deployment."

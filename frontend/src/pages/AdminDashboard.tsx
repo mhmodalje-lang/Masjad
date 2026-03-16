@@ -136,15 +136,15 @@ export default function AdminDashboard() {
   const InputField = ({ label, value, onChange, placeholder, multiline=false }: any) => (
     <div>
       <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
-      {multiline ? <textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={3} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none" />
-      : <input type="text" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground" />}
+      {multiline ? <textarea dir="auto" lang="ar" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={3} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none text-right" style={{ unicodeBidi: 'plaintext' }} />
+      : <input type="text" dir="auto" lang="ar" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground text-right" style={{ unicodeBidi: 'plaintext' }} />}
     </div>
   );
 
   const SelectField = ({ label, value, onChange, options }: any) => (
     <div>
       <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
-      <select value={value} onChange={e=>onChange(e.target.value)} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground">
+      <select dir="auto" value={value} onChange={e=>onChange(e.target.value)} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground text-right" style={{ unicodeBidi: 'plaintext' }}>
         {options.map((o:string)=><option key={o} value={o}>{o}</option>)}
       </select>
     </div>
@@ -157,14 +157,17 @@ export default function AdminDashboard() {
           <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-6 w-6 text-primary" /></div>
           <div><h1 className="text-xl font-bold text-foreground">لوحة الإدارة</h1><p className="text-xs text-muted-foreground">{user?.email}</p></div>
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {tabs.map(t=>(
-            <button key={t.key} onClick={()=>setTab(t.key)} data-testid={`admin-tab-${t.key}`}
-              className={cn('flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all min-w-fit',
-                tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border/50 text-muted-foreground hover:bg-muted')}>
-              <t.icon className="h-4 w-4" /><span>{t.label}</span>
-            </button>
-          ))}
+        <div dir="ltr" className="w-full overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex gap-2" style={{ direction: 'rtl', minWidth: 'max-content' }}>
+            {tabs.map(t=>(
+              <button key={t.key} onClick={()=>setTab(t.key)} data-testid={`admin-tab-${t.key}`}
+                className={cn('inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0',
+                  tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border/50 text-muted-foreground hover:bg-muted')}
+                style={{ whiteSpace: 'nowrap' }}>
+                <t.icon className="h-4 w-4 shrink-0" /><span style={{ whiteSpace: 'nowrap' }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

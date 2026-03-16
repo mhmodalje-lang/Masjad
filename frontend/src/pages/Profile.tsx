@@ -4,37 +4,35 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/ThemeProvider';
 import {
-  Settings, ChevronLeft, Star, Users, Eye, Heart,
+  Settings, ChevronLeft, Star, Users, Heart,
   LogOut, Shield, Moon, Sun, SunMoon, Globe,
   HelpCircle, Share2, MessageSquare, Bookmark,
-  Crown, Gift, Gem, type LucideIcon
+  Crown, Gift, Gem, Grid3X3, Play, MoreHorizontal,
+  Bot, Compass, Calculator, BookOpen, Clock, Bell,
+  ShoppingBag, Store, CheckCircle2, ShieldCheck,
+  type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
-interface StatProps { icon: LucideIcon; value: number; label: string; }
-function StatBadge({ icon: Icon, value, label }: StatProps) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="h-10 w-10 rounded-2xl bg-muted/60 flex items-center justify-center">
-        <Icon className="h-4.5 w-4.5 text-muted-foreground" />
-      </div>
-      <span className="text-sm font-bold text-foreground">{value}</span>
-      <span className="text-[10px] text-muted-foreground">{label}</span>
-    </div>
-  );
+function getToken() { return localStorage.getItem('auth_token') || ''; }
+function authHeaders(): Record<string, string> {
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const t = getToken();
+  if (t) h['Authorization'] = `Bearer ${t}`;
+  return h;
 }
 
 interface QuickLinkProps { icon: LucideIcon; label: string; to?: string; onClick?: () => void; badge?: string; }
 function QuickLink({ icon: Icon, label, to, onClick, badge }: QuickLinkProps) {
   const inner = (
-    <div className="flex items-center justify-between py-3.5 px-1 border-b border-border/30 last:border-0 active:bg-muted/30 transition-colors">
+    <div className="flex items-center justify-between py-3.5 px-1 border-b border-border/20 last:border-0 active:bg-muted/30 transition-colors">
       <div className="flex items-center gap-3">
         <div className="h-9 w-9 rounded-xl bg-primary/8 flex items-center justify-center">
-          <Icon className="h-4.5 w-4.5 text-primary" />
+          <Icon className="h-[18px] w-[18px] text-primary" />
         </div>
         <span className="text-sm font-medium text-foreground">{label}</span>
       </div>
@@ -48,39 +46,31 @@ function QuickLink({ icon: Icon, label, to, onClick, badge }: QuickLinkProps) {
   return <div onClick={onClick} className="cursor-pointer">{inner}</div>;
 }
 
+interface Post {
+  id: string; content: string; image_url?: string; media_type?: string;
+  likes_count: number; comments_count: number;
+}
+
 export default function Profile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { theme, mode, setMode } = useTheme();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ visitors: 0, friends: 0, followers: 0, following: 0 });
-  const [loginStreak, setLoginStreak] = useState(0);
+  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
+  const [myPosts, setMyPosts] = useState<Post[]>([]);
+  const [activeView, setActiveView] = useState<'grid' | 'saved'>('grid');
 
-  // Load login streak
   useEffect(() => {
-    const streakData = localStorage.getItem('login_streak');
-    if (streakData) {
-      try {
-        const { count, lastDate } = JSON.parse(streakData);
-        const today = new Date().toISOString().split('T')[0];
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        if (lastDate === today) {
-          setLoginStreak(count);
-        } else if (lastDate === yesterday) {
-          const newCount = count + 1;
-          setLoginStreak(newCount);
-          localStorage.setItem('login_streak', JSON.stringify({ count: newCount, lastDate: today }));
-        } else {
-          setLoginStreak(1);
-          localStorage.setItem('login_streak', JSON.stringify({ count: 1, lastDate: today }));
-        }
-      } catch { setLoginStreak(1); }
-    } else {
-      const today = new Date().toISOString().split('T')[0];
-      localStorage.setItem('login_streak', JSON.stringify({ count: 1, lastDate: today }));
-      setLoginStreak(1);
-    }
-  }, []);
+    if (!user) return;
+    fetch(`${BACKEND_URL}/api/sohba/my-stats`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(d => setStats({ posts: d.posts || 0, followers: d.followers || 0, following: d.following || 0 }))
+      .catch(() => {});
+    fetch(`${BACKEND_URL}/api/sohba/posts?author=${user.id}&limit=50`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(d => setMyPosts(d.posts || []))
+      .catch(() => {});
+  }, [user]);
 
   const handleLogout = () => {
     signOut();
@@ -91,144 +81,152 @@ export default function Profile() {
   const themeLabel = mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري';
   const ThemeIcon = mode === 'auto' ? SunMoon : mode === 'dark' ? Moon : Sun;
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-24" dir="rtl" data-testid="profile-page">
+        <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+          <Users className="h-10 w-10 text-muted-foreground/40" />
+        </div>
+        <h2 className="text-lg font-bold text-foreground mb-1">مرحباً بك</h2>
+        <p className="text-sm text-muted-foreground text-center mb-6">سجّل دخولك لعرض ملفك الشخصي</p>
+        <Link to="/auth" className="bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold active:scale-95 transition-transform">
+          تسجيل الدخول
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24" dir="rtl" data-testid="profile-page">
       {/* Header */}
-      <div className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 px-5 pb-20 pt-safe-header overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.06]">
-          <div className="absolute inset-0" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-        </div>
-
-        {/* Top bar */}
-        <div className="relative flex items-center justify-between mb-6 pt-4">
-          <h1 className="text-lg font-bold text-white">حسابي</h1>
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <Link to="/admin" className="p-2 rounded-xl bg-white/10 backdrop-blur-sm" data-testid="admin-link">
-                <Shield className="h-4.5 w-4.5 text-amber-400" />
-              </Link>
-            )}
-            <Link to="/more" className="p-2 rounded-xl bg-white/10 backdrop-blur-sm">
-              <Settings className="h-4.5 w-4.5 text-white/80" />
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
+        <span className="text-base font-bold text-foreground">{user?.name || 'حسابي'}</span>
+        <div className="flex items-center gap-1">
+          {isAdmin && (
+            <Link to="/admin" className="p-2 rounded-xl hover:bg-muted/50" data-testid="admin-link">
+              <Shield className="h-[18px] w-[18px] text-amber-500" />
             </Link>
-          </div>
-        </div>
-
-        {/* Profile info */}
-        <div className="relative flex items-center gap-4">
-          <div className="h-18 w-18 rounded-full bg-white/15 backdrop-blur-sm border-2 border-white/20 flex items-center justify-center">
-            {user?.avatar ? (
-              <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
-            ) : (
-              <span className="text-3xl text-white/80">
-                {user?.name?.[0] || user?.email?.[0] || '؟'}
-              </span>
-            )}
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">{user?.name || 'مستخدم'}</h2>
-            <p className="text-white/50 text-xs mt-0.5">{user?.email || ''}</p>
-            {loginStreak > 1 && (
-              <span className="inline-flex items-center gap-1 mt-1.5 bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                <Gem className="h-3 w-3" />
-                {loginStreak} يوم متتابع
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
-      </div>
-
-      {/* Stats */}
-      <div className="px-5 -mt-2 mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl bg-card border border-border/40 p-5 shadow-sm"
-        >
-          <div className="grid grid-cols-4 gap-2">
-            <StatBadge icon={Eye} value={stats.visitors} label="زوار" />
-            <StatBadge icon={Users} value={stats.friends} label="أصدقاء" />
-            <StatBadge icon={Heart} value={stats.followers} label="متابعين" />
-            <StatBadge icon={Share2} value={stats.following} label="متابَعين" />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Membership Card */}
-      <div className="px-5 mb-4">
-        <div className="rounded-3xl bg-gradient-to-br from-amber-900/30 via-amber-800/20 to-yellow-900/10 border border-amber-500/20 p-5 relative overflow-hidden">
-          <div className="absolute top-2 left-2 opacity-10">
-            <Crown className="h-20 w-20 text-amber-400" />
-          </div>
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-2">
-              <Crown className="h-5 w-5 text-amber-400" />
-              <h3 className="text-sm font-bold text-amber-200">العضوية الاحترافية</h3>
-            </div>
-            <p className="text-[11px] text-amber-200/60 mb-3">
-              بدون إعلانات + خصم ذهبي يومي + ميزات حصرية
-            </p>
-            <button
-              data-testid="membership-btn"
-              className="bg-amber-500 hover:bg-amber-400 text-amber-950 text-xs font-bold px-5 py-2 rounded-2xl transition-all active:scale-95"
-            >
-              انضم الآن
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Links */}
-      <div className="px-5 mb-4">
-        <div className="rounded-3xl bg-card border border-border/40 p-4">
-          <QuickLink icon={Bookmark} label="المحفوظات" to="/favorites" />
-          <QuickLink icon={Gift} label="المكافآت" to="/rewards" badge="جديد" />
-          <QuickLink
-            icon={ThemeIcon}
-            label={`المظهر: ${themeLabel}`}
-            onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
-          />
-          <QuickLink icon={Globe} label="اللغة" to="/more" badge="العربية" />
-        </div>
-      </div>
-
-      <div className="px-5 mb-4">
-        <div className="rounded-3xl bg-card border border-border/40 p-4">
-          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
-          <QuickLink icon={Share2} label="دعوة الأصدقاء" onClick={() => {
-            if (navigator.share) {
-              navigator.share({ title: 'المؤذن العالمي', text: 'تطبيق إسلامي شامل', url: window.location.origin });
-            } else {
-              navigator.clipboard.writeText(window.location.origin);
-              toast.success('تم نسخ الرابط');
-            }
-          }} />
-          <QuickLink icon={HelpCircle} label="الأسئلة الشائعة" to="/more" />
-          <QuickLink icon={MessageSquare} label="تواصل معنا" onClick={() => toast.info('ادعمنا@almuadhin.com')} />
-        </div>
-      </div>
-
-      {/* Login/Logout */}
-      <div className="px-5 mb-8">
-        {user ? (
-          <button
-            onClick={handleLogout}
-            data-testid="logout-btn"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold transition-all active:scale-[0.98]"
-          >
-            <LogOut className="h-4 w-4" />
-            تسجيل الخروج
-          </button>
-        ) : (
-          <Link
-            to="/auth"
-            data-testid="login-btn"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-bold transition-all active:scale-[0.98]"
-          >
-            تسجيل الدخول
+          )}
+          <Link to="/more" className="p-2 rounded-xl hover:bg-muted/50" data-testid="more-link">
+            <MoreHorizontal className="h-[18px] w-[18px] text-muted-foreground" />
           </Link>
-        )}
+        </div>
+      </div>
+
+      {/* Profile Info (Instagram style) */}
+      <div className="px-5 py-5">
+        <div className="flex items-center gap-5">
+          <div className="relative shrink-0">
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-[3px] border-primary/30 flex items-center justify-center overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+              ) : (
+                <span className="text-3xl text-primary/60">{user?.name?.[0] || user?.email?.[0] || '؟'}</span>
+              )}
+            </div>
+          </div>
+          <div className="flex-1 flex justify-around">
+            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.posts}</p><p className="text-[11px] text-muted-foreground">منشور</p></div>
+            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.followers}</p><p className="text-[11px] text-muted-foreground">متابع</p></div>
+            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.following}</p><p className="text-[11px] text-muted-foreground">متابَع</p></div>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <p className="text-sm font-bold text-foreground">{user?.name || 'مستخدم'}</p>
+          <p className="text-xs text-muted-foreground">{user?.email}</p>
+        </div>
+
+        <div className="flex gap-2 mt-4">
+          <Button variant="outline" className="flex-1 rounded-xl h-9 text-sm font-bold" asChild>
+            <Link to="/account">تعديل الملف</Link>
+          </Button>
+          <Button variant="outline" className="flex-1 rounded-xl h-9 text-sm font-bold" onClick={() => {
+            if (navigator.share) navigator.share({ title: 'المؤذن العالمي', url: window.location.origin });
+            else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+          }}>مشاركة</Button>
+        </div>
+      </div>
+
+      {/* Content Tabs */}
+      <div className="flex border-b border-border/20">
+        <button onClick={() => setActiveView('grid')}
+          className={cn('flex-1 flex items-center justify-center py-3 border-b-2 transition-all',
+            activeView === 'grid' ? 'border-foreground' : 'border-transparent')}>
+          <Grid3X3 className={cn('h-5 w-5', activeView === 'grid' ? 'text-foreground' : 'text-muted-foreground')} />
+        </button>
+        <button onClick={() => setActiveView('saved')}
+          className={cn('flex-1 flex items-center justify-center py-3 border-b-2 transition-all',
+            activeView === 'saved' ? 'border-foreground' : 'border-transparent')}>
+          <Bookmark className={cn('h-5 w-5', activeView === 'saved' ? 'text-foreground' : 'text-muted-foreground')} />
+        </button>
+      </div>
+
+      {/* Posts Grid */}
+      {activeView === 'grid' && (
+        <div>
+          {myPosts.length === 0 ? (
+            <div className="text-center py-16 px-8">
+              <Grid3X3 className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">لا توجد منشورات بعد</p>
+              <Link to="/sohba?create=true" className="inline-block mt-4 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold">
+                أنشئ أول منشور
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-0.5">
+              {myPosts.map(p => {
+                const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
+                const isVideoPost = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
+                return (
+                  <div key={p.id} className="aspect-square bg-muted overflow-hidden relative group cursor-pointer">
+                    {url ? <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" /> : (
+                      <div className="w-full h-full flex items-center justify-center p-2 bg-gradient-to-br from-emerald-900/20 to-teal-900/20">
+                        <p className="text-[9px] text-muted-foreground line-clamp-4 text-center" dir="rtl">{p.content}</p>
+                      </div>
+                    )}
+                    {isVideoPost && <div className="absolute top-1.5 left-1.5"><Play className="h-3.5 w-3.5 text-white fill-white drop-shadow-md" /></div>}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></div>
+                        <div className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeView === 'saved' && (
+        <div className="text-center py-16 px-8">
+          <Bookmark className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">المحفوظات ستظهر هنا</p>
+        </div>
+      )}
+
+      {/* Quick Settings */}
+      <div className="px-5 mt-4 mb-4">
+        <div className="rounded-2xl bg-card border border-border/30 p-3">
+          <QuickLink icon={Bookmark} label="المحفوظات" to="/sohba" />
+          <QuickLink icon={Gift} label="المكافآت" to="/rewards" badge="جديد" />
+          <QuickLink icon={ThemeIcon} label={`المظهر: ${themeLabel}`}
+            onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')} />
+          <QuickLink icon={Bell} label="الإشعارات" to="/notifications" />
+          <QuickLink icon={Bot} label="المساعد الذكي" to="/ai-assistant" />
+          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
+          <QuickLink icon={HelpCircle} label="المزيد والإعدادات" to="/more" />
+        </div>
+      </div>
+
+      {/* Logout */}
+      <div className="px-5 mb-8">
+        <button onClick={handleLogout} data-testid="logout-btn"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold transition-all active:scale-[0.98]">
+          <LogOut className="h-4 w-4" />تسجيل الخروج
+        </button>
       </div>
     </div>
   );

@@ -512,6 +512,143 @@ async def list_pages(category: str = "all", page: int = 1, limit: int = 20):
     pages = await cursor.to_list(length=limit)
     return {"pages": pages}
 
+# ==================== SEARCH & EXPLORE ====================
+
+@api_router.get("/sohba/search")
+async def search_sohba(q: str = Query("", min_length=1), type: str = "all", page: int = 1, limit: int = 30, user: dict = Depends(get_user)):
+    """Search posts, users, and hashtags"""
+    results = {"posts": [], "users": [], "hashtags": [], "total": 0}
+    skip = (page - 1) * limit
+    
+    if not q.strip():
+        return results
+    
+    search_regex = {"$regex": q.strip(), "$options": "i"}
+    
+    # Search posts
+    if type in ("all", "posts"):
+        post_query = {"$or": [
+            {"content": search_regex},
+            {"author_name": search_regex},
+            {"category": search_regex},
+        ]}
+        post_cursor = db.posts.find(post_query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+        posts = await post_cursor.to_list(length=limit)
+        
+        # Enrich posts with like/save status
+        post_ids = [p["id"] for p in posts]
+        user_id = user["id"] if user else None
+        likes_set = set()
+        saves_set = set()
+        if user_id and post_ids:
+            user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+            likes_set = {d["post_id"] for d in user_likes}
+            user_saves = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+            saves_set = {d["post_id"] for d in user_saves}
+        
+        likes_counts = {}
+        comments_counts = {}
+        if post_ids:
+            lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+            async for doc in lc:
+                likes_counts[doc["_id"]] = doc["c"]
+            cc = db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+            async for doc in cc:
+                comments_counts[doc["_id"]] = doc["c"]
+        
+        for post in posts:
+            pid = post["id"]
+            post["liked"] = pid in likes_set
+            post["saved"] = pid in saves_set
+            post["likes_count"] = likes_counts.get(pid, 0)
+            post["comments_count"] = comments_counts.get(pid, 0)
+        
+        results["posts"] = posts
+    
+    # Search users
+    if type in ("all", "users"):
+        user_query = {"$or": [
+            {"name": search_regex},
+            {"email": search_regex},
+        ]}
+        user_cursor = db.users.find(user_query, {"_id": 0, "password_hash": 0}).skip(skip).limit(limit)
+        users_list = await user_cursor.to_list(length=limit)
+        
+        # Get follower counts for each user
+        for u in users_list:
+            u["followers_count"] = await db.follows.count_documents({"following_id": u["id"]})
+            u["posts_count"] = await db.posts.count_documents({"author_id": u["id"]})
+        
+        results["users"] = [{k: u.get(k) for k in ("id", "name", "email", "avatar", "followers_count", "posts_count")} for u in users_list]
+    
+    results["total"] = len(results["posts"]) + len(results["users"])
+    return results
+
+@api_router.get("/sohba/explore")
+async def explore_feed(page: int = 1, limit: int = 30, user: dict = Depends(get_user)):
+    """Get trending/explore posts sorted by engagement"""
+    skip = (page - 1) * limit
+    
+    # Get all posts with engagement data
+    pipeline = [
+        {"$lookup": {"from": "likes", "localField": "id", "foreignField": "post_id", "as": "likes_data"}},
+        {"$lookup": {"from": "comments", "localField": "id", "foreignField": "post_id", "as": "comments_data"}},
+        {"$addFields": {
+            "likes_count": {"$size": "$likes_data"},
+            "comments_count": {"$size": "$comments_data"},
+            "engagement_score": {"$add": [{"$multiply": [{"$size": "$likes_data"}, 2]}, {"$size": "$comments_data"}]}
+        }},
+        {"$project": {"_id": 0, "likes_data": 0, "comments_data": 0}},
+        {"$sort": {"engagement_score": -1, "created_at": -1}},
+        {"$skip": skip},
+        {"$limit": limit}
+    ]
+    
+    posts = []
+    async for doc in db.posts.aggregate(pipeline):
+        posts.append(doc)
+    
+    # Enrich with user-specific data
+    user_id = user["id"] if user else None
+    if user_id:
+        post_ids = [p["id"] for p in posts]
+        if post_ids:
+            user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+            likes_set = {d["post_id"] for d in user_likes}
+            user_saves = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+            saves_set = {d["post_id"] for d in user_saves}
+            for post in posts:
+                post["liked"] = post["id"] in likes_set
+                post["saved"] = post["id"] in saves_set
+    else:
+        for post in posts:
+            post["liked"] = False
+            post["saved"] = False
+    
+    total = await db.posts.count_documents({})
+    return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.get("/sohba/trending-users")
+async def trending_users(limit: int = 20, user: dict = Depends(get_user)):
+    """Get users with most followers"""
+    pipeline = [
+        {"$group": {"_id": "$following_id", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": limit}
+    ]
+    trending = []
+    async for doc in db.follows.aggregate(pipeline):
+        u = await db.users.find_one({"id": doc["_id"]}, {"_id": 0, "password_hash": 0})
+        if u:
+            trending.append({
+                "id": u["id"],
+                "name": u.get("name", "مستخدم"),
+                "avatar": u.get("avatar"),
+                "followers_count": doc["count"],
+                "posts_count": await db.posts.count_documents({"author_id": u["id"]}),
+            })
+    return {"users": trending}
+
 # ==================== IMAGE UPLOAD ====================
 UPLOAD_DIR = Path("/app/backend/uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
