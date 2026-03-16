@@ -242,13 +242,13 @@ export default function Index() {
 
         {/* City + Hijri on hero */}
         <div className="absolute bottom-16 left-0 right-0 text-center">
-          <p className="text-white/60 text-xs tracking-widest uppercase mb-1">
+          <p className="text-primary/90 text-xs tracking-widest uppercase mb-1 font-semibold drop-shadow-md">
             {loading ? '...' : hijriDate}
           </p>
           <div className="flex items-center justify-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-white/70" />
-            <p className="text-white font-bold text-base">
-              {locationLoading ? '...' : city || 'تحديد الموقع...'}
+            <MapPin className="h-3.5 w-3.5 text-primary" />
+            <p className="text-primary font-bold text-base drop-shadow-md">
+              {locationLoading ? '...' : city || t('detectLocation')}
             </p>
           </div>
         </div>
@@ -497,7 +497,7 @@ export default function Index() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-base">🛡️</span>
-              <h3 className="text-sm font-bold text-foreground">الرقية الشرعية</h3>
+              <h3 className="text-sm font-bold text-foreground">{t('ruqyahTitle').replace('🛡️ ', '')}</h3>
             </div>
             <Link to="/ruqyah" className="text-xs text-primary font-semibold flex items-center gap-0.5">
               {t('moreLabel')}

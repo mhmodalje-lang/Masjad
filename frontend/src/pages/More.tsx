@@ -19,15 +19,15 @@ import { useState, useEffect } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const tools = [
-  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=150&q=20' },
-  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=150&q=20' },
-  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=150&q=20' },
-  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=150&q=20' },
-  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
-  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-500/15', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=150&q=20' },
-  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-500/15', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=150&q=20' },
-  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-500/15', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=150&q=20' },
-  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-yellow-500/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
+  { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=150&q=20' },
+  { icon: Heart, labelKey: 'tasbih', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=150&q=20' },
+  { icon: Clock, labelKey: 'prayer', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=150&q=20' },
+  { icon: BookOpen, labelKey: 'quran', path: '/quran', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=150&q=20' },
+  { icon: Moon, labelKey: 'duas', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
+  { icon: ShieldCheck, labelKey: 'ruqyah', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-500/15', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=150&q=20' },
+  { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-500/15', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=150&q=20' },
+  { icon: CheckCircle2, labelKey: 'followUp', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-500/15', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=150&q=20' },
+  { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-yellow-500/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
 ];
 
 export default function More() {
@@ -60,7 +60,7 @@ export default function More() {
     <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="more-page">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
-        <h1 className="text-lg font-black text-foreground">المزيد</h1>
+        <h1 className="text-lg font-black text-foreground">{t('more')}</h1>
         <div className="flex items-center gap-1">
           {isAdmin && (
             <Link to="/admin" className="p-2.5 rounded-xl hover:bg-muted/50" data-testid="admin-link">
@@ -95,8 +95,8 @@ export default function More() {
               <LogIn className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <span className="text-sm font-bold text-foreground block">تسجيل الدخول</span>
-              <span className="text-xs text-muted-foreground">سجّل للوصول لكل الميزات</span>
+              <span className="text-sm font-bold text-foreground block">{t('loginSignup')}</span>
+              <span className="text-xs text-muted-foreground">{t('loginPrompt')}</span>
             </div>
           </Link>
         )}
@@ -109,8 +109,8 @@ export default function More() {
             <Coins className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-foreground">المكافآت</p>
-            <p className="text-[10px] text-muted-foreground">اجمع النقاط</p>
+            <p className="text-[13px] font-bold text-foreground">{t('rewards')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('collectPoints')}</p>
           </div>
         </Link>
         <Link to="/ai-assistant" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
@@ -118,8 +118,8 @@ export default function More() {
             <Bot className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-foreground">المساعد الذكي</p>
-            <p className="text-[10px] text-muted-foreground">اسأل عن دينك</p>
+            <p className="text-[13px] font-bold text-foreground">{t('aiAssistant')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('askAboutReligion')}</p>
           </div>
         </Link>
         <Link to="/store" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
@@ -127,8 +127,8 @@ export default function More() {
             <Crown className="h-5 w-5 text-purple-400" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-foreground">المتجر</p>
-            <p className="text-[10px] text-muted-foreground">عناصر مميزة</p>
+            <p className="text-[13px] font-bold text-foreground">{t('shop')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('featuredItems')}</p>
           </div>
         </Link>
         <Link to="/marketplace" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
@@ -136,8 +136,8 @@ export default function More() {
             <ShoppingBag className="h-5 w-5 text-teal-400" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-foreground">السوق</p>
-            <p className="text-[10px] text-muted-foreground">منتجات إسلامية</p>
+            <p className="text-[13px] font-bold text-foreground">{t('marketplace')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('islamicProducts')}</p>
           </div>
         </Link>
       </div>
@@ -145,7 +145,7 @@ export default function More() {
       {/* Islamic Tools */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />الأدوات الإسلامية
+          <Sparkles className="h-3.5 w-3.5 text-primary" />{t('islamicTools')}
         </h3>
         <div className="rounded-2xl bg-card border border-border/30 p-3">
           <div className="grid grid-cols-3 gap-3">
@@ -158,7 +158,7 @@ export default function More() {
                   <div className="absolute inset-0 bg-black/40" />
                   <item.icon className="h-5 w-5 text-white relative z-10 drop-shadow-lg" />
                 </div>
-                <span className="text-[11px] font-bold text-foreground text-center leading-tight">{item.label}</span>
+                <span className="text-[11px] font-bold text-foreground text-center leading-tight">{t(item.labelKey)}</span>
               </Link>
             ))}
           </div>
@@ -168,7 +168,7 @@ export default function More() {
       {/* Settings */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Settings className="h-3.5 w-3.5 text-muted-foreground" />الإعدادات
+          <Settings className="h-3.5 w-3.5 text-muted-foreground" />{t('settings')}
         </h3>
         <div className="rounded-2xl bg-card border border-border/30 divide-y divide-border/15">
           {/* Theme */}
@@ -178,10 +178,10 @@ export default function More() {
               <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
                 {theme === 'dark' ? <Moon className="h-4 w-4 text-amber-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
               </div>
-              <span className="text-sm text-foreground">المظهر</span>
+              <span className="text-sm text-foreground">{t('theme')}</span>
             </div>
             <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">
-              {mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}
+              {mode === 'auto' ? t('auto') : mode === 'dark' ? t('dark') : t('light')}
             </span>
           </button>
           {/* Reminders */}
@@ -191,11 +191,11 @@ export default function More() {
               <div className="h-8 w-8 rounded-lg bg-red-500/15 flex items-center justify-center">
                 {remindersEnabled ? <Bell className="h-4 w-4 text-red-400" /> : <BellOff className="h-4 w-4 text-red-400" />}
               </div>
-              <span className="text-sm text-foreground">التذكيرات</span>
+              <span className="text-sm text-foreground">{t('reminders')}</span>
             </div>
             <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full',
               remindersEnabled ? 'text-green-500 bg-green-500/10' : 'text-muted-foreground bg-muted')}>
-              {remindersEnabled ? 'مفعّل' : 'معطّل'}
+              {remindersEnabled ? t('enabled') : t('disabled')}
             </span>
           </button>
           {/* Notifications Settings */}
@@ -204,7 +204,7 @@ export default function More() {
               <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
                 <Bell className="h-4 w-4 text-blue-400" />
               </div>
-              <span className="text-sm text-foreground">إعدادات الإشعارات</span>
+              <span className="text-sm text-foreground">{t('notificationSettings')}</span>
             </div>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40" />
           </Link>
@@ -276,12 +276,12 @@ export default function More() {
       {/* Help Section */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <HelpCircle className="h-3.5 w-3.5 text-green-400" />المساعدة والدعم
+          <HelpCircle className="h-3.5 w-3.5 text-green-400" />{t('helpSupport')}
         </h3>
         <div className="rounded-2xl bg-card border border-border/30 divide-y divide-border/15">
           <Link to="/contact" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-400" /></div>
-            <span className="text-sm text-foreground">تواصل معنا</span>
+            <span className="text-sm text-foreground">{t('contactUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
           <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
@@ -320,8 +320,8 @@ export default function More() {
             <Heart className="h-6 w-6 text-red-400" />
           </div>
           <div>
-            <p className="text-sm font-bold text-foreground">التبرعات والمساعدة</p>
-            <p className="text-[10px] text-muted-foreground">ساعد المحتاجين - ادعُ لوالديّ</p>
+            <p className="text-sm font-bold text-foreground">{t('donations')}</p>
+            <p className="text-[10px] text-muted-foreground">{t('helpNeedy')}</p>
           </div>
           <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
         </Link>
@@ -331,16 +331,16 @@ export default function More() {
       {user && (
         <div className="px-4 mb-8">
           <button
-            onClick={() => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); }}
+            onClick={() => { signOut(); toast.success(t('loggedOut')); navigate('/'); }}
             data-testid="logout-btn"
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold active:scale-[0.98] transition-all"
           >
-            <LogOut className="h-4 w-4" /> تسجيل الخروج
+            <LogOut className="h-4 w-4" /> {t('logout')}
           </button>
         </div>
       )}
 
-      <p className="text-center text-[10px] text-muted-foreground/30 pb-4">أذان وحكاية v2.0.0</p>
+      <p className="text-center text-[10px] text-muted-foreground/30 pb-4">{t('appName')} v2.0.0</p>
     </div>
   );
 }

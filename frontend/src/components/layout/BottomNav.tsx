@@ -3,18 +3,20 @@ import { Home, Search, Plus, BookOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useLocale } from '@/hooks/useLocale';
 
 const navItems = [
-  { path: '/', icon: Home, label: 'الرئيسية', exact: true },
-  { path: '/explore', icon: Search, label: 'استكشاف' },
-  { path: '/create', icon: Plus, label: '', isCreate: true },
-  { path: '/stories', icon: BookOpen, label: 'حكايات' },
-  { path: '/profile', icon: User, label: 'الملف' },
+  { path: '/', icon: Home, labelKey: 'home', exact: true },
+  { path: '/explore', icon: Search, labelKey: 'explore' },
+  { path: '/create', icon: Plus, labelKey: '', isCreate: true },
+  { path: '/stories', icon: BookOpen, labelKey: 'stories' },
+  { path: '/profile', icon: User, labelKey: 'morePage' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
+  const { t, dir } = useLocale();
 
   const hiddenPaths = ['/auth'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
@@ -24,7 +26,7 @@ export function BottomNav() {
       data-testid="bottom-nav"
       className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/30 bg-card/95 backdrop-blur-2xl"
     >
-      <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir="rtl">
+      <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir={dir}>
         {navItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.path
@@ -64,7 +66,7 @@ export function BottomNav() {
               )}
               <item.icon className={cn('h-[22px] w-[22px] shrink-0 transition-transform duration-200', isActive && 'scale-110 stroke-[2.5px]')} />
               <span className={cn("font-semibold text-[11px] leading-tight text-center truncate w-full px-0.5", isActive && 'font-bold')}>
-                {item.label}
+                {t(item.labelKey)}
               </span>
             </Link>
           );
