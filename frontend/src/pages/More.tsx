@@ -7,10 +7,10 @@ import {
   Compass, Heart, Calculator, User, LogIn, LogOut, Moon, Sun, BookOpen, Clock,
   CheckCircle2, Shield, Bell, BellOff, ShieldCheck, ChevronLeft, Star,
   Share2, HelpCircle, Crown, Settings, Gem, Eye, Users, MessageSquare, Coins,
-  Bot, Store, ShoppingBag
+  Bot, Store, ShoppingBag, Mail, Info, Award, Sparkles, TrendingUp,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type LucideIconType = typeof Compass;
 import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
 import { toast } from 'sonner';
@@ -19,23 +19,25 @@ import { useState, useEffect } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const tools = [
-  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-teal-500', bg: 'bg-teal-500/10' },
-  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-500', bg: 'bg-purple-500/10' },
-  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-500', bg: 'bg-green-500/10' },
-  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-500', bg: 'bg-orange-500/10' },
-  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
-  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
+  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-400/10' },
+  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/10' },
+  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-primary', bg: 'bg-primary/10' },
+  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/10' },
+  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-400/10' },
+  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-400/10' },
+  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-primary', bg: 'bg-primary/10' },
 ];
 
-interface QuickLinkProps { icon: typeof User; label: string; to?: string; onClick?: () => void; trailing?: React.ReactNode; }
-function QuickLink({ icon: Icon, label, to, onClick, trailing }: QuickLinkProps) {
+interface QuickLinkProps { icon: typeof Compass; label: string; to?: string; onClick?: () => void; trailing?: React.ReactNode; color?: string; }
+function QuickLink({ icon: Icon, label, to, onClick, trailing, color }: QuickLinkProps) {
   const inner = (
-    <div className="flex items-center justify-between py-3 px-1 border-b border-border/20 last:border-0">
+    <div className="flex items-center justify-between py-3 px-1 border-b border-border/10 last:border-0">
       <div className="flex items-center gap-3">
-        <Icon className="h-4.5 w-4.5 text-muted-foreground" />
+        <div className={cn('h-8 w-8 rounded-xl flex items-center justify-center', color || 'bg-primary/10')}>
+          <Icon className="h-4 w-4 text-white" />
+        </div>
         <span className="text-sm text-foreground">{label}</span>
       </div>
       {trailing || <ChevronLeft className="h-4 w-4 text-muted-foreground/40" />}
@@ -51,18 +53,7 @@ export default function More() {
   const { theme, mode, setMode } = useTheme();
   const { enabled: remindersEnabled, toggle: toggleReminders } = useDailyReminders();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
   const [loginStreak, setLoginStreak] = useState(0);
-
-  useEffect(() => {
-    if (!user) return;
-    const token = localStorage.getItem('auth_token');
-    if (!token) return;
-    fetch(`${BACKEND_URL}/api/sohba/my-stats`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setStats(d); })
-      .catch(() => {});
-  }, [user]);
 
   useEffect(() => {
     const streakData = localStorage.getItem('login_streak');
@@ -92,15 +83,15 @@ export default function More() {
 
   return (
     <div className="min-h-screen pb-24" dir="rtl" data-testid="more-page">
-      {/* Profile Section */}
-      <div className="relative bg-gradient-to-br from-emerald-900 via-teal-800 to-green-900 px-5 pb-16 pt-safe-header overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23fff\' fill-opacity=\'.3\'%3E%3Cpath d=\'M20 0l5 10h10l-8 6 3 10-10-7-10 7 3-10-8-6h10z\'/%3E%3C/g%3E%3C/svg%3E")' }} />
+      {/* Header */}
+      <div className="relative bg-gradient-to-br from-black via-gray-900 to-black px-5 pb-16 pt-safe-header overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23d4a137\' fill-opacity=\'.3\'%3E%3Cpath d=\'M20 0l5 10h10l-8 6 3 10-10-7-10 7 3-10-8-6h10z\'/%3E%3C/g%3E%3C/svg%3E")' }} />
         <div className="relative flex items-center justify-between mb-5 pt-3">
           <h1 className="text-lg font-bold text-white">المزيد</h1>
           <div className="flex items-center gap-2">
             {isAdmin && (
               <Link to="/admin" className="p-2 rounded-xl bg-white/10" data-testid="admin-link">
-                <Shield className="h-4 w-4 text-amber-400" />
+                <Shield className="h-4 w-4 text-primary" />
               </Link>
             )}
             <Link to="/notifications" className="p-2 rounded-xl bg-white/10">
@@ -111,18 +102,18 @@ export default function More() {
 
         {user ? (
           <div className="relative flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-white/15 border-2 border-white/20 flex items-center justify-center shrink-0">
+            <div className="h-16 w-16 rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center shrink-0">
               {user.avatar ? (
                 <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
               ) : (
-                <span className="text-2xl text-white/80">{user.name?.[0] || user.email?.[0] || '؟'}</span>
+                <span className="text-2xl text-primary">{user.name?.[0] || user.email?.[0] || '؟'}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold text-white truncate">{user.name || 'مستخدم'}</h2>
               <p className="text-white/40 text-xs truncate">{user.email}</p>
               {loginStreak > 1 && (
-                <span className="inline-flex items-center gap-1 mt-1 bg-amber-500/20 text-amber-300 text-[10px] px-2 py-0.5 rounded-full font-bold">
+                <span className="inline-flex items-center gap-1 mt-1 bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">
                   <Gem className="h-3 w-3" /> {loginStreak} يوم متتابع
                 </span>
               )}
@@ -137,50 +128,35 @@ export default function More() {
         <div className="absolute -bottom-5 left-0 right-0 h-10 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Stats */}
-      {user && (
-        <div className="px-5 -mt-1 mb-4">
-          <div className="rounded-2xl bg-card border border-border/30 p-4 flex items-center justify-around">
-            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.posts}</span><p className="text-[10px] text-muted-foreground">منشورات</p></div>
-            <div className="w-px h-8 bg-border/30" />
-            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.followers}</span><p className="text-[10px] text-muted-foreground">متابعين</p></div>
-            <div className="w-px h-8 bg-border/30" />
-            <div className="text-center"><span className="text-sm font-bold text-foreground">{stats.following}</span><p className="text-[10px] text-muted-foreground">متابَعين</p></div>
-          </div>
-        </div>
-      )}
-
-      {/* Rewards & Store */}
-      <div className="px-5 mb-4 grid grid-cols-2 gap-3">
-        <Link to="/rewards" className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/5 border border-amber-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="rewards-link">
-          <Coins className="h-6 w-6 text-amber-500 mb-2" />
+      {/* Features Grid */}
+      <div className="px-5 -mt-1 mb-4 grid grid-cols-2 gap-3">
+        <Link to="/rewards" className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-4 active:scale-[0.97] transition-transform" data-testid="rewards-link">
+          <Coins className="h-6 w-6 text-primary mb-2" />
           <p className="text-sm font-bold text-foreground">المكافآت</p>
           <p className="text-[10px] text-muted-foreground">اجمع النقاط يومياً</p>
         </Link>
         <Link to="/store" className="rounded-2xl bg-gradient-to-br from-purple-500/10 to-violet-500/5 border border-purple-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="store-link">
-          <Crown className="h-6 w-6 text-purple-500 mb-2" />
+          <Crown className="h-6 w-6 text-purple-400 mb-2" />
           <p className="text-sm font-bold text-foreground">المتجر</p>
           <p className="text-[10px] text-muted-foreground">عناصر مميزة</p>
         </Link>
-      </div>
-
-      {/* AI & Marketplace */}
-      <div className="px-5 mb-4 grid grid-cols-2 gap-3">
         <Link to="/ai-assistant" className="rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="ai-assistant-link">
-          <Bot className="h-6 w-6 text-blue-500 mb-2" />
-          <p className="text-sm font-bold text-foreground">المساعد الديني</p>
+          <Bot className="h-6 w-6 text-blue-400 mb-2" />
+          <p className="text-sm font-bold text-foreground">المساعد الذكي</p>
           <p className="text-[10px] text-muted-foreground">اسأل عن دينك</p>
         </Link>
         <Link to="/marketplace" className="rounded-2xl bg-gradient-to-br from-teal-500/10 to-green-500/5 border border-teal-500/20 p-4 active:scale-[0.97] transition-transform" data-testid="marketplace-link">
-          <ShoppingBag className="h-6 w-6 text-teal-500 mb-2" />
+          <ShoppingBag className="h-6 w-6 text-teal-400 mb-2" />
           <p className="text-sm font-bold text-foreground">السوق</p>
           <p className="text-[10px] text-muted-foreground">منتجات إسلامية</p>
         </Link>
       </div>
 
-      {/* Tools Grid */}
+      {/* Islamic Tools Grid */}
       <div className="px-5 mb-4">
-        <h3 className="text-sm font-bold text-foreground mb-3">الأدوات الإسلامية</h3>
+        <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />الأدوات الإسلامية
+        </h3>
         <div className="rounded-2xl bg-card border border-border/30 p-4">
           <div className="grid grid-cols-4 gap-4">
             {tools.map((item, i) => (
@@ -195,18 +171,21 @@ export default function More() {
         </div>
       </div>
 
-      {/* Settings */}
+      {/* Settings Section */}
       <div className="px-5 mb-4">
-        <h3 className="text-sm font-bold text-foreground mb-3">الإعدادات</h3>
+        <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+          <Settings className="h-4 w-4 text-muted-foreground" />الإعدادات
+        </h3>
         <div className="rounded-2xl bg-card border border-border/30 px-4">
-          <QuickLink icon={user ? User : LogIn} label={user ? 'حسابي' : 'تسجيل الدخول'} to={user ? '/account' : '/auth'} />
+          <QuickLink icon={user ? User : LogIn} label={user ? 'حسابي' : 'تسجيل الدخول'} to={user ? '/account' : '/auth'} color="bg-gradient-to-br from-primary/80 to-primary" />
           <QuickLink
             icon={theme === 'dark' ? Moon : Sun}
             label={`المظهر: ${mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}`}
             onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
+            color="bg-gradient-to-br from-amber-500 to-orange-500"
             trailing={
               <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full',
-                theme === 'dark' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-600'
+                theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-amber-500/10 text-amber-600'
               )}>{mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}</span>
             }
           />
@@ -214,6 +193,7 @@ export default function More() {
             icon={remindersEnabled ? Bell : BellOff}
             label="التذكيرات اليومية"
             onClick={handleToggleReminders}
+            color="bg-gradient-to-br from-red-500 to-rose-500"
             trailing={
               <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded-full', remindersEnabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground')}>
                 {remindersEnabled ? 'مفعّل' : 'معطّل'}
@@ -231,15 +211,19 @@ export default function More() {
         </div>
       </div>
 
-      {/* Quick Links */}
+      {/* Help & Support Section */}
       <div className="px-5 mb-4">
+        <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+          <HelpCircle className="h-4 w-4 text-green-400" />المساعدة والدعم
+        </h3>
         <div className="rounded-2xl bg-card border border-border/30 px-4">
-          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
+          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} color="bg-gradient-to-br from-yellow-500 to-amber-500" />
           <QuickLink icon={Share2} label="دعوة صديق" onClick={() => {
             if (navigator.share) navigator.share({ title: 'أذان وحكاية', url: window.location.origin });
             else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
-          }} />
-          <QuickLink icon={HelpCircle} label="المساعدة والدعم" onClick={() => toast.info('ادعمنا@almuadhin.com')} />
+          }} color="bg-gradient-to-br from-blue-500 to-indigo-500" />
+          <QuickLink icon={Mail} label="تواصل معنا" onClick={() => toast.info('ادعمنا@almuadhin.com')} color="bg-gradient-to-br from-green-500 to-emerald-500" />
+          <QuickLink icon={Info} label="عن التطبيق" onClick={() => toast.info('أذان وحكاية v2.0 - تطبيق إسلامي شامل')} color="bg-gradient-to-br from-purple-500 to-violet-500" />
         </div>
       </div>
 

@@ -385,3 +385,99 @@ agent_communication:
     message: "✅ STORIES & EMBED CONTENT TESTING COMPLETE - Tested all 14 requested endpoints successfully: Authentication working with Bearer tokens, all 8 Islamic story categories available, story CRUD operations functional, Arabic content handling perfect, search working with Arabic text, view tracking operational, like/comment social features working, embed content API fixed and operational. Fixed critical MongoDB cursor bug in embed content endpoint. All NEW Stories APIs and Admin embed content features verified and working."
   - agent: "main"
     message: "Phase 2: Fixed Stories like/comment buttons, rebuilt Profile page with full story grid, fixed Explore page navigation to story detail, added embed content creates linked story post, added General category. Need to verify: 1) Like/unlike flow, 2) Comment creation, 3) Story detail view increments views, 4) Admin embed creates story in feed, 5) Search Arabic text."
+  - agent: "main"
+    message: "Phase 3 - Major Update: 1) Fixed Profile page - dropdown menu instead of navigating to /more, organized sections, connected saved/liked tabs to backend. 2) Fixed AdBanner - switched from Supabase to MongoDB backend API. 3) Rewrote Stories page - removed 'متضمن' label, added fullscreen video viewer with swipe, AI auto-categorization, better video upload. 4) Rewrote More page - clean separation between tools and help sections. 5) Applied black and golden Islamic theme. 6) Added new backend endpoints: GET /api/stories/my-saved, GET /api/stories/my-liked, POST /api/stories/auto-categorize, GET /api/ads/placement/{position}, updated GET /api/sohba/my-stats with total_likes/saved/liked counts."
+
+backend:
+  - task: "Saved Stories API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "GET /api/stories/my-saved - returns stories saved by current user with likes/saves info"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/stories/my-saved working perfectly. Fixed FastAPI routing conflict by moving specific routes before generic {story_id} route. Returns saved stories with proper likes/saves info, found 2 saved stories in test. Authentication with Bearer token working correctly."
+
+  - task: "Liked Stories API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "GET /api/stories/my-liked - returns stories liked by current user"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/stories/my-liked working perfectly. Returns liked stories with proper saved status, found 2 liked stories in test. Authentication with Bearer token working correctly."
+
+  - task: "AI Auto-Categorize API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/stories/auto-categorize - uses Gemini AI to categorize Islamic content"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: POST /api/stories/auto-categorize working perfectly. AI categorization using Gemini 2.0 Flash successful. Tested with Arabic Islamic content, returns valid category. Authentication with Bearer token working correctly."
+
+  - task: "Ads Placement API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "GET /api/ads/placement/{position} - serves ads from MongoDB for specific placement"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/ads/placement/home working perfectly. Returns empty ads array as expected for new system. No authentication required. MongoDB query working correctly."
+
+  - task: "Updated My Stats API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "GET /api/sohba/my-stats - now returns total_likes, saved_count, liked_count"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: GET /api/sohba/my-stats working perfectly. Returns all required fields: posts, stories, followers, following, total_likes, saved_count, liked_count. Counts reflect user actions correctly (saved_count: 2, liked_count: 2, total_likes: 2). Authentication with Bearer token working correctly."
+
+test_plan:
+  current_focus: []
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Major rewrite: 1) Added Stories system backend (create/list/view/search/most-viewed/most-interacted). 2) Added Admin embed content APIs. 3) Removed Sohba from nav, replaced with Stories. 4) Renamed app to أذان وحكاية. 5) Redesigned Explore page. 6) Applied smoky theme. Test the new Stories APIs and Admin embed content APIs."
+  - agent: "testing"
+    message: "✅ STORIES & EMBED CONTENT TESTING COMPLETE - Tested all 14 requested endpoints successfully: Authentication working with Bearer tokens, all 8 Islamic story categories available, story CRUD operations functional, Arabic content handling perfect, search working with Arabic text, view tracking operational, like/comment social features working, embed content API fixed and operational. Fixed critical MongoDB cursor bug in embed content endpoint. All NEW Stories APIs and Admin embed content features verified and working."
+  - agent: "main"
+    message: "Phase 2: Fixed Stories like/comment buttons, rebuilt Profile page with full story grid, fixed Explore page navigation to story detail, added embed content creates linked story post, added General category. Need to verify: 1) Like/unlike flow, 2) Comment creation, 3) Story detail view increments views, 4) Admin embed creates story in feed, 5) Search Arabic text."
+  - agent: "main"
+    message: "Phase 3 - Major Update: 1) Fixed Profile page - dropdown menu instead of navigating to /more, organized sections, connected saved/liked tabs to backend. 2) Fixed AdBanner - switched from Supabase to MongoDB backend API. 3) Rewrote Stories page - removed 'متضمن' label, added fullscreen video viewer with swipe, AI auto-categorization, better video upload. 4) Rewrote More page - clean separation between tools and help sections. 5) Applied black and golden Islamic theme. 6) Added new backend endpoints: GET /api/stories/my-saved, GET /api/stories/my-liked, POST /api/stories/auto-categorize, GET /api/ads/placement/{position}, updated GET /api/sohba/my-stats with total_likes/saved/liked counts."
+  - agent: "testing"
+    message: "✅ PHASE 3 TESTING COMPLETE - All 5 new backend endpoints tested successfully: 1) Fixed critical FastAPI routing conflict where /stories/{story_id} was matching /stories/my-saved before specific routes 2) GET /api/stories/my-saved working (found 2 saved stories) 3) GET /api/stories/my-liked working (found 2 liked stories) 4) POST /api/stories/auto-categorize working (AI with Gemini 2.0 Flash) 5) GET /api/ads/placement/home working (returns empty array as expected) 6) GET /api/sohba/my-stats working with all new fields (total_likes, saved_count, liked_count). All endpoints require Bearer token authentication except ads. Authentication flows perfect. No critical issues found."

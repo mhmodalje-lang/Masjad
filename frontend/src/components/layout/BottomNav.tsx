@@ -38,8 +38,8 @@ export function BottomNav() {
                 data-testid="nav-create"
                 className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 transition-all min-w-0"
               >
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                  <Plus className="h-6 w-6 text-white stroke-[2.5px]" />
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-amber-600 flex items-center justify-center shadow-lg shadow-primary/30">
+                  <Plus className="h-6 w-6 text-primary-foreground stroke-[2.5px]" />
                 </div>
               </Link>
             );

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark, FileText, Film, Play } from 'lucide-react';
+import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark, FileText, Film, Play, Maximize2, ChevronUp, ChevronDown, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -12,6 +12,11 @@ const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 function getToken() { return localStorage.getItem('auth_token') || ''; }
 function authHeaders(): Record<string, string> {
   const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const t = getToken(); if (t) h['Authorization'] = `Bearer ${t}`;
+  return h;
+}
+function authHeadersNoJson(): Record<string, string> {
+  const h: Record<string, string> = {};
   const t = getToken(); if (t) h['Authorization'] = `Bearer ${t}`;
   return h;
 }
@@ -32,7 +37,7 @@ interface Category {
   key: string; label: string; emoji: string; icon: string; color: string;
 }
 
-const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'];
+const avatarColors = ['bg-amber-600', 'bg-yellow-600', 'bg-orange-600', 'bg-rose-600', 'bg-purple-600', 'bg-teal-600'];
 
 function timeAgo(iso: string): string {
   const d = Date.now() - new Date(iso).getTime();
@@ -50,6 +55,153 @@ const catIcons: Record<string, any> = {
   general: FileText, istighfar: Sparkles, sahaba: BookOpen, quran: BookOpen, prophets: Star,
   ruqyah: Shield, rizq: Coins, tawba: Heart, miracles: Moon, embed: Film,
 };
+
+/* ========== FULLSCREEN VIDEO VIEWER ========== */
+function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]; initialIndex: number; onClose: () => void }) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [isHorizontal, setIsHorizontal] = useState(true);
+  const [showComments, setShowComments] = useState(false);
+  const { user } = useAuth();
+  const touchStart = useRef({ x: 0, y: 0 });
+  const story = stories[currentIndex];
+
+  const goNext = () => { if (currentIndex < stories.length - 1) setCurrentIndex(i => i + 1); };
+  const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStart.current.x;
+    const dy = e.changedTouches[0].clientY - touchStart.current.y;
+    if (isHorizontal) {
+      if (Math.abs(dx) > 50) { dx < 0 ? goNext() : goPrev(); }
+    } else {
+      if (Math.abs(dy) > 50) { dy < 0 ? goNext() : goPrev(); }
+    }
+  };
+
+  const toggleLike = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      stories[currentIndex] = { ...story, liked: d.liked, likes_count: story.likes_count + (d.liked ? 1 : -1) };
+    } catch {}
+  };
+
+  const toggleSave = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      stories[currentIndex] = { ...story, saved: d.saved };
+      toast.success(d.saved ? 'تم الحفظ' : 'تم إلغاء الحفظ');
+    } catch {}
+  };
+
+  if (!story) return null;
+  const isEmbed = story.is_embed || story.media_type === 'embed';
+  const rawUrl = story.image_url;
+  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const isVideo = story.media_type === 'video' || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[1000] bg-black flex flex-col"
+      dir="rtl"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,8px)] pb-2 bg-gradient-to-b from-black/80 to-transparent">
+        <button onClick={onClose} className="p-2 rounded-full bg-white/10 backdrop-blur-sm">
+          <X className="h-5 w-5 text-white" />
+        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-white/60">{currentIndex + 1}/{stories.length}</span>
+          <button onClick={() => setIsHorizontal(!isHorizontal)} className="p-2 rounded-full bg-white/10 backdrop-blur-sm">
+            <Maximize2 className="h-4 w-4 text-white" />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex items-center justify-center overflow-hidden">
+        {isEmbed && story.embed_url ? (
+          <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        ) : isVideo && mediaUrl ? (
+          <video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline />
+        ) : mediaUrl ? (
+          <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center p-8">
+            <div className="max-w-md text-center">
+              {story.title && <h2 className="text-xl font-bold text-white mb-4">{story.title}</h2>}
+              <p className="text-sm text-white/80 leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom info & actions */}
+      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-[calc(env(safe-area-inset-bottom,8px)+16px)] pt-16">
+        <div className="flex items-end gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[(story.author_name || '').charCodeAt(0) % avatarColors.length])}>
+                {story.author_name?.[0] || '؟'}
+              </div>
+              <span className="text-sm font-bold text-white">{story.author_name}</span>
+              <span className="text-xs text-white/50">{timeAgo(story.created_at)}</span>
+            </div>
+            {story.title && <p className="text-sm font-bold text-white line-clamp-2 mb-1">{story.title}</p>}
+            {!isVideo && !isEmbed && <p className="text-xs text-white/70 line-clamp-2">{story.content}</p>}
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <button onClick={toggleLike} className="flex flex-col items-center active:scale-90 transition-transform">
+              <Heart className={cn("h-7 w-7", story.liked ? "text-red-500 fill-red-500" : "text-white")} />
+              <span className="text-[10px] text-white font-bold mt-0.5">{story.likes_count || 0}</span>
+            </button>
+            <button onClick={() => setShowComments(true)} className="flex flex-col items-center active:scale-90 transition-transform">
+              <MessageCircle className="h-7 w-7 text-white" />
+              <span className="text-[10px] text-white font-bold mt-0.5">{story.comments_count || 0}</span>
+            </button>
+            <button onClick={toggleSave} className="flex flex-col items-center active:scale-90 transition-transform">
+              <Bookmark className={cn("h-7 w-7", story.saved ? "text-primary fill-primary" : "text-white")} />
+            </button>
+            <button onClick={() => {
+              navigator.clipboard?.writeText(`${window.location.origin}/stories?story=${story.id}`);
+              toast.success('تم نسخ الرابط');
+            }} className="flex flex-col items-center active:scale-90 transition-transform">
+              <Share2 className="h-6 w-6 text-white" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation arrows */}
+      {currentIndex > 0 && (
+        <button onClick={goPrev} className="absolute top-1/2 right-2 -translate-y-1/2 p-2 rounded-full bg-white/10 backdrop-blur-sm">
+          <ChevronLeft className="h-5 w-5 text-white rotate-180" />
+        </button>
+      )}
+      {currentIndex < stories.length - 1 && (
+        <button onClick={goNext} className="absolute top-1/2 left-2 -translate-y-1/2 p-2 rounded-full bg-white/10 backdrop-blur-sm">
+          <ChevronLeft className="h-5 w-5 text-white" />
+        </button>
+      )}
+
+      <AnimatePresence>
+        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} />}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 /* ========== COMMENTS SHEET ========== */
 function CommentsSheet({ storyId, onClose, onCommentAdded }: { storyId: string; onClose: () => void; onCommentAdded?: () => void }) {
@@ -74,11 +226,7 @@ function CommentsSheet({ storyId, onClose, onCommentAdded }: { storyId: string; 
       });
       if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
       const d = await r.json();
-      if (d.comment) {
-        setComments(p => [...p, d.comment]);
-        setText('');
-        onCommentAdded?.();
-      }
+      if (d.comment) { setComments(p => [...p, d.comment]); setText(''); onCommentAdded?.(); }
     } catch { toast.error('خطأ في إرسال التعليق'); }
     setSending(false);
   };
@@ -86,38 +234,32 @@ function CommentsSheet({ storyId, onClose, onCommentAdded }: { storyId: string; 
   return (
     <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      className="fixed inset-0 z-[1001] flex flex-col" dir="rtl">
       <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-border/30">
+      <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-primary/20">
         <div className="flex justify-center pt-2 pb-1"><div className="w-10 h-1 rounded-full bg-muted-foreground/30" /></div>
         <div className="flex items-center justify-between px-5 py-2 border-b border-border/20">
           <span className="text-sm font-bold">{comments.length} تعليق</span>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/50"><X className="h-5 w-5 text-muted-foreground" /></button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4 min-h-[120px]">
-          {loading ? (
-            <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-          ) : comments.length === 0 ? (
-            <p className="text-center text-xs text-muted-foreground py-10">لا توجد تعليقات بعد<br />كن أول من يعلّق!</p>
-          ) : (
-            comments.map(c => {
-              const ci = (c.author_name || '').charCodeAt(0) % avatarColors.length;
-              return (
-                <div key={c.id} className="flex gap-2.5">
-                  <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[ci])}>
-                    {c.author_avatar ? <img src={c.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : c.author_name?.[0]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-bold text-foreground">{c.author_name}</span>
-                      <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
-                    </div>
-                    <p className="text-[13px] text-foreground/85 mt-0.5 leading-relaxed" dir="auto">{c.content}</p>
-                  </div>
+          {loading ? <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">لا توجد تعليقات بعد<br />كن أول من يعلّق!</p>
+            : comments.map(c => (
+              <div key={c.id} className="flex gap-2.5">
+                <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[(c.author_name || '').charCodeAt(0) % avatarColors.length])}>
+                  {c.author_avatar ? <img src={c.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : c.author_name?.[0]}
                 </div>
-              );
-            })
-          )}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] font-bold text-foreground">{c.author_name}</span>
+                    <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                  </div>
+                  <p className="text-[13px] text-foreground/85 mt-0.5 leading-relaxed" dir="auto">{c.content}</p>
+                </div>
+              </div>
+            ))
+          }
         </div>
         <div className="px-4 py-3 border-t border-border/20 flex gap-2 bg-card">
           <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
@@ -141,25 +283,59 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
   const [mediaType, setMediaType] = useState('text');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const maxChars = 5000;
-  // filter out embed category for user creation
   const userCategories = categories.filter(c => c.key !== 'embed');
 
   const handleFile = async (file: File) => {
-    if (file.size < 5 * 1024 * 1024) {
-      const reader = new FileReader();
-      reader.onload = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      const formData = new FormData(); formData.append('file', file);
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', body: formData });
-        const data = await res.json();
-        if (res.ok && data.url) setImagePreview(`${BACKEND_URL}${data.url}`);
-        else toast.error('فشل رفع الملف');
-      } catch { toast.error('خطأ في الرفع'); }
+    setUploading(true);
+    setUploadProgress(0);
+    // Determine media type from file
+    const isVid = file.type.startsWith('video/');
+    if (isVid) setMediaType('video');
+    else setMediaType('image');
+
+    // Always use multipart upload (no size limit)
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, {
+        method: 'POST',
+        headers: authHeadersNoJson(),
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setImagePreview(`${BACKEND_URL}${data.url}`);
+        toast.success('تم رفع الملف بنجاح');
+      } else {
+        toast.error('فشل رفع الملف');
+      }
+    } catch {
+      toast.error('خطأ في الرفع');
     }
+    setUploading(false);
+    setUploadProgress(100);
+  };
+
+  const autoCategorize = async () => {
+    if (!title.trim() && !content.trim()) return;
+    setAiLoading(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/stories/auto-categorize`, {
+        method: 'POST', headers: authHeaders(),
+        body: JSON.stringify({ title: title.trim(), content: content.trim() })
+      });
+      const d = await r.json();
+      if (d.category) {
+        setCategory(d.category);
+        toast.success('تم التصنيف تلقائياً بالذكاء الاصطناعي ✨');
+      }
+    } catch { toast.error('خطأ في التصنيف'); }
+    setAiLoading(false);
   };
 
   const submit = async () => {
@@ -167,13 +343,13 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
     setPosting(true);
     let uploadedUrl = '';
     if (imagePreview) {
-      if (imagePreview.startsWith('data:')) {
+      if (imagePreview.includes('/api/uploads/')) {
+        uploadedUrl = imagePreview.replace(BACKEND_URL, '');
+      } else if (imagePreview.startsWith('data:')) {
         try {
           const r = await fetch(`${BACKEND_URL}/api/upload/file`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ data: imagePreview, filename: 'story.jpg' }) });
           const d = await r.json(); if (r.ok) uploadedUrl = d.url;
         } catch {}
-      } else if (imagePreview.includes('/api/uploads/')) {
-        uploadedUrl = imagePreview.replace(BACKEND_URL, '');
       }
     }
     try {
@@ -192,7 +368,7 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
       className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
       <div className="flex-1 bg-black/60" onClick={onClose} />
-      <div className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col border-t border-border/30">
+      <div className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col border-t border-primary/20">
         <div className="flex items-center justify-between p-4 border-b border-border/20">
           <button onClick={onClose} className="text-sm text-muted-foreground font-medium">إلغاء</button>
           <h3 className="text-sm font-bold">قصة جديدة ✨</h3>
@@ -213,23 +389,40 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
           </div>
           {imagePreview && (
             <div className="relative rounded-xl overflow-hidden">
-              <img src={imagePreview} alt="" className="w-full max-h-48 object-cover rounded-xl" />
+              {mediaType === 'video' ? (
+                <video src={imagePreview} className="w-full max-h-48 object-cover rounded-xl" controls />
+              ) : (
+                <img src={imagePreview} alt="" className="w-full max-h-48 object-cover rounded-xl" />
+              )}
               <button onClick={() => setImagePreview(null)} className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white"><X className="h-3.5 w-3.5" /></button>
+            </div>
+          )}
+          {uploading && (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-xs text-muted-foreground">جاري الرفع...</span>
             </div>
           )}
           <div className="flex gap-2">
             <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
-            <button onClick={() => { setMediaType('image'); fileRef.current?.click(); }}
+            <button onClick={() => { fileRef.current?.click(); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors border border-border/20">
               <Image className="h-4 w-4" /> صورة
             </button>
-            <button onClick={() => { setMediaType('video'); fileRef.current?.click(); }}
+            <button onClick={() => { fileRef.current?.setAttribute('accept', 'video/*'); fileRef.current?.click(); }}
               className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors border border-border/20">
               <Video className="h-4 w-4" /> فيديو
             </button>
           </div>
           <div>
-            <p className="text-xs font-bold text-muted-foreground mb-2">القسم:</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold text-muted-foreground">القسم:</p>
+              <button onClick={autoCategorize} disabled={aiLoading || (!title.trim() && !content.trim())}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold disabled:opacity-40 active:scale-95">
+                {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                تصنيف ذكي
+              </button>
+            </div>
             <div className="flex flex-wrap gap-2">
               {userCategories.map((c) => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
@@ -247,15 +440,17 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
 }
 
 /* ========== STORY CARD ========== */
-function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
+function StoryCard({ story, onOpen, onToggleLike, onOpenComments, onToggleSave }: {
   story: Story; onOpen: () => void;
   onToggleLike: (e: React.MouseEvent) => void;
   onOpenComments: (e: React.MouseEvent) => void;
+  onToggleSave: (e: React.MouseEvent) => void;
 }) {
   const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
   const rawUrl = story.image_url;
   const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
   const isEmbed = story.is_embed || story.media_type === 'embed';
+  const isVideo = story.media_type === 'video' || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
 
   return (
     <motion.div
@@ -263,7 +458,6 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:border-primary/30 transition-all shadow-sm hover:shadow-md"
     >
-      {/* Thumbnail / Embed Preview */}
       {isEmbed && story.embed_url ? (
         <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={onOpen}>
           <iframe src={story.embed_url} title={story.title} className="w-full h-full pointer-events-none" frameBorder={0}
@@ -271,6 +465,15 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
           <div className="absolute inset-0 bg-transparent" />
           <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
             <Play className="h-2.5 w-2.5 fill-white" />{story.platform || 'فيديو'}
+          </div>
+        </div>
+      ) : isVideo && mediaUrl ? (
+        <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={onOpen}>
+          <video src={mediaUrl} className="w-full h-full object-cover" muted preload="metadata" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="h-14 w-14 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+              <Play className="h-7 w-7 text-white fill-white" />
+            </div>
           </div>
         </div>
       ) : mediaUrl ? (
@@ -292,7 +495,6 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
         {!isEmbed && <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{story.content}</p>}
       </div>
 
-      {/* Action Bar */}
       <div className="flex items-center justify-between px-4 pb-3 pt-1 border-t border-border/15 mx-4">
         <div className="flex items-center gap-4">
           <button onClick={onToggleLike} className="flex items-center gap-1.5 text-xs active:scale-90 transition-transform">
@@ -302,6 +504,9 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
           <button onClick={onOpenComments} className="flex items-center gap-1.5 text-xs active:scale-90 transition-transform">
             <MessageCircle className="h-[18px] w-[18px] text-muted-foreground" />
             <span className="font-bold text-muted-foreground">{story.comments_count || 0}</span>
+          </button>
+          <button onClick={onToggleSave} className="flex items-center gap-1 text-xs active:scale-90 transition-transform">
+            <Bookmark className={cn("h-[18px] w-[18px] transition-all", story.saved ? "text-primary fill-primary" : "text-muted-foreground")} />
           </button>
         </div>
         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -313,7 +518,7 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
 }
 
 /* ========== STORY DETAIL VIEW ========== */
-function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void }) {
+function StoryDetail({ storyId, onBack, stories, onOpenViewer }: { storyId: string; onBack: () => void; stories: Story[]; onOpenViewer: (idx: number) => void }) {
   const { user } = useAuth();
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
@@ -337,6 +542,17 @@ function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void 
     } catch {}
   };
 
+  const toggleSave = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!story) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStory(s => s ? { ...s, saved: d.saved } : s);
+      toast.success(d.saved ? 'تم الحفظ' : 'تم إلغاء الحفظ');
+    } catch {}
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!story) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">القصة غير موجودة</div>;
 
@@ -344,6 +560,7 @@ function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void 
   const rawUrl = story.image_url;
   const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
   const isEmbed = story.is_embed || story.media_type === 'embed';
+  const isVideo = story.media_type === 'video' || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir="rtl">
@@ -353,18 +570,29 @@ function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void 
             <ArrowRight className="h-5 w-5 text-foreground" />
           </button>
           <h2 className="text-sm font-bold text-foreground truncate flex-1 mx-3 text-center">القصة</h2>
-          <button onClick={() => {
-            navigator.clipboard?.writeText(`${window.location.origin}/stories?story=${story.id}`);
-            toast.success('تم نسخ الرابط');
-          }} className="p-2 rounded-xl bg-muted/50"><Share2 className="h-4 w-4 text-muted-foreground" /></button>
+          <div className="flex items-center gap-1">
+            {(isVideo || isEmbed) && (
+              <button onClick={() => {
+                const idx = stories.findIndex(s => s.id === story.id);
+                if (idx >= 0) onOpenViewer(idx);
+              }} className="p-2 rounded-xl bg-muted/50"><Maximize2 className="h-4 w-4 text-muted-foreground" /></button>
+            )}
+            <button onClick={() => {
+              navigator.clipboard?.writeText(`${window.location.origin}/stories?story=${story.id}`);
+              toast.success('تم نسخ الرابط');
+            }} className="p-2 rounded-xl bg-muted/50"><Share2 className="h-4 w-4 text-muted-foreground" /></button>
+          </div>
         </div>
       </div>
 
-      {/* Embed video */}
       {isEmbed && story.embed_url ? (
         <div className="w-full aspect-video">
           <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        </div>
+      ) : isVideo && mediaUrl ? (
+        <div className="w-full aspect-video bg-black">
+          <video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline />
         </div>
       ) : mediaUrl ? (
         <div className="w-full max-h-72 overflow-hidden">
@@ -388,7 +616,6 @@ function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void 
         {story.title && <h1 className="text-xl font-bold text-foreground mb-4 leading-relaxed">{story.title}</h1>}
         <p className="text-sm text-foreground leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
 
-        {/* Action buttons */}
         <div className="flex items-center gap-5 mt-6 pt-4 border-t border-border/20">
           <button onClick={toggleLike} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
             <Heart className={cn("h-6 w-6 transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
@@ -397,6 +624,9 @@ function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void 
           <button onClick={() => setShowComments(true)} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
             <MessageCircle className="h-6 w-6 text-muted-foreground" />
             <span className="font-bold text-foreground">{story.comments_count}</span>
+          </button>
+          <button onClick={toggleSave} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
+            <Bookmark className={cn("h-6 w-6 transition-all", story.saved ? "text-primary fill-primary" : "text-muted-foreground")} />
           </button>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground mr-auto">
             <Eye className="h-4 w-4" />{(story.views_count || 0)} مشاهدة
@@ -425,6 +655,7 @@ export default function Stories() {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
+  const [showViewer, setShowViewer] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -461,8 +692,18 @@ export default function Stories() {
     } catch {}
   };
 
+  const toggleSave = async (id: string) => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${id}/save`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStories(p => p.map(x => x.id === id ? { ...x, saved: d.saved } : x));
+      toast.success(d.saved ? 'تم الحفظ' : 'تم إلغاء الحفظ');
+    } catch {}
+  };
+
   if (selectedStoryId) {
-    return <StoryDetail storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} />;
+    return <StoryDetail storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} stories={stories} onOpenViewer={(idx) => setShowViewer(idx)} />;
   }
 
   return (
@@ -497,7 +738,6 @@ export default function Stories() {
         </div>
       </div>
 
-      {/* Stories */}
       <div className="px-4 py-4">
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -519,13 +759,14 @@ export default function Stories() {
           </div>
         ) : (
           <div className="space-y-4">
-            {stories.map(s => (
+            {stories.map((s, idx) => (
               <StoryCard
                 key={s.id}
                 story={s}
                 onOpen={() => setSelectedStoryId(s.id)}
                 onToggleLike={(e) => { e.stopPropagation(); toggleLike(s.id); }}
                 onOpenComments={(e) => { e.stopPropagation(); setShowCommentsFor(s.id); }}
+                onToggleSave={(e) => { e.stopPropagation(); toggleSave(s.id); }}
               />
             ))}
           </div>
@@ -539,6 +780,9 @@ export default function Stories() {
             onCommentAdded={() => {
               setStories(p => p.map(x => x.id === showCommentsFor ? { ...x, comments_count: x.comments_count + 1 } : x));
             }} />
+        )}
+        {showViewer !== null && (
+          <FullscreenViewer stories={stories} initialIndex={showViewer} onClose={() => setShowViewer(null)} />
         )}
       </AnimatePresence>
     </div>

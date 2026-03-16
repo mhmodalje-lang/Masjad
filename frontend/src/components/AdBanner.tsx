@@ -1,295 +1,143 @@
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 
-interface AdSlot {
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
+interface AdData {
   id: string;
-  name: string;
-  slot_type: string;
-  ad_code: string | null;
-  position: string;
-  is_active: boolean;
-  image_url: string | null;
-  link_url: string | null;
-  platform: string | null;
-}
-
-function useTrackImpression(adId: string | undefined) {
-  const tracked = useRef(false);
-  useEffect(() => {
-    if (!adId || tracked.current) return;
-    tracked.current = true;
-    supabase.rpc('track_ad_impression', { _ad_id: adId }).then(() => {});
-  }, [adId]);
-}
-
-function trackClick(adId: string) {
-  supabase.rpc('track_ad_click', { _ad_id: adId }).then(() => {});
-}
-
-type AdFetchStatus = 'loading' | 'loaded';
-
-// Reserve space for known high-impact positions to reduce CLS on first paint.
-// (Keeps the same layout once the ad loads; it just prevents late insertion pushing content.)
-const DEFAULT_RESERVED_HEIGHT_BY_POSITION: Record<string, number> = {
-  'home-top': 150,
-  'home-middle': 150,
-};
-
-function readNumberFromStorage(key: string): number | null {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    const n = Number.parseInt(raw, 10);
-    return Number.isFinite(n) && n > 0 ? n : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeNumberToStorage(key: string, value: number) {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {
-    // ignore
-  }
+  title?: string;
+  description?: string;
+  image_url?: string;
+  link_url?: string;
+  ad_code?: string;
+  ad_type?: string;
+  placement?: string;
+  enabled?: boolean;
+  priority?: number;
 }
 
 export function AdBanner({ position }: { position: string }) {
-  const [ad, setAd] = useState<AdSlot | null>(null);
-  const [status, setStatus] = useState<AdFetchStatus>('loading');
-
+  const [ads, setAds] = useState<AdData[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLDivElement>(null);
-
-  const reservedHeightStorageKey = useMemo(() => `ad-reserved-height:${position}`, [position]);
-
-  const [reservedHeight, setReservedHeight] = useState<number>(() => {
-    const cached = readNumberFromStorage(`ad-reserved-height:${position}`);
-    if (cached) return cached;
-    return DEFAULT_RESERVED_HEIGHT_BY_POSITION[position] ?? 0;
-  });
+  const tracked = useRef(false);
 
   useEffect(() => {
     let mounted = true;
-    setStatus('loading');
-
-    // Skip ad fetch if Supabase is not configured
-    if (!isSupabaseConfigured) {
-      setAd(null);
-      setStatus('loaded');
-      return;
-    }
-
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('ad_slots')
-          .select('*')
-          .eq('position', position)
-          .eq('is_active', true)
-          .limit(1)
-          .maybeSingle();
-
+    fetch(`${BACKEND_URL}/api/ads/placement/${position}`)
+      .then(r => r.json())
+      .then(d => {
         if (!mounted) return;
-        setAd(data ? (data as AdSlot) : null);
-        setStatus('loaded');
-      } catch {
+        setAds(d.ads || []);
+        setLoaded(true);
+      })
+      .catch(() => {
         if (!mounted) return;
-        setAd(null);
-        setStatus('loaded');
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
+        setLoaded(true);
+      });
+    return () => { mounted = false; };
   }, [position]);
 
   // Track impression
-  useTrackImpression(ad?.id);
-
-  const handleClick = useCallback(() => {
-    if (ad) trackClick(ad.id);
-  }, [ad]);
-
-  // Execute scripts inside ad_code for native/script types
   useEffect(() => {
-    if (!ad || !containerRef.current) return;
-    if ((ad.slot_type === 'native' || ad.slot_type === 'script' || ad.slot_type === 'manual') && ad.ad_code) {
+    if (ads.length > 0 && !tracked.current) {
+      tracked.current = true;
+      // Track ad view
+      ads.forEach(ad => {
+        fetch(`${BACKEND_URL}/api/ads/watch/${ad.id}`, { method: 'POST' }).catch(() => {});
+      });
+    }
+  }, [ads]);
+
+  // Execute ad scripts
+  useEffect(() => {
+    if (!containerRef.current || ads.length === 0) return;
+    const ad = ads[0];
+    if (ad.ad_code && (ad.ad_type === 'script' || ad.ad_type === 'native' || ad.ad_type === 'adsense')) {
       const container = containerRef.current;
       const temp = document.createElement('div');
       temp.innerHTML = ad.ad_code;
       const scripts = temp.querySelectorAll('script');
-
       scripts.forEach((origScript) => {
         const newScript = document.createElement('script');
         Array.from(origScript.attributes).forEach((attr) => {
           newScript.setAttribute(attr.name, attr.value);
         });
-        if (origScript.textContent) {
-          newScript.textContent = origScript.textContent;
-        }
+        if (origScript.textContent) newScript.textContent = origScript.textContent;
         container.appendChild(newScript);
       });
-
       const nonScriptHTML = ad.ad_code.replace(/<script[\s\S]*?<\/script>/gi, '');
       if (nonScriptHTML.trim()) {
         const wrapper = document.createElement('div');
         wrapper.innerHTML = nonScriptHTML;
         container.prepend(wrapper);
       }
-
-      return () => {
-        while (container.firstChild) {
-          container.removeChild(container.firstChild);
-        }
-      };
+      return () => { while (container.firstChild) container.removeChild(container.firstChild); };
     }
-  }, [ad]);
+  }, [ads]);
 
-  // Measure & persist the final rendered height per position to avoid CLS on future loads.
-  useEffect(() => {
-    if (!ad || !measureRef.current) return;
+  if (loaded && ads.length === 0) return null;
+  if (!loaded) return null;
 
-    const el = measureRef.current;
-    const update = () => {
-      const h = Math.round(el.getBoundingClientRect().height);
-      if (!h) return;
-      if (h !== reservedHeight) {
-        setReservedHeight(h);
-        writeNumberToStorage(reservedHeightStorageKey, h);
-      }
-    };
+  const ad = ads[0];
 
-    update();
-
-    if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(() => update());
-    ro.observe(el);
-    return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ad, reservedHeightStorageKey]);
-
-  const shouldReserveSpace = reservedHeight > 0;
-
-  // Don't render anything if no ad is active (eliminates CLS from empty slots)
-  if (status === 'loaded' && !ad) return null;
-  if (!ad && !shouldReserveSpace) return null;
-
-  // Wrapper with reserved min-height to avoid late insertion shifting content below.
-  const wrapperStyle = shouldReserveSpace ? ({ minHeight: reservedHeight } as React.CSSProperties) : undefined;
-
-  // Image + link type ad
-  if (ad && ad.slot_type === 'image' && ad.image_url) {
+  // Image ad
+  if (ad.image_url) {
     const img = (
-      <img
-        src={ad.image_url}
-        alt={ad.name}
-        className="w-full rounded-xl"
-        loading="lazy"
-      />
+      <img src={ad.image_url.startsWith('http') ? ad.image_url : `${BACKEND_URL}${ad.image_url}`}
+        alt={ad.title || 'إعلان'} className="w-full rounded-xl" loading="lazy" />
     );
-
     return (
-      <div className="w-full flex justify-center my-3 px-4" style={wrapperStyle}>
-        <div ref={measureRef} className="w-full max-w-lg rounded-xl overflow-hidden" onClick={handleClick}>
+      <div className="w-full flex justify-center my-3 px-4">
+        <div className="w-full max-w-lg rounded-xl overflow-hidden border border-primary/10">
           {ad.link_url ? (
-            <a href={ad.link_url} target="_blank" rel="noopener noreferrer nofollow">
-              {img}
-            </a>
-          ) : (
-            img
-          )}
+            <a href={ad.link_url} target="_blank" rel="noopener noreferrer nofollow">{img}</a>
+          ) : img}
+          <div className="bg-card/50 px-3 py-1.5 flex items-center justify-between">
+            <span className="text-[9px] text-muted-foreground/50">إعلان</span>
+            {ad.title && <span className="text-[10px] text-foreground/70 font-medium">{ad.title}</span>}
+          </div>
         </div>
       </div>
     );
   }
 
-  // Native Ads / Script / Manual / Adsense — use ref-based script injection
-  if (
-    ad &&
-    (ad.slot_type === 'native' || ad.slot_type === 'script' || ad.slot_type === 'manual' || ad.slot_type === 'adsense') &&
-    ad.ad_code
-  ) {
+  // Script/code ad
+  if (ad.ad_code) {
     return (
-      <div className="w-full flex justify-center my-3 px-4" style={wrapperStyle}>
-        <div
-          ref={measureRef}
-          className="w-full max-w-lg rounded-xl overflow-hidden"
-          onClick={handleClick}
-        >
-          <div ref={containerRef} className="w-full bg-muted/30" />
+      <div className="w-full flex justify-center my-3 px-4">
+        <div className="w-full max-w-lg rounded-xl overflow-hidden">
+          <div ref={containerRef} className="w-full bg-muted/10" />
         </div>
       </div>
     );
   }
-
-  // Loading placeholder (reserved space only) — keeps UX the same once ad arrives.
-  return (
-    <div className="w-full flex justify-center my-3 px-4" style={wrapperStyle} aria-hidden>
-      <div className="w-full max-w-lg rounded-xl overflow-hidden" />
-    </div>
-  );
-}
-
-/**
- * PopUnder loader — place once in AppLayout
- */
-export function PopUnderLoader() {
-  const [scripts, setScripts] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Skip if Supabase not configured
-    if (!isSupabaseConfigured) return;
-    
-    supabase
-      .from('ad_slots')
-      .select('id, ad_code')
-      .eq('slot_type', 'popunder')
-      .eq('is_active', true)
-      .then(({ data }) => {
-        if (data) {
-          // Track impressions for popunder ads
-          data.forEach((d: any) => {
-            supabase.rpc('track_ad_impression', { _ad_id: d.id }).then(() => {});
-          });
-          setScripts(data.map((d: any) => d.ad_code).filter(Boolean));
-        }
-      });
-  }, []);
-
-  useEffect(() => {
-    const addedScripts: HTMLScriptElement[] = [];
-
-    scripts.forEach((code) => {
-      const temp = document.createElement('div');
-      temp.innerHTML = code;
-      const scriptTags = temp.querySelectorAll('script');
-
-      scriptTags.forEach((origScript) => {
-        const newScript = document.createElement('script');
-        Array.from(origScript.attributes).forEach((attr) => {
-          newScript.setAttribute(attr.name, attr.value);
-        });
-        if (origScript.textContent) {
-          newScript.textContent = origScript.textContent;
-        }
-        document.head.appendChild(newScript);
-        addedScripts.push(newScript);
-      });
-    });
-
-    return () => {
-      addedScripts.forEach((s) => {
-        try {
-          document.head.removeChild(s);
-        } catch {
-          // ignore
-        }
-      });
-    };
-  }, [scripts]);
 
   return null;
 }
 
+export function PopUnderLoader() {
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/ads/active?placement=popunder`)
+      .then(r => r.json())
+      .then(d => {
+        const ads = d.ads || [];
+        ads.forEach((ad: any) => {
+          if (ad.ad_code) {
+            const temp = document.createElement('div');
+            temp.innerHTML = ad.ad_code;
+            const scripts = temp.querySelectorAll('script');
+            scripts.forEach((origScript) => {
+              const newScript = document.createElement('script');
+              Array.from(origScript.attributes).forEach((attr) => {
+                newScript.setAttribute(attr.name, attr.value);
+              });
+              if (origScript.textContent) newScript.textContent = origScript.textContent;
+              document.head.appendChild(newScript);
+            });
+          }
+        });
+      })
+      .catch(() => {});
+  }, []);
+  return null;
+}

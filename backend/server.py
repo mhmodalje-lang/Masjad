@@ -498,11 +498,21 @@ async def get_my_stats(user: dict = Depends(get_user)):
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
     uid = user["id"]
+    # Count total likes received on user's posts
+    user_post_ids = []
+    async for p in db.posts.find({"author_id": uid}, {"id": 1, "_id": 0}):
+        user_post_ids.append(p["id"])
+    total_likes = 0
+    if user_post_ids:
+        total_likes = await db.likes.count_documents({"post_id": {"$in": user_post_ids}})
     return {
         "posts": await db.posts.count_documents({"author_id": uid}),
+        "stories": await db.posts.count_documents({"author_id": uid, "is_story": True}),
         "followers": await db.follows.count_documents({"following_id": uid}),
         "following": await db.follows.count_documents({"follower_id": uid}),
-        "likes_received": 0,
+        "total_likes": total_likes,
+        "saved_count": await db.saves.count_documents({"user_id": uid}),
+        "liked_count": await db.likes.count_documents({"user_id": uid}),
     }
 
 # ==================== PAGES SYSTEM ====================
@@ -2484,7 +2494,7 @@ STORY_CATEGORIES = [
     {"key": "rizq", "label": "قصص الرزق", "emoji": "✨", "icon": "coins", "color": "#eab308"},
     {"key": "tawba", "label": "قصص التوبة", "emoji": "💚", "icon": "heart", "color": "#22c55e"},
     {"key": "miracles", "label": "معجزات وعبر", "emoji": "🌙", "icon": "moon", "color": "#6366f1"},
-    {"key": "embed", "label": "فيديوهات مضمنة", "emoji": "🎬", "icon": "film", "color": "#ef4444"},
+    {"key": "embed", "label": "فيديوهات", "emoji": "🎬", "icon": "film", "color": "#ef4444"},
 ]
 
 @api_router.get("/stories/categories")
@@ -2558,6 +2568,78 @@ async def list_stories(category: str = "all", page: int = 1, limit: int = 20, us
         s["comments_count"] = comments_counts.get(pid, 0)
     return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
 
+@api_router.get("/stories/my-saved")
+async def get_my_saved_stories(limit: int = 50, user: dict = Depends(get_user)):
+    """Get stories saved by current user"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    saved_docs = await db.saves.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    post_ids = [s["post_id"] for s in saved_docs]
+    if not post_ids:
+        return {"stories": []}
+    stories = []
+    for pid in post_ids:
+        story = await db.posts.find_one({"id": pid, "is_story": True}, {"_id": 0})
+        if story:
+            story["liked"] = bool(await db.likes.find_one({"post_id": pid, "user_id": user["id"]}))
+            story["saved"] = True
+            story["likes_count"] = await db.likes.count_documents({"post_id": pid})
+            story["comments_count"] = await db.comments.count_documents({"post_id": pid})
+            stories.append(story)
+    return {"stories": stories}
+
+@api_router.get("/stories/my-liked")
+async def get_my_liked_stories(limit: int = 50, user: dict = Depends(get_user)):
+    """Get stories liked by current user"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    liked_docs = await db.likes.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    post_ids = [l["post_id"] for l in liked_docs]
+    if not post_ids:
+        return {"stories": []}
+    stories = []
+    for pid in post_ids:
+        story = await db.posts.find_one({"id": pid, "is_story": True}, {"_id": 0})
+        if story:
+            story["liked"] = True
+            story["saved"] = bool(await db.saves.find_one({"post_id": pid, "user_id": user["id"]}))
+            story["likes_count"] = await db.likes.count_documents({"post_id": pid})
+            story["comments_count"] = await db.comments.count_documents({"post_id": pid})
+            stories.append(story)
+    return {"stories": stories}
+
+@api_router.post("/stories/auto-categorize")
+async def auto_categorize_story(data: dict, user: dict = Depends(get_user)):
+    """AI auto-categorize a story based on title and content"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    title = data.get("title", "")
+    content = data.get("content", "")
+    if not title and not content:
+        return {"category": "general"}
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY
+        ).with_model("gemini", "gemini-2.0-flash")
+        categories_str = ", ".join([f"{c['key']}({c['label']})" for c in STORY_CATEGORIES if c['key'] != 'embed'])
+        prompt = f"""صنف هذا المحتوى الإسلامي في واحدة من هذه الفئات فقط:
+{categories_str}
+
+العنوان: {title}
+المحتوى: {content[:500]}
+
+أجب بكلمة واحدة فقط هي مفتاح الفئة (مثل: istighfar, sahaba, quran, prophets, ruqyah, rizq, tawba, miracles, general)"""
+        response = await chat.chat([UserMessage(content=prompt)])
+        cat_key = response.content.strip().lower().replace('"', '').replace("'", "")
+        valid_keys = [c["key"] for c in STORY_CATEGORIES if c["key"] != "embed"]
+        if cat_key not in valid_keys:
+            cat_key = "general"
+        return {"category": cat_key}
+    except Exception as e:
+        logging.error(f"AI categorize error: {e}")
+        return {"category": "general"}
+
 @api_router.get("/stories/{story_id}")
 async def get_story(story_id: str, user: dict = Depends(get_user)):
     story = await db.posts.find_one({"id": story_id}, {"_id": 0})
@@ -2578,6 +2660,13 @@ async def get_story(story_id: str, user: dict = Depends(get_user)):
 async def track_story_view(story_id: str):
     await db.posts.update_one({"id": story_id}, {"$inc": {"views_count": 1}})
     return {"success": True}
+
+@api_router.get("/ads/placement/{position}")
+async def get_ads_by_placement(position: str):
+    """Get active ads for a specific placement position"""
+    query = {"enabled": True, "$or": [{"placement": position}, {"placement": "all"}]}
+    ads = await db.ad_placements.find(query, {"_id": 0}).sort("priority", -1).to_list(5)
+    return {"ads": ads}
 
 @api_router.get("/stories/feed/most-viewed")
 async def most_viewed_stories(limit: int = 20, user: dict = Depends(get_user)):

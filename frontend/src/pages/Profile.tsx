@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -6,16 +6,19 @@ import { useTheme } from '@/components/ThemeProvider';
 import {
   Settings, ChevronLeft, Star, Users, Heart,
   LogOut, Shield, Moon, Sun, SunMoon, Globe,
-  HelpCircle, Bookmark, Grid3X3, Play, MoreHorizontal,
+  HelpCircle, Bookmark, Grid3X3, Play, MoreVertical,
   Bot, Bell, Gift, Gem, Edit3, Share2, MessageSquare,
   Lock, Palette, ChevronRight, Zap, Crown, ShoppingBag,
   BookOpen, Eye, MessageCircle, Compass, Film,
-  type LucideIcon
+  Home, Calculator, Clock, ChevronDown, X,
+  Info, Mail, Phone, Award, Sparkles, TrendingUp,
 } from 'lucide-react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type LucideIconAlias = typeof Settings;
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 function getToken() { return localStorage.getItem('auth_token') || ''; }
@@ -25,7 +28,7 @@ function authHeaders(): Record<string, string> {
   return h;
 }
 
-const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'];
+const avatarColors = ['bg-amber-600', 'bg-yellow-600', 'bg-orange-600', 'bg-rose-600', 'bg-purple-600', 'bg-teal-600'];
 
 interface Post {
   id: string; content: string; title?: string; image_url?: string; media_type?: string;
@@ -42,25 +45,48 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)}ي`;
 }
 
-interface SettingsItem { icon: LucideIcon; label: string; to?: string; onClick?: () => void; badge?: string; value?: string; color?: string; }
-function SettingsRow({ icon: Icon, label, to, onClick, badge, value, color }: SettingsItem) {
+/* ===== DROPDOWN MENU ===== */
+function DropdownMenu({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open, onClose]);
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          ref={ref}
+          initial={{ opacity: 0, scale: 0.9, y: -8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: -8 }}
+          transition={{ duration: 0.15 }}
+          className="absolute left-4 top-12 z-[100] w-56 rounded-2xl bg-card border border-primary/20 shadow-2xl shadow-black/40 overflow-hidden"
+          dir="rtl"
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+interface MenuItemProps { icon: typeof Settings; label: string; to?: string; onClick?: () => void; color?: string; badge?: string; }
+function MenuItem({ icon: Icon, label, to, onClick, color, badge }: MenuItemProps) {
   const content = (
-    <div className="flex items-center justify-between py-3.5 active:bg-muted/30 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', color || 'bg-primary/10')}>
-          <Icon className={cn('h-[18px] w-[18px]', color ? 'text-white' : 'text-primary')} />
-        </div>
-        <span className="text-[13px] font-medium text-foreground">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        {badge && <span className="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">{badge}</span>}
-        {value && <span className="text-[11px] text-muted-foreground">{value}</span>}
-        <ChevronLeft className="h-4 w-4 text-muted-foreground/50" />
-      </div>
+    <div className="flex items-center gap-3 px-4 py-3 hover:bg-primary/5 active:bg-primary/10 transition-colors cursor-pointer">
+      <Icon className={cn('h-4 w-4', color || 'text-primary/70')} />
+      <span className="text-[13px] font-medium text-foreground flex-1">{label}</span>
+      {badge && <span className="text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-full font-bold">{badge}</span>}
     </div>
   );
   if (to) return <Link to={to} className="block">{content}</Link>;
-  return <div onClick={onClick} className="cursor-pointer">{content}</div>;
+  return <div onClick={onClick}>{content}</div>;
 }
 
 export default function Profile() {
@@ -71,11 +97,16 @@ export default function Profile() {
   const params = useParams();
   const viewingUserId = params.userId;
 
-  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0, likes: 0 });
+  const [stats, setStats] = useState({ posts: 0, stories: 0, followers: 0, following: 0, likes: 0, saved: 0, liked: 0 });
   const [myPosts, setMyPosts] = useState<Post[]>([]);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [likedPosts, setLikedPosts] = useState<Post[]>([]);
   const [activeTab, setActiveTab] = useState<'posts' | 'saved' | 'liked'>('posts');
   const [loadingPosts, setLoadingPosts] = useState(false);
+  const [loadingSaved, setLoadingSaved] = useState(false);
+  const [loadingLiked, setLoadingLiked] = useState(false);
   const [otherUser, setOtherUser] = useState<any>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const targetId = viewingUserId || user?.id;
@@ -86,18 +117,25 @@ export default function Profile() {
     if (!viewingUserId || viewingUserId === user?.id) {
       fetch(`${BACKEND_URL}/api/sohba/my-stats`, { headers: authHeaders() })
         .then(r => r.json())
-        .then(d => setStats({ posts: d.posts || 0, followers: d.followers || 0, following: d.following || 0, likes: d.total_likes || 0 }))
+        .then(d => setStats({
+          posts: d.posts || 0,
+          stories: d.stories || 0,
+          followers: d.followers || 0,
+          following: d.following || 0,
+          likes: d.total_likes || 0,
+          saved: d.saved_count || 0,
+          liked: d.liked_count || 0
+        }))
         .catch(() => {});
     }
 
-    // Load posts
+    // Load my stories
     fetch(`${BACKEND_URL}/api/stories/list?limit=50`, { headers: authHeaders() })
       .then(r => r.json())
       .then(d => {
         const allStories = d.stories || [];
         const userStories = allStories.filter((s: any) => s.author_id === targetId);
         setMyPosts(userStories);
-        setStats(prev => ({ ...prev, posts: userStories.length }));
         setLoadingPosts(false);
       })
       .catch(() => setLoadingPosts(false));
@@ -111,10 +149,30 @@ export default function Profile() {
     }
   }, [user, viewingUserId]);
 
-  const handleLogout = () => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); };
+  // Load saved stories when tab changes
+  useEffect(() => {
+    if (activeTab === 'saved' && savedPosts.length === 0 && !loadingSaved) {
+      setLoadingSaved(true);
+      fetch(`${BACKEND_URL}/api/stories/my-saved`, { headers: authHeaders() })
+        .then(r => r.json())
+        .then(d => { setSavedPosts(d.stories || []); setLoadingSaved(false); })
+        .catch(() => setLoadingSaved(false));
+    }
+  }, [activeTab]);
 
+  // Load liked stories when tab changes
+  useEffect(() => {
+    if (activeTab === 'liked' && likedPosts.length === 0 && !loadingLiked) {
+      setLoadingLiked(true);
+      fetch(`${BACKEND_URL}/api/stories/my-liked`, { headers: authHeaders() })
+        .then(r => r.json())
+        .then(d => { setLikedPosts(d.stories || []); setLoadingLiked(false); })
+        .catch(() => setLoadingLiked(false));
+    }
+  }, [activeTab]);
+
+  const handleLogout = () => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); };
   const themeLabel = mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري';
-  const ThemeIcon = mode === 'auto' ? SunMoon : mode === 'dark' ? Moon : Sun;
 
   // Not logged in view
   if (!user) return (
@@ -135,9 +193,55 @@ export default function Profile() {
   const displayName = profile?.name || 'مستخدم';
   const displayAvatar = profile?.avatar ? (profile.avatar.startsWith('http') ? profile.avatar : `${BACKEND_URL}${profile.avatar}`) : '';
 
+  const renderPostGrid = (posts: Post[], loading: boolean, emptyIcon: typeof Settings, emptyMsg: string, emptySubMsg: string) => {
+    const EmptyIcon = emptyIcon;
+    if (loading) return (
+      <div className="flex justify-center py-16">
+        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+    if (posts.length === 0) return (
+      <div className="text-center py-20 px-8">
+        <div className="h-16 w-16 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-4">
+          <EmptyIcon className="h-8 w-8 text-primary/20" />
+        </div>
+        <p className="text-sm font-bold text-muted-foreground/50">{emptyMsg}</p>
+        <p className="text-xs text-muted-foreground/30 mt-1">{emptySubMsg}</p>
+      </div>
+    );
+    return (
+      <div className="grid grid-cols-3 gap-[2px] bg-border/5">
+        {posts.map(p => {
+          const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
+          const isVideo = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
+          const isEmbed = p.is_embed || p.media_type === 'embed';
+          return (
+            <Link to={`/stories?story=${p.id}`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
+              {url ? (
+                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden'); }} />
+              ) : null}
+              <div className={cn('w-full h-full flex items-center justify-center p-3',
+                url ? 'hidden absolute inset-0' : '',
+                'bg-gradient-to-br from-primary/5 to-primary/10')}>
+                <p className="text-[9px] text-foreground/60 line-clamp-5 text-center leading-relaxed" dir="rtl">{p.title || p.content}</p>
+              </div>
+              {(isVideo || isEmbed) && <div className="absolute top-2 left-2"><Play className="h-4 w-4 text-white fill-white drop-shadow-lg" /></div>}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></span>
+                  <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen pb-28 bg-background" dir="rtl" data-testid="profile-page">
-
       {/* ===== HEADER BAR ===== */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/10 px-4 h-12 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -148,17 +252,43 @@ export default function Profile() {
           )}
           <span className="text-lg font-black text-foreground">{displayName}</span>
         </div>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 relative">
           {isAdmin && isOwnProfile && (
             <Link to="/admin" className="p-2.5 rounded-xl hover:bg-muted/50" data-testid="admin-link">
-              <Shield className="h-[18px] w-[18px] text-amber-500" />
+              <Shield className="h-[18px] w-[18px] text-primary" />
             </Link>
           )}
           {isOwnProfile && (
-            <Link to="/more" className="p-2.5 rounded-xl hover:bg-muted/50">
-              <MoreHorizontal className="h-[18px] w-[18px] text-muted-foreground" />
-            </Link>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="p-2.5 rounded-xl hover:bg-muted/50">
+              <MoreVertical className="h-[18px] w-[18px] text-muted-foreground" />
+            </button>
           )}
+          {/* ===== DROPDOWN MENU ===== */}
+          <DropdownMenu open={menuOpen} onClose={() => setMenuOpen(false)}>
+            <div className="py-1">
+              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">الإعدادات</p>
+              <MenuItem icon={Edit3} label="تعديل الملف" to="/account" color="text-primary" />
+              <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`المظهر: ${themeLabel}`}
+                onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
+                color="text-amber-500" />
+              <MenuItem icon={Bell} label="الإشعارات" to="/notifications" color="text-red-400" />
+              <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-gray-400" />
+            </div>
+            <div className="border-t border-border/20 py-1">
+              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">المساعدة</p>
+              <MenuItem icon={HelpCircle} label="الدعم والمساعدة" onClick={() => { toast.info('ادعمنا@almuadhin.com'); setMenuOpen(false); }} color="text-green-400" />
+              <MenuItem icon={Star} label="قيّم التطبيق" onClick={() => { toast.info('شكراً لتقييمك! ⭐'); setMenuOpen(false); }} color="text-yellow-400" />
+              <MenuItem icon={Share2} label="دعوة صديق" onClick={() => {
+                if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
+                else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+                setMenuOpen(false);
+              }} color="text-blue-400" />
+              <MenuItem icon={Info} label="عن التطبيق" onClick={() => { toast.info('أذان وحكاية v2.0'); setMenuOpen(false); }} color="text-purple-400" />
+            </div>
+            <div className="border-t border-border/20 py-1">
+              <MenuItem icon={LogOut} label="تسجيل الخروج" onClick={handleLogout} color="text-red-500" />
+            </div>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -166,7 +296,7 @@ export default function Profile() {
       <div className="px-5 pt-6 pb-4">
         <div className="flex items-center gap-5">
           <div className="relative shrink-0">
-            <div className="h-[84px] w-[84px] rounded-full bg-gradient-to-br from-primary/30 to-accent/20 p-[3px]">
+            <div className="h-[84px] w-[84px] rounded-full bg-gradient-to-br from-primary/40 to-primary/10 p-[3px]">
               <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
                 {displayAvatar ? (
                   <img src={displayAvatar} alt="" className="h-full w-full rounded-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
@@ -177,14 +307,14 @@ export default function Profile() {
             </div>
             {isOwnProfile && (
               <Link to="/account" className="absolute -bottom-0.5 -left-0.5 h-7 w-7 rounded-full bg-primary flex items-center justify-center border-[2.5px] border-background shadow-md">
-                <Edit3 className="h-3 w-3 text-white" />
+                <Edit3 className="h-3 w-3 text-primary-foreground" />
               </Link>
             )}
           </div>
 
           <div className="flex-1 grid grid-cols-3">
             <div className="text-center">
-              <p className="text-[18px] font-black text-foreground leading-tight">{stats.posts}</p>
+              <p className="text-[18px] font-black text-foreground leading-tight">{stats.stories || myPosts.length}</p>
               <p className="text-[10px] text-muted-foreground font-medium mt-0.5">قصة</p>
             </div>
             <div className="text-center">
@@ -206,10 +336,10 @@ export default function Profile() {
         <div className="flex gap-2 mt-4">
           {isOwnProfile ? (
             <>
-              <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-border/50" asChild>
+              <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-primary/20 hover:bg-primary/5" asChild>
                 <Link to="/account"><Edit3 className="h-3.5 w-3.5 ml-1.5" />تعديل الملف</Link>
               </Button>
-              <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-border/50" onClick={() => {
+              <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-primary/20 hover:bg-primary/5" onClick={() => {
                 if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
                 else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
               }}>
@@ -217,139 +347,69 @@ export default function Profile() {
               </Button>
             </>
           ) : (
-            <Button className="flex-1 rounded-xl h-10 text-[13px] font-bold">
+            <Button className="flex-1 rounded-xl h-10 text-[13px] font-bold bg-primary">
               <Users className="h-3.5 w-3.5 ml-1.5" />متابعة
             </Button>
           )}
         </div>
       </div>
 
+      {/* ===== QUICK ACTIONS (own profile) ===== */}
+      {isOwnProfile && (
+        <div className="px-4 mb-4">
+          <div className="grid grid-cols-4 gap-2">
+            <Link to="/stories" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <span className="text-[9px] font-bold text-foreground">حكاياتي</span>
+            </Link>
+            <Link to="/explore" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+              <Compass className="h-5 w-5 text-blue-400" />
+              <span className="text-[9px] font-bold text-foreground">استكشاف</span>
+            </Link>
+            <Link to="/ai-assistant" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+              <Bot className="h-5 w-5 text-purple-400" />
+              <span className="text-[9px] font-bold text-foreground">المساعد</span>
+            </Link>
+            <Link to="/more" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+              <Sparkles className="h-5 w-5 text-amber-400" />
+              <span className="text-[9px] font-bold text-foreground">المزيد</span>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* ===== CONTENT TABS ===== */}
       <div className="flex border-b border-border/20 sticky top-12 z-40 bg-background">
         <button onClick={() => setActiveTab('posts')}
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
-            activeTab === 'posts' ? 'border-foreground' : 'border-transparent')}>
-          <Grid3X3 className={cn('h-[18px] w-[18px]', activeTab === 'posts' ? 'text-foreground' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'posts' ? 'text-foreground' : 'text-muted-foreground/50')}>قصصي</span>
+            activeTab === 'posts' ? 'border-primary' : 'border-transparent')}>
+          <Grid3X3 className={cn('h-[18px] w-[18px]', activeTab === 'posts' ? 'text-primary' : 'text-muted-foreground/50')} />
+          <span className={cn('text-[11px] font-bold', activeTab === 'posts' ? 'text-primary' : 'text-muted-foreground/50')}>قصصي</span>
         </button>
         <button onClick={() => setActiveTab('saved')}
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
-            activeTab === 'saved' ? 'border-foreground' : 'border-transparent')}>
-          <Bookmark className={cn('h-[18px] w-[18px]', activeTab === 'saved' ? 'text-foreground' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'saved' ? 'text-foreground' : 'text-muted-foreground/50')}>المحفوظات</span>
+            activeTab === 'saved' ? 'border-primary' : 'border-transparent')}>
+          <Bookmark className={cn('h-[18px] w-[18px]', activeTab === 'saved' ? 'text-primary' : 'text-muted-foreground/50')} />
+          <span className={cn('text-[11px] font-bold', activeTab === 'saved' ? 'text-primary' : 'text-muted-foreground/50')}>المحفوظات</span>
+          {stats.saved > 0 && <span className="text-[8px] bg-primary/20 text-primary px-1.5 rounded-full font-bold">{stats.saved}</span>}
         </button>
         <button onClick={() => setActiveTab('liked')}
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
-            activeTab === 'liked' ? 'border-foreground' : 'border-transparent')}>
-          <Heart className={cn('h-[18px] w-[18px]', activeTab === 'liked' ? 'text-foreground' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'liked' ? 'text-foreground' : 'text-muted-foreground/50')}>المعجبات</span>
+            activeTab === 'liked' ? 'border-primary' : 'border-transparent')}>
+          <Heart className={cn('h-[18px] w-[18px]', activeTab === 'liked' ? 'text-primary' : 'text-muted-foreground/50')} />
+          <span className={cn('text-[11px] font-bold', activeTab === 'liked' ? 'text-primary' : 'text-muted-foreground/50')}>الإعجابات</span>
+          {stats.liked > 0 && <span className="text-[8px] bg-primary/20 text-primary px-1.5 rounded-full font-bold">{stats.liked}</span>}
         </button>
       </div>
 
-      {/* ===== POSTS GRID ===== */}
-      {activeTab === 'posts' && (
-        <div>
-          {loadingPosts ? (
-            <div className="flex justify-center py-16">
-              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : myPosts.length === 0 ? (
-            <div className="text-center py-20 px-8">
-              <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="h-8 w-8 text-muted-foreground/30" />
-              </div>
-              <p className="text-sm font-bold text-muted-foreground/50">لا توجد قصص بعد</p>
-              <p className="text-xs text-muted-foreground/30 mt-1">شارك أول قصة إسلامية!</p>
-              {isOwnProfile && (
-                <Link to="/stories?create=true"
-                  className="inline-flex items-center gap-1.5 mt-5 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-primary/20 active:scale-95 transition-transform">
-                  <Zap className="h-3.5 w-3.5" />أنشئ قصة
-                </Link>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-[1px] bg-border/10">
-              {myPosts.map(p => {
-                const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
-                const isVideo = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
-                const isEmbed = p.is_embed || p.media_type === 'embed';
-                return (
-                  <Link to={`/stories?story=${p.id}`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
-                    {url ? (
-                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden'); }} />
-                    ) : null}
-                    <div className={cn('w-full h-full flex items-center justify-center p-3',
-                      url ? 'hidden absolute inset-0' : '',
-                      'bg-gradient-to-br from-slate-800/40 to-slate-900/60')}>
-                      <p className="text-[9px] text-foreground/70 line-clamp-5 text-center leading-relaxed" dir="rtl">{p.title || p.content}</p>
-                    </div>
-                    {(isVideo || isEmbed) && <div className="absolute top-2 left-2"><Play className="h-4 w-4 text-white fill-white drop-shadow-lg" /></div>}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></span>
-                        <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></span>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
+      {/* ===== POSTS/SAVED/LIKED GRID ===== */}
+      {activeTab === 'posts' && renderPostGrid(myPosts, loadingPosts, BookOpen, 'لا توجد قصص بعد', 'شارك أول قصة إسلامية!')}
+      {activeTab === 'saved' && renderPostGrid(savedPosts, loadingSaved, Bookmark, 'لا توجد محفوظات', 'احفظ قصة وستظهر هنا')}
+      {activeTab === 'liked' && renderPostGrid(likedPosts, loadingLiked, Heart, 'لا توجد إعجابات', 'أعجب بقصة وستظهر هنا')}
 
-      {activeTab === 'saved' && (
-        <div className="text-center py-20 px-8">
-          <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
-            <Bookmark className="h-8 w-8 text-muted-foreground/30" />
-          </div>
-          <p className="text-sm font-bold text-muted-foreground/50">المحفوظات</p>
-          <p className="text-xs text-muted-foreground/30 mt-1">القصص المحفوظة ستظهر هنا</p>
-        </div>
-      )}
-
-      {activeTab === 'liked' && (
-        <div className="text-center py-20 px-8">
-          <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-8 w-8 text-muted-foreground/30" />
-          </div>
-          <p className="text-sm font-bold text-muted-foreground/50">القصص التي أعجبتك</p>
-          <p className="text-xs text-muted-foreground/30 mt-1">أعجب بقصة وستظهر هنا</p>
-        </div>
-      )}
-
-      {/* ===== SETTINGS SECTION (own profile only) ===== */}
+      {/* ===== VERSION ===== */}
       {isOwnProfile && (
-        <div className="px-4 mt-6 space-y-3">
-          <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
-            <SettingsRow icon={BookOpen} label="حكاياتي" to="/stories" color="bg-gradient-to-br from-emerald-500 to-teal-500" />
-            <SettingsRow icon={Compass} label="استكشاف" to="/explore" color="bg-gradient-to-br from-indigo-500 to-blue-500" />
-            <SettingsRow icon={Bot} label="المساعد الذكي" to="/ai-assistant" color="bg-gradient-to-br from-purple-500 to-violet-500" />
-            <SettingsRow icon={Gift} label="المكافآت والنقاط" to="/rewards" badge="جديد" color="bg-gradient-to-br from-amber-500 to-orange-500" />
-            <SettingsRow icon={ShoppingBag} label="المتجر" to="/marketplace" color="bg-gradient-to-br from-blue-500 to-indigo-500" />
-          </div>
-
-          <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
-            <SettingsRow icon={ThemeIcon} label="المظهر" value={themeLabel}
-              onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
-              color="bg-gradient-to-br from-slate-600 to-slate-700" />
-            <SettingsRow icon={Bell} label="الإشعارات" to="/messages" color="bg-gradient-to-br from-red-500 to-rose-500" />
-            <SettingsRow icon={Lock} label="الخصوصية والأمان" to="/account" color="bg-gradient-to-br from-gray-600 to-gray-700" />
-          </div>
-
-          <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
-            <SettingsRow icon={Star} label="قيّم التطبيق" onClick={() => toast.info('شكراً لتقييمك! ⭐')} color="bg-gradient-to-br from-yellow-500 to-amber-500" />
-            <SettingsRow icon={HelpCircle} label="المزيد والمساعدة" to="/more" color="bg-gradient-to-br from-green-500 to-emerald-500" />
-          </div>
-
-          <button onClick={handleLogout} data-testid="logout-btn"
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl bg-red-500/5 border border-red-500/15 text-red-500 text-sm font-bold active:scale-[0.98] transition-all mt-4">
-            <LogOut className="h-4 w-4" />تسجيل الخروج
-          </button>
-
-          <p className="text-center text-[10px] text-muted-foreground/30 pb-4 pt-2">أذان وحكاية v2.0.0</p>
-        </div>
+        <p className="text-center text-[10px] text-muted-foreground/30 pb-4 pt-6">أذان وحكاية v2.0.0</p>
       )}
     </div>
   );
