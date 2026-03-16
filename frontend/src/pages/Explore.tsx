@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film } from 'lucide-react';
+import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film, Bookmark, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { AdBanner } from '@/components/AdBanner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 function getToken() { return localStorage.getItem('auth_token') || ''; }
@@ -387,6 +388,9 @@ export default function Explore() {
               </div>
             </section>
           )}
+
+          {/* Ad between sections */}
+          <AdBanner position="home" />
 
           {/* Most Interacted */}
           {mostInteracted.length > 0 && (

@@ -14,6 +14,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
+import InstallPrompt from "@/components/InstallPrompt";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -84,6 +85,7 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                   <ScrollToTop />
+                  <InstallPrompt />
                   <SEOWrapper>
                     <PermissionManager />
                     <AppLayout>

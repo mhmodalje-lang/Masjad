@@ -32,7 +32,7 @@ const getQuickAccessItems = (t: (key: string) => string) => [
   { icon: BookOpen, label: t('quickQuran'), path: '/quran', gradient: 'from-primary/20 to-primary/5' },
   { icon: Moon, label: t('quickDuas'), path: '/duas', gradient: 'from-islamic-purple/20 to-islamic-purple/5' },
   { icon: MessageSquare, label: t('quickStories'), path: '/stories', gradient: 'from-islamic-copper/20 to-accent/5' },
-  { icon: Calculator, label: t('quickZakat'), path: '/zakat', gradient: 'from-islamic-teal/20 to-primary/5' },
+  { icon: Zap, label: 'المزيد', path: '/more', gradient: 'from-amber-500/20 to-primary/5' },
 ];
 
 export default function Index() {
@@ -353,7 +353,7 @@ export default function Index() {
         </div>
       )}
 
-      <AdBanner position="home-top" />
+      <AdBanner position="home" />
 
       {/* ===== PRAYER TIMES GRID ===== */}
       <div className="px-4 mb-4">
@@ -467,7 +467,7 @@ export default function Index() {
         </div>
       )}
 
-      <AdBanner position="home-middle" />
+      <AdBanner position="home" />
 
       {/* ===== DAILY HADITH (lazy) ===== */}
       <Suspense fallback={<div className="h-40" />}>

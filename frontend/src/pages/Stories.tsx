@@ -6,6 +6,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { AdBanner } from '@/components/AdBanner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -466,6 +467,10 @@ function StoryCard({ story, onOpen, onToggleLike, onOpenComments, onToggleSave }
           <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
             <Play className="h-2.5 w-2.5 fill-white" />{story.platform || 'فيديو'}
           </div>
+          {/* Fullscreen button */}
+          <div className="absolute bottom-2 left-2 p-2 rounded-full bg-black/50 backdrop-blur-sm" onClick={(e) => { e.stopPropagation(); onOpen(); }}>
+            <Maximize2 className="h-4 w-4 text-white" />
+          </div>
         </div>
       ) : isVideo && mediaUrl ? (
         <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={onOpen}>
@@ -728,7 +733,14 @@ export default function Stories() {
               !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
             الكل
           </button>
-          {categories.map(cat => (
+          {/* Sort: general first, embed second, then rest */}
+          {[...categories].sort((a, b) => {
+            if (a.key === 'general') return -1;
+            if (b.key === 'general') return 1;
+            if (a.key === 'embed') return -1;
+            if (b.key === 'embed') return 1;
+            return 0;
+          }).map(cat => (
             <button key={cat.key} onClick={() => setSelectedCategory(cat.key)}
               className={cn('flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
                 selectedCategory === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
@@ -760,14 +772,16 @@ export default function Stories() {
         ) : (
           <div className="space-y-4">
             {stories.map((s, idx) => (
-              <StoryCard
-                key={s.id}
-                story={s}
-                onOpen={() => setSelectedStoryId(s.id)}
-                onToggleLike={(e) => { e.stopPropagation(); toggleLike(s.id); }}
-                onOpenComments={(e) => { e.stopPropagation(); setShowCommentsFor(s.id); }}
-                onToggleSave={(e) => { e.stopPropagation(); toggleSave(s.id); }}
-              />
+              <div key={s.id}>
+                <StoryCard
+                  story={s}
+                  onOpen={() => setSelectedStoryId(s.id)}
+                  onToggleLike={(e) => { e.stopPropagation(); toggleLike(s.id); }}
+                  onOpenComments={(e) => { e.stopPropagation(); setShowCommentsFor(s.id); }}
+                  onToggleSave={(e) => { e.stopPropagation(); toggleSave(s.id); }}
+                />
+                {idx === 2 && <AdBanner position="home" />}
+              </div>
             ))}
           </div>
         )}

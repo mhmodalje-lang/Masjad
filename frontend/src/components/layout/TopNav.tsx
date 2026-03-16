@@ -20,33 +20,33 @@ export function TopNav() {
       className="sticky top-0 z-50 w-full border-b border-border/20 bg-card/90 backdrop-blur-2xl"
       dir="rtl"
     >
-      <div className="flex items-center justify-between px-4 h-14">
+      <div className="flex items-center justify-between px-4 h-12">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center shadow-md shadow-emerald-500/20">
-            <span className="text-white text-xs font-bold">أ</span>
+          <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-amber-600 flex items-center justify-center shadow-md shadow-primary/20">
+            <span className="text-primary-foreground text-[10px] font-bold">أ</span>
           </div>
           <span className="text-sm font-bold text-foreground hidden sm:block">أذان وحكاية</span>
         </Link>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={toggle}
             data-testid="theme-toggle-nav"
             className={cn(
               'p-2 rounded-xl transition-all active:scale-95',
-              theme === 'dark' ? 'bg-emerald-900/50 text-emerald-400' : 'bg-amber-50 text-amber-600'
+              theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-700'
             )}
           >
-            <ThemeIcon className="h-4.5 w-4.5" />
+            <ThemeIcon className="h-4 w-4" />
           </button>
-          <Link to="/messages" className="p-2 rounded-xl bg-muted/50 text-muted-foreground">
-            <Bell className="h-4.5 w-4.5" />
+          <Link to="/notifications" className="p-2 rounded-xl hover:bg-muted/50 text-muted-foreground">
+            <Bell className="h-4 w-4" />
           </Link>
           <Link
-            to={user ? '/more' : '/auth'}
-            className="p-2 rounded-xl bg-muted/50 text-muted-foreground"
+            to={user ? '/profile' : '/auth'}
+            className="p-2 rounded-xl hover:bg-muted/50 text-muted-foreground"
           >
-            <User className="h-4.5 w-4.5" />
+            <User className="h-4 w-4" />
           </Link>
         </div>
       </div>
