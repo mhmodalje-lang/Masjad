@@ -25,7 +25,14 @@ function looksLikeArabicFallback(trans: Record<string, string>, sampleKeys: stri
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<string>(() => detectDeviceLanguage());
+  const [locale, setLocaleState] = useState<string>(() => {
+    // Check for manually selected language first
+    const userSelected = localStorage.getItem('user-selected-locale');
+    if (userSelected) return userSelected;
+    
+    // Otherwise, auto-detect
+    return detectDeviceLanguage();
+  });
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [ready, setReady] = useState(false);
   const [dir, setDir] = useState<'rtl' | 'ltr'>(() => getDirection(detectDeviceLanguage()));
@@ -62,6 +69,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const setLocale = (newLocale: string) => {
     setLocaleState(newLocale);
+    // Save user's manual selection
+    localStorage.setItem('user-selected-locale', newLocale);
   };
 
   return (

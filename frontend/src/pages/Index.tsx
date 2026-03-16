@@ -491,6 +491,43 @@ export default function Index() {
       {/* ===== QURAN PLAYER (lazy) ===== */}
       <Suspense fallback={<div className="h-32" />}>
         <QuranPlayer />
+        
+        {/* ===== RUQYAH SECTION ===== */}
+        <div className="px-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🛡️</span>
+              <h3 className="text-sm font-bold text-foreground">الرقية الشرعية</h3>
+            </div>
+            <Link to="/ruqyah" className="text-xs text-primary font-semibold flex items-center gap-0.5">
+              {t('moreLabel')}
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-2.5">
+            {[
+              { title: 'آية الكرسي', subtitle: 'للحفظ والحماية', icon: '🔰' },
+              { title: 'المعوذات', subtitle: 'الفلق والناس', icon: '✨' },
+              { title: 'سورة البقرة', subtitle: 'تطرد الشياطين', icon: '📖' },
+              { title: 'أذكار الصباح', subtitle: 'للحفظ من كل سوء', icon: '🌅' },
+            ].map((item, idx) => (
+              <Link
+                key={idx}
+                to="/ruqyah"
+                className="bg-card border border-border/40 rounded-xl p-3 active:scale-[0.97] transition-transform"
+              >
+                <div className="flex items-start gap-2.5">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-foreground mb-0.5">{item.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{item.subtitle}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </Suspense>
 
       {/* ===== DUA OF DAY ===== */}

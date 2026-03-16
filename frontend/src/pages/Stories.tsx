@@ -57,9 +57,9 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
   const [idx, setIdx] = useState(initialIndex);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const touchY = useRef(0);
   const [story, setStory] = useState(stories[idx]);
   const [showComments, setShowComments] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     setStory(stories[idx]);
@@ -82,9 +82,60 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
     return () => { document.body.style.overflow = ''; };
   }, []);
   
+  // Vertical swipe handling
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    let startY = 0;
+    let isDragging = false;
+    
+    const handleTouchStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+      isDragging = true;
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+    };
+    
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!isDragging) return;
+      isDragging = false;
+      
+      const endY = e.changedTouches[0].clientY;
+      const deltaY = endY - startY;
+      
+      // Vertical swipe detection
+      if (Math.abs(deltaY) > 80) {
+        if (deltaY < 0) {
+          // Swiped up - next video
+          goNext();
+        } else {
+          // Swiped down - previous video
+          goPrev();
+        }
+      }
+    };
+    
+    container.addEventListener('touchstart', handleTouchStart, { passive: false });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [idx, stories.length]);
+  
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+      }
       if (e.key === 'ArrowUp') goPrev();
       if (e.key === 'ArrowDown') goNext();
       if (e.key === 'Escape') onClose();
@@ -124,12 +175,6 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
       toast.success('تم نسخ الرابط');
     }
   };
-  
-  const handleRepost = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
-    // TODO: Implement repost functionality
-    toast.success('سيتم إضافة ميزة إعادة النشر قريباً');
-  };
 
   if (!story) return null;
   const isEmbed = story.is_embed || story.media_type === 'embed';
@@ -139,21 +184,24 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
 
   return (
     <>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[1000] bg-black flex flex-col" dir="rtl"
-        onTouchStart={e => { touchY.current = e.touches[0].clientY; }}
-        onTouchEnd={e => {
-          const dy = e.changedTouches[0].clientY - touchY.current;
-          if (Math.abs(dy) > 100) { dy < 0 ? goNext() : goPrev(); }
-        }}>
+      <motion.div 
+        ref={containerRef}
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[1000] bg-black flex flex-col" 
+        dir="rtl"
+      >
         {/* Top Bar */}
-        <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
-          <button onClick={onClose} className="p-2.5 rounded-full bg-white/20 backdrop-blur-sm active:scale-90"><X className="h-6 w-6 text-white" /></button>
-          <span className="text-base text-white/80 font-bold">{idx + 1} / {stories.length}</span>
+        <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-3 py-3 bg-gradient-to-b from-black/70 via-black/30 to-transparent pointer-events-none">
+          <button onClick={onClose} className="pointer-events-auto p-2 rounded-full bg-black/30 backdrop-blur-sm active:scale-90 transition-transform">
+            <X className="h-5 w-5 text-white" />
+          </button>
+          <span className="text-xs text-white/70 font-medium">{idx + 1} / {stories.length}</span>
         </div>
         
         {/* Video Content */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center relative">
           {embedYtId ? (
             <iframe src={`https://www.youtube.com/embed/${embedYtId}?autoplay=1&rel=0`} title={story.title}
               className="w-full h-full" frameBorder={0}
@@ -166,85 +214,62 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
           ) : mediaUrl ? (
             <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
           ) : (
-            <div className="px-8 text-center max-w-lg">
-              {story.title && <h2 className="text-2xl font-bold text-white mb-6">{story.title}</h2>}
-              <p className="text-base text-white/90 leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
+            <div className="px-6 text-center max-w-lg">
+              {story.title && <h2 className="text-xl font-bold text-white mb-4">{story.title}</h2>}
+              <p className="text-base text-white/90 leading-[2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
             </div>
           )}
+          
+          {/* Vertical Swipe Indicator */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0.6, 0] }}
+            transition={{ duration: 2, delay: 0.5 }}
+            className="absolute top-1/3 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none">
+            <ChevronLeft className="h-6 w-6 text-white/60 -rotate-90" />
+            <span className="text-[10px] text-white/60">اسحب</span>
+            <ChevronLeft className="h-6 w-6 text-white/60 rotate-90" />
+          </motion.div>
         </div>
         
         {/* Bottom Info & Actions */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-5 pb-8 pt-20">
-          <div className="flex items-end gap-4">
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 pb-6 pt-16 pointer-events-none">
+          <div className="flex items-end gap-3 pointer-events-auto">
             {/* Author Info */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <div className={cn('h-10 w-10 rounded-full flex items-center justify-center text-sm text-white font-bold', avatarColors[(story.author_name||'').charCodeAt(0)%6])}>{story.author_name?.[0]}</div>
-                <span className="text-base font-bold text-white">{story.author_name}</span>
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-xs text-white font-bold', avatarColors[(story.author_name||'').charCodeAt(0)%6])}>{story.author_name?.[0]}</div>
+                <span className="text-sm font-bold text-white">{story.author_name}</span>
               </div>
-              {story.title && <p className="text-base font-bold text-white line-clamp-2 mb-1">{story.title}</p>}
-              <p className="text-sm text-white/70 line-clamp-2">{story.content.substring(0, 100)}...</p>
+              {story.title && <p className="text-sm font-bold text-white line-clamp-2 mb-0.5">{story.title}</p>}
+              <p className="text-xs text-white/70 line-clamp-2">{story.content.substring(0, 80)}...</p>
             </div>
             
-            {/* Action Buttons */}
-            <div className="flex flex-col items-center gap-6 pb-2">
+            {/* Action Buttons - Smaller & Better */}
+            <div className="flex flex-col items-center gap-4">
               {/* Like */}
-              <button onClick={toggleLike} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
-                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <Heart className={cn("h-7 w-7", story.liked ? "text-red-500 fill-red-500" : "text-white")} />
-                </div>
-                <span className="text-xs text-white font-bold">{story.likes_count||0}</span>
+              <button onClick={toggleLike} className="active:scale-90 transition-transform flex flex-col items-center gap-0.5">
+                <Heart className={cn("h-6 w-6", story.liked ? "text-red-500 fill-red-500" : "text-white")} />
+                <span className="text-[10px] text-white font-medium">{story.likes_count||0}</span>
               </button>
               
               {/* Comments */}
-              <button onClick={() => setShowComments(true)} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
-                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <MessageCircle className="h-7 w-7 text-white" />
-                </div>
-                <span className="text-xs text-white font-bold">{story.comments_count||0}</span>
+              <button onClick={() => setShowComments(true)} className="active:scale-90 transition-transform flex flex-col items-center gap-0.5">
+                <MessageCircle className="h-6 w-6 text-white" />
+                <span className="text-[10px] text-white font-medium">{story.comments_count||0}</span>
               </button>
               
               {/* Save */}
-              <button onClick={toggleSave} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
-                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <Bookmark className={cn("h-6 w-6", story.saved ? "text-primary fill-primary" : "text-white")} />
-                </div>
+              <button onClick={toggleSave} className="active:scale-90 transition-transform">
+                <Bookmark className={cn("h-5 w-5", story.saved ? "text-primary fill-primary" : "text-white")} />
               </button>
               
               {/* Share */}
-              <button onClick={handleShare} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
-                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
-                  <Share2 className="h-6 w-6 text-white" />
-                </div>
+              <button onClick={handleShare} className="active:scale-90 transition-transform">
+                <Share2 className="h-5 w-5 text-white" />
               </button>
             </div>
           </div>
-        </div>
-        
-        {/* Navigation Arrows */}
-        {idx > 0 && (
-          <button onClick={goPrev} 
-            className="absolute top-1/2 right-4 -translate-y-1/2 p-3 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 active:scale-90">
-            <ChevronLeft className="h-6 w-6 text-white rotate-180" />
-          </button>
-        )}
-        {idx < stories.length - 1 && (
-          <button onClick={goNext} 
-            className="absolute top-1/2 left-4 -translate-y-1/2 p-3 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 active:scale-90">
-            <ChevronLeft className="h-6 w-6 text-white" />
-          </button>
-        )}
-        
-        {/* Swipe Indicator */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 pointer-events-none">
-          <motion.div 
-            initial={{ opacity: 0, y: 0 }}
-            animate={{ opacity: [0.5, 0], y: [0, 30] }}
-            transition={{ duration: 1.5, repeat: 3, repeatDelay: 2 }}
-            className="flex flex-col items-center gap-2">
-            <ChevronLeft className="h-8 w-8 text-white/50 -rotate-90" />
-            <span className="text-xs text-white/50">اسحب للأعلى/الأسفل</span>
-          </motion.div>
         </div>
       </motion.div>
       
