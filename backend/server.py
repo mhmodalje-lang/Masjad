@@ -2416,6 +2416,89 @@ async def get_public_pages(category: str = ""):
     pages = await db.custom_pages.find(query, {"_id": 0}).sort("order", 1).to_list(50)
     return {"pages": pages}
 
+# ===== RUQYAH MANAGEMENT =====
+class RuqyahItem(BaseModel):
+    id: Optional[str] = None
+    title: str
+    content: str = ""
+    category: str = "general"  # عين, حسد, سحر, مس, general
+    audio_url: str = ""
+    order: int = 0
+    enabled: bool = True
+
+@api_router.get("/admin/ruqyah")
+async def admin_get_ruqyah(admin=Depends(get_admin_user)):
+    items = await db.ruqyah_items.find({}, {"_id": 0}).sort("order", 1).to_list(200)
+    return {"items": items}
+
+@api_router.post("/admin/ruqyah")
+async def admin_save_ruqyah(item: RuqyahItem, admin=Depends(get_admin_user)):
+    item_dict = item.dict()
+    if not item_dict.get("id"):
+        item_dict["id"] = str(uuid.uuid4())[:8]
+    item_dict["updated_at"] = datetime.utcnow().isoformat()
+    await db.ruqyah_items.update_one({"id": item_dict["id"]}, {"$set": item_dict}, upsert=True)
+    return {"success": True, "item": item_dict}
+
+@api_router.delete("/admin/ruqyah/{item_id}")
+async def admin_delete_ruqyah(item_id: str, admin=Depends(get_admin_user)):
+    await db.ruqyah_items.delete_one({"id": item_id})
+    return {"success": True}
+
+@api_router.get("/ruqyah")
+async def get_public_ruqyah(category: str = ""):
+    query = {"enabled": True}
+    if category:
+        query["category"] = category
+    items = await db.ruqyah_items.find(query, {"_id": 0}).sort("order", 1).to_list(200)
+    return {"items": items}
+
+# ===== ADMIN ALL STORIES (with status filter) =====
+@api_router.get("/admin/all-stories")
+async def admin_get_all_stories(admin=Depends(get_admin_user), status: str = "", page: int = 1, limit: int = 30):
+    query = {}
+    if status:
+        query["status"] = status
+    skip = (page - 1) * limit
+    stories = await db.stories.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.stories.count_documents(query)
+    return {"stories": stories, "total": total, "page": page}
+
+@api_router.delete("/admin/stories/{story_id}")
+async def admin_delete_story(story_id: str, admin=Depends(get_admin_user)):
+    await db.stories.delete_one({"id": story_id})
+    return {"success": True}
+
+# ===== DONATIONS ADMIN =====
+@api_router.get("/admin/donations")
+async def admin_get_donations(admin=Depends(get_admin_user), status: str = ""):
+    query = {}
+    if status:
+        query["status"] = status
+    donations = await db.donations.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+    total_amount = sum(d.get("amount", 0) for d in donations if d.get("status") == "approved")
+    return {"donations": donations, "total": len(donations), "total_amount": total_amount}
+
+@api_router.put("/admin/donations/{donation_id}")
+async def admin_moderate_donation(donation_id: str, data: dict, admin=Depends(get_admin_user)):
+    action = data.get("action", "")
+    if action not in ["approve", "reject"]:
+        raise HTTPException(status_code=400, detail="action invalid")
+    update = {
+        "status": "approved" if action == "approve" else "rejected",
+        "moderated_by": admin.get("email", ""),
+        "moderated_at": datetime.utcnow().isoformat(),
+    }
+    await db.donations.update_one({"id": donation_id}, {"$set": update})
+    return {"success": True, "status": update["status"]}
+
+@api_router.delete("/admin/donations/{donation_id}")
+async def admin_delete_donation(donation_id: str, admin=Depends(get_admin_user)):
+    await db.donations.delete_one({"id": donation_id})
+    return {"success": True}
+
+
+
 # Notification scheduling
 class ScheduledNotification(BaseModel):
     id: Optional[str] = None

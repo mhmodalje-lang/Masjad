@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, Play } from 'lucide-react';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion } from 'framer-motion';
+
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const RUQYAH_CONTENT = [
   {
@@ -73,6 +75,22 @@ const RUQYAH_CONTENT = [
 export default function Ruqyah() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const goBack = useSmartBack();
+  const [allContent, setAllContent] = useState(RUQYAH_CONTENT);
+
+  // Load dynamic ruqyah content from API
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/ruqyah`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.items && d.items.length > 0) {
+          const apiItems = d.items.map((item: any) => ({
+            id: item.id, title: item.title, subtitle: item.category,
+            icon: '📿', arabic: item.content, reference: item.category,
+          }));
+          setAllContent([...apiItems, ...RUQYAH_CONTENT]);
+        }
+      }).catch(() => {});
+  }, []);
   const selected = RUQYAH_CONTENT.find(item => item.id === selectedId);
 
   return (
@@ -96,7 +114,7 @@ export default function Ruqyah() {
 
       {/* Content Grid */}
       <div className="px-4 pt-4 space-y-3">
-        {RUQYAH_CONTENT.map((item) => (
+        {allContent.map((item) => (
           <motion.div
             key={item.id}
             layoutId={item.id}

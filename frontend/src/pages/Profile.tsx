@@ -195,6 +195,24 @@ export default function Profile() {
   const displayName = profile?.name || 'مستخدم';
   const displayAvatar = profile?.avatar ? (profile.avatar.startsWith('http') ? profile.avatar : `${BACKEND_URL}${profile.avatar}`) : '';
 
+  const categoryColors: Record<string, string> = {
+    prophets: 'from-emerald-500/80 to-emerald-700/80',
+    sahaba: 'from-blue-500/80 to-blue-700/80',
+    quran: 'from-amber-500/80 to-amber-700/80',
+    ruqyah: 'from-purple-500/80 to-purple-700/80',
+    rizq: 'from-teal-500/80 to-teal-700/80',
+    tawba: 'from-rose-500/80 to-rose-700/80',
+    miracles: 'from-indigo-500/80 to-indigo-700/80',
+    istighfar: 'from-cyan-500/80 to-cyan-700/80',
+    general: 'from-slate-500/80 to-slate-700/80',
+    embed: 'from-red-500/80 to-red-700/80',
+  };
+  const categoryLabels: Record<string, string> = {
+    prophets: 'الأنبياء', sahaba: 'الصحابة', quran: 'القرآن', ruqyah: 'الرقية',
+    rizq: 'الرزق', tawba: 'التوبة', miracles: 'المعجزات', istighfar: 'الاستغفار',
+    general: 'عام', embed: 'فيديو',
+  };
+
   const renderPostGrid = (posts: Post[], loading: boolean, emptyIcon: typeof Settings, emptyMsg: string, emptySubMsg: string) => {
     const EmptyIcon = emptyIcon;
     if (loading) return (
@@ -212,27 +230,66 @@ export default function Profile() {
       </div>
     );
     return (
-      <div className="grid grid-cols-3 gap-[2px] bg-border/5">
+      <div className="grid grid-cols-2 gap-3 p-4">
         {posts.map(p => {
           const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
           const isVideo = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
           const isEmbed = p.is_embed || p.media_type === 'embed';
+          const catKey = p.category || 'general';
+          const gradient = categoryColors[catKey] || categoryColors.general;
+          const catLabel = categoryLabels[catKey] || catKey;
+
           return (
-            <Link to={`/stories?story=${p.id}`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
-              {url ? (
-                <img src={url} alt="" className="w-full h-full object-cover" loading="lazy"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden'); }} />
-              ) : null}
-              <div className={cn('w-full h-full flex items-center justify-center p-3',
-                url ? 'hidden absolute inset-0' : '',
-                'bg-gradient-to-br from-primary/5 to-primary/10')}>
-                <p className="text-[9px] text-foreground/60 line-clamp-5 text-center leading-relaxed" dir="rtl">{p.title || p.content}</p>
+            <Link to={`/stories?story=${p.id}`} key={p.id}
+              className="group rounded-2xl overflow-hidden border border-border/20 bg-card shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+              {/* Image/Gradient Top */}
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {url ? (
+                  <>
+                    <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden'); }} />
+                    <div className="hidden w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                      <BookOpen className="h-8 w-8 text-primary/40" />
+                    </div>
+                  </>
+                ) : (
+                  <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center p-4`}>
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+                    <p className="text-white text-[11px] font-bold text-center line-clamp-3 leading-relaxed drop-shadow-sm relative z-10">
+                      {p.title || p.content?.slice(0, 60)}
+                    </p>
+                  </div>
+                )}
+                {/* Overlay badges */}
+                <div className="absolute top-2 right-2">
+                  <span className="text-[8px] font-bold bg-black/50 backdrop-blur-sm text-white px-2 py-0.5 rounded-full">
+                    {catLabel}
+                  </span>
+                </div>
+                {(isVideo || isEmbed) && (
+                  <div className="absolute top-2 left-2 h-6 w-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <Play className="h-3 w-3 text-white fill-white" />
+                  </div>
+                )}
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></span>
+                    <span className="flex items-center gap-1"><Eye className="h-4 w-4 text-white" /><span className="text-xs text-white font-bold">{p.views_count || 0}</span></span>
+                  </div>
+                </div>
               </div>
-              {(isVideo || isEmbed) && <div className="absolute top-2 left-2"><Play className="h-4 w-4 text-white fill-white drop-shadow-lg" /></div>}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></span>
-                  <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></span>
+              {/* Card Body */}
+              <div className="p-3">
+                <h3 className="text-[12px] font-bold text-foreground line-clamp-2 leading-relaxed mb-1.5">
+                  {p.title || p.content?.slice(0, 50)}
+                </h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{p.likes_count || 0}</span>
+                    <span className="flex items-center gap-0.5"><MessageCircle className="h-3 w-3" />{p.comments_count || 0}</span>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground/60">{timeAgo(p.created_at)}</span>
                 </div>
               </div>
             </Link>

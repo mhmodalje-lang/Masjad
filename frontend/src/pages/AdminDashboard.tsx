@@ -6,7 +6,8 @@ import {
   Users, Bell, Settings, BarChart3, Shield, Send, Trash2, Plus,
   ChevronLeft, ChevronRight, RefreshCw, Megaphone, AlertTriangle,
   Monitor, FileText, Clock, BookOpen, Check, X, Eye, EyeOff,
-  Coins, ShoppingBag, Film, CreditCard, Building2, Store
+  Coins, ShoppingBag, Film, CreditCard, Building2, Store,
+  Heart, MessageSquare, Sparkles, Volume2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -70,10 +71,25 @@ export default function AdminDashboard() {
   const [embedContent, setEmbedContent] = useState<any[]>([]);
   const [showEmbedForm, setShowEmbedForm] = useState(false);
   const [embedForm, setEmbedForm] = useState({ title:'', description:'', embed_url:'', platform:'youtube', category:'general', thumbnail_url:'' });
+  // Stories Management
+  const [adminStories, setAdminStories] = useState<any[]>([]);
+  const [storiesFilter, setStoriesFilter] = useState('');
+  const [storiesTotal, setStoriesTotal] = useState(0);
+  // Ruqyah Management
+  const [ruqyahItems, setRuqyahItems] = useState<any[]>([]);
+  const [showRuqyahForm, setShowRuqyahForm] = useState(false);
+  const [ruqyahForm, setRuqyahForm] = useState({ title:'', content:'', category:'general', audio_url:'', order:0, enabled:true });
+  // Donations Management
+  const [adminDonations, setAdminDonations] = useState<any[]>([]);
+  const [donationsFilter, setDonationsFilter] = useState('');
+  const [donationsTotal, setDonationsTotal] = useState(0);
+  const [donationsTotalAmount, setDonationsTotalAmount] = useState(0);
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
-  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); } }, [isAdmin]);
+  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
+  useEffect(() => { if (isAdmin && tab === 'stories-mgmt') fetchAdminStories(); }, [isAdmin, tab, storiesFilter]);
+  useEffect(() => { if (isAdmin && tab === 'donations-mgmt') fetchAdminDonations(); }, [isAdmin, tab, donationsFilter]);
 
   const api = async (path: string, method='GET', body?: any, useAuth=true) => {
     const opts: any = { method, headers: useAuth ? authHeaders() : {'Content-Type':'application/json'} };
@@ -154,6 +170,18 @@ export default function AdminDashboard() {
   }
   async function deleteBroadcast(id: string) { await api(`/admin/announcements/${id}`,'DELETE'); toast.success('تم'); fetchBroadcasts(); }
   async function updateVendorStatus(id: string, status: string) { await api(`/admin/vendors/${id}`,'PUT',{status}); toast.success('تم'); fetchVendors(); }
+  // Stories management
+  async function fetchAdminStories() { try { const d = await api(`/admin/all-stories?status=${storiesFilter}`); setAdminStories(d.stories||[]); setStoriesTotal(d.total||0); } catch {} }
+  async function moderateStory(id: string, action: string) { await api(`/admin/stories/${id}`,'PUT',{action}); toast.success(action === 'approve' ? 'تمت الموافقة' : 'تم الرفض'); fetchAdminStories(); }
+  async function deleteStory(id: string) { if(!confirm('حذف القصة؟')) return; await api(`/admin/stories/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAdminStories(); }
+  // Ruqyah management
+  async function fetchRuqyah() { try { const d = await api('/admin/ruqyah'); setRuqyahItems(d.items||[]); } catch {} }
+  async function saveRuqyah() { if(!ruqyahForm.title.trim()) { toast.error('العنوان مطلوب'); return; } const d = await api('/admin/ruqyah','POST',ruqyahForm); if(d.success) { toast.success('تم الحفظ'); setShowRuqyahForm(false); setRuqyahForm({title:'',content:'',category:'general',audio_url:'',order:0,enabled:true}); fetchRuqyah(); } }
+  async function deleteRuqyah(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/ruqyah/${id}`,'DELETE'); toast.success('تم'); fetchRuqyah(); }
+  // Donations management
+  async function fetchAdminDonations() { try { const d = await api(`/admin/donations?status=${donationsFilter}`); setAdminDonations(d.donations||[]); setDonationsTotal(d.total||0); setDonationsTotalAmount(d.total_amount||0); } catch {} }
+  async function moderateDonation(id: string, action: string) { await api(`/admin/donations/${id}`,'PUT',{action}); toast.success(action === 'approve' ? 'تمت الموافقة' : 'تم الرفض'); fetchAdminDonations(); }
+  async function deleteDonation(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/donations/${id}`,'DELETE'); toast.success('تم'); fetchAdminDonations(); }
 
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
@@ -167,6 +195,9 @@ export default function AdminDashboard() {
 
   const tabs = [
     { key:'overview', label:'نظرة عامة', icon:BarChart3 },
+    { key:'stories-mgmt', label:'القصص', icon:BookOpen },
+    { key:'ruqyah-mgmt', label:'الرقية', icon:Volume2 },
+    { key:'donations-mgmt', label:'التبرعات', icon:Heart },
     { key:'embed', label:'محتوى مضمن', icon:Film },
     { key:'broadcast', label:'البث', icon:Megaphone },
     { key:'users', label:'المستخدمين', icon:Users },
@@ -286,6 +317,173 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+
+        {/* ===== STORIES MANAGEMENT ===== */}
+        {tab==='stories-mgmt' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-foreground">إدارة القصص ({storiesTotal})</h2>
+              <button onClick={fetchAdminStories} className="p-2 rounded-lg bg-muted"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[{k:'',l:'الكل'},{k:'pending',l:'بانتظار'},{k:'approved',l:'موافق'},{k:'rejected',l:'مرفوض'}].map(f=>(
+                <button key={f.k} onClick={()=>setStoriesFilter(f.k)}
+                  className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
+                    storiesFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
+                  {f.l}
+                </button>
+              ))}
+            </div>
+            {adminStories.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد قصص</p> :
+            adminStories.map(s => (
+              <div key={s.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{s.title || 'بدون عنوان'}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{s.content?.slice(0,120)}</p>
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className="text-[10px] bg-muted px-2 py-0.5 rounded">{s.category || 'عام'}</span>
+                      <span className="text-[10px] text-muted-foreground">{s.author_name || 'مجهول'}</span>
+                      <span className="text-[10px] text-muted-foreground">❤️ {s.likes_count||0} 💬 {s.comments_count||0} 👁 {s.views_count||0}</span>
+                      <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
+                        s.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                        s.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                        'bg-amber-500/10 text-amber-500'
+                      )}>
+                        {s.status === 'approved' ? 'موافق' : s.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
+                      </span>
+                    </div>
+                  </div>
+                  {s.image_url && <img src={s.image_url.startsWith('http') ? s.image_url : `${BACKEND_URL}${s.image_url}`} alt="" className="h-16 w-16 rounded-lg object-cover shrink-0" />}
+                </div>
+                <div className="flex gap-2 pt-1">
+                  {s.status !== 'approved' && <Button onClick={() => moderateStory(s.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>موافقة</Button>}
+                  {s.status !== 'rejected' && <Button onClick={() => moderateStory(s.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>رفض</Button>}
+                  <button onClick={() => deleteStory(s.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== RUQYAH MANAGEMENT ===== */}
+        {tab==='ruqyah-mgmt' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-foreground">الرقية الشرعية ({ruqyahItems.length})</h2>
+                <p className="text-xs text-muted-foreground">إضافة وإدارة الرقية الشرعية</p>
+              </div>
+              <Button onClick={() => { setRuqyahForm({title:'',content:'',category:'general',audio_url:'',order:0,enabled:true}); setShowRuqyahForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" />إضافة</Button>
+            </div>
+
+            {showRuqyahForm && (
+              <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
+                <InputField label="العنوان" value={ruqyahForm.title} onChange={(v: string) => setRuqyahForm({...ruqyahForm, title: v})} placeholder="رقية العين والحسد..." />
+                <InputField label="المحتوى (النص الكامل)" value={ruqyahForm.content} onChange={(v: string) => setRuqyahForm({...ruqyahForm, content: v})} placeholder="بسم الله الذي لا يضر مع اسمه شيء..." multiline />
+                <SelectField label="الفئة" value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general','عين','حسد','سحر','مس','أرق','وسواس','حماية']} />
+                <InputField label="رابط الصوت (اختياري)" value={ruqyahForm.audio_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, audio_url: v})} placeholder="https://..." />
+                <InputField label="الترتيب" value={String(ruqyahForm.order)} onChange={(v: string) => setRuqyahForm({...ruqyahForm, order: Number(v)||0})} placeholder="0" />
+                <div className="flex items-center gap-2">
+                  <Switch checked={ruqyahForm.enabled} onCheckedChange={(v) => setRuqyahForm({...ruqyahForm, enabled: v})} />
+                  <span className="text-xs text-foreground">مفعّل</span>
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button onClick={saveRuqyah} className="flex-1 rounded-xl gap-2"><Check className="h-4 w-4" />حفظ</Button>
+                  <Button variant="outline" onClick={() => setShowRuqyahForm(false)} className="rounded-xl">إلغاء</Button>
+                </div>
+              </div>
+            )}
+
+            {ruqyahItems.length === 0 && !showRuqyahForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد رقية مضافة بعد</p> :
+            ruqyahItems.map(item => (
+              <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("h-2 w-2 rounded-full", item.enabled ? 'bg-green-500' : 'bg-red-500')} />
+                      <p className="text-sm font-bold text-foreground">{item.title}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{item.content?.slice(0,100)}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{item.category}</span>
+                      {item.audio_url && <span className="text-[10px] text-blue-500">🔊 صوت</span>}
+                      <span className="text-[10px] text-muted-foreground">ترتيب: {item.order}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button onClick={() => { setRuqyahForm(item); setShowRuqyahForm(true); }} className="p-2 rounded-lg bg-primary/10 text-primary"><Sparkles className="h-3.5 w-3.5" /></button>
+                    <button onClick={() => deleteRuqyah(item.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ===== DONATIONS MANAGEMENT ===== */}
+        {tab==='donations-mgmt' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-foreground">إدارة التبرعات ({donationsTotal})</h2>
+                <p className="text-xs text-muted-foreground">مراجعة وموافقة على منشورات التبرعات</p>
+              </div>
+              <button onClick={fetchAdminDonations} className="p-2 rounded-lg bg-muted"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
+            </div>
+            
+            {donationsTotalAmount > 0 && (
+              <div className="rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 p-4 text-center">
+                <p className="text-2xl font-bold text-green-600">${donationsTotalAmount.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">إجمالي التبرعات المعتمدة</p>
+              </div>
+            )}
+
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[{k:'',l:'الكل'},{k:'pending',l:'بانتظار'},{k:'approved',l:'معتمد'},{k:'rejected',l:'مرفوض'}].map(f=>(
+                <button key={f.k} onClick={()=>setDonationsFilter(f.k)}
+                  className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
+                    donationsFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
+                  {f.l}
+                </button>
+              ))}
+            </div>
+
+            {adminDonations.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد تبرعات</p> :
+            adminDonations.map(d => (
+              <div key={d.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground">{d.title || 'تبرع'}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{d.description?.slice(0,100)}</p>
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-bold">${d.amount || 0}</span>
+                      <span className="text-[10px] text-muted-foreground">{d.donor_name || 'مجهول'}</span>
+                      <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
+                        d.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                        d.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
+                        'bg-amber-500/10 text-amber-500'
+                      )}>
+                        {d.status === 'approved' ? 'معتمد' : d.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {d.status === 'pending' && (
+                  <div className="flex gap-2 pt-1">
+                    <Button onClick={() => moderateDonation(d.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>موافقة</Button>
+                    <Button onClick={() => moderateDonation(d.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>رفض</Button>
+                  </div>
+                )}
+                <div className="flex justify-end">
+                  <button onClick={() => deleteDonation(d.id)} className="p-1.5 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3" /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
 
         {/* ===== BROADCAST (البث) ===== */}
         {tab==='broadcast' && (
