@@ -671,11 +671,10 @@ function StoryDetail({ storyId, onBack, stories, onOpenViewer }: { storyId: stri
 /* ========== MAIN STORIES PAGE ========== */
 export default function Stories() {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => searchParams.get('cat'));
   const [showCreate, setShowCreate] = useState(false);
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const [showViewer, setShowViewer] = useState<number | null>(null);
@@ -684,13 +683,40 @@ export default function Stories() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  // Story detail comes from URL search params — browser back works automatically
+  const selectedStoryId = searchParams.get('story');
+
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/stories/categories`).then(r => r.json())
       .then(d => setCategories(d.categories || [])).catch(() => {});
     if (searchParams.get('create') === 'true' && user) setShowCreate(true);
-    const sp = searchParams.get('story');
-    if (sp) setSelectedStoryId(sp);
   }, [searchParams, user]);
+
+  // Category selection — replace URL params
+  const handleSelectCategory = useCallback((cat: string | null) => {
+    setSelectedCategory(cat);
+    const params = new URLSearchParams(searchParams);
+    if (cat) params.set('cat', cat); else params.delete('cat');
+    params.delete('story');
+    setSearchParams(params, { replace: true });
+  }, [searchParams, setSearchParams]);
+
+  // Open story detail — PUSH new URL params (creates browser history entry)
+  const handleOpenStory = useCallback((storyId: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('story', storyId);
+    setSearchParams(params); // push, not replace — so back button works
+  }, [searchParams, setSearchParams]);
+
+  // Back from story detail — just go back in history
+  const handleBackFromStory = useCallback(() => {
+    const idx = (window.history.state as any)?.idx;
+    if (typeof idx === 'number' && idx > 0) {
+      window.history.back();
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }, [setSearchParams]);
 
   const loadStories = useCallback(async (cat?: string, pageNum: number = 1, append: boolean = false) => {
     if (pageNum === 1) setLoading(true);
@@ -744,7 +770,7 @@ export default function Stories() {
   };
 
   if (selectedStoryId) {
-    return <StoryDetail storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} stories={stories} onOpenViewer={(i) => setShowViewer(i)} />;
+    return <StoryDetail storyId={selectedStoryId} onBack={handleBackFromStory} stories={stories} onOpenViewer={(i) => setShowViewer(i)} />;
   }
 
   // Sort categories: general first, embed second
@@ -775,13 +801,13 @@ export default function Stories() {
           )}
         </div>
         <div className="px-3 pb-3 flex gap-2 overflow-x-auto no-scrollbar">
-          <button onClick={() => setSelectedCategory(null)}
+          <button onClick={() => handleSelectCategory(null)}
             className={cn('px-3.5 py-2 rounded-full text-xs font-bold shrink-0 border transition-all',
               !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
             الكل
           </button>
           {sortedCats.map(cat => (
-            <button key={cat.key} onClick={() => setSelectedCategory(cat.key)}
+            <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
               className={cn('flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold shrink-0 border transition-all',
                 selectedCategory === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
               <span className="text-sm">{cat.emoji}</span>{cat.label}
@@ -809,7 +835,7 @@ export default function Stories() {
                     <h2 className="text-[15px] font-bold text-foreground flex items-center gap-2">
                       <Film className="h-4 w-4 text-primary" /> فيديوهات
                     </h2>
-                    <button onClick={() => setSelectedCategory('embed')} className="text-xs text-primary font-bold">عرض الكل</button>
+                    <button onClick={() => handleSelectCategory('embed')} className="text-xs text-primary font-bold">عرض الكل</button>
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-2.5">
@@ -831,7 +857,7 @@ export default function Stories() {
               <div className="space-y-4">
                 {textStories.map((s, idx) => (
                   <div key={s.id}>
-                    <StoryCard story={s} onOpen={() => setSelectedStoryId(s.id)}
+                    <StoryCard story={s} onOpen={() => handleOpenStory(s.id)}
                       onToggleLike={e => { e.stopPropagation(); toggleLike(s.id); }}
                       onOpenComments={e => { e.stopPropagation(); setShowCommentsFor(s.id); }}
                       onToggleSave={e => { e.stopPropagation(); toggleSave(s.id); }} />

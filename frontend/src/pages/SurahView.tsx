@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft, ArrowRight, Play, Pause, Bookmark, BookmarkCheck } from 'lucide-react';
@@ -139,6 +139,16 @@ export default function SurahView() {
   };
 
   const BackIcon = isRTL ? ArrowRight : ArrowLeft;
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    const idx = (window.history.state as any)?.idx;
+    if (typeof idx === 'number' && idx > 0) {
+      window.history.back();
+    } else {
+      navigate('/quran', { replace: true });
+    }
+  };
 
   return (
     <div className="min-h-screen pb-24" dir="rtl">
@@ -146,9 +156,9 @@ export default function SurahView() {
         <div className="absolute inset-0 islamic-pattern opacity-20" />
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
-            <Link to="/quran">
+            <button onClick={handleBack}>
               <BackIcon className="h-5 w-5 text-primary-foreground" />
-            </Link>
+            </button>
             <h1 className="text-xl font-bold text-primary-foreground font-arabic">{surahName}</h1>
           </div>
           <Button

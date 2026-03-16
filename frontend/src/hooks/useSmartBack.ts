@@ -2,21 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
 
 /**
- * Smart back navigation - goes to previous page if history exists,
- * otherwise falls back to home. Prevents unexpected jumps.
+ * Simplest possible back navigation.
+ * Uses window.history.back() which triggers React Router's popstate handling.
+ * Falls back to a route if user landed directly on this page.
  */
-export function useSmartBack() {
+export function useSmartBack(fallback: string = '/') {
   const navigate = useNavigate();
 
   const goBack = useCallback(() => {
-    // Check if there's browser history to go back to
-    if (window.history.length > 1) {
-      navigate(-1);
+    const idx = (window.history.state as any)?.idx;
+    if (typeof idx === 'number' && idx > 0) {
+      window.history.back();
     } else {
-      // Only go to home if there's no history at all
-      navigate('/', { replace: true });
+      navigate(fallback, { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, fallback]);
 
   return goBack;
 }

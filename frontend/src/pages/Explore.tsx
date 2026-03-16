@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film, Bookmark, Maximize2, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { AdBanner } from '@/components/AdBanner';
@@ -249,6 +249,7 @@ function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; ra
 export default function Explore() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [mostViewed, setMostViewed] = useState<Story[]>([]);
   const [mostInteracted, setMostInteracted] = useState<Story[]>([]);
@@ -256,7 +257,6 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
@@ -265,6 +265,26 @@ export default function Explore() {
   const recognitionRef = useRef<any>(null);
   const [showMoreViewed, setShowMoreViewed] = useState(false);
   const [showMoreInteracted, setShowMoreInteracted] = useState(false);
+
+  // Story detail from URL params — browser back works automatically
+  const selectedStoryId = searchParams.get('story');
+
+  // Open story — PUSH URL params (creates history entry)
+  const handleOpenStory = useCallback((storyId: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('story', storyId);
+    setSearchParams(params); // push, not replace
+  }, [searchParams, setSearchParams]);
+
+  // Back from story — browser back
+  const handleBackFromStory = useCallback(() => {
+    const idx = (window.history.state as any)?.idx;
+    if (typeof idx === 'number' && idx > 0) {
+      window.history.back();
+    } else {
+      setSearchParams({}, { replace: true });
+    }
+  }, [setSearchParams]);
 
   useEffect(() => { loadData(); }, []);
 
@@ -380,7 +400,7 @@ export default function Explore() {
 
   // Show story detail
   if (selectedStoryId) {
-    return <StoryDetailView storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} />;
+    return <StoryDetailView storyId={selectedStoryId} onBack={handleBackFromStory} />;
   }
 
   return (
@@ -476,7 +496,7 @@ export default function Explore() {
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground mb-3">{searchResults.length} نتيجة</p>
               {searchResults.map((s, i) => (
-                <HorizontalStoryCard key={s.id} story={s} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
+                <HorizontalStoryCard key={s.id} story={s} onOpen={() => handleOpenStory(s.id)} onLike={() => toggleLike(s.id)} />
               ))}
             </div>
           )}
@@ -499,7 +519,7 @@ export default function Explore() {
               </div>
               <div className="space-y-2">
                 {(showMoreViewed ? mostViewed : mostViewed.slice(0, 5)).map((s, i) => (
-                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
+                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => handleOpenStory(s.id)} onLike={() => toggleLike(s.id)} />
                 ))}
               </div>
               {mostViewed.length > 5 && (
@@ -530,7 +550,7 @@ export default function Explore() {
               </div>
               <div className="space-y-2">
                 {(showMoreInteracted ? mostInteracted : mostInteracted.slice(0, 5)).map((s, i) => (
-                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
+                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => handleOpenStory(s.id)} onLike={() => toggleLike(s.id)} />
                 ))}
               </div>
               {mostInteracted.length > 5 && (

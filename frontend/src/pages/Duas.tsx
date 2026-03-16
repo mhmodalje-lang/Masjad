@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useLocale } from '@/hooks/useLocale';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
@@ -68,9 +69,14 @@ type ViewMode = 'categories' | 'subCategories' | 'duas';
 
 export default function Duas() {
   const { t } = useLocale();
-  const [viewMode, setViewMode] = useState<ViewMode>('categories');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedSubIndex, setSelectedSubIndex] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // All navigation state comes from URL params — browser back works automatically
+  const viewMode: ViewMode = (searchParams.get('v') as ViewMode) || 'categories';
+  const selectedCategory = searchParams.get('c');
+  const selectedSubIndex = searchParams.has('s') ? Number(searchParams.get('s')) : null;
+
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -80,27 +86,27 @@ export default function Duas() {
   const [showFavorites, setShowFavorites] = useState(false);
 
   const openCategory = (dataKey: string) => {
-    setSelectedCategory(dataKey);
-    setSelectedSubIndex(null);
-    setViewMode('subCategories');
     setShowFavorites(false);
     setShowSearch(false);
+    setSearchParams({ v: 'subCategories', c: dataKey });
   };
 
   const openSubCategory = (index: number) => {
-    setSelectedSubIndex(index);
-    setViewMode('duas');
+    if (!selectedCategory) return;
+    setSearchParams({ v: 'duas', c: selectedCategory, s: String(index) });
   };
 
   const goBack = () => {
-    if (viewMode === 'duas') {
-      setSelectedSubIndex(null);
-      setViewMode('subCategories');
-    } else if (viewMode === 'subCategories') {
-      setSelectedCategory(null);
-      setViewMode('categories');
-    } else if (showFavorites) {
+    if (showFavorites) {
       setShowFavorites(false);
+      return;
+    }
+    // Let React Router handle back — it knows the full history
+    const idx = (window.history.state as any)?.idx;
+    if (typeof idx === 'number' && idx > 0) {
+      window.history.back();
+    } else {
+      navigate('/', { replace: true });
     }
   };
 

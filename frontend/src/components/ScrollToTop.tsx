@@ -1,27 +1,25 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigationType } from 'react-router-dom';
 
+/**
+ * Only scrolls to top on PUSH (new page) navigation.
+ * Does NOT scroll on POP (back/forward) — lets browser restore position naturally.
+ */
 export default function ScrollToTop() {
   const { pathname } = useLocation();
-  
+  const navType = useNavigationType();
+
   useEffect(() => {
-    // Let browser handle scroll restoration naturally
     if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'auto';
+      window.history.scrollRestoration = 'manual';
     }
   }, []);
-  
+
   useEffect(() => {
-    // Only scroll to top on new page loads, not on back/forward navigation
-    // Check if this is a history navigation (back/forward)
-    const navigation = (window.performance?.getEntriesByType?.('navigation')?.[0] as any);
-    const isBackForward = navigation?.type === 'back_forward';
-    
-    if (!isBackForward) {
-      // New navigation - scroll to top
+    if (navType === 'PUSH') {
       window.scrollTo(0, 0);
     }
-  }, [pathname]);
-  
+  }, [pathname, navType]);
+
   return null;
 }
