@@ -11,7 +11,7 @@ import time
 from typing import Optional, Dict, Any
 
 # Backend URL from frontend .env configuration
-BASE_URL = "https://viral-shorts-96.preview.emergentagent.com/api"
+BASE_URL = "https://discover-connect-4.preview.emergentagent.com/api"
 
 # Test data exactly as specified in review request
 REGISTER_DATA = {
