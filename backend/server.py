@@ -2855,6 +2855,47 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@api_router.post("/contact")
+async def submit_contact(data: dict):
+    """Submit a contact form message"""
+    doc = {
+        "id": str(uuid.uuid4())[:8],
+        "name": data.get("name", ""),
+        "email": data.get("email", ""),
+        "message": data.get("message", ""),
+        "created_at": datetime.utcnow().isoformat(),
+        "read": False
+    }
+    await db.contact_messages.insert_one(doc)
+    return {"success": True, "message": "تم إرسال رسالتك"}
+
+@api_router.get("/donations/list")
+async def list_donations(limit: int = 50):
+    """List donation requests"""
+    docs = await db.donations.find({"active": True}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    return {"donations": docs}
+
+@api_router.post("/donations/create")
+async def create_donation(data: dict, user: dict = Depends(get_user)):
+    """Create a donation request"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    doc = {
+        "id": str(uuid.uuid4())[:8],
+        "author_id": user["id"],
+        "author_name": user.get("name", "مستخدم"),
+        "title": data.get("title", ""),
+        "description": data.get("description", ""),
+        "contact_info": data.get("contact_info", ""),
+        "amount_needed": data.get("amount_needed", ""),
+        "category": data.get("category", "general"),
+        "active": True,
+        "created_at": datetime.utcnow().isoformat()
+    }
+    await db.donations.insert_one(doc)
+    doc.pop("_id", None)
+    return {"donation": doc}
+
 @app.on_event("startup")
 async def create_indexes():
     """Create MongoDB indexes for performance"""

@@ -9,7 +9,7 @@ import { preloadSelectedAthan } from '@/lib/athanAudio';
 import { useLocation } from 'react-router-dom';
 
 // Pages that have their own headers (no top nav needed)
-const CUSTOM_HEADER_PAGES = ['/auth', '/admin', '/stories', '/explore', '/profile', '/more'];
+const CUSTOM_HEADER_PAGES = ['/auth', '/admin', '/stories', '/explore', '/profile', '/more', '/about', '/privacy', '/contact', '/donations'];
 
 export function AppLayout({ children }: { children: ReactNode }) {
   useDailyReminders();

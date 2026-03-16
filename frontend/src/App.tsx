@@ -50,6 +50,10 @@ const Rewards = lazy(() => import("./pages/Rewards"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const Explore = lazy(() => import("./pages/Explore"));
+const AboutUs = lazy(() => import("./pages/AboutUs"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const ContactUs = lazy(() => import("./pages/ContactUs"));
+const Donations = lazy(() => import("./pages/Donations"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -126,6 +130,10 @@ const App = () => {
                           <Route path="/ai-assistant" element={<AiAssistant />} />
                           <Route path="/marketplace" element={<Marketplace />} />
                           <Route path="/explore" element={<Explore />} />
+                          <Route path="/about" element={<AboutUs />} />
+                          <Route path="/privacy" element={<PrivacyPolicy />} />
+                          <Route path="/contact" element={<ContactUs />} />
+                          <Route path="/donations" element={<Donations />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
