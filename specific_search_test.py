@@ -7,7 +7,7 @@ Tests the exact endpoints mentioned in the review request
 import requests
 import json
 
-BASE_URL = "https://discover-connect-4.preview.emergentagent.com/api"
+BASE_URL = "https://stories-player-pro.preview.emergentagent.com/api"
 
 def get_auth_token():
     """Get auth token for test user"""
