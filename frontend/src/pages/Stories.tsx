@@ -56,31 +56,79 @@ function getYouTubeId(url: string): string | null {
 function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]; initialIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(initialIndex);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const touchY = useRef(0);
-  const story = stories[idx];
+  const [story, setStory] = useState(stories[idx]);
+  const [showComments, setShowComments] = useState(false);
   
-  const goNext = () => { if (idx < stories.length - 1) setIdx(i => i + 1); };
-  const goPrev = () => { if (idx > 0) setIdx(i => i - 1); };
+  useEffect(() => {
+    setStory(stories[idx]);
+  }, [idx, stories]);
+  
+  const goNext = () => { 
+    if (idx < stories.length - 1) {
+      setIdx(i => i + 1);
+    }
+  };
+  
+  const goPrev = () => { 
+    if (idx > 0) {
+      setIdx(i => i - 1);
+    }
+  };
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+  
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowUp') goPrev();
+      if (e.key === 'ArrowDown') goNext();
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [idx, stories.length]);
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
     try {
-      await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStory(s => ({ ...s, liked: d.liked, likes_count: s.likes_count + (d.liked ? 1 : -1) }));
     } catch {}
   };
 
   const toggleSave = async () => {
-    if (!user) return;
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
+      setStory(s => ({ ...s, saved: d.saved }));
       toast.success(d.saved ? 'تم الحفظ' : 'تم إلغاء الحفظ');
     } catch {}
+  };
+  
+  const handleShare = async () => {
+    const url = `${window.location.origin}/stories?story=${story.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: story.title || 'قصة', text: story.content.substring(0, 100), url });
+        toast.success('تمت المشاركة');
+      } catch {}
+    } else {
+      navigator.clipboard?.writeText(url);
+      toast.success('تم نسخ الرابط');
+    }
+  };
+  
+  const handleRepost = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    // TODO: Implement repost functionality
+    toast.success('سيتم إضافة ميزة إعادة النشر قريباً');
   };
 
   if (!story) return null;
@@ -90,66 +138,121 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
   const isVideo = story.media_type === 'video' || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[1000] bg-black flex flex-col" dir="rtl"
-      onTouchStart={e => { touchY.current = e.touches[0].clientY; }}
-      onTouchEnd={e => {
-        const dy = e.changedTouches[0].clientY - touchY.current;
-        if (Math.abs(dy) > 80) { dy < 0 ? goNext() : goPrev(); }
-      }}>
-      {/* Top */}
-      <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={onClose} className="p-2.5 rounded-full bg-white/10 backdrop-blur-sm"><X className="h-5 w-5 text-white" /></button>
-        <span className="text-sm text-white/60 font-bold">{idx + 1} / {stories.length}</span>
-      </div>
-      {/* Content */}
-      <div className="flex-1 flex items-center justify-center">
-        {embedYtId ? (
-          <iframe src={`https://www.youtube.com/embed/${embedYtId}?autoplay=1&rel=0`} title={story.title}
-            className="w-full h-full" frameBorder={0}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-        ) : isEmbed && story.embed_url ? (
-          <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-        ) : isVideo && mediaUrl ? (
-          <video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline />
-        ) : mediaUrl ? (
-          <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
-        ) : (
-          <div className="px-8 text-center max-w-sm">
-            {story.title && <h2 className="text-xl font-bold text-white mb-4">{story.title}</h2>}
-            <p className="text-sm text-white/80 leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
-          </div>
-        )}
-      </div>
-      {/* Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent px-4 pb-6 pt-16">
-        <div className="flex items-end gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold', avatarColors[(story.author_name||'').charCodeAt(0)%6])}>{story.author_name?.[0]}</div>
-              <span className="text-sm font-bold text-white">{story.author_name}</span>
+    <>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[1000] bg-black flex flex-col" dir="rtl"
+        onTouchStart={e => { touchY.current = e.touches[0].clientY; }}
+        onTouchEnd={e => {
+          const dy = e.changedTouches[0].clientY - touchY.current;
+          if (Math.abs(dy) > 100) { dy < 0 ? goNext() : goPrev(); }
+        }}>
+        {/* Top Bar */}
+        <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 bg-gradient-to-b from-black/80 via-black/40 to-transparent">
+          <button onClick={onClose} className="p-2.5 rounded-full bg-white/20 backdrop-blur-sm active:scale-90"><X className="h-6 w-6 text-white" /></button>
+          <span className="text-base text-white/80 font-bold">{idx + 1} / {stories.length}</span>
+        </div>
+        
+        {/* Video Content */}
+        <div className="flex-1 flex items-center justify-center">
+          {embedYtId ? (
+            <iframe src={`https://www.youtube.com/embed/${embedYtId}?autoplay=1&rel=0`} title={story.title}
+              className="w-full h-full" frameBorder={0}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          ) : isEmbed && story.embed_url ? (
+            <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+          ) : isVideo && mediaUrl ? (
+            <video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline loop />
+          ) : mediaUrl ? (
+            <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
+          ) : (
+            <div className="px-8 text-center max-w-lg">
+              {story.title && <h2 className="text-2xl font-bold text-white mb-6">{story.title}</h2>}
+              <p className="text-base text-white/90 leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
             </div>
-            {story.title && <p className="text-sm font-bold text-white line-clamp-2">{story.title}</p>}
-          </div>
-          <div className="flex flex-col items-center gap-5">
-            <button onClick={toggleLike} className="active:scale-90 transition-transform">
-              <Heart className={cn("h-7 w-7", story.liked ? "text-red-500 fill-red-500" : "text-white")} />
-              <span className="text-[10px] text-white font-bold block text-center mt-0.5">{story.likes_count||0}</span>
-            </button>
-            <button onClick={toggleSave} className="active:scale-90 transition-transform">
-              <Bookmark className={cn("h-7 w-7", story.saved ? "text-primary fill-primary" : "text-white")} />
-            </button>
-            <button onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/stories?story=${story.id}`); toast.success('تم نسخ الرابط'); }} className="active:scale-90 transition-transform">
-              <Share2 className="h-6 w-6 text-white" />
-            </button>
+          )}
+        </div>
+        
+        {/* Bottom Info & Actions */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-5 pb-8 pt-20">
+          <div className="flex items-end gap-4">
+            {/* Author Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <div className={cn('h-10 w-10 rounded-full flex items-center justify-center text-sm text-white font-bold', avatarColors[(story.author_name||'').charCodeAt(0)%6])}>{story.author_name?.[0]}</div>
+                <span className="text-base font-bold text-white">{story.author_name}</span>
+              </div>
+              {story.title && <p className="text-base font-bold text-white line-clamp-2 mb-1">{story.title}</p>}
+              <p className="text-sm text-white/70 line-clamp-2">{story.content.substring(0, 100)}...</p>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-col items-center gap-6 pb-2">
+              {/* Like */}
+              <button onClick={toggleLike} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
+                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <Heart className={cn("h-7 w-7", story.liked ? "text-red-500 fill-red-500" : "text-white")} />
+                </div>
+                <span className="text-xs text-white font-bold">{story.likes_count||0}</span>
+              </button>
+              
+              {/* Comments */}
+              <button onClick={() => setShowComments(true)} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
+                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <MessageCircle className="h-7 w-7 text-white" />
+                </div>
+                <span className="text-xs text-white font-bold">{story.comments_count||0}</span>
+              </button>
+              
+              {/* Save */}
+              <button onClick={toggleSave} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
+                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <Bookmark className={cn("h-6 w-6", story.saved ? "text-primary fill-primary" : "text-white")} />
+                </div>
+              </button>
+              
+              {/* Share */}
+              <button onClick={handleShare} className="active:scale-90 transition-transform flex flex-col items-center gap-1">
+                <div className="h-12 w-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center">
+                  <Share2 className="h-6 w-6 text-white" />
+                </div>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      {/* Nav arrows */}
-      {idx > 0 && <button onClick={goPrev} className="absolute top-1/2 right-1 -translate-y-1/2 p-2 rounded-full bg-white/10"><ChevronLeft className="h-5 w-5 text-white rotate-180" /></button>}
-      {idx < stories.length - 1 && <button onClick={goNext} className="absolute top-1/2 left-1 -translate-y-1/2 p-2 rounded-full bg-white/10"><ChevronLeft className="h-5 w-5 text-white" /></button>}
-    </motion.div>
+        
+        {/* Navigation Arrows */}
+        {idx > 0 && (
+          <button onClick={goPrev} 
+            className="absolute top-1/2 right-4 -translate-y-1/2 p-3 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 active:scale-90">
+            <ChevronLeft className="h-6 w-6 text-white rotate-180" />
+          </button>
+        )}
+        {idx < stories.length - 1 && (
+          <button onClick={goNext} 
+            className="absolute top-1/2 left-4 -translate-y-1/2 p-3 rounded-full bg-black/40 backdrop-blur-sm border border-white/20 active:scale-90">
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+        )}
+        
+        {/* Swipe Indicator */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 pointer-events-none">
+          <motion.div 
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ opacity: [0.5, 0], y: [0, 30] }}
+            transition={{ duration: 1.5, repeat: 3, repeatDelay: 2 }}
+            className="flex flex-col items-center gap-2">
+            <ChevronLeft className="h-8 w-8 text-white/50 -rotate-90" />
+            <span className="text-xs text-white/50">اسحب للأعلى/الأسفل</span>
+          </motion.div>
+        </div>
+      </motion.div>
+      
+      {/* Comments Sheet */}
+      <AnimatePresence>
+        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} onCommentAdded={() => setStory(s => ({ ...s, comments_count: s.comments_count + 1 }))} />}
+      </AnimatePresence>
+    </>
   );
 }
 
