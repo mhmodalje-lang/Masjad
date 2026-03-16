@@ -28,14 +28,14 @@ const SuggestedGoals = lazy(() => import('@/components/SuggestedGoals'));
 const HijriCalendar = lazy(() => import('@/components/HijriCalendar'));
 
 const getQuickAccessItems = (t: (key: string) => string) => [
-  { icon: Heart, label: t('quickTasbeeh'), path: '/tasbeeh', gradient: 'from-primary/20 to-primary/5', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=200&q=30' },
-  { icon: Compass, label: t('quickQibla'), path: '/qibla', gradient: 'from-accent/20 to-accent/5', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=200&q=30' },
-  { icon: BookOpen, label: t('quickQuran'), path: '/quran', gradient: 'from-primary/20 to-primary/5', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=200&q=30' },
-  { icon: Moon, label: t('quickDuas'), path: '/duas', gradient: 'from-islamic-purple/20 to-islamic-purple/5', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=200&q=30' },
-  { icon: MessageSquare, label: t('quickStories'), path: '/stories', gradient: 'from-islamic-copper/20 to-accent/5', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=200&q=30' },
-  { icon: Search, label: t('explore'), path: '/explore', gradient: 'from-blue-500/20 to-cyan-500/5', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=200&q=30' },
-  { icon: SettingsIcon, label: t('more'), path: '/more', gradient: 'from-purple-500/20 to-pink-500/5', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=200&q=30' },
-  { icon: Zap, label: t('donations'), path: '/donations', gradient: 'from-red-500/20 to-rose-500/5', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=200&q=30' },
+  { icon: Heart, label: t('quickTasbeeh'), path: '/tasbeeh', emoji: '📿', color: 'from-emerald-500/15 to-emerald-600/5' },
+  { icon: Compass, label: t('quickQibla'), path: '/qibla', emoji: '🧭', color: 'from-blue-500/15 to-blue-600/5' },
+  { icon: BookOpen, label: t('quickQuran'), path: '/quran', emoji: '📖', color: 'from-green-500/15 to-green-600/5' },
+  { icon: Moon, label: t('quickDuas'), path: '/duas', emoji: '🤲', color: 'from-purple-500/15 to-purple-600/5' },
+  { icon: MessageSquare, label: t('quickStories'), path: '/stories', emoji: '📝', color: 'from-amber-500/15 to-amber-600/5' },
+  { icon: Search, label: t('explore'), path: '/explore', emoji: '🔍', color: 'from-cyan-500/15 to-cyan-600/5' },
+  { icon: SettingsIcon, label: t('more'), path: '/more', emoji: '⚙️', color: 'from-slate-500/15 to-slate-600/5' },
+  { icon: Zap, label: t('donations'), path: '/donations', emoji: '💝', color: 'from-rose-500/15 to-rose-600/5' },
 ];
 
 export default function Index() {
@@ -61,20 +61,17 @@ export default function Index() {
     setAlertPrayer({ key: prayerKey, time: prayerTime });
   }, []);
 
-  // Handle notification click → full-screen alert (URL params)
   useEffect(() => {
     const prayer = searchParams.get('athan_prayer');
     const time = searchParams.get('athan_time');
     if (prayer && time) {
       setAlertPrayer({ key: prayer, time });
-      // Clean up URL params
       searchParams.delete('athan_prayer');
       searchParams.delete('athan_time');
       setSearchParams(searchParams, { replace: true });
     }
   }, []);
 
-  // Handle notification click → full-screen alert (SW postMessage)
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
     const handler = (event: MessageEvent) => {
@@ -114,14 +111,12 @@ export default function Index() {
 
   useAthanNotifications(prayers, notificationsEnabled, handleAthanAlert);
 
-  // Auto-register push subscription when notifications are enabled and location is available
   useEffect(() => {
     if (notificationsEnabled && latitude && longitude && !locationLoading) {
       subscribeToPush(latitude, longitude, calculationMethod).catch(console.error);
     }
   }, [notificationsEnabled, latitude, longitude, locationLoading]);
 
-  // Sync mosque prayer times to push subscription
   useEffect(() => {
     if (!notificationsEnabled) return;
     if (usingMosque && prayers.length > 0) {
@@ -131,7 +126,6 @@ export default function Index() {
     }
   }, [prayers, usingMosque, notificationsEnabled]);
 
-  // ======= ADMIN ANNOUNCEMENTS =======
   const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [dismissedAnn, setDismissedAnn] = useState<string[]>(() => {
@@ -168,7 +162,7 @@ export default function Index() {
     }
   };
 
-  const circleR = 48;
+  const circleR = 44;
   const circleC = 2 * Math.PI * circleR;
   const strokeDashoffset = isNaN(circleC * (1 - progress)) ? 0 : circleC * (1 - progress);
 
@@ -178,7 +172,6 @@ export default function Index() {
   const ramadanActive = isRamadan(hijriMonthNumber);
   const totalGoals = 5 + (ramadanActive ? 2 : 0);
   const completedGoals = prayersDone + tasbeehDone;
-  const overallPercent = Math.round((completedGoals / totalGoals) * 100);
 
   const [duaDrawerOpen, setDuaDrawerOpen] = useState(false);
   const todayDua = dailyDuas[Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000) % dailyDuas.length];
@@ -204,26 +197,26 @@ export default function Index() {
       )}
 
       {/* ===== HERO ===== */}
-      <div className="relative overflow-hidden h-[280px]">
+      <div className="relative overflow-hidden h-[260px]">
         <img
           src={meccaImage}
           alt="المسجد الحرام"
-          className="w-full h-full object-cover scale-105"
+          className="w-full h-full object-cover"
           loading="eager"
-          // @ts-ignore - fetchpriority is valid HTML but React types are behind
+          // @ts-ignore
           fetchpriority="high"
           width="1335"
-          height="280"
+          height="260"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-background" />
         
         {/* Top bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-[calc(1rem+env(safe-area-inset-top,0px))]">
+        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
           <button
             onClick={toggleNotifications}
             aria-label={notificationsEnabled ? 'إيقاف الإشعارات' : 'تفعيل الإشعارات'}
-            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+            className="p-2.5 rounded-2xl glass-dark transition-all active:scale-95"
           >
             {notificationsEnabled ? (
               <Bell className="h-5 w-5 text-white fill-current" />
@@ -234,50 +227,54 @@ export default function Index() {
           <div className="flex-1" />
           <Link
             to="/account"
-            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
+            className="p-2.5 rounded-2xl glass-dark transition-all active:scale-95"
           >
             <User className="h-5 w-5 text-white/90" />
           </Link>
         </div>
 
         {/* City + Hijri on hero */}
-        <div className="absolute bottom-16 left-0 right-0 text-center">
-          <p className="text-primary/90 text-xs tracking-widest uppercase mb-1 font-semibold drop-shadow-md">
+        <div className="absolute bottom-14 left-0 right-0 text-center">
+          <p className="text-white/80 text-xs tracking-wider uppercase mb-1.5 font-semibold drop-shadow-lg">
             {loading ? '...' : hijriDate}
           </p>
           <div className="flex items-center justify-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-primary" />
-            <p className="text-primary font-bold text-base drop-shadow-md">
+            <MapPin className="h-3.5 w-3.5 text-white/90" />
+            <p className="text-white font-bold text-sm drop-shadow-lg">
               {locationLoading ? '...' : city || t('detectLocation')}
             </p>
           </div>
         </div>
       </div>
 
-      {/* ===== NEXT PRAYER CARD (overlapping hero) ===== */}
-      <div className="px-4 -mt-14 relative z-10 mb-4">
-        <div className="rounded-3xl bg-card/95 backdrop-blur-xl border border-border/50 p-5 shadow-elevated animate-fade-in">
+      {/* ===== NEXT PRAYER CARD ===== */}
+      <div className="px-4 -mt-10 relative z-10 mb-5">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-3xl bg-card border border-border/50 p-5 shadow-card animate-fade-in"
+        >
           <div className="flex items-center gap-4">
             {/* Countdown circle */}
             <div className="relative shrink-0">
-              <svg width="110" height="110" viewBox="0 0 110 110">
-                <circle cx="55" cy="55" r={circleR} fill="none" stroke="hsl(var(--border))" strokeWidth="4" opacity="0.5" />
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r={circleR} fill="none" stroke="hsl(var(--border))" strokeWidth="3.5" opacity="0.4" />
                 <circle
-                  cx="55" cy="55" r={circleR}
+                  cx="50" cy="50" r={circleR}
                   fill="none"
                   stroke="hsl(var(--primary))"
-                  strokeWidth="4"
+                  strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeDasharray={circleC}
                   strokeDashoffset={strokeDashoffset}
-                  transform="rotate(-90 55 55)"
+                  transform="rotate(-90 50 50)"
                   className="transition-all duration-1000"
-                  style={{ filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.4))' }}
+                  style={{ filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.3))' }}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[10px] text-muted-foreground mb-0.5">{t('remaining')}</span>
-                <span className="text-lg font-bold tabular-nums text-foreground leading-none">
+                <span className="text-[9px] text-muted-foreground mb-0.5 font-medium">{t('remaining')}</span>
+                <span className="text-base font-bold tabular-nums text-foreground leading-none">
                   {remaining || '00:00'}
                 </span>
               </div>
@@ -285,23 +282,23 @@ export default function Index() {
 
             {/* Next prayer info */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1">{t('nextPrayerLabel')}</p>
-              <p className="text-2xl font-bold text-foreground leading-tight">
+              <p className="text-xs text-muted-foreground mb-1 font-medium">{t('nextPrayerLabel')}</p>
+              <p className="text-2xl font-extrabold text-foreground leading-tight tracking-tight">
                 {nextPrayer ? prayerNames[nextPrayer.key] || t(nextPrayer.key) : '—'}
               </p>
-              <p className="text-xl font-light tabular-nums text-primary mt-1">
+              <p className="text-xl font-light tabular-nums text-primary mt-0.5">
                 {nextPrayer?.time || '—'}
               </p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-3">
                 <Link
                   to="/tracker"
-                  className="text-xs text-primary font-bold bg-primary/10 px-3 py-1.5 rounded-xl transition-all active:scale-95"
+                  className="text-xs text-primary font-bold bg-primary/10 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/15"
                 >
                   {t('prayerTracking')}
                 </Link>
                 <Link
                   to="/notifications"
-                  className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-xl transition-all active:scale-95"
+                  className="text-xs text-muted-foreground bg-muted/60 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted"
                 >
                   <Volume2 className="h-3 w-3 inline me-1" />
                   {t('athanLabel')}
@@ -309,13 +306,13 @@ export default function Index() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* ===== OCCASION BANNER ===== */}
       {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
 
-      {/* ===== ADMIN ANNOUNCEMENTS (BROADCAST) ===== */}
+      {/* ===== ADMIN ANNOUNCEMENTS ===== */}
       <AnimatePresence>
         {visibleAnn.map(ann => (
           <motion.div key={ann.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }}
@@ -325,14 +322,14 @@ export default function Index() {
               ann.type === 'promo' ? 'bg-primary/10 border-primary/30' :
               'bg-blue-500/10 border-blue-500/30'
             )} data-testid={`announcement-${ann.id}`}>
-              <button onClick={() => dismissAnn(ann.id)} className="absolute top-2 left-2 p-1 rounded-full bg-black/10"><X className="h-3.5 w-3.5 text-foreground/60" /></button>
+              <button onClick={() => dismissAnn(ann.id)} className="absolute top-2.5 left-2.5 p-1.5 rounded-full bg-black/10 hover:bg-black/20 transition-colors"><X className="h-3.5 w-3.5 text-foreground/60" /></button>
               <div className="flex items-start gap-3">
                 <Megaphone className={cn('h-5 w-5 shrink-0 mt-0.5',
                   ann.type === 'warning' ? 'text-amber-500' : ann.type === 'promo' ? 'text-primary' : 'text-blue-500'
                 )} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{ann.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{ann.body}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{ann.body}</p>
                 </div>
               </div>
             </div>
@@ -343,7 +340,7 @@ export default function Index() {
       {/* ===== LOCATION ERROR ===== */}
       {locationError && prayers.length === 0 && (
         <div className="px-4 mb-4">
-          <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-5 flex flex-col items-center gap-3">
+          <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-6 flex flex-col items-center gap-3">
             <MapPinOff className="h-8 w-8 text-destructive" />
             <p className="text-sm font-bold text-foreground text-center">{locationError}</p>
             <button
@@ -359,21 +356,21 @@ export default function Index() {
       <AdBanner position="home" />
 
       {/* ===== PRAYER TIMES GRID ===== */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-base">🕌</span>
+            <span className="text-lg">🕌</span>
             <h3 className="text-sm font-bold text-foreground">{t('prayerTimes')}</h3>
           </div>
-          <Link to="/prayer-times" className="text-xs text-primary font-semibold flex items-center gap-0.5">
+          <Link to="/prayer-times" className="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline">
             {t('moreLabel')}
             <ChevronLeft className="h-3.5 w-3.5" />
           </Link>
         </div>
         
         {usingMosque && mosqueName && (
-          <div className="flex items-center justify-between mb-2 px-1">
-            <p className="text-[11px] text-primary flex items-center gap-1.5">
+          <div className="flex items-center justify-between mb-2.5 px-1">
+            <p className="text-[11px] text-primary flex items-center gap-1.5 font-medium">
               <Building2 className="h-3.5 w-3.5" />
               {mosqueName}
               <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">مسجد</span>
@@ -383,7 +380,7 @@ export default function Index() {
                 unlinkMosque();
                 toast.success(t('mosqueUnlinked'));
               }}
-              className="flex items-center gap-0.5 text-[10px] text-destructive"
+              className="flex items-center gap-0.5 text-[10px] text-destructive font-medium"
             >
               <Unlink className="h-2.5 w-2.5" />
               {t('unlinkMosque')}
@@ -391,27 +388,28 @@ export default function Index() {
           </div>
         )}
         
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2.5">
           {prayers.map((prayer) => {
             const isNext = nextPrayer?.key === prayer.key;
             return (
-              <div
+              <motion.div
                 key={prayer.key}
+                whileTap={{ scale: 0.97 }}
                 className={cn(
-                  'rounded-2xl border p-3 text-center transition-all',
+                  'rounded-2xl border p-3.5 text-center transition-all',
                   isNext
-                    ? 'border-primary/40 bg-primary/8 glow-emerald'
-                    : 'border-border/40 bg-card/80'
+                    ? 'border-primary/50 bg-primary/8 shadow-sm'
+                    : 'border-border/40 bg-card'
                 )}
               >
-                <span className="text-base mb-1 block">{prayerIcons[prayer.key] || '🕐'}</span>
-                <p className={cn('text-[11px] mb-0.5 font-semibold', isNext ? 'text-primary' : 'text-muted-foreground')}>
+                <span className="text-lg mb-1 block">{prayerIcons[prayer.key] || '🕐'}</span>
+                <p className={cn('text-[11px] mb-0.5 font-bold', isNext ? 'text-primary' : 'text-muted-foreground')}>
                   {prayerNames[prayer.key] || t(prayer.key)}
                 </p>
                 <p className={cn('text-sm font-bold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
                   {prayer.time}
                 </p>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -419,7 +417,7 @@ export default function Index() {
         {/* Mosque link */}
         <Link
           to="/mosque-times"
-          className="mt-3 flex items-center justify-between rounded-2xl border border-border/40 bg-card/80 p-3.5 transition-all active:scale-[0.98]"
+          className="mt-3 flex items-center justify-between rounded-2xl border border-border/40 bg-card p-3.5 transition-all active:scale-[0.98] hover:border-primary/30"
         >
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -436,29 +434,28 @@ export default function Index() {
 
       {/* ===== RAMADAN BAR ===== */}
       {ramadanActive && (
-        <div className="px-4 mb-4">
+        <div className="px-4 mb-5">
           <Link to="/ramadan-challenge">
             <div className="rounded-3xl gradient-prayer-bar p-5 flex items-center justify-between relative overflow-hidden active:scale-[0.98] transition-transform">
-              <div className="absolute inset-0 islamic-pattern opacity-20" />
+              <div className="absolute inset-0 islamic-pattern opacity-15" />
               <div className="text-white text-sm relative z-10">
-                <span className="text-white/50 text-xs font-medium">{t('iftar')}</span>
+                <span className="text-white/60 text-xs font-medium">{t('iftar')}</span>
                 <p className="font-bold tabular-nums text-lg">{maghribTime}</p>
               </div>
               <div className="text-center relative z-10">
                 <span className="text-3xl">🌙</span>
-                <p className="text-white/70 text-[10px] mt-1">{t('ramadanChallenge')}</p>
+                <p className="text-white/70 text-[10px] mt-1 font-medium">{t('ramadanChallenge')}</p>
               </div>
               <div className="text-white text-sm text-start relative z-10">
-                <span className="text-white/50 text-xs font-medium">الفجر</span>
+                <span className="text-white/60 text-xs font-medium">الفجر</span>
                 <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
               </div>
             </div>
           </Link>
-          {/* Ramadan Calendar Link */}
-          <Link to="/ramadan-calendar" className="mt-2 block">
-            <div className="rounded-2xl bg-card border border-accent/30 p-3.5 flex items-center justify-between active:scale-[0.98] transition-transform">
+          <Link to="/ramadan-calendar" className="mt-2.5 block">
+            <div className="rounded-2xl bg-card border border-accent/20 p-3.5 flex items-center justify-between active:scale-[0.98] transition-transform hover:border-accent/40">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-accent/15 flex items-center justify-center text-lg">📅</div>
+                <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center text-lg">📅</div>
                 <div>
                   <p className="text-sm font-bold text-foreground">تقويم رمضان ١٤٤٧</p>
                   <p className="text-[10px] text-muted-foreground">أدعية يومية • ليلة القدر • السحور والإفطار</p>
@@ -472,7 +469,7 @@ export default function Index() {
 
       <AdBanner position="home" />
 
-      {/* ===== DAILY HADITH (lazy) ===== */}
+      {/* ===== DAILY HADITH ===== */}
       <Suspense fallback={<div className="h-40" />}>
         <DailyHadith />
       </Suspense>
@@ -488,7 +485,7 @@ export default function Index() {
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />
 
-      {/* ===== QURAN PLAYER (lazy) ===== */}
+      {/* ===== QURAN PLAYER ===== */}
       <Suspense fallback={<div className="h-32" />}>
         <QuranPlayer />
         
@@ -496,10 +493,10 @@ export default function Index() {
         <div className="px-4 mb-6">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-base">🛡️</span>
+              <span className="text-lg">🛡️</span>
               <h3 className="text-sm font-bold text-foreground">{t('ruqyahTitle').replace('🛡️ ', '')}</h3>
             </div>
-            <Link to="/ruqyah" className="text-xs text-primary font-semibold flex items-center gap-0.5">
+            <Link to="/ruqyah" className="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline">
               {t('moreLabel')}
               <ChevronLeft className="h-3.5 w-3.5" />
             </Link>
@@ -515,13 +512,13 @@ export default function Index() {
               <Link
                 key={idx}
                 to="/ruqyah"
-                className="bg-card border border-border/40 rounded-xl p-3 active:scale-[0.97] transition-transform"
+                className="bg-card border border-border/40 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:border-primary/30 hover:shadow-sm"
               >
                 <div className="flex items-start gap-2.5">
                   <span className="text-2xl">{item.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-foreground mb-0.5">{item.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{item.subtitle}</p>
+                    <p className="text-sm font-bold text-foreground mb-0.5">{item.title}</p>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">{item.subtitle}</p>
                   </div>
                 </div>
               </Link>
@@ -531,53 +528,50 @@ export default function Index() {
       </Suspense>
 
       {/* ===== DUA OF DAY ===== */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-5">
         <div
           onClick={() => setDuaDrawerOpen(true)}
-          className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+          className="rounded-3xl bg-card border border-border/40 p-6 shadow-card relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-3">
             {t('duaOfDay')}
           </span>
-          <p className="text-sm font-bold text-foreground mb-2">{todayDua.subtitle}</p>
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-3 line-clamp-2">
+          <p className="text-sm font-bold text-foreground mb-3">{todayDua.subtitle}</p>
+          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4 line-clamp-2">
             {todayDua.arabic}
           </p>
-          <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2 text-xs font-bold text-primary transition-all">
+          <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary/10">
             {t('readWithTranslation')}
           </span>
         </div>
       </div>
 
-      {/* ===== SUGGESTED GOALS (lazy) ===== */}
+      {/* ===== SUGGESTED GOALS ===== */}
       <Suspense fallback={<div className="h-24" />}>
         <SuggestedGoals />
       </Suspense>
 
       {/* ===== QUICK ACCESS ===== */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-5">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="h-4 w-4 text-accent" />
           <h3 className="text-sm font-bold text-foreground">{t('quickAccessLabel')}</h3>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-2.5">
           {getQuickAccessItems(t).map((item) => (
-            <Link key={item.path} to={item.path} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95 relative overflow-hidden group">
-              <div className="h-14 w-14 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-md">
-                {/* Ken Burns animated background image */}
-                <div className="absolute inset-0 ken-burns-bg">
-                  <img 
-                    src={(item as any).bgImage} 
-                    alt="" 
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-                <item.icon className="h-5 w-5 text-white relative z-10 drop-shadow-lg" />
+            <Link 
+              key={item.path} 
+              to={item.path} 
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95 hover:border-primary/30 hover:shadow-sm group"
+            >
+              <div className={cn(
+                "h-12 w-12 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br transition-all",
+                item.color
+              )}>
+                {item.emoji}
               </div>
-              <span className="text-[12px] font-bold text-foreground text-center leading-tight">
+              <span className="text-[11px] font-bold text-foreground text-center leading-tight">
                 {item.label}
               </span>
             </Link>
@@ -586,27 +580,27 @@ export default function Index() {
       </div>
 
       {/* ===== QURAN GOAL ===== */}
-      <div className="px-4 mb-4">
-        <div className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden">
+      <div className="px-4 mb-5">
+        <div className="rounded-3xl bg-card border border-border/40 p-6 shadow-card relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/5 to-transparent rounded-tr-full" />
-          <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-[11px] font-bold text-accent-foreground mb-2">
+          <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-[11px] font-bold text-accent mb-2">
             {t('quranCompletion')}
           </span>
           <p className="text-sm font-bold text-foreground mb-1">{t('startDailyRecitation')}</p>
-          <p className="text-xs text-muted-foreground mb-3">{t('setYourPace')}</p>
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{t('setYourPace')}</p>
           <Link
             to="/quran-goal"
-            className="inline-block rounded-2xl bg-primary/10 border border-primary/20 px-5 py-2 text-xs font-bold text-primary transition-all active:scale-95"
+            className="inline-block rounded-2xl bg-primary/10 border border-primary/20 px-5 py-2.5 text-xs font-bold text-primary transition-all active:scale-95 hover:bg-primary/15"
           >
             {t('setQuranGoal')}
           </Link>
         </div>
       </div>
 
-      {/* ===== HIJRI CALENDAR (lazy) ===== */}
+      {/* ===== HIJRI CALENDAR ===== */}
       <div className="px-4 mb-8">
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">📅</span>
+          <span className="text-lg">📅</span>
           <h3 className="text-sm font-bold text-foreground">{t('hijriCalendarTitle')}</h3>
         </div>
         <Suspense fallback={<div className="h-48" />}>

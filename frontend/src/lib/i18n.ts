@@ -787,8 +787,9 @@ const translationCache: Record<string, Record<string, string>> = {
  * Detect device language - returns the 2-letter language code
  */
 export function detectDeviceLanguage(): string {
-  const lang = navigator.language || (navigator as any).userLanguage || 'ar';
-  return lang.split('-')[0].toLowerCase();
+  // This is an Arabic-first Islamic app - default to Arabic
+  // Users can manually switch language in settings
+  return 'ar';
 }
 
 /**

@@ -6,103 +6,115 @@
 
 @layer base {
   :root {
-    /* LIGHT THEME: Golden Islamic Cream - ذهبي إسلامي كريمي */
-    --background: 35 30% 94%;
-    --foreground: 25 20% 12%;
+    /* LIGHT THEME: Clean Modern Islamic - نظيف وعصري */
+    --background: 40 20% 96%;
+    --foreground: 220 20% 14%;
 
-    --card: 35 25% 97%;
-    --card-foreground: 25 20% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 14%;
 
-    --popover: 35 25% 97%;
-    --popover-foreground: 25 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 14%;
 
-    --primary: 38 75% 38%;
+    --primary: 160 55% 32%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 18% 88%;
-    --secondary-foreground: 25 15% 20%;
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 220 15% 25%;
 
-    --muted: 35 15% 85%;
-    --muted-foreground: 25 8% 42%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 220 10% 40%;
 
-    --accent: 160 45% 28%;
+    --accent: 38 80% 48%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 15% 80%;
-    --input: 35 12% 82%;
-    --ring: 38 75% 38%;
-    --radius: 1.25rem;
+    --border: 220 10% 88%;
+    --input: 220 10% 85%;
+    --ring: 160 55% 32%;
+    --radius: 1rem;
 
     /* Extended Islamic palette */
-    --islamic-green: 160 45% 28%;
-    --islamic-gold: 38 75% 42%;
-    --islamic-emerald: 160 40% 25%;
-    --islamic-emerald-glow: 38 80% 50%;
-    --islamic-navy: 25 20% 12%;
-    --islamic-teal: 160 35% 32%;
-    --islamic-rose: 350 45% 52%;
-    --islamic-copper: 25 55% 45%;
+    --islamic-green: 160 55% 32%;
+    --islamic-gold: 38 80% 48%;
+    --islamic-emerald: 160 45% 28%;
+    --islamic-emerald-glow: 160 60% 45%;
+    --islamic-navy: 220 25% 12%;
+    --islamic-teal: 175 40% 35%;
+    --islamic-rose: 350 55% 55%;
+    --islamic-copper: 25 60% 48%;
+    --islamic-purple: 260 40% 55%;
+    --islamic-purple-light: 260 35% 70%;
+    --islamic-teal-light: 175 30% 60%;
+    --islamic-green-foreground: 0 0% 100%;
+    --islamic-gold-foreground: 0 0% 100%;
+    --islamic-navy-foreground: 0 0% 100%;
 
-    --sidebar-background: 35 20% 92%;
-    --sidebar-foreground: 25 15% 18%;
-    --sidebar-primary: 38 75% 38%;
+    --sidebar-background: 40 15% 94%;
+    --sidebar-foreground: 220 15% 18%;
+    --sidebar-primary: 160 55% 32%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 15% 88%;
-    --sidebar-accent-foreground: 25 15% 20%;
-    --sidebar-border: 35 12% 78%;
-    --sidebar-ring: 38 75% 38%;
+    --sidebar-accent: 40 10% 90%;
+    --sidebar-accent-foreground: 220 15% 25%;
+    --sidebar-border: 220 10% 85%;
+    --sidebar-ring: 160 55% 32%;
   }
 
   .dark {
-    /* DARK THEME: Elegant Black & Gold Royal Islamic */
-    --background: 30 8% 5%;
-    --foreground: 40 30% 93%;
+    /* DARK THEME: Premium Dark Islamic - داكن فاخر */
+    --background: 225 15% 8%;
+    --foreground: 40 15% 92%;
 
-    --card: 30 10% 9%;
-    --card-foreground: 40 30% 93%;
+    --card: 225 14% 12%;
+    --card-foreground: 40 15% 92%;
 
-    --popover: 30 10% 9%;
-    --popover-foreground: 40 30% 93%;
+    --popover: 225 14% 12%;
+    --popover-foreground: 40 15% 92%;
 
-    --primary: 42 85% 52%;
-    --primary-foreground: 30 10% 5%;
+    --primary: 160 50% 45%;
+    --primary-foreground: 225 15% 6%;
 
-    --secondary: 30 12% 13%;
-    --secondary-foreground: 40 20% 78%;
+    --secondary: 225 12% 16%;
+    --secondary-foreground: 40 10% 78%;
 
-    --muted: 30 10% 15%;
-    --muted-foreground: 40 12% 52%;
+    --muted: 225 10% 18%;
+    --muted-foreground: 40 8% 58%;
 
-    --accent: 42 85% 52%;
-    --accent-foreground: 30 10% 5%;
+    --accent: 38 85% 55%;
+    --accent-foreground: 225 15% 6%;
 
-    --destructive: 0 62% 35%;
+    --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 12% 16%;
-    --input: 30 10% 12%;
-    --ring: 42 85% 52%;
+    --border: 225 10% 18%;
+    --input: 225 10% 15%;
+    --ring: 160 50% 45%;
 
-    --islamic-green: 42 85% 52%;
-    --islamic-gold: 42 90% 55%;
-    --islamic-emerald: 42 70% 45%;
-    --islamic-emerald-glow: 42 95% 58%;
-    --islamic-navy: 30 12% 7%;
-    --islamic-teal: 42 60% 42%;
-    --islamic-rose: 350 45% 52%;
-    --islamic-copper: 28 70% 50%;
+    --islamic-green: 160 50% 45%;
+    --islamic-gold: 38 85% 55%;
+    --islamic-emerald: 160 40% 38%;
+    --islamic-emerald-glow: 160 55% 50%;
+    --islamic-navy: 225 15% 10%;
+    --islamic-teal: 175 35% 42%;
+    --islamic-rose: 350 50% 55%;
+    --islamic-copper: 25 65% 52%;
+    --islamic-purple: 260 35% 60%;
+    --islamic-purple-light: 260 30% 72%;
+    --islamic-teal-light: 175 28% 58%;
+    --islamic-green-foreground: 225 15% 6%;
+    --islamic-gold-foreground: 225 15% 6%;
+    --islamic-navy-foreground: 40 15% 92%;
 
-    --sidebar-background: 30 10% 7%;
-    --sidebar-foreground: 40 20% 88%;
-    --sidebar-primary: 42 85% 52%;
-    --sidebar-primary-foreground: 30 10% 5%;
-    --sidebar-accent: 30 12% 13%;
-    --sidebar-accent-foreground: 40 15% 72%;
-    --sidebar-border: 35 10% 14%;
-    --sidebar-ring: 42 85% 52%;
+    --sidebar-background: 225 14% 10%;
+    --sidebar-foreground: 40 10% 88%;
+    --sidebar-primary: 160 50% 45%;
+    --sidebar-primary-foreground: 225 15% 6%;
+    --sidebar-accent: 225 12% 16%;
+    --sidebar-accent-foreground: 40 8% 72%;
+    --sidebar-border: 225 10% 16%;
+    --sidebar-ring: 160 50% 45%;
   }
 }
 
@@ -121,20 +133,22 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
-    font-size: 16px; /* زيادة من 15px إلى 16px */
-    line-height: 1.7;
+    font-family: 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    letter-spacing: 0.01em;
   }
 
   .font-arabic {
-    font-family: 'Noto Naskh Arabic', serif;
-    line-height: 2.1;
+    font-family: 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+    line-height: 2.2;
+    letter-spacing: 0.02em;
   }
 
   [dir="rtl"] {
-    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    font-family: 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
   }
 
   /* Prevent text overflow everywhere */
@@ -149,18 +163,34 @@
     overflow-wrap: break-word;
   }
 
-  h1, h2, h3, p, span, button, a, label {
-    line-height: 1.6;
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+    line-height: 1.4;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  p, span, button, a, label {
+    line-height: 1.65;
     min-width: 0;
     text-wrap: pretty;
   }
 
   button, a {
     white-space: normal;
-  }
-
-  h1, h2, h3 {
-    font-weight: 700;
   }
 
   /* Fix flex item overflow */
@@ -201,15 +231,15 @@
   }
 
   .gradient-islamic {
-    background: linear-gradient(145deg, hsl(155 60% 25%) 0%, hsl(155 55% 15%) 50%, hsl(155 45% 8%) 100%);
+    background: linear-gradient(145deg, hsl(160 50% 28%) 0%, hsl(160 45% 18%) 50%, hsl(160 40% 10%) 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, hsl(155 55% 20%) 0%, hsl(155 50% 12%) 60%, hsl(40 85% 52% / 0.12) 100%);
+    background: linear-gradient(135deg, hsl(160 50% 25%) 0%, hsl(160 45% 15%) 60%, hsl(38 80% 50% / 0.15) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, hsl(40 85% 52%) 0%, hsl(35 70% 42%) 100%);
+    background: linear-gradient(135deg, hsl(38 85% 52%) 0%, hsl(35 70% 42%) 100%);
   }
 
   .text-gradient-islamic {
@@ -220,24 +250,36 @@
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   .glow-emerald {
-    box-shadow: 0 0 25px -5px hsl(155 65% 40% / 0.2),
-                0 0 50px -10px hsl(155 65% 40% / 0.08);
+    box-shadow: 0 0 20px -4px hsl(160 50% 45% / 0.25),
+                0 0 40px -8px hsl(160 50% 45% / 0.1);
   }
 
   .glow-gold {
-    box-shadow: 0 0 20px -5px hsl(40 85% 52% / 0.25);
+    box-shadow: 0 0 20px -5px hsl(38 85% 52% / 0.25);
   }
 
   .shadow-elevated {
-    box-shadow: 0 8px 32px -8px hsl(155 30% 8% / 0.06),
-                0 2px 8px -2px hsl(155 30% 8% / 0.03);
+    box-shadow: 0 4px 24px -6px hsl(var(--foreground) / 0.06),
+                0 2px 8px -2px hsl(var(--foreground) / 0.04);
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.04),
+                0 4px 16px -4px hsl(var(--foreground) / 0.06);
   }
 
   .pt-safe-header {
@@ -280,31 +322,57 @@ html {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Animation */
+/* ===== ANIMATIONS ===== */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
-  animation: fade-in 0.4s ease-out;
+  animation: fade-in 0.5s ease-out;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out;
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in {
+  animation: slide-in-right 0.4s ease-out;
 }
 
 /* Ken Burns slow zoom animation for icon backgrounds */
 @keyframes ken-burns-zoom {
   0% { transform: scale(1); }
-  100% { transform: scale(1.15); }
+  100% { transform: scale(1.12); }
 }
 .ken-burns-bg {
-  animation: ken-burns-zoom 12s ease-in-out infinite alternate;
+  animation: ken-burns-zoom 14s ease-in-out infinite alternate;
 }
 
 /* Pulse glow for active items */
 @keyframes golden-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
-  50% { box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.15); }
+  50% { box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.12); }
 }
 .golden-pulse {
   animation: golden-pulse 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
 }
 
 /* Arabic text input support */
@@ -325,3 +393,32 @@ textarea {
   unicode-bidi: plaintext;
 }
 
+/* ===== MODERN SCROLLBAR (non-mobile) ===== */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+}
+
+/* ===== FOCUS STYLES ===== */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary) / 0.5);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* ===== SELECTION ===== */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}

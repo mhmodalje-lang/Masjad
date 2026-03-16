@@ -103,7 +103,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
         </div>
         <div className="px-4 py-3 border-t border-border/20 flex gap-2 bg-card">
           <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
-            dir="auto" placeholder="اكتب {t('comment')}اً..."
+            dir="auto" placeholder={t('addComment')}
             className="flex-1 bg-muted/50 rounded-2xl px-4 py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground" />
           <button onClick={send} disabled={!text.trim() || sending}
             className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40">
@@ -352,7 +352,7 @@ export default function Explore() {
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error('t('voiceNotSupported')');
+      toast.error(t('voiceNotSupported'));
       return;
     }
 
@@ -377,7 +377,7 @@ export default function Explore() {
 
     recognition.onerror = () => {
       setIsListening(false);
-      toast.error('t('voiceNotRecognized')، حاول مرة أخرى');
+      toast.error(t('voiceNotRecognized') + '، حاول مرة أخرى');
     };
 
     recognition.onend = () => {
@@ -422,7 +422,7 @@ export default function Explore() {
               <input ref={searchInputRef} type="search" dir="auto" value={searchQuery}
                 onChange={e => handleSearchInput(e.target.value)}
                 onFocus={() => setIsSearchActive(true)}
-                placeholder="{t("searchStoryOrAuthor")}..."
+                placeholder={t("searchStoryOrAuthor") + "..."}
                 className="w-full h-10 rounded-2xl bg-muted/50 border border-border/30 pr-10 pl-16 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 transition-all"
                 style={{ unicodeBidi: 'plaintext' } as any} autoComplete="off" spellCheck={false} />
               <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
