@@ -533,6 +533,26 @@ const arabicStrings: Record<string, string> = {
   followUp: 'المتابعة',
   namesOfAllah: 'أسماء الله',
   zakat: 'الزكاة',
+
+  // Language system
+  autoLanguage: 'تلقائي (الجهاز)',
+  manualLanguage: 'اختيار يدوي',
+  languageAutoDetected: 'تم كشف اللغة تلقائياً من جهازك',
+  languageManuallySet: 'تم تعيين اللغة يدوياً',
+  resetToAuto: 'إعادة للتلقائي',
+
+  // Legal pages
+  termsOfService: 'شروط الاستخدام',
+  cookiePolicy: 'سياسة ملفات تعريف الارتباط',
+
+  // Cookie consent
+  acceptCookies: 'قبول',
+  rejectCookies: 'رفض',
+  cookieConsentMessage: 'نستخدم ملفات تعريف الارتباط لتحسين تجربتك. بالاستمرار، أنت توافق على سياسة ملفات تعريف الارتباط.',
+  manageCookies: 'إدارة ملفات تعريف الارتباط',
+  necessaryCookies: 'ملفات ضرورية',
+  analyticsCookies: 'ملفات تحليلية',
+  savePreferences: 'حفظ التفضيلات',
 };
 
 // RTL languages

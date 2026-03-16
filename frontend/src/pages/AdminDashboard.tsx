@@ -78,7 +78,7 @@ export default function AdminDashboard() {
   // Ruqyah Management
   const [ruqyahItems, setRuqyahItems] = useState<any[]>([]);
   const [showRuqyahForm, setShowRuqyahForm] = useState(false);
-  const [ruqyahForm, setRuqyahForm] = useState({ title:'', content:'', category:'general', audio_url:'', order:0, enabled:true });
+  const [ruqyahForm, setRuqyahForm] = useState({ title:'', content:'', category:'general', audio_url:'', video_url:'', order:0, enabled:true });
   // Donations Management
   const [adminDonations, setAdminDonations] = useState<any[]>([]);
   const [donationsFilter, setDonationsFilter] = useState('');
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
   async function deleteStory(id: string) { if(!confirm('حذف القصة؟')) return; await api(`/admin/stories/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAdminStories(); }
   // Ruqyah management
   async function fetchRuqyah() { try { const d = await api('/admin/ruqyah'); setRuqyahItems(d.items||[]); } catch {} }
-  async function saveRuqyah() { if(!ruqyahForm.title.trim()) { toast.error('العنوان مطلوب'); return; } const d = await api('/admin/ruqyah','POST',ruqyahForm); if(d.success) { toast.success('تم الحفظ'); setShowRuqyahForm(false); setRuqyahForm({title:'',content:'',category:'general',audio_url:'',order:0,enabled:true}); fetchRuqyah(); } }
+  async function saveRuqyah() { if(!ruqyahForm.title.trim()) { toast.error('العنوان مطلوب'); return; } const d = await api('/admin/ruqyah','POST',ruqyahForm); if(d.success) { toast.success('تم الحفظ'); setShowRuqyahForm(false); setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); fetchRuqyah(); } }
   async function deleteRuqyah(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/ruqyah/${id}`,'DELETE'); toast.success('تم'); fetchRuqyah(); }
   // Donations management
   async function fetchAdminDonations() { try { const d = await api(`/admin/donations?status=${donationsFilter}`); setAdminDonations(d.donations||[]); setDonationsTotal(d.total||0); setDonationsTotalAmount(d.total_amount||0); } catch {} }
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
                 <h2 className="text-base font-bold text-foreground">الرقية الشرعية ({ruqyahItems.length})</h2>
                 <p className="text-xs text-muted-foreground">إضافة وإدارة الرقية الشرعية</p>
               </div>
-              <Button onClick={() => { setRuqyahForm({title:'',content:'',category:'general',audio_url:'',order:0,enabled:true}); setShowRuqyahForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" />إضافة</Button>
+              <Button onClick={() => { setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); setShowRuqyahForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" />إضافة</Button>
             </div>
 
             {showRuqyahForm && (
@@ -384,6 +384,13 @@ export default function AdminDashboard() {
                 <InputField label="المحتوى (النص الكامل)" value={ruqyahForm.content} onChange={(v: string) => setRuqyahForm({...ruqyahForm, content: v})} placeholder="بسم الله الذي لا يضر مع اسمه شيء..." multiline />
                 <SelectField label="الفئة" value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general','عين','حسد','سحر','مس','أرق','وسواس','حماية']} />
                 <InputField label="رابط الصوت (اختياري)" value={ruqyahForm.audio_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, audio_url: v})} placeholder="https://..." />
+                <InputField label="🎬 رابط الفيديو (YouTube, Vimeo, Dailymotion...)" value={ruqyahForm.video_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, video_url: v})} placeholder="https://www.youtube.com/watch?v=..." />
+                {ruqyahForm.video_url && (
+                  <div className="rounded-lg bg-muted/50 p-2">
+                    <p className="text-[10px] text-muted-foreground mb-1">✅ سيتم تضمين الفيديو تلقائياً (embed) - لا يخالف حقوق النشر</p>
+                    <p className="text-[10px] text-primary truncate">{ruqyahForm.video_url}</p>
+                  </div>
+                )}
                 <InputField label="الترتيب" value={String(ruqyahForm.order)} onChange={(v: string) => setRuqyahForm({...ruqyahForm, order: Number(v)||0})} placeholder="0" />
                 <div className="flex items-center gap-2">
                   <Switch checked={ruqyahForm.enabled} onCheckedChange={(v) => setRuqyahForm({...ruqyahForm, enabled: v})} />
@@ -409,6 +416,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{item.category}</span>
                       {item.audio_url && <span className="text-[10px] text-blue-500">🔊 صوت</span>}
+                      {item.video_url && <span className="text-[10px] text-red-500">🎬 فيديو ({item.video_type || 'مخصص'})</span>}
                       <span className="text-[10px] text-muted-foreground">ترتيب: {item.order}</span>
                     </div>
                   </div>

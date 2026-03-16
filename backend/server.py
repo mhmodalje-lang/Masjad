@@ -2423,8 +2423,66 @@ class RuqyahItem(BaseModel):
     content: str = ""
     category: str = "general"  # عين, حسد, سحر, مس, general
     audio_url: str = ""
+    video_url: str = ""  # Original URL from YouTube/Vimeo/Dailymotion etc.
+    embed_url: str = ""  # Auto-generated embed URL for iframe
+    video_type: str = ""  # youtube, vimeo, dailymotion, facebook, custom
+    thumbnail_url: str = ""  # Video thumbnail
     order: int = 0
     enabled: bool = True
+
+
+def parse_video_url(url: str) -> dict:
+    """Parse video URL and return embed URL, video type, and thumbnail"""
+    if not url:
+        return {"embed_url": "", "video_type": "", "thumbnail_url": ""}
+    
+    import re
+    
+    # YouTube
+    yt_match = re.match(r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})', url)
+    if yt_match:
+        vid = yt_match.group(1)
+        return {
+            "embed_url": f"https://www.youtube.com/embed/{vid}",
+            "video_type": "youtube",
+            "thumbnail_url": f"https://img.youtube.com/vi/{vid}/hqdefault.jpg"
+        }
+    
+    # Vimeo
+    vm_match = re.match(r'(?:https?://)?(?:www\.)?vimeo\.com/(\d+)', url)
+    if vm_match:
+        vid = vm_match.group(1)
+        return {
+            "embed_url": f"https://player.vimeo.com/video/{vid}",
+            "video_type": "vimeo",
+            "thumbnail_url": ""
+        }
+    
+    # Dailymotion
+    dm_match = re.match(r'(?:https?://)?(?:www\.)?dailymotion\.com/video/([a-zA-Z0-9]+)', url)
+    if dm_match:
+        vid = dm_match.group(1)
+        return {
+            "embed_url": f"https://www.dailymotion.com/embed/video/{vid}",
+            "video_type": "dailymotion",
+            "thumbnail_url": f"https://www.dailymotion.com/thumbnail/video/{vid}"
+        }
+
+    # Facebook Video
+    if 'facebook.com' in url or 'fb.watch' in url:
+        from urllib.parse import quote
+        return {
+            "embed_url": f"https://www.facebook.com/plugins/video.php?href={quote(url)}&show_text=false",
+            "video_type": "facebook",
+            "thumbnail_url": ""
+        }
+
+    # If already an embed URL or custom
+    if '/embed/' in url or 'player.' in url:
+        return {"embed_url": url, "video_type": "custom", "thumbnail_url": ""}
+    
+    # Generic - return as-is for custom embed
+    return {"embed_url": url, "video_type": "custom", "thumbnail_url": ""}
 
 @api_router.get("/admin/ruqyah")
 async def admin_get_ruqyah(admin=Depends(get_admin_user)):
@@ -2436,6 +2494,13 @@ async def admin_save_ruqyah(item: RuqyahItem, admin=Depends(get_admin_user)):
     item_dict = item.dict()
     if not item_dict.get("id"):
         item_dict["id"] = str(uuid.uuid4())[:8]
+    # Auto-parse video URL to get embed URL, type, and thumbnail
+    if item_dict.get("video_url"):
+        video_info = parse_video_url(item_dict["video_url"])
+        item_dict["embed_url"] = video_info["embed_url"]
+        item_dict["video_type"] = video_info["video_type"]
+        if video_info["thumbnail_url"]:
+            item_dict["thumbnail_url"] = video_info["thumbnail_url"]
     item_dict["updated_at"] = datetime.utcnow().isoformat()
     await db.ruqyah_items.update_one({"id": item_dict["id"]}, {"$set": item_dict}, upsert=True)
     return {"success": True, "item": item_dict}

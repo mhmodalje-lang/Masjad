@@ -14,6 +14,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
+import CookieConsent from "@/components/CookieConsent";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -53,6 +54,7 @@ const AboutUs = lazy(() => import("./pages/AboutUs"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
 const Donations = lazy(() => import("./pages/Donations"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -132,10 +134,12 @@ const App = () => {
                           <Route path="/privacy" element={<PrivacyPolicy />} />
                           <Route path="/contact" element={<ContactUs />} />
                           <Route path="/donations" element={<Donations />} />
+                          <Route path="/terms" element={<TermsOfService />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
                     </AppLayout>
+                    <CookieConsent />
                   </SEOWrapper>
                 </BrowserRouter>
               </TooltipProvider>

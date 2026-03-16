@@ -224,12 +224,28 @@ export default function More() {
           </div>
           {/* Language Selector - Shows all languages as a grid */}
           <div className="px-4 py-3.5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <span className="text-blue-400 text-sm font-bold">🌍</span>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                  <span className="text-blue-400 text-sm font-bold">🌍</span>
+                </div>
+                <span className="text-sm font-bold text-foreground">{t('language')}</span>
               </div>
-              <span className="text-sm font-bold text-foreground">{t('language')}</span>
+              {localStorage.getItem('user-selected-locale') && (
+                <button onClick={() => {
+                  localStorage.removeItem('user-selected-locale');
+                  const detected = navigator.language?.split('-')[0] || 'ar';
+                  setLocale(detected);
+                  localStorage.removeItem('user-selected-locale');
+                  toast.success(t('languageAutoDetected'));
+                }} className="text-[10px] text-primary font-semibold px-2 py-1 rounded-lg bg-primary/10">
+                  {t('resetToAuto')}
+                </button>
+              )}
             </div>
+            {!localStorage.getItem('user-selected-locale') && (
+              <p className="text-[10px] text-muted-foreground mb-2 px-1">🔄 {t('languageAutoDetected')}</p>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {languages.map(lang => (
                 <button key={lang.code} onClick={() => { setLocale(lang.code); toast.success(`${t('languageChanged')}: ${lang.nativeName}`); }}
@@ -250,7 +266,7 @@ export default function More() {
       {/* Athan Selector */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />صوت الأذان
+          <Sparkles className="h-3.5 w-3.5 text-primary" />{t('athanSound')}
         </h3>
         <div className="rounded-2xl bg-card border border-border/30 p-4">
           <AthanSelector />
@@ -270,24 +286,29 @@ export default function More() {
           </Link>
           <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-400" /></div>
-            <span className="text-sm text-foreground">من نحن</span>
+            <span className="text-sm text-foreground">{t('aboutUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
           <Link to="/privacy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-blue-400" /></div>
-            <span className="text-sm text-foreground">سياسة الخصوصية</span>
+            <span className="text-sm text-foreground">{t('privacyPolicy')}</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
+          <Link to="/terms" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-indigo-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-indigo-400" /></div>
+            <span className="text-sm text-foreground">{t('termsOfService')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
           <button onClick={() => toast.info('⭐ شكراً لتقييمك!')} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-yellow-500/15 flex items-center justify-center"><Star className="h-4 w-4 text-yellow-400" /></div>
-            <span className="text-sm text-foreground">قيّم التطبيق</span>
+            <span className="text-sm text-foreground">{t('rateApp')}</span>
           </button>
           <button onClick={() => {
-            if (navigator.share) navigator.share({ title: 'أذان وحكاية', url: window.location.origin });
-            else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+            if (navigator.share) navigator.share({ title: t('appName'), url: window.location.origin });
+            else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
           }} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Share2 className="h-4 w-4 text-blue-400" /></div>
-            <span className="text-sm text-foreground">دعوة صديق</span>
+            <span className="text-sm text-foreground">{t('inviteFriend')}</span>
           </button>
         </div>
       </div>

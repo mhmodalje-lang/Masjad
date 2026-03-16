@@ -519,6 +519,18 @@ backend:
         agent: "testing"
         comment: "✅ VERIFIED: GET /api/sohba/my-stats working perfectly. Returns all required fields: posts, stories, followers, following, total_likes, saved_count, liked_count. Counts reflect user actions correctly (saved_count: 2, liked_count: 2, total_likes: 2). Authentication with Bearer token working correctly."
 
+
+  - task: "Ruqyah Video Embed Support"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/admin/ruqyah - Updated to support video_url, embed_url, video_type, thumbnail_url fields. Auto-parses YouTube/Vimeo/Dailymotion/Facebook URLs to embed URLs."
 test_plan:
   current_focus: []
   stuck_tasks: []
