@@ -639,11 +639,41 @@ async function translateBatch(targetLang: string): Promise<Record<string, string
   }
 }
 
+// Static translation files (bundled with app - instant load)
+import enTranslations from '@/locales/en.json';
+import ruTranslations from '@/locales/ru.json';
+import deTranslations from '@/locales/de.json';
+import frTranslations from '@/locales/fr.json';
+import trTranslations from '@/locales/tr.json';
+
+const STATIC_TRANSLATIONS: Record<string, Record<string, string>> = {
+  en: enTranslations,
+  ru: ruTranslations,
+  de: deTranslations,
+  fr: frTranslations,
+  tr: trTranslations,
+};
+
 /**
- * Load translations for a language (with caching)
+ * Load translations for a language.
+ * Priority: 1) Static bundled files  2) Memory cache  3) localStorage  4) Google Translate API  5) Arabic fallback
  */
 export async function loadTranslations(lang: string): Promise<Record<string, string>> {
-  // Check memory cache first
+  // Arabic is the source language
+  if (lang === 'ar') {
+    translationCache['ar'] = arabicStrings;
+    return arabicStrings;
+  }
+
+  // Check for static bundled translations first (instant, no API needed)
+  if (STATIC_TRANSLATIONS[lang]) {
+    // Merge: static translations fill in what they have, Arabic fills the rest
+    const merged = { ...arabicStrings, ...STATIC_TRANSLATIONS[lang] };
+    translationCache[lang] = merged;
+    return merged;
+  }
+
+  // Check memory cache
   if (translationCache[lang]) {
     return translationCache[lang];
   }
@@ -658,8 +688,22 @@ export async function loadTranslations(lang: string): Promise<Record<string, str
     }
   } catch {}
 
-  // Fetch from API
+  // Fetch from Google Translate API (for unsupported languages)
   return translateBatch(lang);
+}
+
+/**
+ * Get list of supported languages with labels and flags
+ */
+export function getSupportedLanguages() {
+  return [
+    { code: 'ar', label: 'العربية', flag: '🇸🇦', dir: 'rtl' },
+    { code: 'en', label: 'English', flag: '🇬🇧', dir: 'ltr' },
+    { code: 'ru', label: 'Русский', flag: '🇷🇺', dir: 'ltr' },
+    { code: 'de', label: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
+    { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' },
+    { code: 'tr', label: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
+  ];
 }
 
 /**

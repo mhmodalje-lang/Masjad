@@ -46,12 +46,12 @@ export default function More() {
   };
   
   const languages = [
-    { code: 'ar', name: 'العربية', nativeName: 'العربية' },
-    { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'fr', name: 'French', nativeName: 'Français' },
-    { code: 'tr', name: 'Turkish', nativeName: 'Türkçe' },
-    { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
-    { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia' },
+    { code: 'ar', name: 'العربية', nativeName: 'العربية', flag: '🇸🇦' },
+    { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
+    { code: 'ru', name: 'Russian', nativeName: 'Русский', flag: '🇷🇺' },
+    { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
+    { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
+    { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
   ];
   
   const currentLanguage = languages.find(l => l.code === locale) || languages[0];
@@ -222,24 +222,28 @@ export default function More() {
               <button onClick={fontIncrease} className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center text-xs font-bold text-foreground active:scale-90">+</button>
             </div>
           </div>
-          {/* Language Selector */}
-          <button onClick={() => {
-            const idx = languages.findIndex(l => l.code === locale);
-            const nextLang = languages[(idx + 1) % languages.length];
-            setLocale(nextLang.code);
-            toast.success(`${t('languageChanged')}: ${nextLang.nativeName}`);
-          }}
-            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-muted/30 transition-colors">
-            <div className="flex items-center gap-3">
+          {/* Language Selector - Shows all languages as a grid */}
+          <div className="px-4 py-3.5">
+            <div className="flex items-center gap-3 mb-3">
               <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
                 <span className="text-blue-400 text-sm font-bold">🌍</span>
               </div>
-              <span className="text-sm text-foreground">{t('language')}</span>
+              <span className="text-sm font-bold text-foreground">{t('language')}</span>
             </div>
-            <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">
-              {currentLanguage.nativeName}
-            </span>
-          </button>
+            <div className="grid grid-cols-3 gap-2">
+              {languages.map(lang => (
+                <button key={lang.code} onClick={() => { setLocale(lang.code); toast.success(`${t('languageChanged')}: ${lang.nativeName}`); }}
+                  className={`flex flex-col items-center gap-1 p-2.5 rounded-xl border transition-all ${
+                    locale === lang.code 
+                      ? 'bg-primary/10 border-primary text-primary' 
+                      : 'bg-card border-border/30 text-muted-foreground hover:border-primary/30'
+                  }`}>
+                  <span className="text-lg">{lang.flag}</span>
+                  <span className="text-[11px] font-bold">{lang.nativeName}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
