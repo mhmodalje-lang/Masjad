@@ -276,7 +276,7 @@ export default function Profile() {
             </div>
             <div className="border-t border-border/20 py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">المساعدة</p>
-              <MenuItem icon={HelpCircle} label="الدعم والمساعدة" onClick={() => { toast.info('ادعمنا@almuadhin.com'); setMenuOpen(false); }} color="text-green-400" />
+              <MenuItem icon={HelpCircle} label="الدعم والمساعدة" onClick={() => { toast.info('mohammadalrejab@gmail.com'); setMenuOpen(false); }} color="text-green-400" />
               <MenuItem icon={Star} label="قيّم التطبيق" onClick={() => { toast.info('شكراً لتقييمك! ⭐'); setMenuOpen(false); }} color="text-yellow-400" />
               <MenuItem icon={Share2} label="دعوة صديق" onClick={() => {
                 if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });

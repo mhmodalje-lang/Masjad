@@ -10,8 +10,9 @@ import OccasionBanner from '@/components/OccasionBanner';
 import DailyGoals from '@/components/DailyGoals';
 import NotificationCard from '@/components/NotificationCard';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X, Search, Settings as SettingsIcon } from 'lucide-react';
 import { AdBanner } from '@/components/AdBanner';
+import { DailyDuaWidget, VerseOfDay, HadithOfDay, StreakBadge } from '@/components/Features2026';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 const meccaImage = '/mecca-hero.webp';
@@ -32,7 +33,9 @@ const getQuickAccessItems = (t: (key: string) => string) => [
   { icon: BookOpen, label: t('quickQuran'), path: '/quran', gradient: 'from-primary/20 to-primary/5' },
   { icon: Moon, label: t('quickDuas'), path: '/duas', gradient: 'from-islamic-purple/20 to-islamic-purple/5' },
   { icon: MessageSquare, label: t('quickStories'), path: '/stories', gradient: 'from-islamic-copper/20 to-accent/5' },
-  { icon: Zap, label: 'المزيد', path: '/more', gradient: 'from-amber-500/20 to-primary/5' },
+  { icon: Search, label: t('explore'), path: '/explore', gradient: 'from-blue-500/20 to-cyan-500/5' },
+  { icon: SettingsIcon, label: t('more'), path: '/more', gradient: 'from-purple-500/20 to-pink-500/5' },
+  { icon: Zap, label: t('donations'), path: '/donations', gradient: 'from-red-500/20 to-rose-500/5' },
 ];
 
 export default function Index() {
@@ -476,6 +479,11 @@ export default function Index() {
 
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
+
+      {/* ===== AI DAILY WIDGETS ===== */}
+      <VerseOfDay />
+      <HadithOfDay />
+      <DailyDuaWidget />
 
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />

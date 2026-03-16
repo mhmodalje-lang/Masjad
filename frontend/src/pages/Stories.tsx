@@ -650,7 +650,7 @@ export default function Stories() {
           </div>
         ) : (
           <>
-            {/* Video Grid Section (when in video category or showing all with videos) */}
+            {/* Video Horizontal Scroll Section */}
             {(isVideoCategory || (!selectedCategory && videoStories.length > 0)) && videoStories.length > 0 && (
               <div className="mb-6">
                 {!isVideoCategory && (
@@ -661,13 +661,62 @@ export default function Stories() {
                     <button onClick={() => setSelectedCategory('embed')} className="text-xs text-primary font-bold">عرض الكل</button>
                   </div>
                 )}
-                <div className="grid grid-cols-2 gap-2.5">
-                  {(isVideoCategory ? videoStories : videoStories.slice(0, 4)).map((s, idx) => (
-                    <VideoGridCard key={s.id} story={s} onClick={() => {
+                
+                {/* Horizontal Scrollable Video List */}
+                <div className="relative">
+                  <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2" style={{ scrollSnapType: 'x mandatory' }}>
+                    {(isVideoCategory ? videoStories : videoStories.slice(0, 10)).map((s, idx) => {
                       const vidIdx = videoStories.findIndex(v => v.id === s.id);
-                      setShowViewer(vidIdx >= 0 ? vidIdx : 0);
-                    }} />
-                  ))}
+                      const isEmbed = s.is_embed || s.media_type === 'embed';
+                      const ytId = isEmbed && s.embed_url ? getYouTubeId(s.embed_url) : null;
+                      const mediaUrl = getMediaUrl(s.image_url);
+                      
+                      return (
+                        <div
+                          key={s.id}
+                          onClick={() => setShowViewer(vidIdx >= 0 ? vidIdx : 0)}
+                          className="shrink-0 w-[200px] rounded-2xl overflow-hidden bg-card border border-border/30 cursor-pointer active:scale-[0.97] transition-transform group"
+                          style={{ scrollSnapAlign: 'start' }}
+                        >
+                          <div className="relative aspect-[9/16] bg-black/20">
+                            {ytId ? (
+                              <img src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" loading="lazy" />
+                            ) : mediaUrl ? (
+                              <img src={mediaUrl} alt="" className="w-full h-full object-cover" loading="lazy"
+                                onError={(e) => { (e.target as HTMLImageElement).src = ''; }} />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                                <Film className="h-8 w-8 text-primary/30" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
+                              <div className="h-12 w-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity">
+                                <Play className="h-6 w-6 text-white fill-white" />
+                              </div>
+                            </div>
+                            {(isEmbed && s.platform) && (
+                              <div className="absolute top-2 right-2 bg-red-600/90 text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold">
+                                {s.platform}
+                              </div>
+                            )}
+                            <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-black/50 rounded-full px-2 py-0.5">
+                              <Eye className="h-2.5 w-2.5 text-white/80" />
+                              <span className="text-[9px] text-white/80">{s.views_count || 0}</span>
+                            </div>
+                          </div>
+                          <div className="p-2.5">
+                            <p className="text-[11px] font-bold text-foreground line-clamp-2 leading-relaxed" dir="rtl">{s.title || s.content}</p>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <span className="text-[9px] text-muted-foreground truncate">{s.author_name}</span>
+                              <div className="flex items-center gap-2">
+                                <span className="flex items-center gap-0.5 text-[9px] text-muted-foreground"><Heart className="h-2.5 w-2.5" />{s.likes_count||0}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}

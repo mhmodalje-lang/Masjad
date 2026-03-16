@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/ThemeProvider';
 import { useDailyReminders } from '@/hooks/useDailyReminders';
+import { useLocale } from '@/hooks/useLocale';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Compass, Heart, Calculator, User, LogIn, LogOut, Moon, Sun, BookOpen, Clock,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
+import { useFontSize } from '@/components/Features2026';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 
@@ -33,6 +35,8 @@ export default function More() {
   const { isAdmin } = useAdmin();
   const { theme, mode, setMode } = useTheme();
   const { enabled: remindersEnabled, toggle: toggleReminders } = useDailyReminders();
+  const { size: fontSize, increase: fontIncrease, decrease: fontDecrease } = useFontSize();
+  const { locale, setLocale, t } = useLocale();
   const navigate = useNavigate();
 
   const handleToggleReminders = async () => {
@@ -40,6 +44,17 @@ export default function More() {
     if (result) toast.success(remindersEnabled ? 'تم إيقاف التذكيرات' : 'تم تفعيل التذكيرات');
     else toast.error('يرجى السماح بالإشعارات');
   };
+  
+  const languages = [
+    { code: 'ar', name: 'العربية', nativeName: 'العربية' },
+    { code: 'en', name: 'English', nativeName: 'English' },
+    { code: 'fr', name: 'French', nativeName: 'Français' },
+    { code: 'tr', name: 'Turkish', nativeName: 'Türkçe' },
+    { code: 'ur', name: 'Urdu', nativeName: 'اردو' },
+    { code: 'id', name: 'Indonesian', nativeName: 'Bahasa Indonesia' },
+  ];
+  
+  const currentLanguage = languages.find(l => l.code === locale) || languages[0];
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="more-page">
@@ -189,6 +204,38 @@ export default function More() {
             </div>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40" />
           </Link>
+          {/* Font Size */}
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-cyan-500/15 flex items-center justify-center">
+                <span className="text-cyan-400 text-sm font-bold">أ</span>
+              </div>
+              <span className="text-sm text-foreground">{t('fontSize')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={fontDecrease} className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center text-xs font-bold text-foreground active:scale-90">-</button>
+              <span className="text-xs font-bold text-primary w-6 text-center">{fontSize}</span>
+              <button onClick={fontIncrease} className="h-7 w-7 rounded-lg bg-muted/50 flex items-center justify-center text-xs font-bold text-foreground active:scale-90">+</button>
+            </div>
+          </div>
+          {/* Language Selector */}
+          <button onClick={() => {
+            const idx = languages.findIndex(l => l.code === locale);
+            const nextLang = languages[(idx + 1) % languages.length];
+            setLocale(nextLang.code);
+            toast.success(`${t('languageChanged')}: ${nextLang.nativeName}`);
+          }}
+            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-muted/30 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                <span className="text-blue-400 text-sm font-bold">🌍</span>
+              </div>
+              <span className="text-sm text-foreground">{t('language')}</span>
+            </div>
+            <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">
+              {currentLanguage.nativeName}
+            </span>
+          </button>
         </div>
       </div>
 

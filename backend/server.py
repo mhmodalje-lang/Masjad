@@ -2869,6 +2869,91 @@ async def submit_contact(data: dict):
     await db.contact_messages.insert_one(doc)
     return {"success": True, "message": "تم إرسال رسالتك"}
 
+@api_router.post("/report")
+async def report_content(data: dict, user: dict = Depends(get_user)):
+    """Report inappropriate content"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    doc = {
+        "id": str(uuid.uuid4())[:8],
+        "reporter_id": user["id"],
+        "content_id": data.get("content_id", ""),
+        "content_type": data.get("content_type", ""),
+        "reason": data.get("reason", ""),
+        "created_at": datetime.utcnow().isoformat(),
+        "resolved": False
+    }
+    await db.reports.insert_one(doc)
+    return {"success": True}
+
+@api_router.get("/ai/daily-dua")
+async def get_daily_dua():
+    """Get AI-generated daily dua"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        prompt = """اختر دعاء إسلامي صحيح من القرآن أو السنة. أعطني:
+1. نص الدعاء بالعربية فقط
+2. المصدر (القرآن أو الحديث)
+
+أجب بصيغة JSON فقط:
+{"text": "نص الدعاء", "source": "المصدر"}"""
+        response = await chat.chat([UserMessage(content=prompt)])
+        import re
+        match = re.search(r'\{[^}]+\}', response.content)
+        if match:
+            data = json_module.loads(match.group())
+            return {"dua": data}
+    except Exception as e:
+        logging.error(f"Daily dua error: {e}")
+    return {"dua": {"text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", "source": "سورة البقرة 201"}}
+
+@api_router.get("/ai/verse-of-day")
+async def get_verse_of_day():
+    """Get AI-selected verse of the day"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        prompt = """اختر آية قرآنية ملهمة ومؤثرة. أعطني:
+1. نص الآية بالعربية
+2. اسم السورة
+3. رقم الآية
+
+أجب بصيغة JSON فقط:
+{"text": "نص الآية", "surah": "اسم السورة", "ayah": رقم_الآية}"""
+        response = await chat.chat([UserMessage(content=prompt)])
+        import re
+        match = re.search(r'\{[^}]+\}', response.content)
+        if match:
+            data = json_module.loads(match.group())
+            return {"verse": data}
+    except Exception as e:
+        logging.error(f"Verse error: {e}")
+    return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق", "ayah": 3}}
+
+@api_router.get("/ai/hadith-of-day")
+async def get_hadith_of_day():
+    """Get AI-selected hadith of the day"""
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        prompt = """اختر حديث نبوي صحيح ومشهور. أعطني:
+1. نص الحديث مختصر
+2. اسم الراوي
+3. المصدر (البخاري/مسلم/الترمذي...)
+
+أجب بصيغة JSON فقط:
+{"text": "نص الحديث", "narrator": "اسم الراوي", "source": "المصدر"}"""
+        response = await chat.chat([UserMessage(content=prompt)])
+        import re
+        match = re.search(r'\{[^}]+\}', response.content)
+        if match:
+            data = json_module.loads(match.group())
+            return {"hadith": data}
+    except Exception as e:
+        logging.error(f"Hadith error: {e}")
+    return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "narrator": "عثمان بن عفان", "source": "صحيح البخاري"}}
+
 @api_router.get("/donations/list")
 async def list_donations(limit: int = 50):
     """List donation requests"""
