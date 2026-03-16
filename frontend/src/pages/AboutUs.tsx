@@ -39,7 +39,7 @@ export default function AboutUs() {
         </div>
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2"><Globe className="h-4 w-4 text-teal-400" />تواصل معنا</h3>
-          <p className="text-sm text-muted-foreground">البريد: <a href="mailto:mohammadalrejab@gmail.com" className="text-primary">mohammadalrejab@gmail.com</a></p>
+          <p className="text-sm text-muted-foreground">البريد: <a href="mailto:mohammedalrejab@gmail.com" className="text-primary">mohammedalrejab@gmail.com</a></p>
           <p className="text-sm text-muted-foreground mt-1">الهاتف: <a href="tel:+4917684034961" className="text-primary" dir="ltr">+4917684034961</a></p>
         </div>
         <p className="text-center text-xs text-muted-foreground/40 pt-4">أذان وحكاية v2.0 | جميع الحقوق محفوظة © 2026</p>

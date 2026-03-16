@@ -57,52 +57,52 @@
   }
 
   .dark {
-    /* DARK THEME: Deep Navy & Gold Islamic */
-    --background: 222 35% 6%;
-    --foreground: 38 25% 92%;
+    /* DARK THEME: Elegant Black & Gold Royal Islamic */
+    --background: 30 8% 5%;
+    --foreground: 40 30% 93%;
 
-    --card: 222 30% 10%;
-    --card-foreground: 38 25% 92%;
+    --card: 30 10% 9%;
+    --card-foreground: 40 30% 93%;
 
-    --popover: 222 30% 10%;
-    --popover-foreground: 38 25% 92%;
+    --popover: 30 10% 9%;
+    --popover-foreground: 40 30% 93%;
 
-    --primary: 38 80% 50%;
-    --primary-foreground: 222 35% 6%;
+    --primary: 42 85% 52%;
+    --primary-foreground: 30 10% 5%;
 
-    --secondary: 222 25% 14%;
-    --secondary-foreground: 38 15% 75%;
+    --secondary: 30 12% 13%;
+    --secondary-foreground: 40 20% 78%;
 
-    --muted: 222 20% 16%;
-    --muted-foreground: 38 10% 50%;
+    --muted: 30 10% 15%;
+    --muted-foreground: 40 12% 52%;
 
-    --accent: 38 80% 50%;
-    --accent-foreground: 222 35% 6%;
+    --accent: 42 85% 52%;
+    --accent-foreground: 30 10% 5%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 62% 35%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 20% 16%;
-    --input: 222 18% 14%;
-    --ring: 38 80% 50%;
+    --border: 35 12% 16%;
+    --input: 30 10% 12%;
+    --ring: 42 85% 52%;
 
-    --islamic-green: 38 80% 50%;
-    --islamic-gold: 38 80% 50%;
-    --islamic-emerald: 38 65% 42%;
-    --islamic-emerald-glow: 38 90% 55%;
-    --islamic-navy: 222 35% 8%;
-    --islamic-teal: 38 55% 40%;
-    --islamic-rose: 350 40% 50%;
-    --islamic-copper: 25 65% 48%;
+    --islamic-green: 42 85% 52%;
+    --islamic-gold: 42 90% 55%;
+    --islamic-emerald: 42 70% 45%;
+    --islamic-emerald-glow: 42 95% 58%;
+    --islamic-navy: 30 12% 7%;
+    --islamic-teal: 42 60% 42%;
+    --islamic-rose: 350 45% 52%;
+    --islamic-copper: 28 70% 50%;
 
-    --sidebar-background: 222 30% 8%;
-    --sidebar-foreground: 38 15% 85%;
-    --sidebar-primary: 38 80% 50%;
-    --sidebar-primary-foreground: 222 35% 6%;
-    --sidebar-accent: 222 20% 14%;
-    --sidebar-accent-foreground: 38 10% 70%;
-    --sidebar-border: 222 20% 15%;
-    --sidebar-ring: 38 80% 50%;
+    --sidebar-background: 30 10% 7%;
+    --sidebar-foreground: 40 20% 88%;
+    --sidebar-primary: 42 85% 52%;
+    --sidebar-primary-foreground: 30 10% 5%;
+    --sidebar-accent: 30 12% 13%;
+    --sidebar-accent-foreground: 40 15% 72%;
+    --sidebar-border: 35 10% 14%;
+    --sidebar-ring: 42 85% 52%;
   }
 }
 
@@ -287,6 +287,24 @@ html {
 }
 .animate-fade-in {
   animation: fade-in 0.4s ease-out;
+}
+
+/* Ken Burns slow zoom animation for icon backgrounds */
+@keyframes ken-burns-zoom {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+.ken-burns-bg {
+  animation: ken-burns-zoom 12s ease-in-out infinite alternate;
+}
+
+/* Pulse glow for active items */
+@keyframes golden-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.15); }
+}
+.golden-pulse {
+  animation: golden-pulse 3s ease-in-out infinite;
 }
 
 /* Arabic text input support */

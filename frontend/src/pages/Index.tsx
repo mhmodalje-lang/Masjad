@@ -28,14 +28,14 @@ const SuggestedGoals = lazy(() => import('@/components/SuggestedGoals'));
 const HijriCalendar = lazy(() => import('@/components/HijriCalendar'));
 
 const getQuickAccessItems = (t: (key: string) => string) => [
-  { icon: Heart, label: t('quickTasbeeh'), path: '/tasbeeh', gradient: 'from-primary/20 to-primary/5' },
-  { icon: Compass, label: t('quickQibla'), path: '/qibla', gradient: 'from-accent/20 to-accent/5' },
-  { icon: BookOpen, label: t('quickQuran'), path: '/quran', gradient: 'from-primary/20 to-primary/5' },
-  { icon: Moon, label: t('quickDuas'), path: '/duas', gradient: 'from-islamic-purple/20 to-islamic-purple/5' },
-  { icon: MessageSquare, label: t('quickStories'), path: '/stories', gradient: 'from-islamic-copper/20 to-accent/5' },
-  { icon: Search, label: t('explore'), path: '/explore', gradient: 'from-blue-500/20 to-cyan-500/5' },
-  { icon: SettingsIcon, label: t('more'), path: '/more', gradient: 'from-purple-500/20 to-pink-500/5' },
-  { icon: Zap, label: t('donations'), path: '/donations', gradient: 'from-red-500/20 to-rose-500/5' },
+  { icon: Heart, label: t('quickTasbeeh'), path: '/tasbeeh', gradient: 'from-primary/20 to-primary/5', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=200&q=30' },
+  { icon: Compass, label: t('quickQibla'), path: '/qibla', gradient: 'from-accent/20 to-accent/5', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=200&q=30' },
+  { icon: BookOpen, label: t('quickQuran'), path: '/quran', gradient: 'from-primary/20 to-primary/5', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=200&q=30' },
+  { icon: Moon, label: t('quickDuas'), path: '/duas', gradient: 'from-islamic-purple/20 to-islamic-purple/5', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=200&q=30' },
+  { icon: MessageSquare, label: t('quickStories'), path: '/stories', gradient: 'from-islamic-copper/20 to-accent/5', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=200&q=30' },
+  { icon: Search, label: t('explore'), path: '/explore', gradient: 'from-blue-500/20 to-cyan-500/5', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=200&q=30' },
+  { icon: SettingsIcon, label: t('more'), path: '/more', gradient: 'from-purple-500/20 to-pink-500/5', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=200&q=30' },
+  { icon: Zap, label: t('donations'), path: '/donations', gradient: 'from-red-500/20 to-rose-500/5', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=200&q=30' },
 ];
 
 export default function Index() {
@@ -563,14 +563,21 @@ export default function Index() {
         </div>
         <div className="grid grid-cols-3 gap-3">
           {getQuickAccessItems(t).map((item) => (
-            <Link key={item.path} to={item.path} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95">
-              <div className={cn(
-                'h-12 w-12 rounded-2xl bg-gradient-to-br flex items-center justify-center',
-                item.gradient
-              )}>
-                <item.icon className="h-5 w-5 text-primary" />
+            <Link key={item.path} to={item.path} className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95 relative overflow-hidden group">
+              <div className="h-14 w-14 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-md">
+                {/* Ken Burns animated background image */}
+                <div className="absolute inset-0 ken-burns-bg">
+                  <img 
+                    src={(item as any).bgImage} 
+                    alt="" 
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+                <item.icon className="h-5 w-5 text-white relative z-10 drop-shadow-lg" />
               </div>
-              <span className="text-[11px] font-semibold text-foreground text-center">
+              <span className="text-[12px] font-bold text-foreground text-center leading-tight">
                 {item.label}
               </span>
             </Link>

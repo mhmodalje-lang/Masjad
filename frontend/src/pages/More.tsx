@@ -19,15 +19,15 @@ import { useState, useEffect } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const tools = [
-  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-500/15' },
-  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/15' },
-  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/15' },
-  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-primary', bg: 'bg-primary/15' },
-  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/15' },
-  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-500/15' },
-  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-500/15' },
-  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-500/15' },
-  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-yellow-500/15' },
+  { icon: Compass, label: 'القبلة', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=150&q=20' },
+  { icon: Heart, label: 'التسبيح', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=150&q=20' },
+  { icon: Clock, label: 'الصلاة', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=150&q=20' },
+  { icon: BookOpen, label: 'القرآن', path: '/quran', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=150&q=20' },
+  { icon: Moon, label: 'الأدعية', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
+  { icon: ShieldCheck, label: 'الرقية', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-500/15', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=150&q=20' },
+  { icon: Calculator, label: 'الزكاة', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-500/15', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=150&q=20' },
+  { icon: CheckCircle2, label: 'المتابعة', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-500/15', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=150&q=20' },
+  { icon: Star, label: 'أسماء الله', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-yellow-500/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
 ];
 
 export default function More() {
@@ -151,10 +151,14 @@ export default function More() {
           <div className="grid grid-cols-3 gap-3">
             {tools.map((item, i) => (
               <Link key={i} to={item.path} className="flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform rounded-xl hover:bg-muted/30">
-                <div className={cn('h-11 w-11 rounded-xl flex items-center justify-center', item.bg)}>
-                  <item.icon className={cn('h-5 w-5', item.color)} />
+                <div className="h-12 w-12 rounded-xl overflow-hidden relative flex items-center justify-center shadow-sm">
+                  <div className="absolute inset-0 ken-burns-bg">
+                    <img src={(item as any).bgImage} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                  <div className="absolute inset-0 bg-black/40" />
+                  <item.icon className="h-5 w-5 text-white relative z-10 drop-shadow-lg" />
                 </div>
-                <span className="text-[10px] font-medium text-foreground text-center leading-tight">{item.label}</span>
+                <span className="text-[11px] font-bold text-foreground text-center leading-tight">{item.label}</span>
               </Link>
             ))}
           </div>

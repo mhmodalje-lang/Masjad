@@ -2231,24 +2231,25 @@ async def get_admin_user(credentials: HTTPAuthorizationCredentials = Depends(sec
         raise HTTPException(status_code=403, detail="غير مصرح - ليس مسؤولاً")
     return payload
 
-@api_router.get("/admin/stats")
-async def admin_stats(admin=Depends(get_admin_user)):
-    """Dashboard statistics"""
-    users_count = await db.users.count_documents({})
-    push_subs = await db.push_subscriptions.count_documents({})
-    status_checks = await db.status_checks.count_documents({})
-    
-    # Recent users
-    recent_users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(10)
-    
-    return {
-        "stats": {
-            "total_users": users_count,
-            "push_subscribers": push_subs,
-            "status_checks": status_checks,
-        },
-        "recent_users": recent_users,
-    }
+# OLD admin stats endpoint - replaced with new one below
+# @api_router.get("/admin/stats")
+# async def admin_stats(admin=Depends(get_admin_user)):
+#     """Dashboard statistics"""
+#     users_count = await db.users.count_documents({})
+#     push_subs = await db.push_subscriptions.count_documents({})
+#     status_checks = await db.status_checks.count_documents({})
+#     
+#     # Recent users
+#     recent_users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(10)
+#     
+#     return {
+#         "stats": {
+#             "total_users": users_count,
+#             "push_subscribers": push_subs,
+#             "status_checks": status_checks,
+#         },
+#         "recent_users": recent_users,
+#     }
 
 @api_router.get("/admin/users")
 async def admin_users(admin=Depends(get_admin_user), page: int = 1, limit: int = 20):
@@ -2761,10 +2762,8 @@ class EmbedContentRequest(BaseModel):
 @api_router.post("/admin/embed-content")
 async def create_embed_content(data: EmbedContentRequest, user: dict = Depends(get_user)):
     admin = await db.users.find_one({"id": user["id"]}) if user else None
-    if not admin or admin.get("email") not in ["mhmd321324t@gmail.com"]:
-        is_admin_flag = admin.get("is_admin", False) if admin else False
-        if not is_admin_flag:
-            raise HTTPException(403, "غير مصرح - للمشرف فقط")
+    if not admin or (admin.get("email") not in ADMIN_EMAILS and not admin.get("is_admin")):
+        raise HTTPException(403, "غير مصرح - للمشرف فقط")
     content = {
         "id": str(uuid.uuid4()),
         "title": data.title,
@@ -2845,8 +2844,7 @@ async def get_status():
     docs = await db.status_checks.find({}, {"_id": 0}).to_list(100)
     return docs
 
-# ==================== APP ====================
-app.include_router(api_router)
+# ==================== MIDDLEWARE ====================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
@@ -2954,11 +2952,135 @@ async def get_hadith_of_day():
         logging.error(f"Hadith error: {e}")
     return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "narrator": "عثمان بن عفان", "source": "صحيح البخاري"}}
 
+# ==================== VOICE SEARCH AI (بحث صوتي ذكي) ====================
+
+@api_router.post("/stories/voice-search")
+async def voice_search_stories(data: dict, user: dict = Depends(get_user)):
+    """AI-powered voice search - analyzes query and finds matching stories"""
+    query_text = data.get("query", "").strip()
+    if not query_text:
+        return {"stories": [], "ai_response": ""}
+    
+    # Use Gemini to understand the query and extract search terms
+    ai_response = ""
+    search_terms = [query_text]
+    
+    try:
+        gemini_key = os.environ.get("GEMINI_API_KEY", "")
+        if gemini_key:
+            import httpx
+            prompt = f"""أنت مساعد بحث في تطبيق إسلامي. المستخدم يبحث عن: "{query_text}"
+
+استخرج كلمات البحث الرئيسية من هذا الطلب وأعطني:
+1. قائمة بـ 3-5 كلمات مفتاحية للبحث (مفصولة بفاصلة)
+2. رد قصير ومفيد للمستخدم
+
+أجب بصيغة JSON فقط:
+{{"keywords": ["كلمة1", "كلمة2"], "response": "رد قصير"}}"""
+            
+            async with httpx.AsyncClient(timeout=10) as client:
+                resp = await client.post(
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}",
+                    json={"contents": [{"parts": [{"text": prompt}]}]}
+                )
+                if resp.status_code == 200:
+                    text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+                    import re as re_module
+                    json_match = re_module.search(r'\{.*\}', text, re_module.DOTALL)
+                    if json_match:
+                        import json as json_module
+                        parsed = json_module.loads(json_match.group())
+                        search_terms = parsed.get("keywords", [query_text])
+                        ai_response = parsed.get("response", "")
+    except Exception as e:
+        logging.error(f"Voice search AI error: {e}")
+    
+    # Search stories using extracted keywords
+    or_conditions = []
+    for term in search_terms:
+        term = term.strip()
+        if term:
+            regex = {"$regex": term, "$options": "i"}
+            or_conditions.extend([{"title": regex}, {"content": regex}, {"author_name": regex}, {"category": regex}])
+    
+    if not or_conditions:
+        or_conditions = [{"title": {"$regex": query_text, "$options": "i"}}, {"content": {"$regex": query_text, "$options": "i"}}]
+    
+    query_filter = {"is_story": True, "$or": or_conditions}
+    cursor = db.posts.find(query_filter, {"_id": 0}).sort("views_count", -1).limit(30)
+    stories = await cursor.to_list(length=30)
+    
+    # Add likes/comments counts
+    post_ids = [s["id"] for s in stories]
+    if post_ids:
+        likes_counts = {}
+        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            likes_counts[doc["_id"]] = doc["c"]
+        comments_counts = {}
+        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            comments_counts[doc["_id"]] = doc["c"]
+        for s in stories:
+            s["likes_count"] = likes_counts.get(s["id"], 0)
+            s["comments_count"] = comments_counts.get(s["id"], 0)
+            s["liked"] = False
+            s["saved"] = False
+    
+    return {"stories": stories, "ai_response": ai_response, "keywords": search_terms}
+
+# ==================== ADMIN MANAGEMENT (إدارة التطبيق) ====================
+
+ADMIN_EMAILS = ["mhmd321324t@gmail.com", "mohammedalrejab@gmail.com"]
+
+@api_router.get("/admin/stats")
+async def admin_stats(user: dict = Depends(get_user)):
+    """Get admin dashboard statistics"""
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or (admin.get("email") not in ADMIN_EMAILS and not admin.get("is_admin")):
+        raise HTTPException(403, "غير مصرح")
+    
+    total_users = await db.users.count_documents({})
+    total_stories = await db.posts.count_documents({"is_story": True})
+    total_posts = await db.posts.count_documents({})
+    total_donations = await db.donations.count_documents({})
+    total_contacts = await db.contact_messages.count_documents({})
+    
+    # Latest categories with counts
+    pipeline = [
+        {"$match": {"is_story": True}},
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}}
+    ]
+    categories = []
+    async for doc in db.posts.aggregate(pipeline):
+        categories.append({"category": doc["_id"], "count": doc["count"]})
+    
+    return {
+        "total_users": total_users,
+        "total_stories": total_stories,
+        "total_posts": total_posts,
+        "total_donations": total_donations,
+        "total_contacts": total_contacts,
+        "categories": categories
+    }
+
+@api_router.get("/admin/contacts")
+async def admin_contacts(user: dict = Depends(get_user), limit: int = 50):
+    """Get contact messages for admin"""
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or (admin.get("email") not in ADMIN_EMAILS and not admin.get("is_admin")):
+        raise HTTPException(403, "غير مصرح")
+    
+    docs = await db.contact_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    return {"contacts": docs}
+
 @api_router.get("/donations/list")
 async def list_donations(limit: int = 50):
     """List donation requests"""
     docs = await db.donations.find({"active": True}, {"_id": 0}).sort("created_at", -1).to_list(limit)
     return {"donations": docs}
+
+# ==================== APP SETUP ====================
+app.include_router(api_router)
 
 @api_router.post("/donations/create")
 async def create_donation(data: dict, user: dict = Depends(get_user)):

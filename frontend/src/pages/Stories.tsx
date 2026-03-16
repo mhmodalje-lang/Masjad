@@ -210,7 +210,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
             <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
           ) : isVideo && mediaUrl ? (
-            <video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline loop />
+            <video src={mediaUrl} className="w-full h-full object-cover" controls autoPlay playsInline loop />
           ) : mediaUrl ? (
             <img src={mediaUrl} alt="" className="w-full h-full object-contain" />
           ) : (
@@ -680,6 +680,9 @@ export default function Stories() {
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const [showViewer, setShowViewer] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/stories/categories`).then(r => r.json())
@@ -689,18 +692,38 @@ export default function Stories() {
     if (sp) setSelectedStoryId(sp);
   }, [searchParams, user]);
 
-  const loadStories = useCallback(async (cat?: string) => {
-    setLoading(true);
-    const url = cat ? `${BACKEND_URL}/api/stories/list?category=${cat}&limit=50` : `${BACKEND_URL}/api/stories/list?limit=50`;
+  const loadStories = useCallback(async (cat?: string, pageNum: number = 1, append: boolean = false) => {
+    if (pageNum === 1) setLoading(true);
+    else setLoadingMore(true);
+    const url = cat 
+      ? `${BACKEND_URL}/api/stories/list?category=${cat}&limit=20&page=${pageNum}` 
+      : `${BACKEND_URL}/api/stories/list?limit=20&page=${pageNum}`;
     try {
       const r = await fetch(url, { headers: authHeaders() });
       const d = await r.json();
-      setStories(d.stories || []);
+      const newStories = d.stories || [];
+      if (append) {
+        setStories(prev => [...prev, ...newStories]);
+      } else {
+        setStories(newStories);
+      }
+      setHasMore(newStories.length >= 20);
     } catch {}
     setLoading(false);
+    setLoadingMore(false);
   }, []);
 
-  useEffect(() => { loadStories(selectedCategory || undefined); }, [selectedCategory, loadStories]);
+  useEffect(() => { 
+    setPage(1);
+    setHasMore(true);
+    loadStories(selectedCategory || undefined, 1, false); 
+  }, [selectedCategory, loadStories]);
+
+  const handleLoadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    loadStories(selectedCategory || undefined, nextPage, true);
+  };
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error('سجّل دخولك'); return; }
@@ -823,6 +846,23 @@ export default function Stories() {
               <div className="text-center py-12">
                 <Film className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground/50">لا توجد فيديوهات</p>
+              </div>
+            )}
+
+            {/* Load More Button */}
+            {hasMore && stories.length >= 20 && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="flex items-center gap-2 px-8 py-3 rounded-2xl bg-card border border-primary/30 text-primary text-sm font-bold active:scale-95 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
+                >
+                  {loadingMore ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> جاري التحميل...</>
+                  ) : (
+                    <>المزيد من القصص</>
+                  )}
+                </button>
               </div>
             )}
           </>

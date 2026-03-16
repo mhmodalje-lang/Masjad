@@ -82,7 +82,16 @@ export default function AdminDashboard() {
     return res.json();
   };
 
-  async function fetchStats() { setLoading(true); try { const d = await api('/admin/stats'); setStats(d.stats); } catch {} setLoading(false); }
+  async function fetchStats() { 
+    setLoading(true); 
+    try { 
+      const d = await api('/admin/stats'); 
+      // Merge stats from both endpoints
+      const newStats = d.stats || d;
+      setStats(newStats); 
+    } catch {} 
+    setLoading(false); 
+  }
   async function fetchUsers(p: number) { try { const d = await api(`/admin/users?page=${p}`); setUsers(d.users||[]); setUsersTotal(d.total||0); } catch {} }
   async function fetchSettings() { try { const d = await api('/admin/settings'); setAnnouncement(d.announcement||''); setMaintenance(d.maintenance_mode||false); } catch {} }
   async function fetchAds() { try { const d = await api('/admin/ads'); setAds(d.ads||[]); } catch {} }
@@ -241,6 +250,26 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground mt-1">{s.l}</p>
                 </div>
               ))}
+            </div>
+            
+            {/* Admin Info Card */}
+            <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-4">
+              <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />معلومات المالك</h3>
+              <p className="text-xs text-muted-foreground">البريد: <span className="text-primary" dir="ltr">mohammedalrejab@gmail.com</span></p>
+              <p className="text-xs text-muted-foreground mt-1">الهاتف: <span className="text-primary" dir="ltr">+4917684034961</span></p>
+            </div>
+
+            {/* Category Stats */}
+            <div className="rounded-2xl bg-card border border-border/50 p-4">
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" />آخر إحصائيات الفئات</h3>
+              <div className="space-y-2">
+                {stats?.categories?.length > 0 ? stats.categories.map((cat: any) => (
+                  <div key={cat.category} className="flex items-center justify-between py-1.5 border-b border-border/10 last:border-0">
+                    <span className="text-xs font-medium text-foreground">{cat.category}</span>
+                    <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{cat.count}</span>
+                  </div>
+                )) : <p className="text-xs text-muted-foreground text-center py-4">لا توجد بيانات</p>}
+              </div>
             </div>
           </div>
         )}

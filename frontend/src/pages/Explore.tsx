@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film, Bookmark, Maximize2 } from 'lucide-react';
+import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film, Bookmark, Maximize2, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
@@ -260,6 +260,11 @@ export default function Explore() {
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [isListening, setIsListening] = useState(false);
+  const [aiResponse, setAiResponse] = useState('');
+  const recognitionRef = useRef<any>(null);
+  const [showMoreViewed, setShowMoreViewed] = useState(false);
+  const [showMoreInteracted, setShowMoreInteracted] = useState(false);
 
   useEffect(() => { loadData(); }, []);
 
@@ -279,12 +284,30 @@ export default function Explore() {
   };
 
   const doSearch = useCallback(async (q: string) => {
-    if (!q.trim()) { setSearchResults(null); return; }
+    if (!q.trim()) { setSearchResults(null); setAiResponse(''); return; }
     setSearching(true);
     try {
       const r = await fetch(`${BACKEND_URL}/api/stories/feed/search?q=${encodeURIComponent(q)}&limit=30`, { headers: authHeaders() });
       const d = await r.json();
       setSearchResults(d.stories || []);
+    } catch { setSearchResults([]); }
+    setSearching(false);
+  }, []);
+
+  // AI Voice Search
+  const doVoiceSearch = useCallback(async (q: string) => {
+    if (!q.trim()) return;
+    setSearching(true);
+    setAiResponse('');
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/stories/voice-search`, {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ query: q })
+      });
+      const d = await r.json();
+      setSearchResults(d.stories || []);
+      if (d.ai_response) setAiResponse(d.ai_response);
     } catch { setSearchResults([]); }
     setSearching(false);
   }, []);
@@ -295,7 +318,53 @@ export default function Explore() {
     searchTimer.current = setTimeout(() => doSearch(val), 400);
   };
 
-  const clearSearch = () => { setSearchQuery(''); setSearchResults(null); setIsSearchActive(false); searchInputRef.current?.blur(); };
+  const clearSearch = () => { setSearchQuery(''); setSearchResults(null); setIsSearchActive(false); setAiResponse(''); searchInputRef.current?.blur(); };
+
+  // Voice recognition
+  const toggleVoiceSearch = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error('متصفحك لا يدعم البحث الصوتي');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'ar-SA';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setIsSearchActive(true);
+      toast.info('🎤 تحدّث الآن... ابحث عن قصة');
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSearchQuery(transcript);
+      setIsListening(false);
+      // Use AI-powered voice search
+      doVoiceSearch(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+      toast.error('لم يتم التعرف على الصوت، حاول مرة أخرى');
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error('سجّل دخولك أولاً'); return; }
@@ -332,18 +401,65 @@ export default function Explore() {
                 onChange={e => handleSearchInput(e.target.value)}
                 onFocus={() => setIsSearchActive(true)}
                 placeholder="ابحث عن قصة أو كاتب..."
-                className="w-full h-10 rounded-2xl bg-muted/50 border border-border/30 pr-10 pl-10 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 transition-all"
+                className="w-full h-10 rounded-2xl bg-muted/50 border border-border/30 pr-10 pl-16 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 transition-all"
                 style={{ unicodeBidi: 'plaintext' } as any} autoComplete="off" spellCheck={false} />
-              {searchQuery && (
-                <button onClick={clearSearch} className="absolute left-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full bg-muted-foreground/20">
-                  <X className="h-3 w-3 text-muted-foreground" />
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {searchQuery && (
+                  <button onClick={clearSearch} className="p-0.5 rounded-full bg-muted-foreground/20">
+                    <X className="h-3 w-3 text-muted-foreground" />
+                  </button>
+                )}
+                {/* Voice Search Button */}
+                <button
+                  onClick={toggleVoiceSearch}
+                  className={cn(
+                    "p-1.5 rounded-full transition-all",
+                    isListening ? "bg-red-500 animate-pulse" : "bg-primary/10 hover:bg-primary/20"
+                  )}
+                >
+                  {isListening ? (
+                    <MicOff className="h-3.5 w-3.5 text-white" />
+                  ) : (
+                    <Mic className="h-3.5 w-3.5 text-primary" />
+                  )}
                 </button>
-              )}
+              </div>
             </div>
             {isSearchActive && <button onClick={clearSearch} className="text-sm text-primary font-bold shrink-0">إلغاء</button>}
           </div>
         </div>
       </div>
+
+      {/* Voice Listening Indicator */}
+      <AnimatePresence>
+        {isListening && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mx-4 mt-3 rounded-2xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3"
+          >
+            <div className="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
+              <Mic className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-foreground">جاري الاستماع...</p>
+              <p className="text-xs text-muted-foreground">قل مثلاً: "أريد قصة عن الاستغفار"</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Response */}
+      {aiResponse && (
+        <div className="mx-4 mt-3 rounded-2xl bg-primary/5 border border-primary/20 p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold text-primary">المساعد الذكي</span>
+          </div>
+          <p className="text-sm text-foreground">{aiResponse}</p>
+        </div>
+      )}
 
       {/* CONTENT */}
       {searchResults !== null ? (
@@ -354,7 +470,7 @@ export default function Explore() {
             <div className="text-center py-20">
               <Search className="h-14 w-14 text-muted-foreground/20 mx-auto mb-4" />
               <p className="text-base font-bold text-muted-foreground/60">لا توجد نتائج</p>
-              <p className="text-xs text-muted-foreground/40 mt-1">جرّب كلمات مختلفة</p>
+              <p className="text-xs text-muted-foreground/40 mt-1">جرّب كلمات مختلفة أو استخدم البحث الصوتي 🎤</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -382,10 +498,18 @@ export default function Explore() {
                 </div>
               </div>
               <div className="space-y-2">
-                {mostViewed.slice(0, 5).map((s, i) => (
+                {(showMoreViewed ? mostViewed : mostViewed.slice(0, 5)).map((s, i) => (
                   <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
                 ))}
               </div>
+              {mostViewed.length > 5 && (
+                <button
+                  onClick={() => setShowMoreViewed(!showMoreViewed)}
+                  className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
+                >
+                  {showMoreViewed ? 'عرض أقل' : `المزيد (${mostViewed.length - 5})`}
+                </button>
+              )}
             </section>
           )}
 
@@ -405,10 +529,18 @@ export default function Explore() {
                 </div>
               </div>
               <div className="space-y-2">
-                {mostInteracted.slice(0, 5).map((s, i) => (
+                {(showMoreInteracted ? mostInteracted : mostInteracted.slice(0, 5)).map((s, i) => (
                   <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
                 ))}
               </div>
+              {mostInteracted.length > 5 && (
+                <button
+                  onClick={() => setShowMoreInteracted(!showMoreInteracted)}
+                  className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
+                >
+                  {showMoreInteracted ? 'عرض أقل' : `المزيد (${mostInteracted.length - 5})`}
+                </button>
+              )}
             </section>
           )}
 

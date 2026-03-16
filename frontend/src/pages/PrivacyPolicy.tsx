@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3">تواصل معنا</h3>
           <p className="text-sm text-muted-foreground">لأي استفسارات حول سياسة الخصوصية:</p>
-          <p className="text-sm text-primary mt-1">mohammadalrejab@gmail.com</p>
+          <p className="text-sm text-primary mt-1">mohammedalrejab@gmail.com</p>
         </div>
         <p className="text-center text-xs text-muted-foreground/40 pt-2">آخر تحديث: مارس 2026</p>
       </div>
