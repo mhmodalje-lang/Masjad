@@ -205,9 +205,24 @@ export default function More() {
       {/* Help Section */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <HelpCircle className="h-3.5 w-3.5 text-green-400" />المساعدة
+          <HelpCircle className="h-3.5 w-3.5 text-green-400" />المساعدة والدعم
         </h3>
         <div className="rounded-2xl bg-card border border-border/30 divide-y divide-border/15">
+          <Link to="/contact" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-400" /></div>
+            <span className="text-sm text-foreground">تواصل معنا</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
+          <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-400" /></div>
+            <span className="text-sm text-foreground">من نحن</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
+          <Link to="/privacy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-blue-400" /></div>
+            <span className="text-sm text-foreground">سياسة الخصوصية</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
           <button onClick={() => toast.info('⭐ شكراً لتقييمك!')} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-yellow-500/15 flex items-center justify-center"><Star className="h-4 w-4 text-yellow-400" /></div>
             <span className="text-sm text-foreground">قيّم التطبيق</span>
@@ -219,15 +234,21 @@ export default function More() {
             <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Share2 className="h-4 w-4 text-blue-400" /></div>
             <span className="text-sm text-foreground">دعوة صديق</span>
           </button>
-          <button onClick={() => toast.info('📧 admin@almuadhin.com')} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-400" /></div>
-            <span className="text-sm text-foreground">تواصل معنا</span>
-          </button>
-          <button onClick={() => toast.info('أذان وحكاية v2.0 - تطبيق إسلامي شامل')} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-400" /></div>
-            <span className="text-sm text-foreground">عن التطبيق</span>
-          </button>
         </div>
+      </div>
+
+      {/* Donations */}
+      <div className="px-4 mb-4">
+        <Link to="/donations" className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-rose-500/5 border border-red-500/20 active:scale-[0.98] transition-transform">
+          <div className="h-12 w-12 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
+            <Heart className="h-6 w-6 text-red-400" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-foreground">التبرعات والمساعدة</p>
+            <p className="text-[10px] text-muted-foreground">ساعد المحتاجين - ادعُ لوالديّ</p>
+          </div>
+          <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+        </Link>
       </div>
 
       {/* Logout */}
