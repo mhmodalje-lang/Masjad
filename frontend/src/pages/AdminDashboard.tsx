@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -133,43 +133,33 @@ export default function AdminDashboard() {
     { key:'settings', label:'الإعدادات', icon:Settings },
   ];
 
-  const InputField = ({ label, value, onChange, placeholder, multiline=false }: any) => {
-    const handleChange = (e: any) => {
-      onChange(e.target.value);
+  const InputField = memo(({ label, value, onChange, placeholder, multiline=false }: any) => {
+    const ref = useRef<any>(null);
+    useEffect(() => {
+      if (ref.current && ref.current !== document.activeElement) {
+        ref.current.value = value || '';
+      }
+    }, [value]);
+    const handleBlur = () => { if (ref.current) onChange(ref.current.value); };
+    const handleKeyDown = (e: any) => { if (e.key === 'Enter' && !multiline) handleBlur(); };
+    const sharedProps = {
+      ref, dir: 'auto' as const, defaultValue: value || '', onBlur: handleBlur, onKeyDown: handleKeyDown,
+      placeholder, autoComplete: 'off', spellCheck: false,
+      style: { unicodeBidi: 'plaintext', textAlign: 'right' as const },
     };
     return (
       <div>
-        <label className="text-xs font-medium text-foreground mb-1 block" style={{ whiteSpace: 'nowrap' }}>{label}</label>
+        <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
         {multiline ? (
-          <textarea
-            dir="auto"
-            value={value}
-            onChange={handleChange}
-            onInput={handleChange}
-            placeholder={placeholder}
-            rows={3}
-            autoComplete="off"
-            spellCheck={false}
-            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'right', writingMode: 'horizontal-tb' } as any}
-          />
+          <textarea {...sharedProps} rows={3}
+            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
         ) : (
-          <input
-            type="text"
-            dir="auto"
-            value={value}
-            onChange={handleChange}
-            onInput={handleChange}
-            placeholder={placeholder}
-            autoComplete="off"
-            spellCheck={false}
-            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground"
-            style={{ unicodeBidi: 'plaintext', textAlign: 'right', writingMode: 'horizontal-tb' } as any}
-          />
+          <input type="text" {...sharedProps}
+            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
         )}
       </div>
     );
-  };
+  });
 
   const SelectField = ({ label, value, onChange, options }: any) => (
     <div>

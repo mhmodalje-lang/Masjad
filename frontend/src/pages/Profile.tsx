@@ -6,10 +6,9 @@ import { useTheme } from '@/components/ThemeProvider';
 import {
   Settings, ChevronLeft, Star, Users, Heart,
   LogOut, Shield, Moon, Sun, SunMoon, Globe,
-  HelpCircle, Share2, MessageSquare, Bookmark,
-  Crown, Gift, Gem, Grid3X3, Play, MoreHorizontal,
-  Bot, Compass, Calculator, BookOpen, Clock, Bell,
-  ShoppingBag, Store, CheckCircle2, ShieldCheck,
+  HelpCircle, Bookmark, Grid3X3, Play, MoreHorizontal,
+  Bot, Bell, Gift, Gem, Edit3, Share2, MessageSquare,
+  Lock, Palette, ChevronRight, Zap, Crown, ShoppingBag,
   type LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,182 +16,221 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
-
 function getToken() { return localStorage.getItem('auth_token') || ''; }
 function authHeaders(): Record<string, string> {
   const h: Record<string, string> = { 'Content-Type': 'application/json' };
-  const t = getToken();
-  if (t) h['Authorization'] = `Bearer ${t}`;
+  const t = getToken(); if (t) h['Authorization'] = `Bearer ${t}`;
   return h;
 }
 
-interface QuickLinkProps { icon: LucideIcon; label: string; to?: string; onClick?: () => void; badge?: string; }
-function QuickLink({ icon: Icon, label, to, onClick, badge }: QuickLinkProps) {
-  const inner = (
-    <div className="flex items-center justify-between py-3.5 px-1 border-b border-border/20 last:border-0 active:bg-muted/30 transition-colors">
-      <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-xl bg-primary/8 flex items-center justify-center">
-          <Icon className="h-[18px] w-[18px] text-primary" />
-        </div>
-        <span className="text-sm font-medium text-foreground">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        {badge && <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">{badge}</span>}
-        <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-      </div>
-    </div>
-  );
-  if (to) return <Link to={to}>{inner}</Link>;
-  return <div onClick={onClick} className="cursor-pointer">{inner}</div>;
-}
+const avatarColors = ['bg-emerald-600','bg-blue-600','bg-amber-600','bg-purple-600','bg-rose-600','bg-teal-600'];
 
 interface Post {
   id: string; content: string; image_url?: string; media_type?: string;
-  likes_count: number; comments_count: number;
+  likes_count: number; comments_count: number; created_at: string;
+}
+
+interface SettingsItem { icon: LucideIcon; label: string; to?: string; onClick?: () => void; badge?: string; value?: string; color?: string; }
+function SettingsRow({ icon: Icon, label, to, onClick, badge, value, color }: SettingsItem) {
+  const content = (
+    <div className="flex items-center justify-between py-3.5 active:bg-muted/30 transition-colors">
+      <div className="flex items-center gap-3">
+        <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', color || 'bg-primary/10')}>
+          <Icon className={cn('h-[18px] w-[18px]', color ? 'text-white' : 'text-primary')} />
+        </div>
+        <span className="text-[13px] font-medium text-foreground">{label}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        {badge && <span className="text-[9px] bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold">{badge}</span>}
+        {value && <span className="text-[11px] text-muted-foreground">{value}</span>}
+        <ChevronLeft className="h-4 w-4 text-muted-foreground/50" />
+      </div>
+    </div>
+  );
+  if (to) return <Link to={to} className="block">{content}</Link>;
+  return <div onClick={onClick} className="cursor-pointer">{content}</div>;
 }
 
 export default function Profile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
-  const { theme, mode, setMode } = useTheme();
+  const { mode, setMode } = useTheme();
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0 });
+  const [stats, setStats] = useState({ posts: 0, followers: 0, following: 0, likes: 0 });
   const [myPosts, setMyPosts] = useState<Post[]>([]);
-  const [activeView, setActiveView] = useState<'grid' | 'saved'>('grid');
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
+  const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
   useEffect(() => {
     if (!user) return;
+    setLoadingPosts(true);
     fetch(`${BACKEND_URL}/api/sohba/my-stats`, { headers: authHeaders() })
       .then(r => r.json())
-      .then(d => setStats({ posts: d.posts || 0, followers: d.followers || 0, following: d.following || 0 }))
+      .then(d => setStats({ posts: d.posts || 0, followers: d.followers || 0, following: d.following || 0, likes: d.total_likes || 0 }))
       .catch(() => {});
     fetch(`${BACKEND_URL}/api/sohba/posts?author=${user.id}&limit=50`, { headers: authHeaders() })
       .then(r => r.json())
-      .then(d => setMyPosts(d.posts || []))
-      .catch(() => {});
+      .then(d => { setMyPosts(d.posts || []); setLoadingPosts(false); })
+      .catch(() => setLoadingPosts(false));
   }, [user]);
 
-  const handleLogout = () => {
-    signOut();
-    toast.success('تم تسجيل الخروج');
-    navigate('/');
-  };
+  const handleLogout = () => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); };
 
   const themeLabel = mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري';
   const ThemeIcon = mode === 'auto' ? SunMoon : mode === 'dark' ? Moon : Sun;
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-24" dir="rtl" data-testid="profile-page">
-        <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-          <Users className="h-10 w-10 text-muted-foreground/40" />
-        </div>
-        <h2 className="text-lg font-bold text-foreground mb-1">مرحباً بك</h2>
-        <p className="text-sm text-muted-foreground text-center mb-6">سجّل دخولك لعرض ملفك الشخصي</p>
-        <Link to="/auth" className="bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold active:scale-95 transition-transform">
-          تسجيل الدخول
-        </Link>
+  if (!user) return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-24 bg-background" dir="rtl" data-testid="profile-page">
+      <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5">
+        <Users className="h-12 w-12 text-primary/40" />
       </div>
-    );
-  }
+      <h2 className="text-xl font-black text-foreground mb-2">مرحباً بك</h2>
+      <p className="text-sm text-muted-foreground text-center mb-8 max-w-[240px]">سجّل دخولك للوصول لملفك الشخصي ومنشوراتك</p>
+      <Link to="/auth" className="bg-primary text-primary-foreground px-10 py-3.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+        تسجيل الدخول
+      </Link>
+    </div>
+  );
+
+  const displayName = user.name || 'مستخدم';
+  const displayAvatar = user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${BACKEND_URL}${user.avatar}`) : '';
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="profile-page">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
-        <span className="text-base font-bold text-foreground">{user?.name || 'حسابي'}</span>
-        <div className="flex items-center gap-1">
+    <div className="min-h-screen pb-28 bg-background" dir="rtl" data-testid="profile-page">
+
+      {/* ===== HEADER BAR ===== */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/10 px-4 h-12 flex items-center justify-between">
+        <span className="text-lg font-black text-foreground">{displayName}</span>
+        <div className="flex items-center gap-0.5">
           {isAdmin && (
-            <Link to="/admin" className="p-2 rounded-xl hover:bg-muted/50" data-testid="admin-link">
+            <Link to="/admin" className="p-2.5 rounded-xl hover:bg-muted/50" data-testid="admin-link">
               <Shield className="h-[18px] w-[18px] text-amber-500" />
             </Link>
           )}
-          <Link to="/more" className="p-2 rounded-xl hover:bg-muted/50" data-testid="more-link">
+          <Link to="/more" className="p-2.5 rounded-xl hover:bg-muted/50">
             <MoreHorizontal className="h-[18px] w-[18px] text-muted-foreground" />
           </Link>
         </div>
       </div>
 
-      {/* Profile Info (Instagram style) */}
-      <div className="px-5 py-5">
+      {/* ===== PROFILE HERO ===== */}
+      <div className="px-5 pt-6 pb-4">
+        {/* Avatar + Stats Row */}
         <div className="flex items-center gap-5">
           <div className="relative shrink-0">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 border-[3px] border-primary/30 flex items-center justify-center overflow-hidden">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
-              ) : (
-                <span className="text-3xl text-primary/60">{user?.name?.[0] || user?.email?.[0] || '؟'}</span>
-              )}
+            <div className="h-[84px] w-[84px] rounded-full bg-gradient-to-br from-primary/30 to-accent/20 p-[3px]">
+              <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
+                {displayAvatar ? (
+                  <img src={displayAvatar} alt="" className="h-full w-full rounded-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                ) : (
+                  <span className="text-3xl font-bold text-primary/50">{displayName[0]}</span>
+                )}
+              </div>
             </div>
+            <Link to="/account" className="absolute -bottom-0.5 -left-0.5 h-7 w-7 rounded-full bg-primary flex items-center justify-center border-[2.5px] border-background shadow-md">
+              <Edit3 className="h-3 w-3 text-white" />
+            </Link>
           </div>
-          <div className="flex-1 flex justify-around">
-            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.posts}</p><p className="text-[11px] text-muted-foreground">منشور</p></div>
-            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.followers}</p><p className="text-[11px] text-muted-foreground">متابع</p></div>
-            <div className="text-center"><p className="text-lg font-bold text-foreground">{stats.following}</p><p className="text-[11px] text-muted-foreground">متابَع</p></div>
+
+          {/* Stats */}
+          <div className="flex-1 grid grid-cols-3">
+            <div className="text-center">
+              <p className="text-[18px] font-black text-foreground leading-tight">{stats.posts}</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">منشور</p>
+            </div>
+            <button className="text-center">
+              <p className="text-[18px] font-black text-foreground leading-tight">{stats.followers}</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">متابع</p>
+            </button>
+            <button className="text-center">
+              <p className="text-[18px] font-black text-foreground leading-tight">{stats.following}</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">متابَع</p>
+            </button>
           </div>
         </div>
 
+        {/* Bio */}
         <div className="mt-3">
-          <p className="text-sm font-bold text-foreground">{user?.name || 'مستخدم'}</p>
-          <p className="text-xs text-muted-foreground">{user?.email}</p>
+          <p className="text-[14px] font-bold text-foreground">{displayName}</p>
+          <p className="text-[11px] text-muted-foreground">{user.email}</p>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex gap-2 mt-4">
-          <Button variant="outline" className="flex-1 rounded-xl h-9 text-sm font-bold" asChild>
-            <Link to="/account">تعديل الملف</Link>
+          <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-border/50" asChild>
+            <Link to="/account"><Edit3 className="h-3.5 w-3.5 ml-1.5" />تعديل الملف</Link>
           </Button>
-          <Button variant="outline" className="flex-1 rounded-xl h-9 text-sm font-bold" onClick={() => {
-            if (navigator.share) navigator.share({ title: 'المؤذن العالمي', url: window.location.origin });
+          <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-border/50" onClick={() => {
+            if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
             else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
-          }}>مشاركة</Button>
+          }}>
+            <Share2 className="h-3.5 w-3.5 ml-1.5" />مشاركة
+          </Button>
         </div>
       </div>
 
-      {/* Content Tabs */}
-      <div className="flex border-b border-border/20">
-        <button onClick={() => setActiveView('grid')}
+      {/* ===== CONTENT TABS ===== */}
+      <div className="flex border-b border-border/20 sticky top-12 z-40 bg-background">
+        <button onClick={() => setActiveTab('posts')}
           className={cn('flex-1 flex items-center justify-center py-3 border-b-2 transition-all',
-            activeView === 'grid' ? 'border-foreground' : 'border-transparent')}>
-          <Grid3X3 className={cn('h-5 w-5', activeView === 'grid' ? 'text-foreground' : 'text-muted-foreground')} />
+            activeTab === 'posts' ? 'border-foreground' : 'border-transparent')}>
+          <Grid3X3 className={cn('h-[22px] w-[22px]', activeTab === 'posts' ? 'text-foreground' : 'text-muted-foreground/50')} />
         </button>
-        <button onClick={() => setActiveView('saved')}
+        <button onClick={() => setActiveTab('saved')}
           className={cn('flex-1 flex items-center justify-center py-3 border-b-2 transition-all',
-            activeView === 'saved' ? 'border-foreground' : 'border-transparent')}>
-          <Bookmark className={cn('h-5 w-5', activeView === 'saved' ? 'text-foreground' : 'text-muted-foreground')} />
+            activeTab === 'saved' ? 'border-foreground' : 'border-transparent')}>
+          <Bookmark className={cn('h-[22px] w-[22px]', activeTab === 'saved' ? 'text-foreground' : 'text-muted-foreground/50')} />
         </button>
       </div>
 
-      {/* Posts Grid */}
-      {activeView === 'grid' && (
+      {/* ===== POSTS GRID ===== */}
+      {activeTab === 'posts' && (
         <div>
-          {myPosts.length === 0 ? (
-            <div className="text-center py-16 px-8">
-              <Grid3X3 className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground">لا توجد منشورات بعد</p>
-              <Link to="/sohba?create=true" className="inline-block mt-4 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold">
-                أنشئ أول منشور
+          {loadingPosts ? (
+            <div className="flex justify-center py-16">
+              <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : myPosts.length === 0 ? (
+            <div className="text-center py-20 px-8">
+              <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
+                <Grid3X3 className="h-8 w-8 text-muted-foreground/30" />
+              </div>
+              <p className="text-sm font-bold text-muted-foreground/50">لا توجد منشورات</p>
+              <p className="text-xs text-muted-foreground/30 mt-1">شارك أول محتوى إسلامي!</p>
+              <Link to="/sohba?create=true"
+                className="inline-flex items-center gap-1.5 mt-5 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-primary/20 active:scale-95 transition-transform">
+                <Zap className="h-3.5 w-3.5" />أنشئ منشوراً
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-0.5">
+            <div className="grid grid-cols-3 gap-[1px] bg-border/10">
               {myPosts.map(p => {
                 const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
-                const isVideoPost = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
+                const isVideo = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
                 return (
-                  <div key={p.id} className="aspect-square bg-muted overflow-hidden relative group cursor-pointer">
-                    {url ? <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" /> : (
-                      <div className="w-full h-full flex items-center justify-center p-2 bg-gradient-to-br from-emerald-900/20 to-teal-900/20">
-                        <p className="text-[9px] text-muted-foreground line-clamp-4 text-center" dir="rtl">{p.content}</p>
-                      </div>
-                    )}
-                    {isVideoPost && <div className="absolute top-1.5 left-1.5"><Play className="h-3.5 w-3.5 text-white fill-white drop-shadow-md" /></div>}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></div>
-                        <div className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></div>
+                  <Link to={`/sohba?post=${p.id}`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
+                    {url ? (
+                      <img src={url} alt="" className="w-full h-full object-cover" loading="lazy"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />
+                    ) : null}
+                    {/* Fallback for broken images or text-only */}
+                    <div className={cn('w-full h-full flex items-center justify-center p-3',
+                      url ? 'hidden absolute inset-0' : '',
+                      p.category === 'quran' ? 'bg-gradient-to-br from-emerald-900/40 to-emerald-950/60' :
+                      p.category === 'hadith' ? 'bg-gradient-to-br from-amber-900/40 to-amber-950/60' :
+                      'bg-gradient-to-br from-slate-800/40 to-slate-900/60')}>
+                      <p className="text-[9px] text-foreground/70 line-clamp-5 text-center leading-relaxed" dir="rtl">{p.content}</p>
+                    </div>
+                    {isVideo && <div className="absolute top-2 left-2"><Play className="h-4 w-4 text-white fill-white drop-shadow-lg" /></div>}
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                      <div className="flex items-center gap-4">
+                        <span className="flex items-center gap-1"><Heart className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.likes_count || 0}</span></span>
+                        <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4 text-white fill-white" /><span className="text-xs text-white font-bold">{p.comments_count || 0}</span></span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -200,33 +238,49 @@ export default function Profile() {
         </div>
       )}
 
-      {activeView === 'saved' && (
-        <div className="text-center py-16 px-8">
-          <Bookmark className="h-12 w-12 text-muted-foreground/20 mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground">المحفوظات ستظهر هنا</p>
+      {activeTab === 'saved' && (
+        <div className="text-center py-20 px-8">
+          <div className="h-16 w-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
+            <Bookmark className="h-8 w-8 text-muted-foreground/30" />
+          </div>
+          <p className="text-sm font-bold text-muted-foreground/50">المحفوظات</p>
+          <p className="text-xs text-muted-foreground/30 mt-1">المنشورات المحفوظة ستظهر هنا</p>
         </div>
       )}
 
-      {/* Quick Settings */}
-      <div className="px-5 mt-4 mb-4">
-        <div className="rounded-2xl bg-card border border-border/30 p-3">
-          <QuickLink icon={Bookmark} label="المحفوظات" to="/sohba" />
-          <QuickLink icon={Gift} label="المكافآت" to="/rewards" badge="جديد" />
-          <QuickLink icon={ThemeIcon} label={`المظهر: ${themeLabel}`}
-            onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')} />
-          <QuickLink icon={Bell} label="الإشعارات" to="/notifications" />
-          <QuickLink icon={Bot} label="المساعد الذكي" to="/ai-assistant" />
-          <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
-          <QuickLink icon={HelpCircle} label="المزيد والإعدادات" to="/more" />
+      {/* ===== SETTINGS SECTION ===== */}
+      <div className="px-4 mt-6 space-y-3">
+        {/* Main Settings */}
+        <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
+          <SettingsRow icon={Gift} label="المكافآت والنقاط" to="/rewards" badge="جديد" color="bg-gradient-to-br from-amber-500 to-orange-500" />
+          <SettingsRow icon={ShoppingBag} label="المتجر" to="/marketplace" color="bg-gradient-to-br from-blue-500 to-indigo-500" />
+          <SettingsRow icon={Bot} label="المساعد الذكي" to="/ai-assistant" color="bg-gradient-to-br from-purple-500 to-violet-500" />
+          <SettingsRow icon={Bell} label="الإشعارات" to="/notifications" color="bg-gradient-to-br from-red-500 to-rose-500" />
         </div>
-      </div>
 
-      {/* Logout */}
-      <div className="px-5 mb-8">
+        {/* Appearance */}
+        <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
+          <SettingsRow icon={ThemeIcon} label="المظهر" value={themeLabel}
+            onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
+            color="bg-gradient-to-br from-slate-600 to-slate-700" />
+          <SettingsRow icon={Globe} label="اللغة" value="العربية" to="/more" color="bg-gradient-to-br from-teal-500 to-cyan-500" />
+          <SettingsRow icon={Lock} label="الخصوصية والأمان" to="/account" color="bg-gradient-to-br from-gray-600 to-gray-700" />
+        </div>
+
+        {/* Support */}
+        <div className="rounded-2xl bg-card border border-border/20 px-4 divide-y divide-border/10">
+          <SettingsRow icon={Star} label="قيّم التطبيق" onClick={() => toast.info('شكراً لتقييمك! ⭐')} color="bg-gradient-to-br from-yellow-500 to-amber-500" />
+          <SettingsRow icon={HelpCircle} label="المزيد والإعدادات" to="/more" color="bg-gradient-to-br from-green-500 to-emerald-500" />
+        </div>
+
+        {/* Logout */}
         <button onClick={handleLogout} data-testid="logout-btn"
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold transition-all active:scale-[0.98]">
+          className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-2xl bg-red-500/5 border border-red-500/15 text-red-500 text-sm font-bold active:scale-[0.98] transition-all mt-4">
           <LogOut className="h-4 w-4" />تسجيل الخروج
         </button>
+
+        {/* Version */}
+        <p className="text-center text-[10px] text-muted-foreground/30 pb-4 pt-2">المؤذن العالمي v2.0.0</p>
       </div>
     </div>
   );
