@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Heart, Plus, Send, Loader2, AlertTriangle, User, MessageSquare, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -20,6 +20,7 @@ interface DonationRequest {
 
 export default function Donations() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [requests, setRequests] = useState<DonationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -35,7 +36,7 @@ export default function Donations() {
     <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="donations-page">
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link to="/" className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></Link>
+          <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2"><Heart className="h-5 w-5 text-red-400" />التبرعات</h1>
         </div>
         {user && <button onClick={() => setShowCreate(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold active:scale-95">

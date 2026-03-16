@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { ChevronLeft, Play, Pause, Volume2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ChevronLeft, Play } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const RUQYAH_CONTENT = [
@@ -72,6 +72,7 @@ const RUQYAH_CONTENT = [
 
 export default function Ruqyah() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const selected = RUQYAH_CONTENT.find(item => item.id === selectedId);
 
   return (
@@ -80,9 +81,9 @@ export default function Ruqyah() {
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-3">
-            <Link to="/" className="p-1.5">
+            <button onClick={() => navigate(-1)} className="p-1.5">
               <ChevronLeft className="h-5 w-5 text-foreground rotate-180" />
-            </Link>
+            </button>
             <div>
               <h1 className="text-base font-bold text-foreground flex items-center gap-2">
                 <span>🛡️</span> الرقية الشرعية
