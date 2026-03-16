@@ -133,13 +133,43 @@ export default function AdminDashboard() {
     { key:'settings', label:'الإعدادات', icon:Settings },
   ];
 
-  const InputField = ({ label, value, onChange, placeholder, multiline=false }: any) => (
-    <div>
-      <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
-      {multiline ? <textarea dir="auto" lang="ar" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={3} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none text-right" style={{ unicodeBidi: 'plaintext' }} />
-      : <input type="text" dir="auto" lang="ar" value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground text-right" style={{ unicodeBidi: 'plaintext' }} />}
-    </div>
-  );
+  const InputField = ({ label, value, onChange, placeholder, multiline=false }: any) => {
+    const handleChange = (e: any) => {
+      onChange(e.target.value);
+    };
+    return (
+      <div>
+        <label className="text-xs font-medium text-foreground mb-1 block" style={{ whiteSpace: 'nowrap' }}>{label}</label>
+        {multiline ? (
+          <textarea
+            dir="auto"
+            value={value}
+            onChange={handleChange}
+            onInput={handleChange}
+            placeholder={placeholder}
+            rows={3}
+            autoComplete="off"
+            spellCheck={false}
+            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none"
+            style={{ unicodeBidi: 'plaintext', textAlign: 'right', writingMode: 'horizontal-tb' } as any}
+          />
+        ) : (
+          <input
+            type="text"
+            dir="auto"
+            value={value}
+            onChange={handleChange}
+            onInput={handleChange}
+            placeholder={placeholder}
+            autoComplete="off"
+            spellCheck={false}
+            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground"
+            style={{ unicodeBidi: 'plaintext', textAlign: 'right', writingMode: 'horizontal-tb' } as any}
+          />
+        )}
+      </div>
+    );
+  };
 
   const SelectField = ({ label, value, onChange, options }: any) => (
     <div>

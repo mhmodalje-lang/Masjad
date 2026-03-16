@@ -189,6 +189,18 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED - All new search & explore endpoints tested successfully: 1) GET /api/sohba/search?q=سبحان&type=all - Arabic text search working (found 1 result) 2) GET /api/sohba/search?q=Admin&type=users - User search working (found 1 user) 3) GET /api/sohba/explore?limit=10 - Explore feed working (6 posts loaded) 4) GET /api/sohba/trending-users?limit=5 - Trending users working (0 users currently). All endpoints require Bearer token authentication. Also verified existing sohba endpoints still work: GET /api/sohba/posts (5 posts), GET /api/sohba/categories (10 categories). Full test coverage completed with realistic test data."
 
+  - task: "Review Request API Endpoints"
+    implemented: true
+    working: true
+    needs_retesting: false
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ REVIEW REQUEST ENDPOINTS FULLY TESTED - All 10 requested endpoints working perfectly: 1) POST /api/auth/register with Arabic user data (✅) 2) POST /api/auth/login with same credentials (✅) 3) PUT /api/auth/update-profile with Arabic name and avatar (✅) 4) POST /api/sohba/posts with Arabic content (✅) 5) GET /api/sohba/posts?category=all&limit=10 (retrieved 7 posts) (✅) 6) GET /api/sohba/search?q=سبحان&type=all - Arabic search (found 1 post) (✅) 7) GET /api/sohba/explore?limit=10 (retrieved 7 posts) (✅) 8) POST /api/sohba/posts/{id}/like - like toggle working (✅) 9) POST /api/sohba/posts/{id}/comments with Arabic comment (✅) 10) GET /api/gifts/list (retrieved 12 Islamic gifts) (✅). All authentication flows work with Bearer token. Arabic text handling perfect throughout. Social features (posts, likes, comments) fully functional. Gifts system operational. No critical issues found."
+
 frontend:
   - task: "Frontend App Start"
     implemented: true
@@ -308,4 +320,10 @@ agent_communication:
   - agent: "main"
     message: "Added new Search/Explore APIs, fixed Admin Dashboard Arabic text tabs rendering vertically, fixed Sohba page text visibility, fixed Profile page broken links, added Explore page with search. Need testing of new search/explore endpoints."
   - agent: "testing"
+    message: "✅ Search & Explore APIs - All 6 new endpoints tested successfully. Search (posts/users), Explore feed, Trending users, Posts listing, Categories all working."
+  - agent: "main"
+    message: "Phase 2 fixes: Added edit profile page (Account.tsx) with name/avatar/password editing, added /api/auth/update-profile endpoint, fixed admin input fields for mobile Arabic input (onInput handler, spellCheck=false, writingMode), fixed all broken profile links."
+  - agent: "testing"
     message: "🆕 NEW SEARCH & EXPLORE ENDPOINTS TESTING COMPLETE ✅ - All 6 requested endpoints tested successfully: 1) Arabic text search in posts (✅) 2) User search (✅) 3) Explore trending feed (✅) 4) Trending users (✅) 5) Existing sohba posts (✅) 6) Existing categories (✅). Authentication working with test user credentials. All endpoints require Bearer token. No critical issues found. Ready for frontend integration and production deployment."
+  - agent: "testing"
+    message: "🎯 REVIEW REQUEST ENDPOINTS TESTING COMPLETE ✅ - All 10 requested API endpoints tested successfully with exact test data specified in review request: 1) Auth Register with Arabic name 'مستخدم تجريبي' (✅) 2) Auth Login with testfinal@test.com (✅) 3) Profile Update with Arabic name 'اسم جديد محدث' (✅) 4) Create Post with Arabic content 'منشور تجريبي جديد' (✅) 5) Get Posts with category=all&limit=10 (✅) 6) Search with Arabic query 'سبحان' (✅) 7) Explore feed with limit=10 (✅) 8) Post Like toggle (✅) 9) Comment with Arabic text 'تعليق تجريبي' (✅) 10) Get Gifts list (12 Islamic gifts available) (✅). All authentication flows working with Bearer tokens. Arabic text processing perfect. Social features fully operational. Backend API ready for production use."

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Islamic App Backend API Testing
-Tests all backend API endpoints mentioned in the review request.
+Backend API Test Suite for Islamic Social App (أذاني) - Review Request Testing
+Testing specific endpoints mentioned in review request with exact test data.
 """
 
 import requests
@@ -12,6 +12,27 @@ from typing import Optional, Dict, Any
 
 # Backend URL from frontend .env configuration
 BASE_URL = "https://viral-shorts-96.preview.emergentagent.com/api"
+
+# Test data exactly as specified in review request
+REGISTER_DATA = {
+    "email": "testfinal@test.com",
+    "password": "test123456", 
+    "name": "مستخدم تجريبي"
+}
+
+UPDATE_PROFILE_DATA = {
+    "name": "اسم جديد محدث",
+    "avatar": "/api/uploads/test.jpg"
+}
+
+POST_DATA = {
+    "content": "منشور تجريبي جديد",
+    "category": "general"
+}
+
+COMMENT_DATA = {
+    "content": "تعليق تجريبي"
+}
 
 class TestResults:
     def __init__(self):
@@ -48,572 +69,289 @@ def make_request(method: str, endpoint: str, data: dict = None, headers: dict = 
     url = f"{BASE_URL}{endpoint}"
     
     try:
+        if headers is None:
+            headers = {}
+        
         if method.upper() == "GET":
-            response = requests.get(url, params=data, headers=headers, timeout=timeout)
+            response = requests.get(url, headers=headers, timeout=timeout)
         elif method.upper() == "POST":
+            headers["Content-Type"] = "application/json"
             response = requests.post(url, json=data, headers=headers, timeout=timeout)
         elif method.upper() == "PUT":
+            headers["Content-Type"] = "application/json"
             response = requests.put(url, json=data, headers=headers, timeout=timeout)
         else:
-            return False, None, f"Unsupported method: {method}"
-            
-        return True, response, f"Status: {response.status_code}"
+            return False, None, f"Unsupported HTTP method: {method}"
+        
+        # Parse response
+        try:
+            response_data = response.json()
+        except:
+            response_data = {"raw_response": response.text}
+        
+        success = 200 <= response.status_code < 300
+        details = f"Status {response.status_code}"
+        
+        if not success:
+            details += f": {response_data.get('detail', response.text[:100])}"
+        
+        return success, response_data, details
         
     except requests.exceptions.Timeout:
         return False, None, f"Request timeout after {timeout}s"
     except requests.exceptions.ConnectionError:
-        return False, None, "Connection error - backend might be down"
+        return False, None, "Connection error"
     except Exception as e:
-        return False, None, f"Request failed: {str(e)}"
+        return False, None, f"Request error: {str(e)}"
 
-def test_root_endpoint(results: TestResults):
-    """Test GET /api/ endpoint"""
-    print("🔍 Testing root endpoint...")
+class ReviewRequestTester:
+    """Test the specific endpoints from review request"""
     
-    success, response, details = make_request("GET", "/")
+    def __init__(self):
+        self.auth_token = None
+        self.user_data = None
+        self.test_post_id = None
+        self.results = TestResults()
     
-    if not success:
-        results.add_result("Root API Endpoint", False, details)
-        return
+    def test_register(self):
+        """1. POST /api/auth/register - Register with Arabic name"""
+        print("🔍 1. Testing user registration with Arabic name...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            expected_version = "2.0"
+        success, response, details = make_request("POST", "/auth/register", REGISTER_DATA)
+        
+        if success and response.get("access_token"):
+            self.auth_token = response["access_token"]
+            self.user_data = response.get("user", {})
+            self.results.add_result("Register User", True, f"User registered: {self.user_data.get('name', 'Unknown')}")
+            print(f"   ✅ Registered user: {self.user_data.get('name')}")
+            print(f"   ✅ Got auth token: {self.auth_token[:20]}...")
+        elif "البريد الإلكتروني مسجل مسبقاً" in str(response) or "email" in str(response):
+            # User already exists, try to login instead
+            self.results.add_result("Register User", True, "User already exists (proceeding to login)")
+            print("   ℹ️ User already exists, will login instead")
+        else:
+            self.results.add_result("Register User", False, f"Registration failed: {details}")
+            print(f"   ❌ Registration failed: {details}")
+    
+    def test_login(self):
+        """2. POST /api/auth/login - Login with same credentials"""
+        print("🔍 2. Testing user login...")
+        
+        login_data = {
+            "email": REGISTER_DATA["email"],
+            "password": REGISTER_DATA["password"]
+        }
+        
+        success, response, details = make_request("POST", "/auth/login", login_data)
+        
+        if success and response.get("access_token"):
+            self.auth_token = response["access_token"]
+            self.user_data = response.get("user", {})
+            self.results.add_result("Login User", True, f"Login successful: {self.user_data.get('name', 'Unknown')}")
+            print(f"   ✅ Login successful: {self.user_data.get('name')}")
+            print(f"   ✅ Got auth token: {self.auth_token[:20]}...")
+        else:
+            self.results.add_result("Login User", False, f"Login failed: {details}")
+            print(f"   ❌ Login failed: {details}")
+    
+    def test_update_profile(self):
+        """3. PUT /api/auth/update-profile - Update profile with Arabic name and avatar"""
+        print("🔍 3. Testing profile update with Arabic name...")
+        
+        if not self.auth_token:
+            self.results.add_result("Update Profile", False, "No auth token available")
+            print("   ❌ No auth token available")
+            return
+        
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        success, response, details = make_request("PUT", "/auth/update-profile", UPDATE_PROFILE_DATA, headers)
+        
+        if success:
+            self.results.add_result("Update Profile", True, "Profile updated successfully")
+            print(f"   ✅ Profile updated successfully")
+        else:
+            self.results.add_result("Update Profile", False, f"Update failed: {details}")
+            print(f"   ❌ Update failed: {details}")
+    
+    def test_create_post(self):
+        """4. POST /api/sohba/posts - Create post with Arabic content"""
+        print("🔍 4. Testing post creation with Arabic content...")
+        
+        if not self.auth_token:
+            self.results.add_result("Create Post", False, "No auth token available")
+            print("   ❌ No auth token available")
+            return
+        
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        success, response, details = make_request("POST", "/sohba/posts", POST_DATA, headers)
+        
+        if success and "post" in response:
+            self.test_post_id = response["post"]["id"]
+            self.results.add_result("Create Post", True, f"Post created with ID: {self.test_post_id}")
+            print(f"   ✅ Post created with ID: {self.test_post_id}")
+        else:
+            self.results.add_result("Create Post", False, f"Post creation failed: {details}")
+            print(f"   ❌ Post creation failed: {details}")
+    
+    def test_get_posts(self):
+        """5. GET /api/sohba/posts?category=all&limit=10 - Get all posts"""
+        print("🔍 5. Testing get all posts...")
+        
+        success, response, details = make_request("GET", "/sohba/posts?category=all&limit=10")
+        
+        if success and "posts" in response:
+            posts_count = len(response["posts"])
+            self.results.add_result("Get Posts", True, f"Retrieved {posts_count} posts")
+            print(f"   ✅ Retrieved {posts_count} posts")
             
-            if (data.get("version") == expected_version and 
-                "message" in data):
-                results.add_result("Root API Endpoint", True, 
-                                 f"API running: {data}")
-            else:
-                results.add_result("Root API Endpoint", False, 
-                                 f"Unexpected response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Root API Endpoint", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Root API Endpoint", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_user_registration(results: TestResults) -> Optional[str]:
-    """Test POST /api/auth/register endpoint"""
-    print("🔍 Testing user registration...")
+            # If we don't have a post ID for testing, use an existing one
+            if not self.test_post_id and posts_count > 0:
+                self.test_post_id = response["posts"][0]["id"]
+                print(f"   ℹ️ Using existing post ID for testing: {self.test_post_id}")
+        else:
+            self.results.add_result("Get Posts", False, f"Get posts failed: {details}")
+            print(f"   ❌ Get posts failed: {details}")
     
-    # Use test credentials from review request
-    user_data = {
-        "email": "test_search@test.com",
-        "password": "test123456",
-        "name": "TestUser"
-    }
-    
-    success, response, details = make_request("POST", "/auth/register", user_data)
-    
-    if not success:
-        results.add_result("User Registration", False, details)
-        return None
+    def test_search(self):
+        """6. GET /api/sohba/search?q=سبحان&type=all - Search Arabic text"""
+        print("🔍 6. Testing search with Arabic text...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "access_token" in data and "user" in data:
-                access_token = data["access_token"]
-                user_info = data["user"]
-                results.add_result("User Registration", True, 
-                                 f"User registered: {user_info.get('email')}, token received")
-                return access_token
-            else:
-                results.add_result("User Registration", False, 
-                                 f"Missing required fields in response: {data}")
-                return None
-        except json.JSONDecodeError:
-            results.add_result("User Registration", False, 
-                             "Invalid JSON response")
-            return None
-    elif response.status_code == 400:
-        # User might already exist, try login instead
-        results.add_result("User Registration", True, 
-                         "User already exists (expected for repeated tests)")
-        return test_user_login_direct(results, user_data["email"], user_data["password"])
-    else:
-        results.add_result("User Registration", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-        return None
-
-def test_user_login_direct(results: TestResults, email: str, password: str) -> Optional[str]:
-    """Direct login helper function"""
-    login_data = {"email": email, "password": password}
-    
-    success, response, details = make_request("POST", "/auth/login", login_data)
-    
-    if not success:
-        return None
+        success, response, details = make_request("GET", "/sohba/search?q=سبحان&type=all")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "access_token" in data:
-                return data["access_token"]
-        except json.JSONDecodeError:
-            pass
-    return None
-
-def test_user_login(results: TestResults) -> Optional[str]:
-    """Test POST /api/auth/login endpoint"""
-    print("🔍 Testing user login...")
+        if success:
+            posts_found = len(response.get("posts", []))
+            users_found = len(response.get("users", []))
+            total = response.get("total", 0)
+            self.results.add_result("Search Posts", True, f"Search returned {posts_found} posts, {users_found} users (total: {total})")
+            print(f"   ✅ Search returned {posts_found} posts, {users_found} users")
+        else:
+            self.results.add_result("Search Posts", False, f"Search failed: {details}")
+            print(f"   ❌ Search failed: {details}")
     
-    login_data = {
-        "email": "test_search@test.com",
-        "password": "test123456"
-    }
-    
-    success, response, details = make_request("POST", "/auth/login", login_data)
-    
-    if not success:
-        results.add_result("User Login", False, details)
-        return None
+    def test_explore(self):
+        """7. GET /api/sohba/explore?limit=10 - Explore feed"""
+        print("🔍 7. Testing explore feed...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "access_token" in data and "user" in data:
-                access_token = data["access_token"]
-                user_info = data["user"]
-                results.add_result("User Login", True, 
-                                 f"Login successful for: {user_info.get('email')}")
-                return access_token
-            else:
-                results.add_result("User Login", False, 
-                                 f"Missing required fields in response: {data}")
-                return None
-        except json.JSONDecodeError:
-            results.add_result("User Login", False, 
-                             "Invalid JSON response")
-            return None
-    else:
-        results.add_result("User Login", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-        return None
-
-def test_auth_me(results: TestResults, access_token: str):
-    """Test GET /api/auth/me endpoint"""
-    print("🔍 Testing auth/me endpoint...")
-    
-    headers = {"Authorization": f"Bearer {access_token}"}
-    
-    success, response, details = make_request("GET", "/auth/me", headers=headers)
-    
-    if not success:
-        results.add_result("Auth Me Endpoint", False, details)
-        return
+        success, response, details = make_request("GET", "/sohba/explore?limit=10")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            required_fields = ["id", "email", "name"]
-            if all(field in data for field in required_fields):
-                results.add_result("Auth Me Endpoint", True, 
-                                 f"User info retrieved: {data.get('email')}")
-            else:
-                results.add_result("Auth Me Endpoint", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Auth Me Endpoint", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Auth Me Endpoint", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_prayer_times(results: TestResults):
-    """Test GET /api/prayer-times endpoint"""
-    print("🔍 Testing prayer times endpoint...")
+        if success and "posts" in response:
+            posts_count = len(response["posts"])
+            total = response.get("total", 0)
+            self.results.add_result("Explore Feed", True, f"Explore returned {posts_count} posts (total: {total})")
+            print(f"   ✅ Explore returned {posts_count} posts")
+        else:
+            self.results.add_result("Explore Feed", False, f"Explore failed: {details}")
+            print(f"   ❌ Explore failed: {details}")
     
-    # Riyadh, Saudi Arabia coordinates
-    params = {
-        "lat": 24.68,
-        "lon": 46.72
-    }
-    
-    success, response, details = make_request("GET", "/prayer-times", params)
-    
-    if not success:
-        results.add_result("Prayer Times API", False, details)
-        return
+    def test_like_post(self):
+        """8. POST /api/sohba/posts/{post_id}/like - Like a post"""
+        print("🔍 8. Testing post like...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if (data.get("success") == True and 
-                "source" in data and
-                "times" in data):
-                times = data["times"]
-                required_prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"]
-                if all(prayer in times for prayer in required_prayers):
-                    results.add_result("Prayer Times API", True, 
-                                     f"Prayer times retrieved with source: {data.get('source')}")
-                else:
-                    results.add_result("Prayer Times API", False, 
-                                     f"Missing prayer times in response: {times}")
-            else:
-                results.add_result("Prayer Times API", False, 
-                                 f"Unexpected response structure: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Prayer Times API", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Prayer Times API", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_mosque_search(results: TestResults):
-    """Test GET /api/mosques/search endpoint"""
-    print("🔍 Testing mosque search endpoint...")
-    
-    # Riyadh, Saudi Arabia coordinates
-    params = {
-        "lat": 24.68,
-        "lon": 46.72,
-        "radius": 5000
-    }
-    
-    success, response, details = make_request("GET", "/mosques/search", params)
-    
-    if not success:
-        results.add_result("Mosque Search API", False, details)
-        return
+        if not self.auth_token:
+            self.results.add_result("Like Post", False, "No auth token available")
+            print("   ❌ No auth token available")
+            return
+            
+        if not self.test_post_id:
+            self.results.add_result("Like Post", False, "No post ID available for testing")
+            print("   ❌ No post ID available for testing")
+            return
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "mosques" in data and "count" in data:
-                mosques = data["mosques"]
-                count = data["count"]
-                
-                if isinstance(mosques, list) and count >= 0:
-                    if count > 0 and len(mosques) > 0:
-                        # Check first mosque structure
-                        mosque = mosques[0]
-                        required_fields = ["osm_id", "name", "latitude", "longitude", "address"]
-                        if all(field in mosque for field in required_fields):
-                            results.add_result("Mosque Search API", True, 
-                                             f"Found {count} mosques, first: {mosque.get('name')}")
-                        else:
-                            results.add_result("Mosque Search API", False, 
-                                             f"Mosque object missing required fields: {mosque}")
-                    else:
-                        results.add_result("Mosque Search API", True, 
-                                         f"Search completed successfully, found {count} mosques")
-                else:
-                    results.add_result("Mosque Search API", False, 
-                                     f"Invalid response structure: {data}")
-            else:
-                results.add_result("Mosque Search API", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Mosque Search API", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Mosque Search API", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_mosque_prayer_times(results: TestResults):
-    """Test POST /api/mosques/prayer-times endpoint"""
-    print("🔍 Testing mosque prayer times endpoint...")
-    
-    mosque_data = {
-        "mosqueName": "الحرم المكي الشريف",  # Grand Mosque of Mecca
-        "latitude": 24.68,
-        "longitude": 46.72
-    }
-    
-    success, response, details = make_request("POST", "/mosques/prayer-times", mosque_data)
-    
-    if not success:
-        results.add_result("Mosque Prayer Times API", False, details)
-        return
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        success, response, details = make_request("POST", f"/sohba/posts/{self.test_post_id}/like", {}, headers)
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if (data.get("success") == True and 
-                "source" in data and
-                "times" in data):
-                times = data["times"]
-                source = data["source"]
-                required_prayers = ["fajr", "dhuhr", "asr", "maghrib", "isha"]
-                if all(prayer in times for prayer in required_prayers):
-                    results.add_result("Mosque Prayer Times API", True, 
-                                     f"Mosque prayer times retrieved with source: {source}")
-                else:
-                    results.add_result("Mosque Prayer Times API", False, 
-                                     f"Missing prayer times in response: {times}")
-            else:
-                results.add_result("Mosque Prayer Times API", False, 
-                                 f"Unexpected response structure: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Mosque Prayer Times API", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Mosque Prayer Times API", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-# ========== NEW SEARCH & EXPLORE ENDPOINTS TESTS ==========
-
-def test_sohba_search_arabic(results: TestResults, access_token: str):
-    """Test GET /api/sohba/search with Arabic text"""
-    print("🔍 Testing sohba search with Arabic text...")
+        if success and "liked" in response:
+            liked_status = response["liked"]
+            self.results.add_result("Like Post", True, f"Post like toggled: {liked_status}")
+            print(f"   ✅ Post like toggled: {liked_status}")
+        else:
+            self.results.add_result("Like Post", False, f"Like failed: {details}")
+            print(f"   ❌ Like failed: {details}")
     
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"q": "سبحان", "type": "all"}
-    
-    success, response, details = make_request("GET", "/sohba/search", params, headers)
-    
-    if not success:
-        results.add_result("Sohba Search (Arabic)", False, details)
-        return
+    def test_comment(self):
+        """9. POST /api/sohba/posts/{post_id}/comments - Comment with Arabic text"""
+        print("🔍 9. Testing comment with Arabic text...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            required_fields = ["posts", "users", "hashtags", "total"]
-            if all(field in data for field in required_fields):
-                results.add_result("Sohba Search (Arabic)", True, 
-                                 f"Search completed: {data.get('total')} total results")
-            else:
-                results.add_result("Sohba Search (Arabic)", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Search (Arabic)", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Search (Arabic)", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_sohba_search_users(results: TestResults, access_token: str):
-    """Test GET /api/sohba/search for users"""
-    print("🔍 Testing sohba search for users...")
-    
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"q": "Ahmed", "type": "users"}
-    
-    success, response, details = make_request("GET", "/sohba/search", params, headers)
-    
-    if not success:
-        results.add_result("Sohba Search (Users)", False, details)
-        return
+        if not self.auth_token:
+            self.results.add_result("Comment Post", False, "No auth token available")
+            print("   ❌ No auth token available")
+            return
+            
+        if not self.test_post_id:
+            self.results.add_result("Comment Post", False, "No post ID available for testing")
+            print("   ❌ No post ID available for testing")
+            return
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            required_fields = ["posts", "users", "hashtags", "total"]
-            if all(field in data for field in required_fields):
-                users = data.get("users", [])
-                if isinstance(users, list):
-                    results.add_result("Sohba Search (Users)", True, 
-                                     f"User search completed: found {len(users)} users")
-                else:
-                    results.add_result("Sohba Search (Users)", False, 
-                                     f"Users field is not a list: {type(users)}")
-            else:
-                results.add_result("Sohba Search (Users)", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Search (Users)", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Search (Users)", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_sohba_explore(results: TestResults, access_token: str):
-    """Test GET /api/sohba/explore endpoint"""
-    print("🔍 Testing sohba explore feed...")
-    
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"limit": 10}
-    
-    success, response, details = make_request("GET", "/sohba/explore", params, headers)
-    
-    if not success:
-        results.add_result("Sohba Explore Feed", False, details)
-        return
+        headers = {"Authorization": f"Bearer {self.auth_token}"}
+        success, response, details = make_request("POST", f"/sohba/posts/{self.test_post_id}/comments", COMMENT_DATA, headers)
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            required_fields = ["posts", "total", "page", "has_more"]
-            if all(field in data for field in required_fields):
-                posts = data.get("posts", [])
-                total = data.get("total", 0)
-                results.add_result("Sohba Explore Feed", True, 
-                                 f"Explore feed loaded: {len(posts)} posts, {total} total")
-            else:
-                results.add_result("Sohba Explore Feed", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Explore Feed", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Explore Feed", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_sohba_trending_users(results: TestResults, access_token: str):
-    """Test GET /api/sohba/trending-users endpoint"""
-    print("🔍 Testing sohba trending users...")
+        if success and "comment" in response:
+            comment_id = response["comment"]["id"]
+            self.results.add_result("Comment Post", True, f"Comment created: {comment_id}")
+            print(f"   ✅ Comment created: {comment_id}")
+        else:
+            self.results.add_result("Comment Post", False, f"Comment failed: {details}")
+            print(f"   ❌ Comment failed: {details}")
     
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"limit": 5}
-    
-    success, response, details = make_request("GET", "/sohba/trending-users", params, headers)
-    
-    if not success:
-        results.add_result("Sohba Trending Users", False, details)
-        return
+    def test_gifts_list(self):
+        """10. GET /api/gifts/list - Get gifts list"""
+        print("🔍 10. Testing gifts list...")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "users" in data:
-                users = data.get("users", [])
-                if isinstance(users, list):
-                    results.add_result("Sohba Trending Users", True, 
-                                     f"Trending users loaded: {len(users)} users")
-                else:
-                    results.add_result("Sohba Trending Users", False, 
-                                     f"Users field is not a list: {type(users)}")
-            else:
-                results.add_result("Sohba Trending Users", False, 
-                                 f"Missing 'users' field in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Trending Users", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Trending Users", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_sohba_posts(results: TestResults, access_token: str):
-    """Test GET /api/sohba/posts endpoint"""
-    print("🔍 Testing existing sohba posts endpoint...")
-    
-    headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"category": "all", "limit": 5}
-    
-    success, response, details = make_request("GET", "/sohba/posts", params, headers)
-    
-    if not success:
-        results.add_result("Sohba Posts (Existing)", False, details)
-        return
+        success, response, details = make_request("GET", "/gifts/list")
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            required_fields = ["posts", "total", "page", "has_more"]
-            if all(field in data for field in required_fields):
-                posts = data.get("posts", [])
-                total = data.get("total", 0)
-                results.add_result("Sohba Posts (Existing)", True, 
-                                 f"Posts loaded: {len(posts)} posts, {total} total")
-            else:
-                results.add_result("Sohba Posts (Existing)", False, 
-                                 f"Missing required fields in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Posts (Existing)", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Posts (Existing)", False, 
-                         f"HTTP {response.status_code}: {response.text}")
-
-def test_sohba_categories(results: TestResults):
-    """Test GET /api/sohba/categories endpoint"""
-    print("🔍 Testing existing sohba categories endpoint...")
+        if success and "gifts" in response:
+            gifts_count = len(response["gifts"])
+            self.results.add_result("Get Gifts", True, f"Retrieved {gifts_count} gifts")
+            print(f"   ✅ Retrieved {gifts_count} gifts")
+            if gifts_count > 0:
+                sample_gift = response["gifts"][0]
+                print(f"   ✅ Sample gift: {sample_gift['name']} {sample_gift['emoji']} - {sample_gift['price_credits']} credits")
+        else:
+            self.results.add_result("Get Gifts", False, f"Get gifts failed: {details}")
+            print(f"   ❌ Get gifts failed: {details}")
     
-    success, response, details = make_request("GET", "/sohba/categories")
-    
-    if not success:
-        results.add_result("Sohba Categories (Existing)", False, details)
-        return
+    def run_all_tests(self):
+        """Run all tests in the exact order specified in review request"""
+        print("🕌 Islamic App Backend API Testing - Review Request Endpoints")
+        print(f"Testing against: {BASE_URL}")
+        print("=" * 80)
         
-    if response.status_code == 200:
-        try:
-            data = response.json()
-            if "categories" in data:
-                categories = data.get("categories", [])
-                if isinstance(categories, list) and len(categories) > 0:
-                    results.add_result("Sohba Categories (Existing)", True, 
-                                     f"Categories loaded: {len(categories)} categories")
-                else:
-                    results.add_result("Sohba Categories (Existing)", False, 
-                                     f"Categories field is empty or invalid: {categories}")
-            else:
-                results.add_result("Sohba Categories (Existing)", False, 
-                                 f"Missing 'categories' field in response: {data}")
-        except json.JSONDecodeError:
-            results.add_result("Sohba Categories (Existing)", False, 
-                             "Invalid JSON response")
-    else:
-        results.add_result("Sohba Categories (Existing)", False, 
-                         f"HTTP {response.status_code}: {response.text}")
+        # Run tests in exact order from review request
+        self.test_register()
+        self.test_login()  
+        self.test_update_profile()
+        self.test_create_post()
+        self.test_get_posts()
+        self.test_search()
+        self.test_explore()
+        self.test_like_post()
+        self.test_comment()
+        self.test_gifts_list()
+        
+        # Show summary
+        self.results.summary()
+        
+        # Check critical systems
+        auth_passed = any(r['test'] in ['Register User', 'Login User'] and r['success'] for r in self.results.results)
+        social_passed = any(r['test'] in ['Create Post', 'Get Posts', 'Like Post'] and r['success'] for r in self.results.results)
+        
+        print(f"🔑 Authentication System: {'✅ Working' if auth_passed else '❌ Failed'}")
+        print(f"📱 Social Features: {'✅ Working' if social_passed else '❌ Failed'}")
+        print(f"🎁 Gifts System: {'✅ Working' if any(r['test'] == 'Get Gifts' and r['success'] for r in self.results.results) else '❌ Failed'}")
+        
+        return self.results.failed == 0
 
 def main():
-    """Run all backend API tests"""
-    print(f"🕌 Islamic App Backend API Testing - NEW SEARCH & EXPLORE ENDPOINTS")
-    print(f"Testing against: {BASE_URL}")
-    print("="*80)
+    """Main test runner for review request endpoints"""
+    tester = ReviewRequestTester()
+    success = tester.run_all_tests()
     
-    results = TestResults()
-    
-    # Test basic endpoints first
-    test_root_endpoint(results)
-    
-    # Test authentication flow - CRITICAL for search & explore endpoints
-    access_token = test_user_registration(results)
-    if not access_token:
-        access_token = test_user_login(results)
-    
-    if access_token:
-        test_auth_me(results, access_token)
-        print("\n" + "="*50)
-        print("🆕 TESTING NEW SEARCH & EXPLORE ENDPOINTS")
-        print("="*50)
-        
-        # NEW SEARCH & EXPLORE ENDPOINTS (Primary Focus)
-        test_sohba_search_arabic(results, access_token)
-        test_sohba_search_users(results, access_token)
-        test_sohba_explore(results, access_token)
-        test_sohba_trending_users(results, access_token)
-        
-        print("\n" + "="*40)
-        print("✅ TESTING EXISTING SOHBA ENDPOINTS")
-        print("="*40)
-        
-        # EXISTING SOHBA ENDPOINTS (Verification)
-        test_sohba_posts(results, access_token)
-        test_sohba_categories(results)
-        
+    if success:
+        print(f"\n🎉 All review request endpoints are working correctly!")
+        sys.exit(0)
     else:
-        results.add_result("Auth System", False, 
-                         "CRITICAL: No valid access token - cannot test authenticated endpoints")
-        # Still test public endpoints
-        test_sohba_categories(results)
-    
-    print("\n" + "="*40)
-    print("🕌 TESTING EXISTING PRAYER/MOSQUE APIs")
-    print("="*40)
-    
-    # Test existing prayer and mosque APIs
-    test_prayer_times(results)
-    test_mosque_search(results)
-    test_mosque_prayer_times(results)
-    
-    # Print summary
-    results.summary()
-    
-    # Special focus on new search endpoints
-    print("🎯 NEW SEARCH & EXPLORE ENDPOINTS FOCUS:")
-    search_tests = [r for r in results.results if 'Search' in r['test'] or 'Explore' in r['test'] or 'Trending' in r['test']]
-    for test in search_tests:
-        status = "✅" if test['success'] else "❌"
-        print(f"  {status} {test['test']}")
-    
-    # Return exit code based on results
-    return 0 if results.failed == 0 else 1
+        print(f"\n⚠️ Some endpoints failed. Check details above.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -8,6 +8,7 @@ export interface User {
   id: string;
   email: string;
   name?: string;
+  avatar?: string;
   created_at?: string;
   user_metadata?: {
     full_name?: string;
@@ -23,6 +24,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   getToken: () => string | null;
   setAuthFromGoogle: (token: string, userData: User) => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -33,6 +35,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   getToken: () => null,
   setAuthFromGoogle: () => {},
+  refreshUser: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -126,8 +129,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(userData);
   }, []);
 
+  const refreshUser = useCallback(() => {
+    const savedUser = localStorage.getItem(AUTH_USER_KEY);
+    if (savedUser) {
+      try { setUser(JSON.parse(savedUser)); } catch {}
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, getToken, setAuthFromGoogle }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut, getToken, setAuthFromGoogle, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
