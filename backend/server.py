@@ -2471,6 +2471,251 @@ async def admin_update_settings(data: AdminAppSettings, admin=Depends(get_admin_
     )
     return {"success": True, "message": "تم تحديث الإعدادات"}
 
+# ==================== STORIES SYSTEM (حكايات) ====================
+# Uses the existing posts/comments/likes collections but with story-specific endpoints
+
+STORY_CATEGORIES = [
+    {"key": "istighfar", "label": "قصص الاستغفار", "emoji": "🤲", "icon": "sparkles", "color": "#10b981"},
+    {"key": "sahaba", "label": "قصص الصحابة", "emoji": "📖", "icon": "book", "color": "#f59e0b"},
+    {"key": "quran", "label": "قصص القرآن", "emoji": "📗", "icon": "book-open", "color": "#059669"},
+    {"key": "prophets", "label": "قصص الأنبياء", "emoji": "🌟", "icon": "star", "color": "#8b5cf6"},
+    {"key": "ruqyah", "label": "قصص الرقية", "emoji": "🛡️", "icon": "shield", "color": "#3b82f6"},
+    {"key": "rizq", "label": "قصص الرزق", "emoji": "✨", "icon": "coins", "color": "#eab308"},
+    {"key": "tawba", "label": "قصص التوبة", "emoji": "💚", "icon": "heart", "color": "#22c55e"},
+    {"key": "miracles", "label": "معجزات وعبر", "emoji": "🌙", "icon": "moon", "color": "#6366f1"},
+]
+
+@api_router.get("/stories/categories")
+async def get_story_categories():
+    return {"categories": STORY_CATEGORIES}
+
+class CreateStoryRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    content: str = Field(..., min_length=1, max_length=10000)
+    category: str = "istighfar"
+    media_type: str = "text"  # text, image, video
+    image_url: Optional[str] = None
+
+@api_router.post("/stories/create")
+async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول للنشر")
+    post_id = str(uuid.uuid4())
+    story = {
+        "id": post_id,
+        "author_id": user["id"],
+        "author_name": user.get("name", "مستخدم"),
+        "author_avatar": user.get("avatar"),
+        "title": data.title,
+        "content": data.content,
+        "category": data.category,
+        "media_type": data.media_type,
+        "image_url": data.image_url,
+        "views_count": 0,
+        "created_at": datetime.utcnow().isoformat(),
+        "shares_count": 0,
+        "is_story": True,
+    }
+    await db.posts.insert_one(story)
+    story.pop("_id", None)
+    story["liked"] = False
+    story["saved"] = False
+    story["likes_count"] = 0
+    story["comments_count"] = 0
+    return {"story": story}
+
+@api_router.get("/stories/list")
+async def list_stories(category: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+    query = {"is_story": True}
+    if category != "all":
+        query["category"] = category
+    skip = (page - 1) * limit
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    stories = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    # Enrich
+    post_ids = [s["id"] for s in stories]
+    user_id = user["id"] if user else None
+    likes_set, saves_set = set(), set()
+    if user_id and post_ids:
+        ul = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in ul}
+        us = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        saves_set = {d["post_id"] for d in us}
+    likes_counts, comments_counts = {}, {}
+    if post_ids:
+        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            likes_counts[doc["_id"]] = doc["c"]
+        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            comments_counts[doc["_id"]] = doc["c"]
+    for s in stories:
+        pid = s["id"]
+        s["liked"] = pid in likes_set
+        s["saved"] = pid in saves_set
+        s["likes_count"] = likes_counts.get(pid, 0)
+        s["comments_count"] = comments_counts.get(pid, 0)
+    return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.get("/stories/{story_id}")
+async def get_story(story_id: str, user: dict = Depends(get_user)):
+    story = await db.posts.find_one({"id": story_id}, {"_id": 0})
+    if not story:
+        raise HTTPException(404, "القصة غير موجودة")
+    # Increment view
+    await db.posts.update_one({"id": story_id}, {"$inc": {"views_count": 1}})
+    story["views_count"] = story.get("views_count", 0) + 1
+    # Enrich
+    user_id = user["id"] if user else None
+    story["liked"] = bool(await db.likes.find_one({"post_id": story_id, "user_id": user_id})) if user_id else False
+    story["saved"] = bool(await db.saves.find_one({"post_id": story_id, "user_id": user_id})) if user_id else False
+    story["likes_count"] = await db.likes.count_documents({"post_id": story_id})
+    story["comments_count"] = await db.comments.count_documents({"post_id": story_id})
+    return {"story": story}
+
+@api_router.post("/stories/{story_id}/view")
+async def track_story_view(story_id: str):
+    await db.posts.update_one({"id": story_id}, {"$inc": {"views_count": 1}})
+    return {"success": True}
+
+@api_router.get("/stories/feed/most-viewed")
+async def most_viewed_stories(limit: int = 20, user: dict = Depends(get_user)):
+    pipeline = [
+        {"$match": {"is_story": True}},
+        {"$lookup": {"from": "likes", "localField": "id", "foreignField": "post_id", "as": "likes_data"}},
+        {"$lookup": {"from": "comments", "localField": "id", "foreignField": "post_id", "as": "comments_data"}},
+        {"$addFields": {
+            "likes_count": {"$size": "$likes_data"},
+            "comments_count": {"$size": "$comments_data"},
+        }},
+        {"$project": {"_id": 0, "likes_data": 0, "comments_data": 0}},
+        {"$sort": {"views_count": -1, "created_at": -1}},
+        {"$limit": limit}
+    ]
+    stories = []
+    async for doc in db.posts.aggregate(pipeline):
+        doc["liked"] = False
+        doc["saved"] = False
+        stories.append(doc)
+    # Enrich user-specific
+    if user:
+        pids = [s["id"] for s in stories]
+        if pids:
+            ul = await db.likes.find({"post_id": {"$in": pids}, "user_id": user["id"]}, {"_id": 0, "post_id": 1}).to_list(None)
+            ls = {d["post_id"] for d in ul}
+            for s in stories:
+                s["liked"] = s["id"] in ls
+    return {"stories": stories}
+
+@api_router.get("/stories/feed/most-interacted")
+async def most_interacted_stories(limit: int = 20, user: dict = Depends(get_user)):
+    pipeline = [
+        {"$match": {"is_story": True}},
+        {"$lookup": {"from": "likes", "localField": "id", "foreignField": "post_id", "as": "likes_data"}},
+        {"$lookup": {"from": "comments", "localField": "id", "foreignField": "post_id", "as": "comments_data"}},
+        {"$addFields": {
+            "likes_count": {"$size": "$likes_data"},
+            "comments_count": {"$size": "$comments_data"},
+            "engagement": {"$add": [{"$multiply": [{"$size": "$likes_data"}, 2]}, {"$multiply": [{"$size": "$comments_data"}, 3]}, {"$ifNull": ["$views_count", 0]}]}
+        }},
+        {"$project": {"_id": 0, "likes_data": 0, "comments_data": 0}},
+        {"$sort": {"engagement": -1, "created_at": -1}},
+        {"$limit": limit}
+    ]
+    stories = []
+    async for doc in db.posts.aggregate(pipeline):
+        doc["liked"] = False
+        doc["saved"] = False
+        stories.append(doc)
+    if user:
+        pids = [s["id"] for s in stories]
+        if pids:
+            ul = await db.likes.find({"post_id": {"$in": pids}, "user_id": user["id"]}, {"_id": 0, "post_id": 1}).to_list(None)
+            ls = {d["post_id"] for d in ul}
+            for s in stories:
+                s["liked"] = s["id"] in ls
+    return {"stories": stories}
+
+@api_router.get("/stories/feed/search")
+async def search_stories(q: str = Query("", min_length=1), limit: int = 30, user: dict = Depends(get_user)):
+    if not q.strip():
+        return {"stories": []}
+    search_regex = {"$regex": q.strip(), "$options": "i"}
+    query = {"is_story": True, "$or": [{"title": search_regex}, {"content": search_regex}, {"author_name": search_regex}, {"category": search_regex}]}
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).limit(limit)
+    stories = await cursor.to_list(length=limit)
+    post_ids = [s["id"] for s in stories]
+    likes_counts, comments_counts = {}, {}
+    if post_ids:
+        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            likes_counts[doc["_id"]] = doc["c"]
+        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            comments_counts[doc["_id"]] = doc["c"]
+    for s in stories:
+        s["likes_count"] = likes_counts.get(s["id"], 0)
+        s["comments_count"] = comments_counts.get(s["id"], 0)
+        s["liked"] = False
+        s["saved"] = False
+    return {"stories": stories}
+
+# ==================== ADMIN EMBED CONTENT (محتوى مضمن) ====================
+
+class EmbedContentRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = ""
+    embed_url: str = Field(..., min_length=5)
+    platform: str = "youtube"  # youtube, dailymotion, vimeo, etc.
+    category: str = "general"
+    thumbnail_url: Optional[str] = None
+
+@api_router.post("/admin/embed-content")
+async def create_embed_content(data: EmbedContentRequest, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or admin.get("email") not in ["mhmd321324t@gmail.com"]:
+        is_admin_flag = admin.get("is_admin", False) if admin else False
+        if not is_admin_flag:
+            raise HTTPException(403, "غير مصرح - للمشرف فقط")
+    content = {
+        "id": str(uuid.uuid4()),
+        "title": data.title,
+        "description": data.description,
+        "embed_url": data.embed_url,
+        "platform": data.platform,
+        "category": data.category,
+        "thumbnail_url": data.thumbnail_url,
+        "views": 0,
+        "active": True,
+        "created_by": user["id"] if user else "system",
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.embed_content.insert_one(content)
+    content.pop("_id", None)
+    return {"success": True, "content": content}
+
+@api_router.get("/admin/embed-content")
+async def admin_list_embed_content(user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or (admin.get("email") not in ["mhmd321324t@gmail.com"] and not admin.get("is_admin")):
+        raise HTTPException(403, "غير مصرح")
+    content = await db.embed_content.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"content": content}
+
+@api_router.delete("/admin/embed-content/{content_id}")
+async def delete_embed_content(content_id: str, user: dict = Depends(get_user)):
+    admin = await db.users.find_one({"id": user["id"]}) if user else None
+    if not admin or (admin.get("email") not in ["mhmd321324t@gmail.com"] and not admin.get("is_admin")):
+        raise HTTPException(403, "غير مصرح")
+    await db.embed_content.delete_one({"id": content_id})
+    return {"success": True}
+
+@api_router.get("/embed-content")
+async def public_embed_content(category: str = "all", limit: int = 20):
+    query = {"active": True}
+    if category != "all":
+        query["category"] = category
+    content = db.embed_content.find(query, {"_id": 0}).sort("created_at", -1).limit(limit)
+    items = await content.to_list(length=limit)
+    return {"content": items}
+
 # ==================== STATUS (legacy) ====================
 class StatusCheckCreate(BaseModel):
     client_name: str
@@ -2514,6 +2759,9 @@ async def create_indexes():
         await db.store_items.create_index("category")
         await db.purchases.create_index([("user_id", 1), ("created_at", -1)])
         await db.memberships.create_index("user_id", unique=True)
+        await db.posts.create_index([("is_story", 1), ("views_count", -1)])
+        await db.posts.create_index([("is_story", 1), ("category", 1)])
+        await db.embed_content.create_index([("active", 1), ("created_at", -1)])
     except Exception as e:
         print(f"Index creation note: {e}")
 

@@ -142,7 +142,7 @@ export default function Auth() {
           <div className="h-16 w-16 mx-auto mb-3 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
             <span className="text-3xl">🕌</span>
           </div>
-          <h1 className="text-3xl font-bold font-arabic text-white mb-1">المؤذن العالمي</h1>
+          <h1 className="text-3xl font-bold font-arabic text-white mb-1">أذان وحكاية</h1>
           <p className="text-white/70 text-sm">رفيقك الروحي في كل وقت</p>
         </motion.div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />

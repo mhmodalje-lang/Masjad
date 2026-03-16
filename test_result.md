@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Islamic app (أذاني) - Fix all errors, connect with real tools, fix everything wrong."
+user_problem_statement: "Islamic app 'أذان وحكاية' - Major rewrite: Remove Sohba, add Stories system, redesign Explore, rename app, admin embed content, smoky theme."
 
 backend:
   - task: "Auth API (Register/Login/Me)"
@@ -200,6 +200,69 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ REVIEW REQUEST ENDPOINTS FULLY TESTED - All 10 requested endpoints working perfectly: 1) POST /api/auth/register with Arabic user data (✅) 2) POST /api/auth/login with same credentials (✅) 3) PUT /api/auth/update-profile with Arabic name and avatar (✅) 4) POST /api/sohba/posts with Arabic content (✅) 5) GET /api/sohba/posts?category=all&limit=10 (retrieved 7 posts) (✅) 6) GET /api/sohba/search?q=سبحان&type=all - Arabic search (found 1 post) (✅) 7) GET /api/sohba/explore?limit=10 (retrieved 7 posts) (✅) 8) POST /api/sohba/posts/{id}/like - like toggle working (✅) 9) POST /api/sohba/posts/{id}/comments with Arabic comment (✅) 10) GET /api/gifts/list (retrieved 12 Islamic gifts) (✅). All authentication flows work with Bearer token. Arabic text handling perfect throughout. Social features (posts, likes, comments) fully functional. Gifts system operational. No critical issues found."
+
+  - task: "Stories CRUD API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added complete Stories API system: /api/stories/categories (8 Islamic categories), /api/stories/create, /api/stories/list, /api/stories/{id}, /api/stories/{id}/view"
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE TESTING COMPLETED - All Stories CRUD endpoints tested successfully: 1) GET /api/stories/categories - Returns 8 Islamic categories (istighfar, sahaba, quran, prophets, ruqyah, rizq, tawba, miracles) 2) POST /api/stories/create - Created 2 Arabic stories with authentication 3) GET /api/stories/list - Lists all stories with pagination (found 4 total) 4) GET /api/stories/list?category=istighfar - Category filtering working (found 2 istighfar stories) 5) GET /api/stories/{id} - Single story detail with view count increment 6) POST /api/stories/{id}/view - View tracking working. All CRUD operations functional with proper Arabic content handling."
+
+  - task: "Most Viewed/Interacted Stories"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added feed endpoints: /api/stories/feed/most-viewed (sorted by views), /api/stories/feed/most-interacted (sorted by engagement score)"
+      - working: true
+        agent: "testing"
+        comment: "✅ FEED ENDPOINTS VERIFIED - Both feed endpoints working perfectly: 1) GET /api/stories/feed/most-viewed - Returns 4 stories correctly sorted by view count 2) GET /api/stories/feed/most-interacted - Returns 4 stories sorted by engagement (likes*2 + comments*3 + views). View counting and sorting algorithms functioning correctly."
+
+  - task: "Stories Search"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added Arabic text search: /api/stories/feed/search?q={query} - searches title, content, author_name, category with regex"
+      - working: true
+        agent: "testing"
+        comment: "✅ ARABIC SEARCH VERIFIED - Search functionality working excellently: GET /api/stories/feed/search?q=استغفار returns 2 matching results. Arabic text search working across title, content, and category fields. Regex-based search with case-insensitive matching operational."
+
+  - task: "Admin Embed Content"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Added admin embed content APIs: POST /api/admin/embed-content, GET /api/admin/embed-content, DELETE /api/admin/embed-content/{id}, GET /api/embed-content (public)"
+      - working: false
+        agent: "testing"
+        comment: "❌ EMBED CONTENT API ERROR - GET /api/embed-content returning 500 Internal Server Error. TypeError: object AsyncIOMotorCursor can't be used in 'await' expression. Line 2715 in server.py has incorrect async/await syntax."
+      - working: true
+        agent: "testing"
+        comment: "✅ EMBED CONTENT API FIXED - Fixed MongoDB cursor syntax error. GET /api/embed-content now working correctly, returns empty array as expected for new system. Public embed content endpoint operational and accessible without authentication."
 
 frontend:
   - task: "Frontend App Start"
@@ -301,29 +364,17 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "2.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Auth System (Register/Login)"
-    - "Mosque Search"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Fixed all major errors. Frontend now loads. Auth uses JWT backend. Mosque search/times use FastAPI+Overpass/Aladhan APIs. All Supabase calls either removed or made safe."
+    message: "Major rewrite: 1) Added Stories system backend (create/list/view/search/most-viewed/most-interacted). 2) Added Admin embed content APIs. 3) Removed Sohba from nav, replaced with Stories. 4) Renamed app to أذان وحكاية. 5) Redesigned Explore page. 6) Applied smoky theme. Test the new Stories APIs and Admin embed content APIs."
   - agent: "testing"
-    message: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED - All API endpoints working perfectly. Tested: Root API (✅), Auth Register (✅), Auth Login (✅), Auth Me (✅), Prayer Times (✅), Mosque Search (✅), Mosque Prayer Times (✅). Backend service running stable. All integrations (Overpass API, Aladhan API, MongoDB, JWT) functioning correctly. Ready for production."
-  - agent: "main"
-    message: "Added new Search/Explore APIs, fixed Admin Dashboard Arabic text tabs rendering vertically, fixed Sohba page text visibility, fixed Profile page broken links, added Explore page with search. Need testing of new search/explore endpoints."
-  - agent: "testing"
-    message: "✅ Search & Explore APIs - All 6 new endpoints tested successfully. Search (posts/users), Explore feed, Trending users, Posts listing, Categories all working."
-  - agent: "main"
-    message: "Phase 2 fixes: Added edit profile page (Account.tsx) with name/avatar/password editing, added /api/auth/update-profile endpoint, fixed admin input fields for mobile Arabic input (onInput handler, spellCheck=false, writingMode), fixed all broken profile links."
-  - agent: "testing"
-    message: "🆕 NEW SEARCH & EXPLORE ENDPOINTS TESTING COMPLETE ✅ - All 6 requested endpoints tested successfully: 1) Arabic text search in posts (✅) 2) User search (✅) 3) Explore trending feed (✅) 4) Trending users (✅) 5) Existing sohba posts (✅) 6) Existing categories (✅). Authentication working with test user credentials. All endpoints require Bearer token. No critical issues found. Ready for frontend integration and production deployment."
-  - agent: "testing"
-    message: "🎯 REVIEW REQUEST ENDPOINTS TESTING COMPLETE ✅ - All 10 requested API endpoints tested successfully with exact test data specified in review request: 1) Auth Register with Arabic name 'مستخدم تجريبي' (✅) 2) Auth Login with testfinal@test.com (✅) 3) Profile Update with Arabic name 'اسم جديد محدث' (✅) 4) Create Post with Arabic content 'منشور تجريبي جديد' (✅) 5) Get Posts with category=all&limit=10 (✅) 6) Search with Arabic query 'سبحان' (✅) 7) Explore feed with limit=10 (✅) 8) Post Like toggle (✅) 9) Comment with Arabic text 'تعليق تجريبي' (✅) 10) Get Gifts list (12 Islamic gifts available) (✅). All authentication flows working with Bearer tokens. Arabic text processing perfect. Social features fully operational. Backend API ready for production use."
+    message: "✅ STORIES & EMBED CONTENT TESTING COMPLETE - Tested all 14 requested endpoints successfully: Authentication working with Bearer tokens, all 8 Islamic story categories available, story CRUD operations functional, Arabic content handling perfect, search working with Arabic text, view tracking operational, like/comment social features working, embed content API fixed and operational. Fixed critical MongoDB cursor bug in embed content endpoint. All NEW Stories APIs and Admin embed content features verified and working."

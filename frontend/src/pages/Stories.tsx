@@ -1,719 +1,493 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useLocale } from '@/hooks/useLocale';
-import { supabase } from '@/integrations/supabase/client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  Heart, MessageCircle, Send, ArrowRight, Plus, X,
-  BookOpen, Sparkles, Shield, Coins, ChevronDown, LogIn, Trash2, FolderOpen,
-  Video, Mic, FileText, Upload, Play, Square, Clock
-} from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
-import SectionHeader from '@/components/SectionHeader';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
-const getCATEGORIES = (t: (k: string) => string) => [
-  { key: 'istighfar', label: t('catIstighfar'), emoji: '🤲', icon: Sparkles, color: 'bg-primary' },
-  { key: 'sahaba', label: t('catSahaba'), emoji: '📖', icon: BookOpen, color: 'bg-primary' },
-  { key: 'ruqyah', label: t('catRuqyahStory'), emoji: '🛡️', icon: Shield, color: 'bg-primary' },
-  { key: 'hawqala', label: t('catHawqala'), emoji: '💚', icon: Heart, color: 'bg-primary' },
-  { key: 'rizq', label: t('catRizqStory'), emoji: '✨', icon: Coins, color: 'bg-primary' },
-];
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
-const getMEDIA_TYPES = (t: (k: string) => string) => [
-  { key: 'text', label: t('mediaText'), icon: FileText },
-  { key: 'video', label: t('mediaVideo'), icon: Video },
-  { key: 'audio', label: t('mediaAudio'), icon: Mic },
-];
+function getToken() { return localStorage.getItem('auth_token') || ''; }
+function authHeaders(): Record<string, string> {
+  const h: Record<string, string> = { 'Content-Type': 'application/json' };
+  const t = getToken(); if (t) h['Authorization'] = `Bearer ${t}`;
+  return h;
+}
 
 interface Story {
-  id: string;
-  user_id: string;
-  author_name: string;
-  category: string;
-  title: string;
-  content: string;
-  likes_count: number;
-  comments_count: number;
-  created_at: string;
-  status: string;
-  media_type: string;
-  media_url: string | null;
+  id: string; author_id: string; author_name: string; author_avatar?: string;
+  title?: string; content: string; category: string; image_url?: string;
+  media_type?: string; created_at: string; likes_count: number;
+  comments_count: number; views_count?: number; liked: boolean; saved: boolean;
 }
 
 interface Comment {
-  id: string;
-  story_id: string;
-  user_id: string;
-  author_name: string;
-  content: string;
-  created_at: string;
+  id: string; author_name: string; author_avatar?: string; content: string; created_at: string;
 }
 
-type ViewMode = 'categories' | 'stories' | 'story' | 'new';
+interface Category {
+  key: string; label: string; emoji: string; icon: string; color: string;
+}
 
-export default function Stories() {
-  const { t } = useLocale();
-  const { user } = useAuth();
-  const [viewMode, setViewMode] = useState<ViewMode>('categories');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [stories, setStories] = useState<Story[]>([]);
-  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'];
+
+function timeAgo(iso: string): string {
+  const d = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(d / 60000);
+  if (m < 1) return 'الآن';
+  if (m < 60) return `منذ ${m} دقيقة`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `منذ ${h} ساعة`;
+  const days = Math.floor(h / 24);
+  if (days < 30) return `منذ ${days} يوم`;
+  return `منذ ${Math.floor(days / 30)} شهر`;
+}
+
+const catIcons: Record<string, any> = {
+  istighfar: Sparkles, sahaba: BookOpen, quran: BookOpen, prophets: Star,
+  ruqyah: Shield, rizq: Coins, tawba: Heart, miracles: Moon,
+};
+
+/* ========== COMMENTS SHEET ========== */
+function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => void }) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [likedStories, setLikedStories] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // New story form
-  const [newTitle, setNewTitle] = useState('');
-  const [newContent, setNewContent] = useState('');
-  const [newAuthorName, setNewAuthorName] = useState('');
-  const [newCategory, setNewCategory] = useState('');
-  const [newMediaType, setNewMediaType] = useState('text');
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const maxChars = 5000;
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Comment form
-  const [commentText, setCommentText] = useState('');
-
-  const loadStories = useCallback(async (category: string) => {
+  useEffect(() => {
     setLoading(true);
-    const { data } = await supabase
-      .from('stories')
-      .select('*')
-      .eq('category', category)
-      .order('created_at', { ascending: false });
-    setStories((data as Story[]) || []);
-    
-    if (user) {
-      const { data: likes } = await supabase
-        .from('story_likes')
-        .select('story_id')
-        .eq('user_id', user.id);
-      setLikedStories(new Set(likes?.map(l => l.story_id) || []));
-    }
-    setLoading(false);
-  }, [user]);
+    fetch(`${BACKEND_URL}/api/sohba/posts/${storyId}/comments`)
+      .then(r => r.json()).then(d => { setComments(d.comments || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [storyId]);
 
-  const loadComments = useCallback(async (storyId: string) => {
-    const { data } = await supabase
-      .from('story_comments')
-      .select('*')
-      .eq('story_id', storyId)
-      .order('created_at', { ascending: true });
-    setComments((data as Comment[]) || []);
-  }, []);
-
-  useEffect(() => {
-    const channel = supabase
-      .channel('stories-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, () => {
-        if (selectedCategory) loadStories(selectedCategory);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'story_comments' }, () => {
-        if (selectedStory) loadComments(selectedStory.id);
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [selectedCategory, selectedStory, loadStories, loadComments]);
-
-  useEffect(() => {
-    const handlePopState = () => {
-      if (viewMode === 'story') {
-        setSelectedStory(null);
-        setViewMode('stories');
-      } else if (viewMode === 'stories' || viewMode === 'new') {
-        setSelectedCategory(null);
-        setViewMode('categories');
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [viewMode]);
-
-  const openCategory = (key: string) => {
-    setSelectedCategory(key);
-    setViewMode('stories');
-    loadStories(key);
-    window.history.pushState({ view: 'stories' }, '');
-  };
-
-  const openStory = (story: Story) => {
-    setSelectedStory(story);
-    setViewMode('story');
-    loadComments(story.id);
-    window.history.pushState({ view: 'story' }, '');
-  };
-
-  const goBack = () => { window.history.back(); };
-
-  const openNewStory = () => {
-    if (!user) {
-      toast.error('سجّل دخولك أولاً لنشر قصتك');
-      return;
-    }
-    setNewCategory(selectedCategory || '');
-    setNewTitle('');
-    setNewContent('');
-    setNewAuthorName('');
-    setNewMediaType('text');
-    setMediaFile(null);
-    setViewMode('new');
-    window.history.pushState({ view: 'new' }, '');
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) {
-      toast.error('حجم الملف يجب أن يكون أقل من 50 ميغابايت');
-      return;
-    }
-    setMediaFile(file);
-  };
-
-  const uploadMedia = async (): Promise<string | null> => {
-    if (!mediaFile || !user) return null;
-    setUploading(true);
-    
-    const ext = mediaFile.name.split('.').pop();
-    const path = `${user.id}/${Date.now()}.${ext}`;
-    
-    const { error } = await supabase.storage
-      .from('story-media')
-      .upload(path, mediaFile);
-    
-    setUploading(false);
-    if (error) {
-      toast.error('فشل رفع الملف');
-      return null;
-    }
-    
-    const { data: urlData } = supabase.storage
-      .from('story-media')
-      .getPublicUrl(path);
-    
-    return urlData.publicUrl;
-  };
-
-  const submitStory = async () => {
-    if (!user) return;
-    if (!newTitle.trim() || !newContent.trim() || !newCategory) {
-      toast.error('يرجى ملء جميع الحقول');
-      return;
-    }
-    if (newTitle.trim().length > 100) {
-      toast.error('العنوان يجب أن يكون أقل من 100 حرف');
-      return;
-    }
-    if (newContent.trim().length > maxChars) {
-      toast.error(`القصة يجب أن تكون أقل من ${maxChars} حرف`);
-      return;
-    }
-    if (newMediaType !== 'text' && !mediaFile) {
-      toast.error('يرجى رفع ملف الوسائط');
-      return;
-    }
-
-    setSubmitting(true);
-
-    let mediaUrl: string | null = null;
-    if (newMediaType !== 'text' && mediaFile) {
-      mediaUrl = await uploadMedia();
-      if (!mediaUrl) {
-        setSubmitting(false);
-        return;
-      }
-    }
-
-    const { error } = await supabase.from('stories').insert({
-      user_id: user.id,
-      author_name: newAuthorName.trim() || 'مجهول',
-      category: newCategory,
-      title: newTitle.trim(),
-      content: newContent.trim(),
-      status: 'pending',
-      media_type: newMediaType,
-      media_url: mediaUrl,
-    });
-    setSubmitting(false);
-    if (error) {
-      toast.error('حدث خطأ في نشر القصة');
-    } else {
-      toast.success('تم إرسال قصتك وستُعرض بعد موافقة المشرف ✨');
-      setSelectedCategory(newCategory);
-      setViewMode('stories');
-      loadStories(newCategory);
-    }
-  };
-
-  const toggleLike = async (storyId: string) => {
-    if (!user) {
-      toast.error('سجّل دخولك أولاً');
-      return;
-    }
-    if (likedStories.has(storyId)) {
-      await supabase.from('story_likes').delete().eq('story_id', storyId).eq('user_id', user.id);
-      setLikedStories(prev => { const s = new Set(prev); s.delete(storyId); return s; });
-      setStories(prev => prev.map(s => s.id === storyId ? { ...s, likes_count: Math.max(s.likes_count - 1, 0) } : s));
-      if (selectedStory?.id === storyId) setSelectedStory(s => s ? { ...s, likes_count: Math.max(s.likes_count - 1, 0) } : s);
-    } else {
-      await supabase.from('story_likes').insert({ story_id: storyId, user_id: user.id });
-      setLikedStories(prev => new Set(prev).add(storyId));
-      setStories(prev => prev.map(s => s.id === storyId ? { ...s, likes_count: s.likes_count + 1 } : s));
-      if (selectedStory?.id === storyId) setSelectedStory(s => s ? { ...s, likes_count: s.likes_count + 1 } : s);
-    }
-  };
-
-  const submitComment = async () => {
-    if (!user) {
-      toast.error('سجّل دخولك أولاً');
-      return;
-    }
-    if (!commentText.trim() || !selectedStory) return;
-    if (commentText.trim().length > 1000) {
-      toast.error('التعليق يجب أن يكون أقل من 1000 حرف');
-      return;
-    }
-    const { error } = await supabase.from('story_comments').insert({
-      story_id: selectedStory.id,
-      user_id: user.id,
-      author_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'مجهول',
-      content: commentText.trim(),
-    });
-    if (!error) {
-      setCommentText('');
-      loadComments(selectedStory.id);
-      setSelectedStory(s => s ? { ...s, comments_count: s.comments_count + 1 } : s);
-    }
-  };
-
-  const deleteStory = async (storyId: string) => {
-    if (!user) return;
-    const { error } = await supabase.from('stories').delete().eq('id', storyId).eq('user_id', user.id);
-    if (!error) {
-      toast.success('تم حذف القصة');
-      if (viewMode === 'story') {
-        setViewMode('stories');
-        setSelectedStory(null);
-      }
-      if (selectedCategory) loadStories(selectedCategory);
-    }
-  };
-
-  const deleteComment = async (commentId: string) => {
-    if (!user) return;
-    await supabase.from('story_comments').delete().eq('id', commentId).eq('user_id', user.id);
-    if (selectedStory) {
-      loadComments(selectedStory.id);
-      setSelectedStory(s => s ? { ...s, comments_count: Math.max(s.comments_count - 1, 0) } : s);
-    }
-  };
-
-  const formatTime = (dateStr: string) => {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'الآن';
-    if (mins < 60) return `منذ ${mins} دقيقة`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `منذ ${hours} ساعة`;
-    const days = Math.floor(hours / 24);
-    if (days < 30) return `منذ ${days} يوم`;
-    return `منذ ${Math.floor(days / 30)} شهر`;
-  };
-
-  const getCategoryInfo = (key: string) => getCATEGORIES(t).find(c => c.key === key);
-
-  const getMediaIcon = (type: string) => {
-    if (type === 'video') return <Video className="h-3 w-3" />;
-    if (type === 'audio') return <Mic className="h-3 w-3" />;
-    return null;
+  const send = async () => {
+    if (!text.trim()) return;
+    setSending(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${storyId}/comments`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: text.trim() })
+      });
+      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
+      const d = await r.json();
+      if (d.comment) { setComments(p => [...p, d.comment]); setText(''); }
+    } catch { toast.error('خطأ في إرسال التعليق'); }
+    setSending(false);
   };
 
   return (
-    <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
-      <PageHeader
-        title={t('storiesTitle')}
-        subtitle={t('storiesSubtitle')}
-        image="https://images.unsplash.com/photo-1688668782203-b69f916c48db?w=1200&q=85"
-        actionsLeft={
-          viewMode !== 'categories' ? (
-            <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
-              <ArrowRight className="h-4 w-4 text-white" />
-            </button>
-          ) : undefined
-        }
-      />
-
-      <div className="px-5 pt-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={viewMode + (selectedCategory || '') + (selectedStory?.id || '')}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            {viewMode === 'categories' && (
-              <>
-                <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-5 mb-6">
-                  <div className="text-center">
-                    <span className="text-3xl mb-2 block">✨</span>
-                    <h2 className="text-lg font-bold text-foreground mb-2">
-                      {t('yourStoryMayGuide')}
-                    </h2>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-4">
-                      {t('shareYourExperience')}
-                    </p>
-                    {user ? (
-                      <Button onClick={() => { setNewCategory(''); setViewMode('new'); }} className="rounded-full gap-2">
-                        <Plus className="h-4 w-4" />
-                        {t('publishYourStory')}
-                      </Button>
-                    ) : (
-                      <Link to="/auth" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium">
-                        <LogIn className="h-4 w-4" />
-                        {t('loginToPublish')}
-                      </Link>
-                    )}
+    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-border/30">
+        <div className="flex justify-center pt-2 pb-1"><div className="w-10 h-1 rounded-full bg-muted-foreground/30" /></div>
+        <div className="flex items-center justify-between px-5 py-2 border-b border-border/20">
+          <span className="text-sm font-bold">{comments.length} تعليق</span>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/50"><X className="h-5 w-5 text-muted-foreground" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4 min-h-[120px]">
+          {loading ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : comments.length === 0 ? (
+            <p className="text-center text-xs text-muted-foreground py-10">لا توجد تعليقات بعد<br />كن أول من يعلّق!</p>
+          ) : (
+            comments.map(c => {
+              const ci = (c.author_name || '').charCodeAt(0) % avatarColors.length;
+              return (
+                <div key={c.id} className="flex gap-2.5">
+                  <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[ci])}>
+                    {c.author_avatar ? <img src={c.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : c.author_name?.[0]}
                   </div>
-                </div>
-
-                <SectionHeader icon={FolderOpen} title={t('chooseCategory')} />
-                <div className="space-y-3">
-                  {getCATEGORIES(t).map((cat, i) => (
-                    <motion.button
-                      key={cat.key}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06 }}
-                      onClick={() => openCategory(cat.key)}
-                      className="w-full flex items-center justify-between p-5 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all"
-                    >
-                      <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90 rtl:rotate-90" />
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <p className="font-bold text-foreground">{cat.label}</p>
-                        </div>
-                        <div className={cn('h-12 w-12 rounded-xl flex items-center justify-center text-2xl', cat.color)}>
-                          <span>{cat.emoji}</span>
-                        </div>
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
-              </>
-            )}
-
-            {viewMode === 'stories' && selectedCategory && (
-              <>
-                <div className="flex items-center justify-between mb-4">
-                  <Button onClick={openNewStory} size="sm" className="rounded-full gap-1">
-                    <Plus className="h-3 w-3" />
-                    {t('publishStory')}
-                  </Button>
-                  <h2 className="text-lg font-bold text-foreground">
-                    {getCategoryInfo(selectedCategory)?.emoji} {getCategoryInfo(selectedCategory)?.label}
-                  </h2>
-                </div>
-
-                {loading ? (
-                  <div className="text-center py-20">
-                    <BookOpen className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-                  </div>
-                ) : stories.length === 0 ? (
-                  <div className="text-center py-16">
-                    <span className="text-5xl mb-4 block">📝</span>
-                    <p className="text-sm font-bold text-foreground mb-1">{t('noStoriesYet')}</p>
-                    <p className="text-xs text-muted-foreground mb-4">{t('beFirstToShare')}</p>
-                    <Button onClick={openNewStory} className="rounded-full gap-2">
-                      <Plus className="h-4 w-4" />
-                      {t('publishFirstStory')}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {stories.map((story, i) => (
-                      <motion.div
-                        key={story.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="rounded-2xl bg-card border border-border p-5 cursor-pointer hover:border-primary/30 transition-all"
-                        onClick={() => openStory(story)}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-muted-foreground">{formatTime(story.created_at)}</span>
-                            {story.status === 'pending' && story.user_id === user?.id && (
-                              <span className="text-[10px] bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full flex items-center gap-1">
-                                <Clock className="h-2.5 w-2.5" /> بانتظار الموافقة
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {story.media_type !== 'text' && (
-                              <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
-                                {getMediaIcon(story.media_type)}
-                                {story.media_type === 'video' ? 'فيديو' : 'صوت'}
-                              </span>
-                            )}
-                            <span className="text-xs font-medium text-foreground">{story.author_name}</span>
-                            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-sm">👤</span>
-                            </div>
-                          </div>
-                        </div>
-                        <h3 className="font-bold text-foreground text-right mb-2 break-words">{story.title}</h3>
-                        <p className="text-xs text-muted-foreground text-right leading-relaxed line-clamp-3 mb-3 break-words">
-                          {story.content}
-                        </p>
-                        <div className="flex items-center justify-between border-t border-border pt-3">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); toggleLike(story.id); }}
-                            className="flex items-center gap-1.5 text-xs"
-                          >
-                            <Heart className={cn("h-4 w-4", likedStories.has(story.id) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
-                            <span className="text-muted-foreground">{story.likes_count}</span>
-                          </button>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <span>{story.comments_count}</span>
-                            <MessageCircle className="h-4 w-4" />
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {viewMode === 'story' && selectedStory && (
-              <>
-                <div className="rounded-2xl bg-card border border-border p-5 mb-4">
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      {user?.id === selectedStory.user_id && (
-                        <Button variant="destructive" size="sm" onClick={() => deleteStory(selectedStory.id)} className="rounded-xl h-8">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      )}
+                      <span className="text-[12px] font-bold text-foreground">{c.author_name}</span>
+                      <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-foreground font-medium">{selectedStory.author_name}</span>
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-lg">👤</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <h2 className="text-lg font-bold text-foreground text-right mb-3 break-words">{selectedStory.title}</h2>
-
-                  {/* Media player */}
-                  {selectedStory.media_url && selectedStory.media_type === 'video' && (
-                    <div className="rounded-xl overflow-hidden mb-4">
-                      <video
-                        src={selectedStory.media_url}
-                        controls
-                        className="w-full rounded-xl"
-                        preload="metadata"
-                      />
-                    </div>
-                  )}
-                  {selectedStory.media_url && selectedStory.media_type === 'audio' && (
-                    <div className="rounded-xl bg-muted/50 p-4 mb-4">
-                      <audio
-                        src={selectedStory.media_url}
-                        controls
-                        className="w-full"
-                        preload="metadata"
-                      />
-                    </div>
-                  )}
-
-                  <p className="text-sm text-foreground text-right leading-[2] whitespace-pre-wrap break-words">
-                    {selectedStory.content}
-                  </p>
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
-                    <button onClick={() => toggleLike(selectedStory.id)} className="flex items-center gap-1.5 text-xs">
-                      <Heart className={cn("h-4 w-4", likedStories.has(selectedStory.id) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
-                      <span className="text-muted-foreground">{selectedStory.likes_count}</span>
-                    </button>
-                    <span className="text-[10px] text-muted-foreground">{formatTime(selectedStory.created_at)}</span>
+                    <p className="text-[13px] text-foreground/85 mt-0.5 leading-relaxed" dir="auto">{c.content}</p>
                   </div>
                 </div>
-
-                {/* Comments */}
-                <div className="rounded-2xl bg-card border border-border p-5">
-                  <h3 className="font-bold text-foreground text-sm mb-4">💬 التعليقات ({comments.length})</h3>
-                  
-                  {user && (
-                    <div className="flex gap-2 mb-4">
-                      <Button onClick={submitComment} size="sm" className="rounded-full shrink-0">
-                        <Send className="h-3.5 w-3.5" />
-                      </Button>
-                      <Input
-                        value={commentText}
-                        onChange={e => setCommentText(e.target.value)}
-                        placeholder="اكتب تعليقاً..."
-                        className="flex-1 rounded-full text-sm"
-                        onKeyDown={e => e.key === 'Enter' && submitComment()}
-                        maxLength={1000}
-                      />
-                    </div>
-                  )}
-
-                  {comments.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-4">لا توجد تعليقات بعد</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {comments.map(comment => (
-                        <div key={comment.id} className="rounded-xl bg-muted/30 p-3">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-muted-foreground">{formatTime(comment.created_at)}</span>
-                              {user?.id === comment.user_id && (
-                                <button onClick={() => deleteComment(comment.id)} className="text-destructive">
-                                  <Trash2 className="h-3 w-3" />
-                                </button>
-                              )}
-                            </div>
-                            <span className="text-xs font-medium text-foreground">{comment.author_name}</span>
-                          </div>
-                          <p className="text-xs text-foreground text-right leading-relaxed break-words">{comment.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-
-            {viewMode === 'new' && (
-              <div className="space-y-4">
-                <h2 className="text-lg font-bold text-foreground text-center mb-2">📝 شارك قصتك</h2>
-                <p className="text-xs text-muted-foreground text-center leading-relaxed mb-4">
-                  ⚠️ ستتم مراجعة قصتك قبل نشرها لضمان جودة المحتوى
-                </p>
-
-                {/* Media type selector */}
-                <div className="flex gap-2 justify-center mb-4">
-                  {getMEDIA_TYPES(t).map(mt => (
-                    <button
-                      key={mt.key}
-                      onClick={() => { setNewMediaType(mt.key); setMediaFile(null); }}
-                      className={cn(
-                        'flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
-                        newMediaType === mt.key
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-muted-foreground'
-                      )}
-                    >
-                      <mt.icon className="h-4 w-4" />
-                      {mt.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">الفئة</label>
-                  <select
-                    value={newCategory}
-                    onChange={e => setNewCategory(e.target.value)}
-                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm"
-                  >
-                    <option value="">اختر الفئة</option>
-                    {getCATEGORIES(t).map(c => (
-                      <option key={c.key} value={c.key}>{c.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">اسمك (اختياري)</label>
-                  <Input value={newAuthorName} onChange={e => setNewAuthorName(e.target.value)} placeholder="مجهول" className="rounded-xl" maxLength={50} />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">العنوان</label>
-                  <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="عنوان قصتك..." className="rounded-xl" maxLength={100} />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">القصة</label>
-                  <textarea
-                    value={newContent}
-                    onChange={e => setNewContent(e.target.value)}
-                    placeholder="اكتب قصتك هنا..."
-                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm min-h-[150px] leading-relaxed"
-                    maxLength={maxChars}
-                  />
-                  <p className="text-[10px] text-muted-foreground mt-1">{newContent.length}/{maxChars}</p>
-                </div>
-
-                {/* File upload */}
-                {newMediaType !== 'text' && (
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                      {newMediaType === 'video' ? '📹 رفع فيديو (mp4, webm - أقصى 50MB)' : '🎙️ رفع ملف صوتي (mp3, wav, m4a - أقصى 50MB)'}
-                    </label>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept={newMediaType === 'video' ? 'video/mp4,video/webm' : 'audio/mpeg,audio/wav,audio/ogg,audio/m4a'}
-                      onChange={handleFileSelect}
-                      className="hidden"
-                    />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className={cn(
-                        'w-full rounded-xl border-2 border-dashed p-6 text-center transition-colors',
-                        mediaFile ? 'border-primary/30 bg-primary/5' : 'border-border hover:border-primary/30'
-                      )}
-                    >
-                      {mediaFile ? (
-                        <div className="flex items-center justify-center gap-2">
-                          {newMediaType === 'video' ? <Video className="h-5 w-5 text-primary" /> : <Mic className="h-5 w-5 text-primary" />}
-                          <span className="text-sm text-foreground font-medium">{mediaFile.name}</span>
-                          <button onClick={(e) => { e.stopPropagation(); setMediaFile(null); }} className="text-destructive">
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground">اضغط لرفع الملف</p>
-                        </div>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={submitStory}
-                    disabled={submitting || uploading}
-                    className="flex-1 rounded-2xl h-12"
-                  >
-                    {submitting || uploading ? 'جاري الإرسال...' : '📤 إرسال للمراجعة'}
-                  </Button>
-                  <Button variant="outline" onClick={goBack} className="rounded-2xl h-12">
-                    إلغاء
-                  </Button>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+              );
+            })
+          )}
+        </div>
+        <div className="px-4 py-3 border-t border-border/20 flex gap-2 bg-card">
+          <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+            dir="auto" placeholder="اكتب تعليقاً..."
+            className="flex-1 bg-muted/50 rounded-2xl px-4 py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground" />
+          <button onClick={send} disabled={!text.trim() || sending}
+            className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40">
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
+    </motion.div>
+  );
+}
+
+/* ========== CREATE STORY SHEET ========== */
+function CreateStorySheet({ categories, onClose, onCreated }: { categories: Category[]; onClose: () => void; onCreated: (s: Story) => void }) {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [category, setCategory] = useState(categories[0]?.key || 'istighfar');
+  const [mediaType, setMediaType] = useState('text');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [posting, setPosting] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const maxChars = 5000;
+
+  const handleFile = async (file: File) => {
+    if (file.size < 5 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      const formData = new FormData(); formData.append('file', file);
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok && data.url) setImagePreview(`${BACKEND_URL}${data.url}`);
+        else toast.error('فشل رفع الملف');
+      } catch { toast.error('خطأ في الرفع'); }
+    }
+  };
+
+  const submit = async () => {
+    if (!title.trim() || !content.trim()) { toast.error('يرجى كتابة العنوان والقصة'); return; }
+    setPosting(true);
+    let uploadedUrl = '';
+    if (imagePreview) {
+      if (imagePreview.startsWith('data:')) {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/upload/file`, { method: 'POST', headers: authHeaders(), body: JSON.stringify({ data: imagePreview, filename: 'story.jpg' }) });
+          const d = await r.json(); if (r.ok) uploadedUrl = d.url;
+        } catch {}
+      } else if (imagePreview.includes('/api/uploads/')) {
+        uploadedUrl = imagePreview.replace(BACKEND_URL, '');
+      }
+    }
+    try {
+      const body: any = { title: title.trim(), content: content.trim(), category, media_type: mediaType };
+      if (uploadedUrl) body.image_url = uploadedUrl;
+      const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setPosting(false); return; }
+      const d = await r.json();
+      if (d.story) { onCreated(d.story); toast.success('تم نشر قصتك بنجاح! ✨'); onClose(); }
+    } catch { toast.error('خطأ في النشر'); }
+    setPosting(false);
+  };
+
+  return (
+    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      <div className="flex-1 bg-black/60" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[90vh] flex flex-col border-t border-border/30">
+        <div className="flex items-center justify-between p-4 border-b border-border/20">
+          <button onClick={onClose} className="text-sm text-muted-foreground font-medium">إلغاء</button>
+          <h3 className="text-sm font-bold">قصة جديدة ✨</h3>
+          <button onClick={submit} disabled={!title.trim() || !content.trim() || posting}
+            className="text-sm font-bold text-primary disabled:opacity-40">
+            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'نشر'}
+          </button>
+        </div>
+        <div className="p-4 flex-1 overflow-y-auto space-y-4">
+          <div>
+            <input value={title} onChange={e => setTitle(e.target.value)} dir="auto" placeholder="عنوان القصة..."
+              className="w-full bg-muted/40 rounded-xl px-4 py-3 text-base font-bold outline-none text-foreground placeholder:text-muted-foreground border border-border/30 focus:border-primary/40" maxLength={200} />
+          </div>
+          <div>
+            <textarea value={content} onChange={e => setContent(e.target.value)} dir="auto"
+              placeholder="اكتب قصتك هنا... شارك تجربتك الإيمانية"
+              className="w-full h-36 bg-muted/40 rounded-xl px-4 py-3 text-sm leading-relaxed resize-none outline-none text-foreground placeholder:text-muted-foreground border border-border/30 focus:border-primary/40"
+              maxLength={maxChars} />
+            <p className="text-[10px] text-muted-foreground mt-1 text-left">{content.length}/{maxChars}</p>
+          </div>
+
+          {imagePreview && (
+            <div className="relative rounded-xl overflow-hidden">
+              <img src={imagePreview} alt="" className="w-full max-h-48 object-cover rounded-xl" />
+              <button onClick={() => setImagePreview(null)} className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
+            <button onClick={() => { setMediaType('image'); fileRef.current?.click(); }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors border border-border/20">
+              <Image className="h-4 w-4" /> صورة
+            </button>
+            <button onClick={() => { setMediaType('video'); fileRef.current?.click(); }}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-muted/50 text-xs text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors border border-border/20">
+              <Video className="h-4 w-4" /> فيديو
+            </button>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold text-muted-foreground mb-2">القسم:</p>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((c) => (
+                <button key={c.key} onClick={() => setCategory(c.key)}
+                  className={cn('px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5',
+                    category === c.key ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted/50 text-muted-foreground border border-border/20')}>
+                  <span>{c.emoji}</span> {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ========== STORY CARD ========== */
+function StoryCard({ story, onOpen, onLike }: { story: Story; onOpen: () => void; onLike: () => void }) {
+  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
+  const rawUrl = story.image_url;
+  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:border-primary/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
+      onClick={onOpen}
+    >
+      {mediaUrl && (
+        <div className="relative h-40 overflow-hidden">
+          <img src={mediaUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.5), transparent)' }} />
+        </div>
+      )}
+      <div className="p-4" dir="rtl">
+        <div className="flex items-center gap-2 mb-2">
+          <div className={cn('h-7 w-7 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[ci])}>
+            {story.author_avatar ? <img src={story.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : (story.author_name?.[0] || '؟')}
+          </div>
+          <span className="text-xs font-bold text-foreground truncate">{story.author_name}</span>
+          <span className="text-[10px] text-muted-foreground mr-auto">{timeAgo(story.created_at)}</span>
+        </div>
+        {story.title && <h3 className="text-sm font-bold text-foreground mb-1.5 line-clamp-2">{story.title}</h3>}
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{story.content}</p>
+        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/20">
+          <div className="flex items-center gap-3">
+            <button onClick={e => { e.stopPropagation(); onLike(); }} className="flex items-center gap-1 text-xs">
+              <Heart className={cn("h-3.5 w-3.5", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+              <span className="text-muted-foreground">{story.likes_count || 0}</span>
+            </button>
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MessageCircle className="h-3.5 w-3.5" />{story.comments_count || 0}
+            </span>
+          </div>
+          <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Eye className="h-3 w-3" />{story.views_count || 0}
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ========== STORY DETAIL VIEW ========== */
+function StoryDetail({ story: initialStory, onBack, onLike }: { story: Story; onBack: () => void; onLike: (id: string) => void }) {
+  const [story, setStory] = useState(initialStory);
+  const [showComments, setShowComments] = useState(false);
+  const rawUrl = story.image_url;
+  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/stories/${story.id}/view`, { method: 'POST' }).catch(() => {});
+  }, [story.id]);
+
+  return (
+    <div className="min-h-screen pb-24" dir="rtl">
+      {/* Header */}
+      <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/20">
+        <div className="flex items-center justify-between px-4 h-14">
+          <button onClick={onBack} className="p-2 rounded-xl bg-muted/50 active:scale-95">
+            <ArrowRight className="h-5 w-5 text-foreground" />
+          </button>
+          <h2 className="text-sm font-bold text-foreground truncate flex-1 mx-3 text-center">القصة</h2>
+          <button onClick={() => {
+            navigator.clipboard?.writeText(`${window.location.origin}/stories?story=${story.id}`);
+            toast.success('تم نسخ الرابط');
+          }} className="p-2 rounded-xl bg-muted/50"><Share2 className="h-4 w-4 text-muted-foreground" /></button>
+        </div>
+      </div>
+
+      {mediaUrl && (
+        <div className="w-full max-h-72 overflow-hidden">
+          <img src={mediaUrl} alt="" className="w-full h-72 object-cover" />
+        </div>
+      )}
+
+      <div className="px-5 py-5">
+        <div className="flex items-center gap-3 mb-4">
+          <Link to={`/profile/${story.author_id}`}>
+            <div className={cn('h-10 w-10 rounded-full flex items-center justify-center text-sm text-white font-bold', avatarColors[ci])}>
+              {story.author_avatar ? <img src={story.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : (story.author_name?.[0] || '؟')}
+            </div>
+          </Link>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">{story.author_name}</p>
+            <p className="text-[10px] text-muted-foreground">{timeAgo(story.created_at)}</p>
+          </div>
+        </div>
+
+        {story.title && <h1 className="text-xl font-bold text-foreground mb-4 leading-relaxed">{story.title}</h1>}
+        <p className="text-sm text-foreground leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
+
+        <div className="flex items-center gap-4 mt-6 pt-4 border-t border-border/20">
+          <button onClick={() => onLike(story.id)} className="flex items-center gap-1.5 text-sm">
+            <Heart className={cn("h-5 w-5 transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+            <span className="font-bold text-foreground">{story.likes_count}</span>
+          </button>
+          <button onClick={() => setShowComments(true)} className="flex items-center gap-1.5 text-sm">
+            <MessageCircle className="h-5 w-5 text-muted-foreground" />
+            <span className="font-bold text-foreground">{story.comments_count}</span>
+          </button>
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground mr-auto">
+            <Eye className="h-4 w-4" />{(story.views_count || 0)} مشاهدة
+          </span>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} />}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ========== MAIN STORIES PAGE ========== */
+export default function Stories() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [stories, setStories] = useState<Story[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/stories/categories`).then(r => r.json())
+      .then(d => setCategories(d.categories || [])).catch(() => {});
+    const shouldCreate = searchParams.get('create');
+    if (shouldCreate === 'true' && user) setShowCreate(true);
+  }, [searchParams, user]);
+
+  const loadStories = useCallback(async (cat?: string) => {
+    setLoading(true);
+    const url = cat ? `${BACKEND_URL}/api/stories/list?category=${cat}&limit=50` : `${BACKEND_URL}/api/stories/list?limit=50`;
+    try {
+      const r = await fetch(url, { headers: authHeaders() });
+      const d = await r.json();
+      setStories(d.stories || []);
+    } catch {}
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (selectedCategory) loadStories(selectedCategory);
+    else loadStories();
+  }, [selectedCategory, loadStories]);
+
+  const toggleLike = async (id: string) => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStories(p => p.map(x => x.id === id ? { ...x, liked: d.liked, likes_count: x.likes_count + (d.liked ? 1 : -1) } : x));
+      if (selectedStory?.id === id) {
+        setSelectedStory(s => s ? { ...s, liked: d.liked, likes_count: s.likes_count + (d.liked ? 1 : -1) } : s);
+      }
+    } catch {}
+  };
+
+  if (selectedStory) {
+    return <StoryDetail story={selectedStory} onBack={() => setSelectedStory(null)} onLike={toggleLike} />;
+  }
+
+  return (
+    <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="stories-page">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20">
+        <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+          <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            حكايات
+          </h1>
+          {user && (
+            <button onClick={() => setShowCreate(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold shadow-md shadow-primary/20 active:scale-95">
+              <Plus className="h-3.5 w-3.5" /> قصة جديدة
+            </button>
+          )}
+        </div>
+
+        {/* Category tabs */}
+        <div className="px-3 pb-3 flex gap-2 overflow-x-auto no-scrollbar">
+          <button
+            onClick={() => setSelectedCategory(null)}
+            className={cn('px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
+              !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}
+          >الكل</button>
+          {categories.map(cat => {
+            const Icon = catIcons[cat.key] || BookOpen;
+            return (
+              <button key={cat.key} onClick={() => setSelectedCategory(cat.key)}
+                className={cn('flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
+                  selectedCategory === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
+                <span className="text-sm">{cat.emoji}</span> {cat.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Stories Grid */}
+      <div className="px-4 py-4">
+        {loading ? (
+          <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+        ) : stories.length === 0 ? (
+          <div className="text-center py-20 px-8">
+            <BookOpen className="h-16 w-16 text-muted-foreground/15 mx-auto mb-4" />
+            <p className="text-base font-bold text-muted-foreground/50">لا توجد قصص بعد</p>
+            <p className="text-xs text-muted-foreground/30 mt-1">كن أول من يشارك قصته!</p>
+            {user && (
+              <button onClick={() => setShowCreate(true)}
+                className="mt-5 bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold active:scale-95 transition-transform shadow-md">
+                أنشئ أول قصة ✨
+              </button>
+            )}
+            {!user && (
+              <Link to="/auth" className="mt-5 inline-block bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold">
+                سجّل دخولك للنشر
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {stories.map(s => (
+              <StoryCard key={s.id} story={s} onOpen={() => setSelectedStory(s)} onLike={() => toggleLike(s.id)} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Create Sheet */}
+      <AnimatePresence>
+        {showCreate && <CreateStorySheet categories={categories} onClose={() => setShowCreate(false)} onCreated={s => setStories(prev => [s, ...prev])} />}
+      </AnimatePresence>
     </div>
   );
 }

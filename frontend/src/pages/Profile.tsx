@@ -198,7 +198,7 @@ export default function Profile() {
               </div>
               <p className="text-sm font-bold text-muted-foreground/50">لا توجد منشورات</p>
               <p className="text-xs text-muted-foreground/30 mt-1">شارك أول محتوى إسلامي!</p>
-              <Link to="/sohba?create=true"
+              <Link to="/stories?create=true"
                 className="inline-flex items-center gap-1.5 mt-5 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-bold shadow-md shadow-primary/20 active:scale-95 transition-transform">
                 <Zap className="h-3.5 w-3.5" />أنشئ منشوراً
               </Link>
@@ -209,7 +209,7 @@ export default function Profile() {
                 const url = p.image_url ? (p.image_url.startsWith('http') ? p.image_url : `${BACKEND_URL}${p.image_url}`) : null;
                 const isVideo = p.media_type === 'video' || (url && /\.(mp4|webm|mov)/i.test(url));
                 return (
-                  <Link to={`/sohba?post=${p.id}`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
+                  <Link to={`/stories`} key={p.id} className="aspect-square bg-card relative group overflow-hidden">
                     {url ? (
                       <img src={url} alt="" className="w-full h-full object-cover" loading="lazy"
                         onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.nextElementSibling?.classList.remove('hidden'); }} />

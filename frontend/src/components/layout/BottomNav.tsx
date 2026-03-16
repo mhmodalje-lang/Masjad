@@ -1,15 +1,14 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Search, Plus, Users, User } from 'lucide-react';
+import { Home, Search, Plus, BookOpen, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { useState } from 'react';
 
 const navItems = [
   { path: '/', icon: Home, label: 'الرئيسية', exact: true },
   { path: '/explore', icon: Search, label: 'استكشاف' },
   { path: '/create', icon: Plus, label: '', isCreate: true },
-  { path: '/sohba', icon: Users, label: 'صُحبة' },
+  { path: '/stories', icon: BookOpen, label: 'حكايات' },
   { path: '/profile', icon: User, label: 'الملف' },
 ];
 
@@ -17,7 +16,6 @@ export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
 
-  // Hide on Sohba full-screen feed for immersive experience
   const hiddenPaths = ['/auth'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
@@ -36,11 +34,11 @@ export function BottomNav() {
             return (
               <Link
                 key="create"
-                to={user ? '/sohba?create=true' : '/auth'}
+                to={user ? '/stories?create=true' : '/auth'}
                 data-testid="nav-create"
                 className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 transition-all min-w-0"
               >
-                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center shadow-lg shadow-primary/30">
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                   <Plus className="h-6 w-6 text-white stroke-[2.5px]" />
                 </div>
               </Link>

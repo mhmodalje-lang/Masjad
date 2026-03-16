@@ -17,7 +17,7 @@ interface Notification {
 
 function getSystemNotifications(): Notification[] {
   return [
-    { id: '1', title: 'مرحباً بك في المؤذن العالمي', body: 'اكتشف صُحبة — شارك لحظاتك الإيمانية مع الأمة', time: 'الآن', read: false, icon: '🕌' },
+    { id: '1', title: 'مرحباً بك في أذان وحكاية', body: 'اكتشف حكايات — شارك لحظاتك الإيمانية مع الأمة', time: 'الآن', read: false, icon: '🕌' },
     { id: '2', title: 'لا تنسَ أذكار المساء', body: 'سبحان الله وبحمده، سبحان الله العظيم', time: 'كل يوم', read: true, icon: '🤲' },
   ];
 }
@@ -80,8 +80,8 @@ export default function Messages() {
         <div className="p-10 text-center">
           <MessageCircle className="h-14 w-14 text-muted-foreground/20 mx-auto mb-3" />
           <p className="text-sm font-bold text-muted-foreground">لا توجد رسائل بعد</p>
-          <p className="text-xs text-muted-foreground/50 mt-1">ابدأ محادثة مع أصدقائك في صُحبة</p>
-          <Link to="/sohba" className="inline-flex items-center gap-2 mt-4 bg-primary text-primary-foreground px-5 py-2.5 rounded-2xl text-xs font-bold active:scale-95 transition-transform">
+          <p className="text-xs text-muted-foreground/50 mt-1">ابدأ محادثة مع أصدقائك في حكايات</p>
+          <Link to="/stories" className="inline-flex items-center gap-2 mt-4 bg-primary text-primary-foreground px-5 py-2.5 rounded-2xl text-xs font-bold active:scale-95 transition-transform">
             <UserPlus className="h-3.5 w-3.5" /> ابحث عن أصدقاء
           </Link>
         </div>

@@ -43,7 +43,6 @@ const RamadanCards = lazy(() => import("./pages/RamadanCards"));
 const RamadanBook = lazy(() => import("./pages/RamadanBook"));
 const PeriodTracker = lazy(() => import("./pages/PeriodTracker"));
 const Profile = lazy(() => import("./pages/Profile"));
-const Sohba = lazy(() => import("./pages/Sohba"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Store = lazy(() => import("./pages/Store"));
 const Rewards = lazy(() => import("./pages/Rewards"));
@@ -118,7 +117,7 @@ const App = () => {
                           <Route path="/ramadan-book" element={<RamadanBook />} />
                           <Route path="/period-tracker" element={<PeriodTracker />} />
                           <Route path="/profile" element={<Profile />} />
-                          <Route path="/sohba" element={<Sohba />} />
+                          <Route path="/profile/:userId" element={<Profile />} />
                           <Route path="/messages" element={<Messages />} />
                           <Route path="/store" element={<Store />} />
                           <Route path="/rewards" element={<Rewards />} />

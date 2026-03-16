@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/components/ThemeProvider';
-import { Moon, Sun, SunMoon, Search, Bell, User } from 'lucide-react';
+import { Moon, Sun, SunMoon, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function TopNav() {
@@ -9,7 +9,6 @@ export function TopNav() {
   const { theme, mode, toggle } = useTheme();
   const location = useLocation();
 
-  // Don't show on pages that have their own hero/header
   const isHomePage = location.pathname === '/';
   if (isHomePage) return null;
 
@@ -22,15 +21,13 @@ export function TopNav() {
       dir="rtl"
     >
       <div className="flex items-center justify-between px-4 h-14">
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center">
-            <span className="text-white text-xs font-bold">م</span>
+          <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center shadow-md shadow-emerald-500/20">
+            <span className="text-white text-xs font-bold">أ</span>
           </div>
-          <span className="text-sm font-bold text-foreground hidden sm:block">المؤذن العالمي</span>
+          <span className="text-sm font-bold text-foreground hidden sm:block">أذان وحكاية</span>
         </Link>
 
-        {/* Actions */}
         <div className="flex items-center gap-1.5">
           <button
             onClick={toggle}

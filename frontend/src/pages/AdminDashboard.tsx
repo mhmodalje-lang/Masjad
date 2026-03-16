@@ -409,7 +409,7 @@ export default function AdminDashboard() {
 
             <div className="rounded-xl bg-card border border-border/50 p-4 space-y-1 text-xs text-muted-foreground">
               <p className="font-bold text-foreground text-sm">معلومات</p>
-              <p>المؤذن العالمي v3.0</p>
+              <p>أذان وحكاية v3.0</p>
               <p>المسؤول: {user?.email}</p>
               <p>الذكاء الاصطناعي: GPT-5.2</p>
             </div>

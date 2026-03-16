@@ -236,7 +236,7 @@ export default function More() {
         <div className="rounded-2xl bg-card border border-border/30 px-4">
           <QuickLink icon={Star} label="قيّمنا" onClick={() => toast.info('شكراً لدعمك!')} />
           <QuickLink icon={Share2} label="دعوة صديق" onClick={() => {
-            if (navigator.share) navigator.share({ title: 'المؤذن العالمي', url: window.location.origin });
+            if (navigator.share) navigator.share({ title: 'أذان وحكاية', url: window.location.origin });
             else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
           }} />
           <QuickLink icon={HelpCircle} label="المساعدة والدعم" onClick={() => toast.info('ادعمنا@almuadhin.com')} />
