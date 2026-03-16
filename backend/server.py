@@ -2475,6 +2475,7 @@ async def admin_update_settings(data: AdminAppSettings, admin=Depends(get_admin_
 # Uses the existing posts/comments/likes collections but with story-specific endpoints
 
 STORY_CATEGORIES = [
+    {"key": "general", "label": "عام", "emoji": "📝", "icon": "file-text", "color": "#64748b"},
     {"key": "istighfar", "label": "قصص الاستغفار", "emoji": "🤲", "icon": "sparkles", "color": "#10b981"},
     {"key": "sahaba", "label": "قصص الصحابة", "emoji": "📖", "icon": "book", "color": "#f59e0b"},
     {"key": "quran", "label": "قصص القرآن", "emoji": "📗", "icon": "book-open", "color": "#059669"},
@@ -2483,6 +2484,7 @@ STORY_CATEGORIES = [
     {"key": "rizq", "label": "قصص الرزق", "emoji": "✨", "icon": "coins", "color": "#eab308"},
     {"key": "tawba", "label": "قصص التوبة", "emoji": "💚", "icon": "heart", "color": "#22c55e"},
     {"key": "miracles", "label": "معجزات وعبر", "emoji": "🌙", "icon": "moon", "color": "#6366f1"},
+    {"key": "embed", "label": "فيديوهات مضمنة", "emoji": "🎬", "icon": "film", "color": "#ef4444"},
 ]
 
 @api_router.get("/stories/categories")
@@ -2689,6 +2691,27 @@ async def create_embed_content(data: EmbedContentRequest, user: dict = Depends(g
     }
     await db.embed_content.insert_one(content)
     content.pop("_id", None)
+    # Also create a story post so it appears in the Stories feed
+    story_post = {
+        "id": str(uuid.uuid4()),
+        "author_id": user["id"] if user else "system",
+        "author_name": admin.get("name", "المشرف") if admin else "المشرف",
+        "author_avatar": admin.get("avatar") if admin else None,
+        "title": data.title,
+        "content": data.description or data.title,
+        "category": data.category if data.category != "general" else "embed",
+        "media_type": "embed",
+        "image_url": data.thumbnail_url,
+        "embed_url": data.embed_url,
+        "platform": data.platform,
+        "views_count": 0,
+        "created_at": datetime.utcnow().isoformat(),
+        "shares_count": 0,
+        "is_story": True,
+        "is_embed": True,
+        "embed_content_id": content["id"],
+    }
+    await db.posts.insert_one(story_post)
     return {"success": True, "content": content}
 
 @api_router.get("/admin/embed-content")
@@ -2705,6 +2728,8 @@ async def delete_embed_content(content_id: str, user: dict = Depends(get_user)):
     if not admin or (admin.get("email") not in ["mhmd321324t@gmail.com"] and not admin.get("is_admin")):
         raise HTTPException(403, "غير مصرح")
     await db.embed_content.delete_one({"id": content_id})
+    # Also remove linked story post
+    await db.posts.delete_one({"embed_content_id": content_id})
     return {"success": True}
 
 @api_router.get("/embed-content")

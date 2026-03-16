@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play } from 'lucide-react';
+import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 function getToken() { return localStorage.getItem('auth_token') || ''; }
@@ -17,7 +18,12 @@ interface Story {
   id: string; author_id: string; author_name: string; author_avatar?: string;
   title?: string; content: string; category: string; image_url?: string;
   media_type?: string; created_at: string; likes_count: number;
-  comments_count: number; views_count?: number; liked: boolean; saved: boolean; engagement?: number;
+  comments_count: number; views_count?: number; liked: boolean; saved: boolean;
+  engagement?: number; embed_url?: string; platform?: string; is_embed?: boolean;
+}
+
+interface Comment {
+  id: string; author_name: string; author_avatar?: string; content: string; created_at: string;
 }
 
 const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purple-600', 'bg-rose-600', 'bg-teal-600'];
@@ -32,134 +38,209 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)}ي`;
 }
 
-/* ========== HORIZONTAL STORY CARD ========== */
-function HorizontalStoryCard({ story, rank }: { story: Story; rank?: number }) {
-  const navigate = useNavigate();
+/* ========== COMMENTS SHEET ========== */
+function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => void }) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${BACKEND_URL}/api/sohba/posts/${storyId}/comments`)
+      .then(r => r.json()).then(d => { setComments(d.comments || []); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [storyId]);
+
+  const send = async () => {
+    if (!text.trim()) return;
+    setSending(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${storyId}/comments`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: text.trim() })
+      });
+      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
+      const d = await r.json();
+      if (d.comment) { setComments(p => [...p, d.comment]); setText(''); }
+    } catch { toast.error('خطأ'); }
+    setSending(false);
+  };
+
+  return (
+    <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-border/30">
+        <div className="flex justify-center pt-2 pb-1"><div className="w-10 h-1 rounded-full bg-muted-foreground/30" /></div>
+        <div className="flex items-center justify-between px-5 py-2 border-b border-border/20">
+          <span className="text-sm font-bold">{comments.length} تعليق</span>
+          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/50"><X className="h-5 w-5 text-muted-foreground" /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4 min-h-[120px]">
+          {loading ? <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">لا توجد تعليقات بعد</p>
+            : comments.map(c => {
+              const ci = (c.author_name || '').charCodeAt(0) % avatarColors.length;
+              return (
+                <div key={c.id} className="flex gap-2.5">
+                  <div className={cn('h-8 w-8 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[ci])}>
+                    {c.author_name?.[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-bold text-foreground">{c.author_name}</span>
+                      <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
+                    </div>
+                    <p className="text-[13px] text-foreground/85 mt-0.5" dir="auto">{c.content}</p>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+        <div className="px-4 py-3 border-t border-border/20 flex gap-2 bg-card">
+          <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
+            dir="auto" placeholder="اكتب تعليقاً..."
+            className="flex-1 bg-muted/50 rounded-2xl px-4 py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground" />
+          <button onClick={send} disabled={!text.trim() || sending}
+            className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40">
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ========== STORY DETAIL VIEW (inline) ========== */
+function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => void }) {
+  const { user } = useAuth();
+  const [story, setStory] = useState<Story | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showComments, setShowComments] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${BACKEND_URL}/api/stories/${storyId}`, { headers: authHeaders() })
+      .then(r => r.json()).then(d => { setStory(d.story || null); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [storyId]);
+
+  const toggleLike = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!story) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStory(s => s ? { ...s, liked: d.liked, likes_count: s.likes_count + (d.liked ? 1 : -1) } : s);
+    } catch {}
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!story) return <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
+    <p className="text-muted-foreground">القصة غير موجودة</p>
+    <button onClick={onBack} className="text-primary text-sm font-bold">العودة</button>
+  </div>;
+
   const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
   const rawUrl = story.image_url;
   const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const isEmbed = story.is_embed || story.media_type === 'embed';
 
   return (
-    <motion.button
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      onClick={() => navigate('/stories')}
-      className="flex gap-3 p-3 rounded-2xl bg-card border border-border/30 w-full text-right active:scale-[0.98] transition-all hover:border-primary/30 hover:shadow-md"
-      dir="rtl"
-    >
-      {/* Thumbnail or rank */}
+    <div className="min-h-screen pb-24 bg-background" dir="rtl">
+      <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/20">
+        <div className="flex items-center justify-between px-4 h-14">
+          <button onClick={onBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
+          <h2 className="text-sm font-bold text-foreground truncate flex-1 mx-3 text-center">القصة</h2>
+          <div className="w-9" />
+        </div>
+      </div>
+
+      {isEmbed && story.embed_url ? (
+        <div className="w-full aspect-video">
+          <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        </div>
+      ) : mediaUrl ? (
+        <div className="w-full max-h-72 overflow-hidden"><img src={mediaUrl} alt="" className="w-full h-72 object-cover" /></div>
+      ) : null}
+
+      <div className="px-5 py-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className={cn('h-10 w-10 rounded-full flex items-center justify-center text-sm text-white font-bold', avatarColors[ci])}>
+            {story.author_name?.[0] || '؟'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">{story.author_name}</p>
+            <p className="text-[10px] text-muted-foreground">{timeAgo(story.created_at)}</p>
+          </div>
+        </div>
+        {story.title && <h1 className="text-xl font-bold text-foreground mb-4 leading-relaxed">{story.title}</h1>}
+        <p className="text-sm text-foreground leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
+
+        <div className="flex items-center gap-5 mt-6 pt-4 border-t border-border/20">
+          <button onClick={toggleLike} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
+            <Heart className={cn("h-6 w-6 transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+            <span className={cn("font-bold", story.liked ? "text-red-500" : "text-foreground")}>{story.likes_count}</span>
+          </button>
+          <button onClick={() => setShowComments(true)} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
+            <MessageCircle className="h-6 w-6 text-muted-foreground" />
+            <span className="font-bold text-foreground">{story.comments_count}</span>
+          </button>
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground mr-auto">
+            <Eye className="h-4 w-4" />{story.views_count || 0} مشاهدة
+          </span>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} />}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ========== HORIZONTAL STORY CARD ========== */
+function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; rank?: number; onOpen: () => void; onLike: () => void }) {
+  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
+  const rawUrl = story.image_url;
+  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const isEmbed = story.is_embed || story.media_type === 'embed';
+
+  return (
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
+      className="flex gap-3 p-3 rounded-2xl bg-card border border-border/30 w-full text-right active:scale-[0.98] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
+      dir="rtl" onClick={onOpen}>
       {mediaUrl ? (
         <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 relative">
           <img src={mediaUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-          {rank && (
-            <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-              {rank}
-            </div>
-          )}
+          {rank && <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">{rank}</div>}
+          {isEmbed && <div className="absolute bottom-1 left-1"><Play className="h-3.5 w-3.5 text-white drop-shadow" /></div>}
         </div>
       ) : (
         <div className="h-20 w-20 rounded-xl shrink-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center relative">
-          <BookOpen className="h-6 w-6 text-primary/40" />
-          {rank && (
-            <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-              {rank}
-            </div>
-          )}
+          {isEmbed ? <Film className="h-6 w-6 text-primary/40" /> : <BookOpen className="h-6 w-6 text-primary/40" />}
+          {rank && <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">{rank}</div>}
         </div>
       )}
-
       <div className="flex-1 min-w-0 py-0.5">
         <p className="text-xs font-bold text-foreground line-clamp-2 mb-1">{story.title || story.content}</p>
         <div className="flex items-center gap-2 mb-1.5">
-          <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[7px] text-white font-bold shrink-0', avatarColors[ci])}>
-            {story.author_name?.[0] || '؟'}
-          </div>
+          <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[7px] text-white font-bold shrink-0', avatarColors[ci])}>{story.author_name?.[0] || '؟'}</div>
           <span className="text-[10px] text-muted-foreground truncate">{story.author_name}</span>
           <span className="text-[9px] text-muted-foreground">{timeAgo(story.created_at)}</span>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" />{story.views_count || 0}</span>
-          <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{story.likes_count || 0}</span>
+          <button onClick={e => { e.stopPropagation(); onLike(); }} className="flex items-center gap-0.5 active:scale-90">
+            <Heart className={cn("h-3 w-3", story.liked ? "text-red-500 fill-red-500" : "")} />{story.likes_count || 0}
+          </button>
           <span className="flex items-center gap-0.5"><MessageCircle className="h-3 w-3" />{story.comments_count || 0}</span>
         </div>
       </div>
-    </motion.button>
-  );
-}
-
-/* ========== GRID STORY CARD ========== */
-function GridStoryCard({ story, size = 'sm' }: { story: Story; size?: 'sm' | 'lg' }) {
-  const navigate = useNavigate();
-  const rawUrl = story.image_url;
-  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
-  const [imgOk, setImgOk] = useState(true);
-  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
-  const aspectClass = size === 'lg' ? 'row-span-2 aspect-[3/4]' : 'aspect-square';
-
-  return (
-    <button onClick={() => navigate('/stories')}
-      className={cn('relative rounded-2xl overflow-hidden group', aspectClass)}>
-      {mediaUrl && imgOk ? (
-        <img src={mediaUrl} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy" onError={() => setImgOk(false)} />
-      ) : (
-        <div className={cn('w-full h-full flex items-center justify-center p-3',
-          'bg-gradient-to-br from-emerald-900/80 to-slate-900')}>
-          <p className="text-white/80 text-center leading-relaxed text-[10px] line-clamp-5" dir="rtl"
-            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.title || story.content}</p>
-        </div>
-      )}
-      <div className="absolute inset-x-0 bottom-0 p-2.5"
-        style={{ background: 'linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 100%)' }}>
-        <p className="text-[9px] text-white/90 font-bold line-clamp-1 mb-0.5">{story.title || ''}</p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 min-w-0">
-            <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[6px] text-white font-bold shrink-0', avatarColors[ci])}>
-              {story.author_name?.[0] || '؟'}
-            </div>
-            <span className="text-[8px] text-white/80 truncate">{story.author_name}</span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="flex items-center gap-0.5 text-[8px] text-white/70"><Eye className="h-2.5 w-2.5" />{story.views_count || 0}</span>
-            <span className="flex items-center gap-0.5 text-[8px] text-white/70"><Heart className="h-2.5 w-2.5" />{story.likes_count || 0}</span>
-          </div>
-        </div>
-      </div>
-    </button>
-  );
-}
-
-/* ========== SEARCH RESULT CARD ========== */
-function SearchResultCard({ story }: { story: Story }) {
-  const navigate = useNavigate();
-  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
-  const rawUrl = story.image_url;
-  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
-
-  return (
-    <button onClick={() => navigate('/stories')}
-      className="flex gap-3 p-3.5 rounded-2xl bg-card border border-border/30 w-full text-right active:scale-[0.98] transition-all" dir="rtl">
-      {mediaUrl ? (
-        <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0">
-          <img src={mediaUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
-        </div>
-      ) : (
-        <div className="h-16 w-16 rounded-xl shrink-0 bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-          <BookOpen className="h-5 w-5 text-primary/30" />
-        </div>
-      )}
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-foreground line-clamp-1 mb-0.5">{story.title || story.content.substring(0, 50)}</p>
-        <p className="text-[11px] text-muted-foreground line-clamp-2 mb-1">{story.content}</p>
-        <div className="flex items-center gap-2">
-          <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[7px] text-white font-bold shrink-0', avatarColors[ci])}>
-            {story.author_name?.[0] || '؟'}
-          </div>
-          <span className="text-[10px] text-muted-foreground">{story.author_name}</span>
-          <span className="text-[9px] text-muted-foreground mr-auto">{timeAgo(story.created_at)}</span>
-        </div>
-      </div>
-    </button>
+    </motion.div>
   );
 }
 
@@ -174,6 +255,8 @@ export default function Explore() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -213,9 +296,26 @@ export default function Explore() {
 
   const clearSearch = () => { setSearchQuery(''); setSearchResults(null); setIsSearchActive(false); searchInputRef.current?.blur(); };
 
+  const toggleLike = async (id: string) => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      const update = (list: Story[]) => list.map(x => x.id === id ? { ...x, liked: d.liked, likes_count: x.likes_count + (d.liked ? 1 : -1) } : x);
+      setMostViewed(update);
+      setMostInteracted(update);
+      if (searchResults) setSearchResults(update);
+    } catch {}
+  };
+
+  // Show story detail
+  if (selectedStoryId) {
+    return <StoryDetailView storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} />;
+  }
+
   return (
     <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="explore-page">
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-center gap-2">
@@ -230,7 +330,7 @@ export default function Explore() {
               <input ref={searchInputRef} type="search" dir="auto" value={searchQuery}
                 onChange={e => handleSearchInput(e.target.value)}
                 onFocus={() => setIsSearchActive(true)}
-                placeholder="ابحث عن قصة أو كاتب..." data-testid="explore-search-input"
+                placeholder="ابحث عن قصة أو كاتب..."
                 className="w-full h-10 rounded-2xl bg-muted/50 border border-border/30 pr-10 pl-10 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 transition-all"
                 style={{ unicodeBidi: 'plaintext' } as any} autoComplete="off" spellCheck={false} />
               {searchQuery && (
@@ -244,9 +344,8 @@ export default function Explore() {
         </div>
       </div>
 
-      {/* ===== CONTENT ===== */}
+      {/* CONTENT */}
       {searchResults !== null ? (
-        /* ---- SEARCH RESULTS ---- */
         <div className="px-4 py-4">
           {searching ? (
             <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
@@ -259,14 +358,15 @@ export default function Explore() {
           ) : (
             <div className="space-y-2">
               <p className="text-xs text-muted-foreground mb-3">{searchResults.length} نتيجة</p>
-              {searchResults.map(s => <SearchResultCard key={s.id} story={s} />)}
+              {searchResults.map((s, i) => (
+                <HorizontalStoryCard key={s.id} story={s} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
+              ))}
             </div>
           )}
         </div>
       ) : loading ? (
         <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
       ) : (
-        /* ---- EXPLORE FEED ---- */
         <div className="px-4 py-4 space-y-6">
           {/* Most Viewed */}
           {mostViewed.length > 0 && (
@@ -281,13 +381,10 @@ export default function Explore() {
                 </div>
               </div>
               <div className="space-y-2">
-                {mostViewed.slice(0, 5).map((s, i) => <HorizontalStoryCard key={s.id} story={s} rank={i + 1} />)}
+                {mostViewed.slice(0, 5).map((s, i) => (
+                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
+                ))}
               </div>
-              {mostViewed.length > 5 && (
-                <button onClick={() => navigate('/stories')} className="w-full mt-2 py-2 text-xs text-primary font-bold text-center">
-                  عرض المزيد ←
-                </button>
-              )}
             </section>
           )}
 
@@ -303,9 +400,9 @@ export default function Explore() {
                   <p className="text-[10px] text-muted-foreground">قصص أثرت في القلوب</p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-1.5 rounded-xl overflow-hidden">
-                {mostInteracted.slice(0, 9).map((s, i) => (
-                  <GridStoryCard key={s.id} story={s} size={i === 0 ? 'lg' : 'sm'} />
+              <div className="space-y-2">
+                {mostInteracted.slice(0, 5).map((s, i) => (
+                  <HorizontalStoryCard key={s.id} story={s} rank={i + 1} onOpen={() => setSelectedStoryId(s.id)} onLike={() => toggleLike(s.id)} />
                 ))}
               </div>
             </section>
@@ -325,6 +422,10 @@ export default function Explore() {
           )}
         </div>
       )}
+
+      <AnimatePresence>
+        {showCommentsFor && <CommentsSheet storyId={showCommentsFor} onClose={() => setShowCommentsFor(null)} />}
+      </AnimatePresence>
     </div>
   );
 }

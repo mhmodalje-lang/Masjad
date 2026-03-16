@@ -290,7 +290,7 @@ export default function AdminDashboard() {
                 <InputField label="الوصف" value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder="وصف مختصر..." multiline />
                 <InputField label="رابط الفيديو/المحتوى" value={embedForm.embed_url} onChange={(v: string) => setEmbedForm(f => ({...f, embed_url: v}))} placeholder="https://youtube.com/watch?v=..." />
                 <SelectField label="المنصة" value={embedForm.platform} onChange={(v: string) => setEmbedForm(f => ({...f, platform: v}))} options={['youtube','dailymotion','vimeo','tiktok','instagram','other']} />
-                <SelectField label="القسم" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','quran','hadith','lectures','nasheed','stories','other']} />
+                <SelectField label="القسم في الحكايات" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','istighfar','sahaba','quran','prophets','ruqyah','rizq','tawba','miracles','embed']} />
                 <InputField label="صورة مصغرة (اختياري)" value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder="رابط الصورة المصغرة (تلقائي لـ YouTube)" />
                 <div className="flex gap-2 pt-1">
                   <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />حفظ المحتوى</Button>

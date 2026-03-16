@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark } from 'lucide-react';
+import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark, FileText, Film, Play } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
@@ -21,6 +21,7 @@ interface Story {
   title?: string; content: string; category: string; image_url?: string;
   media_type?: string; created_at: string; likes_count: number;
   comments_count: number; views_count?: number; liked: boolean; saved: boolean;
+  embed_url?: string; platform?: string; is_embed?: boolean;
 }
 
 interface Comment {
@@ -46,12 +47,12 @@ function timeAgo(iso: string): string {
 }
 
 const catIcons: Record<string, any> = {
-  istighfar: Sparkles, sahaba: BookOpen, quran: BookOpen, prophets: Star,
-  ruqyah: Shield, rizq: Coins, tawba: Heart, miracles: Moon,
+  general: FileText, istighfar: Sparkles, sahaba: BookOpen, quran: BookOpen, prophets: Star,
+  ruqyah: Shield, rizq: Coins, tawba: Heart, miracles: Moon, embed: Film,
 };
 
 /* ========== COMMENTS SHEET ========== */
-function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => void }) {
+function CommentsSheet({ storyId, onClose, onCommentAdded }: { storyId: string; onClose: () => void; onCommentAdded?: () => void }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -73,7 +74,11 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
       });
       if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
       const d = await r.json();
-      if (d.comment) { setComments(p => [...p, d.comment]); setText(''); }
+      if (d.comment) {
+        setComments(p => [...p, d.comment]);
+        setText('');
+        onCommentAdded?.();
+      }
     } catch { toast.error('خطأ في إرسال التعليق'); }
     setSending(false);
   };
@@ -132,12 +137,14 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
 function CreateStorySheet({ categories, onClose, onCreated }: { categories: Category[]; onClose: () => void; onCreated: (s: Story) => void }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState(categories[0]?.key || 'istighfar');
+  const [category, setCategory] = useState('general');
   const [mediaType, setMediaType] = useState('text');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [posting, setPosting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const maxChars = 5000;
+  // filter out embed category for user creation
+  const userCategories = categories.filter(c => c.key !== 'embed');
 
   const handleFile = async (file: File) => {
     if (file.size < 5 * 1024 * 1024) {
@@ -195,10 +202,8 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
           </button>
         </div>
         <div className="p-4 flex-1 overflow-y-auto space-y-4">
-          <div>
-            <input value={title} onChange={e => setTitle(e.target.value)} dir="auto" placeholder="عنوان القصة..."
-              className="w-full bg-muted/40 rounded-xl px-4 py-3 text-base font-bold outline-none text-foreground placeholder:text-muted-foreground border border-border/30 focus:border-primary/40" maxLength={200} />
-          </div>
+          <input value={title} onChange={e => setTitle(e.target.value)} dir="auto" placeholder="عنوان القصة..."
+            className="w-full bg-muted/40 rounded-xl px-4 py-3 text-base font-bold outline-none text-foreground placeholder:text-muted-foreground border border-border/30 focus:border-primary/40" maxLength={200} />
           <div>
             <textarea value={content} onChange={e => setContent(e.target.value)} dir="auto"
               placeholder="اكتب قصتك هنا... شارك تجربتك الإيمانية"
@@ -206,16 +211,12 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
               maxLength={maxChars} />
             <p className="text-[10px] text-muted-foreground mt-1 text-left">{content.length}/{maxChars}</p>
           </div>
-
           {imagePreview && (
             <div className="relative rounded-xl overflow-hidden">
               <img src={imagePreview} alt="" className="w-full max-h-48 object-cover rounded-xl" />
-              <button onClick={() => setImagePreview(null)} className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white">
-                <X className="h-3.5 w-3.5" />
-              </button>
+              <button onClick={() => setImagePreview(null)} className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 text-white"><X className="h-3.5 w-3.5" /></button>
             </div>
           )}
-
           <div className="flex gap-2">
             <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
             <button onClick={() => { setMediaType('image'); fileRef.current?.click(); }}
@@ -227,11 +228,10 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
               <Video className="h-4 w-4" /> فيديو
             </button>
           </div>
-
           <div>
             <p className="text-xs font-bold text-muted-foreground mb-2">القسم:</p>
             <div className="flex flex-wrap gap-2">
-              {categories.map((c) => (
+              {userCategories.map((c) => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
                   className={cn('px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5',
                     category === c.key ? 'bg-primary text-primary-foreground shadow-md' : 'bg-muted/50 text-muted-foreground border border-border/20')}>
@@ -247,25 +247,40 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
 }
 
 /* ========== STORY CARD ========== */
-function StoryCard({ story, onOpen, onLike }: { story: Story; onOpen: () => void; onLike: () => void }) {
+function StoryCard({ story, onOpen, onToggleLike, onOpenComments }: {
+  story: Story; onOpen: () => void;
+  onToggleLike: (e: React.MouseEvent) => void;
+  onOpenComments: (e: React.MouseEvent) => void;
+}) {
   const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
   const rawUrl = story.image_url;
   const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const isEmbed = story.is_embed || story.media_type === 'embed';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:border-primary/30 transition-all cursor-pointer shadow-sm hover:shadow-md"
-      onClick={onOpen}
+      className="rounded-2xl bg-card border border-border/40 overflow-hidden hover:border-primary/30 transition-all shadow-sm hover:shadow-md"
     >
-      {mediaUrl && (
-        <div className="relative h-40 overflow-hidden">
+      {/* Thumbnail / Embed Preview */}
+      {isEmbed && story.embed_url ? (
+        <div className="relative aspect-video overflow-hidden cursor-pointer" onClick={onOpen}>
+          <iframe src={story.embed_url} title={story.title} className="w-full h-full pointer-events-none" frameBorder={0}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" />
+          <div className="absolute inset-0 bg-transparent" />
+          <div className="absolute top-2 right-2 bg-red-600 text-white text-[9px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <Play className="h-2.5 w-2.5 fill-white" />{story.platform || 'فيديو'}
+          </div>
+        </div>
+      ) : mediaUrl ? (
+        <div className="relative h-40 overflow-hidden cursor-pointer" onClick={onOpen}>
           <img src={mediaUrl} alt="" className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,.5), transparent)' }} />
         </div>
-      )}
-      <div className="p-4" dir="rtl">
+      ) : null}
+
+      <div className="p-4 cursor-pointer" dir="rtl" onClick={onOpen}>
         <div className="flex items-center gap-2 mb-2">
           <div className={cn('h-7 w-7 rounded-full flex items-center justify-center text-[10px] text-white font-bold shrink-0', avatarColors[ci])}>
             {story.author_avatar ? <img src={story.author_avatar} className="h-full w-full rounded-full object-cover" alt="" /> : (story.author_name?.[0] || '؟')}
@@ -274,41 +289,64 @@ function StoryCard({ story, onOpen, onLike }: { story: Story; onOpen: () => void
           <span className="text-[10px] text-muted-foreground mr-auto">{timeAgo(story.created_at)}</span>
         </div>
         {story.title && <h3 className="text-sm font-bold text-foreground mb-1.5 line-clamp-2">{story.title}</h3>}
-        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{story.content}</p>
-        <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-border/20">
-          <div className="flex items-center gap-3">
-            <button onClick={e => { e.stopPropagation(); onLike(); }} className="flex items-center gap-1 text-xs">
-              <Heart className={cn("h-3.5 w-3.5", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
-              <span className="text-muted-foreground">{story.likes_count || 0}</span>
-            </button>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MessageCircle className="h-3.5 w-3.5" />{story.comments_count || 0}
-            </span>
-          </div>
-          <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Eye className="h-3 w-3" />{story.views_count || 0}
-          </span>
+        {!isEmbed && <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{story.content}</p>}
+      </div>
+
+      {/* Action Bar */}
+      <div className="flex items-center justify-between px-4 pb-3 pt-1 border-t border-border/15 mx-4">
+        <div className="flex items-center gap-4">
+          <button onClick={onToggleLike} className="flex items-center gap-1.5 text-xs active:scale-90 transition-transform">
+            <Heart className={cn("h-[18px] w-[18px] transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+            <span className={cn("font-bold", story.liked ? "text-red-500" : "text-muted-foreground")}>{story.likes_count || 0}</span>
+          </button>
+          <button onClick={onOpenComments} className="flex items-center gap-1.5 text-xs active:scale-90 transition-transform">
+            <MessageCircle className="h-[18px] w-[18px] text-muted-foreground" />
+            <span className="font-bold text-muted-foreground">{story.comments_count || 0}</span>
+          </button>
         </div>
+        <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <Eye className="h-3.5 w-3.5" />{story.views_count || 0}
+        </span>
       </div>
     </motion.div>
   );
 }
 
 /* ========== STORY DETAIL VIEW ========== */
-function StoryDetail({ story: initialStory, onBack, onLike }: { story: Story; onBack: () => void; onLike: (id: string) => void }) {
-  const [story, setStory] = useState(initialStory);
+function StoryDetail({ storyId, onBack }: { storyId: string; onBack: () => void }) {
+  const { user } = useAuth();
+  const [story, setStory] = useState<Story | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
-  const rawUrl = story.image_url;
-  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
-  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/stories/${story.id}/view`, { method: 'POST' }).catch(() => {});
-  }, [story.id]);
+    setLoading(true);
+    fetch(`${BACKEND_URL}/api/stories/${storyId}`, { headers: authHeaders() })
+      .then(r => r.json())
+      .then(d => { setStory(d.story || null); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [storyId]);
+
+  const toggleLike = async () => {
+    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!story) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setStory(s => s ? { ...s, liked: d.liked, likes_count: s.likes_count + (d.liked ? 1 : -1) } : s);
+    } catch {}
+  };
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!story) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">القصة غير موجودة</div>;
+
+  const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
+  const rawUrl = story.image_url;
+  const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;
+  const isEmbed = story.is_embed || story.media_type === 'embed';
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
-      {/* Header */}
+    <div className="min-h-screen pb-24 bg-background" dir="rtl">
       <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/20">
         <div className="flex items-center justify-between px-4 h-14">
           <button onClick={onBack} className="p-2 rounded-xl bg-muted/50 active:scale-95">
@@ -322,11 +360,17 @@ function StoryDetail({ story: initialStory, onBack, onLike }: { story: Story; on
         </div>
       </div>
 
-      {mediaUrl && (
+      {/* Embed video */}
+      {isEmbed && story.embed_url ? (
+        <div className="w-full aspect-video">
+          <iframe src={story.embed_url} title={story.title} className="w-full h-full" frameBorder={0}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+        </div>
+      ) : mediaUrl ? (
         <div className="w-full max-h-72 overflow-hidden">
           <img src={mediaUrl} alt="" className="w-full h-72 object-cover" />
         </div>
-      )}
+      ) : null}
 
       <div className="px-5 py-5">
         <div className="flex items-center gap-3 mb-4">
@@ -344,13 +388,14 @@ function StoryDetail({ story: initialStory, onBack, onLike }: { story: Story; on
         {story.title && <h1 className="text-xl font-bold text-foreground mb-4 leading-relaxed">{story.title}</h1>}
         <p className="text-sm text-foreground leading-[2.2] whitespace-pre-wrap" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{story.content}</p>
 
-        <div className="flex items-center gap-4 mt-6 pt-4 border-t border-border/20">
-          <button onClick={() => onLike(story.id)} className="flex items-center gap-1.5 text-sm">
-            <Heart className={cn("h-5 w-5 transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
-            <span className="font-bold text-foreground">{story.likes_count}</span>
+        {/* Action buttons */}
+        <div className="flex items-center gap-5 mt-6 pt-4 border-t border-border/20">
+          <button onClick={toggleLike} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
+            <Heart className={cn("h-6 w-6 transition-all", story.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+            <span className={cn("font-bold", story.liked ? "text-red-500" : "text-foreground")}>{story.likes_count}</span>
           </button>
-          <button onClick={() => setShowComments(true)} className="flex items-center gap-1.5 text-sm">
-            <MessageCircle className="h-5 w-5 text-muted-foreground" />
+          <button onClick={() => setShowComments(true)} className="flex items-center gap-2 text-sm active:scale-90 transition-transform">
+            <MessageCircle className="h-6 w-6 text-muted-foreground" />
             <span className="font-bold text-foreground">{story.comments_count}</span>
           </button>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground mr-auto">
@@ -360,7 +405,10 @@ function StoryDetail({ story: initialStory, onBack, onLike }: { story: Story; on
       </div>
 
       <AnimatePresence>
-        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} />}
+        {showComments && (
+          <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)}
+            onCommentAdded={() => setStory(s => s ? { ...s, comments_count: s.comments_count + 1 } : s)} />
+        )}
       </AnimatePresence>
     </div>
   );
@@ -374,8 +422,9 @@ export default function Stories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedStory, setSelectedStory] = useState<Story | null>(null);
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -383,6 +432,8 @@ export default function Stories() {
       .then(d => setCategories(d.categories || [])).catch(() => {});
     const shouldCreate = searchParams.get('create');
     if (shouldCreate === 'true' && user) setShowCreate(true);
+    const storyParam = searchParams.get('story');
+    if (storyParam) setSelectedStoryId(storyParam);
   }, [searchParams, user]);
 
   const loadStories = useCallback(async (cat?: string) => {
@@ -407,14 +458,11 @@ export default function Stories() {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${id}/like`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
       setStories(p => p.map(x => x.id === id ? { ...x, liked: d.liked, likes_count: x.likes_count + (d.liked ? 1 : -1) } : x));
-      if (selectedStory?.id === id) {
-        setSelectedStory(s => s ? { ...s, liked: d.liked, likes_count: s.likes_count + (d.liked ? 1 : -1) } : s);
-      }
     } catch {}
   };
 
-  if (selectedStory) {
-    return <StoryDetail story={selectedStory} onBack={() => setSelectedStory(null)} onLike={toggleLike} />;
+  if (selectedStoryId) {
+    return <StoryDetail storyId={selectedStoryId} onBack={() => setSelectedStoryId(null)} />;
   }
 
   return (
@@ -433,28 +481,23 @@ export default function Stories() {
             </button>
           )}
         </div>
-
-        {/* Category tabs */}
         <div className="px-3 pb-3 flex gap-2 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setSelectedCategory(null)}
+          <button onClick={() => setSelectedCategory(null)}
             className={cn('px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
-              !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}
-          >الكل</button>
-          {categories.map(cat => {
-            const Icon = catIcons[cat.key] || BookOpen;
-            return (
-              <button key={cat.key} onClick={() => setSelectedCategory(cat.key)}
-                className={cn('flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
-                  selectedCategory === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
-                <span className="text-sm">{cat.emoji}</span> {cat.label}
-              </button>
-            );
-          })}
+              !selectedCategory ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
+            الكل
+          </button>
+          {categories.map(cat => (
+            <button key={cat.key} onClick={() => setSelectedCategory(cat.key)}
+              className={cn('flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all shrink-0 border',
+                selectedCategory === cat.key ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground border-border/30')}>
+              <span className="text-sm">{cat.emoji}</span> {cat.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Stories Grid */}
+      {/* Stories */}
       <div className="px-4 py-4">
         {loading ? (
           <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -463,30 +506,40 @@ export default function Stories() {
             <BookOpen className="h-16 w-16 text-muted-foreground/15 mx-auto mb-4" />
             <p className="text-base font-bold text-muted-foreground/50">لا توجد قصص بعد</p>
             <p className="text-xs text-muted-foreground/30 mt-1">كن أول من يشارك قصته!</p>
-            {user && (
+            {user ? (
               <button onClick={() => setShowCreate(true)}
                 className="mt-5 bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold active:scale-95 transition-transform shadow-md">
                 أنشئ أول قصة ✨
               </button>
-            )}
-            {!user && (
+            ) : (
               <Link to="/auth" className="mt-5 inline-block bg-primary text-primary-foreground px-8 py-3 rounded-2xl text-sm font-bold">
                 سجّل دخولك للنشر
               </Link>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-4">
             {stories.map(s => (
-              <StoryCard key={s.id} story={s} onOpen={() => setSelectedStory(s)} onLike={() => toggleLike(s.id)} />
+              <StoryCard
+                key={s.id}
+                story={s}
+                onOpen={() => setSelectedStoryId(s.id)}
+                onToggleLike={(e) => { e.stopPropagation(); toggleLike(s.id); }}
+                onOpenComments={(e) => { e.stopPropagation(); setShowCommentsFor(s.id); }}
+              />
             ))}
           </div>
         )}
       </div>
 
-      {/* Create Sheet */}
       <AnimatePresence>
-        {showCreate && <CreateStorySheet categories={categories} onClose={() => setShowCreate(false)} onCreated={s => setStories(prev => [s, ...prev])} />}
+        {showCreate && <CreateStorySheet categories={categories} onClose={() => setShowCreate(false)} onCreated={s => { setStories(prev => [s, ...prev]); }} />}
+        {showCommentsFor && (
+          <CommentsSheet storyId={showCommentsFor} onClose={() => setShowCommentsFor(null)}
+            onCommentAdded={() => {
+              setStories(p => p.map(x => x.id === showCommentsFor ? { ...x, comments_count: x.comments_count + 1 } : x));
+            }} />
+        )}
       </AnimatePresence>
     </div>
   );

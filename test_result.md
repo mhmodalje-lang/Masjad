@@ -368,7 +368,12 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Stories Like/Unlike Flow"
+    - "Stories Comments Flow"
+    - "Story Detail with View Count"
+    - "Search Stories Arabic"
+    - "Admin Embed Content creates Story"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -378,3 +383,5 @@ agent_communication:
     message: "Major rewrite: 1) Added Stories system backend (create/list/view/search/most-viewed/most-interacted). 2) Added Admin embed content APIs. 3) Removed Sohba from nav, replaced with Stories. 4) Renamed app to أذان وحكاية. 5) Redesigned Explore page. 6) Applied smoky theme. Test the new Stories APIs and Admin embed content APIs."
   - agent: "testing"
     message: "✅ STORIES & EMBED CONTENT TESTING COMPLETE - Tested all 14 requested endpoints successfully: Authentication working with Bearer tokens, all 8 Islamic story categories available, story CRUD operations functional, Arabic content handling perfect, search working with Arabic text, view tracking operational, like/comment social features working, embed content API fixed and operational. Fixed critical MongoDB cursor bug in embed content endpoint. All NEW Stories APIs and Admin embed content features verified and working."
+  - agent: "main"
+    message: "Phase 2: Fixed Stories like/comment buttons, rebuilt Profile page with full story grid, fixed Explore page navigation to story detail, added embed content creates linked story post, added General category. Need to verify: 1) Like/unlike flow, 2) Comment creation, 3) Story detail view increments views, 4) Admin embed creates story in feed, 5) Search Arabic text."
