@@ -66,9 +66,13 @@ export default function AdminDashboard() {
   const [broadcastList, setBroadcastList] = useState<any[]>([]);
   // Vendors
   const [vendors, setVendors] = useState<any[]>([]);
+  // Embed Content
+  const [embedContent, setEmbedContent] = useState<any[]>([]);
+  const [showEmbedForm, setShowEmbedForm] = useState(false);
+  const [embedForm, setEmbedForm] = useState({ title:'', description:'', embed_url:'', platform:'youtube', category:'general', thumbnail_url:'' });
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
-  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); } }, [isAdmin]);
+  useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
 
   const api = async (path: string, method='GET', body?: any, useAuth=true) => {
@@ -88,6 +92,38 @@ export default function AdminDashboard() {
   async function fetchBankInfo() { try { const d = await api('/admin/bank-account'); setBankForm(d.account||{}); setAdminRevenue(d.revenue); } catch {} }
   async function fetchBroadcasts() { try { const d = await api('/announcements', 'GET', null, false); setBroadcastList(d.announcements||[]); } catch {} }
   async function fetchVendors() { try { const d = await api('/admin/vendors'); setVendors(d.vendors||[]); } catch {} }
+  async function fetchEmbedContent() { try { const d = await api('/admin/embed-content'); setEmbedContent(d.content||[]); } catch {} }
+  function extractYouTubeID(url: string): string | null {
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
+    return match ? match[1] : null;
+  }
+  function buildEmbedUrl(url: string, platform: string): string {
+    if (platform === 'youtube') {
+      const vid = extractYouTubeID(url);
+      if (vid) return `https://www.youtube.com/embed/${vid}`;
+    }
+    if (platform === 'dailymotion') {
+      const match = url.match(/dailymotion\.com\/video\/([\w]+)/);
+      if (match) return `https://www.dailymotion.com/embed/video/${match[1]}`;
+    }
+    if (platform === 'vimeo') {
+      const match = url.match(/vimeo\.com\/(\d+)/);
+      if (match) return `https://player.vimeo.com/video/${match[1]}`;
+    }
+    return url;
+  }
+  async function saveEmbedContent() {
+    if (!embedForm.title.trim() || !embedForm.embed_url.trim()) { toast.error('العنوان والرابط مطلوبان'); return; }
+    const processedUrl = buildEmbedUrl(embedForm.embed_url, embedForm.platform);
+    let thumbnailUrl = embedForm.thumbnail_url;
+    if (!thumbnailUrl && embedForm.platform === 'youtube') {
+      const vid = extractYouTubeID(embedForm.embed_url);
+      if (vid) thumbnailUrl = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+    }
+    const d = await api('/admin/embed-content','POST',{...embedForm, embed_url: processedUrl, thumbnail_url: thumbnailUrl || undefined});
+    if (d.success) { toast.success('تم إضافة المحتوى المضمن'); setShowEmbedForm(false); setEmbedForm({title:'',description:'',embed_url:'',platform:'youtube',category:'general',thumbnail_url:''}); fetchEmbedContent(); }
+  }
+  async function deleteEmbedContent(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/embed-content/${id}`,'DELETE'); toast.success('تم'); fetchEmbedContent(); }
 
   async function deleteUser(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/users/${id}`,'DELETE'); toast.success('تم'); fetchUsers(usersPage); fetchStats(); }
   async function sendNotif() { if(!nTitle||!nBody) return toast.error('املأ الحقول'); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
@@ -122,6 +158,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { key:'overview', label:'نظرة عامة', icon:BarChart3 },
+    { key:'embed', label:'محتوى مضمن', icon:Film },
     { key:'broadcast', label:'البث', icon:Megaphone },
     { key:'users', label:'المستخدمين', icon:Users },
     { key:'ads', label:'الإعلانات', icon:Monitor },
@@ -233,6 +270,65 @@ export default function AdminDashboard() {
                 <button onClick={() => deleteBroadcast(a.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ===== EMBED CONTENT ===== */}
+        {tab==='embed' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-foreground">المحتوى المضمن</h2>
+                <p className="text-xs text-muted-foreground">أضف فيديوهات وصور من YouTube وأي منصة بالتضمين</p>
+              </div>
+              <Button onClick={() => setShowEmbedForm(true)} size="sm" className="rounded-xl gap-1 shrink-0"><Plus className="h-3.5 w-3.5" />إضافة</Button>
+            </div>
+
+            {showEmbedForm && (
+              <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
+                <InputField label="العنوان" value={embedForm.title} onChange={(v: string) => setEmbedForm(f => ({...f, title: v}))} placeholder="عنوان المحتوى..." />
+                <InputField label="الوصف" value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder="وصف مختصر..." multiline />
+                <InputField label="رابط الفيديو/المحتوى" value={embedForm.embed_url} onChange={(v: string) => setEmbedForm(f => ({...f, embed_url: v}))} placeholder="https://youtube.com/watch?v=..." />
+                <SelectField label="المنصة" value={embedForm.platform} onChange={(v: string) => setEmbedForm(f => ({...f, platform: v}))} options={['youtube','dailymotion','vimeo','tiktok','instagram','other']} />
+                <SelectField label="القسم" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','quran','hadith','lectures','nasheed','stories','other']} />
+                <InputField label="صورة مصغرة (اختياري)" value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder="رابط الصورة المصغرة (تلقائي لـ YouTube)" />
+                <div className="flex gap-2 pt-1">
+                  <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />حفظ المحتوى</Button>
+                  <Button variant="outline" onClick={() => setShowEmbedForm(false)} className="rounded-xl">إلغاء</Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">💡 ملاحظة: استخدم التضمين (embed) لنشر محتوى من أي منصة بشكل قانوني بدون مخالفة حقوق النشر</p>
+              </div>
+            )}
+
+            <h3 className="text-sm font-bold text-foreground">المحتوى المنشور ({embedContent.length})</h3>
+            {embedContent.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد محتوى مضمن بعد</p>
+            ) : (
+              embedContent.map(item => (
+                <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                  {item.thumbnail_url && (
+                    <div className="rounded-lg overflow-hidden h-36 w-full mb-2">
+                      <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-foreground">{item.title}</p>
+                      {item.description && <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-1">{item.platform} • {item.category} • {item.views || 0} مشاهدة</p>
+                    </div>
+                    <button onClick={() => deleteEmbedContent(item.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
+                  </div>
+                  {/* Preview iframe */}
+                  {item.embed_url && (item.embed_url.includes('youtube') || item.embed_url.includes('vimeo') || item.embed_url.includes('dailymotion')) && (
+                    <div className="rounded-lg overflow-hidden aspect-video">
+                      <iframe src={item.embed_url} title={item.title} className="w-full h-full" frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         )}
 
