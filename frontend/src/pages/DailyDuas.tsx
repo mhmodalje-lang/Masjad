@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Sparkles, RefreshCw, BookOpen, Heart } from 'lucide-react';
@@ -69,7 +70,7 @@ function getFallbackDuas(categories: string[]): AiDua[] {
 
 export default function DailyDuas() {
   const [params] = useSearchParams();
-  const navigate = useNavigate();
+  const goBack = useSmartBack();
   const context = params.get('context') || 'morning';
   const config = CONTEXT_CONFIG[context] || CONTEXT_CONFIG.morning;
 
@@ -113,7 +114,7 @@ export default function DailyDuas() {
         <div className="absolute inset-0 islamic-pattern opacity-10" />
         <div className="flex items-center justify-between relative z-10 px-5 gap-3">
           <button
-            onClick={() => navigate(-1)}
+            onClick={goBack}
             className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
           >
             <ArrowRight className="h-4 w-4 text-foreground" />

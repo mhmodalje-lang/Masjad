@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -115,7 +115,7 @@ function getCalcSettings(): { method: number; school: number; latitude?: number;
 // Removed fetchAladhanTimes — edge function handles all fallbacks
 
 export default function MosquePrayerTimesPage() {
-  const navigate = useNavigate();
+  const goBack = useSmartBack();
   const location = useGeoLocation();
   const is12h = detectIs12Hour();
 
@@ -605,7 +605,7 @@ export default function MosquePrayerTimesPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-emerald-500/10" />
         <div className="absolute inset-0 islamic-pattern opacity-10" />
         <div className="flex items-center justify-between relative z-10 px-5 gap-3">
-          <button onClick={() => navigate(-1)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
+          <button onClick={goBack} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
             <ArrowRight className="h-4 w-4 text-foreground" />
           </button>
           <div className="text-center flex-1 min-w-0">

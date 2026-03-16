@@ -158,12 +158,39 @@ backend:
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: "NA"
-        agent: "main"
-        comment: "GET /api/donations/list - Returns list of donation requests, no authentication required"
       - working: true
         agent: "testing"
-        comment: "✅ VERIFIED: GET /api/donations/list working perfectly. Fixed router registration issue. No authentication required (as specified). Returns proper JSON response with 'donations' array. Currently returns empty array as no donations exist (expected behavior for new system). Public endpoint working correctly without Bearer token requirement."
+        comment: "✅ VERIFIED"
+
+  - task: "P2P Donation Requests API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/donation-requests/create, GET /api/donation-requests/list, POST /api/donation-requests/{id}/contact - P2P donation system"
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: P2P Donation Requests API working perfectly. Fixed critical FastAPI router registration issue where endpoints were defined after app.include_router() call. All 3 endpoints tested successfully: 1) POST /api/donation-requests/create - Creates donation requests with authentication, returns proper request object with id, user info, title, description, contact info, amount. 2) GET /api/donation-requests/list - Public endpoint returns requests array, total count, has_more flag. 3) POST /api/donation-requests/{req_id}/contact - Allows authenticated users to contact donation requesters. All required fields present, authentication working correctly with Bearer tokens."
+
+  - task: "Seed Content API"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/admin/seed-content - Seeds 40+ real Islamic stories across 8 categories. Admin only."
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Admin Seed Content API working perfectly. Fixed critical FastAPI router registration issue. POST /api/admin/seed-content successfully created 45 Islamic stories across 8 categories (istighfar, sahaba, miracles, prophets, tawba, quran, rizq, ruqyah). Admin authentication required and working correctly with Bearer tokens (mohammedalrejab@gmail.com). Stories verified to appear in GET /api/stories/list with 46 total stories. Returns proper success response with created count and Arabic success message. All seeded content properly categorized and includes realistic view counts."
 
   - task: "Auth API (Register/Login/Me)"
     implemented: true
@@ -509,3 +536,5 @@ agent_communication:
     message: "Phase 3 - Major Update: 1) Fixed Profile page - dropdown menu instead of navigating to /more, organized sections, connected saved/liked tabs to backend. 2) Fixed AdBanner - switched from Supabase to MongoDB backend API. 3) Rewrote Stories page - removed 'متضمن' label, added fullscreen video viewer with swipe, AI auto-categorization, better video upload. 4) Rewrote More page - clean separation between tools and help sections. 5) Applied black and golden Islamic theme. 6) Added new backend endpoints: GET /api/stories/my-saved, GET /api/stories/my-liked, POST /api/stories/auto-categorize, GET /api/ads/placement/{position}, updated GET /api/sohba/my-stats with total_likes/saved/liked counts."
   - agent: "testing"
     message: "✅ PHASE 3 TESTING COMPLETE - All 5 new backend endpoints tested successfully: 1) Fixed critical FastAPI routing conflict where /stories/{story_id} was matching /stories/my-saved before specific routes 2) GET /api/stories/my-saved working (found 2 saved stories) 3) GET /api/stories/my-liked working (found 2 liked stories) 4) POST /api/stories/auto-categorize working (AI with Gemini 2.0 Flash) 5) GET /api/ads/placement/home working (returns empty array as expected) 6) GET /api/sohba/my-stats working with all new fields (total_likes, saved_count, liked_count). All endpoints require Bearer token authentication except ads. Authentication flows perfect. No critical issues found."
+  - agent: "testing"
+    message: "✅ NEW ENDPOINTS TESTING COMPLETE - Fixed critical FastAPI router registration issue and successfully tested 2 NEW backend endpoints from review request: 1) FIXED: Endpoints were defined after app.include_router() call, moved router registration to end of file. 2) POST /api/admin/seed-content working perfectly - Admin authentication required, created 45 Islamic stories across 8 categories, verified content appears in stories list with 46 total stories. 3) POST /api/donation-requests/create working - Creates donation requests with authentication, all required fields present. 4) GET /api/donation-requests/list working - Public endpoint returns requests array with total count. 5) POST /api/donation-requests/{req_id}/contact working - Contact functionality for donation requests. All authentication flows working with Bearer tokens. No critical issues found."

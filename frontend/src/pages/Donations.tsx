@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { ArrowRight, Heart, Plus, Send, Loader2, AlertTriangle, User, MessageSquare, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -14,29 +15,36 @@ function authHeaders(): Record<string, string> {
 }
 
 interface DonationRequest {
-  id: string; author_name: string; title: string; description: string;
-  contact_info: string; amount_needed?: string; created_at: string; category: string;
+  id: string; user_name?: string; author_name?: string; title: string; description: string;
+  contact_info: string; contact_method?: string; amount_needed?: string; created_at: string; category: string;
+  views_count?: number; status?: string;
 }
 
 export default function Donations() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const goBack = useSmartBack();
   const [requests, setRequests] = useState<DonationRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/donations/list`)
+    fetch(`${BACKEND_URL}/api/donation-requests/list`)
       .then(r => r.json())
-      .then(d => { setRequests(d.donations || []); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then(d => { setRequests(d.requests || []); setLoading(false); })
+      .catch(() => {
+        // Fallback to old endpoint
+        fetch(`${BACKEND_URL}/api/donations/list`)
+          .then(r => r.json())
+          .then(d => { setRequests(d.donations || []); setLoading(false); })
+          .catch(() => setLoading(false));
+      });
   }, []);
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="donations-page">
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
+          <button onClick={goBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2"><Heart className="h-5 w-5 text-red-400" />التبرعات</h1>
         </div>
         {user && <button onClick={() => setShowCreate(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold active:scale-95">
@@ -70,7 +78,7 @@ export default function Donations() {
               <div key={r.id} className="rounded-2xl bg-card border border-border/30 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center"><User className="h-4 w-4 text-primary" /></div>
-                  <span className="text-sm font-bold text-foreground">{r.author_name}</span>
+                  <span className="text-sm font-bold text-foreground">{r.user_name || r.author_name || 'مجهول'}</span>
                   <span className="text-[10px] text-muted-foreground mr-auto">{new Date(r.created_at).toLocaleDateString('ar')}</span>
                 </div>
                 <h3 className="text-[15px] font-bold text-foreground mb-1">{r.title}</h3>
@@ -105,12 +113,12 @@ function CreateDonationSheet({ onClose, onCreated }: { onClose: () => void; onCr
     if (!title.trim() || !desc.trim() || !contact.trim()) { toast.error('يرجى ملء جميع الحقول'); return; }
     setPosting(true);
     try {
-      const r = await fetch(`${BACKEND_URL}/api/donations/create`, {
+      const r = await fetch(`${BACKEND_URL}/api/donation-requests/create`, {
         method: 'POST', headers: authHeaders(),
         body: JSON.stringify({ title: title.trim(), description: desc.trim(), contact_info: contact.trim(), amount_needed: amount.trim() })
       });
       const d = await r.json();
-      if (d.donation) { onCreated(d.donation); toast.success('تم نشر طلبك'); onClose(); }
+      if (d.request) { onCreated(d.request); toast.success('تم نشر طلبك'); onClose(); }
     } catch { toast.error('خطأ'); }
     setPosting(false);
   };

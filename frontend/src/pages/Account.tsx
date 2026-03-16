@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { User, ArrowRight, Camera, Save, Loader2, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -17,6 +18,7 @@ function authHeaders(): Record<string, string> {
 
 export default function Account() {
   const { user, loading, signOut, refreshUser } = useAuth();
+  const goBack = useSmartBack();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
   
@@ -107,7 +109,7 @@ export default function Account() {
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-muted/50">
+          <button onClick={goBack} className="p-2 rounded-xl hover:bg-muted/50">
             <ArrowRight className="h-5 w-5 text-foreground" />
           </button>
           <span className="text-base font-bold">تعديل الملف الشخصي</span>

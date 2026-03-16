@@ -270,6 +270,19 @@ export default function AdminDashboard() {
                   </div>
                 )) : <p className="text-xs text-muted-foreground text-center py-4">لا توجد بيانات</p>}
               </div>
+              {/* Seed Content Button */}
+              <button 
+                onClick={async () => {
+                  try {
+                    const r = await api('/admin/seed-content', 'POST');
+                    toast.success(r.message || `تم إنشاء ${r.created} قصة`);
+                    fetchStats();
+                  } catch { toast.error('خطأ في تحميل المحتوى'); }
+                }}
+                className="w-full mt-3 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
+              >
+                تعبئة المحتوى الإسلامي (قصص + أذكار)
+              </button>
             </div>
           </div>
         )}

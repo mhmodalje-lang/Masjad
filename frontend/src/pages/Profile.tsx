@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/ThemeProvider';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import {
   Settings, ChevronLeft, Star, Users, Heart,
   LogOut, Shield, Moon, Sun, SunMoon, Globe,
@@ -94,6 +95,7 @@ export default function Profile() {
   const { isAdmin } = useAdmin();
   const { mode, setMode } = useTheme();
   const navigate = useNavigate();
+  const goBack = useSmartBack();
   const params = useParams();
   const viewingUserId = params.userId;
 
@@ -246,7 +248,7 @@ export default function Profile() {
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/10 px-4 h-12 flex items-center justify-between">
         <div className="flex items-center gap-2">
           {!isOwnProfile && (
-            <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-muted/50">
+            <button onClick={goBack} className="p-2 rounded-xl hover:bg-muted/50">
               <ChevronRight className="h-5 w-5 text-foreground" />
             </button>
           )}
