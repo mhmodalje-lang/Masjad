@@ -255,7 +255,7 @@ export default function AdminDashboard() {
             {/* Admin Info Card */}
             <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-4">
               <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />معلومات المالك</h3>
-              <p className="text-xs text-muted-foreground">البريد: <span className="text-primary" dir="ltr">mohammedalrejab@gmail.com</span></p>
+              <p className="text-xs text-muted-foreground">البريد: <span className="text-primary" dir="ltr">mohammadalrejab@gmail.com</span></p>
               <p className="text-xs text-muted-foreground mt-1">الهاتف: <span className="text-primary" dir="ltr">+4917684034961</span></p>
             </div>
 

@@ -37,13 +37,13 @@ export default function ContactUs() {
       </div>
       <div className="px-5 py-6 space-y-4">
         {/* Contact Cards */}
-        <a href="mailto:mohammedalrejab@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+        <a href="mailto:mohammadalrejab@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
             <Mail className="h-5 w-5 text-red-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">البريد الإلكتروني</p>
-            <p className="text-xs text-primary" dir="ltr">mohammedalrejab@gmail.com</p>
+            <p className="text-xs text-primary" dir="ltr">mohammadalrejab@gmail.com</p>
           </div>
         </a>
         <a href="tel:+4917684034961" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">

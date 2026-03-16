@@ -1,5 +1,5 @@
 """
-المؤذن العالمي - Backend API
+أذان وحكاية - Backend API
 Full Islamic App with Prayer Times, Notifications, AI Athkar, Mosque Search
 """
 from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends, BackgroundTasks
@@ -35,7 +35,7 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID', 'hxhdh-78bec')
 VAPID_PUBLIC_KEY = os.environ.get('VAPID_PUBLIC_KEY', '')
 VAPID_PRIVATE_KEY = os.environ.get('VAPID_PRIVATE_KEY', '')
-VAPID_EMAIL = os.environ.get('VAPID_EMAIL', 'mailto:admin@almuadhin.com')
+VAPID_EMAIL = os.environ.get('VAPID_EMAIL', 'mailto:mohammadalrejab@gmail.com')
 RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', '')
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
@@ -46,7 +46,7 @@ client_db = AsyncIOMotorClient(MONGO_URL)
 db = client_db[DB_NAME]
 
 # App
-app = FastAPI(title="المؤذن العالمي API", version="2.0")
+app = FastAPI(title="أذان وحكاية API", version="2.0")
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer(auto_error=False)
 
@@ -171,11 +171,11 @@ def clean_time(t: str) -> str:
 # ==================== STATUS ====================
 @api_router.get("/")
 async def root():
-    return {"message": "المؤذن العالمي API", "version": "2.0", "status": "running"}
+    return {"message": "أذان وحكاية API", "version": "2.0", "status": "running"}
 
 @api_router.get("/health")
 async def health():
-    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat(), "app": "المؤذن العالمي"}
+    return {"status": "healthy", "timestamp": datetime.utcnow().isoformat(), "app": "أذان وحكاية"}
 
 # ==================== AUTH ====================
 @api_router.post("/auth/register")
@@ -455,7 +455,7 @@ async def delete_post(post_id: str, user: dict = Depends(get_user)):
     post = await db.posts.find_one({"id": post_id})
     if not post:
         raise HTTPException(404, "المنشور غير موجود")
-    is_admin = user.get("email") in ["mhmd321324t@gmail.com"]
+    is_admin = user.get("email") in ["mohammadalrejab@gmail.com"]
     if post["author_id"] != user["id"] and not is_admin:
         raise HTTPException(403, "غير مصرح بالحذف")
     await db.posts.delete_one({"id": post_id})
@@ -1962,7 +1962,7 @@ async def test_push(data: dict, user: dict = Depends(get_user)):
         raise HTTPException(404, "الاشتراك غير موجود")
     
     result = await send_push_notification(sub, {
-        "title": "المؤذن العالمي 🕌",
+        "title": "أذان وحكاية 🕌",
         "body": "تم تفعيل الإشعارات بنجاح!",
         "icon": "/pwa-icon-192.png",
         "badge": "/pwa-icon-192.png",
@@ -2222,7 +2222,7 @@ async def get_user_data(user: dict = Depends(get_user)):
     return doc or {}
 
 # ==================== ADMIN ====================
-ADMIN_EMAILS = ['mhmd321324t@gmail.com', 'admin@almuadhin.com']
+ADMIN_EMAILS = ['mohammadalrejab@gmail.com']
 
 async def get_admin_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if not credentials:
@@ -2457,7 +2457,7 @@ async def admin_get_settings(admin=Depends(get_admin_user)):
     if not settings:
         settings = {
             "key": "global",
-            "app_name": "المؤذن العالمي",
+            "app_name": "أذان وحكاية",
             "default_method": 4,
             "default_school": 0,
             "maintenance_mode": False,
@@ -2806,7 +2806,7 @@ async def create_embed_content(data: EmbedContentRequest, user: dict = Depends(g
 @api_router.get("/admin/embed-content")
 async def admin_list_embed_content(user: dict = Depends(get_user)):
     admin = await db.users.find_one({"id": user["id"]}) if user else None
-    if not admin or (admin.get("email") not in ["mhmd321324t@gmail.com"] and not admin.get("is_admin")):
+    if not admin or (admin.get("email") not in ["mohammadalrejab@gmail.com"] and not admin.get("is_admin")):
         raise HTTPException(403, "غير مصرح")
     content = await db.embed_content.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"content": content}
@@ -2814,7 +2814,7 @@ async def admin_list_embed_content(user: dict = Depends(get_user)):
 @api_router.delete("/admin/embed-content/{content_id}")
 async def delete_embed_content(content_id: str, user: dict = Depends(get_user)):
     admin = await db.users.find_one({"id": user["id"]}) if user else None
-    if not admin or (admin.get("email") not in ["mhmd321324t@gmail.com"] and not admin.get("is_admin")):
+    if not admin or (admin.get("email") not in ["mohammadalrejab@gmail.com"] and not admin.get("is_admin")):
         raise HTTPException(403, "غير مصرح")
     await db.embed_content.delete_one({"id": content_id})
     # Also remove linked story post
@@ -3030,7 +3030,7 @@ async def voice_search_stories(data: dict, user: dict = Depends(get_user)):
 
 # ==================== ADMIN MANAGEMENT (إدارة التطبيق) ====================
 
-ADMIN_EMAILS = ["mhmd321324t@gmail.com", "mohammedalrejab@gmail.com"]
+ADMIN_EMAILS = ['mohammadalrejab@gmail.com']
 
 @api_router.get("/admin/stats")
 async def admin_stats(user: dict = Depends(get_user)):

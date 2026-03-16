@@ -196,7 +196,7 @@ export async function sendTestNotification(): Promise<boolean> {
   }
 
   // Fallback to regular notification
-  new Notification('🕌 اختبار - المؤذن العالمي', {
+  new Notification('🕌 اختبار - أذان وحكاية', {
     body: 'الإشعارات تعمل بنجاح!',
     icon: '/pwa-icon-192.png',
   });

@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png"],
       manifest: {
-        name: "المؤذن العالمي - رفيقك الروحي",
-        short_name: "المؤذن العالمي",
+        name: "أذان وحكاية - رفيقك الروحي",
+        short_name: "أذان وحكاية",
         description: "مواقيت الصلاة، القرآن الكريم، الأذكار، اتجاه القبلة، صُحبة والمزيد",
         theme_color: "#257a4d",
         background_color: "#f2ede6",

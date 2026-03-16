@@ -1,5 +1,5 @@
 /**
- * Theme management for المؤذن العالمي
+ * Theme management for أذان وحكاية
  * Islamic color themes: Dark (Emerald/Gold) and Light (Cream/Gold)
  */
 

@@ -44,7 +44,7 @@ export default function DailyHadith() {
 
   const handleShare = async () => {
     if (!hadith) return;
-    const text = `📖 حديث اليوم\n\nقال رسول الله ﷺ:\n«${hadith.text}»\n\nالراوي: ${hadith.narrator}\nالمصدر: ${hadith.source}\n\n— المؤذن العالمي`;
+    const text = `📖 حديث اليوم\n\nقال رسول الله ﷺ:\n«${hadith.text}»\n\nالراوي: ${hadith.narrator}\nالمصدر: ${hadith.source}\n\n— أذان وحكاية`;
     if (navigator.share) {
       await navigator.share({ text }).catch(() => {});
     } else {
