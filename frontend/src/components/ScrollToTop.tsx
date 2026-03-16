@@ -1,14 +1,25 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 export default function ScrollToTop() {
   const { pathname } = useLocation();
-  useEffect(() => {
-    // Scroll to top on every route change
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    // Also handle cases where the page is inside a scrollable container
+  
+  // Use layout effect for synchronous scroll before paint
+  useLayoutEffect(() => {
+    // Force scroll to top immediately
+    window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+    // Also scroll any potential scroll containers
+    const main = document.querySelector('main');
+    if (main) main.scrollTop = 0;
+    // Double-ensure with requestAnimationFrame
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
   }, [pathname]);
+  
   return null;
 }
