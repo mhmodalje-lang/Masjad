@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Loader2, Heart, Eye, MessageCircle, TrendingUp, Flame, BookOpen, Star, Sparkles, Compass, Play, ArrowRight, Send, Film, Bookmark, Maximize2, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useLocale } from '@/hooks/useLocale';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -75,12 +76,12 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
       <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-border/30">
         <div className="flex justify-center pt-2 pb-1"><div className="w-10 h-1 rounded-full bg-muted-foreground/30" /></div>
         <div className="flex items-center justify-between px-5 py-2 border-b border-border/20">
-          <span className="text-sm font-bold">{comments.length} تعليق</span>
+          <span className="text-sm font-bold">{comments.length} {t('comment')}</span>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-muted/50"><X className="h-5 w-5 text-muted-foreground" /></button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4 min-h-[120px]">
           {loading ? <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">لا توجد تعليقات بعد</p>
+            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">لا توجد {t('comment')}ات بعد</p>
             : comments.map(c => {
               const ci = (c.author_name || '').charCodeAt(0) % avatarColors.length;
               return (
@@ -102,7 +103,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
         </div>
         <div className="px-4 py-3 border-t border-border/20 flex gap-2 bg-card">
           <input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && send()}
-            dir="auto" placeholder="اكتب تعليقاً..."
+            dir="auto" placeholder="اكتب {t('comment')}اً..."
             className="flex-1 bg-muted/50 rounded-2xl px-4 py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground" />
           <button onClick={send} disabled={!text.trim() || sending}
             className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 disabled:opacity-40">
@@ -248,6 +249,7 @@ function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; ra
 /* ========== MAIN EXPLORE PAGE ========== */
 export default function Explore() {
   const { user } = useAuth();
+  const { t, dir } = useLocale();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
@@ -350,7 +352,7 @@ export default function Explore() {
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      toast.error('متصفحك لا يدعم البحث الصوتي');
+      toast.error('t('voiceNotSupported')');
       return;
     }
 
@@ -375,7 +377,7 @@ export default function Explore() {
 
     recognition.onerror = () => {
       setIsListening(false);
-      toast.error('لم يتم التعرف على الصوت، حاول مرة أخرى');
+      toast.error('t('voiceNotRecognized')، حاول مرة أخرى');
     };
 
     recognition.onend = () => {
@@ -420,7 +422,7 @@ export default function Explore() {
               <input ref={searchInputRef} type="search" dir="auto" value={searchQuery}
                 onChange={e => handleSearchInput(e.target.value)}
                 onFocus={() => setIsSearchActive(true)}
-                placeholder="ابحث عن قصة أو كاتب..."
+                placeholder="{t("searchStoryOrAuthor")}..."
                 className="w-full h-10 rounded-2xl bg-muted/50 border border-border/30 pr-10 pl-16 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15 transition-all"
                 style={{ unicodeBidi: 'plaintext' } as any} autoComplete="off" spellCheck={false} />
               <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -464,7 +466,7 @@ export default function Explore() {
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">جاري الاستماع...</p>
-              <p className="text-xs text-muted-foreground">قل مثلاً: "أريد قصة عن الاستغفار"</p>
+              <p className="text-xs text-muted-foreground">{t('saySomethingLike')}: "أريد قصة عن الاستغفار"</p>
             </div>
           </motion.div>
         )}
@@ -514,7 +516,7 @@ export default function Explore() {
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-foreground">الأكثر مشاهدة</h2>
-                  <p className="text-[10px] text-muted-foreground">القصص التي يقرأها الجميع</p>
+                  <p className="text-[10px] text-muted-foreground">{t('storiesEveryoneReads')}</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -527,7 +529,7 @@ export default function Explore() {
                   onClick={() => setShowMoreViewed(!showMoreViewed)}
                   className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
                 >
-                  {showMoreViewed ? 'عرض أقل' : `المزيد (${mostViewed.length - 5})`}
+                  {showMoreViewed ? t('showLess') : `المزيد (${mostViewed.length - 5})`}
                 </button>
               )}
             </section>
@@ -545,7 +547,7 @@ export default function Explore() {
                 </div>
                 <div>
                   <h2 className="text-sm font-bold text-foreground">الأكثر تفاعلاً</h2>
-                  <p className="text-[10px] text-muted-foreground">قصص أثرت في القلوب</p>
+                  <p className="text-[10px] text-muted-foreground">{t('touchedHearts')}</p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -558,7 +560,7 @@ export default function Explore() {
                   onClick={() => setShowMoreInteracted(!showMoreInteracted)}
                   className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
                 >
-                  {showMoreInteracted ? 'عرض أقل' : `المزيد (${mostInteracted.length - 5})`}
+                  {showMoreInteracted ? t('showLess') : `المزيد (${mostInteracted.length - 5})`}
                 </button>
               )}
             </section>
@@ -568,11 +570,11 @@ export default function Explore() {
           {mostViewed.length === 0 && mostInteracted.length === 0 && (
             <div className="text-center py-16 px-8">
               <Compass className="h-16 w-16 text-muted-foreground/15 mx-auto mb-4" />
-              <p className="text-base font-bold text-muted-foreground/50">لا يوجد محتوى بعد</p>
-              <p className="text-xs text-muted-foreground/30 mt-1">انشر قصتك وكن أول من يلهم الآخرين</p>
+              <p className="text-base font-bold text-muted-foreground/50">{t('noContentYet')}</p>
+              <p className="text-xs text-muted-foreground/30 mt-1">{t('publishFirstStoryInspire')}</p>
               <button onClick={() => navigate('/stories?create=true')}
                 className="mt-4 bg-primary text-primary-foreground px-6 py-2.5 rounded-2xl text-sm font-bold shadow-md">
-                انشر أول قصة ✨
+                {t('publishFirst')} ✨
               </button>
             </div>
           )}

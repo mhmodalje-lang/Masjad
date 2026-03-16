@@ -1,3 +1,4 @@
+import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Mail, Phone, MessageSquare, Globe, Send } from 'lucide-react';
 import { toast } from 'sonner';

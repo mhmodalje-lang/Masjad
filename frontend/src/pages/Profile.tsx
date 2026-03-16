@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useTheme } from '@/components/ThemeProvider';
+import { useLocale } from '@/hooks/useLocale';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import {
   Settings, ChevronLeft, Star, Users, Heart,
@@ -94,6 +95,7 @@ export default function Profile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useAdmin();
   const { mode, setMode } = useTheme();
+  const { t, dir, isRTL } = useLocale();
   const navigate = useNavigate();
   const goBack = useSmartBack();
   const params = useParams();
@@ -173,26 +175,26 @@ export default function Profile() {
     }
   }, [activeTab]);
 
-  const handleLogout = () => { signOut(); toast.success('تم تسجيل الخروج'); navigate('/'); };
-  const themeLabel = mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري';
+  const handleLogout = () => { signOut(); toast.success(t('loggedOut')); navigate('/'); };
+  const themeLabel = mode === 'auto' ? t('auto') : mode === 'dark' ? t('dark') : t('light');
 
   // Not logged in view
   if (!user) return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-24 bg-background" dir="rtl" data-testid="profile-page">
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-24 bg-background" dir={dir} data-testid="profile-page">
       <div className="h-24 w-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-5">
         <Users className="h-12 w-12 text-primary/40" />
       </div>
-      <h2 className="text-xl font-black text-foreground mb-2">مرحباً بك</h2>
-      <p className="text-sm text-muted-foreground text-center mb-8 max-w-[240px]">سجّل دخولك للوصول لملفك الشخصي وقصصك</p>
+      <h2 className="text-xl font-black text-foreground mb-2">{t("welcomeUser")}</h2>
+      <p className="text-sm text-muted-foreground text-center mb-8 max-w-[240px]">{t("loginForProfile")}</p>
       <Link to="/auth" className="bg-primary text-primary-foreground px-10 py-3.5 rounded-2xl text-sm font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform">
-        تسجيل الدخول
+        {t("login")}
       </Link>
     </div>
   );
 
   const isOwnProfile = !viewingUserId || viewingUserId === user.id;
   const profile = isOwnProfile ? user : otherUser;
-  const displayName = profile?.name || 'مستخدم';
+  const displayName = profile?.name || t('user');
   const displayAvatar = profile?.avatar ? (profile.avatar.startsWith('http') ? profile.avatar : `${BACKEND_URL}${profile.avatar}`) : '';
 
   const categoryColors: Record<string, string> = {
@@ -208,9 +210,9 @@ export default function Profile() {
     embed: 'from-red-500/80 to-red-700/80',
   };
   const categoryLabels: Record<string, string> = {
-    prophets: 'الأنبياء', sahaba: 'الصحابة', quran: 'القرآن', ruqyah: 'الرقية',
-    rizq: 'الرزق', tawba: 'التوبة', miracles: 'المعجزات', istighfar: 'الاستغفار',
-    general: 'عام', embed: 'فيديو',
+    prophets: t('prophets'), sahaba: t('companions'), quran: t('quran'), ruqyah: t('ruqyah'),
+    rizq: t('rizq'), tawba: t('repentance'), miracles: t('miracles'), istighfar: t('istighfar'),
+    general: t('general'), embed: t('videos'),
   };
 
   const renderPostGrid = (posts: Post[], loading: boolean, emptyIcon: typeof Settings, emptyMsg: string, emptySubMsg: string) => {
@@ -326,7 +328,7 @@ export default function Profile() {
           <DropdownMenu open={menuOpen} onClose={() => setMenuOpen(false)}>
             <div className="py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">الإعدادات</p>
-              <MenuItem icon={Edit3} label="تعديل الملف" to="/account" color="text-primary" />
+              <MenuItem icon={Edit3} label="{t('editProfile')}" to="/account" color="text-primary" />
               <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`المظهر: ${themeLabel}`}
                 onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
                 color="text-amber-500" />
@@ -335,17 +337,17 @@ export default function Profile() {
             </div>
             <div className="border-t border-border/20 py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">المساعدة</p>
-              <MenuItem icon={HelpCircle} label="الدعم والمساعدة" onClick={() => { navigate('/contact'); setMenuOpen(false); }} color="text-green-400" />
-              <MenuItem icon={Star} label="قيّم التطبيق" onClick={() => { toast.info('شكراً لتقييمك! ⭐'); setMenuOpen(false); }} color="text-yellow-400" />
-              <MenuItem icon={Share2} label="دعوة صديق" onClick={() => {
+              <MenuItem icon={HelpCircle} label={t('supportHelp')} onClick={() => { navigate('/contact'); setMenuOpen(false); }} color="text-green-400" />
+              <MenuItem icon={Star} label={t('rateApp')} onClick={() => { toast.info(t('thankYouRating')); setMenuOpen(false); }} color="text-yellow-400" />
+              <MenuItem icon={Share2} label={t('inviteFriend')} onClick={() => {
                 if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
-                else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+                else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
                 setMenuOpen(false);
               }} color="text-blue-400" />
-              <MenuItem icon={Info} label="عن التطبيق" onClick={() => { toast.info('أذان وحكاية v2.0'); setMenuOpen(false); }} color="text-purple-400" />
+              <MenuItem icon={Info} label={t('aboutApp')} onClick={() => { navigate('/about'); setMenuOpen(false); }} color="text-purple-400" />
             </div>
             <div className="border-t border-border/20 py-1">
-              <MenuItem icon={LogOut} label="تسجيل الخروج" onClick={handleLogout} color="text-red-500" />
+              <MenuItem icon={LogOut} label={t('logout')} onClick={handleLogout} color="text-red-500" />
             </div>
           </DropdownMenu>
         </div>
@@ -374,15 +376,15 @@ export default function Profile() {
           <div className="flex-1 grid grid-cols-3">
             <div className="text-center">
               <p className="text-[18px] font-black text-foreground leading-tight">{stats.stories || myPosts.length}</p>
-              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">قصة</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{t('story')}</p>
             </div>
             <div className="text-center">
               <p className="text-[18px] font-black text-foreground leading-tight">{stats.followers}</p>
-              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">متابع</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{t('followers')}</p>
             </div>
             <div className="text-center">
               <p className="text-[18px] font-black text-foreground leading-tight">{stats.likes}</p>
-              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">إعجاب</p>
+              <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{t('likes')}</p>
             </div>
           </div>
         </div>
@@ -396,18 +398,18 @@ export default function Profile() {
           {isOwnProfile ? (
             <>
               <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-primary/20 hover:bg-primary/5" asChild>
-                <Link to="/account"><Edit3 className="h-3.5 w-3.5 ml-1.5" />تعديل الملف</Link>
+                <Link to="/account"><Edit3 className="h-3.5 w-3.5 ml-1.5" />{t('editProfile')}</Link>
               </Button>
               <Button variant="outline" className="flex-1 rounded-xl h-10 text-[13px] font-bold border-primary/20 hover:bg-primary/5" onClick={() => {
                 if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
-                else { navigator.clipboard.writeText(window.location.origin); toast.success('تم نسخ الرابط'); }
+                else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
               }}>
-                <Share2 className="h-3.5 w-3.5 ml-1.5" />مشاركة
+                <Share2 className="h-3.5 w-3.5 ml-1.5" />{t('share')}
               </Button>
             </>
           ) : (
             <Button className="flex-1 rounded-xl h-10 text-[13px] font-bold bg-primary">
-              <Users className="h-3.5 w-3.5 ml-1.5" />متابعة
+              <Users className="h-3.5 w-3.5 ml-1.5" />{t('follow')}
             </Button>
           )}
         </div>
@@ -419,19 +421,19 @@ export default function Profile() {
           <div className="grid grid-cols-4 gap-2">
             <Link to="/stories" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
               <BookOpen className="h-5 w-5 text-primary" />
-              <span className="text-[9px] font-bold text-foreground">حكاياتي</span>
+              <span className="text-[9px] font-bold text-foreground">{t('myStories')}</span>
             </Link>
             <Link to="/explore" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
               <Compass className="h-5 w-5 text-blue-400" />
-              <span className="text-[9px] font-bold text-foreground">استكشاف</span>
+              <span className="text-[9px] font-bold text-foreground">{t('explore')}</span>
             </Link>
             <Link to="/ai-assistant" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
               <Bot className="h-5 w-5 text-purple-400" />
-              <span className="text-[9px] font-bold text-foreground">المساعد</span>
+              <span className="text-[9px] font-bold text-foreground">{t('assistant')}</span>
             </Link>
             <Link to="/more" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
               <Sparkles className="h-5 w-5 text-amber-400" />
-              <span className="text-[9px] font-bold text-foreground">المزيد</span>
+              <span className="text-[9px] font-bold text-foreground">{t('more')}</span>
             </Link>
           </div>
         </div>
@@ -443,32 +445,32 @@ export default function Profile() {
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
             activeTab === 'posts' ? 'border-primary' : 'border-transparent')}>
           <Grid3X3 className={cn('h-[18px] w-[18px]', activeTab === 'posts' ? 'text-primary' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'posts' ? 'text-primary' : 'text-muted-foreground/50')}>قصصي</span>
+          <span className={cn('text-[11px] font-bold', activeTab === 'posts' ? 'text-primary' : 'text-muted-foreground/50')}>{t('myStories')}</span>
         </button>
         <button onClick={() => setActiveTab('saved')}
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
             activeTab === 'saved' ? 'border-primary' : 'border-transparent')}>
           <Bookmark className={cn('h-[18px] w-[18px]', activeTab === 'saved' ? 'text-primary' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'saved' ? 'text-primary' : 'text-muted-foreground/50')}>المحفوظات</span>
+          <span className={cn('text-[11px] font-bold', activeTab === 'saved' ? 'text-primary' : 'text-muted-foreground/50')}>{t('savedStories')}</span>
           {stats.saved > 0 && <span className="text-[8px] bg-primary/20 text-primary px-1.5 rounded-full font-bold">{stats.saved}</span>}
         </button>
         <button onClick={() => setActiveTab('liked')}
           className={cn('flex-1 flex items-center justify-center gap-1.5 py-3 border-b-2 transition-all',
             activeTab === 'liked' ? 'border-primary' : 'border-transparent')}>
           <Heart className={cn('h-[18px] w-[18px]', activeTab === 'liked' ? 'text-primary' : 'text-muted-foreground/50')} />
-          <span className={cn('text-[11px] font-bold', activeTab === 'liked' ? 'text-primary' : 'text-muted-foreground/50')}>الإعجابات</span>
+          <span className={cn('text-[11px] font-bold', activeTab === 'liked' ? 'text-primary' : 'text-muted-foreground/50')}>{t('likedStories')}</span>
           {stats.liked > 0 && <span className="text-[8px] bg-primary/20 text-primary px-1.5 rounded-full font-bold">{stats.liked}</span>}
         </button>
       </div>
 
       {/* ===== POSTS/SAVED/LIKED GRID ===== */}
-      {activeTab === 'posts' && renderPostGrid(myPosts, loadingPosts, BookOpen, 'لا توجد قصص بعد', 'شارك أول قصة إسلامية!')}
-      {activeTab === 'saved' && renderPostGrid(savedPosts, loadingSaved, Bookmark, 'لا توجد محفوظات', 'احفظ قصة وستظهر هنا')}
-      {activeTab === 'liked' && renderPostGrid(likedPosts, loadingLiked, Heart, 'لا توجد إعجابات', 'أعجب بقصة وستظهر هنا')}
+      {activeTab === 'posts' && renderPostGrid(myPosts, loadingPosts, BookOpen, t('noStoriesYetProfile'), t('publishFirst'))}
+      {activeTab === 'saved' && renderPostGrid(savedPosts, loadingSaved, Bookmark, t('savedStories'), t('noStoriesYetProfile'))}
+      {activeTab === 'liked' && renderPostGrid(likedPosts, loadingLiked, Heart, t('likedStories'), t('noStoriesYetProfile'))}
 
       {/* ===== VERSION ===== */}
       {isOwnProfile && (
-        <p className="text-center text-[10px] text-muted-foreground/30 pb-4 pt-6">أذان وحكاية v2.0.0</p>
+        <p className="text-center text-[10px] text-muted-foreground/30 pb-4 pt-6">{t('appName')} v2.0.0</p>
       )}
     </div>
   );

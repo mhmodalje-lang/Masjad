@@ -1,3 +1,4 @@
+import { useLocale } from '@/hooks/useLocale';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Heart, MessageCircle, Send, X, Loader2, Image, Video, BookOpen, Plus, Eye, ArrowRight, Sparkles, Shield, Star, Moon, Coins, ChevronLeft, Share2, Bookmark, FileText, Film, Play, Maximize2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,7 +36,7 @@ const avatarColors = ['bg-amber-600', 'bg-yellow-600', 'bg-orange-600', 'bg-rose
 function timeAgo(iso: string): string {
   const d = Date.now() - new Date(iso).getTime();
   const m = Math.floor(d / 60000);
-  if (m < 1) return 'الآن';
+  if (m < 1) return t('now');
   if (m < 60) return `${m}د`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}س`;
@@ -145,7 +146,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
   }, [idx, stories.length]);
 
   const toggleLike = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!user) { toast.error(t('loginFirst')); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
@@ -154,7 +155,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
   };
 
   const toggleSave = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!user) { toast.error(t('loginFirst')); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
@@ -172,7 +173,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
       } catch {}
     } else {
       navigator.clipboard?.writeText(url);
-      toast.success('تم نسخ الرابط');
+      toast.success(t('linkCopied'));
     }
   };
 
@@ -359,8 +360,8 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
     try {
       const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', headers: authHeadersMultipart(), body: formData });
       const data = await res.json();
-      if (res.ok && data.url) { setImagePreview(`${BACKEND_URL}${data.url}`); toast.success('تم الرفع'); }
-      else toast.error('فشل الرفع');
+      if (res.ok && data.url) { setImagePreview(`${BACKEND_URL}${data.url}`); toast.success(t('uploaded')); }
+      else toast.error(t('uploadFailed'));
     } catch { toast.error('خطأ'); }
     setUploading(false);
   };
@@ -402,7 +403,7 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
           <h3 className="text-sm font-bold">قصة جديدة ✨</h3>
           <button onClick={submit} disabled={!title.trim() || !content.trim() || posting}
             className="text-sm font-bold text-primary disabled:opacity-40">
-            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'نشر'}
+            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('postStory')}
           </button>
         </div>
         <div className="p-4 flex-1 overflow-y-auto space-y-4">
@@ -671,6 +672,7 @@ function StoryDetail({ storyId, onBack, stories, onOpenViewer }: { storyId: stri
 /* ========== MAIN STORIES PAGE ========== */
 export default function Stories() {
   const { user } = useAuth();
+  const { t, dir } = useLocale();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [stories, setStories] = useState<Story[]>([]);

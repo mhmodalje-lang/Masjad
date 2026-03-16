@@ -1,3 +1,4 @@
+import { useLocale } from '@/hooks/useLocale';
 import { useState } from 'react';
 import { Check, Bell } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';

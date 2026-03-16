@@ -1,3 +1,4 @@
+import { useLocale } from '@/hooks/useLocale';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
