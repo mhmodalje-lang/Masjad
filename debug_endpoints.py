@@ -6,7 +6,7 @@ Debugging specific failed endpoints
 import requests
 import json
 
-BASE_URL = "https://complete-web-app-2.preview.emergentagent.com/api"
+BASE_URL = "https://steady-pace-1.preview.emergentagent.com/api"
 
 def test_login_debug():
     """Debug login endpoint"""
