@@ -19,15 +19,15 @@ import { useState, useEffect } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const tools = [
-  { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'text-amber-400', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1704104501116-743418c752aa?w=150&q=20' },
-  { icon: Heart, labelKey: 'tasbih', path: '/tasbeeh', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1700306692751-1fd5f2b88443?w=150&q=20' },
-  { icon: Clock, labelKey: 'prayer', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-amber-500/15', bgImage: 'https://images.unsplash.com/photo-1637918475815-99a2dc80bb9c?w=150&q=20' },
-  { icon: BookOpen, labelKey: 'quran', path: '/quran', color: 'text-primary', bg: 'bg-primary/15', bgImage: 'https://images.unsplash.com/photo-1575645513913-c002ea3b2e01?w=150&q=20' },
-  { icon: Moon, labelKey: 'duas', path: '/duas', color: 'text-purple-400', bg: 'bg-purple-400/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
-  { icon: ShieldCheck, labelKey: 'ruqyah', path: '/ruqyah', color: 'text-green-400', bg: 'bg-green-500/15', bgImage: 'https://images.unsplash.com/photo-1627664174288-dc847af370f0?w=150&q=20' },
-  { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-400', bg: 'bg-orange-500/15', bgImage: 'https://images.unsplash.com/photo-1697665387559-253e7a645e96?w=150&q=20' },
-  { icon: CheckCircle2, labelKey: 'followUp', path: '/tracker', color: 'text-cyan-400', bg: 'bg-cyan-500/15', bgImage: 'https://images.unsplash.com/photo-1731405717211-00dc10f91792?w=150&q=20' },
-  { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-yellow-500/15', bgImage: 'https://images.unsplash.com/photo-1674135140000-dadd7a9d8d6f?w=150&q=20' },
+  { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'text-amber-400', bg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10', emoji: '🧭' },
+  { icon: Heart, labelKey: 'tasbih', path: '/tasbeeh', color: 'text-primary', bg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/10', emoji: '📿' },
+  { icon: Clock, labelKey: 'prayer', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-gradient-to-br from-sky-500/20 to-sky-600/10', emoji: '🕌' },
+  { icon: BookOpen, labelKey: 'quran', path: '/quran', color: 'text-primary', bg: 'bg-gradient-to-br from-green-500/20 to-green-600/10', emoji: '📖' },
+  { icon: Moon, labelKey: 'duas', path: '/duas', color: 'text-purple-400', bg: 'bg-gradient-to-br from-purple-500/20 to-purple-600/10', emoji: '🤲' },
+  { icon: ShieldCheck, labelKey: 'ruqyah', path: '/ruqyah', color: 'text-green-400', bg: 'bg-gradient-to-br from-teal-500/20 to-teal-600/10', emoji: '🛡️' },
+  { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-400', bg: 'bg-gradient-to-br from-orange-500/20 to-orange-600/10', emoji: '💰' },
+  { icon: CheckCircle2, labelKey: 'followUp', path: '/tracker', color: 'text-cyan-400', bg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/10', emoji: '✅' },
+  { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/10', emoji: '✨' },
 ];
 
 export default function More() {
@@ -152,12 +152,8 @@ export default function More() {
           <div className="grid grid-cols-3 gap-3">
             {tools.map((item, i) => (
               <Link key={i} to={item.path} className="flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform rounded-xl hover:bg-muted/30">
-                <div className="h-12 w-12 rounded-xl overflow-hidden relative flex items-center justify-center shadow-sm">
-                  <div className="absolute inset-0 ken-burns-bg">
-                    <img src={(item as any).bgImage} alt="" className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                  <div className="absolute inset-0 bg-black/40" />
-                  <item.icon className="h-5 w-5 text-white relative z-10 drop-shadow-lg" />
+                <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border border-border/20", item.bg)}>
+                  <span className="text-2xl">{(item as any).emoji}</span>
                 </div>
                 <span className="text-[11px] font-bold text-foreground text-center leading-tight">{t(item.labelKey)}</span>
               </Link>
