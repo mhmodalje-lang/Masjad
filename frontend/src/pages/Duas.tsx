@@ -178,20 +178,26 @@ export default function Duas() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: j * 0.05 }}
-      className="rounded-2xl bg-card border border-border/50 p-5 shadow-elevated"
+      className="rounded-2xl bg-card border border-border/50 p-4 shadow-elevated"
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-3">
         <button onClick={() => toggleFavorite(dua.duaId)} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
           <Heart className={cn("h-4 w-4", favorites.includes(dua.duaId) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
         </button>
         <span className="text-[10px] text-muted-foreground">{dua.catLabel} › {dua.subLabel}</span>
       </div>
-      <p className="text-lg font-arabic text-foreground leading-[2] text-center mb-2">
-        {dua.arabic}
-      </p>
-      <p className="text-xs text-muted-foreground mb-1">{t(dua.translationKey)}</p>
+      <div className="bg-muted/30 rounded-xl p-4 mb-3">
+        <p
+          className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
+          dir="rtl"
+          style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif" }}
+        >
+          {dua.arabic}
+        </p>
+      </div>
+      <p className="text-xs text-muted-foreground mb-2 leading-relaxed">{t(dua.translationKey)}</p>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-primary font-medium">×{dua.count}</span>
+        <span className="text-[10px] text-primary font-bold bg-primary/8 px-2 py-0.5 rounded">×{dua.count}</span>
         {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {dua.reference}</span>}
       </div>
     </motion.div>
@@ -365,19 +371,25 @@ export default function Duas() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: j * 0.05 }}
-                      className="rounded-2xl bg-card border border-border/50 p-5 shadow-elevated"
+                      className="rounded-2xl bg-card border border-border/50 p-4 shadow-elevated"
                     >
-                      <div className="flex items-center justify-end mb-2">
+                      <div className="flex items-center justify-end mb-3">
                         <button onClick={() => toggleFavorite(duaId)} className="p-1">
                           <Heart className={cn("h-4 w-4", favorites.includes(duaId) ? "text-destructive fill-destructive" : "text-muted-foreground")} />
                         </button>
                       </div>
-                      <p className="text-lg font-arabic text-foreground leading-[2] text-center mb-2">
-                        {dua.arabic}
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-1">{t(dua.translationKey)}</p>
+                      <div className="bg-muted/30 rounded-xl p-4 mb-3">
+                        <p
+                          className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
+                          dir="rtl"
+                          style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif" }}
+                        >
+                          {dua.arabic}
+                        </p>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2 leading-relaxed">{t(dua.translationKey)}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] text-primary font-medium">×{dua.count}</span>
+                        <span className="text-[10px] text-primary font-bold bg-primary/8 px-2 py-0.5 rounded">×{dua.count}</span>
                         {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {dua.reference}</span>}
                       </div>
                     </motion.div>

@@ -31,33 +31,51 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="pb-8 max-h-[85vh]">
-        <div className="flex flex-col items-center px-6 pt-4 pb-2 overflow-y-auto">
-          <h3 className="text-lg font-bold text-foreground mb-1">{dua.title}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{dua.subtitle}</p>
+        <div className="flex flex-col items-center px-5 pt-4 pb-2 overflow-y-auto" dir="rtl">
+          {/* Title */}
+          <h3 className="text-base font-bold text-foreground mb-1">{dua.title}</h3>
+          <p className="text-xs text-muted-foreground mb-4">{dua.subtitle}</p>
 
-          <div className="bg-muted/30 rounded-2xl p-5 mb-4 w-full">
-            <p className="text-xl font-bold text-foreground text-center leading-[2.2] font-amiri" dir="rtl">
+          {/* Arabic Text - Clean container with no overflow */}
+          <div className="bg-muted/30 rounded-2xl p-5 mb-5 w-full">
+            <p
+              className="text-lg text-foreground text-center leading-[2.5] whitespace-pre-line"
+              dir="rtl"
+              style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif" }}
+            >
               {dua.arabic}
             </p>
           </div>
 
-          <p className="text-sm text-muted-foreground text-center mb-2 italic">
-            {dua.transliteration}
-          </p>
-          <p className="text-xs text-muted-foreground mb-6">{dua.reference}</p>
+          {/* Transliteration - Separate clear section */}
+          {dua.transliteration && (
+            <div className="bg-blue-500/5 rounded-xl p-3.5 mb-3 w-full border border-blue-500/10">
+              <p className="text-xs text-muted-foreground text-center italic leading-relaxed" dir="ltr">
+                {dua.transliteration}
+              </p>
+            </div>
+          )}
 
+          {/* Reference */}
+          {dua.reference && (
+            <p className="text-[11px] text-primary font-bold bg-primary/8 px-3 py-1 rounded-lg mb-5">
+              {dua.reference}
+            </p>
+          )}
+
+          {/* Complete button */}
           <button
             onClick={markDone}
             className="relative active:scale-95 transition-transform"
           >
             <motion.div
-              className={`h-16 w-16 rounded-full flex items-center justify-center ${done ? 'bg-primary' : 'bg-accent'}`}
+              className={`h-14 w-14 rounded-full flex items-center justify-center shadow-lg ${done ? 'bg-primary' : 'bg-accent'}`}
               animate={done ? { scale: [1, 1.2, 1] } : {}}
             >
-              <Check className={`h-8 w-8 ${done ? 'text-primary-foreground' : 'text-accent-foreground'}`} />
+              <Check className={`h-7 w-7 ${done ? 'text-primary-foreground' : 'text-accent-foreground'}`} />
             </motion.div>
           </button>
-          {!done && <p className="text-sm text-muted-foreground mt-2">اضغط لتحديد كمكتمل</p>}
+          {!done && <p className="text-xs text-muted-foreground mt-2">اضغط لتحديد كمكتمل</p>}
         </div>
       </DrawerContent>
     </Drawer>
