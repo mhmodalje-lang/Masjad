@@ -1,0 +1,80 @@
+import { useState, useEffect } from 'react';
+import { useAdConfig } from '@/hooks/useAdConfig';
+import { Shield, X } from 'lucide-react';
+
+export default function GDPRAdConsent() {
+  const adConfig = useAdConfig();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!adConfig.gdpr_consent_required) return;
+    const consent = localStorage.getItem('gdpr-ad-consent');
+    if (!consent) {
+      const timer = setTimeout(() => setShow(true), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [adConfig.gdpr_consent_required]);
+
+  const handleConsent = (accepted: boolean) => {
+    localStorage.setItem('gdpr-ad-consent', accepted ? 'accepted' : 'rejected');
+    localStorage.setItem('gdpr-ad-consent-date', new Date().toISOString());
+    if (accepted) {
+      localStorage.setItem('personalized-ads', 'true');
+    } else {
+      localStorage.setItem('personalized-ads', 'false');
+    }
+    setShow(false);
+  };
+
+  if (!show) return null;
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-end justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" dir="rtl">
+      <div className="w-full max-w-lg bg-card border border-border/60 rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-500">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
+            <Shield className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-bold text-foreground mb-1">موافقة عرض الإعلانات</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              نستخدم الإعلانات لدعم التطبيق وإبقائه مجانياً. وفقاً للقانون الأوروبي (GDPR)، 
+              نحتاج موافقتك لعرض إعلانات مخصصة بناءً على اهتماماتك.
+            </p>
+          </div>
+          <button onClick={() => handleConsent(false)} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        
+        <div className="space-y-2 mb-4 text-xs text-muted-foreground bg-muted/30 rounded-xl p-3">
+          <p className="font-medium text-foreground">ما الذي نجمعه:</p>
+          <ul className="space-y-1 list-disc list-inside">
+            <li>معرّف إعلاني مجهول الهوية</li>
+            <li>نوع المحتوى الذي تتفاعل معه</li>
+            <li>بيانات الجهاز الأساسية لتحسين تجربة الإعلانات</li>
+          </ul>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleConsent(true)}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
+          >
+            قبول الإعلانات المخصصة
+          </button>
+          <button
+            onClick={() => handleConsent(false)}
+            className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
+          >
+            إعلانات عامة فقط
+          </button>
+        </div>
+        
+        <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
+          يمكنك تغيير تفضيلاتك في أي وقت من إعدادات التطبيق
+        </p>
+      </div>
+    </div>
+  );
+}

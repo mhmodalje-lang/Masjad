@@ -2420,6 +2420,15 @@ class AdminAppSettings(BaseModel):
     default_school: Optional[int] = None
     maintenance_mode: Optional[bool] = None
     announcement: Optional[str] = None
+    # Ad Settings
+    ads_enabled: Optional[bool] = None
+    video_ads_muted: Optional[bool] = None
+    gdpr_consent_required: Optional[bool] = None
+    admob_app_id: Optional[str] = None
+    adsense_publisher_id: Optional[str] = None
+    ad_banner_enabled: Optional[bool] = None
+    ad_interstitial_enabled: Optional[bool] = None
+    ad_rewarded_enabled: Optional[bool] = None
 
 class AdPlacement(BaseModel):
     id: Optional[str] = None
@@ -2733,6 +2742,14 @@ async def admin_get_settings(admin=Depends(get_admin_user)):
             "default_school": 0,
             "maintenance_mode": False,
             "announcement": "",
+            "ads_enabled": True,
+            "video_ads_muted": True,
+            "gdpr_consent_required": True,
+            "ad_banner_enabled": True,
+            "ad_interstitial_enabled": False,
+            "ad_rewarded_enabled": True,
+            "admob_app_id": "",
+            "adsense_publisher_id": "",
         }
     return settings
 
@@ -2753,6 +2770,80 @@ async def admin_update_settings(data: AdminAppSettings, admin=Depends(get_admin_
         upsert=True
     )
     return {"success": True, "message": "تم تحديث الإعدادات"}
+
+# ==================== PUBLIC AD CONFIG (إعدادات الإعلانات العامة) ====================
+
+@api_router.get("/ad-config")
+async def get_ad_config():
+    """Public endpoint - returns ad configuration for the app"""
+    settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
+    return {
+        "ads_enabled": settings.get("ads_enabled", True),
+        "video_ads_muted": settings.get("video_ads_muted", True),
+        "gdpr_consent_required": settings.get("gdpr_consent_required", True),
+        "ad_banner_enabled": settings.get("ad_banner_enabled", True),
+        "ad_interstitial_enabled": settings.get("ad_interstitial_enabled", False),
+        "ad_rewarded_enabled": settings.get("ad_rewarded_enabled", True),
+        "admob_app_id": settings.get("admob_app_id", ""),
+        "adsense_publisher_id": settings.get("adsense_publisher_id", ""),
+    }
+
+# ==================== ANALYTICS TRACKING (التحليلات) ====================
+
+@api_router.post("/analytics/event")
+async def track_analytics_event(data: dict):
+    """Track user analytics events"""
+    event = {
+        "id": str(uuid.uuid4()),
+        "event_type": data.get("event_type", "page_view"),
+        "page": data.get("page", ""),
+        "user_id": data.get("user_id", "anonymous"),
+        "session_id": data.get("session_id", ""),
+        "metadata": data.get("metadata", {}),
+        "user_agent": data.get("user_agent", ""),
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+    await db.analytics_events.insert_one(event)
+    return {"success": True}
+
+@api_router.get("/admin/analytics/summary")
+async def admin_analytics_summary(admin=Depends(get_admin_user), days: int = 7):
+    """Get analytics summary for admin dashboard"""
+    cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+    
+    # Total events
+    total_events = await db.analytics_events.count_documents({"timestamp": {"$gte": cutoff}})
+    
+    # Page views by page
+    pipeline = [
+        {"$match": {"timestamp": {"$gte": cutoff}, "event_type": "page_view"}},
+        {"$group": {"_id": "$page", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 20}
+    ]
+    page_views = await db.analytics_events.aggregate(pipeline).to_list(20)
+    
+    # Unique users
+    unique_users = len(await db.analytics_events.distinct("user_id", {"timestamp": {"$gte": cutoff}}))
+    
+    # Daily counts
+    daily_pipeline = [
+        {"$match": {"timestamp": {"$gte": cutoff}}},
+        {"$group": {
+            "_id": {"$substr": ["$timestamp", 0, 10]},
+            "count": {"$sum": 1}
+        }},
+        {"$sort": {"_id": 1}}
+    ]
+    daily_counts = await db.analytics_events.aggregate(daily_pipeline).to_list(30)
+    
+    return {
+        "total_events": total_events,
+        "unique_users": unique_users,
+        "top_pages": [{"page": p["_id"], "views": p["count"]} for p in page_views],
+        "daily_counts": [{"date": d["_id"], "count": d["count"]} for d in daily_counts],
+        "period_days": days,
+    }
 
 # ==================== STORIES SYSTEM (حكايات) ====================
 # Uses the existing posts/comments/likes collections but with story-specific endpoints

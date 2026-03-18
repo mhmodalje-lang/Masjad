@@ -10,11 +10,14 @@ import { UnifiedPrayerProvider } from "@/hooks/useUnifiedPrayer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PermissionManager } from "@/components/PermissionManager";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdConfigProvider } from "@/hooks/useAdConfig";
 import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
+import GDPRAdConsent from "@/components/GDPRAdConsent";
+import AnalyticsTracker from "@/components/AnalyticsTracker";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -86,16 +89,18 @@ const App = () => {
         <LocaleProvider>
           <AuthProvider>
             <UnifiedPrayerProvider>
-              <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                  <ScrollToTop />
-                  <SEOWrapper>
-                    <PermissionManager />
-                    <AppLayout>
-                      <Suspense fallback={<div className="min-h-screen" />}>
-                        <Routes>
+              <AdConfigProvider>
+                <TooltipProvider>
+                  <Toaster />
+                  <Sonner />
+                  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                    <ScrollToTop />
+                    <AnalyticsTracker />
+                    <SEOWrapper>
+                      <PermissionManager />
+                      <AppLayout>
+                        <Suspense fallback={<div className="min-h-screen" />}>
+                          <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/prayer-times" element={<PrayerTimes />} />
                           <Route path="/qibla" element={<Qibla />} />
@@ -142,14 +147,16 @@ const App = () => {
                       </Suspense>
                     </AppLayout>
                     <CookieConsent />
+                    <GDPRAdConsent />
                   </SEOWrapper>
                 </BrowserRouter>
               </TooltipProvider>
-            </UnifiedPrayerProvider>
-          </AuthProvider>
-        </LocaleProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+            </AdConfigProvider>
+          </UnifiedPrayerProvider>
+        </AuthProvider>
+      </LocaleProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
   );
 };
 

@@ -84,6 +84,14 @@ export default function AdminDashboard() {
   const [donationsFilter, setDonationsFilter] = useState('');
   const [donationsTotal, setDonationsTotal] = useState(0);
   const [donationsTotalAmount, setDonationsTotalAmount] = useState(0);
+  // Ad Settings
+  const [adSettings, setAdSettings] = useState({
+    ads_enabled: true, video_ads_muted: true, gdpr_consent_required: true,
+    ad_banner_enabled: true, ad_interstitial_enabled: false, ad_rewarded_enabled: true,
+    admob_app_id: '', adsense_publisher_id: ''
+  });
+  // Analytics
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
   useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
@@ -109,7 +117,23 @@ export default function AdminDashboard() {
     setLoading(false); 
   }
   async function fetchUsers(p: number) { try { const d = await api(`/admin/users?page=${p}`); setUsers(d.users||[]); setUsersTotal(d.total||0); } catch {} }
-  async function fetchSettings() { try { const d = await api('/admin/settings'); setAnnouncement(d.announcement||''); setMaintenance(d.maintenance_mode||false); } catch {} }
+  async function fetchSettings() { 
+    try { 
+      const d = await api('/admin/settings'); 
+      setAnnouncement(d.announcement||''); 
+      setMaintenance(d.maintenance_mode||false);
+      setAdSettings({
+        ads_enabled: d.ads_enabled ?? true,
+        video_ads_muted: d.video_ads_muted ?? true,
+        gdpr_consent_required: d.gdpr_consent_required ?? true,
+        ad_banner_enabled: d.ad_banner_enabled ?? true,
+        ad_interstitial_enabled: d.ad_interstitial_enabled ?? false,
+        ad_rewarded_enabled: d.ad_rewarded_enabled ?? true,
+        admob_app_id: d.admob_app_id || '',
+        adsense_publisher_id: d.adsense_publisher_id || '',
+      });
+    } catch {} 
+  }
   async function fetchAds() { try { const d = await api('/admin/ads'); setAds(d.ads||[]); } catch {} }
   async function fetchPages() { try { const d = await api('/admin/pages'); setPages(d.pages||[]); } catch {} }
   async function fetchNotifs() { try { const d = await api('/admin/scheduled-notifications'); setScheduledNotifs(d.notifications||[]); } catch {} }
@@ -153,6 +177,13 @@ export default function AdminDashboard() {
   async function deleteUser(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/users/${id}`,'DELETE'); toast.success('تم'); fetchUsers(usersPage); fetchStats(); }
   async function sendNotif() { if(!nTitle||!nBody) return toast.error('املأ الحقول'); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
   async function saveSettings() { const d = await api('/admin/settings','PUT',{announcement,maintenance_mode:maintenance}); if(d.success) toast.success('تم الحفظ'); }
+  async function saveAdSettings() { 
+    const d = await api('/admin/settings','PUT', adSettings); 
+    if(d.success) toast.success('تم حفظ إعدادات الإعلانات'); 
+  }
+  async function fetchAnalytics() {
+    try { const d = await api('/admin/analytics/summary?days=7'); setAnalyticsData(d); } catch {}
+  }
   async function saveAd() { const d = await api('/admin/ads','POST',adForm); if(d.success) { toast.success('تم حفظ الإعلان'); setShowAdForm(false); fetchAds(); } }
   async function deleteAd(id: string) { await api(`/admin/ads/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAds(); }
   async function savePage() { const d = await api('/admin/pages','POST',pageForm); if(d.success) { toast.success('تم حفظ الصفحة'); setShowPageForm(false); fetchPages(); } }
@@ -749,6 +780,87 @@ export default function AdminDashboard() {
                 <InputField label="نسبة العمولة %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
                 <Button onClick={saveCommission} size="sm" className="rounded-xl mt-5">حفظ</Button>
               </div>
+            </div>
+
+            {/* Ad Settings - إعدادات الإعلانات */}
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Film className="h-4 w-4 text-primary"/>إعدادات الإعلانات
+            </h2>
+            <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4 text-emerald-500"/>
+                  <div><p className="text-sm font-bold text-foreground">تفعيل الإعلانات</p><p className="text-[10px] text-muted-foreground">عرض الإعلانات في التطبيق</p></div>
+                </div>
+                <Switch checked={adSettings.ads_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ads_enabled:v})} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Volume2 className="h-4 w-4 text-blue-500"/>
+                  <div><p className="text-sm font-bold text-foreground">كتم صوت الفيديو</p><p className="text-[10px] text-muted-foreground">كتم الصوت تلقائياً لإعلانات الفيديو</p></div>
+                </div>
+                <Switch checked={adSettings.video_ads_muted} onCheckedChange={(v)=>setAdSettings({...adSettings, video_ads_muted:v})} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-amber-500"/>
+                  <div><p className="text-sm font-bold text-foreground">موافقة GDPR</p><p className="text-[10px] text-muted-foreground">طلب الموافقة من المستخدمين الأوروبيين</p></div>
+                </div>
+                <Switch checked={adSettings.gdpr_consent_required} onCheckedChange={(v)=>setAdSettings({...adSettings, gdpr_consent_required:v})} />
+              </div>
+              <div className="border-t border-border/30 pt-3 space-y-2">
+                <p className="text-xs font-bold text-foreground">أنواع الإعلانات:</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">إعلانات البانر</p>
+                  <Switch checked={adSettings.ad_banner_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_banner_enabled:v})} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">إعلانات بين الصفحات</p>
+                  <Switch checked={adSettings.ad_interstitial_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_interstitial_enabled:v})} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">إعلانات المكافآت</p>
+                  <Switch checked={adSettings.ad_rewarded_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_rewarded_enabled:v})} />
+                </div>
+              </div>
+              <div className="border-t border-border/30 pt-3 space-y-2">
+                <InputField label="AdMob App ID" value={adSettings.admob_app_id} onChange={(v:string)=>setAdSettings({...adSettings, admob_app_id:v})} placeholder="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
+                <InputField label="AdSense Publisher ID" value={adSettings.adsense_publisher_id} onChange={(v:string)=>setAdSettings({...adSettings, adsense_publisher_id:v})} placeholder="pub-XXXXXXXXXXXXXXXX" />
+              </div>
+              <Button onClick={saveAdSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ إعدادات الإعلانات</Button>
+            </div>
+
+            {/* Analytics Quick View */}
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary"/>التحليلات (آخر 7 أيام)
+            </h2>
+            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
+              <Button onClick={fetchAnalytics} size="sm" variant="outline" className="w-full rounded-xl gap-1"><RefreshCw className="h-3 w-3"/>تحديث التحليلات</Button>
+              {analyticsData && (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-muted/50 p-3 text-center">
+                      <p className="text-xl font-bold text-foreground">{analyticsData.total_events || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">إجمالي الأحداث</p>
+                    </div>
+                    <div className="rounded-xl bg-muted/50 p-3 text-center">
+                      <p className="text-xl font-bold text-foreground">{analyticsData.unique_users || 0}</p>
+                      <p className="text-[10px] text-muted-foreground">مستخدمون فريدون</p>
+                    </div>
+                  </div>
+                  {analyticsData.top_pages?.length > 0 && (
+                    <div>
+                      <p className="text-xs font-bold text-foreground mb-1">أكثر الصفحات زيارة:</p>
+                      {analyticsData.top_pages.slice(0, 5).map((p: any, i: number) => (
+                        <div key={i} className="flex justify-between text-xs py-0.5">
+                          <span className="text-muted-foreground">{p.page}</span>
+                          <span className="font-bold text-foreground">{p.views}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="rounded-xl bg-card border border-border/50 p-4 space-y-1 text-xs text-muted-foreground">

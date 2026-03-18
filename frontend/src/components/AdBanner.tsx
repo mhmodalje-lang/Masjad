@@ -3,6 +3,25 @@ import { Play, ExternalLink } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
+// Get ad config from cache
+function getAdConfig() {
+  try {
+    const cached = sessionStorage.getItem('ad_config_cache');
+    if (cached) return JSON.parse(cached);
+  } catch {}
+  return { ads_enabled: true, video_ads_muted: true };
+}
+
+// Fetch and cache ad config
+function cacheAdConfig() {
+  fetch(`${BACKEND_URL}/api/ad-config`)
+    .then(r => r.json())
+    .then(d => sessionStorage.setItem('ad_config_cache', JSON.stringify(d)))
+    .catch(() => {});
+}
+// Prefetch config
+cacheAdConfig();
+
 interface AdData {
   id: string;
   name?: string;
@@ -29,6 +48,10 @@ export function AdBanner({ position }: { position: string }) {
   const [ads, setAds] = useState<AdData[]>([]);
   const [loaded, setLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const adConfig = getAdConfig();
+
+  // Don't render if ads are disabled
+  if (!adConfig.ads_enabled) return null;
 
   useEffect(() => {
     let mounted = true;
@@ -82,13 +105,14 @@ export function AdBanner({ position }: { position: string }) {
   // YouTube ad - show as embedded video
   if (provider === 'youtube' || (isURL(adCode) && extractYouTubeID(adCode))) {
     const videoId = extractYouTubeID(adCode);
+    const muteParam = adConfig.video_ads_muted ? '&mute=1' : '';
     if (videoId) {
       return (
         <div className="w-full my-3 px-4">
           <div className="w-full max-w-lg mx-auto rounded-2xl overflow-hidden border border-primary/10 bg-card shadow-sm">
             <div className="relative aspect-video bg-black">
               <iframe
-                src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                src={`https://www.youtube.com/embed/${videoId}?rel=0${muteParam}`}
                 title={ad.name || 'فيديو'}
                 className="w-full h-full"
                 frameBorder={0}

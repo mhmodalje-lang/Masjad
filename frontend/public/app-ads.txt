@@ -1,0 +1,10 @@
+# app-ads.txt - أذان وحكاية (Athan & Story)
+# Replace the placeholder values below with your actual publisher ID
+# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+#
+# Instructions:
+# 1. Replace pub-XXXXXXXXXXXXXXXX with your Google AdMob/AdSense Publisher ID
+# 2. Remove the # comment symbol from the line below
+# 3. Upload this file to the root of your website domain
+#
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
