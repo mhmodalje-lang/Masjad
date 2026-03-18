@@ -73,8 +73,8 @@ export default function More() {
       {/* User Card */}
       <div className="px-4 pt-4 pb-3">
         {user ? (
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30">
-            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shrink-0">
+          <Link to="/profile" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+            <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20">
               {user.avatar ? (
                 <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
               ) : (
@@ -84,11 +84,12 @@ export default function More() {
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-bold text-foreground truncate">{user.name || 'مستخدم'}</h2>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              <p className="text-[10px] text-primary font-semibold mt-0.5">{t('viewProfile')} ←</p>
             </div>
-            <Link to="/account" className="p-2 rounded-xl bg-muted/50 hover:bg-muted">
+            <Link to="/account" onClick={(e) => e.stopPropagation()} className="p-2 rounded-xl bg-muted/50 hover:bg-muted">
               <Settings className="h-4 w-4 text-muted-foreground" />
             </Link>
-          </div>
+          </Link>
         ) : (
           <Link to="/auth" className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-primary/20 active:scale-[0.98] transition-transform">
             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">

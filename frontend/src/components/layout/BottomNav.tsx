@@ -10,7 +10,7 @@ const navItems = [
   { path: '/explore', icon: Search, labelKey: 'explore' },
   { path: '/create', icon: Plus, labelKey: '', isCreate: true },
   { path: '/stories', icon: BookOpen, labelKey: 'stories' },
-  { path: '/profile', icon: User, labelKey: 'morePage' },
+  { path: '/more', icon: User, labelKey: 'morePage' },
 ];
 
 export function BottomNav() {

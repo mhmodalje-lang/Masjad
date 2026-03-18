@@ -50,6 +50,7 @@ const Rewards = lazy(() => import("./pages/Rewards"));
 const AiAssistant = lazy(() => import("./pages/AiAssistant"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const Explore = lazy(() => import("./pages/Explore"));
+const Sohba = lazy(() => import("./pages/Sohba"));
 const AboutUs = lazy(() => import("./pages/AboutUs"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -130,6 +131,7 @@ const App = () => {
                           <Route path="/ai-assistant" element={<AiAssistant />} />
                           <Route path="/marketplace" element={<Marketplace />} />
                           <Route path="/explore" element={<Explore />} />
+                          <Route path="/sohba" element={<Sohba />} />
                           <Route path="/about" element={<AboutUs />} />
                           <Route path="/privacy" element={<PrivacyPolicy />} />
                           <Route path="/contact" element={<ContactUs />} />

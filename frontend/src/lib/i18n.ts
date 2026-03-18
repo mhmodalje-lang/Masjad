@@ -481,6 +481,7 @@ const arabicStrings: Record<string, string> = {
   
   // More page translations
   morePage: 'المزيد',
+  viewProfile: 'عرض الملف الشخصي',
   quickFeatures: 'ميزات سريعة',
   rewards: 'المكافآت',
   collectPoints: 'اجمع النقاط',
