@@ -35,18 +35,18 @@ const RECITERS = [
   { id: 'minshawi', name: 'محمد صديق المنشاوي', server: 'https://server10.mp3quran.net/minsh/' },
   { id: 'ajamy', name: 'أحمد بن علي العجمي', server: 'https://server10.mp3quran.net/ajm/' },
   { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server12.mp3quran.net/maher/' },
-  { id: 'hani', name: 'هاني الرفاعي', server: 'https://server9.mp3quran.net/hani/' },
+  { id: 'hani', name: 'صلاح البدير', server: 'https://server6.mp3quran.net/s_bud/' },
   { id: 'ayyoub', name: 'محمد أيوب', server: 'https://server8.mp3quran.net/ayyub/' },
   { id: 'shaatri', name: 'أبو بكر الشاطري', server: 'https://server11.mp3quran.net/shatri/' },
-  { id: 'hudhaify', name: 'علي بن عبدالرحمن الحذيفي', server: 'https://server11.mp3quran.net/hthfi/' },
-  { id: 'tablawi', name: 'محمد الطبلاوي', server: 'https://server8.mp3quran.net/tblawi/' },
+  { id: 'hudhaify', name: 'عبدالعزيز الأحمد', server: 'https://server11.mp3quran.net/a_jbr/' },
+  { id: 'tablawi', name: 'محمد الطبلاوي', server: 'https://server12.mp3quran.net/tblawi/' },
   { id: 'yasser', name: 'ياسر الدوسري', server: 'https://server11.mp3quran.net/yasser/' },
   { id: 'nasser', name: 'ناصر القطامي', server: 'https://server6.mp3quran.net/qtm/' },
   { id: 'banna', name: 'محمود علي البنا', server: 'https://server8.mp3quran.net/bna/' },
   { id: 'fares', name: 'فارس عباد', server: 'https://server8.mp3quran.net/frs_a/' },
   { id: 'ghamdi', name: 'سعد الغامدي', server: 'https://server7.mp3quran.net/s_gmd/' },
-  { id: 'bukhatir', name: 'أحمد بن خاطر', server: 'https://server13.mp3quran.net/bukhtr/' },
-  { id: 'juhany', name: 'عبدالله الجهني', server: 'https://server11.mp3quran.net/a_jhn/' },
+  { id: 'bukhatir', name: 'إبراهيم الأخضر', server: 'https://server6.mp3quran.net/akdr/' },
+  { id: 'juhany', name: 'عبد الباسط - مرتل', server: 'https://server7.mp3quran.net/basit/' },
 ] as const;
 
 type ReciterId = (typeof RECITERS)[number]['id'];
@@ -223,9 +223,18 @@ export default function QuranPlayer() {
       setIsPlaying(false);
       setLoading(false);
       if (!opts.silentErrors) {
-        toast.error('المتصفح منع التشغيل التلقائي — اضغط تشغيل مرة واحدة');
+        toast.error('تعذر تشغيل القارئ - جرّب قارئاً آخر');
       }
     }
+
+    // Add error handler for network failures
+    audio.onerror = () => {
+      setIsPlaying(false);
+      setLoading(false);
+      if (!opts.silentErrors) {
+        toast.error('صوت القارئ غير متاح حالياً - جرّب قارئاً آخر');
+      }
+    };
   }
 
   const handleReciterChange = async (newReciterId: ReciterId) => {

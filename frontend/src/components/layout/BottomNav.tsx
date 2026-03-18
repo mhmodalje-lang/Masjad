@@ -34,16 +34,27 @@ export function BottomNav() {
 
           if (item.isCreate) {
             return (
-              <Link
+              <button
                 key="create"
-                to={user ? '/stories?create=true' : '/auth'}
+                onClick={() => {
+                  if (!user) {
+                    window.location.href = '/auth';
+                    return;
+                  }
+                  // Navigate to stories with create param, or if already there, dispatch event
+                  if (location.pathname === '/stories') {
+                    window.dispatchEvent(new CustomEvent('open-create-story'));
+                  } else {
+                    window.location.href = '/stories?create=true';
+                  }
+                }}
                 data-testid="nav-create"
                 className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 transition-all min-w-0"
               >
                 <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25 transition-transform active:scale-90">
                   <Plus className="h-6 w-6 text-primary-foreground stroke-[2.5px]" />
                 </div>
-              </Link>
+              </button>
             );
           }
 

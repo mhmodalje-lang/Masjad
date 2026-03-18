@@ -694,6 +694,13 @@ export default function Stories() {
     if (searchParams.get('create') === 'true' && user) setShowCreate(true);
   }, [searchParams, user]);
 
+  // Listen for create event from bottom nav
+  useEffect(() => {
+    const handler = () => { if (user) setShowCreate(true); };
+    window.addEventListener('open-create-story', handler);
+    return () => window.removeEventListener('open-create-story', handler);
+  }, [user]);
+
   // Category selection — replace URL params
   const handleSelectCategory = useCallback((cat: string | null) => {
     setSelectedCategory(cat);

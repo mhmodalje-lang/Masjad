@@ -30,8 +30,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     const userSelected = localStorage.getItem('user-selected-locale');
     if (userSelected) return userSelected;
     
-    // Otherwise, auto-detect
-    return detectDeviceLanguage();
+    // Otherwise, auto-detect from device
+    const detected = detectDeviceLanguage();
+    // Save detected language so we don't re-detect each time
+    localStorage.setItem('app-language', detected);
+    return detected;
   });
   const [translations, setTranslations] = useState<Record<string, string>>({});
   const [ready, setReady] = useState(false);
@@ -71,6 +74,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setLocaleState(newLocale);
     // Save user's manual selection
     localStorage.setItem('user-selected-locale', newLocale);
+    localStorage.setItem('app-language', newLocale);
   };
 
   return (

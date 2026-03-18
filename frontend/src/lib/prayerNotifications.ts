@@ -3,6 +3,7 @@
  * Schedules real prayer time notifications and athan audio
  */
 import { Coordinates, PrayerTimes, CalculationMethod, Madhab, Prayer, Qibla } from 'adhan';
+import { stopAthan as stopAthanShared, playAthan as playAthanShared } from './athanAudio';
 
 export type PrayerMethod = 'MuslimWorldLeague' | 'Egyptian' | 'Karachi' | 'UmmAlQura' | 'Dubai' | 'MoonsightingCommittee' | 'NorthAmerica' | 'Kuwait' | 'Qatar' | 'Singapore' | 'Tehran' | 'Turkey';
 
@@ -263,46 +264,16 @@ function showPrayerReminder(prayer: string, minutes: number) {
   }
 }
 
-// Athan audio player
-let athanAudio: HTMLAudioElement | null = null;
-
-function getSelectedAthanPath(prayer: string): string {
-  // Get user's selected athan from localStorage
-  const selected = localStorage.getItem('selected-athan') || 'makkah';
-  const isFajr = prayer === 'fajr';
-  
-  // Check if fajr variant exists
-  const fajrPath = `/audio/athan/${selected}-fajr.mp3`;
-  const normalPath = `/audio/athan/${selected}.mp3`;
-  
-  return isFajr ? fajrPath : normalPath;
-}
+// Athan audio player - uses shared stopAthan from athanAudio module
 
 export function playAthan(prayer: string) {
   try {
-    stopAthan();
-    
-    const athanSrc = getSelectedAthanPath(prayer);
-    athanAudio = new Audio(athanSrc);
-    athanAudio.volume = 0.8;
-    
-    athanAudio.play().catch(() => {
-      // Fallback to default makkah if selected doesn't exist
-      athanAudio = new Audio('/audio/athan/makkah.mp3');
-      athanAudio.volume = 0.8;
-      athanAudio.play().catch(() => {
-        console.log('Athan autoplay blocked');
-      });
-    });
+    playAthanShared(prayer);
   } catch (_e) {}
 }
 
 export function stopAthan() {
-  if (athanAudio) {
-    athanAudio.pause();
-    athanAudio.currentTime = 0;
-    athanAudio = null;
-  }
+  stopAthanShared();
 }
 
 export function getMethodNumber(method: string): number {

@@ -12,7 +12,7 @@ import NotificationCard from '@/components/NotificationCard';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X, Search, Settings as SettingsIcon } from 'lucide-react';
 import { AdBanner } from '@/components/AdBanner';
-import { DailyDuaWidget, VerseOfDay, HadithOfDay, StreakBadge } from '@/components/Features2026';
+import { VerseOfDay, StreakBadge } from '@/components/Features2026';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 const meccaImage = '/mecca-hero.webp';
@@ -20,6 +20,7 @@ import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+const FeaturedVideos = lazy(() => import('@/components/FeaturedVideos'));
 
 // Lazy load below-the-fold components
 const DailyHadith = lazy(() => import('@/components/DailyHadith'));
@@ -467,11 +468,14 @@ export default function Index() {
         </div>
       )}
 
-      <AdBanner position="home" />
-
       {/* ===== DAILY HADITH ===== */}
       <Suspense fallback={<div className="h-40" />}>
         <DailyHadith />
+      </Suspense>
+
+      {/* ===== FEATURED VIDEO CONTENT ===== */}
+      <Suspense fallback={<div className="h-48" />}>
+        <FeaturedVideos />
       </Suspense>
 
       {/* ===== DAILY GOALS ===== */}
@@ -479,8 +483,6 @@ export default function Index() {
 
       {/* ===== AI DAILY WIDGETS ===== */}
       <VerseOfDay />
-      <HadithOfDay />
-      <DailyDuaWidget />
 
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />

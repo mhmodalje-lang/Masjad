@@ -7,15 +7,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const RUQYAH_CATEGORIES = [
-  { key: '', label: 'الكل', labelKey: 'allStories' },
-  { key: 'general', label: 'عام', labelKey: 'general' },
-  { key: 'عين', label: 'عين' },
-  { key: 'حسد', label: 'حسد' },
-  { key: 'سحر', label: 'سحر' },
-  { key: 'مس', label: 'مس' },
-  { key: 'أرق', label: 'أرق' },
-  { key: 'وسواس', label: 'وسواس' },
-  { key: 'حماية', label: 'حماية' },
+  { key: '', label: 'الكل', labelKey: 'allStories', emoji: '📋' },
+  { key: 'general', label: 'عام', labelKey: 'general', emoji: '📖' },
+  { key: 'عين', label: 'عين', emoji: '👁️' },
+  { key: 'حسد', label: 'حسد', emoji: '🧿' },
+  { key: 'سحر', label: 'سحر', emoji: '⚡' },
+  { key: 'مس', label: 'مس', emoji: '🔥' },
+  { key: 'أرق', label: 'أرق', emoji: '😴' },
+  { key: 'وسواس', label: 'وسواس', emoji: '💭' },
+  { key: 'حماية', label: 'حماية', emoji: '🛡️' },
 ];
 
 const STATIC_RUQYAH = [
@@ -123,12 +123,13 @@ export default function Ruqyah() {
             <button
               key={cat.key}
               onClick={() => setActiveCategory(cat.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
                 activeCategory === cat.key
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-card text-muted-foreground border-border/40 hover:border-primary/30 hover:bg-muted/50'
               }`}
             >
+              <span className="text-sm">{cat.emoji}</span>
               {cat.labelKey ? t(cat.labelKey) : cat.label}
             </button>
           ))}
@@ -136,7 +137,7 @@ export default function Ruqyah() {
       </div>
 
       {/* Content */}
-      <div className="px-4 pt-4 space-y-3">
+      <div className="px-4 pt-4 space-y-4">
         <AnimatePresence mode="popLayout">
           {filteredContent.map((item) => (
             <motion.div
@@ -146,76 +147,81 @@ export default function Ruqyah() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-              className="bg-card border border-border/40 rounded-2xl p-4 active:scale-[0.98] transition-transform cursor-pointer"
+              className="bg-card border border-border/30 rounded-2xl overflow-hidden active:scale-[0.99] transition-transform cursor-pointer shadow-sm"
             >
-              <div className="flex items-start gap-3 mb-1">
-                <span className="text-3xl">{item.icon}</span>
+              {/* Card Header */}
+              <div className="p-4 flex items-center gap-3">
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center shrink-0 border border-primary/10">
+                  <span className="text-2xl">{item.icon}</span>
+                </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-foreground mb-1">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground">{item.subtitle}</p>
+                  <h3 className="text-[15px] font-bold text-foreground leading-snug">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">{item.subtitle || item.category}</p>
                 </div>
                 {item.embed_url ? (
-                  <div className="p-2 rounded-full bg-red-500/10 text-red-500">
+                  <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 shrink-0">
                     <Video className="h-4 w-4" />
                   </div>
                 ) : item.audio_url ? (
-                  <div className="p-2 rounded-full bg-blue-500/10 text-blue-500">
+                  <div className="p-2.5 rounded-xl bg-blue-500/10 text-blue-500 shrink-0">
                     <Volume2 className="h-4 w-4" />
                   </div>
                 ) : (
-                  <div className="p-2 rounded-full bg-primary/10 text-primary">
-                    <Play className="h-4 w-4" />
+                  <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+                    <ChevronLeft className={`h-4 w-4 transition-transform ${selectedId === item.id ? 'rotate-90' : dir === 'rtl' ? 'rotate-180' : ''}`} />
                   </div>
                 )}
               </div>
 
               {/* Thumbnail preview for video items */}
               {item.thumbnail_url && selectedId !== item.id && (
-                <div className="mt-2 rounded-lg overflow-hidden relative">
-                  <img src={item.thumbnail_url} alt={item.title} className="w-full h-32 object-cover rounded-lg" />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-lg">
-                    <div className="h-10 w-10 rounded-full bg-red-600 flex items-center justify-center">
+                <div className="mx-4 mb-4 rounded-xl overflow-hidden relative">
+                  <img src={item.thumbnail_url} alt={item.title} className="w-full h-36 object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
                       <Play className="h-5 w-5 text-white fill-white" />
                     </div>
                   </div>
                 </div>
               )}
 
-              {selectedId === item.id && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="border-t border-border/30 pt-3 mt-2"
-                >
-                  {/* Video Embed */}
-                  {item.embed_url && (
-                    <div className="mb-3">
-                      <VideoEmbed
-                        embedUrl={item.embed_url}
-                        title={item.title}
-                      />
+              {/* Expanded Content */}
+              <AnimatePresence>
+                {selectedId === item.id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t border-border/20"
+                  >
+                    <div className="p-4 space-y-4">
+                      {/* Video Embed */}
+                      {item.embed_url && (
+                        <VideoEmbed embedUrl={item.embed_url} title={item.title} />
+                      )}
+
+                      {/* Arabic Text */}
+                      {item.arabic && (
+                        <div className="bg-muted/30 rounded-2xl p-5 border border-border/20">
+                          <p className="text-[17px] font-arabic text-foreground leading-[2.8] text-center" dir="rtl">
+                            {item.arabic}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-xs text-primary font-medium bg-primary/10 px-3 py-1 rounded-full">{item.reference || item.category}</span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSelectedId(null); }}
+                          className="text-xs text-muted-foreground font-bold bg-muted/50 px-3 py-1.5 rounded-full hover:bg-muted"
+                        >
+                          إغلاق ✕
+                        </button>
+                      </div>
                     </div>
-                  )}
-
-                  {/* Arabic Text */}
-                  {item.arabic && (
-                    <p className="text-base font-arabic text-foreground leading-[2.5] text-center mb-3" dir="rtl">
-                      {item.arabic}
-                    </p>
-                  )}
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{item.reference}</span>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedId(null); }}
-                      className="text-xs text-primary font-semibold"
-                    >
-                      {t('cancel')}
-                    </button>
-                  </div>
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           ))}
         </AnimatePresence>

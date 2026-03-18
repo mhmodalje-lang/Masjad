@@ -31,6 +31,24 @@ export function setSelectedAthan(id: string) {
 let currentAudio: HTMLAudioElement | null = null;
 const preloadedAudios = new Map<string, HTMLAudioElement>();
 
+/** Stop ALL audio - global kill switch */
+function killAllAudio() {
+  // Stop currentAudio
+  if (currentAudio) {
+    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch {}
+    currentAudio = null;
+  }
+  // Also pause any preloaded audios that might be playing
+  preloadedAudios.forEach((audio) => {
+    try {
+      if (!audio.paused) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+    } catch {}
+  });
+}
+
 function getSavedVolume() {
   return parseFloat(localStorage.getItem('athan-volume') || '0.8');
 }
@@ -100,11 +118,7 @@ export function playAthan(prayerKey?: string): HTMLAudioElement | null {
 }
 
 export function stopAthan() {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-  }
+  killAllAudio();
 }
 
 export function previewAthan(id: string): HTMLAudioElement | null {

@@ -788,8 +788,33 @@ const translationCache: Record<string, Record<string, string>> = {
  * Detect device language - returns the 2-letter language code
  */
 export function detectDeviceLanguage(): string {
-  // This is an Arabic-first Islamic app - default to Arabic
-  // Users can manually switch language in settings
+  // Check if user has already set a language preference
+  const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('app-language') : null;
+  if (saved) return saved;
+
+  // Auto-detect from browser/device
+  const supportedCodes = ['ar', 'en', 'ru', 'de', 'fr', 'tr'];
+  
+  try {
+    // navigator.language gives the user's preferred language
+    const browserLang = navigator.language?.toLowerCase() || '';
+    const langCode = browserLang.split('-')[0]; // 'en-US' → 'en'
+    
+    if (supportedCodes.includes(langCode)) {
+      return langCode;
+    }
+
+    // Check navigator.languages for secondary preferences
+    const langs = navigator.languages || [];
+    for (const lang of langs) {
+      const code = lang.toLowerCase().split('-')[0];
+      if (supportedCodes.includes(code)) {
+        return code;
+      }
+    }
+  } catch {}
+
+  // Default to Arabic for Islamic app
   return 'ar';
 }
 
