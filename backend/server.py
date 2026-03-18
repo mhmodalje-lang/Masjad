@@ -2774,9 +2774,21 @@ async def admin_update_settings(data: AdminAppSettings, admin=Depends(get_admin_
 # ==================== PUBLIC AD CONFIG (إعدادات الإعلانات العامة) ====================
 
 @api_router.get("/ad-config")
-async def get_ad_config():
-    """Public endpoint - returns ad configuration for the app"""
+async def get_ad_config(request: Request):
+    """Public endpoint - returns ad configuration for the app with geo-targeting"""
     settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
+    
+    # Determine user region from Accept-Language header for Tier-based ad targeting
+    accept_lang = request.headers.get("accept-language", "ar")
+    primary_lang = accept_lang.split(",")[0].split("-")[0].strip().lower() if accept_lang else "ar"
+    
+    # Tier 1 countries (highest ad revenue): US, UK, CA, AU, DE, FR, NL, NO, SE, DK, CH
+    # Tier 2: TR, RU, BR, MX, PL, etc.
+    tier1_langs = ["en", "de", "fr", "nl", "no", "sv", "da"]
+    tier2_langs = ["tr", "ru", "pt", "pl", "es", "it"]
+    
+    ad_tier = "tier1" if primary_lang in tier1_langs else ("tier2" if primary_lang in tier2_langs else "tier3")
+    
     return {
         "ads_enabled": settings.get("ads_enabled", True),
         "video_ads_muted": settings.get("video_ads_muted", True),
@@ -2786,6 +2798,8 @@ async def get_ad_config():
         "ad_rewarded_enabled": settings.get("ad_rewarded_enabled", True),
         "admob_app_id": settings.get("admob_app_id", ""),
         "adsense_publisher_id": settings.get("adsense_publisher_id", ""),
+        "ad_tier": ad_tier,
+        "user_language": primary_lang,
     }
 
 # ==================== ANALYTICS TRACKING (التحليلات) ====================
@@ -2843,6 +2857,59 @@ async def admin_analytics_summary(admin=Depends(get_admin_user), days: int = 7):
         "top_pages": [{"page": p["_id"], "views": p["count"]} for p in page_views],
         "daily_counts": [{"date": d["_id"], "count": d["count"]} for d in daily_counts],
         "period_days": days,
+    }
+
+# ==================== AUDIO LOCALIZATION (تعريب الصوتيات) ====================
+
+@api_router.get("/audio/dhikr")
+async def get_dhikr_audio(lang: str = "ar"):
+    """Get dhikr audio URLs based on language - for localized audio playback"""
+    # Audio mapping by language - these can be updated via admin
+    audio_config = await db.app_settings.find_one({"key": "audio_localization"}, {"_id": 0})
+    
+    if not audio_config:
+        # Default audio configuration
+        audio_config = {
+            "languages": {
+                "ar": {"label": "العربية", "available": True},
+                "en": {"label": "English", "available": True},
+                "ru": {"label": "Русский", "available": False},
+                "tr": {"label": "Türkçe", "available": False},
+                "de": {"label": "Deutsch", "available": False},
+                "fr": {"label": "Français", "available": False},
+            },
+            "dhikr_list": [
+                {"key": "subhanallah", "ar": "سبحان الله", "en": "Glory be to Allah"},
+                {"key": "alhamdulillah", "ar": "الحمد لله", "en": "Praise be to Allah"},
+                {"key": "allahuakbar", "ar": "الله أكبر", "en": "Allah is the Greatest"},
+                {"key": "istighfar", "ar": "أستغفر الله", "en": "I seek forgiveness from Allah"},
+                {"key": "hawqala", "ar": "لا حول ولا قوة إلا بالله", "en": "There is no power except with Allah"},
+            ]
+        }
+    
+    return {
+        "language": lang,
+        "languages_available": audio_config.get("languages", {}),
+        "dhikr_list": audio_config.get("dhikr_list", []),
+    }
+
+@api_router.get("/localization/supported")
+async def get_supported_localizations():
+    """Get all supported languages and their features"""
+    return {
+        "ui_languages": [
+            {"code": "ar", "label": "العربية", "flag": "🇸🇦", "dir": "rtl", "complete": True},
+            {"code": "en", "label": "English", "flag": "🇬🇧", "dir": "ltr", "complete": True},
+            {"code": "ru", "label": "Русский", "flag": "🇷🇺", "dir": "ltr", "complete": True},
+            {"code": "tr", "label": "Türkçe", "flag": "🇹🇷", "dir": "ltr", "complete": True},
+            {"code": "de", "label": "Deutsch", "flag": "🇩🇪", "dir": "ltr", "complete": True},
+            {"code": "fr", "label": "Français", "flag": "🇫🇷", "dir": "ltr", "complete": True},
+        ],
+        "quran_translations": True,
+        "prayer_times_global": True,
+        "privacy_policy_languages": ["ar", "en", "ru", "tr"],
+        "audio_languages": ["ar"],
+        "auto_language_detection": True,
     }
 
 # ==================== STORIES SYSTEM (حكايات) ====================

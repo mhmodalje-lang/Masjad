@@ -36,7 +36,7 @@ const avatarColors = ['bg-amber-600', 'bg-yellow-600', 'bg-orange-600', 'bg-rose
 function timeAgo(iso: string): string {
   const d = Date.now() - new Date(iso).getTime();
   const m = Math.floor(d / 60000);
-  if (m < 1) return t('now');
+  if (m < 1) return 'الآن';
   if (m < 60) return `${m}د`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}س`;
@@ -57,6 +57,7 @@ function getYouTubeId(url: string): string | null {
 function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]; initialIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(initialIndex);
   const { user } = useAuth();
+  const { t } = useLocale();
   const navigate = useNavigate();
   const [story, setStory] = useState(stories[idx]);
   const [showComments, setShowComments] = useState(false);
@@ -340,6 +341,7 @@ function CommentsSheet({ storyId, onClose, onCommentAdded }: { storyId: string; 
 
 /* ========== CREATE STORY SHEET ========== */
 function CreateStorySheet({ categories, onClose, onCreated }: { categories: Category[]; onClose: () => void; onCreated: (s: Story) => void }) {
+  const { t } = useLocale();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('general');
@@ -360,8 +362,8 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
     try {
       const res = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', headers: authHeadersMultipart(), body: formData });
       const data = await res.json();
-      if (res.ok && data.url) { setImagePreview(`${BACKEND_URL}${data.url}`); toast.success(t('uploaded')); }
-      else toast.error(t('uploadFailed'));
+      if (res.ok && data.url) { setImagePreview(`${BACKEND_URL}${data.url}`); toast.success('تم الرفع بنجاح'); }
+      else toast.error('فشل الرفع');
     } catch { toast.error('خطأ'); }
     setUploading(false);
   };
@@ -403,7 +405,7 @@ function CreateStorySheet({ categories, onClose, onCreated }: { categories: Cate
           <h3 className="text-sm font-bold">قصة جديدة ✨</h3>
           <button onClick={submit} disabled={!title.trim() || !content.trim() || posting}
             className="text-sm font-bold text-primary disabled:opacity-40">
-            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('postStory')}
+            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'نشر'}
           </button>
         </div>
         <div className="p-4 flex-1 overflow-y-auto space-y-4">
