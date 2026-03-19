@@ -60,8 +60,7 @@ const ContactUs = lazy(() => import("./pages/ContactUs"));
 const Donations = lazy(() => import("./pages/Donations"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-// Social Platform Pages
-const SocialHome = lazy(() => import("./pages/SocialHome"));
+// Social Platform Pages (used from Stories/حكاياتي page)
 const SocialProfile = lazy(() => import("./pages/SocialProfile"));
 const VideoReels = lazy(() => import("./pages/VideoReels"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
