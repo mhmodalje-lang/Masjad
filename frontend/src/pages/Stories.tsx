@@ -220,7 +220,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
         } else { toast.error('فشل رفع الملف'); setSubmitting(false); return; }
       }
 
-      // Handle embed (YouTube etc)
+      // Handle embed (YouTube etc) - admin only
       if (contentType === 'embed' && embedUrl.trim()) {
         const body: any = {
           content: content.trim() || embedUrl,
@@ -229,20 +229,20 @@ function CreateSheet({ categories, onClose, onCreated }: {
           media_type: 'embed',
           title: title.trim() || undefined,
         };
-        const r = await fetch(`${BACKEND_URL}/api/stories`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
+        const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         const d = await r.json();
         if (d.story) { onCreated(d.story); onClose(); toast.success('تم النشر بنجاح ✨'); }
-        else toast.error('فشل النشر');
+        else toast.error(d.detail || 'فشل النشر');
       } else {
-        // Create story
+        // Create story via correct endpoint
         const storyBody: any = {
           content: content.trim(),
           category,
           title: title.trim() || undefined,
-          image_url: imageUrl || undefined,
+          image_url: imageUrl || (videoUrl ? videoUrl : undefined),
           media_type: videoUrl ? 'video' : imageUrl ? 'image' : 'text',
         };
-        const r = await fetch(`${BACKEND_URL}/api/stories`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(storyBody) });
+        const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(storyBody) });
         const d = await r.json();
         if (d.story) { onCreated(d.story); onClose(); toast.success('تم النشر بنجاح ✨'); }
         else toast.error(d.detail || 'فشل النشر');
