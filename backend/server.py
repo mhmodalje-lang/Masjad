@@ -271,7 +271,7 @@ async def forgot_password(data: dict):
 async def get_me(user: dict = Depends(get_user)):
     if not user:
         raise HTTPException(401, "غير مصادق")
-    return {k: user.get(k) for k in ("id","email","name","avatar","provider","created_at")}
+    return {k: user.get(k) for k in ("id","email","name","avatar","provider","created_at","bio","cover_image")}
 
 @api_router.post("/auth/logout")
 async def logout():
@@ -281,6 +281,8 @@ class UpdateProfileRequest(BaseModel):
     name: Optional[str] = None
     avatar: Optional[str] = None
     password: Optional[str] = None
+    bio: Optional[str] = None
+    cover_image: Optional[str] = None
 
 @api_router.put("/auth/update-profile")
 async def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_user)):
@@ -291,6 +293,10 @@ async def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_use
         update["name"] = req.name.strip()
     if req.avatar:
         update["avatar"] = req.avatar
+    if req.bio is not None:
+        update["bio"] = req.bio.strip()[:500]
+    if req.cover_image:
+        update["cover_image"] = req.cover_image
     if req.password and len(req.password) >= 6:
         import hashlib
         update["password_hash"] = hashlib.sha256(req.password.encode()).hexdigest()
@@ -317,9 +323,14 @@ class CreatePostRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=5000)
     category: str = "general"
     image_url: Optional[str] = None
+    video_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    content_type: str = "text"  # text, image, video_short, video_long, lecture
+    duration: Optional[int] = None  # video duration in seconds
 
 class CreateCommentRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=2000)
+    reply_to: Optional[str] = None  # comment_id being replied to
 
 class CreatePageRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=100)
@@ -389,6 +400,10 @@ async def create_post(data: CreatePostRequest, user: dict = Depends(get_user)):
         "content": data.content,
         "category": data.category,
         "image_url": data.image_url,
+        "video_url": data.video_url,
+        "thumbnail_url": data.thumbnail_url,
+        "content_type": data.content_type,
+        "duration": data.duration,
         "created_at": datetime.utcnow().isoformat(),
         "shares_count": 0,
     }
@@ -442,11 +457,88 @@ async def create_comment(post_id: str, data: CreateCommentRequest, user: dict = 
         "author_name": user.get("name", "مستخدم"),
         "author_avatar": user.get("avatar"),
         "content": data.content,
+        "reply_to": data.dict().get("reply_to"),
         "created_at": datetime.utcnow().isoformat(),
     }
     await db.comments.insert_one(comment)
     comment.pop("_id", None)
     return {"comment": comment}
+
+@api_router.delete("/sohba/comments/{comment_id}")
+async def delete_comment(comment_id: str, user: dict = Depends(get_user)):
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    comment = await db.comments.find_one({"id": comment_id})
+    if not comment:
+        raise HTTPException(404, "التعليق غير موجود")
+    is_admin = user.get("email") in ["mohammadalrejab@gmail.com"]
+    if comment["author_id"] != user["id"] and not is_admin:
+        raise HTTPException(403, "غير مصرح بالحذف")
+    await db.comments.delete_one({"id": comment_id})
+    return {"deleted": True}
+
+# ==================== ADMIN SOCIAL MANAGEMENT ====================
+@api_router.get("/admin/social/posts")
+async def admin_list_posts(page: int = 1, limit: int = 30, user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    skip = (page - 1) * limit
+    cursor = db.posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    posts = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents({})
+    return {"posts": posts, "total": total}
+
+@api_router.delete("/admin/social/posts/{post_id}")
+async def admin_delete_post(post_id: str, user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    await db.posts.delete_one({"id": post_id})
+    await db.likes.delete_many({"post_id": post_id})
+    await db.comments.delete_many({"post_id": post_id})
+    await db.saves.delete_many({"post_id": post_id})
+    return {"deleted": True}
+
+@api_router.get("/admin/social/comments")
+async def admin_list_comments(page: int = 1, limit: int = 50, user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    skip = (page - 1) * limit
+    cursor = db.comments.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    comments = await cursor.to_list(length=limit)
+    total = await db.comments.count_documents({})
+    return {"comments": comments, "total": total}
+
+@api_router.delete("/admin/social/comments/{comment_id}")
+async def admin_delete_comment(comment_id: str, user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    await db.comments.delete_one({"id": comment_id})
+    return {"deleted": True}
+
+@api_router.get("/admin/social/users")
+async def admin_list_users(page: int = 1, limit: int = 50, user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    skip = (page - 1) * limit
+    cursor = db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    users = await cursor.to_list(length=limit)
+    total = await db.users.count_documents({})
+    for u in users:
+        u["posts_count"] = await db.posts.count_documents({"author_id": u["id"]})
+        u["followers_count"] = await db.follows.count_documents({"following_id": u["id"]})
+    return {"users": users, "total": total}
+
+@api_router.get("/admin/social/stats")
+async def admin_social_stats(user: dict = Depends(get_user)):
+    if not user or user.get("email") not in ["mohammadalrejab@gmail.com"]:
+        raise HTTPException(403, "غير مصرح")
+    return {
+        "total_posts": await db.posts.count_documents({}),
+        "total_users": await db.users.count_documents({}),
+        "total_comments": await db.comments.count_documents({}),
+        "total_likes": await db.likes.count_documents({}),
+        "total_follows": await db.follows.count_documents({}),
+    }
 
 @api_router.delete("/sohba/posts/{post_id}")
 async def delete_post(post_id: str, user: dict = Depends(get_user)):
@@ -484,15 +576,37 @@ async def get_profile(user_id: str, user: dict = Depends(get_user)):
     profile = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
     if not profile:
         raise HTTPException(404, "المستخدم غير موجود")
+    
+    # Count total likes received on user's posts
+    user_post_ids = []
+    async for p in db.posts.find({"author_id": user_id}, {"id": 1, "_id": 0}):
+        user_post_ids.append(p["id"])
+    total_likes = 0
+    if user_post_ids:
+        total_likes = await db.likes.count_documents({"post_id": {"$in": user_post_ids}})
+    
+    # Count gifts received
+    gifts_received = await db.gift_transactions.count_documents({"recipient_id": user_id}) if hasattr(db, 'gift_transactions') else 0
+    try:
+        gifts_received = await db.gift_transactions.count_documents({"recipient_id": user_id})
+    except Exception:
+        gifts_received = 0
+    
     stats = {
         "posts_count": await db.posts.count_documents({"author_id": user_id}),
         "followers_count": await db.follows.count_documents({"following_id": user_id}),
         "following_count": await db.follows.count_documents({"follower_id": user_id}),
+        "likes_count": total_likes,
+        "gifts_count": gifts_received,
     }
     is_following = False
     if user and user["id"] != user_id:
         is_following = bool(await db.follows.find_one({"follower_id": user["id"], "following_id": user_id}))
-    return {"profile": {k: profile.get(k) for k in ("id","email","name","avatar","created_at")}, "stats": stats, "is_following": is_following}
+    return {
+        "profile": {k: profile.get(k) for k in ("id", "email", "name", "avatar", "bio", "cover_image", "created_at")},
+        "stats": stats,
+        "is_following": is_following
+    }
 
 @api_router.get("/sohba/my-stats")
 async def get_my_stats(user: dict = Depends(get_user)):
@@ -515,6 +629,183 @@ async def get_my_stats(user: dict = Depends(get_user)):
         "saved_count": await db.saves.count_documents({"user_id": uid}),
         "liked_count": await db.likes.count_documents({"user_id": uid}),
     }
+
+# ==================== RECOMMENDED USERS ====================
+@api_router.get("/sohba/recommended-users")
+async def recommended_users(limit: int = 10, user: dict = Depends(get_user)):
+    """Get recommended users for new users or discovery"""
+    user_id = user["id"] if user else None
+    
+    # Get IDs of users already followed
+    followed_ids = set()
+    if user_id:
+        followed_ids.add(user_id)
+        async for f in db.follows.find({"follower_id": user_id}, {"following_id": 1, "_id": 0}):
+            followed_ids.add(f["following_id"])
+    
+    # Get users with most content/engagement, exclude already followed
+    pipeline = [
+        {"$match": {"id": {"$nin": list(followed_ids)}}} if followed_ids else {"$match": {}},
+        {"$project": {"_id": 0, "password_hash": 0}},
+        {"$limit": limit * 3}
+    ]
+    
+    candidates = []
+    async for u in db.users.aggregate(pipeline):
+        uid = u["id"]
+        followers = await db.follows.count_documents({"following_id": uid})
+        posts_count = await db.posts.count_documents({"author_id": uid})
+        candidates.append({
+            "id": uid,
+            "name": u.get("name", "مستخدم"),
+            "avatar": u.get("avatar"),
+            "bio": u.get("bio", ""),
+            "followers_count": followers,
+            "posts_count": posts_count,
+            "score": followers * 2 + posts_count,
+        })
+    
+    # Sort by score and return top N
+    candidates.sort(key=lambda x: x["score"], reverse=True)
+    return {"users": candidates[:limit]}
+
+@api_router.get("/sohba/feed/following")
+async def following_feed(page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+    """Get feed from followed users only"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    # Get followed user IDs
+    followed_ids = []
+    async for f in db.follows.find({"follower_id": user["id"]}, {"following_id": 1, "_id": 0}):
+        followed_ids.append(f["following_id"])
+    
+    if not followed_ids:
+        return {"posts": [], "total": 0, "page": page, "has_more": False}
+    
+    skip = (page - 1) * limit
+    query = {"author_id": {"$in": followed_ids}}
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    posts = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    # Enrich posts
+    post_ids = [p["id"] for p in posts]
+    user_id = user["id"]
+    likes_set = set()
+    saves_set = set()
+    if post_ids:
+        user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in user_likes}
+        user_saves = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        saves_set = {d["post_id"] for d in user_saves}
+    
+    likes_counts = {}
+    comments_counts = {}
+    if post_ids:
+        lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in lc:
+            likes_counts[doc["_id"]] = doc["c"]
+        cc = db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in cc:
+            comments_counts[doc["_id"]] = doc["c"]
+    
+    for post in posts:
+        pid = post["id"]
+        post["liked"] = pid in likes_set
+        post["saved"] = pid in saves_set
+        post["likes_count"] = likes_counts.get(pid, 0)
+        post["comments_count"] = comments_counts.get(pid, 0)
+    
+    return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.get("/sohba/feed/videos")
+async def video_feed(content_type: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+    """Get video content feed (reels, lectures, long videos)"""
+    skip = (page - 1) * limit
+    
+    if content_type == "all":
+        query = {"content_type": {"$in": ["video_short", "video_long", "lecture"]}}
+    else:
+        query = {"content_type": content_type}
+    
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    posts = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    # Enrich
+    user_id = user["id"] if user else None
+    post_ids = [p["id"] for p in posts]
+    likes_set = set()
+    saves_set = set()
+    if user_id and post_ids:
+        user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in user_likes}
+    
+    likes_counts = {}
+    comments_counts = {}
+    shares_counts = {}
+    if post_ids:
+        lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in lc:
+            likes_counts[doc["_id"]] = doc["c"]
+        cc = db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in cc:
+            comments_counts[doc["_id"]] = doc["c"]
+    
+    for post in posts:
+        pid = post["id"]
+        post["liked"] = pid in likes_set
+        post["likes_count"] = likes_counts.get(pid, 0)
+        post["comments_count"] = comments_counts.get(pid, 0)
+    
+    return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.post("/sohba/posts/{post_id}/share")
+async def share_post(post_id: str, user: dict = Depends(get_user)):
+    """Increment share count for a post"""
+    result = await db.posts.update_one({"id": post_id}, {"$inc": {"shares_count": 1}})
+    if result.modified_count == 0:
+        raise HTTPException(404, "المنشور غير موجود")
+    return {"shared": True}
+
+@api_router.get("/sohba/user/{user_id}/posts")
+async def get_user_posts(user_id: str, page: int = 1, limit: int = 20, content_type: str = "all", user: dict = Depends(get_user)):
+    """Get posts by specific user"""
+    skip = (page - 1) * limit
+    query = {"author_id": user_id}
+    if content_type != "all":
+        query["content_type"] = content_type
+    
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    posts = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    # Enrich
+    current_user_id = user["id"] if user else None
+    post_ids = [p["id"] for p in posts]
+    likes_set = set()
+    if current_user_id and post_ids:
+        user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": current_user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in user_likes}
+    
+    likes_counts = {}
+    comments_counts = {}
+    if post_ids:
+        lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in lc:
+            likes_counts[doc["_id"]] = doc["c"]
+        cc = db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
+        async for doc in cc:
+            comments_counts[doc["_id"]] = doc["c"]
+    
+    for post in posts:
+        pid = post["id"]
+        post["liked"] = pid in likes_set
+        post["likes_count"] = likes_counts.get(pid, 0)
+        post["comments_count"] = comments_counts.get(pid, 0)
+    
+    return {"posts": posts, "total": total, "page": page, "has_more": skip + limit < total}
 
 # ==================== PAGES SYSTEM ====================
 @api_router.post("/sohba/pages")

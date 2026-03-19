@@ -1,32 +1,33 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, Search, Plus, BookOpen, User } from 'lucide-react';
+import { Home, BookOpen, Plus, MessageSquare, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { useLocale } from '@/hooks/useLocale';
 
 const navItems = [
-  { path: '/', icon: Home, labelKey: 'home', exact: true },
-  { path: '/explore', icon: Search, labelKey: 'explore' },
-  { path: '/create', icon: Plus, labelKey: '', isCreate: true },
-  { path: '/stories', icon: BookOpen, labelKey: 'stories' },
-  { path: '/more', icon: User, labelKey: 'morePage' },
+  { path: '/', icon: Home, label: 'الرئيسية', exact: true },
+  { path: '/stories', icon: BookOpen, label: 'حكاياتي' },
+  { path: '/create', icon: Plus, label: '', isCreate: true },
+  { path: '/messages', icon: MessageSquare, label: 'الرسائل' },
+  { path: '/more', icon: User, label: 'المزيد' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
-  const { t, dir } = useLocale();
 
-  const hiddenPaths = ['/auth'];
+  const hiddenPaths = ['/auth', '/reels'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
   return (
     <nav
       data-testid="bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-background/90 backdrop-blur-xl"
+      className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-emerald-900 via-emerald-800 to-emerald-700 shadow-2xl"
     >
-      <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir={dir}>
+      <div className="absolute inset-0 opacity-[0.07]" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M20 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      }} />
+      <div className="relative flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir="rtl">
         {navItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.path
@@ -34,27 +35,16 @@ export function BottomNav() {
 
           if (item.isCreate) {
             return (
-              <button
+              <Link
                 key="create"
-                onClick={() => {
-                  if (!user) {
-                    window.location.href = '/auth';
-                    return;
-                  }
-                  // Navigate to stories with create param, or if already there, dispatch event
-                  if (location.pathname === '/stories') {
-                    window.dispatchEvent(new CustomEvent('open-create-story'));
-                  } else {
-                    window.location.href = '/stories?create=true';
-                  }
-                }}
+                to={user ? '/create-post' : '/auth'}
                 data-testid="nav-create"
-                className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 transition-all min-w-0"
+                className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 min-w-0"
               >
-                <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-primary via-primary to-accent flex items-center justify-center shadow-lg shadow-primary/25 transition-transform active:scale-90">
-                  <Plus className="h-6 w-6 text-primary-foreground stroke-[2.5px]" />
+                <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 active:scale-90 transition-transform border-2 border-emerald-300/30">
+                  <Plus className="h-7 w-7 text-white stroke-[3px]" />
                 </div>
-              </button>
+              </Link>
             );
           }
 
@@ -65,13 +55,13 @@ export function BottomNav() {
               data-testid={`nav-${item.path.replace('/', '') || 'home'}`}
               className={cn(
                 'relative flex flex-col items-center gap-1 flex-1 py-2.5 transition-all duration-300 min-w-0',
-                isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
+                isActive ? 'text-white' : 'text-emerald-200/60 hover:text-emerald-100'
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute top-0 inset-x-0 mx-auto h-[3px] w-8 rounded-b-full bg-primary"
+                  className="absolute top-0 inset-x-0 mx-auto h-[3px] w-8 rounded-b-full bg-emerald-300"
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
@@ -80,10 +70,10 @@ export function BottomNav() {
                 isActive && 'scale-110 stroke-[2.5px]'
               )} />
               <span className={cn(
-                "text-[10px] leading-tight text-center truncate w-full px-0.5 transition-all",
+                "text-[10px] leading-tight text-center truncate w-full px-0.5",
                 isActive ? 'font-bold' : 'font-medium'
               )}>
-                {t(item.labelKey)}
+                {item.label}
               </span>
             </Link>
           );

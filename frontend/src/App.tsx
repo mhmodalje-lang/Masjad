@@ -60,6 +60,11 @@ const ContactUs = lazy(() => import("./pages/ContactUs"));
 const Donations = lazy(() => import("./pages/Donations"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+// Social Platform Pages
+const SocialHome = lazy(() => import("./pages/SocialHome"));
+const SocialProfile = lazy(() => import("./pages/SocialProfile"));
+const VideoReels = lazy(() => import("./pages/VideoReels"));
+const CreatePost = lazy(() => import("./pages/CreatePost"));
 
 const queryClient = new QueryClient();
 
@@ -102,6 +107,9 @@ const App = () => {
                         <Suspense fallback={<div className="min-h-screen" />}>
                           <Routes>
                           <Route path="/" element={<Index />} />
+                          <Route path="/social-profile/:userId" element={<SocialProfile />} />
+                          <Route path="/reels" element={<VideoReels />} />
+                          <Route path="/create-post" element={<CreatePost />} />
                           <Route path="/prayer-times" element={<PrayerTimes />} />
                           <Route path="/qibla" element={<Qibla />} />
                           <Route path="/quran" element={<Quran />} />

@@ -92,11 +92,17 @@ export default function AdminDashboard() {
   });
   // Analytics
   const [analyticsData, setAnalyticsData] = useState<any>(null);
+  // Social Management
+  const [socialPosts, setSocialPosts] = useState<any[]>([]);
+  const [socialComments, setSocialComments] = useState<any[]>([]);
+  const [socialStats, setSocialStats] = useState<any>(null);
+  const [socialUsers, setSocialUsers] = useState<any[]>([]);
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
   useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
   useEffect(() => { if (isAdmin && tab === 'stories-mgmt') fetchAdminStories(); }, [isAdmin, tab, storiesFilter]);
+  useEffect(() => { if (isAdmin && tab === 'social-mgmt') { fetchSocialStats(); fetchSocialPosts(); fetchSocialComments(); fetchSocialUsers(); } }, [isAdmin, tab]);
   useEffect(() => { if (isAdmin && tab === 'donations-mgmt') fetchAdminDonations(); }, [isAdmin, tab, donationsFilter]);
 
   const api = async (path: string, method='GET', body?: any, useAuth=true) => {
@@ -184,6 +190,12 @@ export default function AdminDashboard() {
   async function fetchAnalytics() {
     try { const d = await api('/admin/analytics/summary?days=7'); setAnalyticsData(d); } catch {}
   }
+  async function fetchSocialStats() { try { const d = await api('/admin/social/stats'); setSocialStats(d); } catch {} }
+  async function fetchSocialPosts() { try { const d = await api('/admin/social/posts?limit=30'); setSocialPosts(d.posts || []); } catch {} }
+  async function fetchSocialComments() { try { const d = await api('/admin/social/comments?limit=50'); setSocialComments(d.comments || []); } catch {} }
+  async function fetchSocialUsers() { try { const d = await api('/admin/social/users?limit=50'); setSocialUsers(d.users || []); } catch {} }
+  async function deleteSocialPost(id: string) { if (!confirm('حذف المنشور؟')) return; await api(`/admin/social/posts/${id}`, 'DELETE'); toast.success('تم حذف المنشور'); fetchSocialPosts(); fetchSocialStats(); }
+  async function deleteSocialComment(id: string) { if (!confirm('حذف التعليق؟')) return; await api(`/admin/social/comments/${id}`, 'DELETE'); toast.success('تم حذف التعليق'); fetchSocialComments(); }
   async function saveAd() { const d = await api('/admin/ads','POST',adForm); if(d.success) { toast.success('تم حفظ الإعلان'); setShowAdForm(false); fetchAds(); } }
   async function deleteAd(id: string) { await api(`/admin/ads/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAds(); }
   async function savePage() { const d = await api('/admin/pages','POST',pageForm); if(d.success) { toast.success('تم حفظ الصفحة'); setShowPageForm(false); fetchPages(); } }
@@ -226,6 +238,7 @@ export default function AdminDashboard() {
 
   const tabs = [
     { key:'overview', label:'نظرة عامة', icon:BarChart3 },
+    { key:'social-mgmt', label:'المنصة الاجتماعية', icon:MessageSquare },
     { key:'stories-mgmt', label:'القصص', icon:BookOpen },
     { key:'ruqyah-mgmt', label:'الرقية', icon:Volume2 },
     { key:'donations-mgmt', label:'التبرعات', icon:Heart },
@@ -349,6 +362,96 @@ export default function AdminDashboard() {
           </div>
         )}
 
+
+        {/* ===== SOCIAL PLATFORM MANAGEMENT ===== */}
+        {tab==='social-mgmt' && (
+          <div className="space-y-4">
+            {/* Social Stats */}
+            {socialStats && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {[
+                  { label: 'المنشورات', value: socialStats.total_posts, color: 'text-emerald-500' },
+                  { label: 'المستخدمين', value: socialStats.total_users, color: 'text-blue-500' },
+                  { label: 'التعليقات', value: socialStats.total_comments, color: 'text-purple-500' },
+                  { label: 'الإعجابات', value: socialStats.total_likes, color: 'text-red-500' },
+                  { label: 'المتابعات', value: socialStats.total_follows, color: 'text-yellow-500' },
+                ].map((s, i) => (
+                  <div key={i} className="bg-card rounded-xl p-3 border border-border/30">
+                    <p className={cn("text-lg font-bold", s.color)}>{s.value}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Social Posts */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-bold text-foreground">المنشورات الاجتماعية ({socialPosts.length})</h3>
+                <button onClick={fetchSocialPosts} className="p-1.5 rounded-lg bg-muted"><RefreshCw className="h-3.5 w-3.5 text-muted-foreground" /></button>
+              </div>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {socialPosts.map(p => (
+                  <div key={p.id} className="bg-card rounded-xl p-3 border border-border/20" dir="rtl">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs font-bold text-foreground">{p.author_name}</span>
+                        <span className="text-[10px] text-muted-foreground mr-2">{p.content_type || 'text'}</span>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{p.content}</p>
+                      </div>
+                      <button onClick={() => deleteSocialPost(p.id)} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 shrink-0">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Social Comments */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-bold text-foreground">التعليقات ({socialComments.length})</h3>
+                <button onClick={fetchSocialComments} className="p-1.5 rounded-lg bg-muted"><RefreshCw className="h-3.5 w-3.5 text-muted-foreground" /></button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {socialComments.map(c => (
+                  <div key={c.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-start justify-between gap-2" dir="rtl">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-foreground">{c.author_name}</span>
+                      <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{c.content}</p>
+                    </div>
+                    <button onClick={() => deleteSocialComment(c.id)} className="p-1 rounded bg-red-500/10 text-red-500 shrink-0">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Social Users */}
+            <div>
+              <h3 className="text-sm font-bold text-foreground mb-2">مستخدمي المنصة ({socialUsers.length})</h3>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {socialUsers.map(u => (
+                  <div key={u.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-center gap-2" dir="rtl">
+                    <div className="w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center text-emerald-500 text-xs font-bold shrink-0">
+                      {(u.name || '?')[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-foreground">{u.name}</span>
+                      <span className="text-[10px] text-muted-foreground mr-2">{u.email}</span>
+                    </div>
+                    <div className="flex gap-2 text-[10px] text-muted-foreground shrink-0">
+                      <span>{u.posts_count || 0} منشور</span>
+                      <span>{u.followers_count || 0} متابع</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ===== STORIES MANAGEMENT ===== */}
         {tab==='stories-mgmt' && (
