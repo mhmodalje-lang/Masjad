@@ -10,21 +10,22 @@ import { Link } from 'react-router-dom';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
-const REWARD_TYPES = [
-  { type: 'daily_login', label: 'تسجيل يومي', icon: Calendar, gold: 10, description: 'سجّل دخولك يومياً واحصل على مكافأة' },
-  { type: 'tasbeeh_100', label: 'تسبيح 100', icon: Gift, gold: 3, description: 'أكمل 100 تسبيحة' },
-  { type: 'quran_page', label: 'صفحة قرآن', icon: Gift, gold: 5, description: 'اقرأ صفحة من القرآن' },
-];
-
 interface Transaction { type: string; amount: number; created_at: string; description?: string; }
 
 export default function Rewards() {
+  const { t, dir, locale } = useLocale();
   const { user, getToken } = useAuth();
   const [gold, setGold] = useState(0);
   const [totalEarned, setTotalEarned] = useState(0);
   const [streak, setStreak] = useState(0);
   const [history, setHistory] = useState<Transaction[]>([]);
   const [claiming, setClaiming] = useState('');
+
+  const REWARD_TYPES = [
+    { type: 'daily_login', label: t('dailyLogin'), icon: Calendar, gold: 10, description: t('dailyLoginDesc') },
+    { type: 'tasbeeh_100', label: t('tasbeeh100'), icon: Gift, gold: 3, description: t('tasbeeh100Desc') },
+    { type: 'quran_page', label: t('quranPageReward'), icon: Gift, gold: 5, description: t('quranPageRewardDesc') },
+  ];
 
   const load = () => {
     if (!user) return;
@@ -43,7 +44,7 @@ export default function Rewards() {
   useEffect(load, [user]);
 
   const claim = async (type: string) => {
-    if (!user) { toast.error('يجب تسجيل الدخول'); return; }
+    if (!user) { toast.error(t('mustLogin')); return; }
     setClaiming(type);
     try {
       const res = await fetch(`${BACKEND_URL}/api/rewards/claim`, {
@@ -59,36 +60,34 @@ export default function Rewards() {
       } else {
         toast.info(data.message);
       }
-    } catch { toast.error('حدث خطأ'); }
+    } catch { toast.error(t('errorOccurred')); }
     setClaiming('');
   };
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" dir="rtl" data-testid="rewards-page">
+      <div className="min-h-screen flex items-center justify-center pb-24" dir={dir} data-testid="rewards-page">
         <div className="text-center">
           <Coins className="h-12 w-12 mx-auto mb-3 text-amber-400" />
-          <h2 className="text-lg font-bold text-foreground mb-2">المكافآت</h2>
-          <p className="text-sm text-muted-foreground mb-4">سجّل دخولك لجمع الذهب</p>
-          <Link to="/auth"><Button data-testid="rewards-login-btn">تسجيل الدخول</Button></Link>
+          <h2 className="text-lg font-bold text-foreground mb-2">{t('rewardsTitle')}</h2>
+          <p className="text-sm text-muted-foreground mb-4">{t('loginToCollect')}</p>
+          <Link to="/auth"><Button data-testid="rewards-login-btn">{t('loginBtn')}</Button></Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="rewards-page">
-      {/* Header */}
+    <div className="min-h-screen pb-24" dir={dir} data-testid="rewards-page">
       <div className="bg-gradient-to-br from-amber-900 via-yellow-900 to-orange-900 px-5 pb-14 pt-safe-header overflow-hidden relative">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 60% 30%, rgba(255,215,0,0.4), transparent 50%)' }} />
         <div className="relative pt-4 text-center">
           <Coins className="h-10 w-10 mx-auto mb-2 text-amber-300" />
-          <h1 className="text-2xl font-bold text-white mb-3">المكافآت</h1>
-          
+          <h1 className="text-2xl font-bold text-white mb-3">{t('rewardsTitle')}</h1>
           <div className="flex items-center justify-center gap-6">
             <div className="text-center">
               <span className="text-3xl font-bold text-amber-300 tabular-nums">{gold}</span>
-              <p className="text-amber-300/60 text-[10px]">رصيدك</p>
+              <p className="text-amber-300/60 text-[10px]">{t('yourBalance')}</p>
             </div>
             <div className="h-8 w-px bg-white/20" />
             <div className="text-center">
@@ -96,21 +95,20 @@ export default function Rewards() {
                 <Flame className="h-4 w-4 text-orange-400" />
                 <span className="text-xl font-bold text-orange-300 tabular-nums">{streak}</span>
               </div>
-              <p className="text-orange-300/60 text-[10px]">سلسلة أيام</p>
+              <p className="text-orange-300/60 text-[10px]">{t('streakDays')}</p>
             </div>
             <div className="h-8 w-px bg-white/20" />
             <div className="text-center">
               <span className="text-xl font-bold text-emerald-300 tabular-nums">{totalEarned}</span>
-              <p className="text-emerald-300/60 text-[10px]">إجمالي</p>
+              <p className="text-emerald-300/60 text-[10px]">{t('totalEarned')}</p>
             </div>
           </div>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Claim Rewards */}
       <div className="px-4 mt-2 mb-6">
-        <h2 className="text-sm font-bold text-foreground mb-3">اجمع المكافآت</h2>
+        <h2 className="text-sm font-bold text-foreground mb-3">{t('collectRewards')}</h2>
         <div className="space-y-3">
           {REWARD_TYPES.map(reward => (
             <motion.div key={reward.type} className="rounded-2xl border border-border/40 bg-card p-4 flex items-center gap-4"
@@ -130,7 +128,7 @@ export default function Rewards() {
                 <Button size="sm" variant="outline" className="rounded-xl h-7 text-[10px] px-3"
                   onClick={() => claim(reward.type)} disabled={claiming === reward.type}
                   data-testid={`claim-${reward.type}`}>
-                  {claiming === reward.type ? '...' : 'استلم'}
+                  {claiming === reward.type ? '...' : t('claimBtn')}
                 </Button>
               </div>
             </motion.div>
@@ -138,7 +136,6 @@ export default function Rewards() {
         </div>
       </div>
 
-      {/* Go to Store */}
       <div className="px-4 mb-6">
         <Link to="/store" data-testid="go-to-store-link">
           <div className="rounded-2xl bg-gradient-to-l from-primary/10 to-accent/10 border border-primary/20 p-4 flex items-center gap-3 active:scale-[0.98] transition-transform">
@@ -146,19 +143,18 @@ export default function Rewards() {
               <Gift className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-foreground">المتجر</p>
-              <p className="text-[10px] text-muted-foreground">اشترِ عناصر مميزة بالذهب</p>
+              <p className="text-sm font-bold text-foreground">{t('storeBtn')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('buyWithGold')}</p>
             </div>
             <TrendingUp className="h-4 w-4 text-primary" />
           </div>
         </Link>
       </div>
 
-      {/* History */}
       <div className="px-4">
-        <h2 className="text-sm font-bold text-foreground mb-3">السجل</h2>
+        <h2 className="text-sm font-bold text-foreground mb-3">{t('logTitle')}</h2>
         {history.length === 0 ? (
-          <p className="text-center text-muted-foreground text-sm py-8">لا توجد معاملات بعد</p>
+          <p className="text-center text-muted-foreground text-sm py-8">{t('noTransactionsYet')}</p>
         ) : (
           <div className="space-y-2">
             {history.map((tx, i) => (
@@ -169,7 +165,7 @@ export default function Rewards() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-foreground">{tx.description || tx.type}</p>
-                  <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString('ar')}</p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(tx.created_at).toLocaleDateString(locale)}</p>
                 </div>
                 <span className={cn('text-sm font-bold tabular-nums', tx.amount > 0 ? 'text-emerald-500' : 'text-red-500')}>
                   {tx.amount > 0 ? '+' : ''}{tx.amount}

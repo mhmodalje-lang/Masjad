@@ -15,7 +15,7 @@ function getTodayKey() {
 }
 
 export default function PrayerTracker() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const { user } = useAuth();
   const todayKey = getTodayKey();
 
@@ -62,8 +62,8 @@ export default function PrayerTracker() {
   const progress = (todayPrayers.length / 5) * 100;
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
-      <PageHeader title={t('tracker')} subtitle="تابع صلواتك اليومية" image="https://images.unsplash.com/photo-1759162323169-f7e380922a2f?w=1200&q=85" />
+    <div className="min-h-screen pb-24" dir={dir}>
+      <PageHeader title={t('tracker')} subtitle={t('trackYourDailyPrayers')} image="https://images.unsplash.com/photo-1759162323169-f7e380922a2f?w=1200&q=85" />
 
       <div className="px-5 -mt-8 relative z-10">
         {!user && (
@@ -95,7 +95,7 @@ export default function PrayerTracker() {
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated mb-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-muted-foreground">{Math.round(progress)}%</span>
-            <p className="text-sm font-bold text-foreground">تقدم اليوم</p>
+            <p className="text-sm font-bold text-foreground">{t('todayProgress')}</p>
           </div>
           <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
             <motion.div
@@ -109,7 +109,7 @@ export default function PrayerTracker() {
         </div>
 
         {/* Prayer checklist */}
-        <SectionHeader icon={ListChecks} title="صلوات اليوم" />
+        <SectionHeader icon={ListChecks} title={t('todayPrayers')} />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);

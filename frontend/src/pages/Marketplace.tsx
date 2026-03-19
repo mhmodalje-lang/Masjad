@@ -16,16 +16,6 @@ interface Product {
   category: string; image_url: string; vendor_name: string; location: { city?: string };
 }
 
-const CATEGORIES = [
-  { key: 'all', label: 'الكل' },
-  { key: 'clothing', label: 'ملابس' },
-  { key: 'books', label: 'كتب' },
-  { key: 'accessories', label: 'إكسسوارات' },
-  { key: 'food', label: 'طعام' },
-  { key: 'perfume', label: 'عطور' },
-  { key: 'general', label: 'عام' },
-];
-
 export default function Marketplace() {
   const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
@@ -39,6 +29,16 @@ export default function Marketplace() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [productForm, setProductForm] = useState({ name: '', description: '', price: '', category: 'general', currency: 'EUR' });
   const [submitting, setSubmitting] = useState(false);
+
+  const CATEGORIES = [
+    { key: 'all', label: t('marketCatAll') },
+    { key: 'clothing', label: t('marketCatClothing') },
+    { key: 'books', label: t('marketCatBooks') },
+    { key: 'accessories', label: t('marketCatAccessories') },
+    { key: 'food', label: t('marketCatFood') },
+    { key: 'perfume', label: t('marketCatPerfume') },
+    { key: 'general', label: t('marketCatGeneral') },
+  ];
 
   useEffect(() => { loadProducts(); checkVendor(); }, [category]);
 
@@ -67,7 +67,7 @@ export default function Marketplace() {
   };
 
   const registerVendor = async () => {
-    if (!regForm.shop_name.trim()) { toast.error('أدخل اسم المتجر'); return; }
+    if (!regForm.shop_name.trim()) { toast.error(t('enterShopName')); return; }
     setSubmitting(true);
     try {
       const r = await fetch(`${BACKEND_URL}/api/marketplace/register-vendor`, {
@@ -75,14 +75,14 @@ export default function Marketplace() {
         body: JSON.stringify(regForm),
       });
       const d = await r.json();
-      if (r.ok) { toast.success(d.message || 'تم إرسال الطلب'); setVendorStatus(d.vendor); setShowRegister(false); }
-      else toast.error(d.detail || 'خطأ');
-    } catch { toast.error('خطأ'); }
+      if (r.ok) { toast.success(d.message || t('requestSent')); setVendorStatus(d.vendor); setShowRegister(false); }
+      else toast.error(d.detail || t('errorOccurred'));
+    } catch { toast.error(t('errorOccurred')); }
     setSubmitting(false);
   };
 
   const addProduct = async () => {
-    if (!productForm.name || !productForm.price) { toast.error('يجب ملء الاسم والسعر'); return; }
+    if (!productForm.name || !productForm.price) { toast.error(t('fillNameAndPrice')); return; }
     setSubmitting(true);
     try {
       const r = await fetch(`${BACKEND_URL}/api/marketplace/products`, {
@@ -90,9 +90,9 @@ export default function Marketplace() {
         body: JSON.stringify({ ...productForm, price: parseFloat(productForm.price) }),
       });
       const d = await r.json();
-      if (r.ok) { toast.success('تم إضافة المنتج'); setShowAddProduct(false); loadProducts(); }
-      else toast.error(d.detail || 'خطأ');
-    } catch { toast.error('خطأ'); }
+      if (r.ok) { toast.success(t('productAdded')); setShowAddProduct(false); loadProducts(); }
+      else toast.error(d.detail || t('errorOccurred'));
+    } catch { toast.error(t('errorOccurred')); }
     setSubmitting(false);
   };
 
@@ -101,58 +101,54 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen pb-24" dir={dir} data-testid="marketplace-page">
-      {/* Header with animated background */}
       <div className="relative bg-gradient-to-br from-teal-900 via-emerald-900 to-green-900 px-5 pb-16 pt-safe-header overflow-hidden">
         <AnimatedBackground variant="marketplace" />
         <div className="relative pt-4 text-center z-10">
           <StoreIcon className="h-10 w-10 mx-auto mb-2 text-teal-300" />
-          <h1 className="text-2xl font-bold text-white mb-1">السوق الإسلامي</h1>
-          <p className="text-white/60 text-sm">منتجات إسلامية من حولك</p>
+          <h1 className="text-2xl font-bold text-white mb-1">{t('marketplaceTitle')}</h1>
+          <p className="text-white/60 text-sm">{t('marketplaceSubtitle')}</p>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Vendor Status Card */}
       {user && !isApprovedVendor && (
         <div className="px-4 mt-2 mb-3">
           {vendorStatus?.status === 'pending' ? (
             <div className="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center gap-3">
               <Clock className="h-5 w-5 text-amber-500 shrink-0" />
-              <div><p className="text-sm font-bold text-foreground">طلبك قيد المراجعة</p><p className="text-[10px] text-muted-foreground">سيتم إشعارك عند الموافقة</p></div>
+              <div><p className="text-sm font-bold text-foreground">{t('requestUnderReview')}</p><p className="text-[10px] text-muted-foreground">{t('willNotifyApproval')}</p></div>
             </div>
           ) : !vendorStatus ? (
             <button onClick={() => setShowRegister(true)} className="w-full rounded-2xl bg-primary/10 border border-primary/20 p-4 flex items-center gap-3 active:scale-[0.98] transition-transform" data-testid="register-vendor-btn">
               <FileText className="h-5 w-5 text-primary shrink-0" />
-              <div className="text-start"><p className="text-sm font-bold text-foreground">هل تريد بيع منتجاتك؟</p><p className="text-[10px] text-muted-foreground">سجّل كبائع وابدأ النشر بعد موافقة الإدارة</p></div>
+              <div className="text-start"><p className="text-sm font-bold text-foreground">{t('wantToSell')}</p><p className="text-[10px] text-muted-foreground">{t('registerAndPublish')}</p></div>
             </button>
           ) : null}
         </div>
       )}
 
-      {/* Vendor Registration Form */}
       <AnimatePresence>
         {showRegister && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="px-4 mb-3 overflow-hidden">
             <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-              <p className="text-sm font-bold text-foreground">تسجيل كبائع</p>
-              <Input placeholder="اسم المتجر" value={regForm.shop_name} onChange={e => setRegForm({...regForm, shop_name: e.target.value})} className="rounded-xl" />
-              <Input placeholder="وصف المتجر" value={regForm.description} onChange={e => setRegForm({...regForm, description: e.target.value})} className="rounded-xl" />
-              <Input placeholder="رقم الهاتف" value={regForm.phone} onChange={e => setRegForm({...regForm, phone: e.target.value})} className="rounded-xl" />
-              <Input placeholder="IBAN (لاستلام الأرباح)" value={regForm.iban} onChange={e => setRegForm({...regForm, iban: e.target.value})} className="rounded-xl" />
+              <p className="text-sm font-bold text-foreground">{t('registerAsVendor')}</p>
+              <Input placeholder={t('enterShopName')} value={regForm.shop_name} onChange={e => setRegForm({...regForm, shop_name: e.target.value})} className="rounded-xl" />
+              <Input placeholder={t('messagePlaceholder')} value={regForm.description} onChange={e => setRegForm({...regForm, description: e.target.value})} className="rounded-xl" />
+              <Input placeholder={t('phoneWhatsapp')} value={regForm.phone} onChange={e => setRegForm({...regForm, phone: e.target.value})} className="rounded-xl" />
+              <Input placeholder="IBAN" value={regForm.iban} onChange={e => setRegForm({...regForm, iban: e.target.value})} className="rounded-xl" />
               <div className="flex gap-2">
-                <Button onClick={registerVendor} disabled={submitting} className="flex-1 rounded-xl">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تقديم الطلب'}</Button>
-                <Button variant="outline" onClick={() => setShowRegister(false)} className="rounded-xl">إلغاء</Button>
+                <Button onClick={registerVendor} disabled={submitting} className="flex-1 rounded-xl">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('sendBtn')}</Button>
+                <Button variant="outline" onClick={() => setShowRegister(false)} className="rounded-xl">{t('cancelBtn')}</Button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Search + Add Product */}
       <div className="px-4 mt-2 mb-3 flex gap-2">
         <div className="flex-1 relative">
           <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="بحث..." value={search} onChange={e => setSearch(e.target.value)} className="ps-9 rounded-xl" data-testid="marketplace-search" />
+          <Input placeholder={t('search') || 'Search...'} value={search} onChange={e => setSearch(e.target.value)} className="ps-9 rounded-xl" data-testid="marketplace-search" />
         </div>
         {isApprovedVendor && (
           <Button size="icon" className="rounded-xl h-10 w-10 shrink-0" onClick={() => setShowAddProduct(!showAddProduct)} data-testid="add-product-btn">
@@ -161,28 +157,26 @@ export default function Marketplace() {
         )}
       </div>
 
-      {/* Add Product Form (only for approved vendors) */}
       <AnimatePresence>
         {showAddProduct && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="px-4 mb-3 overflow-hidden">
             <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-              <p className="text-sm font-bold text-foreground">إضافة منتج</p>
-              <Input placeholder="اسم المنتج" value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="rounded-xl" />
-              <Input placeholder="الوصف" value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} className="rounded-xl" />
+              <p className="text-sm font-bold text-foreground">{t('productAdded').replace(t('productAdded'), t('publishBtn'))}</p>
+              <Input placeholder={t('namePlaceholder')} value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} className="rounded-xl" />
+              <Input placeholder={t('messagePlaceholder')} value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} className="rounded-xl" />
               <div className="grid grid-cols-2 gap-2">
-                <Input placeholder="السعر" type="number" value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} className="rounded-xl" />
+                <Input placeholder={t('amountPlaceholder')} type="number" value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} className="rounded-xl" />
                 <select value={productForm.category} onChange={e => setProductForm({...productForm, category: e.target.value})}
                   className="rounded-xl bg-muted border border-border px-3 py-2 text-sm text-foreground">
                   {CATEGORIES.filter(c => c.key !== 'all').map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
                 </select>
               </div>
-              <Button onClick={addProduct} disabled={submitting} className="w-full rounded-xl">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'نشر المنتج'}</Button>
+              <Button onClick={addProduct} disabled={submitting} className="w-full rounded-xl">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('publishBtn')}</Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Categories */}
       <div className="px-4 mb-4 flex gap-2 overflow-x-auto no-scrollbar">
         {CATEGORIES.map(c => (
           <button key={c.key} onClick={() => setCategory(c.key)}
@@ -193,14 +187,12 @@ export default function Marketplace() {
         ))}
       </div>
 
-      {/* Products */}
       {loading ? (
         <div className="flex justify-center py-12"><div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
           <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-muted-foreground/20" />
-          <p className="text-sm text-muted-foreground">لا توجد منتجات بعد</p>
-          <p className="text-[10px] text-muted-foreground mt-1">سجّل كبائع وأضف منتجاتك</p>
+          <p className="text-sm text-muted-foreground">{t('noRequestsNow')}</p>
         </div>
       ) : (
         <div className="px-4 grid grid-cols-2 gap-3">

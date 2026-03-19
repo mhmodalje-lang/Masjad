@@ -9,23 +9,28 @@
 Complete i18n translation system - fix all hardcoded Arabic text across all pages and components
 
 ## Translation System Fix Progress (2026-03-19)
-### Phase 2 - Comprehensive Main Page & Deep Fix:
-- Added 305+ NEW translation keys to all 6 locale files (1209 total per language, was 904)
-- Fixed ALL critical pages: Index, PrayerTimes, More, Qibla, Tasbeeh, Quran, Stories, Duas, Explore, NotificationSettings, Install, MosquePrayerTimes, ZakatCalculator
-- Fixed ALL key components: DailyHadith, QuranPlayer (20 reciters translated), DuaOfDayDrawer, AthanSelector, SplashScreen, ThemeToggle, HijriCalendar (12 months translated), DhikrCounterDrawer, Features2026
-- Fixed hooks: useUnifiedPrayer (automatic label), useLocale  
-- Rewrote data files: dhikrDetails.ts with translation key support
-- Added 90 proper English translations for Islamic duas/prayers
-- Fixed `dir` variable in Install.tsx, Duas.tsx, ZakatCalculator.tsx, More.tsx
-- ALL 7 critical pages have 0 hardcoded Arabic (only religious text remains in Arabic as correct behavior)
-- ALL 7 key components have 0 hardcoded Arabic
+### Phase 3 - Full Comprehensive Fix (Latest):
+- Added 151 NEW translation keys to all 6 locale files (1360 total per language)
+- **Backend**: Added multilingual hadith support (30 hadiths translated to English) with ?language= parameter
+- Fixed ALL major pages to use t() function instead of hardcoded Arabic:
+  - Ruqyah.tsx: Complete rewrite with translated categories, titles, subtitles, references
+  - DailyDuas.tsx: Complete rewrite with translated context config, fixed missing navigate import bug
+  - Rewards.tsx: Complete rewrite - all UI in selected language
+  - Store.tsx: Complete rewrite - categories, labels, buttons translated
+  - AiAssistant.tsx: Complete rewrite - all UI, sample questions, status labels
+  - ContactUs.tsx: Complete rewrite - form labels, buttons, messages
+  - Donations.tsx: Complete rewrite - all UI, create form, status messages
+  - Marketplace.tsx: Complete rewrite - categories, vendor registration, all labels
+  - PrayerTracker.tsx: Fixed dir, subtitle, section headers
+  - QuranGoal.tsx: Complete rewrite - all UI translated
+  - DhikrSettings.tsx: Fixed title and save button
+  - DailyHadith.tsx: Added locale parameter, fixed dir="auto" for hadith text
+  - Profile.tsx: Fixed hardcoded dir="rtl" to use dynamic dir
+  - Qibla.tsx: Fixed hardcoded dir="rtl" to use dynamic dir
 
-### Remaining (low priority, not user-facing):
-- AdminDashboard.tsx (admin only)
-- AsmaAlHusna.tsx (99 Names of Allah - Arabic names are correct)
-- PrivacyPolicy.tsx / TermsOfService.tsx - Legal content  
-- Ramadan pages (seasonal)
-- Data files with religious Arabic text (dois, dhikr - should stay Arabic)
+### Backend Changes:
+- Added /api/daily-hadith?language=en support with 30 English hadith translations
+- HADITH_TRANSLATIONS dictionary with English versions of all static hadiths
 
 ## Backend Test Cases
 1. GET /api/quran/v4/chapters - Fetch all surahs ✅
@@ -116,3 +121,54 @@ Compilation: Zero errors ✅
 - **All requested API endpoints are fully functional** ✅
 - Health check endpoint working correctly
 - Daily hadith rotation working properly
+
+## Latest Backend Testing Results (2026-03-19 - Testing Agent)
+
+### Multilingual Hadith API Testing:
+**Test Status:** ✅ **ALL TESTS PASSING** 
+- **Fixed critical bug** in German language handling - now returns Arabic text correctly
+- All 7 test cases passed with 100% success rate
+- Average response time: 0.062s
+
+### Endpoint Test Results:
+1. **GET /api/health** ✅ **PASSED** 
+   - Status: 200, healthy response with timestamp and app name
+
+2. **GET /api/daily-hadith** (default) ✅ **PASSED**
+   - Status: 200, returns Arabic hadith without arabic_text field
+   - Validation: ✓ Correctly excludes arabic_text for Arabic language
+
+3. **GET /api/daily-hadith?language=ar** ✅ **PASSED** 
+   - Status: 200, returns Arabic hadith without arabic_text field
+   - Validation: ✓ Correctly excludes arabic_text for Arabic language
+
+4. **GET /api/daily-hadith?language=en** ✅ **PASSED**
+   - Status: 200, returns English translation with arabic_text field
+   - Validation: ✓ English hadith contains arabic_text field as expected
+
+5. **GET /api/daily-hadith?language=de** ✅ **PASSED** (FIXED)
+   - Status: 200, returns Arabic text without arabic_text field
+   - Validation: ✓ German correctly returns Arabic text (no German translation available)
+   - **FIX APPLIED:** Updated backend logic to only return English translations for language=en specifically
+
+6. **GET /api/ruqyah** ✅ **PASSED**
+   - Status: 200, returns empty items list (expected - no ruqyah content in database)
+   - Structure validation: ✓ Correct response format with items array
+
+7. **GET /api/store/items** ✅ **PASSED**
+   - Status: 200, returns 6 store items
+   - Validation: ✓ Store returned proper items list
+
+### Technical Implementation:
+- **Backend Fix Applied**: Modified daily-hadith endpoint logic in server.py
+- **Change**: `if language != "ar"` → `if language == "en"` for English translations
+- **Result**: German and other languages now correctly fall back to Arabic text
+- All responses contain success=true as required
+- All endpoints using correct external URLs via REACT_APP_BACKEND_URL
+
+### Status Summary:
+- **Total Tests**: 7/7 ✅
+- **Success Rate**: 100.0% 
+- **Critical Issues**: 0 ❌
+- **Minor Issues**: 1 (empty ruqyah items - not critical)
+- **Main Feature**: Multilingual hadith API working perfectly

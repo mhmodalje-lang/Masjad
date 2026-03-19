@@ -138,7 +138,7 @@ function useSmoothedCompass() {
 }
 
 export default function Qibla() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const location = useGeoLocation();
   const { heading: compass, accuracy, hasCompass, permissionNeeded, requestPermission } = useSmoothedCompass();
   const [showInstructions, setShowInstructions] = useState(true);
@@ -159,7 +159,7 @@ export default function Qibla() {
   };
 
   return (
-    <div className="min-h-screen pb-24 overflow-x-hidden" dir="rtl">
+    <div className="min-h-screen pb-24 overflow-x-hidden" dir={dir}>
       <PageHeader
         title={t('qibla')}
         subtitle={t('qiblaDirection')}

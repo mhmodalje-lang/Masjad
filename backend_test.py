@@ -56,7 +56,8 @@ class APITester:
                     "content_type": response.content_type,
                     "response_size": len(str(data)),
                     "has_data": bool(data),
-                    "issues": []
+                    "issues": [],
+                    "validation_notes": []
                 }
                 
                 # Status code validation
@@ -73,6 +74,16 @@ class APITester:
                     if missing_keys:
                         result["issues"].append(f"Missing expected keys: {missing_keys}")
                 
+                # Special validation for daily-hadith multilingual API
+                if "/daily-hadith" in endpoint and response.status == 200:
+                    self._validate_hadith_response(endpoint, data, result)
+                
+                # Special validation for store and ruqyah items
+                if "/store/items" in endpoint and response.status == 200:
+                    self._validate_items_response("store", data, result)
+                elif "/ruqyah" in endpoint and response.status == 200:
+                    self._validate_items_response("ruqyah", data, result)
+                
                 # Store sample data for verification
                 if isinstance(data, dict):
                     result["sample_keys"] = list(data.keys())[:10]  # First 10 keys
@@ -82,6 +93,10 @@ class APITester:
                             result["data_count"] = len(data["data"])
                         elif isinstance(data["data"], dict):
                             result["data_sample_keys"] = list(data["data"].keys())[:5]
+                    if "items" in data:
+                        result["data_type"] = type(data["items"]).__name__
+                        if isinstance(data["items"], list):
+                            result["data_count"] = len(data["items"])
                 elif isinstance(data, list):
                     result["data_count"] = len(data)
                     result["data_type"] = "list"
@@ -111,49 +126,114 @@ class APITester:
                 "issues": [f"Request error: {str(e)}"]
             }
     
+    def _validate_hadith_response(self, endpoint: str, data: dict, result: dict):
+        """Validate hadith API response based on language parameter"""
+        if not isinstance(data, dict) or "hadith" not in data:
+            result["issues"].append("Invalid hadith response structure")
+            return
+            
+        hadith = data["hadith"]
+        if not isinstance(hadith, dict):
+            result["issues"].append("Hadith field is not a dictionary")
+            return
+            
+        # Check success field
+        if not data.get("success"):
+            result["issues"].append("Response does not indicate success=true")
+        
+        # Required hadith fields
+        required_fields = ["text", "narrator", "source"]
+        missing_fields = [field for field in required_fields if field not in hadith]
+        if missing_fields:
+            result["issues"].append(f"Missing hadith fields: {missing_fields}")
+        
+        # Language-specific validation
+        if "language=en" in endpoint:
+            # English request should have arabic_text field
+            if "arabic_text" not in hadith:
+                result["issues"].append("English hadith request missing arabic_text field")
+            else:
+                result["validation_notes"].append("✓ English hadith contains arabic_text field")
+                
+        elif "language=ar" in endpoint or endpoint == "/daily-hadith":
+            # Arabic request should NOT have arabic_text field
+            if "arabic_text" in hadith:
+                result["issues"].append("Arabic hadith request should not contain arabic_text field")
+            else:
+                result["validation_notes"].append("✓ Arabic hadith correctly excludes arabic_text field")
+                
+        elif "language=de" in endpoint:
+            # German request should return Arabic text (no translation available)
+            if "arabic_text" in hadith:
+                result["issues"].append("German hadith should return Arabic text without arabic_text field")
+            else:
+                result["validation_notes"].append("✓ German hadith correctly returns Arabic text (no German translation)")
+    
+    def _validate_items_response(self, api_type: str, data: dict, result: dict):
+        """Validate items response structure"""
+        if "items" not in data:
+            result["issues"].append(f"{api_type} API missing 'items' key")
+            return
+            
+        items = data["items"]
+        if not isinstance(items, list):
+            result["issues"].append(f"{api_type} items is not a list")
+            return
+            
+        if len(items) == 0:
+            result["validation_notes"].append(f"⚠️ {api_type} returned empty items list")
+        else:
+            result["validation_notes"].append(f"✓ {api_type} returned {len(items)} items")
+    
     async def run_tests(self):
         """Run all the requested API tests"""
         print("🕌 Starting Islamic App Backend API Tests...")
         print(f"Base URL: {self.base_url}")
         print("-" * 60)
         
-        # Test cases based on review request
+        # Test cases based on review request - focusing on multilingual hadith API
         test_cases = [
             {
                 "method": "GET",
                 "endpoint": "/health",
                 "expected_keys": ["status"],
-                "description": "Basic health check endpoint"
-            },
-            {
-                "method": "GET", 
-                "endpoint": "/quran/v4/chapters",
-                "expected_keys": ["chapters"],
-                "description": "Should return list of Quran surahs"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/quran/v4/chapters/1?language=en",
-                "expected_keys": ["chapter"],
-                "description": "Should return Al-Fatiha info in English"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/quran/v4/verses/by_chapter/1?language=en",
-                "expected_keys": ["verses"],
-                "description": "Should return English translation of Al-Fatiha verses"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/hadith/collections", 
-                "expected_keys": ["data"],
-                "description": "Should return hadith collections"
+                "description": "General health check - should return healthy status"
             },
             {
                 "method": "GET",
                 "endpoint": "/daily-hadith",
                 "expected_keys": ["success", "hadith"],
-                "description": "Should return daily hadith"
+                "description": "Default daily hadith - should return Arabic hadith without arabic_text field"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/daily-hadith?language=ar",
+                "expected_keys": ["success", "hadith"],
+                "description": "Arabic daily hadith - should return Arabic hadith without arabic_text field"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/daily-hadith?language=en", 
+                "expected_keys": ["success", "hadith"],
+                "description": "English daily hadith - should return English translation with arabic_text field"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/daily-hadith?language=de",
+                "expected_keys": ["success", "hadith"],
+                "description": "German daily hadith - should return Arabic text (German not available)"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/ruqyah",
+                "expected_keys": ["items"],
+                "description": "Ruqyah API - should return items list"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/store/items", 
+                "expected_keys": ["items"],
+                "description": "Store API - should return items list"
             }
         ]
         
@@ -169,7 +249,11 @@ class APITester:
             
             if result["issues"]:
                 for issue in result["issues"]:
-                    print(f"    ⚠️  {issue}")
+                    print(f"    ❌ {issue}")
+            
+            if result.get("validation_notes"):
+                for note in result["validation_notes"]:
+                    print(f"    {note}")
             
             print()
         
@@ -237,6 +321,9 @@ class APITester:
             
             if "data_count" in result:
                 print(f"    Data Items: {result['data_count']}")
+            
+            if result.get("validation_notes"):
+                print(f"    Validation: {result['validation_notes']}")
             
             if result["issues"]:
                 print(f"    Issues: {result['issues']}")

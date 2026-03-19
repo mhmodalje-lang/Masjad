@@ -2573,13 +2573,62 @@ STATIC_HADITHS = [
     {"text": "مَا مَلَأَ آدَمِيٌّ وِعَاءً شَرًّا مِنْ بَطْنٍ", "narrator": "المقدام بن معدي كرب", "source": "سنن الترمذي", "number": "2380"},
 ]
 
+HADITH_TRANSLATIONS = {
+    "1": {"text": "Actions are judged by intentions, and everyone will be rewarded according to what they intended.", "narrator": "Umar ibn Al-Khattab", "source": "Sahih Al-Bukhari"},
+    "15": {"text": "Whoever believes in Allah and the Last Day, let him speak good or remain silent.", "narrator": "Abu Hurairah", "source": "Sahih Al-Bukhari & Muslim"},
+    "13": {"text": "None of you truly believes until he loves for his brother what he loves for himself.", "narrator": "Anas ibn Malik", "source": "Sahih Al-Bukhari & Muslim"},
+    "10": {"text": "A Muslim is one from whose tongue and hands other Muslims are safe.", "narrator": "Abdullah ibn Amr", "source": "Sahih Al-Bukhari"},
+    "2699": {"text": "Whoever takes a path seeking knowledge, Allah will make easy for him a path to Paradise.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "2564": {"text": "Allah does not look at your appearance or wealth, but rather He looks at your hearts and deeds.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "223": {"text": "Purification is half of faith, and praise be to Allah fills the scale.", "narrator": "Abu Malik Al-Ash'ari", "source": "Sahih Muslim"},
+    "5027": {"text": "The best among you are those who learn the Quran and teach it.", "narrator": "Uthman ibn Affan", "source": "Sahih Al-Bukhari"},
+    "3247": {"text": "Supplication (Dua) is worship itself.", "narrator": "An-Nu'man ibn Bashir", "source": "Sunan At-Tirmidhi"},
+    "3559": {"text": "No servant seeks forgiveness from Allah except that Allah forgives him.", "narrator": "Abu Hurairah", "source": "Sunan At-Tirmidhi"},
+    "1956": {"text": "Your smile in the face of your brother is charity.", "narrator": "Abu Dharr", "source": "Sunan At-Tirmidhi"},
+    "6464": {"text": "The most beloved of deeds to Allah are the most consistent, even if small.", "narrator": "Aisha", "source": "Sahih Al-Bukhari & Muslim"},
+    "2956": {"text": "This world is a prison for the believer and a paradise for the disbeliever.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "408": {"text": "Whoever sends blessings upon me once, Allah will send blessings upon him tenfold.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "1987": {"text": "Fear Allah wherever you are, follow a bad deed with a good one to erase it, and treat people with good character.", "narrator": "Mu'adh ibn Jabal", "source": "Sunan At-Tirmidhi"},
+    "233": {"text": "The five daily prayers and Friday to Friday are expiation for sins committed between them, as long as major sins are avoided.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "1631": {"text": "When a person dies, their deeds end except for three: ongoing charity, beneficial knowledge, or a righteous child who prays for them.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "1899": {"text": "Allah's pleasure is in the pleasure of parents, and Allah's anger is in the anger of parents.", "narrator": "Abdullah ibn Amr", "source": "Sunan At-Tirmidhi"},
+    "2588": {"text": "Charity does not decrease wealth, and Allah increases a servant in honor through forgiveness.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "6406": {"text": "Two words are light on the tongue, heavy on the scale: SubhanAllah wa bihamdihi, SubhanAllah al-Adheem.", "narrator": "Abu Hurairah", "source": "Sahih Al-Bukhari & Muslim"},
+    "2564b": {"text": "Do not envy one another, do not inflate prices, do not hate one another, do not turn away from one another - be servants of Allah as brothers.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "9928": {"text": "Whoever recites Ayat al-Kursi after every obligatory prayer, nothing prevents him from entering Paradise except death.", "narrator": "Abu Umamah", "source": "Sunan An-Nasa'i"},
+    "2018": {"text": "The most beloved of you to me and nearest to me in assembly on the Day of Resurrection are those with the best character.", "narrator": "Jabir", "source": "Sunan At-Tirmidhi"},
+    "3104": {"text": "Paradise lies beneath the feet of mothers.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nasa'i"},
+    "804": {"text": "Read the Quran, for it will come as an intercessor for its companions on the Day of Resurrection.", "narrator": "Abu Umamah", "source": "Sahih Muslim"},
+    "71": {"text": "When Allah wishes good for someone, He grants him understanding of the religion.", "narrator": "Mu'awiyah ibn Abi Sufyan", "source": "Sahih Al-Bukhari"},
+    "2664": {"text": "The strong believer is better and more beloved to Allah than the weak believer, and in each there is good.", "narrator": "Abu Hurairah", "source": "Sahih Muslim"},
+    "8": {"text": "Islam is built upon five pillars: testifying that there is no god but Allah and Muhammad is His Messenger, establishing prayer, paying Zakat, fasting Ramadan, and making pilgrimage to the House.", "narrator": "Ibn Umar", "source": "Sahih Al-Bukhari & Muslim"},
+    "6407": {"text": "The likeness of the one who remembers his Lord and the one who does not is like the living and the dead.", "narrator": "Abu Musa Al-Ash'ari", "source": "Sahih Al-Bukhari"},
+    "2380": {"text": "No human fills a vessel worse than his stomach.", "narrator": "Al-Miqdam ibn Ma'dikarib", "source": "Sunan At-Tirmidhi"},
+}
+
 @api_router.get("/daily-hadith")
-async def daily_hadith():
-    """Get today's hadith - rotates daily from collection"""
+async def daily_hadith(language: str = Query("ar")):
+    """Get today's hadith - rotates daily from collection. Supports language parameter."""
     today = date.today()
     day_of_year = today.timetuple().tm_yday
     idx = day_of_year % len(STATIC_HADITHS)
     hadith = STATIC_HADITHS[idx]
+    
+    # If English language is specifically requested and we have a translation
+    if language == "en" and hadith["number"] in HADITH_TRANSLATIONS:
+        trans = HADITH_TRANSLATIONS[hadith["number"]]
+        return {
+            "success": True,
+            "hadith": {
+                "text": trans["text"],
+                "narrator": trans["narrator"],
+                "source": trans["source"],
+                "number": hadith["number"],
+                "arabic_text": hadith["text"],
+            },
+            "date": today.isoformat(),
+        }
+    
     return {
         "success": True,
         "hadith": {

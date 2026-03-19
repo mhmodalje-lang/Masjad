@@ -12,18 +12,19 @@ interface HadithData {
 }
 
 export default function DailyHadith() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [hadith, setHadith] = useState<HadithData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const cached = localStorage.getItem('daily-hadith-cache');
     const today = new Date().toISOString().split('T')[0];
+    const cacheKey = `${today}-${locale}`;
 
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        if (parsed.date === today && parsed.hadith) {
+        if (parsed.cacheKey === cacheKey && parsed.hadith) {
           setHadith(parsed.hadith);
           setLoading(false);
           return;
@@ -31,17 +32,17 @@ export default function DailyHadith() {
       } catch {}
     }
 
-    fetch(`${BACKEND_URL}/api/daily-hadith`)
+    fetch(`${BACKEND_URL}/api/daily-hadith?language=${locale}`)
       .then(r => r.json())
       .then(data => {
         if (data.success && data.hadith) {
           setHadith(data.hadith);
-          localStorage.setItem('daily-hadith-cache', JSON.stringify({ date: today, hadith: data.hadith }));
+          localStorage.setItem('daily-hadith-cache', JSON.stringify({ cacheKey, hadith: data.hadith }));
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [locale]);
 
   const handleShare = async () => {
     if (!hadith) return;
@@ -85,7 +86,7 @@ export default function DailyHadith() {
         </div>
 
         <p className="text-sm text-muted-foreground mb-2">{t('prophetSaid')}</p>
-        <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="rtl">
+        <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="auto">
           «{hadith.text}»
         </p>
 

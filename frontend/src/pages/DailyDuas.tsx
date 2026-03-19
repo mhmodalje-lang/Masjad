@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useLocale } from "@/hooks/useLocale";
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Sparkles, RefreshCw, BookOpen, Heart } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Sparkles, RefreshCw, BookOpen, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { duasData } from '@/data/duas';
 import { useFavoriteDuas } from '@/hooks/useFavoriteDuas';
@@ -17,42 +17,44 @@ interface AiDua {
   count: number;
 }
 
-const CONTEXT_CONFIG: Record<string, {
+function getContextConfig(t: (key: string) => string): Record<string, {
   title: string;
   subtitle: string;
   emoji: string;
   gradient: string;
   fallbackCategories: string[];
-}> = {
-  morning: {
-    title: 'أذكار الصباح والخروج',
-    subtitle: 'ابدأ يومك بذكر الله',
-    emoji: '☀️',
-    gradient: 'from-amber-500/20 to-orange-500/10',
-    fallbackCategories: ['daily-dhikr', 'home'],
-  },
-  midday: {
-    title: 'أدعية ومناجاة',
-    subtitle: 'دعاء للوالدين والتسبيح والاستغفار',
-    emoji: '🤲',
-    gradient: 'from-primary/20 to-emerald-500/10',
-    fallbackCategories: ['family', 'daily-revival', 'daily-dhikr'],
-  },
-  evening: {
-    title: 'وقت القرآن',
-    subtitle: 'تعال نقرأ القرآن ونتدبر',
-    emoji: '📖',
-    gradient: 'from-blue-500/20 to-indigo-500/10',
-    fallbackCategories: ['daily-dhikr'],
-  },
-  bedtime: {
-    title: 'أذكار قبل النوم',
-    subtitle: 'حصّن نفسك قبل النوم',
-    emoji: '🌙',
-    gradient: 'from-indigo-500/20 to-purple-500/10',
-    fallbackCategories: ['sleep'],
-  },
-};
+}> {
+  return {
+    morning: {
+      title: t('morningAdhkarTitle'),
+      subtitle: t('morningAdhkarSubtitle'),
+      emoji: '☀️',
+      gradient: 'from-amber-500/20 to-orange-500/10',
+      fallbackCategories: ['daily-dhikr', 'home'],
+    },
+    midday: {
+      title: t('middayDuasTitle'),
+      subtitle: t('middayDuasSubtitle'),
+      emoji: '🤲',
+      gradient: 'from-primary/20 to-emerald-500/10',
+      fallbackCategories: ['family', 'daily-revival', 'daily-dhikr'],
+    },
+    evening: {
+      title: t('eveningQuranTitle'),
+      subtitle: t('eveningQuranSubtitle'),
+      emoji: '📖',
+      gradient: 'from-blue-500/20 to-indigo-500/10',
+      fallbackCategories: ['daily-dhikr'],
+    },
+    bedtime: {
+      title: t('bedtimeAdhkarTitle'),
+      subtitle: t('bedtimeAdhkarSubtitle'),
+      emoji: '🌙',
+      gradient: 'from-indigo-500/20 to-purple-500/10',
+      fallbackCategories: ['sleep'],
+    },
+  };
+}
 
 function getFallbackDuas(categories: string[]): AiDua[] {
   const result: AiDua[] = [];
@@ -70,11 +72,13 @@ function getFallbackDuas(categories: string[]): AiDua[] {
 }
 
 export default function DailyDuas() {
-  const { t, dir } = useLocale();
+  const { t, dir, isRTL } = useLocale();
+  const navigate = useNavigate();
   const [params] = useSearchParams();
   const goBack = useSmartBack();
   const context = params.get('context') || 'morning';
-  const config = CONTEXT_CONFIG[context] || CONTEXT_CONFIG.morning;
+  const contextConfig = getContextConfig(t);
+  const config = contextConfig[context] || contextConfig.morning;
 
   const [duas, setDuas] = useState<AiDua[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,6 +111,7 @@ export default function DailyDuas() {
   }, [context]);
 
   const displayDuas = showFavorites ? favorites : duas;
+  const BackArrow = isRTL ? ArrowRight : ArrowLeft;
 
   return (
     <div className="min-h-screen pb-24" dir={dir}>
@@ -119,17 +124,17 @@ export default function DailyDuas() {
             onClick={goBack}
             className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
           >
-            <ArrowRight className="h-4 w-4 text-foreground" />
+            <BackArrow className="h-4 w-4 text-foreground" />
           </button>
           <div className="text-center flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/12 backdrop-blur-sm border border-white/10 px-4 py-1.5">
               <span className="text-lg">{config.emoji}</span>
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">
-                {showFavorites ? 'المفضلة' : config.title}
+                {showFavorites ? t('favorites') : config.title}
               </h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2 leading-relaxed">
-              {showFavorites ? 'أدعيتك المحفوظة' : config.subtitle}
+              {showFavorites ? t('yourSavedDuas') : config.subtitle}
             </p>
           </div>
           <button
@@ -156,7 +161,7 @@ export default function DailyDuas() {
             className="flex items-center gap-2 rounded-2xl border border-primary/20 bg-primary/5 p-3 mb-4"
           >
             <Sparkles className="h-4 w-4 text-primary shrink-0" />
-            <p className="text-xs text-primary leading-relaxed">أدعية مُختارة لك اليوم بالذكاء الاصطناعي ✨</p>
+            <p className="text-xs text-primary leading-relaxed">{t('aiSelectedDuas')}</p>
           </motion.div>
         )}
 
@@ -169,7 +174,7 @@ export default function DailyDuas() {
           >
             <Heart className="h-4 w-4 text-destructive fill-destructive shrink-0" />
             <p className="text-xs text-destructive leading-relaxed">
-              {favorites.length > 0 ? `لديك ${favorites.length} دعاء محفوظ` : 'لم تحفظ أي دعاء بعد'}
+              {favorites.length > 0 ? t('youHaveSavedDuas').replace('{count}', String(favorites.length)) : t('noSavedDuasYet')}
             </p>
           </motion.div>
         )}
@@ -178,7 +183,7 @@ export default function DailyDuas() {
         {loading && !showFavorites ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">جارٍ تحضير أذكارك...</p>
+            <p className="text-sm text-muted-foreground">{t('loadingAdhkar')}</p>
           </div>
         ) : (
           <>
@@ -186,9 +191,9 @@ export default function DailyDuas() {
             {showFavorites && favorites.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <Heart className="h-12 w-12 text-muted-foreground/30" />
-                <p className="text-sm text-muted-foreground">اضغط على ❤️ لحفظ أدعيتك المفضلة</p>
+                <p className="text-sm text-muted-foreground">{t('tapToSaveFavorites')}</p>
                 <Button variant="outline" className="rounded-2xl" onClick={() => setShowFavorites(false)}>
-                  العودة للأذكار
+                  {t('backToAdhkar')}
                 </Button>
               </div>
             )}
@@ -205,7 +210,7 @@ export default function DailyDuas() {
                     transition={{ delay: i * 0.08 }}
                     className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated"
                   >
-                    <p className="text-lg leading-[2.2] text-foreground font-arabic text-center mb-3">
+                    <p className="text-lg leading-[2.2] text-foreground font-arabic text-center mb-3" dir="rtl">
                       {dua.arabic}
                     </p>
                     <div className="flex items-center justify-between pt-3 border-t border-border/50">
@@ -236,7 +241,7 @@ export default function DailyDuas() {
               </AnimatePresence>
             </div>
 
-            {/* Refresh button - only in main view */}
+            {/* Refresh button */}
             {!showFavorites && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -250,7 +255,7 @@ export default function DailyDuas() {
                   disabled={loading}
                 >
                   <Sparkles className="h-4 w-4" />
-                  أدعية جديدة
+                  {t('newDuas')}
                 </Button>
               </motion.div>
             )}
@@ -268,7 +273,7 @@ export default function DailyDuas() {
                   className="w-full rounded-2xl h-12 gap-3"
                 >
                   <BookOpen className="h-4 w-4" />
-                  افتح القرآن الكريم
+                  {t('openQuran')}
                 </Button>
               </motion.div>
             )}

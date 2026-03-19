@@ -30,7 +30,7 @@ export default function DhikrSettings() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="حدد الأذكار اليومية" backTo="/" />
+      <PageHeader title={t('setDailyAdhkar')} backTo="/" />
 
       <div className="px-4 pt-4 space-y-3">
         {dhikrDetails.map(d => {
@@ -72,10 +72,10 @@ export default function DhikrSettings() {
         })}
 
         <button
-          onClick={() => toast({ title: 'تم حفظ إعدادات الأذكار ✅' })}
+          onClick={() => toast({ title: t('adhkarSettingsSaved') })}
           className="w-full rounded-2xl bg-primary text-primary-foreground font-bold py-4 text-sm active:scale-[0.98] transition-transform"
         >
-          حفظ الإعدادات
+          {t('saveSettings')}
         </button>
       </div>
     </div>

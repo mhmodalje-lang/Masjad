@@ -13,21 +13,23 @@ const CATEGORY_ICONS: Record<string, typeof Coins> = {
   frame: Crown, theme: Sparkles, badge: Gift, effect: Sparkles, membership: Crown, charity: Heart,
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  all: 'الكل', frame: 'إطارات', theme: 'خلفيات', badge: 'شارات', effect: 'تأثيرات', membership: 'عضويات', charity: 'صدقات',
-};
-
 interface StoreItemType {
   id: string; name: string; description: string; price_gold: number; price_usd: number; category: string; image_url: string | null;
 }
 
 export default function Store() {
+  const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const [items, setItems] = useState<StoreItemType[]>([]);
   const [gold, setGold] = useState(0);
   const [category, setCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [purchases, setPurchases] = useState<string[]>([]);
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    all: t('storeCatAll'), frame: t('storeCatFrame'), theme: t('storeCatTheme'), badge: t('storeCatBadge'),
+    effect: t('storeCatEffect'), membership: t('storeCatMembership'), charity: t('storeCatCharity'),
+  };
 
   useEffect(() => {
     Promise.all([
@@ -43,8 +45,8 @@ export default function Store() {
   }, [user]);
 
   const handleBuy = async (item: StoreItemType) => {
-    if (!user) { toast.error('يجب تسجيل الدخول أولاً'); return; }
-    if (gold < item.price_gold) { toast.error('رصيد الذهب غير كافٍ'); return; }
+    if (!user) { toast.error(t('mustLogin')); return; }
+    if (gold < item.price_gold) { toast.error(t('insufficientGoldMsg')); return; }
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/store/buy-gold`, {
@@ -57,35 +59,31 @@ export default function Store() {
         setGold(data.gold_remaining);
         setPurchases(prev => [...prev, item.id]);
       } else {
-        toast.error(data.detail || 'فشل الشراء');
+        toast.error(data.detail || t('purchaseFailed'));
       }
-    } catch { toast.error('حدث خطأ'); }
+    } catch { toast.error(t('errorOccurred')); }
   };
 
   const filtered = category === 'all' ? items : items.filter(i => i.category === category);
   const categories = ['all', ...new Set(items.map(i => i.category))];
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="store-page">
-      {/* Header */}
+    <div className="min-h-screen pb-24" dir={dir} data-testid="store-page">
       <div className="bg-gradient-to-br from-amber-900 via-yellow-900 to-orange-900 px-5 pb-14 pt-safe-header overflow-hidden relative">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 40%, rgba(255,215,0,0.3), transparent 50%)' }} />
         <div className="relative pt-4 text-center">
           <ShoppingBag className="h-10 w-10 mx-auto mb-2 text-amber-300" />
-          <h1 className="text-2xl font-bold text-white mb-1">المتجر</h1>
-          <p className="text-white/60 text-sm mb-4">اقتنِ عناصر مميزة بالذهب</p>
-          
-          {/* Gold balance */}
+          <h1 className="text-2xl font-bold text-white mb-1">{t('storeTitle')}</h1>
+          <p className="text-white/60 text-sm mb-4">{t('storePremiumItems')}</p>
           <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-xl rounded-full px-5 py-2.5">
             <Coins className="h-5 w-5 text-amber-400" />
             <span className="text-xl font-bold text-amber-300 tabular-nums">{gold}</span>
-            <span className="text-amber-300/60 text-xs">ذهب</span>
+            <span className="text-amber-300/60 text-xs">{t('goldLabel')}</span>
           </div>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Categories */}
       <div className="px-4 mt-2 mb-4 flex gap-2 overflow-x-auto no-scrollbar">
         {categories.map(cat => (
           <button key={cat} onClick={() => setCategory(cat)}
@@ -97,7 +95,6 @@ export default function Store() {
         ))}
       </div>
 
-      {/* Items Grid */}
       {loading ? (
         <div className="flex justify-center py-12"><div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>
       ) : (
@@ -116,9 +113,8 @@ export default function Store() {
                   </div>
                   <h3 className="text-sm font-bold text-foreground mb-1">{item.name}</h3>
                   <p className="text-[11px] text-muted-foreground mb-3 line-clamp-2">{item.description}</p>
-                  
                   {owned ? (
-                    <span className="text-xs text-primary font-bold">مملوك</span>
+                    <span className="text-xs text-primary font-bold">{t('ownedLabel')}</span>
                   ) : (
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-center gap-1">
@@ -129,7 +125,7 @@ export default function Store() {
                         disabled={gold < item.price_gold}
                         data-testid={`buy-${item.id}`}>
                         {gold < item.price_gold ? <Lock className="h-3 w-3 me-1" /> : null}
-                        {gold < item.price_gold ? 'غير كافٍ' : 'شراء'}
+                        {gold < item.price_gold ? t('insufficientGold') : t('buyBtn')}
                       </Button>
                     </div>
                   )}

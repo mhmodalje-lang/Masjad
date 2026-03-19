@@ -69,7 +69,6 @@ function DropdownMenu({ open, onClose, children }: { open: boolean; onClose: () 
           exit={{ opacity: 0, scale: 0.9, y: -8 }}
           transition={{ duration: 0.15 }}
           className="absolute left-4 top-12 z-[100] w-56 rounded-2xl bg-card border border-primary/20 shadow-2xl shadow-black/40 overflow-hidden"
-          dir="rtl"
         >
           {children}
         </motion.div>
@@ -302,7 +301,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="min-h-screen pb-28 bg-background" dir="rtl" data-testid="profile-page">
+    <div className="min-h-screen pb-28 bg-background" dir={dir} data-testid="profile-page">
       {/* ===== HEADER BAR ===== */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/10 px-4 h-12 flex items-center justify-between">
         <div className="flex items-center gap-2">
