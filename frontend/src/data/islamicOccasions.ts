@@ -14,10 +14,11 @@ export interface IslamicOccasion {
   hijriDayEnd: number;
   gradient: string;
   message: string;
+  messageEn?: string;
   duaAr: string;
-  specialAthan?: boolean; // Special athan behavior (e.g., cannon before maghrib)
-  hasCannon?: boolean; // Show cannon animation at maghrib
-  takbirat?: boolean; // Play takbirat instead of normal athan
+  specialAthan?: boolean;
+  hasCannon?: boolean;
+  takbirat?: boolean;
   colors: { primary: string; secondary: string; accent: string };
 }
 
@@ -33,6 +34,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 30,
     gradient: 'from-purple-900 via-indigo-900 to-slate-900',
     message: 'اللهم بلغنا رمضان وأعنا على صيامه وقيامه',
+    messageEn: 'O Allah, let us reach Ramadan and help us fast and pray during it',
     duaAr: 'اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
     specialAthan: true,
     hasCannon: true,
@@ -49,6 +51,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 30,
     gradient: 'from-amber-900 via-yellow-900 to-slate-900',
     message: 'ليلة القدر خير من ألف شهر',
+    messageEn: 'The Night of Decree is better than a thousand months',
     duaAr: 'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
     colors: { primary: '#F59E0B', secondary: '#D97706', accent: '#FBBF24' },
   },
@@ -63,6 +66,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 3,
     gradient: 'from-emerald-800 via-green-900 to-teal-900',
     message: 'تقبل الله منا ومنكم صالح الأعمال',
+    messageEn: 'May Allah accept from us and from you our good deeds',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
     takbirat: true,
     colors: { primary: '#059669', secondary: '#047857', accent: '#34D399' },
@@ -78,6 +82,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 9,
     gradient: 'from-amber-800 via-orange-900 to-red-900',
     message: 'ما من أيام العمل الصالح فيها أحب إلى الله من هذه الأيام',
+    messageEn: 'There are no days in which good deeds are more beloved to Allah than these days',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
     colors: { primary: '#D97706', secondary: '#B45309', accent: '#FBBF24' },
   },
@@ -92,6 +97,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 9,
     gradient: 'from-sky-900 via-blue-900 to-indigo-900',
     message: 'صيام يوم عرفة يكفّر السنة التي قبله والسنة التي بعده',
+    messageEn: 'Fasting on the Day of Arafah expiates the sins of the previous and following year',
     duaAr: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
     colors: { primary: '#0284C7', secondary: '#0369A1', accent: '#38BDF8' },
   },
@@ -106,6 +112,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 13,
     gradient: 'from-emerald-900 via-teal-900 to-green-900',
     message: 'عيدكم مبارك، تقبل الله منا ومنكم',
+    messageEn: 'Eid Mubarak! May Allah accept from us and from you',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
     takbirat: true,
     colors: { primary: '#059669', secondary: '#047857', accent: '#6EE7B7' },
@@ -121,6 +128,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 1,
     gradient: 'from-teal-900 via-cyan-900 to-blue-900',
     message: 'كل عام وأنتم بخير، عام هجري مبارك',
+    messageEn: 'Happy Islamic New Year! May it be a blessed year',
     duaAr: 'اللَّهُمَّ أَدْخِلْهُ عَلَيْنَا بِالْأَمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ',
     colors: { primary: '#0D9488', secondary: '#0F766E', accent: '#2DD4BF' },
   },
@@ -135,6 +143,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 10,
     gradient: 'from-slate-800 via-gray-900 to-slate-900',
     message: 'صيام يوم عاشوراء يكفّر ذنوب سنة ماضية',
+    messageEn: 'Fasting on Ashura expiates the sins of the past year',
     duaAr: 'اللَّهُمَّ اغْفِرْ لِي ذُنُوبِي',
     colors: { primary: '#475569', secondary: '#334155', accent: '#94A3B8' },
   },
@@ -149,6 +158,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 12,
     gradient: 'from-green-800 via-emerald-900 to-teal-900',
     message: 'اللهم صل وسلم وبارك على نبينا محمد ﷺ',
+    messageEn: 'O Allah, send blessings and peace upon our Prophet Muhammad ﷺ',
     duaAr: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ',
     colors: { primary: '#059669', secondary: '#047857', accent: '#6EE7B7' },
   },
@@ -163,6 +173,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 27,
     gradient: 'from-indigo-900 via-violet-900 to-purple-900',
     message: 'سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا',
+    messageEn: 'Glory be to Him who took His servant on a Night Journey',
     duaAr: 'سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا مِنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى',
     colors: { primary: '#7C3AED', secondary: '#6D28D9', accent: '#A78BFA' },
   },
@@ -177,6 +188,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     hijriDayEnd: 15,
     gradient: 'from-blue-900 via-indigo-900 to-slate-900',
     message: 'اللهم بارك لنا في شعبان وبلغنا رمضان',
+    messageEn: 'O Allah, bless us in Shaban and let us reach Ramadan',
     duaAr: 'اللَّهُمَّ بَارِكْ لَنَا فِي شَعْبَانَ وَبَلِّغْنَا رَمَضَانَ',
     colors: { primary: '#3B82F6', secondary: '#2563EB', accent: '#60A5FA' },
   },
@@ -202,6 +214,7 @@ export function getCurrentOccasion(hijriMonth: number, hijriDay: number): Islami
         return {
           ...ramadan,
           message: 'العشر الأواخر من رمضان - اللهم إنك عفو تحب العفو فاعف عنا',
+          messageEn: 'Last 10 Nights of Ramadan - O Allah, You are Pardoning and love pardon, so pardon us',
         };
       }
       return ramadan;

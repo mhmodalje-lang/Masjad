@@ -28,9 +28,12 @@ function mulberry32(seed: number) {
 
 const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
   function OccasionBanner({ occasion }, ref) {
-    const { t } = useLocale();
+    const { t, isRTL } = useLocale();
     const [dismissed, setDismissed] = useState(false);
     const [showFull, setShowFull] = useState(false);
+
+    const occasionName = isRTL ? occasion.nameAr : (occasion.nameEn || occasion.nameAr);
+    const occasionMessage = isRTL ? occasion.message : (occasion.messageEn || occasion.message);
 
     useEffect(() => {
       const key = `occasion-dismissed-${occasion.id}`;
@@ -105,9 +108,9 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
               <span className="text-white/60 text-xs font-medium">{t('islamicOccasion')}</span>
             </div>
 
-            <h3 className="text-white text-xl font-bold font-arabic mb-2">{occasion.nameAr}</h3>
+            <h3 className="text-white text-xl font-bold mb-2">{occasionName}</h3>
 
-            <p className="text-white/80 text-sm leading-relaxed mb-3">{occasion.message}</p>
+            <p className="text-white/80 text-sm leading-relaxed mb-3">{occasionMessage}</p>
 
             <button
               onClick={() => setShowFull(!showFull)}

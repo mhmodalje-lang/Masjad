@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import i18n from '@/lib/i18nConfig';
 
 export interface PrayerTime {
   name: string;
@@ -122,15 +123,19 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
           { name: 'isha', time24: cleanTime(timings.Isha), time: formatTime(cleanTime(timings.Isha), is12h), key: 'isha' },
         ];
 
+        const isAr = i18n.language === 'ar';
+        const monthName = isAr ? hijri.month.ar : hijri.month.en;
+        const suffix = isAr ? 'هـ' : 'H';
+
         setData({
           prayers,
-          hijriDate: `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`,
+          hijriDate: `${hijri.day} ${monthName} ${hijri.year} ${suffix}`,
           hijriDay: hijri.day,
           hijriMonthAr: hijri.month.ar,
           hijriMonthEn: hijri.month.en,
           hijriMonthNumber: hijri.month.number,
           hijriYear: hijri.year,
-          hijriMonth: hijri.month.ar,
+          hijriMonth: isAr ? hijri.month.ar : hijri.month.en,
           loading: false,
           error: null,
         });
