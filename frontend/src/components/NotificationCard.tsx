@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Bell, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useLocale } from '@/hooks/useLocale';
 
 export default function NotificationCard() {
+  const { t } = useLocale();
   const [dismissed, setDismissed] = useState(() => {
     return localStorage.getItem('notif-card-dismissed') === 'true';
   });
@@ -21,7 +23,6 @@ export default function NotificationCard() {
         <div className="rounded-3xl gradient-islamic p-5 relative overflow-hidden">
           <div className="absolute inset-0 islamic-pattern opacity-15" />
           
-          {/* Close */}
           <button
             onClick={() => {
               setDismissed(true);
@@ -33,23 +34,22 @@ export default function NotificationCard() {
           </button>
 
           <div className="relative z-10 flex items-center gap-4">
-            {/* Bell icon */}
             <div className="shrink-0 h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center">
               <Bell className="h-7 w-7 text-white" />
             </div>
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-white mb-1 leading-snug">
-                لا تفوّت أي صلاة
+                {t('dontMissPrayer')}
               </p>
               <p className="text-[11px] text-white/60 mb-3">
-                فعّل الإشعارات لتصلك تنبيهات الأذان
+                {t('enableNotifDesc')}
               </p>
               <Link
                 to="/notifications"
                 className="inline-flex items-center gap-1.5 rounded-xl bg-white/20 backdrop-blur-sm text-white px-4 py-2 text-xs font-bold transition-all active:scale-95 border border-white/10"
               >
-                إعدادات الإشعارات
+                {t('notifSettingsBtn')}
               </Link>
             </div>
           </div>

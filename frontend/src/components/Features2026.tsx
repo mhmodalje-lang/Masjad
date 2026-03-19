@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocale } from '@/hooks/useLocale';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -13,6 +14,7 @@ function authHeaders(): Record<string, string> {
 
 /* 1. Daily Dua Widget - shows AI-generated dua */
 export function DailyDuaWidget() {
+  const { t, dir } = useLocale();
   const [dua, setDua] = useState<{ text: string; source: string } | null>(null);
   const [visible, setVisible] = useState(true);
 
@@ -44,14 +46,14 @@ export function DailyDuaWidget() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-      className="mx-4 mb-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4 relative overflow-hidden" dir="rtl">
+      className="mx-4 mb-4 rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4 relative overflow-hidden" dir={dir}>
       <div className="absolute top-0 left-0 w-24 h-24 bg-primary/5 rounded-full -translate-x-8 -translate-y-8" />
       <button onClick={() => setVisible(false)} className="absolute top-2 left-2 p-1 rounded-full bg-muted/50">
         <X className="h-3 w-3 text-muted-foreground" />
       </button>
       <div className="flex items-start gap-2 mb-2">
         <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-        <span className="text-[10px] font-bold text-primary">دعاء اليوم</span>
+        <span className="text-[10px] font-bold text-primary">{t('duaOfDay')}</span>
       </div>
       <p className="text-[15px] text-foreground leading-[2] font-medium" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>{dua.text}</p>
       <p className="text-[10px] text-muted-foreground mt-2 text-left">{dua.source}</p>
@@ -209,6 +211,7 @@ export function PrayerCountdown({ nextPrayer }: { nextPrayer?: { name: string; t
 
 /* 9. Verse of the Day */
 export function VerseOfDay() {
+  const { t } = useLocale();
   const [verse, setVerse] = useState<{ text: string; surah: string; ayah: number } | null>(null);
 
   useEffect(() => {
@@ -236,7 +239,7 @@ export function VerseOfDay() {
   if (!verse) return null;
   return (
     <div className="mx-4 mb-4 rounded-2xl bg-card border border-primary/10 p-4" dir="rtl">
-      <p className="text-[10px] font-bold text-primary mb-2">📖 آية اليوم</p>
+      <p className="text-[10px] font-bold text-primary mb-2">📖 {t('verseOfDay')}</p>
       <p className="text-[15px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         ﴿{verse.text}﴾
       </p>

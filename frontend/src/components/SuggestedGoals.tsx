@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Check, BookOpen, HandHeart, Moon, Sunrise } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useLocale } from '@/hooks/useLocale';
 
 interface SuggestedGoal {
   key: string;
@@ -10,15 +11,17 @@ interface SuggestedGoal {
   icon: React.ReactNode;
 }
 
-const suggestions: SuggestedGoal[] = [
-  { key: 'surah_mulk', label: 'قراءة سورة الملك قبل النوم', icon: <BookOpen className="h-4 w-4" /> },
-  { key: 'nafilah', label: 'أداء صلاة نافلة', icon: <Sunrise className="h-4 w-4" /> },
-  { key: 'sadaqah', label: 'إعطاء صدقة', icon: <HandHeart className="h-4 w-4" /> },
-  { key: 'monday_fast', label: 'صيام يوم الاثنين أو الخميس', icon: <Moon className="h-4 w-4" /> },
-  { key: 'surah_kahf', label: 'اقرأ سورة الكهف يوم الجمعة', icon: <BookOpen className="h-4 w-4" /> },
-];
-
 export default function SuggestedGoals() {
+  const { t } = useLocale();
+
+  const suggestions: SuggestedGoal[] = useMemo(() => [
+    { key: 'surah_mulk', label: t('goalSurahMulk'), icon: <BookOpen className="h-4 w-4" /> },
+    { key: 'nafilah', label: t('goalNafilah'), icon: <Sunrise className="h-4 w-4" /> },
+    { key: 'sadaqah', label: t('goalSadaqah'), icon: <HandHeart className="h-4 w-4" /> },
+    { key: 'monday_fast', label: t('goalMondayFast'), icon: <Moon className="h-4 w-4" /> },
+    { key: 'surah_kahf', label: t('goalSurahKahf'), icon: <BookOpen className="h-4 w-4" /> },
+  ], [t]);
+
   const [added, setAdded] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('suggested-goals-added');
     return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -30,7 +33,7 @@ export default function SuggestedGoals() {
       updated.delete(key);
     } else {
       updated.add(key);
-      toast.success('تمت إضافة الهدف!');
+      toast.success(t('goalAdded'));
     }
     setAdded(updated);
     localStorage.setItem('suggested-goals-added', JSON.stringify([...updated]));
@@ -40,7 +43,7 @@ export default function SuggestedGoals() {
     <div className="px-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">🎯</span>
-        <h3 className="text-sm font-bold text-foreground">الأهداف المقترحة</h3>
+        <h3 className="text-sm font-bold text-foreground">{t('suggestedGoalsTitle')}</h3>
       </div>
       <div className="space-y-2">
         {suggestions.map((goal, i) => {
@@ -66,7 +69,7 @@ export default function SuggestedGoals() {
                 {goal.icon}
               </div>
               <span className={cn(
-                'text-sm font-medium flex-1 text-right',
+                'text-sm font-medium flex-1',
                 isAdded ? 'text-primary' : 'text-foreground'
               )}>
                 {goal.label}

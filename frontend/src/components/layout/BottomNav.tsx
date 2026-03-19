@@ -3,18 +3,20 @@ import { Home, BookOpen, Plus, MessageSquare, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-
-const navItems = [
-  { path: '/', icon: Home, label: 'الرئيسية', exact: true },
-  { path: '/stories', icon: BookOpen, label: 'حكاياتي' },
-  { path: '/create', icon: Plus, label: '', isCreate: true },
-  { path: '/messages', icon: MessageSquare, label: 'الرسائل' },
-  { path: '/more', icon: User, label: 'المزيد' },
-];
+import { useLocale } from '@/hooks/useLocale';
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
+  const { t, dir } = useLocale();
+
+  const navItems = [
+    { path: '/', icon: Home, label: t('navHome'), exact: true },
+    { path: '/stories', icon: BookOpen, label: t('navStories') },
+    { path: '/create', icon: Plus, label: '', isCreate: true },
+    { path: '/messages', icon: MessageSquare, label: t('navMessages') },
+    { path: '/more', icon: User, label: t('navMore') },
+  ];
 
   const hiddenPaths = ['/auth', '/reels'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
@@ -27,7 +29,7 @@ export function BottomNav() {
       <div className="absolute inset-0 opacity-[0.07]" style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M20 18v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
       }} />
-      <div className="relative flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir="rtl">
+      <div className="relative flex items-center justify-around pb-[env(safe-area-inset-bottom,0px)]" dir={dir}>
         {navItems.map((item) => {
           const isActive = item.exact
             ? location.pathname === item.path

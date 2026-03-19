@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Star } from 'lucide-react';
 import { IslamicOccasion } from '@/data/islamicOccasions';
+import { useLocale } from '@/hooks/useLocale';
 
 interface OccasionBannerProps {
   occasion: IslamicOccasion;
@@ -27,6 +28,7 @@ function mulberry32(seed: number) {
 
 const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
   function OccasionBanner({ occasion }, ref) {
+    const { t } = useLocale();
     const [dismissed, setDismissed] = useState(false);
     const [showFull, setShowFull] = useState(false);
 
@@ -91,7 +93,7 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
 
           <button
             onClick={dismiss}
-            aria-label="إغلاق"
+            aria-label={t('closeBanner')}
             className="absolute top-3 start-3 p-1.5 rounded-full bg-white/10 backdrop-blur-sm z-10"
           >
             <X className="h-3.5 w-3.5 text-white/70" />
@@ -100,7 +102,7 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
               <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
-              <span className="text-white/60 text-xs font-medium">مناسبة إسلامية</span>
+              <span className="text-white/60 text-xs font-medium">{t('islamicOccasion')}</span>
             </div>
 
             <h3 className="text-white text-xl font-bold font-arabic mb-2">{occasion.nameAr}</h3>
@@ -111,7 +113,7 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
               onClick={() => setShowFull(!showFull)}
               className="bg-white/15 backdrop-blur-sm border border-white/20 text-white text-xs font-medium rounded-2xl px-4 py-2 transition-all active:scale-95"
             >
-              {showFull ? 'إخفاء الدعاء' : 'اقرأ الدعاء ✨'}
+              {showFull ? t('hideDua') : t('readDuaBtn')}
             </button>
 
             {showFull && (

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, RefreshCw, Share2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { BookOpen, Share2 } from 'lucide-react';
+import { useLocale } from '@/hooks/useLocale';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -12,6 +12,7 @@ interface HadithData {
 }
 
 export default function DailyHadith() {
+  const { t } = useLocale();
   const [hadith, setHadith] = useState<HadithData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +45,7 @@ export default function DailyHadith() {
 
   const handleShare = async () => {
     if (!hadith) return;
-    const text = `📖 حديث اليوم\n\nقال رسول الله ﷺ:\n«${hadith.text}»\n\nالراوي: ${hadith.narrator}\nالمصدر: ${hadith.source}\n\n— أذان وحكاية`;
+    const text = `${t('hadithShareTitle')}\n\n${t('prophetSaid')}\n«${hadith.text}»\n\n${t('narratorLabel')} ${hadith.narrator}\n${hadith.source}\n\n— ${t('appName')}`;
     if (navigator.share) {
       await navigator.share({ text }).catch(() => {});
     } else {
@@ -72,7 +73,7 @@ export default function DailyHadith() {
         <div className="flex items-center justify-between mb-4 relative">
           <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
             <BookOpen className="h-3 w-3" />
-            حديث اليوم
+            {t('hadithOfDay')}
           </span>
           <button
             onClick={handleShare}
@@ -83,13 +84,13 @@ export default function DailyHadith() {
           </button>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-2">قال رسول الله ﷺ:</p>
+        <p className="text-sm text-muted-foreground mb-2">{t('prophetSaid')}</p>
         <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="rtl">
           «{hadith.text}»
         </p>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-3">
-          <span>الراوي: {hadith.narrator}</span>
+          <span>{t('narratorLabel')} {hadith.narrator}</span>
           <span>{hadith.source}</span>
         </div>
       </div>

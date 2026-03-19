@@ -174,7 +174,7 @@ export function useGeoLocation() {
         setLocation(prev => ({
           ...prev,
           loading: false,
-          error: (prev.latitude !== 0 || prev.longitude !== 0) ? null : 'يرجى تفعيل الموقع الجغرافي لعرض أوقات الصلاة',
+          error: (prev.latitude !== 0 || prev.longitude !== 0) ? null : '__LOCATION_ERROR__',
         }));
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }

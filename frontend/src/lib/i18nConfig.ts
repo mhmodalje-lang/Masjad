@@ -23,14 +23,14 @@ import trTranslations from '@/locales/tr.json';
 export const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'yi', 'ku'];
 
 // Supported languages with metadata
-export const SUPPORTED_LANGUAGES = [
-  { code: 'ar', label: 'العربية', flag: '🇸🇦', dir: 'rtl' as const, nativeName: 'العربية' },
-  { code: 'en', label: 'English', flag: '🇬🇧', dir: 'ltr' as const, nativeName: 'English' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪', dir: 'ltr' as const, nativeName: 'Deutsch' },
-  { code: 'ru', label: 'Русский', flag: '🇷🇺', dir: 'ltr' as const, nativeName: 'Русский' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' as const, nativeName: 'Français' },
-  { code: 'tr', label: 'Türkçe', flag: '🇹🇷', dir: 'ltr' as const, nativeName: 'Türkçe' },
-] as const;
+export const SUPPORTED_LANGUAGES: Array<{code: string; label: string; flag: string; dir: 'rtl' | 'ltr'; nativeName: string}> = [
+  { code: 'ar', label: 'العربية', flag: '🇸🇦', dir: 'rtl', nativeName: 'العربية' },
+  { code: 'en', label: 'English', flag: '🇬🇧', dir: 'ltr', nativeName: 'English' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪', dir: 'ltr', nativeName: 'Deutsch' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺', dir: 'ltr', nativeName: 'Русский' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr', nativeName: 'Français' },
+  { code: 'tr', label: 'Türkçe', flag: '🇹🇷', dir: 'ltr', nativeName: 'Türkçe' },
+];
 
 export const SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map(l => l.code);
 

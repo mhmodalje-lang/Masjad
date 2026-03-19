@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Play, X, ChevronLeft, Film, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/useLocale';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -16,6 +17,7 @@ interface EmbedItem {
 }
 
 export default function FeaturedVideos() {
+  const { t } = useLocale();
   const [videos, setVideos] = useState<EmbedItem[]>([]);
   const [activeVideo, setActiveVideo] = useState<EmbedItem | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -41,9 +43,9 @@ export default function FeaturedVideos() {
       <div className="flex items-center justify-between px-4 mb-3">
         <div className="flex items-center gap-2">
           <Film className="h-4 w-4 text-red-500" />
-          <h3 className="text-sm font-bold text-foreground">محتوى مميز</h3>
+          <h3 className="text-sm font-bold text-foreground">{t('featuredContent')}</h3>
         </div>
-        <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">{videos.length} فيديو</span>
+        <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">{videos.length} {t('videosCount')}</span>
       </div>
 
       {/* Horizontal Scroll */}

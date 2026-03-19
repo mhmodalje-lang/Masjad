@@ -17,6 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { normalizeArabicForSearch } from '@/lib/arabicNormalize';
+import { useLocale } from '@/hooks/useLocale';
 
 interface Surah {
   number: number;
@@ -63,6 +64,7 @@ function getSurahAudioUrl({ surahNumber, reciterId }: { surahNumber: number; rec
 }
 
 export default function QuranPlayer() {
+  const { t } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [search, setSearch] = useState('');
@@ -157,7 +159,7 @@ export default function QuranPlayer() {
         setLoading(false);
         setIsPlaying(false);
         const currentReciter = getReciterById(reciterRef.current);
-        toast.error(`تعذر تشغيل الصوت من "${currentReciter.name}" — جرّب قارئاً آخر`);
+        toast.error(t("audioErrorReciter"));
       }
     };
 
@@ -223,7 +225,7 @@ export default function QuranPlayer() {
       setIsPlaying(false);
       setLoading(false);
       if (!opts.silentErrors) {
-        toast.error('تعذر تشغيل القارئ - جرّب قارئاً آخر');
+        toast.error(t('audioPlayError'));
       }
     }
 
@@ -232,7 +234,7 @@ export default function QuranPlayer() {
       setIsPlaying(false);
       setLoading(false);
       if (!opts.silentErrors) {
-        toast.error('صوت القارئ غير متاح حالياً - جرّب قارئاً آخر');
+        toast.error(t('audioNotAvailable'));
       }
     };
   }
@@ -270,7 +272,7 @@ export default function QuranPlayer() {
       setIsPlaying(true);
     } catch {
       setIsPlaying(false);
-      toast.error('تعذر تشغيل الصوت');
+      toast.error(t('audioPlayError'));
     }
   };
 
@@ -340,12 +342,12 @@ export default function QuranPlayer() {
             <div className="flex items-center justify-between mb-2">
               <Moon className="h-5 w-5 text-primary" />
               <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-medium text-primary">
-                🎧 استمع وأنت نائم
+                {t('listenWhileSleep')}
               </span>
             </div>
-            <p className="text-sm font-bold text-foreground mb-1">مشغّل القرآن الكريم</p>
+            <p className="text-sm font-bold text-foreground mb-1">{t('quranPlayerTitle')}</p>
             <p className="text-xs text-muted-foreground">
-              شغّل أي سورة مع تكرار أو تشغيل تلقائي — {RECITERS.length} قارئ
+              {t('quranPlayerDesc')} — {RECITERS.length} {t('reciterCount')}
             </p>
           </button>
         </motion.div>
@@ -362,11 +364,11 @@ export default function QuranPlayer() {
             <div className="rounded-3xl bg-card border border-border/50 overflow-hidden shadow-elevated">
               <div className="gradient-islamic p-4 flex items-center justify-between relative overflow-hidden">
                 <div className="absolute inset-0 islamic-pattern opacity-20" />
-                <button onClick={closePlayer} aria-label="إغلاق المشغّل" className="p-1.5 rounded-full bg-white/10 relative z-10">
+                <button onClick={closePlayer} aria-label={t('closePlayer')} className="p-1.5 rounded-full bg-white/10 relative z-10">
                   <X className="h-4 w-4 text-white" />
                 </button>
                 <div className="text-right relative z-10">
-                  <h3 className="text-sm font-bold text-white">🎧 مشغّل القرآن</h3>
+                  <h3 className="text-sm font-bold text-white">{t('quranPlayerLabel')}</h3>
                   {currentSurah && (
                     <p className="text-white/70 text-xs mt-0.5">
                       {currentSurah.number}. {currentSurah.name}
@@ -376,8 +378,8 @@ export default function QuranPlayer() {
               </div>
 
               <div className="p-4 border-b border-border/50">
-                <label className="text-xs text-muted-foreground mb-1.5 block text-right">
-                  القارئ ({RECITERS.length} قارئ)
+                <label className="text-xs text-muted-foreground mb-1.5 block">
+                  {t('reciterLabel')} ({RECITERS.length} {t('reciterCount')})
                 </label>
                 <select
                   value={reciter}
@@ -405,7 +407,7 @@ export default function QuranPlayer() {
                     )}
                   />
                   <span className="text-sm font-medium text-foreground">
-                    {currentSurah ? `${currentSurah.number}. ${currentSurah.name}` : 'اختر سورة'}
+                    {currentSurah ? `${currentSurah.number}. ${currentSurah.name}` : t('chooseSurah')}
                   </span>
                 </button>
 
@@ -423,7 +425,7 @@ export default function QuranPlayer() {
                           <Input
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            placeholder="ابحث عن سورة..."
+                            placeholder={t('searchSurah')}
                             className="pe-8 rounded-2xl text-start text-xs h-9 border-border/50"
                           />
                         </div>
@@ -439,7 +441,7 @@ export default function QuranPlayer() {
                                   : 'hover:bg-muted'
                               )}
                             >
-                              <span className="text-xs text-muted-foreground">{s.numberOfAyahs} آية</span>
+                              <span className="text-xs text-muted-foreground">{s.numberOfAyahs} {t('versesCount')}</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs font-medium text-foreground">{s.name}</span>
                                 <span className="text-xs text-muted-foreground w-6 text-center">{s.number}</span>
@@ -467,7 +469,7 @@ export default function QuranPlayer() {
                   </div>
 
                   <div className="flex items-center justify-center gap-5">
-                    <button onClick={cycleRepeat} aria-label="تغيير وضع التكرار" className="p-2">
+                    <button onClick={cycleRepeat} aria-label={t('changeRepeatMode')} className="p-2">
                       {repeatMode === 'one' ? (
                         <Repeat1 className="h-5 w-5 text-primary" />
                       ) : (
@@ -480,14 +482,14 @@ export default function QuranPlayer() {
                       )}
                     </button>
 
-                    <button onClick={() => void nextSurah()} aria-label="السورة التالية" className="p-2">
+                    <button onClick={() => void nextSurah()} aria-label={t('nextSurah')} className="p-2">
                       <SkipForward className="h-5 w-5 text-foreground" />
                     </button>
 
                     <button
                       onClick={() => void togglePlay()}
                       disabled={loading}
-                      aria-label={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
+                      aria-label={isPlaying ? t('pauseBtn') : t('playBtn')}
                       className="h-14 w-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20"
                     >
                       {loading ? (
@@ -499,7 +501,7 @@ export default function QuranPlayer() {
                       )}
                     </button>
 
-                    <button onClick={() => void prevSurah()} aria-label="السورة السابقة" className="p-2">
+                    <button onClick={() => void prevSurah()} aria-label={t('prevSurah')} className="p-2">
                       <SkipBack className="h-5 w-5 text-foreground" />
                     </button>
 
@@ -509,9 +511,9 @@ export default function QuranPlayer() {
                   </div>
 
                   <p className="text-center text-xs text-muted-foreground mt-3">
-                    {repeatMode === 'one' && '🔂 تكرار السورة الحالية'}
-                    {repeatMode === 'all' && '🔁 تشغيل جميع السور تلقائياً'}
-                    {repeatMode === 'none' && '➡️ الانتقال للسورة التالية تلقائياً'}
+                    {repeatMode === 'one' && t('repeatCurrentSurah')}
+                    {repeatMode === 'all' && t('repeatAllSurahs')}
+                    {repeatMode === 'none' && t('autoNextSurah')}
                   </p>
                 </div>
               )}

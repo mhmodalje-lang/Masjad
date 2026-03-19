@@ -3,11 +3,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/components/ThemeProvider';
 import { Moon, Sun, SunMoon, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/useLocale';
 
 export function TopNav() {
   const { user } = useAuth();
   const { theme, mode, toggle } = useTheme();
   const location = useLocation();
+  const { t, dir } = useLocale();
 
   const isHomePage = location.pathname === '/';
   if (isHomePage) return null;
@@ -18,14 +20,14 @@ export function TopNav() {
     <header
       data-testid="top-nav"
       className="sticky top-0 z-50 w-full border-b border-border/20 bg-card/90 backdrop-blur-2xl"
-      dir="rtl"
+      dir={dir}
     >
       <div className="flex items-center justify-between px-4 h-12">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-amber-600 flex items-center justify-center shadow-md shadow-primary/20">
             <span className="text-primary-foreground text-[10px] font-bold">أ</span>
           </div>
-          <span className="text-sm font-bold text-foreground hidden sm:block">أذان وحكاية</span>
+          <span className="text-sm font-bold text-foreground hidden sm:block">{t('appName')}</span>
         </Link>
 
         <div className="flex items-center gap-1">

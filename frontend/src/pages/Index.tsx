@@ -186,7 +186,7 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={isRTL ? 'rtl' : 'ltr'}>
       <DuaOfDayDrawer open={duaDrawerOpen} onOpenChange={setDuaDrawerOpen} />
       {alertPrayer && (
         <OccasionAthanAlert
@@ -201,7 +201,7 @@ export default function Index() {
       <div className="relative overflow-hidden h-[260px]">
         <img
           src={meccaImage}
-          alt="المسجد الحرام"
+          alt={t('holyMosqueAlt')}
           className="w-full h-full object-cover"
           loading="eager"
           // @ts-ignore
@@ -216,7 +216,7 @@ export default function Index() {
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
           <button
             onClick={toggleNotifications}
-            aria-label={notificationsEnabled ? 'إيقاف الإشعارات' : 'تفعيل الإشعارات'}
+            aria-label={notificationsEnabled ? t('disableNotifications') : t('enableNotificationsLabel')}
             className="p-2.5 rounded-2xl glass-dark transition-all active:scale-95"
           >
             {notificationsEnabled ? (
@@ -343,7 +343,7 @@ export default function Index() {
         <div className="px-4 mb-4">
           <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-6 flex flex-col items-center gap-3">
             <MapPinOff className="h-8 w-8 text-destructive" />
-            <p className="text-sm font-bold text-foreground text-center">{locationError}</p>
+            <p className="text-sm font-bold text-foreground text-center">{locationError === '__LOCATION_ERROR__' ? t('locationErrorMsg') : locationError}</p>
             <button
               onClick={() => detectLocation()}
               className="rounded-2xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-bold transition-all active:scale-95"
@@ -374,7 +374,7 @@ export default function Index() {
             <p className="text-[11px] text-primary flex items-center gap-1.5 font-medium">
               <Building2 className="h-3.5 w-3.5" />
               {mosqueName}
-              <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">مسجد</span>
+              <span className="bg-primary/15 text-primary text-[8px] px-1.5 py-0.5 rounded-full font-bold">{t('mosqueLabel')}</span>
             </p>
             <button
               onClick={() => {
@@ -448,7 +448,7 @@ export default function Index() {
                 <p className="text-white/70 text-[10px] mt-1 font-medium">{t('ramadanChallenge')}</p>
               </div>
               <div className="text-white text-sm text-start relative z-10">
-                <span className="text-white/60 text-xs font-medium">الفجر</span>
+                <span className="text-white/60 text-xs font-medium">{t('fajrLabel')}</span>
                 <p className="font-bold tabular-nums text-lg">{fajrTime}</p>
               </div>
             </div>
@@ -458,8 +458,8 @@ export default function Index() {
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center text-lg">📅</div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">تقويم رمضان ١٤٤٧</p>
-                  <p className="text-[10px] text-muted-foreground">أدعية يومية • ليلة القدر • السحور والإفطار</p>
+                  <p className="text-sm font-bold text-foreground">{t('ramadanCalendarTitle')}</p>
+                  <p className="text-[10px] text-muted-foreground">{t('ramadanCalendarDesc')}</p>
                 </div>
               </div>
               <ChevronLeft className="h-4 w-4 text-muted-foreground" />
@@ -506,10 +506,10 @@ export default function Index() {
           
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { title: 'آية الكرسي', subtitle: 'للحفظ والحماية', icon: '🔰' },
-              { title: 'المعوذات', subtitle: 'الفلق والناس', icon: '✨' },
-              { title: 'سورة البقرة', subtitle: 'تطرد الشياطين', icon: '📖' },
-              { title: 'أذكار الصباح', subtitle: 'للحفظ من كل سوء', icon: '🌅' },
+              { title: t('ruqyahAyatKursi'), subtitle: t('ruqyahAyatKursiDesc'), icon: '🔰' },
+              { title: t('ruqyahMuawwidhat'), subtitle: t('ruqyahMuawwidhatDesc'), icon: '✨' },
+              { title: t('ruqyahBaqara'), subtitle: t('ruqyahBaqaraDesc'), icon: '📖' },
+              { title: t('ruqyahMorning'), subtitle: t('ruqyahMorningDesc'), icon: '🌅' },
             ].map((item, idx) => (
               <Link
                 key={idx}

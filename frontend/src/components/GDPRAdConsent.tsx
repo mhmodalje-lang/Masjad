@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAdConfig } from '@/hooks/useAdConfig';
 import { Shield, X } from 'lucide-react';
+import { useLocale } from '@/hooks/useLocale';
 
 export default function GDPRAdConsent() {
   const adConfig = useAdConfig();
+  const { t, dir } = useLocale();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -29,17 +31,16 @@ export default function GDPRAdConsent() {
   if (!show) return null;
 
   return (
-    <div data-testid="gdpr-consent-overlay" className="fixed inset-x-0 bottom-0 z-[9999] flex items-end justify-center p-4 animate-in fade-in duration-300" dir="rtl">
+    <div data-testid="gdpr-consent-overlay" className="fixed inset-x-0 bottom-0 z-[9999] flex items-end justify-center p-4 animate-in fade-in duration-300" dir={dir}>
       <div className="w-full max-w-lg bg-card border border-border/60 rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-500">
         <div className="flex items-start gap-3 mb-4">
           <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
             <Shield className="h-5 w-5" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-bold text-foreground mb-1">موافقة عرض الإعلانات</h3>
+            <h3 className="text-sm font-bold text-foreground mb-1">{t('gdprTitle')}</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              نستخدم الإعلانات لدعم التطبيق وإبقائه مجانياً. وفقاً للقانون الأوروبي (GDPR)، 
-              نحتاج موافقتك لعرض إعلانات مخصصة بناءً على اهتماماتك.
+              {t('gdprDesc')}
             </p>
           </div>
           <button data-testid="gdpr-dismiss-btn" onClick={() => handleConsent(false)} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
@@ -48,11 +49,11 @@ export default function GDPRAdConsent() {
         </div>
         
         <div className="space-y-2 mb-4 text-xs text-muted-foreground bg-muted/30 rounded-xl p-3">
-          <p className="font-medium text-foreground">ما الذي نجمعه:</p>
+          <p className="font-medium text-foreground">{t('gdprCollect')}</p>
           <ul className="space-y-1 list-disc list-inside">
-            <li>معرّف إعلاني مجهول الهوية</li>
-            <li>نوع المحتوى الذي تتفاعل معه</li>
-            <li>بيانات الجهاز الأساسية لتحسين تجربة الإعلانات</li>
+            <li>{t('gdprCollect1')}</li>
+            <li>{t('gdprCollect2')}</li>
+            <li>{t('gdprCollect3')}</li>
           </ul>
         </div>
 
@@ -62,19 +63,19 @@ export default function GDPRAdConsent() {
             onClick={() => handleConsent(true)}
             className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
           >
-            قبول الإعلانات المخصصة
+            {t('gdprAccept')}
           </button>
           <button
             data-testid="gdpr-reject-btn"
             onClick={() => handleConsent(false)}
             className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
           >
-            إعلانات عامة فقط
+            {t('gdprReject')}
           </button>
         </div>
         
         <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
-          يمكنك تغيير تفضيلاتك في أي وقت من إعدادات التطبيق
+          {t('gdprChangeNote')}
         </p>
       </div>
     </div>

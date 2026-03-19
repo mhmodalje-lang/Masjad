@@ -40,6 +40,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     return () => {
       i18n.off('languageChanged', handleLanguageChanged);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Translation function - bridges i18next with existing codebase

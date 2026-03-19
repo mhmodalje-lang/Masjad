@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Moon, BookOpen, MessageSquare, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { useLocale } from '@/hooks/useLocale';
 import { isRamadan } from '@/data/islamicOccasions';
 import { dhikrDetails } from '@/data/dhikrDetails';
 import DhikrCounterDrawer from '@/components/DhikrCounterDrawer';
@@ -19,80 +20,81 @@ interface Goal {
   hasDhikrDrawer?: boolean;
 }
 
-const defaultGoals: Goal[] = [
-  {
-    key: 'fasting',
-    label: 'صيام رمضان',
-    description: 'اليوم من رمضان',
-    icon: <Moon className="h-4 w-4" />,
-    color: 'text-primary',
-    bgColor: 'bg-primary/15',
-    target: 1,
-    category: 'general',
-  },
-  {
-    key: 'strengthen_faith',
-    label: 'قوّي إيمانك',
-    description: 'سبحان الله وبحمده',
-    icon: <RefreshCw className="h-4 w-4" />,
-    color: 'text-accent',
-    bgColor: 'bg-accent/15',
-    target: 7,
-    category: 'dhikr',
-    hasDhikrDrawer: true,
-  },
-  {
-    key: 'quran_reward',
-    label: 'ثواب ثلث القرآن',
-    description: 'قل هو الله أحد',
-    icon: <BookOpen className="h-4 w-4" />,
-    color: 'text-islamic-purple',
-    bgColor: 'bg-islamic-purple/15',
-    target: 3,
-    category: 'quran',
-    hasDhikrDrawer: true,
-  },
-  {
-    key: 'repentance',
-    label: 'للتوبة والمغفرة',
-    description: 'أستغفر الله العظيم',
-    icon: <RefreshCw className="h-4 w-4" />,
-    color: 'text-primary',
-    bgColor: 'bg-primary/15',
-    target: 11,
-    category: 'dhikr',
-    hasDhikrDrawer: true,
-  },
-  {
-    key: 'listen_quran',
-    label: 'استمع إلى القرآن',
-    description: '15 دقيقة على الأقل',
-    icon: <BookOpen className="h-4 w-4" />,
-    color: 'text-islamic-purple',
-    bgColor: 'bg-islamic-purple/15',
-    target: 1,
-    category: 'quran',
-  },
-  {
-    key: 'share_islam',
-    label: 'حدّث شخصًا عن الإسلام',
-    description: 'انشر الخير',
-    icon: <MessageSquare className="h-4 w-4" />,
-    color: 'text-islamic-teal',
-    bgColor: 'bg-islamic-teal/15',
-    target: 1,
-    category: 'general',
-  },
-];
-
 interface GoalProgress {
   [key: string]: { progress: number; completed: boolean };
 }
 
 export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: number | null }) {
   const { user } = useAuth();
+  const { t } = useLocale();
   const todayKey = new Date().toISOString().split('T')[0];
   const ramadan = isRamadan(hijriMonthNumber);
+
+  const defaultGoals: Goal[] = useMemo(() => [
+    {
+      key: 'fasting',
+      label: t('goalFasting'),
+      description: t('goalFastingDesc'),
+      icon: <Moon className="h-4 w-4" />,
+      color: 'text-primary',
+      bgColor: 'bg-primary/15',
+      target: 1,
+      category: 'general',
+    },
+    {
+      key: 'strengthen_faith',
+      label: t('goalStrengthenFaith'),
+      description: t('goalStrengthenFaithDesc'),
+      icon: <RefreshCw className="h-4 w-4" />,
+      color: 'text-accent',
+      bgColor: 'bg-accent/15',
+      target: 7,
+      category: 'dhikr',
+      hasDhikrDrawer: true,
+    },
+    {
+      key: 'quran_reward',
+      label: t('goalQuranReward'),
+      description: t('goalQuranRewardDesc'),
+      icon: <BookOpen className="h-4 w-4" />,
+      color: 'text-islamic-purple',
+      bgColor: 'bg-islamic-purple/15',
+      target: 3,
+      category: 'quran',
+      hasDhikrDrawer: true,
+    },
+    {
+      key: 'repentance',
+      label: t('goalRepentance'),
+      description: t('goalRepentanceDesc'),
+      icon: <RefreshCw className="h-4 w-4" />,
+      color: 'text-primary',
+      bgColor: 'bg-primary/15',
+      target: 11,
+      category: 'dhikr',
+      hasDhikrDrawer: true,
+    },
+    {
+      key: 'listen_quran',
+      label: t('goalListenQuran'),
+      description: t('goalListenQuranDesc'),
+      icon: <BookOpen className="h-4 w-4" />,
+      color: 'text-islamic-purple',
+      bgColor: 'bg-islamic-purple/15',
+      target: 1,
+      category: 'quran',
+    },
+    {
+      key: 'share_islam',
+      label: t('goalShareIslam'),
+      description: t('goalShareIslamDesc'),
+      icon: <MessageSquare className="h-4 w-4" />,
+      color: 'text-islamic-teal',
+      bgColor: 'bg-islamic-teal/15',
+      target: 1,
+      category: 'general',
+    },
+  ], [t]);
 
   const [goals, setGoals] = useState<GoalProgress>(() => {
     const saved = localStorage.getItem(`daily-goals-${todayKey}`);
@@ -105,7 +107,6 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
   const activeDhikr = activeDhikrKey ? dhikrDetails.find(d => d.key === activeDhikrKey) || null : null;
 
   useEffect(() => {
-    // Always use localStorage for goals (cloud sync can be added later)
     return;
   }, [user, todayKey]);
 
@@ -167,10 +168,10 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-base">✨</span>
-          <h3 className="text-sm font-bold text-foreground">الأهداف اليومية</h3>
+          <h3 className="text-sm font-bold text-foreground">{t('dailyGoalsTitle')}</h3>
         </div>
         <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2.5 py-1 rounded-full">
-          {completedCount}/{visibleGoals.length} مكتمل
+          {completedCount}/{visibleGoals.length} {t('completedLabel')}
         </span>
       </div>
 
@@ -193,12 +194,10 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
               )}
               onClick={() => handleGoalClick(goal)}
             >
-              {/* Icon */}
               <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', goal.bgColor)}>
                 <span className={goal.color}>{goal.icon}</span>
               </div>
 
-              {/* Text */}
               <div className="flex-1 min-w-0">
                 <p className={cn(
                   'text-sm font-bold leading-tight',
@@ -209,7 +208,6 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
                 <p className="text-[11px] text-muted-foreground truncate mt-0.5">{goal.description}</p>
               </div>
 
-              {/* Progress circle */}
               <div className="relative shrink-0">
                 <div className={cn(
                   'h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all',
@@ -225,7 +223,6 @@ export default function DailyGoals({ hijriMonthNumber }: { hijriMonthNumber: num
                     </span>
                   ) : null}
                 </div>
-                {/* Progress ring for multi-count goals */}
                 {!state.completed && goal.target > 1 && progressPercent > 0 && (
                   <svg className="absolute inset-0" width="40" height="40" viewBox="0 0 40 40">
                     <circle

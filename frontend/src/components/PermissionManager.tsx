@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MapPin, Bell, HardDrive, X, ChevronLeft, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/useLocale';
 
 type PermissionType = 'location' | 'notifications' | 'storage';
 type PermissionStatus = 'prompt' | 'granted' | 'denied' | 'unsupported';
@@ -29,32 +30,22 @@ interface PermissionConfig {
   iconColor: string;
 }
 
-const permissionConfigs: PermissionConfig[] = [
+const permissionConfigsBase = [
   {
-    type: 'location',
+    type: 'location' as PermissionType,
     icon: MapPin,
-    title: 'الموقع الجغرافي',
-    subtitle: 'لتحديد أوقات الصلاة بدقة لموقعك',
-    benefits: [
-      'أوقات صلاة دقيقة لمدينتك ومنطقتك',
-      'اتجاه القبلة الصحيح من موقعك الحالي',
-      'البحث عن أقرب المساجد إليك',
-      'تحديد طريقة الحساب المناسبة لبلدك',
-    ],
+    titleKey: 'permLocationTitle',
+    subtitleKey: 'permLocationSubtitle',
+    benefitKeys: ['permLocationBenefit1', 'permLocationBenefit2', 'permLocationBenefit3', 'permLocationBenefit4'],
     gradient: 'from-emerald-600 to-teal-700',
     iconColor: 'text-emerald-400',
   },
   {
-    type: 'notifications',
+    type: 'notifications' as PermissionType,
     icon: Bell,
-    title: 'الإشعارات',
-    subtitle: 'لتنبيهك بأوقات الصلاة والأذكار',
-    benefits: [
-      'تنبيه بصوت الأذان عند دخول وقت الصلاة',
-      'أذكار الصباح والمساء في أوقاتها',
-      'تذكير بصلاة الفجر والقيام',
-      'إشعارات بالمناسبات الإسلامية',
-    ],
+    titleKey: 'permNotifTitle',
+    subtitleKey: 'permNotifSubtitle',
+    benefitKeys: ['permNotifBenefit1', 'permNotifBenefit2', 'permNotifBenefit3', 'permNotifBenefit4'],
     gradient: 'from-amber-600 to-orange-700',
     iconColor: 'text-amber-400',
   },
@@ -112,6 +103,7 @@ async function requestPermission(type: PermissionType): Promise<boolean> {
 }
 
 export function PermissionManager() {
+  const { t, dir } = useLocale();
   const [permStates, setPermStates] = useState<PermissionState>({
     location: 'prompt',
     notifications: 'prompt',
@@ -120,6 +112,17 @@ export function PermissionManager() {
   const [currentStep, setCurrentStep] = useState(0);
   const [visible, setVisible] = useState(false);
   const [requesting, setRequesting] = useState(false);
+
+  // Build translated permission configs
+  const permissionConfigs: PermissionConfig[] = permissionConfigsBase.map(cfg => ({
+    type: cfg.type,
+    icon: cfg.icon,
+    title: t(cfg.titleKey),
+    subtitle: t(cfg.subtitleKey),
+    benefits: cfg.benefitKeys.map(k => t(k)),
+    gradient: cfg.gradient,
+    iconColor: cfg.iconColor,
+  }));
 
   // Determine which permissions still need requesting
   const pendingPermissions = permissionConfigs.filter(
@@ -210,7 +213,7 @@ export function PermissionManager() {
     <div
       data-testid="permission-manager-overlay"
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
-      dir="rtl"
+      dir={dir}
     >
       <div className="w-full max-w-md mx-4 mb-4 sm:mb-0 rounded-3xl bg-card border border-border/50 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
         {/* Header with gradient */}
@@ -226,7 +229,7 @@ export function PermissionManager() {
           <div className="flex items-center gap-2 text-white/60 text-xs mb-4">
             <Shield className="h-3.5 w-3.5" />
             <span>
-              {currentStep + 1} من {pendingPermissions.length}
+              {t('permStep')} {currentStep + 1} {t('permOf')} {pendingPermissions.length}
             </span>
           </div>
 
@@ -245,7 +248,7 @@ export function PermissionManager() {
         <div className="px-6 -mt-6">
           <div className="rounded-2xl bg-card border border-border/50 p-5 shadow-lg">
             <p className="text-xs font-bold text-muted-foreground mb-3">
-              لماذا نحتاج هذا الإذن؟
+              {config.subtitle}
             </p>
             <ul className="space-y-3">
               {config.benefits.map((benefit, i) => (
@@ -275,22 +278,21 @@ export function PermissionManager() {
               requesting && 'opacity-60'
             )}
           >
-            {requesting ? 'جارٍ الطلب...' : 'السماح'}
+            {requesting ? '...' : t('permAllowBtn')}
           </button>
           <button
             onClick={handleSkip}
             data-testid={`permission-skip-${config.type}`}
             className="w-full py-3 rounded-2xl text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            لاحقاً
+            {t('permLaterBtn')}
           </button>
         </div>
 
         {/* Privacy note */}
         <div className="px-6 pb-6">
           <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-            نحترم خصوصيتك. لن نشارك بياناتك مع أي طرف ثالث.
-            يمكنك تغيير الأذونات في أي وقت من إعدادات جهازك.
+            {t('permPrivacyNote')}
           </p>
         </div>
       </div>
