@@ -29,7 +29,7 @@ export default function GDPRAdConsent() {
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" dir="rtl">
+    <div data-testid="gdpr-consent-overlay" className="fixed inset-x-0 bottom-0 z-[9999] flex items-end justify-center p-4 animate-in fade-in duration-300" dir="rtl">
       <div className="w-full max-w-lg bg-card border border-border/60 rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-500">
         <div className="flex items-start gap-3 mb-4">
           <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
@@ -42,7 +42,7 @@ export default function GDPRAdConsent() {
               نحتاج موافقتك لعرض إعلانات مخصصة بناءً على اهتماماتك.
             </p>
           </div>
-          <button onClick={() => handleConsent(false)} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
+          <button data-testid="gdpr-dismiss-btn" onClick={() => handleConsent(false)} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -58,12 +58,14 @@ export default function GDPRAdConsent() {
 
         <div className="flex gap-2">
           <button
+            data-testid="gdpr-accept-btn"
             onClick={() => handleConsent(true)}
             className="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
           >
             قبول الإعلانات المخصصة
           </button>
           <button
+            data-testid="gdpr-reject-btn"
             onClick={() => handleConsent(false)}
             className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
           >

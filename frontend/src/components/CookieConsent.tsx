@@ -31,7 +31,7 @@ export default function CookieConsent() {
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-16 left-0 right-0 z-[999] px-3 pb-2 animate-in slide-in-from-bottom duration-500" dir={dir}>
+    <div data-testid="cookie-consent-banner" className="fixed bottom-16 left-0 right-0 z-[999] px-3 pb-2 animate-in slide-in-from-bottom duration-500" dir={dir}>
       <div className="max-w-lg mx-auto bg-card border border-border/60 rounded-2xl p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">
@@ -44,12 +44,14 @@ export default function CookieConsent() {
             </p>
             <div className="flex items-center gap-2">
               <button
+                data-testid="cookie-accept-btn"
                 onClick={accept}
                 className="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
               >
                 {t('acceptCookies')}
               </button>
               <button
+                data-testid="cookie-reject-btn"
                 onClick={reject}
                 className="px-4 py-1.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium hover:bg-muted/80 transition-colors"
               >
@@ -57,7 +59,7 @@ export default function CookieConsent() {
               </button>
             </div>
           </div>
-          <button onClick={reject} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
+          <button data-testid="cookie-dismiss-btn" onClick={reject} className="p-1 rounded-lg text-muted-foreground hover:text-foreground shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>

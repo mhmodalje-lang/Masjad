@@ -3310,11 +3310,12 @@ async def get_story_categories():
     return {"categories": STORY_CATEGORIES}
 
 class CreateStoryRequest(BaseModel):
-    title: str = Field(..., min_length=1, max_length=200)
+    title: Optional[str] = None
     content: str = Field(..., min_length=1, max_length=10000)
     category: str = "istighfar"
-    media_type: str = "text"  # text, image, video
+    media_type: str = "text"  # text, image, video, embed
     image_url: Optional[str] = None
+    embed_url: Optional[str] = None
 
 @api_router.post("/stories/create")
 async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user)):
@@ -3326,11 +3327,13 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
         "author_id": user["id"],
         "author_name": user.get("name", "مستخدم"),
         "author_avatar": user.get("avatar"),
-        "title": data.title,
+        "title": data.title or "",
         "content": data.content,
         "category": data.category,
         "media_type": data.media_type,
         "image_url": data.image_url,
+        "embed_url": data.embed_url,
+        "is_embed": data.media_type == "embed",
         "views_count": 0,
         "created_at": datetime.utcnow().isoformat(),
         "shares_count": 0,

@@ -227,7 +227,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
           category,
           embed_url: embedUrl.trim(),
           media_type: 'embed',
-          title: title.trim() || undefined,
+          title: title.trim() || '',
         };
         const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
         const d = await r.json();
@@ -238,7 +238,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
         const storyBody: any = {
           content: content.trim(),
           category,
-          title: title.trim() || undefined,
+          title: title.trim() || '',
           image_url: imageUrl || (videoUrl ? videoUrl : undefined),
           media_type: videoUrl ? 'video' : imageUrl ? 'image' : 'text',
         };
@@ -305,11 +305,11 @@ function CreateSheet({ categories, onClose, onCreated }: {
           )}
 
           {/* Title (optional) */}
-          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="العنوان (اختياري)"
+          <input data-testid="create-post-title" value={title} onChange={e => setTitle(e.target.value)} placeholder="العنوان (اختياري)"
             className="w-full bg-white/5 text-white rounded-2xl px-4 py-3 text-sm border border-white/5 outline-none focus:border-emerald-600/50 placeholder:text-gray-600" />
 
           {/* Content */}
-          <textarea value={content} onChange={e => setContent(e.target.value)}
+          <textarea data-testid="create-post-content" value={content} onChange={e => setContent(e.target.value)}
             placeholder="شارك فكرتك مع المجتمع... ✨"
             className="w-full bg-white/5 text-white rounded-2xl px-4 py-3 text-sm min-h-[140px] resize-none border border-white/5 outline-none focus:border-emerald-600/50 placeholder:text-gray-600 leading-relaxed"
             maxLength={5000} />
@@ -361,7 +361,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
           </div>
 
           {/* Submit */}
-          <button onClick={submit} disabled={submitting || (!content.trim() && !embedUrl.trim())}
+          <button data-testid="create-post-submit" onClick={submit} disabled={submitting || (!content.trim() && !embedUrl.trim())}
             className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-2xl font-bold text-sm disabled:opacity-30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
             {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-4 h-4" />}
             نشر الآن
@@ -820,7 +820,7 @@ export default function Stories() {
               </h1>
             </div>
             {user ? (
-              <button onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/15">
+              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/15">
                 <Plus className="w-[18px] h-[18px]" />
               </button>
             ) : <div className="w-10" />}
