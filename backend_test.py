@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 
 # Get the backend URL from frontend environment
-BACKEND_URL = "https://halal-translate.preview.emergentagent.com/api"
+BACKEND_URL = "https://project-flow-73.preview.emergentagent.com/api"
 
 async def test_endpoint(client, url, description):
     """Test a single endpoint and return results"""
