@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any, List
 
 # Base URL from frontend environment
-BASE_URL = "https://project-flow-73.preview.emergentagent.com/api"
+BASE_URL = "https://qibla-content-fix.preview.emergentagent.com/api"
 
 class APITester:
     def __init__(self, base_url: str):
