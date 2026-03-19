@@ -7,10 +7,28 @@ import { cn } from '@/lib/utils';
 import { useLocale } from '@/hooks/useLocale';
 
 export default function AthanSelector() {
-  const { t, dir } = useLocale();
+  const { t, dir, isRTL } = useLocale();
   const [selected, setSelected] = useState(getSelectedAthan().id);
   const [playing, setPlaying] = useState<string | null>(null);
   const [volume, setVolume] = useState(() => parseFloat(localStorage.getItem('athan-volume') || '0.8'));
+
+  // Translation keys for athan names
+  const athanNameKeys: Record<string, string> = {
+    makkah: 'athanMakkah',
+    madinah: 'athanMadinah',
+    turkish: 'athanTurkish',
+    umayyad: 'athanUmayyad',
+    quds: 'athanAqsa',
+    abdulbasit: 'athanAbdulBasit',
+    shahat: 'athanShahat',
+    saqqaf: 'athanSaqqaf',
+    default: 'athanDefault',
+  };
+
+  const getAthanDisplayName = (athan: { id: string; name: string; nameAr: string }) => {
+    const key = athanNameKeys[athan.id];
+    return key ? t(key) : (isRTL ? athan.nameAr : athan.name);
+  };
 
   useEffect(() => {
     preloadAthanById(selected, true);
@@ -90,8 +108,8 @@ export default function AthanSelector() {
 
               {/* Info */}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-foreground">{athan.nameAr}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{athan.name}</p>
+                <p className="text-sm font-bold text-foreground">{getAthanDisplayName(athan)}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{isRTL ? athan.name : athan.nameAr}</p>
               </div>
 
               {/* Preview button */}

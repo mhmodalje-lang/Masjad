@@ -2,13 +2,22 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Volume2 } from 'lucide-react';
 import { stopAthan } from '@/lib/athanAudio';
+import { useLocale } from '@/hooks/useLocale';
 
-const PRAYER_INFO: Record<string, { name: string; icon: string; gradient: string }> = {
-  fajr: { name: 'الفجر', icon: '🌅', gradient: 'from-indigo-900 via-purple-900 to-slate-900' },
-  dhuhr: { name: 'الظهر', icon: '🌞', gradient: 'from-amber-700 via-orange-800 to-yellow-900' },
-  asr: { name: 'العصر', icon: '🌤️', gradient: 'from-sky-800 via-blue-900 to-indigo-900' },
-  maghrib: { name: 'المغرب', icon: '🌅', gradient: 'from-orange-800 via-red-900 to-purple-900' },
-  isha: { name: 'العشاء', icon: '🌙', gradient: 'from-slate-900 via-indigo-950 to-black' },
+const PRAYER_GRADIENTS: Record<string, string> = {
+  fajr: 'from-indigo-900 via-purple-900 to-slate-900',
+  dhuhr: 'from-amber-700 via-orange-800 to-yellow-900',
+  asr: 'from-sky-800 via-blue-900 to-indigo-900',
+  maghrib: 'from-orange-800 via-red-900 to-purple-900',
+  isha: 'from-slate-900 via-indigo-950 to-black',
+};
+
+const PRAYER_ICONS: Record<string, string> = {
+  fajr: '🌅', dhuhr: '🌞', asr: '🌤️', maghrib: '🌅', isha: '🌙',
+};
+
+const PRAYER_NAME_KEYS: Record<string, string> = {
+  fajr: 'prayerFajr', dhuhr: 'prayerDhuhr', asr: 'prayerAsr', maghrib: 'prayerMaghrib', isha: 'prayerIsha',
 };
 
 interface AthanAlertProps {
@@ -18,6 +27,7 @@ interface AthanAlertProps {
 }
 
 export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAlertProps) {
+  const { t, dir } = useLocale();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -39,8 +49,10 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
     return () => clearTimeout(timer);
   }, [visible, handleDismiss]);
 
-  const info = prayerKey ? PRAYER_INFO[prayerKey] : null;
-  if (!info) return null;
+  const gradient = prayerKey ? PRAYER_GRADIENTS[prayerKey] : null;
+  const icon = prayerKey ? PRAYER_ICONS[prayerKey] : null;
+  const nameKey = prayerKey ? PRAYER_NAME_KEYS[prayerKey] : null;
+  if (!gradient || !icon || !nameKey) return null;
 
   return (
     <AnimatePresence>
@@ -50,8 +62,8 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4 }}
-          className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b ${info.gradient}`}
-          dir="rtl"
+          className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-gradient-to-b ${gradient}`}
+          dir={dir}
         >
           {/* Islamic pattern overlay */}
           <div className="absolute inset-0 islamic-pattern opacity-10" />
@@ -78,7 +90,7 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
               transition={{ delay: 0.3, type: 'spring' }}
               className="text-7xl mb-6"
             >
-              {info.icon}
+              {icon}
             </motion.span>
 
             {/* Title */}
@@ -88,7 +100,7 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
               transition={{ delay: 0.4 }}
               className="text-white/60 text-lg font-medium mb-2"
             >
-              حان وقت الصلاة
+              {t('prayerTimeNow')}
             </motion.p>
 
             {/* Prayer name */}
@@ -98,7 +110,7 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
               transition={{ delay: 0.5 }}
               className="text-white text-5xl font-bold mb-4"
             >
-              صلاة {info.name}
+              {t(nameKey)}
             </motion.h1>
 
             {/* Time */}
@@ -119,15 +131,16 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
               className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-5 py-3 border border-white/20 mb-10"
             >
               <Volume2 className="h-4 w-4 text-white/70 animate-pulse" />
-              <span className="text-white/70 text-sm">جاري تشغيل الأذان...</span>
+              <span className="text-white/70 text-sm">{t('athanPlaying')}</span>
             </motion.div>
 
-            {/* Decorative verse */}
+            {/* Decorative verse - always Arabic as it's Quran */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1 }}
               className="text-white/30 text-sm font-arabic leading-relaxed max-w-xs"
+              dir="rtl"
             >
               حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ
             </motion.p>
@@ -141,7 +154,7 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
             onClick={handleDismiss}
             className="absolute bottom-12 bg-white/15 backdrop-blur-sm border border-white/25 text-white font-semibold rounded-2xl px-10 py-4 text-base transition-all active:scale-95 z-10"
           >
-            إغلاق
+            {t('dismiss')}
           </motion.button>
         </motion.div>
       )}

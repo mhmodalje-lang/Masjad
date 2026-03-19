@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { duasData } from '@/data/duas';
+import { translateReference } from '@/lib/referenceTranslator';
 
 interface CatItem {
   icon: any;
@@ -68,7 +69,7 @@ const getAllCategories = (t: (k: string) => string) => [...getDailyCategories(t)
 type ViewMode = 'categories' | 'subCategories' | 'duas';
 
 export default function Duas() {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -198,7 +199,7 @@ export default function Duas() {
       <p className="text-xs text-muted-foreground mb-2 leading-relaxed">{t(dua.translationKey)}</p>
       <div className="flex items-center justify-between">
         <span className="text-[10px] text-primary font-bold bg-primary/8 px-2 py-0.5 rounded">×{dua.count}</span>
-        {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {dua.reference}</span>}
+        {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {translateReference(dua.reference, locale)}</span>}
       </div>
     </motion.div>
   );
@@ -390,7 +391,7 @@ export default function Duas() {
                       <p className="text-xs text-muted-foreground mb-2 leading-relaxed">{t(dua.translationKey)}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-primary font-bold bg-primary/8 px-2 py-0.5 rounded">×{dua.count}</span>
-                        {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {dua.reference}</span>}
+                        {dua.reference && <span className="text-[10px] text-muted-foreground">📖 {translateReference(dua.reference, locale)}</span>}
                       </div>
                     </motion.div>
                   );

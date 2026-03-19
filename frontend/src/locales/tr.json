@@ -1358,5 +1358,20 @@
   "fillNameAndPrice": "İsim ve fiyat gereklidir",
   "productAdded": "Ürün eklendi",
   "aboutUsTitle": "Hakkımızda",
-  "hadithNarrator": "Ravî"
+  "hadithNarrator": "Ravî",
+  "installAppTitle": "Ezan & Hikaye Uygulamasını Kur",
+  "installAppSubtitle": "Tarayıcı olmadan hızlı erişim",
+  "installBtn": "Kur",
+  "athanAqsa": "Mescid-i Aksa (Kudüs)",
+  "athanAbdulBasit": "Abdulbasit Abdüssamed",
+  "athanDefault": "Basit Uyarı Sesi",
+  "tapToCount": "Saymak için dokunun",
+  "prayerTimeNow": "Namaz vakti",
+  "prayerFajr": "Fecr Namazı",
+  "prayerDhuhr": "Öğle Namazı",
+  "prayerAsr": "İkindi Namazı",
+  "prayerMaghrib": "Akşam Namazı",
+  "prayerIsha": "Yatsı Namazı",
+  "athanPlaying": "Ezan çalınıyor...",
+  "dismiss": "Kapat"
 }

@@ -1358,5 +1358,20 @@
   "fillNameAndPrice": "Name and price are required",
   "productAdded": "Product added",
   "aboutUsTitle": "About Us",
-  "hadithNarrator": "Narrator"
+  "hadithNarrator": "Narrator",
+  "installAppTitle": "Install Athan & Hikaya App",
+  "installAppSubtitle": "Quick access without a browser",
+  "installBtn": "Install",
+  "athanAqsa": "Al-Aqsa Mosque (Jerusalem)",
+  "athanAbdulBasit": "Abdul Basit Abdul Samad",
+  "athanDefault": "Simple Beep",
+  "tapToCount": "Tap to count",
+  "prayerTimeNow": "Time for Prayer",
+  "prayerFajr": "Fajr Prayer",
+  "prayerDhuhr": "Dhuhr Prayer",
+  "prayerAsr": "Asr Prayer",
+  "prayerMaghrib": "Maghrib Prayer",
+  "prayerIsha": "Isha Prayer",
+  "athanPlaying": "Playing the Athan...",
+  "dismiss": "Dismiss"
 }

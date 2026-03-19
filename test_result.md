@@ -9,6 +9,15 @@
 Complete i18n translation system - fix all hardcoded Arabic text across all pages and components
 
 ## Translation System Fix Progress (2026-03-19)
+### Phase 4 - Final Fix: Athan Selection, Adhkar References, Install Banner, AthanAlert:
+- Fixed AthanSelector: All 9 athan names now show in selected language (Makkah Athan, Madinah Athan, etc.)
+- Fixed AthanAlert: Prayer names, "Time for Prayer", "Playing the Athan", "Dismiss" all translated
+- Fixed InstallBanner: "Install Athan & Hikaya App" / "Quick access without a browser" / "Install" button
+- Fixed DhikrCounterDrawer: "Tap to count" translated
+- Fixed Duas page: All hadith references (البخاري→Al-Bukhari, مسلم→Muslim, etc.) now translated
+- Created referenceTranslator.ts utility for 30+ hadith source name translations
+- Added 10+ more translation keys to all 6 locale files
+- Fixed Explore.tsx time formatting (was Arabic letters)
 ### Phase 3 - Full Comprehensive Fix (Latest):
 - Added 151 NEW translation keys to all 6 locale files (1360 total per language)
 - **Backend**: Added multilingual hadith support (30 hadiths translated to English) with ?language= parameter

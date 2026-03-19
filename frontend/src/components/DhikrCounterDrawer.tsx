@@ -113,7 +113,7 @@ export default function DhikrCounterDrawer({ open, onOpenChange, dhikr, currentP
           </button>
 
           {!completed && (
-            <p className="text-sm text-muted-foreground">اضغط للعد</p>
+            <p className="text-sm text-muted-foreground">{t('tapToCount')}</p>
           )}
         </div>
       </DrawerContent>

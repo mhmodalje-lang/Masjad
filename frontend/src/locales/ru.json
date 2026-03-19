@@ -1358,5 +1358,20 @@
   "fillNameAndPrice": "Название и цена обязательны",
   "productAdded": "Товар добавлен",
   "aboutUsTitle": "О нас",
-  "hadithNarrator": "Рассказчик"
+  "hadithNarrator": "Рассказчик",
+  "installAppTitle": "Установите приложение Азан и Хикая",
+  "installAppSubtitle": "Быстрый доступ без браузера",
+  "installBtn": "Установить",
+  "athanAqsa": "Мечеть Аль-Акса (Иерусалим)",
+  "athanAbdulBasit": "Абдул-Басит Абдус-Самад",
+  "athanDefault": "Простой звуковой сигнал",
+  "tapToCount": "Нажмите для подсчёта",
+  "prayerTimeNow": "Время молитвы",
+  "prayerFajr": "Молитва Фаджр",
+  "prayerDhuhr": "Молитва Зухр",
+  "prayerAsr": "Молитва Аср",
+  "prayerMaghrib": "Молитва Магриб",
+  "prayerIsha": "Молитва Иша",
+  "athanPlaying": "Воспроизведение азана...",
+  "dismiss": "Закрыть"
 }

@@ -1358,5 +1358,20 @@
   "fillNameAndPrice": "يجب ملء الاسم والسعر",
   "productAdded": "تم إضافة المنتج",
   "aboutUsTitle": "من نحن",
-  "hadithNarrator": "الراوي"
+  "hadithNarrator": "الراوي",
+  "installAppTitle": "ثبّت تطبيق أذان وحكاية",
+  "installAppSubtitle": "وصول سريع بدون متصفح",
+  "installBtn": "تثبيت",
+  "athanAqsa": "المسجد الأقصى (القدس)",
+  "athanAbdulBasit": "عبد الباسط عبد الصمد",
+  "athanDefault": "تنبيه بسيط",
+  "tapToCount": "اضغط للعد",
+  "prayerTimeNow": "حان وقت الصلاة",
+  "prayerFajr": "صلاة الفجر",
+  "prayerDhuhr": "صلاة الظهر",
+  "prayerAsr": "صلاة العصر",
+  "prayerMaghrib": "صلاة المغرب",
+  "prayerIsha": "صلاة العشاء",
+  "athanPlaying": "جاري تشغيل الأذان...",
+  "dismiss": "إغلاق"
 }

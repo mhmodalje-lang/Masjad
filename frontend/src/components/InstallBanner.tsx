@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocale } from '@/hooks/useLocale';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -15,6 +16,7 @@ function isInStandaloneMode() {
 const DISMISSED_KEY = 'install-banner-dismissed';
 
 export default function InstallBanner() {
+  const { t, dir } = useLocale();
   const [show, setShow] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
@@ -63,7 +65,7 @@ export default function InstallBanner() {
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           className="fixed bottom-20 left-4 right-4 z-[70] rounded-2xl bg-card border border-border p-4 shadow-2xl"
-          dir="rtl"
+          dir={dir}
         >
           <button
             onClick={dismiss}
@@ -73,17 +75,17 @@ export default function InstallBanner() {
           </button>
 
           <div className="flex items-center gap-3">
-            <img src="/pwa-icon-192.png" alt="أذان وحكاية" className="h-12 w-12 rounded-xl shadow" />
+            <img src="/pwa-icon-192.png" alt="Athan & Hikaya" className="h-12 w-12 rounded-xl shadow" />
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-bold text-foreground">ثبّت تطبيق أذان وحكاية</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">وصول سريع بدون متصفح</p>
+              <h3 className="text-sm font-bold text-foreground">{t('installAppTitle')}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('installAppSubtitle')}</p>
             </div>
             <button
               onClick={handleInstall}
               className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow active:scale-95 transition-transform flex items-center gap-1.5"
             >
               <Download className="h-4 w-4" />
-              تثبيت
+              {t('installBtn')}
             </button>
           </div>
         </motion.div>
