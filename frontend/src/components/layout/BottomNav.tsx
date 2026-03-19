@@ -37,7 +37,7 @@ export function BottomNav() {
             return (
               <Link
                 key="create"
-                to={user ? '/create-post' : '/auth'}
+                to={user ? '/stories?create=true' : '/auth'}
                 data-testid="nav-create"
                 className="relative flex flex-col items-center gap-0.5 flex-1 py-1.5 min-w-0"
               >

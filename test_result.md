@@ -9,26 +9,23 @@
 - User requested: Add ads infrastructure (AdMob, GDPR, Analytics, Admin controls), make app store-ready for Play Store & App Store
 
 ## Current Task
-تحويل صفحة حكاياتي لمنصة تواصل اجتماعي إسلامية كاملة:
-- تصميم إسلامي حديث مع header أخضر وفوانيس
-- فيد المنشورات (نص/صور/فيديو) مع إعجاب وتعليق ومشاركة وحفظ
-- نظام متابعة/متابعين ومستخدمين موصى بهم
-- تاب فيديو وترندات وتصنيفات
-- حذف تعليقات + رد على تعليقات
-- عارض فيديو fullscreen (ريلز) بنمط TikTok
-- إدارة المنصة الاجتماعية في لوحة الأدمن
-- إنشاء منشورات جديدة (نص/صورة/فيديو/رابط)
-New Backend APIs to test:
+تحويل صفحة حكاياتي لمنصة تواصل اجتماعي إسلامية + إصلاح شامل + توسع عالمي
+New/Updated Backend APIs to test:
 - DELETE /api/sohba/comments/{id} - حذف تعليق
+- POST /api/sohba/posts/{id}/comments with reply_to - رد على تعليق
 - GET /api/sohba/recommended-users - مستخدمين موصى بهم
 - GET /api/sohba/feed/following - فيد المتابعين
 - GET /api/sohba/feed/videos - فيد الفيديوهات
-- POST /api/sohba/posts/{id}/share - مشاركة منشور
+- POST /api/sohba/posts/{id}/share - مشاركة
 - GET /api/sohba/user/{id}/posts - منشورات مستخدم
-- GET /api/admin/social/stats - إحصائيات المنصة
+- GET /api/admin/social/stats - إحصائيات
 - GET /api/admin/social/posts - إدارة المنشورات
+- DELETE /api/admin/social/posts/{id} - حذف منشور (أدمن)
 - GET /api/admin/social/comments - إدارة التعليقات
+- DELETE /api/admin/social/comments/{id} - حذف تعليق (أدمن)
 - GET /api/admin/social/users - إدارة المستخدمين
+- GET /api/localization/supported - لغات مدعومة شاملة
+- GET /api/localization/strings/{lang} - ترجمات UI
 
 ## Backend Test Results (Comprehensive Islamic App API Testing)
 ### ✅ ALL WORKING APIs (13/13 tested - 100% SUCCESS RATE)

@@ -1,11 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowRight, MessageCircle, Settings, Grid3X3, Info, Play } from 'lucide-react';
-import PostCard from '@/components/social/PostCard';
-import { Loader2 } from 'lucide-react';
+import { ArrowRight, MessageCircle, Settings, Heart, Play, Film, Loader2, Users } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
+function avatar(name: string, img?: string) {
+  if (img) return img;
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || '?')}&background=047857&color=fff&size=120&bold=true`;
+}
+
+function getMediaUrl(url?: string) {
+  if (!url) return null;
+  return url.startsWith('http') ? url : `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+function formatCount(n: number) {
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return n.toString();
+}
 
 export default function SocialProfile() {
   const { userId } = useParams<{ userId: string }>();
@@ -23,6 +37,7 @@ export default function SocialProfile() {
 
   useEffect(() => {
     if (targetId) {
+      setLoading(true);
       fetchProfile();
       fetchPosts();
     }
@@ -34,6 +49,7 @@ export default function SocialProfile() {
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
       const res = await fetch(`${BACKEND_URL}/api/sohba/profile/${targetId}`, { headers });
+      if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       setProfile(data.profile);
       setStats(data.stats);
@@ -51,6 +67,7 @@ export default function SocialProfile() {
       const headers: Record<string, string> = {};
       if (token) headers.Authorization = `Bearer ${token}`;
       const res = await fetch(`${BACKEND_URL}/api/sohba/user/${targetId}/posts?limit=30`, { headers });
+      if (!res.ok) throw new Error('Failed');
       const data = await res.json();
       setPosts(data.posts || []);
     } catch (err) {
@@ -77,15 +94,9 @@ export default function SocialProfile() {
     }
   };
 
-  const formatCount = (n: number) => {
-    if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-    if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-    return n.toString();
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0e13] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
@@ -93,168 +104,167 @@ export default function SocialProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-        المستخدم غير موجود
+      <div className="min-h-screen bg-[#0a0e13] flex flex-col items-center justify-center gap-4 text-gray-400">
+        <Users className="w-12 h-12 text-gray-700" />
+        <p>المستخدم غير موجود</p>
+        <button onClick={() => navigate(-1)} className="text-emerald-500 text-sm font-bold">رجوع</button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20">
-      {/* Cover Image */}
-      <div className="relative h-48 bg-gradient-to-br from-emerald-900 via-emerald-800 to-gray-900">
+    <div className="min-h-screen bg-[#0a0e13] pb-24">
+      {/* Cover */}
+      <div className="relative h-44 bg-gradient-to-br from-emerald-900 via-emerald-800 to-gray-900 overflow-hidden">
         {profile.cover_image && (
           <img src={profile.cover_image} alt="" className="w-full h-full object-cover" />
         )}
-        <div className="absolute inset-0 bg-black/30" />
-        
-        {/* Back button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center text-white"
-        >
+        <div className="absolute inset-0 bg-black/20" />
+        {/* Islamic pattern */}
+        <div className="absolute inset-0 opacity-[0.06]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.3'%3E%3Cpath d='M40 10L50 30H30z M40 70L30 50H50z M10 40L30 30V50z M70 40L50 50V30z'/%3E%3C/g%3E%3C/svg%3E")`,
+        }} />
+        <button onClick={() => navigate(-1)}
+          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white">
           <ArrowRight className="w-5 h-5" />
         </button>
-        
         {isOwnProfile && (
-          <Link
-            to="/account"
-            className="absolute top-4 left-4 w-9 h-9 rounded-full bg-black/40 flex items-center justify-center text-white"
-          >
+          <Link to="/account"
+            className="absolute top-4 left-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white">
             <Settings className="w-5 h-5" />
           </Link>
         )}
       </div>
 
-      {/* Profile Info */}
-      <div className="relative px-4 -mt-12" dir="rtl">
-        {/* Avatar */}
-        <div className="flex justify-center sm:justify-end">
+      {/* Avatar & Info */}
+      <div className="relative px-5 -mt-14" dir="rtl">
+        <div className="flex justify-center">
           <img
-            src={profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name || '')}&background=1a7a4c&color=fff&size=120`}
+            src={avatar(profile.name, profile.avatar)}
             alt={profile.name}
-            className="w-24 h-24 rounded-full border-4 border-gray-950 object-cover shadow-lg"
+            className="w-[100px] h-[100px] rounded-full border-4 border-[#0a0e13] object-cover shadow-xl"
           />
         </div>
-
-        {/* Name & Bio */}
         <div className="text-center mt-3">
           <h1 className="text-white text-xl font-bold">{profile.name}</h1>
-          {profile.bio && (
-            <p className="text-gray-400 text-sm mt-1 max-w-sm mx-auto">{profile.bio}</p>
-          )}
+          {profile.bio && <p className="text-gray-400 text-sm mt-1 max-w-xs mx-auto">{profile.bio}</p>}
         </div>
 
         {/* Stats */}
-        <div className="flex items-center justify-center gap-6 mt-5">
+        <div className="flex items-center justify-center gap-8 mt-5">
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.following_count || 0)}</p>
-            <p className="text-gray-500 text-xs">متابعة</p>
+            <p className="text-gray-500 text-[11px]">متابعة</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.followers_count || 0)}</p>
-            <p className="text-gray-500 text-xs">متابعين</p>
+            <p className="text-gray-500 text-[11px]">متابعين</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.likes_count || 0)}</p>
-            <p className="text-gray-500 text-xs">الإعجابات</p>
+            <p className="text-gray-500 text-[11px]">الإعجابات</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.gifts_count || 0)}</p>
-            <p className="text-gray-500 text-xs">الهدايا</p>
+            <p className="text-gray-500 text-[11px]">الهدايا</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-5 max-w-md mx-auto">
+        <div className="flex gap-3 mt-5 max-w-sm mx-auto">
           {isOwnProfile ? (
-            <Link
-              to="/account"
-              className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white text-center font-bold text-sm hover:bg-emerald-500 transition-colors"
-            >
+            <Link to="/account"
+              className="flex-1 py-2.5 rounded-2xl bg-emerald-600 text-white text-center font-bold text-sm hover:bg-emerald-500 transition-colors">
               تعديل الملف الشخصي
             </Link>
           ) : (
             <>
-              <button
-                onClick={handleFollow}
-                className={`flex-1 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
-                  isFollowing
-                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-500'
-                }`}
-              >
+              <button onClick={handleFollow}
+                className={`flex-1 py-2.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
+                  isFollowing ? 'bg-white/5 border border-white/10 text-gray-300' : 'bg-emerald-600 text-white'
+                }`}>
                 {isFollowing ? 'متابَع ✓' : '+ متابعة'}
               </button>
-              <Link
-                to="/messages"
-                className="flex-1 py-2.5 rounded-xl bg-gray-800 text-white text-center font-bold text-sm flex items-center justify-center gap-2 hover:bg-gray-700 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                المحادثة
+              <Link to="/messages"
+                className="flex-1 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white text-center font-bold text-sm flex items-center justify-center gap-2">
+                <MessageCircle className="w-4 h-4" /> المحادثة
               </Link>
             </>
           )}
         </div>
       </div>
 
-      {/* Content Tabs */}
-      <div className="flex border-b border-gray-800 mt-6">
-        <button
-          onClick={() => setActiveTab('posts')}
+      {/* Tabs */}
+      <div className="flex border-b border-white/5 mt-6">
+        <button onClick={() => setActiveTab('posts')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
-            activeTab === 'posts'
-              ? 'text-white border-b-2 border-emerald-500'
-              : 'text-gray-500 hover:text-gray-300'
-          }`}
-        >
+            activeTab === 'posts' ? 'text-white border-b-2 border-emerald-500' : 'text-gray-600'
+          }`}>
           المنشورات
         </button>
-        <button
-          onClick={() => setActiveTab('info')}
+        <button onClick={() => setActiveTab('info')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
-            activeTab === 'info'
-              ? 'text-white border-b-2 border-emerald-500'
-              : 'text-gray-500 hover:text-gray-300'
-          }`}
-        >
+            activeTab === 'info' ? 'text-white border-b-2 border-emerald-500' : 'text-gray-600'
+          }`}>
           المعلومات
         </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === 'posts' ? (
-        <div className="grid grid-cols-2 gap-1 p-1">
+        <div className="grid grid-cols-2 gap-1.5 p-3">
           {posts.length === 0 ? (
-            <div className="col-span-2 text-center py-12 text-gray-500">
+            <div className="col-span-2 text-center py-16 text-gray-600 text-sm">
               لا توجد منشورات حتى الآن
             </div>
           ) : (
-            posts.map((post) => (
-              <PostCard key={post.id} post={post} layout="grid" />
+            posts.map(post => (
+              <Link key={post.id} to={`/stories?story=${post.id}`}
+                className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-900 group">
+                {getMediaUrl(post.image_url || post.thumbnail_url) ? (
+                  <img src={getMediaUrl(post.image_url || post.thumbnail_url)!} alt=""
+                    className="w-full h-full object-cover" loading="lazy" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-900/50 to-gray-900 flex items-center justify-center p-3">
+                    <p className="text-white/60 text-xs text-center line-clamp-4">{post.content}</p>
+                  </div>
+                )}
+                {(post.content_type?.includes('video') || post.video_url) && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Play className="w-8 h-8 text-white/60 fill-white/60" />
+                  </div>
+                )}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                  <p className="text-white text-[10px] line-clamp-2">{post.content}</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Heart className="w-2.5 h-2.5 text-white/50" />
+                    <span className="text-white/50 text-[9px]">{post.likes_count || 0}</span>
+                  </div>
+                </div>
+              </Link>
             ))
           )}
         </div>
       ) : (
-        <div className="p-4" dir="rtl">
-          <div className="bg-gray-900 rounded-xl p-4 space-y-3">
+        <div className="p-5" dir="rtl">
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-4">
             <div>
-              <span className="text-gray-500 text-sm">الاسم</span>
-              <p className="text-white">{profile.name}</p>
+              <span className="text-gray-500 text-xs">الاسم</span>
+              <p className="text-white font-bold mt-0.5">{profile.name}</p>
             </div>
             {profile.bio && (
               <div>
-                <span className="text-gray-500 text-sm">النبذة</span>
-                <p className="text-white">{profile.bio}</p>
+                <span className="text-gray-500 text-xs">النبذة</span>
+                <p className="text-white mt-0.5">{profile.bio}</p>
               </div>
             )}
             <div>
-              <span className="text-gray-500 text-sm">تاريخ الانضمام</span>
-              <p className="text-white">{new Date(profile.created_at).toLocaleDateString('ar-SA')}</p>
+              <span className="text-gray-500 text-xs">تاريخ الانضمام</span>
+              <p className="text-white mt-0.5">{profile.created_at ? new Date(profile.created_at).toLocaleDateString('ar-SA') : '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-sm">عدد المنشورات</span>
-              <p className="text-white">{stats.posts_count || 0}</p>
+              <span className="text-gray-500 text-xs">عدد المنشورات</span>
+              <p className="text-white mt-0.5">{stats.posts_count || 0}</p>
             </div>
           </div>
         </div>
