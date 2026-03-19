@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { cn } from '@/lib/utils';
 import type { DhikrDetail } from '@/data/dhikrDetails';
+import { useLocale } from '@/hooks/useLocale';
 
 interface Props {
   open: boolean;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export default function DhikrCounterDrawer({ open, onOpenChange, dhikr, currentProgress, onComplete }: Props) {
+  const { t } = useLocale();
   const [count, setCount] = useState(0);
   const [completed, setCompleted] = useState(false);
 
@@ -48,7 +50,7 @@ export default function DhikrCounterDrawer({ open, onOpenChange, dhikr, currentP
       <DrawerContent className="pb-8">
         <div className="flex flex-col items-center px-6 pt-4 pb-2">
           {/* Title */}
-          <h3 className="text-lg font-bold text-foreground mb-1">{dhikr.title}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{t(dhikr.titleKey)}</h3>
           
           {/* Arabic text */}
           <p className="text-xl font-bold text-foreground text-center leading-loose mb-2 font-amiri" dir="rtl">

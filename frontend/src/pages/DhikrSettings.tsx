@@ -44,7 +44,7 @@ export default function DhikrSettings() {
               )}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-bold text-foreground">{d.title}</span>
+                <span className="text-sm font-bold text-foreground">{t(d.titleKey)}</span>
                 <Switch checked={s.enabled} onCheckedChange={v => update(d.key, { enabled: v })} />
               </div>
               <p className="text-xs text-muted-foreground mb-1 font-amiri" dir={dir}>{d.arabic}</p>

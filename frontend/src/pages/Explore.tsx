@@ -81,7 +81,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4 min-h-[120px]">
           {loading ? <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">لا توجد {t('comment')}ات بعد</p>
+            : comments.length === 0 ? <p className="text-center text-xs text-muted-foreground py-10">{t('noCommentsYetShort')}</p>
             : comments.map(c => {
               const ci = (c.author_name || '').charCodeAt(0) % avatarColors.length;
               return (
@@ -466,7 +466,7 @@ export default function Explore() {
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">{t('listening')}</p>
-              <p className="text-xs text-muted-foreground">{t('saySomethingLike')}: "أريد قصة عن الاستغفار"</p>
+              <p className="text-xs text-muted-foreground">{t('trySaying')}: "{t('istighfarStoryExample')}"</p>
             </div>
           </motion.div>
         )}
@@ -529,7 +529,7 @@ export default function Explore() {
                   onClick={() => setShowMoreViewed(!showMoreViewed)}
                   className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
                 >
-                  {showMoreViewed ? t('showLess') : `المزيد (${mostViewed.length - 5})`}
+                  {showMoreViewed ? t('showLess') : `${t('moreCount')} (${mostViewed.length - 5})`}
                 </button>
               )}
             </section>
@@ -560,7 +560,7 @@ export default function Explore() {
                   onClick={() => setShowMoreInteracted(!showMoreInteracted)}
                   className="w-full mt-3 py-2.5 rounded-xl bg-card border border-primary/20 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
                 >
-                  {showMoreInteracted ? t('showLess') : `المزيد (${mostInteracted.length - 5})`}
+                  {showMoreInteracted ? t('showLess') : `${t('moreCount')} (${mostInteracted.length - 5})`}
                 </button>
               )}
             </section>

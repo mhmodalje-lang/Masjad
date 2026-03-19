@@ -3,6 +3,7 @@ import { usePrayerTimes, getNextPrayer, type PrayerTime } from './usePrayerTimes
 import { useGeoLocation } from './useGeoLocation';
 import { MosqueService, MOSQUE_CHANGE_EVENT, type MosqueData, type AthanSound } from '@/lib/MosqueService';
 import { updateSunriseSunset } from '@/components/ThemeProvider';
+import i18n from '@/lib/i18nConfig';
 
 type PrayerSource = 'auto' | 'mosque';
 
@@ -189,7 +190,7 @@ export function UnifiedPrayerProvider({ children }: { children: ReactNode }) {
 
   const sourceLabel = hasMosque
     ? mosqueState.mosque!.name
-    : location.city || 'تلقائي';
+    : location.city || i18n.t('automatic');
 
   const selectMosque = useCallback((mosque: MosqueData) => {
     MosqueService.selectMosque(mosque);

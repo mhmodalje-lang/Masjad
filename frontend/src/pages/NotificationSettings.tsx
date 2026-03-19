@@ -262,13 +262,13 @@ export default function NotificationSettings() {
       <SettingsSection title={t("dailyGoalsSection")} settings={dailyGoalSettings} />
 
       {/* Other */}
-      <SettingsSection title="تنبيهات أخرى" settings={otherSettings} />
+      <SettingsSection title={t("otherAlerts")} settings={otherSettings} />
 
       {/* Info note */}
       <div className="px-4 mt-6 mb-8">
         <div className="rounded-2xl bg-muted/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            💡 الإشعارات تعمل حتى عندما يكون التطبيق مغلقاً! قم بتثبيت التطبيق كـ PWA وفعّل الإشعارات لتصلك تنبيهات الأذان في كل وقت صلاة تلقائياً.
+            💡 {t('pwaNotifTip')}
           </p>
         </div>
       </div>

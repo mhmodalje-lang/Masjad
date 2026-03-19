@@ -25,6 +25,12 @@ const hijriMonthsArabic = [
   'رَمَضان', 'شَوّال', 'ذو القَعدة', 'ذو الحِجَّة',
 ];
 
+const hijriMonthKeys = [
+  'hijriMonth1', 'hijriMonth2', 'hijriMonth3', 'hijriMonth4',
+  'hijriMonth5', 'hijriMonth6', 'hijriMonth7', 'hijriMonth8',
+  'hijriMonth9', 'hijriMonth10', 'hijriMonth11', 'hijriMonth12',
+];
+
 // Use approximate conversion for calendar navigation (non-today months)
 function hijriToApproxGregorian(hYear: number, hMonth: number, hDay: number): Date {
   const jd = Math.floor((11 * hYear + 3) / 30) + 354 * hYear + 30 * hMonth -
@@ -224,7 +230,7 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
             </button>
             <button onClick={goToTodayHijri} className="text-center">
               <p className="text-sm font-bold text-foreground">
-                {hijriMonthsArabic[viewMonth - 1]} {viewYear} هـ
+                {t(hijriMonthKeys[viewMonth - 1])} {viewYear}
               </p>
             </button>
             <button onClick={() => navigateHijri(-1)} aria-label={t('prevMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
@@ -329,7 +335,7 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
                 <div>
                   <p className="text-sm font-medium text-foreground">{t(ev.key)}</p>
                   <p className="text-[10px] text-muted-foreground">
-                    {ev.day} {hijriMonthsArabic[ev.month - 1]}
+                    {ev.day} {t(hijriMonthKeys[ev.month - 1])}
                   </p>
                 </div>
               </div>

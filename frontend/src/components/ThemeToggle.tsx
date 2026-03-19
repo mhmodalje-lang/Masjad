@@ -1,6 +1,7 @@
 import { Moon, Sun, SunMoon } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { cn } from '@/lib/utils';
+import i18n from '@/lib/i18nConfig';
 
 export function ThemeToggle() {
   const { theme, mode, toggle } = useTheme();
@@ -12,7 +13,7 @@ export function ThemeToggle() {
     <button
       onClick={toggle}
       data-testid="theme-toggle"
-      aria-label={`الوضع الحالي: ${mode === 'auto' ? 'تلقائي' : mode === 'dark' ? 'ليلي' : 'نهاري'}`}
+      aria-label={`${i18n.t('currentMode')}: ${mode === 'auto' ? i18n.t('automatic') : mode === 'dark' ? i18n.t('darkMode') : i18n.t('lightMode')}`}
       className={cn(
         'relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-500 shrink-0',
         theme === 'dark'

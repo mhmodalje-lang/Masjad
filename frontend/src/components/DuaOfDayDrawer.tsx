@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { dailyDuas } from '@/data/dhikrDetails';
+import { useLocale } from '@/hooks/useLocale';
 
 interface Props {
   open: boolean;
@@ -15,6 +16,7 @@ function getTodayDua() {
 }
 
 export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
+  const { t, dir } = useLocale();
   const dua = getTodayDua();
   const [done, setDone] = useState(() => {
     const key = new Date().toISOString().split('T')[0];
@@ -31,10 +33,10 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="pb-8 max-h-[85vh]">
-        <div className="flex flex-col items-center px-5 pt-4 pb-2 overflow-y-auto" dir="rtl">
+        <div className="flex flex-col items-center px-5 pt-4 pb-2 overflow-y-auto" dir={dir}>
           {/* Title */}
-          <h3 className="text-base font-bold text-foreground mb-1">{dua.title}</h3>
-          <p className="text-xs text-muted-foreground mb-4">{dua.subtitle}</p>
+          <h3 className="text-base font-bold text-foreground mb-1">{t(dua.titleKey)}</h3>
+          <p className="text-xs text-muted-foreground mb-4">{t(dua.subtitleKey)}</p>
 
           {/* Arabic Text - Clean container with no overflow */}
           <div className="bg-muted/30 rounded-2xl p-5 mb-5 w-full">
@@ -57,9 +59,9 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
           )}
 
           {/* Reference */}
-          {dua.reference && (
+          {dua.referenceKey && (
             <p className="text-[11px] text-primary font-bold bg-primary/8 px-3 py-1 rounded-lg mb-5">
-              {dua.reference}
+              {t(dua.referenceKey)}
             </p>
           )}
 
@@ -75,7 +77,7 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
               <Check className={`h-7 w-7 ${done ? 'text-primary-foreground' : 'text-accent-foreground'}`} />
             </motion.div>
           </button>
-          {!done && <p className="text-xs text-muted-foreground mt-2">اضغط لتحديد كمكتمل</p>}
+          {!done && <p className="text-xs text-muted-foreground mt-2">{t('tapToMarkComplete')}</p>}
         </div>
       </DrawerContent>
     </Drawer>

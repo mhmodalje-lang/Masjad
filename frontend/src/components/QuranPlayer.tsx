@@ -27,27 +27,37 @@ interface Surah {
 }
 
 // Curated working servers (mp3quran) — must point to folders that contain 001.mp3 ... 114.mp3
+const reciterKeyMap: Record<string, string> = {
+  alafasy: 'reciterAlafasy', sudais: 'reciterSudais', shuraym: 'reciterShuraym',
+  abdulbasit: 'reciterAbdulbasit', husary: 'reciterHusary', minshawi: 'reciterMinshawi',
+  ajamy: 'reciterAjamy', maher: 'reciterMaher', hani: 'reciterBudair',
+  ayyoub: 'reciterAyyoub', shaatri: 'reciterShatri', hudhaify: 'reciterAhmad',
+  tablawi: 'reciterTablawi', yasser: 'reciterYasser', nasser: 'reciterNasser',
+  banna: 'reciterBanna', fares: 'reciterFares', ghamdi: 'reciterGhamdi',
+  bukhatir: 'reciterAkhdar', juhany: 'reciterBasitMurattal',
+};
+
 const RECITERS = [
-  { id: 'alafasy', name: 'مشاري العفاسي', server: 'https://server8.mp3quran.net/afs/' },
-  { id: 'sudais', name: 'عبد الرحمن السديس', server: 'https://server11.mp3quran.net/sds/' },
-  { id: 'shuraym', name: 'سعود الشريم', server: 'https://server7.mp3quran.net/shur/' },
-  { id: 'abdulbasit', name: 'عبد الباسط عبد الصمد', server: 'https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/' },
-  { id: 'husary', name: 'محمود خليل الحصري', server: 'https://server13.mp3quran.net/husr/' },
-  { id: 'minshawi', name: 'محمد صديق المنشاوي', server: 'https://server10.mp3quran.net/minsh/' },
-  { id: 'ajamy', name: 'أحمد بن علي العجمي', server: 'https://server10.mp3quran.net/ajm/' },
-  { id: 'maher', name: 'ماهر المعيقلي', server: 'https://server12.mp3quran.net/maher/' },
-  { id: 'hani', name: 'صلاح البدير', server: 'https://server6.mp3quran.net/s_bud/' },
-  { id: 'ayyoub', name: 'محمد أيوب', server: 'https://server8.mp3quran.net/ayyub/' },
-  { id: 'shaatri', name: 'أبو بكر الشاطري', server: 'https://server11.mp3quran.net/shatri/' },
-  { id: 'hudhaify', name: 'عبدالعزيز الأحمد', server: 'https://server11.mp3quran.net/a_jbr/' },
-  { id: 'tablawi', name: 'محمد الطبلاوي', server: 'https://server12.mp3quran.net/tblawi/' },
-  { id: 'yasser', name: 'ياسر الدوسري', server: 'https://server11.mp3quran.net/yasser/' },
-  { id: 'nasser', name: 'ناصر القطامي', server: 'https://server6.mp3quran.net/qtm/' },
-  { id: 'banna', name: 'محمود علي البنا', server: 'https://server8.mp3quran.net/bna/' },
-  { id: 'fares', name: 'فارس عباد', server: 'https://server8.mp3quran.net/frs_a/' },
-  { id: 'ghamdi', name: 'سعد الغامدي', server: 'https://server7.mp3quran.net/s_gmd/' },
-  { id: 'bukhatir', name: 'إبراهيم الأخضر', server: 'https://server6.mp3quran.net/akdr/' },
-  { id: 'juhany', name: 'عبد الباسط - مرتل', server: 'https://server7.mp3quran.net/basit/' },
+  { id: 'alafasy', nameKey: 'reciterAlafasy', server: 'https://server8.mp3quran.net/afs/' },
+  { id: 'sudais', nameKey: 'reciterSudais', server: 'https://server11.mp3quran.net/sds/' },
+  { id: 'shuraym', nameKey: 'reciterShuraym', server: 'https://server7.mp3quran.net/shur/' },
+  { id: 'abdulbasit', nameKey: 'reciterAbdulbasit', server: 'https://server7.mp3quran.net/basit/Almusshaf-Al-Mojawwad/' },
+  { id: 'husary', nameKey: 'reciterHusary', server: 'https://server13.mp3quran.net/husr/' },
+  { id: 'minshawi', nameKey: 'reciterMinshawi', server: 'https://server10.mp3quran.net/minsh/' },
+  { id: 'ajamy', nameKey: 'reciterAjamy', server: 'https://server10.mp3quran.net/ajm/' },
+  { id: 'maher', nameKey: 'reciterMaher', server: 'https://server12.mp3quran.net/maher/' },
+  { id: 'hani', nameKey: 'reciterBudair', server: 'https://server6.mp3quran.net/s_bud/' },
+  { id: 'ayyoub', nameKey: 'reciterAyyoub', server: 'https://server8.mp3quran.net/ayyub/' },
+  { id: 'shaatri', nameKey: 'reciterShatri', server: 'https://server11.mp3quran.net/shatri/' },
+  { id: 'hudhaify', nameKey: 'reciterAhmad', server: 'https://server11.mp3quran.net/a_jbr/' },
+  { id: 'tablawi', nameKey: 'reciterTablawi', server: 'https://server12.mp3quran.net/tblawi/' },
+  { id: 'yasser', nameKey: 'reciterYasser', server: 'https://server11.mp3quran.net/yasser/' },
+  { id: 'nasser', nameKey: 'reciterNasser', server: 'https://server6.mp3quran.net/qtm/' },
+  { id: 'banna', nameKey: 'reciterBanna', server: 'https://server8.mp3quran.net/bna/' },
+  { id: 'fares', nameKey: 'reciterFares', server: 'https://server8.mp3quran.net/frs_a/' },
+  { id: 'ghamdi', nameKey: 'reciterGhamdi', server: 'https://server7.mp3quran.net/s_gmd/' },
+  { id: 'bukhatir', nameKey: 'reciterAkhdar', server: 'https://server6.mp3quran.net/akdr/' },
+  { id: 'juhany', nameKey: 'reciterBasitMurattal', server: 'https://server7.mp3quran.net/basit/' },
 ] as const;
 
 type ReciterId = (typeof RECITERS)[number]['id'];
@@ -389,7 +399,7 @@ export default function QuranPlayer() {
                 >
                   {RECITERS.map(r => (
                     <option key={r.id} value={r.id}>
-                      {r.name}
+                      {t(r.nameKey)}
                     </option>
                   ))}
                 </select>

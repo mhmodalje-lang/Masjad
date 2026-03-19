@@ -539,7 +539,7 @@ export default function Index() {
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-3">
             {t('duaOfDay')}
           </span>
-          <p className="text-sm font-bold text-foreground mb-3">{todayDua.subtitle}</p>
+          <p className="text-sm font-bold text-foreground mb-3">{t(todayDua.subtitleKey)}</p>
           <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4 line-clamp-2">
             {todayDua.arabic}
           </p>
