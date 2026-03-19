@@ -14,7 +14,7 @@ import uuid
 from datetime import datetime
 
 # Use the public URL for testing
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://islamic-social-hub.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://halal-translate.preview.emergentagent.com')
 
 # Test credentials
 TEST_EMAIL = f"test_iter12_{uuid.uuid4().hex[:6]}@test.com"

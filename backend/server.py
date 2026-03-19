@@ -2591,7 +2591,219 @@ async def daily_hadith():
         "date": today.isoformat(),
     }
 
-# ==================== QURAN ====================
+# ==================== QURAN (Quran.com API v4) ====================
+# Official Quran translation IDs per language
+QURAN_TRANSLATION_IDS = {
+    "en": 131,   # Sahih International
+    "de": 27,    # Abu Rida Muhammad ibn Ahmad ibn Rassoul
+    "ru": 45,    # Ministry of Awqaf, Egypt
+    "fr": 31,    # Muhammad Hamidullah
+    "tr": 77,    # Diyanet Isleri
+}
+
+QURAN_V4_BASE = "https://api.quran.com/api/v4"
+
+@api_router.get("/quran/v4/chapters")
+async def get_chapters_v4(language: str = Query("ar")):
+    """Fetch all Surahs from Quran.com API v4"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/chapters", params={"language": language})
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+@api_router.get("/quran/v4/chapters/{chapter_number}")
+async def get_chapter_v4(chapter_number: int, language: str = Query("ar")):
+    """Fetch specific Surah info from Quran.com API v4"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/chapters/{chapter_number}", params={"language": language})
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+@api_router.get("/quran/v4/verses/by_chapter/{chapter_number}")
+async def get_verses_v4(
+    chapter_number: int,
+    language: str = Query("ar"),
+    page: int = Query(1),
+    per_page: int = Query(50),
+    translations: Optional[str] = Query(None),
+):
+    """Fetch verses of a Surah with translations from Quran.com API v4"""
+    try:
+        params = {
+            "language": language,
+            "page": page,
+            "per_page": per_page,
+            "words": "false",
+            "fields": "text_uthmani",
+        }
+        # Auto-select translation if not specified
+        if translations:
+            params["translations"] = translations
+        elif language != "ar" and language in QURAN_TRANSLATION_IDS:
+            params["translations"] = str(QURAN_TRANSLATION_IDS[language])
+
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params=params)
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+@api_router.get("/quran/v4/verses/by_juz/{juz_number}")
+async def get_juz_verses_v4(
+    juz_number: int,
+    language: str = Query("ar"),
+    page: int = Query(1),
+    per_page: int = Query(50),
+    translations: Optional[str] = Query(None),
+):
+    """Fetch verses by Juz number from Quran.com API v4"""
+    try:
+        params = {
+            "language": language,
+            "page": page,
+            "per_page": per_page,
+            "words": "false",
+            "fields": "text_uthmani",
+        }
+        if translations:
+            params["translations"] = translations
+        elif language != "ar" and language in QURAN_TRANSLATION_IDS:
+            params["translations"] = str(QURAN_TRANSLATION_IDS[language])
+
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/verses/by_juz/{juz_number}", params=params)
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+@api_router.get("/quran/v4/search")
+async def search_quran_v4(
+    q: str = Query(...),
+    language: str = Query("ar"),
+    page: int = Query(1),
+    size: int = Query(20),
+):
+    """Search the Quran via Quran.com API v4"""
+    try:
+        params = {
+            "q": q,
+            "language": language,
+            "page": page,
+            "size": size,
+        }
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/search", params=params)
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran search error: {str(e)}")
+
+@api_router.get("/quran/v4/juzs")
+async def get_juzs_v4():
+    """Fetch all Juz info from Quran.com API v4"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/juzs")
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+@api_router.get("/quran/v4/recitations/{recitation_id}/by_ayah/{verse_key}")
+async def get_verse_audio_v4(recitation_id: int, verse_key: str):
+    """Fetch verse audio recitation from Quran.com API v4"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/recitations/{recitation_id}/by_ayah/{verse_key}")
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran audio error: {str(e)}")
+
+@api_router.get("/quran/v4/resources/translations")
+async def get_available_translations_v4(language: str = Query("en")):
+    """Fetch available Quran translations from Quran.com API v4"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/resources/translations", params={"language": language})
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Quran API error: {str(e)}")
+
+# ==================== HADITH (Sunnah.com API) ====================
+SUNNAH_API_BASE = "https://api.sunnah.com/v1"
+
+@api_router.get("/hadith/collections")
+async def get_hadith_collections():
+    """Fetch available Hadith collections from Sunnah.com API"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{SUNNAH_API_BASE}/collections", headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"})
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        # Fallback to static collections list
+        return {
+            "data": [
+                {"name": "bukhari", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "صحيح البخاري"}, {"lang": "en", "title": "Sahih al-Bukhari"}]},
+                {"name": "muslim", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "صحيح مسلم"}, {"lang": "en", "title": "Sahih Muslim"}]},
+                {"name": "tirmidhi", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن الترمذي"}, {"lang": "en", "title": "Jami` at-Tirmidhi"}]},
+                {"name": "abudawud", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن أبي داود"}, {"lang": "en", "title": "Sunan Abi Dawud"}]},
+                {"name": "nasai", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن النسائي"}, {"lang": "en", "title": "Sunan an-Nasa'i"}]},
+                {"name": "ibnmajah", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن ابن ماجه"}, {"lang": "en", "title": "Sunan Ibn Majah"}]},
+            ]
+        }
+
+@api_router.get("/hadith/{collection}/books")
+async def get_hadith_books(collection: str):
+    """Fetch books within a Hadith collection"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{SUNNAH_API_BASE}/collections/{collection}/books", headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"})
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Hadith API error: {str(e)}")
+
+@api_router.get("/hadith/{collection}/books/{book_number}/hadiths")
+async def get_hadiths_by_book(collection: str, book_number: int, page: int = Query(1), limit: int = Query(20)):
+    """Fetch Hadiths from a specific book in a collection"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(
+                f"{SUNNAH_API_BASE}/collections/{collection}/books/{book_number}/hadiths",
+                params={"page": page, "limit": limit},
+                headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"}
+            )
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Hadith API error: {str(e)}")
+
+@api_router.get("/hadith/{collection}/{hadith_number}")
+async def get_specific_hadith(collection: str, hadith_number: str):
+    """Fetch a specific Hadith by number"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(
+                f"{SUNNAH_API_BASE}/collections/{collection}/hadiths/{hadith_number}",
+                headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"}
+            )
+            r.raise_for_status()
+            return r.json()
+    except Exception as e:
+        raise HTTPException(500, f"Hadith API error: {str(e)}")
+
+# Keep legacy endpoints for backward compatibility
 @api_router.get("/quran/surah/{number}")
 async def get_surah(number: int, reciter: str = Query("ar.alafasy")):
     try:

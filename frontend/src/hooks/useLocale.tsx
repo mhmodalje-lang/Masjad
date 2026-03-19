@@ -1,12 +1,7 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  detectDeviceLanguage,
-  getDirection,
-  getTranslation,
-  getArabicStrings,
-  isRTLLanguage,
-  loadTranslations,
-} from '@/lib/i18n';
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18nConfig';
+import { isRTL, getDir, applyDirection, SUPPORTED_LANGUAGES } from '@/lib/i18nConfig';
 
 interface LocaleContextType {
   locale: string;
@@ -19,66 +14,60 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined);
 
-function looksLikeArabicFallback(trans: Record<string, string>, sampleKeys: string[]): boolean {
-  const arabic = getArabicStrings();
-  return sampleKeys.every((k) => trans[k] && trans[k] === arabic[k]);
-}
-
 export function LocaleProvider({ children }: { children: ReactNode }) {
+  const { t: i18nT, ready: i18nReady } = useTranslation();
   const [locale, setLocaleState] = useState<string>(() => {
-    // Check for manually selected language first
-    const userSelected = localStorage.getItem('user-selected-locale');
-    if (userSelected) return userSelected;
-    
-    // Otherwise, auto-detect from device
-    const detected = detectDeviceLanguage();
-    // Save detected language so we don't re-detect each time
-    localStorage.setItem('app-language', detected);
-    return detected;
+    return i18n.language || 'ar';
   });
-  const [translations, setTranslations] = useState<Record<string, string>>({});
-  const [ready, setReady] = useState(false);
-  const [dir, setDir] = useState<'rtl' | 'ltr'>(() => getDirection(detectDeviceLanguage()));
+  const [dir, setDir] = useState<'rtl' | 'ltr'>(() => getDir(i18n.language || 'ar'));
 
-  const isRTL = dir === 'rtl';
+  const isRTLValue = dir === 'rtl';
 
+  // Sync with i18next language changes
   useEffect(() => {
-    // Load translations for detected language
-    setReady(false);
+    const handleLanguageChanged = (lng: string) => {
+      setLocaleState(lng);
+      const newDir = getDir(lng);
+      setDir(newDir);
+      applyDirection(lng);
+    };
 
-    loadTranslations(locale).then((t) => {
-      const sampleKeys = ['appName', 'home', 'more', 'login', 'signup', 'prayerTimes', 'qibla', 'quran'];
+    i18n.on('languageChanged', handleLanguageChanged);
 
-      // If translation failed (or blocked) we fall back to Arabic strings.
-      // In that case, force RTL so Arabic text doesn’t render in LTR layouts.
-      const shouldForceArabicDir =
-        locale !== 'ar' && !isRTLLanguage(locale) && looksLikeArabicFallback(t, sampleKeys);
+    // Apply initial direction
+    applyDirection(locale);
 
-      const effectiveLang = shouldForceArabicDir ? 'ar' : locale;
-      const nextDir = getDirection(effectiveLang);
+    return () => {
+      i18n.off('languageChanged', handleLanguageChanged);
+    };
+  }, []);
 
-      setTranslations(t);
-      setDir(nextDir);
-      setReady(true);
+  // Translation function - bridges i18next with existing codebase
+  const t = useCallback((key: string): string => {
+    const result = i18nT(key);
+    // If i18next returns the key itself (not found), return the key
+    return result || key;
+  }, [i18nT]);
 
-      document.documentElement.dir = nextDir;
-      document.documentElement.lang = effectiveLang;
-    });
-  }, [locale]);
-
-  const t = useMemo(() => {
-    return (key: string) => translations[key] || getTranslation(key, locale) || key;
-  }, [translations, locale]);
-
-  const setLocale = (newLocale: string) => {
-    setLocaleState(newLocale);
+  const setLocale = useCallback((newLocale: string) => {
+    // Update i18next language
+    i18n.changeLanguage(newLocale);
     // Save user's manual selection
     localStorage.setItem('user-selected-locale', newLocale);
     localStorage.setItem('app-language', newLocale);
-  };
+  }, []);
+
+  const value = useMemo(() => ({
+    locale,
+    t,
+    dir,
+    isRTL: isRTLValue,
+    ready: i18nReady,
+    setLocale,
+  }), [locale, t, dir, isRTLValue, i18nReady, setLocale]);
 
   return (
-    <LocaleContext.Provider value={{ locale, t, dir, isRTL, ready, setLocale }}>
+    <LocaleContext.Provider value={value}>
       {children}
     </LocaleContext.Provider>
   );
