@@ -7,7 +7,7 @@ Tests the exact endpoints mentioned in the review request
 import requests
 import json
 
-BASE_URL = "https://hikayati-platform.preview.emergentagent.com/api"
+BASE_URL = "https://islamic-social-hub.preview.emergentagent.com/api"
 
 def get_auth_token():
     """Get auth token for test user"""
