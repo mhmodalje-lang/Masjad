@@ -14,9 +14,9 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-background pb-24" dir={dir}>
       <div className="text-center">
         <h1 className="mb-4 text-4xl font-bold text-foreground">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">الصفحة غير موجودة</p>
+        <p className="mb-4 text-xl text-muted-foreground">{t('pageNotFound')}</p>
         <a href="/" className="text-primary underline hover:text-primary/90">
-          العودة للرئيسية
+          {t('backToHome')}
         </a>
       </div>
     </div>

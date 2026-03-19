@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import i18n from '@/lib/i18nConfig';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [visible, setVisible] = useState(true);
@@ -43,8 +44,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             </svg>
           </div>
 
-          <h1 className="relative z-10 text-3xl font-bold text-white mb-2">أذان وحكاية</h1>
-          <p className="relative z-10 text-sm text-white/60">مواقيت الصلاة • قصص ملهمة • حياة إسلامية</p>
+          <h1 className="relative z-10 text-3xl font-bold text-white mb-2">{i18n.t('appTitle')}</h1>
+          <p className="relative z-10 text-sm text-white/60">{i18n.t('appSubtitle')}</p>
         </motion.div>
       )}
     </AnimatePresence>

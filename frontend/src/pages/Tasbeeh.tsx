@@ -20,7 +20,7 @@ function getTodayKey() {
 }
 
 export default function Tasbeeh() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const { user } = useAuth();
   const [selected, setSelected] = useState(0);
   const [count, setCount] = useState(0);
@@ -83,13 +83,13 @@ export default function Tasbeeh() {
     <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('tasbeeh')}
-        subtitle="اذكر الله وسبّحه"
+        subtitle={t('dhikrRememberAllah')}
         image="https://images.unsplash.com/photo-1762894110127-87fee1d11a57?w=1200&q=85"
         actionsLeft={
           <button
             onClick={handleReset}
             className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95"
-            aria-label="إعادة تعيين العداد"
+            aria-label={t('resetCounterLabel')}
           >
             <RotateCcw className="h-4 w-4 text-white" />
           </button>
@@ -109,7 +109,7 @@ export default function Tasbeeh() {
 
         {/* Dhikr selector cards */}
         <div className="mb-6">
-          <SectionHeader icon={Heart} title="اختر الذكر" subtitle="اختر من الأذكار المأثورة" />
+          <SectionHeader icon={Heart} title={t('chooseDhikrTitle')} subtitle={t('chooseFromDhikr')} />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {dhikrOptions.map((opt, i) => (
               <motion.button

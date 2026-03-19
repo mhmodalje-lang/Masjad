@@ -82,12 +82,12 @@ export default function Quran() {
       const updated = bookmarks.filter(n => n !== surahNum);
       setBookmarks(updated);
       localStorage.setItem('quran_bookmarks', JSON.stringify(updated));
-      toast.success(t('removedFromBookmarks') || 'تم إزالة الإشارة');
+      toast.success(t('removedFromBookmarks'));
     } else {
       const updated = [...bookmarks, surahNum];
       setBookmarks(updated);
       localStorage.setItem('quran_bookmarks', JSON.stringify(updated));
-      toast.success(t('addedToBookmarks') || 'تم إضافة الإشارة ❤️');
+      toast.success(t('addedToBookmarks'));
     }
   };
 

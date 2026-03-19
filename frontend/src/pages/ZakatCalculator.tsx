@@ -139,7 +139,7 @@ const UNIQUE_CURRENCIES = Object.values(COUNTRY_CURRENCIES)
   .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
 
 export default function ZakatCalculator() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const { countryCode, city, country, loading: geoLoading } = useGeoLocation();
 
   const [selectedCurrency, setSelectedCurrency] = useState('');
@@ -205,7 +205,7 @@ export default function ZakatCalculator() {
     { labelKey: 'goldValue', value: gold, set: setGold, icon: '🥇' },
     { labelKey: 'silverValue', value: silver, set: setSilver, icon: '🥈' },
     { labelKey: 'stocksInvestments', value: stocks, set: setStocks, icon: '📈' },
-    { label: 'العقارات والممتلكات التجارية', value: property, set: setProperty, icon: '🏢' },
+    { label: t('zakatPropertyLabel'), value: property, set: setProperty, icon: '🏢' },
     { labelKey: 'debtsOwed', value: debts, set: setDebts, icon: '📋' },
   ];
 
@@ -213,7 +213,7 @@ export default function ZakatCalculator() {
     <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('zakatCalculator')}
-        subtitle={city && country ? `${city}، ${country}` : 'حاسبة ذكية متعددة العملات'}
+        subtitle={city && country ? `${city}, ${country}` : t('zakatSmartCalc')}
         image="https://images.unsplash.com/photo-1755369355222-8146801ccf90?w=1200&q=85"
         compact
       />
@@ -221,11 +221,11 @@ export default function ZakatCalculator() {
       <div className="px-5 -mt-2 relative z-10 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
-          <SectionHeader icon={Coins} title="العملة" subtitle="اختر عملة بلدك لحساب النصاب" className="mb-3" />
+          <SectionHeader icon={Coins} title={t("zakatCurrencySection")} subtitle={t("zakatCurrencySubtitle")} className="mb-3" />
           
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
             <SelectTrigger className="rounded-2xl">
-              <SelectValue placeholder={geoLoading ? 'جاري التحديد...' : 'اختر العملة'} />
+              <SelectValue placeholder={geoLoading ? t('zakatDetecting') : t('zakatChooseCurrency')} />
             </SelectTrigger>
             <SelectContent>
               {UNIQUE_CURRENCIES.map(c => (
@@ -260,7 +260,7 @@ export default function ZakatCalculator() {
 
         {/* Asset fields */}
         <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
-          <SectionHeader icon={ClipboardList} title="أصولك ومدخراتك" subtitle="أدخل قيمة كل نوع من الأصول بالعملة المختارة" />
+          <SectionHeader icon={ClipboardList} title={t("zakatAssetsSection")} subtitle={t("zakatAssetsSubtitle")} />
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
               key={labelKey || label}
@@ -323,7 +323,7 @@ export default function ZakatCalculator() {
                       onClick={() => setShowDetails(!showDetails)}
                       className="flex items-center justify-between w-full text-sm text-muted-foreground"
                     >
-                      <span>تفاصيل الحساب</span>
+                      <span>{t('zakatDetails')}</span>
                       {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </button>
                     <AnimatePresence>
@@ -336,23 +336,23 @@ export default function ZakatCalculator() {
                         >
                           <div className="pt-3 space-y-2 text-xs text-muted-foreground">
                             <div className="flex justify-between">
-                              <span>إجمالي الأصول</span>
+                              <span>{t('zakatTotalAssets')}</span>
                               <span className="text-foreground font-medium">
                                 {formatNumber(result.total, currencyInfo.symbol)}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span>النصاب</span>
+                              <span>{t('zakatNisab')}</span>
                               <span className="text-foreground font-medium">
                                 {formatNumber(result.nisab, currencyInfo.symbol)}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span>نسبة الزكاة</span>
+                              <span>{t('zakatRate')}</span>
                               <span className="text-foreground font-medium">2.5%</span>
                             </div>
                             <div className="border-t border-border pt-2 flex justify-between font-semibold text-sm">
-                              <span className="text-foreground">الزكاة الواجبة</span>
+                              <span className="text-foreground">{t('zakatDue')}</span>
                               <span className="text-primary">
                                 {formatNumber(result.zakat, currencyInfo.symbol)}
                               </span>
@@ -365,7 +365,7 @@ export default function ZakatCalculator() {
                 </>
               ) : (
                 <div className="p-6 text-center">
-                  <p className="text-lg font-semibold text-foreground mb-2">لا زكاة عليك</p>
+                  <p className="text-lg font-semibold text-foreground mb-2">{t('zakatNotRequired')}</p>
                   <p className="text-sm text-muted-foreground">
                     أموالك ({formatNumber(result.total, currencyInfo.symbol)}) أقل من النصاب ({formatNumber(result.nisab, currencyInfo.symbol)})
                   </p>
@@ -377,7 +377,7 @@ export default function ZakatCalculator() {
 
         {/* Islamic note */}
         <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/50">
-          <p className="font-bold text-foreground mb-2 text-sm">📌 ملاحظة شرعية</p>
+          <p className="font-bold text-foreground mb-2 text-sm">{`📌 ${t('zakatLegalNote')}`}</p>
           <p>
             تعتمد هذه الحاسبة على نصاب الفضة (595 غرام) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
             نسبة الزكاة الثابتة هي 2.5% من إجمالي المال الذي بلغ النصاب ومرّ عليه حول كامل.

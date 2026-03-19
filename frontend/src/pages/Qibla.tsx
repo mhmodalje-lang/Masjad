@@ -199,30 +199,30 @@ export default function Qibla() {
             >
               <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 space-y-4">
                 <div className="flex items-center gap-2 justify-end">
-                  <h3 className="font-bold text-foreground text-base">📋 كيف تستخدم البوصلة</h3>
+                  <h3 className="font-bold text-foreground text-base">📋 {t('compassHowToTitle')}</h3>
                 </div>
                 <div className="space-y-4 text-sm text-muted-foreground" style={{ lineHeight: '2' }}>
                   <div className="flex items-start gap-3 justify-end">
                     <p className="min-w-0 break-words text-right flex-1">
-                      <span className="text-primary font-bold">١.</span> ضع الهاتف بشكل <span className="text-foreground font-medium">أفقي مسطّح</span> على راحة يدك
+                      <span className="text-primary font-bold">1.</span> {t('compassStep1')}
                     </p>
                     <span className="text-2xl shrink-0 mt-0.5">📱</span>
                   </div>
                   <div className="flex items-start gap-3 justify-end">
                     <p className="min-w-0 break-words text-right flex-1">
-                      <span className="text-primary font-bold">٢.</span> ابتعد عن <span className="text-foreground font-medium">المعادن والأجهزة الإلكترونية</span> (سماعات، لابتوب)
+                      <span className="text-primary font-bold">2.</span> {t('compassStep2')}
                     </p>
                     <span className="text-2xl shrink-0 mt-0.5">🧲</span>
                   </div>
                   <div className="flex items-start gap-3 justify-end">
                     <p className="min-w-0 break-words text-right flex-1">
-                      <span className="text-primary font-bold">٣.</span> لمعايرة البوصلة: حرّك الهاتف بشكل <span className="text-foreground font-medium">رقم 8</span> عدة مرات
+                      <span className="text-primary font-bold">3.</span> {t('compassStep3')}
                     </p>
                     <span className="text-2xl shrink-0 mt-0.5">♾️</span>
                   </div>
                   <div className="flex items-start gap-3 justify-end">
                     <p className="min-w-0 break-words text-right flex-1">
-                      <span className="text-primary font-bold">٤.</span> أدِر جسمك حتى تظهر <span className="text-foreground font-medium">🕋 في الأعلى</span> ويتحول اللون إلى <span className="text-primary font-medium">أخضر</span>
+                      <span className="text-primary font-bold">4.</span> {t('compassStep4')}
                     </p>
                     <span className="text-2xl shrink-0 mt-0.5">🧭</span>
                   </div>
@@ -231,7 +231,7 @@ export default function Qibla() {
                   onClick={() => setShowInstructions(false)}
                   className="w-full text-center text-sm text-primary font-medium pt-2"
                 >
-                  فهمت ✓
+                  {t('understoodBtn')}
                 </button>
               </div>
             </motion.div>
@@ -247,7 +247,7 @@ export default function Qibla() {
             className="w-full max-w-sm mb-5 rounded-2xl border border-primary bg-primary/10 p-5 flex items-center gap-3 justify-center"
           >
             <Smartphone className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium text-primary">اضغط هنا لتفعيل البوصلة</span>
+            <span className="text-sm font-medium text-primary">{t('enableCompassBtn')}</span>
           </motion.button>
         )}
 
@@ -255,11 +255,11 @@ export default function Qibla() {
         {hasCompass === false && (
           <div className="w-full max-w-sm mb-5 rounded-2xl border border-destructive/30 bg-destructive/5 p-5">
             <div className="flex items-center gap-2 justify-end mb-2">
-              <p className="text-sm font-bold text-destructive">البوصلة غير متاحة</p>
+              <p className="text-sm font-bold text-destructive">{t('compassUnavailable')}</p>
               <AlertTriangle className="h-5 w-5 text-destructive" />
             </div>
             <p className="text-xs text-muted-foreground text-right leading-relaxed break-words">
-              جهازك لا يدعم البوصلة الرقمية أو أنك تستخدم متصفح كمبيوتر. استخدم الزاوية المعروضة ({Math.round(qiblaAngle)}°) مع بوصلة خارجية أو تطبيق خرائط.
+              {t('compassUnavailableDesc')} ({Math.round(qiblaAngle)}°)
             </p>
           </div>
         )}
@@ -278,10 +278,10 @@ export default function Qibla() {
                 className="flex items-center justify-center gap-1 self-start rounded-full bg-[hsl(var(--islamic-gold))]/20 px-3 py-1.5 text-xs font-medium text-[hsl(var(--islamic-gold))] sm:self-auto"
               >
                 <RotateCcw className="h-3 w-3" />
-                معايرة
+                {t('calibrateBtn')}
               </button>
               <div className="flex min-w-0 items-center gap-2">
-                <p className="min-w-0 text-xs text-muted-foreground break-words">دقة البوصلة منخفضة - حرّك الهاتف بشكل ∞</p>
+                <p className="min-w-0 text-xs text-muted-foreground break-words">{t('lowAccuracyMsg')}</p>
                 <AlertTriangle className="h-4 w-4 shrink-0 text-[hsl(var(--islamic-gold))]" />
               </div>
             </motion.div>
@@ -304,7 +304,7 @@ export default function Qibla() {
               >
                 ♾️
               </motion.div>
-              <p className="text-sm text-primary font-medium">حرّك هاتفك بشكل رقم 8...</p>
+              <p className="text-sm text-primary font-medium">{t('movePhone8Pattern')}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -312,7 +312,7 @@ export default function Qibla() {
         {/* No location warning */}
         {isNoLocation && (
           <div className="mb-4 flex w-full max-w-sm items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 justify-end">
-            <p className="min-w-0 text-xs text-muted-foreground break-words text-right">لم يتم تحديد موقعك - فعّل خدمات الموقع</p>
+            <p className="min-w-0 text-xs text-muted-foreground break-words text-right">{t('noLocationDetected')}</p>
             <MapPin className="h-4 w-4 shrink-0 text-destructive" />
           </div>
         )}
@@ -446,7 +446,7 @@ export default function Qibla() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   className="mb-4 px-5 py-2.5 rounded-full bg-primary/10 border border-primary/20"
                 >
-                  <p className="text-sm font-bold text-primary">🕋 هذا اتجاه القبلة ✓</p>
+                  <p className="text-sm font-bold text-primary">🕋 {t('thisIsQiblaDirection')}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -457,10 +457,10 @@ export default function Qibla() {
                 {Math.round(qiblaAngle)}°
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                {qiblaAngle > 315 || qiblaAngle <= 45 ? t('qiblaFromNorth') || 'من الشمال' :
-                 qiblaAngle > 45 && qiblaAngle <= 135 ? t('qiblaFromEast') || 'من الشرق' :
-                 qiblaAngle > 135 && qiblaAngle <= 225 ? t('qiblaFromSouth') || 'من الجنوب' :
-                 t('qiblaFromWest') || 'من الغرب'}
+                {qiblaAngle > 315 || qiblaAngle <= 45 ? t('fromNorth') :
+                 qiblaAngle > 45 && qiblaAngle <= 135 ? t('fromEast') :
+                 qiblaAngle > 135 && qiblaAngle <= 225 ? t('fromSouth') :
+                 t('fromWest')}
               </p>
             </div>
 
@@ -500,9 +500,9 @@ export default function Qibla() {
                   'bg-destructive'
                 )} />
                 <span>
-                  {accuracy <= 10 ? 'دقة عالية' :
-                   accuracy <= 25 ? 'دقة متوسطة' :
-                   'دقة منخفضة - يرجى المعايرة'}
+                  {accuracy <= 10 ? t('highAccuracy') :
+                   accuracy <= 25 ? t('mediumAccuracy') :
+                   t('lowAccuracyCalibrate')}
                   {' '}(±{Math.round(accuracy)}°)
                 </span>
               </div>

@@ -33,7 +33,7 @@ const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purpl
 function timeAgo(iso: string): string {
   const d = Date.now() - new Date(iso).getTime();
   const m = Math.floor(d / 60000);
-  if (m < 1) return 'الآن';
+  if (m < 1) return t('nowLabel');
   if (m < 60) return `${m}د`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}س`;
@@ -61,10 +61,10 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${storyId}/comments`, {
         method: 'POST', headers: authHeaders(), body: JSON.stringify({ content: text.trim() })
       });
-      if (r.status === 401) { toast.error('سجّل دخولك أولاً'); setSending(false); return; }
+      if (r.status === 401) { toast.error(t('loginFirst')); setSending(false); return; }
       const d = await r.json();
       if (d.comment) { setComments(p => [...p, d.comment]); setText(''); }
-    } catch { toast.error('خطأ'); }
+    } catch { toast.error(t('errorShort')); }
     setSending(false);
   };
 
@@ -130,7 +130,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
   }, [storyId]);
 
   const toggleLike = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!user) { toast.error(t('loginFirst')); return; }
     if (!story) return;
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
@@ -141,8 +141,8 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!story) return <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
-    <p className="text-muted-foreground">القصة غير موجودة</p>
-    <button onClick={onBack} className="text-primary text-sm font-bold">العودة</button>
+    <p className="text-muted-foreground">{t('storyNotFound')}</p>
+    <button onClick={onBack} className="text-primary text-sm font-bold">{t('goBack')}</button>
   </div>;
 
   const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
@@ -155,7 +155,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
       <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/20">
         <div className="flex items-center justify-between px-4 h-14">
           <button onClick={onBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
-          <h2 className="text-sm font-bold text-foreground truncate flex-1 mx-3 text-center">القصة</h2>
+          <h2 className="text-sm font-bold text-foreground truncate flex-1 mx-3 text-center">{t('theStory')}</h2>
           <div className="w-9" />
         </div>
       </div>
@@ -192,7 +192,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
             <span className="font-bold text-foreground">{story.comments_count}</span>
           </button>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground mr-auto">
-            <Eye className="h-4 w-4" />{story.views_count || 0} مشاهدة
+            <Eye className="h-4 w-4" />{story.views_count || 0} {t('viewsCount')}
           </span>
         </div>
       </div>
@@ -364,7 +364,7 @@ export default function Explore() {
     recognition.onstart = () => {
       setIsListening(true);
       setIsSearchActive(true);
-      toast.info('🎤 تحدّث الآن... ابحث عن قصة');
+      toast.info('🎤 ' + t('speakNow'));
     };
 
     recognition.onresult = (event: any) => {
@@ -377,7 +377,7 @@ export default function Explore() {
 
     recognition.onerror = () => {
       setIsListening(false);
-      toast.error(t('voiceNotRecognized') + '، حاول مرة أخرى');
+      toast.error(t('voiceNotRecognized') + ', ' + t('tryAgain'));
     };
 
     recognition.onend = () => {
@@ -389,7 +389,7 @@ export default function Explore() {
   };
 
   const toggleLike = async (id: string) => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (!user) { toast.error(t('loginFirst')); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${id}/like`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
@@ -414,7 +414,7 @@ export default function Explore() {
             {!isSearchActive && (
               <h1 className="text-xl font-black text-foreground shrink-0 flex items-center gap-2">
                 <Compass className="h-5 w-5 text-primary" />
-                استكشف
+                {t('exploreLabel')}
               </h1>
             )}
             <div className="relative flex-1">
@@ -447,7 +447,7 @@ export default function Explore() {
                 </button>
               </div>
             </div>
-            {isSearchActive && <button onClick={clearSearch} className="text-sm text-primary font-bold shrink-0">إلغاء</button>}
+            {isSearchActive && <button onClick={clearSearch} className="text-sm text-primary font-bold shrink-0">{t('cancelSearch')}</button>}
           </div>
         </div>
       </div>
@@ -465,7 +465,7 @@ export default function Explore() {
               <Mic className="h-5 w-5 text-white" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">جاري الاستماع...</p>
+              <p className="text-sm font-bold text-foreground">{t('listening')}</p>
               <p className="text-xs text-muted-foreground">{t('saySomethingLike')}: "أريد قصة عن الاستغفار"</p>
             </div>
           </motion.div>
@@ -477,7 +477,7 @@ export default function Explore() {
         <div className="mx-4 mt-3 rounded-2xl bg-primary/5 border border-primary/20 p-4">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-primary">المساعد الذكي</span>
+            <span className="text-xs font-bold text-primary">{t('smartAssistant')}</span>
           </div>
           <p className="text-sm text-foreground">{aiResponse}</p>
         </div>
@@ -491,12 +491,12 @@ export default function Explore() {
           ) : searchResults.length === 0 ? (
             <div className="text-center py-20">
               <Search className="h-14 w-14 text-muted-foreground/20 mx-auto mb-4" />
-              <p className="text-base font-bold text-muted-foreground/60">لا توجد نتائج</p>
-              <p className="text-xs text-muted-foreground/40 mt-1">جرّب كلمات مختلفة أو استخدم البحث الصوتي 🎤</p>
+              <p className="text-base font-bold text-muted-foreground/60">{t('noResultsFound')}</p>
+              <p className="text-xs text-muted-foreground/40 mt-1">{t('tryDifferent')}</p>
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground mb-3">{searchResults.length} نتيجة</p>
+              <p className="text-xs text-muted-foreground mb-3">{searchResults.length} {t('resultsCount')}</p>
               {searchResults.map((s, i) => (
                 <HorizontalStoryCard key={s.id} story={s} onOpen={() => handleOpenStory(s.id)} onLike={() => toggleLike(s.id)} />
               ))}
@@ -515,7 +515,7 @@ export default function Explore() {
                   <Eye className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-foreground">الأكثر مشاهدة</h2>
+                  <h2 className="text-sm font-bold text-foreground">{t('mostViewed')}</h2>
                   <p className="text-[10px] text-muted-foreground">{t('storiesEveryoneReads')}</p>
                 </div>
               </div>
@@ -546,7 +546,7 @@ export default function Explore() {
                   <Flame className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-foreground">الأكثر تفاعلاً</h2>
+                  <h2 className="text-sm font-bold text-foreground">{t('mostInteracted')}</h2>
                   <p className="text-[10px] text-muted-foreground">{t('touchedHearts')}</p>
                 </div>
               </div>

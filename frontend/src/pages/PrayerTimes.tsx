@@ -18,7 +18,7 @@ const prayerIcons: Record<string, React.ReactNode> = {
 };
 
 export default function PrayerTimes() {
-  const { t } = useLocale();
+  const { t, locale, dir } = useLocale();
   const navigate = useNavigate();
   const {
     prayers, nextPrayer, remaining, hijriDate, loading,
@@ -26,22 +26,23 @@ export default function PrayerTimes() {
   } = useUnifiedPrayer();
 
   const today = new Date();
-  const dayName = today.toLocaleDateString('ar-EG', { weekday: 'long' });
-  const dateStr = today.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+  const localeCode = locale === 'ar' ? 'ar-EG' : locale === 'de' ? 'de-DE' : locale === 'fr' ? 'fr-FR' : locale === 'ru' ? 'ru-RU' : locale === 'tr' ? 'tr-TR' : 'en-US';
+  const dayName = today.toLocaleDateString(localeCode, { weekday: 'long' });
+  const dateStr = today.toLocaleDateString(localeCode, { year: 'numeric', month: 'long', day: 'numeric' });
 
   const handleShare = async () => {
     const prayerText = prayers
       .map(p => `${t(p.key)}: ${p.time}`)
       .join('\n');
-    const shareText = `🕌 مواقيت الصلاة - ${sourceLabel}\n${dayName}، ${dateStr}\n${hijriDate}\n\n${prayerText}`;
+    const shareText = `🕌 ${t('prayerTimesShareTitle')} - ${sourceLabel}\n${dayName}، ${dateStr}\n${hijriDate}\n\n${prayerText}`;
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'مواقيت الصلاة', text: shareText });
+        await navigator.share({ title: t('prayerTimesShareTitle'), text: shareText });
       } catch {}
     } else {
       await navigator.clipboard.writeText(shareText);
-      toast.success('تم نسخ مواقيت الصلاة');
+      toast.success(t('prayerTimesCopiedToast'));
     }
   };
 
@@ -49,7 +50,7 @@ export default function PrayerTimes() {
     <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('prayerTimes')}
-        subtitle={`${dayName}، ${dateStr}`}
+        subtitle={`${dayName} - ${dateStr}`}
         image="https://images.unsplash.com/photo-1466442929976-97f336a657be?w=1200&q=85"
         actionsLeft={
           <button className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95" onClick={handleShare}>
@@ -74,17 +75,17 @@ export default function PrayerTimes() {
                 {sourceLabel}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {source === 'mosque' ? 'أوقات المسجد' : city || ''} {hijriDate ? `• ${hijriDate}` : ''}
+                {source === 'mosque' ? t('mosqueTimesLabel') : city || ''} {hijriDate ? `• ${hijriDate}` : ''}
               </p>
             </div>
             {source === 'mosque' && (
               <button
-                onClick={() => { unlinkMosque(); toast.success('تم إلغاء ربط المسجد'); }}
+                onClick={() => { unlinkMosque(); toast.success(t('cancelMosqueLink')); }}
                 className="flex items-center gap-1 text-xs text-destructive bg-destructive/10 px-3 py-1.5 rounded-xl"
                 data-testid="unlink-mosque-btn"
               >
                 <Unlink className="h-3 w-3" />
-                إلغاء
+                {t('cancelLabel')}
               </button>
             )}
           </div>
@@ -93,7 +94,7 @@ export default function PrayerTimes() {
 
       {/* Prayer List */}
       <div className="px-5 mb-5">
-        <SectionHeader icon={Clock} title="أوقات الصلاة اليوم" />
+        <SectionHeader icon={Clock} title={t('todayPrayerTimes')} />
         <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {loading ? (
             <div className="flex items-center justify-center py-20">
@@ -146,9 +147,9 @@ export default function PrayerTimes() {
       {nextPrayer && (
         <div className="px-5 mb-5">
           <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
-            <p className="text-xs text-muted-foreground mb-1">الصلاة القادمة</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('nextPrayerIs')}</p>
             <p className="text-lg font-bold text-primary">{t(nextPrayer.key)} — {nextPrayer.time}</p>
-            {remaining && <p className="text-sm text-muted-foreground mt-1">متبقي {remaining}</p>}
+            {remaining && <p className="text-sm text-muted-foreground mt-1">{t('remainingLabel')} {remaining}</p>}
           </div>
         </div>
       )}
@@ -165,9 +166,9 @@ export default function PrayerTimes() {
           </div>
           <div className="flex-1 text-start">
             <p className="text-sm font-bold text-foreground">
-              {source === 'mosque' ? 'تغيير المسجد' : 'اختر مسجدك'}
+              {source === 'mosque' ? t('changeMosque') : t('chooseYourMosque')}
             </p>
-            <p className="text-xs text-muted-foreground">ابحث عن مسجدك القريب واختر أوقاته</p>
+            <p className="text-xs text-muted-foreground">{t('searchNearbyMosqueDesc')}</p>
           </div>
         </button>
       </div>

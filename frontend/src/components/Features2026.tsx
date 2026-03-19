@@ -63,11 +63,12 @@ export function DailyDuaWidget() {
 
 /* 2. Reading Time Estimate */
 export function ReadingTime({ text }: { text: string }) {
+  const { t } = useLocale();
   const words = text.split(/\s+/).length;
   const minutes = Math.max(1, Math.ceil(words / 200));
   return (
     <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-      ⏱ {minutes} دقيقة قراءة
+      ⏱ {minutes} {t('minutesReading')}
     </span>
   );
 }
@@ -126,6 +127,7 @@ export function PullToRefresh({ onRefresh, children }: { onRefresh: () => Promis
 
 /* 5. Content Report */
 export function ReportButton({ contentId, contentType }: { contentId: string; contentType: string }) {
+  const { t } = useLocale();
   const [reported, setReported] = useState(false);
 
   const handleReport = async () => {
@@ -139,17 +141,18 @@ export function ReportButton({ contentId, contentType }: { contentId: string; co
     } catch {}
   };
 
-  if (reported) return <span className="text-[10px] text-green-500">✓ تم الإبلاغ</span>;
+  if (reported) return <span className="text-[10px] text-green-500">✓ {t('reported')}</span>;
   return (
     <button onClick={handleReport} className="text-[10px] text-muted-foreground hover:text-red-400 transition-colors">
-      إبلاغ
+      {t('reportBtn')}
     </button>
   );
 }
 
 /* 6. Share as Image */
 export async function shareStoryAsImage(title: string, content: string, author: string) {
-  const text = `📖 ${title}\n\n${content.slice(0, 200)}${content.length > 200 ? '...' : ''}\n\n✍️ ${author}\n\n🕌 أذان وحكاية`;
+  const appName = 'Azan & Hikaya';
+  const text = `📖 ${title}\n\n${content.slice(0, 200)}${content.length > 200 ? '...' : ''}\n\n✍️ ${author}\n\n🕌 ${appName}`;
   if (navigator.share) {
     try {
       await navigator.share({ title, text });
@@ -203,7 +206,7 @@ export function PrayerCountdown({ nextPrayer }: { nextPrayer?: { name: string; t
 
   return (
     <div className="text-center">
-      <p className="text-[10px] text-muted-foreground mb-0.5">الصلاة القادمة: {nextPrayer.name}</p>
+      <p className="text-[10px] text-muted-foreground mb-0.5">{t('nextPrayerColon')} {nextPrayer.name}</p>
       <p className="text-lg font-mono font-bold text-primary" dir="ltr">{timeLeft}</p>
     </div>
   );
@@ -243,13 +246,14 @@ export function VerseOfDay() {
       <p className="text-[15px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         ﴿{verse.text}﴾
       </p>
-      <p className="text-[10px] text-muted-foreground mt-2 text-left">سورة {verse.surah} - آية {verse.ayah}</p>
+      <p className="text-[10px] text-muted-foreground mt-2 text-left">{t('surahLabel')} {verse.surah} - {t('ayahLabel')} {verse.ayah}</p>
     </div>
   );
 }
 
 /* 10. Hadith of the Day */
 export function HadithOfDay() {
+  const { t } = useLocale();
   const [hadith, setHadith] = useState<{ text: string; narrator: string; source: string } | null>(null);
 
   useEffect(() => {
@@ -277,7 +281,7 @@ export function HadithOfDay() {
   if (!hadith) return null;
   return (
     <div className="mx-4 mb-4 rounded-2xl bg-card border border-border/30 p-4" dir="rtl">
-      <p className="text-[10px] font-bold text-primary mb-2">📿 حديث اليوم</p>
+      <p className="text-[10px] font-bold text-primary mb-2">📿 {t('hadithOfDay')}</p>
       <p className="text-[14px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         «{hadith.text}»
       </p>
@@ -288,6 +292,7 @@ export function HadithOfDay() {
 
 /* 11. Streak Badge */
 export function StreakBadge() {
+  const { t } = useLocale();
   const [streak, setStreak] = useState(0);
   useEffect(() => {
     const data = localStorage.getItem('login_streak');
@@ -316,7 +321,7 @@ export function StreakBadge() {
   if (streak < 2) return null;
   return (
     <div className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold">
-      🔥 {streak} يوم متتابع
+      🔥 {streak} {t('consecutiveDays')}
     </div>
   );
 }

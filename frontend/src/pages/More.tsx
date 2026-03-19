@@ -36,13 +36,13 @@ export default function More() {
   const { theme, mode, setMode } = useTheme();
   const { enabled: remindersEnabled, toggle: toggleReminders } = useDailyReminders();
   const { size: fontSize, increase: fontIncrease, decrease: fontDecrease } = useFontSize();
-  const { locale, setLocale, t } = useLocale();
+  const { locale, setLocale, t, dir } = useLocale();
   const navigate = useNavigate();
 
   const handleToggleReminders = async () => {
     const result = await toggleReminders();
-    if (result) toast.success(remindersEnabled ? 'تم إيقاف التذكيرات' : 'تم تفعيل التذكيرات');
-    else toast.error('يرجى السماح بالإشعارات');
+    if (result) toast.success(remindersEnabled ? t('remindersStopped') : t('remindersActivated'));
+    else toast.error(t('allowNotificationsPlease'));
   };
   
   const languages = [
@@ -82,7 +82,7 @@ export default function More() {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-bold text-foreground truncate">{user.name || 'مستخدم'}</h2>
+              <h2 className="text-base font-bold text-foreground truncate">{user.name || t('userDefault')}</h2>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
               <p className="text-[10px] text-primary font-semibold mt-0.5">{t('viewProfile')} ←</p>
             </div>
@@ -296,7 +296,7 @@ export default function More() {
             <span className="text-sm text-foreground">{t('termsOfService')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
-          <button onClick={() => toast.info('⭐ شكراً لتقييمك!')} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <button onClick={() => toast.info(`⭐ ${t('rateAppThanks')}`)} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
             <div className="h-8 w-8 rounded-lg bg-yellow-500/15 flex items-center justify-center"><Star className="h-4 w-4 text-yellow-400" /></div>
             <span className="text-sm text-foreground">{t('rateApp')}</span>
           </button>

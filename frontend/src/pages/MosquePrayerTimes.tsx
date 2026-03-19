@@ -325,7 +325,7 @@ export default function MosquePrayerTimesPage() {
   };
 
   const searchMosques = useCallback(async (query?: string) => {
-    if (!location.latitude || !location.longitude) { toast.error('يرجى تفعيل الموقع أولاً'); return; }
+    if (!location.latitude || !location.longitude) { toast.error(t('enableLocationFirst')); return; }
     setLoading(true);
     try {
       if (!query) {
@@ -375,13 +375,13 @@ export default function MosquePrayerTimesPage() {
         .filter((m: Mosque) => m._dist! <= 5)
         .sort((a: any, b: any) => a._dist - b._dist);
       setMosques(sorted);
-      if (sorted.length === 0) toast('لم يتم العثور على مساجد — جرّب البحث بالاسم');
+      if (sorted.length === 0) toast(t('noMosquesFound'));
       // Auto-check availability after loading
       if (sorted.length > 0) {
         batchCheckRef.current = false;
         autoCheckAvailability(sorted);
       }
-    } catch { toast.error('خطأ في البحث عن المساجد'); }
+    } catch { toast.error(t('errorOccurred')); }
     finally { setLoading(false); }
   }, [location.latitude, location.longitude]);
 
@@ -475,7 +475,7 @@ export default function MosquePrayerTimesPage() {
       hasMawaqit: mosque.hasAutoSync,
     });
     loadTimesForMosque(mosque);
-    toast.success('تم ربط المسجد — الأوقات تتحدث فوراً في كل الصفحات ✅');
+    toast.success(t('linkedMosque') + ' ✅');
   };
 
   const unlinkMosque = () => {
@@ -490,7 +490,7 @@ export default function MosquePrayerTimesPage() {
     setBaseTimes(emptyTimes);
     setTimeDiffs(emptyDiffs);
     setTimesSource('api');
-    toast.success('تم إلغاء ربط المسجد — الأوقات حسب موقعك الآن');
+    toast.success(t('cancelMosqueLink'));
   };
 
   const startEditing = (mode: 'times' | 'diffs') => {
@@ -529,7 +529,7 @@ export default function MosquePrayerTimesPage() {
 
     setEditing(false);
     setSaving(false);
-    toast.success('تم حفظ الأوقات ✅ سيتم التحديث تلقائياً يومياً');
+    toast.success(t('success') + ' ✅');
   };
 
   const resetToAuto = async () => {
@@ -541,7 +541,7 @@ export default function MosquePrayerTimesPage() {
     setTimeDiffs(emptyDiffs);
     setTimesLoading(true);
     await loadTimesForMosque(selectedMosque);
-    toast.success('تم إعادة الأوقات التلقائية');
+    toast.success(t('success'));
   };
 
   const fmt = (t: string) => (!t ? '—' : is12h ? to12Hour(t) : t);
@@ -592,9 +592,9 @@ export default function MosquePrayerTimesPage() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(getShareText());
-      toast.success('تم نسخ الأوقات إلى الحافظة 📋');
+      toast.success(t('copiedToClipboard') + ' 📋');
     } catch {
-      toast.error('تعذر النسخ');
+      toast.error(t('errorOccurred'));
     }
   };
 
@@ -613,7 +613,7 @@ export default function MosquePrayerTimesPage() {
           <div className="text-center flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/12 backdrop-blur-sm border border-white/10 px-4 py-1.5">
               <Building2 className="h-4 w-4 text-foreground" />
-              <h1 className="text-lg font-bold text-foreground whitespace-nowrap">أوقات المساجد</h1>
+              <h1 className="text-lg font-bold text-foreground whitespace-nowrap">{t('mosqueTimesLabel')}</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
               {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
@@ -631,7 +631,7 @@ export default function MosquePrayerTimesPage() {
         <div className="mb-4 flex gap-2">
           <Input
             type="text"
-            placeholder="ابحث باسم المسجد..."
+            placeholder={t("searchMosqueHere")}
             value={textSearch}
             onChange={(e) => setTextSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleTextSearch()}
@@ -661,7 +661,7 @@ export default function MosquePrayerTimesPage() {
                   {!editing ? (
                     <>
                       <Button size="sm" variant="ghost" onClick={() => startEditing('times')} className="gap-1 text-xs h-8 px-2">
-                        <Edit3 className="h-3 w-3" /> تعديل
+                        <Edit3 className="h-3 w-3" /> {t('edit')}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => startEditing('diffs')} className="gap-1 text-xs h-8 px-2" title="ضبط فرق الدقائق">
                         <Settings2 className="h-3 w-3" />
@@ -675,7 +675,7 @@ export default function MosquePrayerTimesPage() {
                         <DropdownMenuContent align="end" className="min-w-[180px]">
                           <DropdownMenuItem onClick={shareViaWhatsApp} className="gap-2 cursor-pointer">
                             <MessageCircle className="h-4 w-4 text-primary" />
-                            واتساب
+                            {t('shareOnWhatsapp')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={shareViaTelegram} className="gap-2 cursor-pointer">
                             <Send className="h-4 w-4 text-primary" />
@@ -852,7 +852,7 @@ export default function MosquePrayerTimesPage() {
         {mosques.length > 0 && (
           <div className="flex gap-2 mb-4 overflow-x-auto">
             {([
-              { key: 'all' as const, label: 'الكل', count: mosques.length },
+              { key: 'all' as const, label: t('allLabel'), count: mosques.length },
               { key: 'auto' as const, label: '⚡ تلقائي', count: mosques.filter(m => m.hasAutoSync === true).length },
               { key: 'manual' as const, label: '✏️ يدوي', count: mosques.filter(m => m.hasAutoSync === false).length },
             ]).map(tab => (
@@ -976,7 +976,7 @@ export default function MosquePrayerTimesPage() {
           ) : !loading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-10">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
-              <p className="text-muted-foreground">لم يتم العثور على مساجد</p>
+              <p className="text-muted-foreground">{t('noMosquesFound')}</p>
               <p className="text-xs text-muted-foreground mt-1">جرّب البحث بالاسم أو توسيع نطاق البحث</p>
             </motion.div>
           )}

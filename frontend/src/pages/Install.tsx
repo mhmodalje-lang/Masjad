@@ -10,7 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function Install() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -51,8 +51,8 @@ export default function Install() {
     <div className="min-h-screen pb-24" dir={dir}>
       <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">📲 تثبيت التطبيق</h1>
-          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">أضف أذان وحكاية إلى شاشتك الرئيسية</p>
+          <h1 className="text-2xl font-bold text-white">{`📲 ${t('installApp')}`}</h1>
+          <p className="text-white/70 text-sm mt-1.5 leading-relaxed">{t('installDesc')}</p>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
@@ -65,8 +65,8 @@ export default function Install() {
             className="rounded-2xl border border-primary bg-primary/5 p-6 text-center"
           >
             <CheckCircle2 className="h-16 w-16 text-primary mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-foreground mb-2">التطبيق مثبّت بالفعل! ✅</h2>
-            <p className="text-sm text-muted-foreground">يمكنك فتح أذان وحكاية من شاشتك الرئيسية</p>
+            <h2 className="text-xl font-bold text-foreground mb-2">{`${t('appInstalled')}`}</h2>
+            <p className="text-sm text-muted-foreground">{t('installDesc')}</p>
           </motion.div>
         ) : (
           <>
@@ -76,33 +76,33 @@ export default function Install() {
               animate={{ opacity: 1, y: 0 }}
               className="rounded-2xl border border-border bg-card p-6 text-center mb-6"
             >
-              <img src="/pwa-icon-192.png" alt="أذان وحكاية" className="h-20 w-20 rounded-2xl mx-auto mb-4 shadow-lg" />
-              <h2 className="text-xl font-bold text-foreground mb-1">أذان وحكاية</h2>
-              <p className="text-sm text-muted-foreground mb-4">تطبيقك الإسلامي الشامل</p>
+              <img src="/pwa-icon-192.png" alt={t("appTitle")} className="h-20 w-20 rounded-2xl mx-auto mb-4 shadow-lg" />
+              <h2 className="text-xl font-bold text-foreground mb-1">{t('appTitle')}</h2>
+              <p className="text-sm text-muted-foreground mb-4">{t('appSubtitle')}</p>
               
               <div className="grid grid-cols-3 gap-3 text-center mb-6">
                 <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">🕌</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">مواقيت الصلاة</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{t('prayerTimes')}</p>
                 </div>
                 <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">📖</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">القرآن</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{t('quran')}</p>
                 </div>
                 <div className="rounded-xl bg-muted p-4">
                   <p className="text-lg font-bold text-foreground">🧭</p>
-                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">القبلة</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 leading-relaxed">{t('qibla')}</p>
                 </div>
               </div>
 
               {deferredPrompt ? (
                 <Button onClick={handleInstall} className="w-full rounded-xl h-12 gap-2 text-base">
                   <Download className="h-5 w-5" />
-                  تثبيت التطبيق
+                  {t('installApp')}
                 </Button>
               ) : isIOS ? (
                 <div className="rounded-xl bg-primary/5 border border-primary/20 p-5 text-right space-y-3">
-                  <p className="text-sm font-bold text-foreground">لتثبيت التطبيق على iPhone:</p>
+                  <p className="text-sm font-bold text-foreground">{t('installOnIOS')}:</p>
                   <div className="flex items-center gap-3 justify-end">
                     <p className="text-xs text-muted-foreground">
                       <span className="text-primary font-bold">١.</span> اضغط على زر <span className="font-medium text-foreground">المشاركة</span>
@@ -138,9 +138,9 @@ export default function Install() {
               transition={{ delay: 0.2 }}
               className="space-y-3"
             >
-              <h3 className="text-sm font-bold text-foreground">✨ مميزات التثبيت</h3>
+              <h3 className="text-sm font-bold text-foreground">{`✨ ${t('installApp')}`}</h3>
               {[
-                { emoji: '⚡', text: 'فتح فوري بدون متصفح' },
+                { emoji: '⚡', text: t('installDesc') },
                 { emoji: '📶', text: 'يعمل بدون إنترنت' },
                 { emoji: '🔔', text: 'تنبيهات مواقيت الصلاة' },
                 { emoji: '💾', text: 'تخزين البيانات محلياً' },

@@ -68,7 +68,7 @@ const getAllCategories = (t: (k: string) => string) => [...getDailyCategories(t)
 type ViewMode = 'categories' | 'subCategories' | 'duas';
 
 export default function Duas() {
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   

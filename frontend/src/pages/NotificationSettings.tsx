@@ -23,20 +23,20 @@ interface NotifSetting {
 }
 
 const prayerSettings: NotifSetting[] = [
-  { key: 'athan-notifications', label: 'تنبيهات الصلاة', description: 'إشعار عند دخول وقت كل صلاة', icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
-  { key: 'prayer-reminder', label: 'تذكير قبل الصلاة', description: 'تذكير قبل وقت الصلاة بدقائق', icon: <Clock className="h-5 w-5" />, schedule: 'قبل 10 دقائق', defaultEnabled: true },
-  { key: 'prayer-tracker-reminder', label: 'سجلات الصلاة', description: 'تذكير لتحديد صلواتك', icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
+  { key: 'athan-notifications', label: t('notifPrayerAlerts'), description: t('notifPrayerAlertsDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
+  { key: 'prayer-reminder', label: t('notifPrayerReminder'), description: t('notifPrayerReminderDesc'), icon: <Clock className="h-5 w-5" />, schedule: t('notifBefore10Min'), defaultEnabled: true },
+  { key: 'prayer-tracker-reminder', label: t('notifPrayerTracker'), description: t('notifPrayerTrackerDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
 ];
 
 const dailyGoalSettings: NotifSetting[] = [
-  { key: 'quran-listen-reminder', label: 'استمع إلى القرآن', description: 'تذكير بالاستماع إلى القرآن يوميًا', icon: <BookOpen className="h-5 w-5" />, schedule: '08:00 مساءً', defaultEnabled: true },
-  { key: 'dhikr-daily-reminder', label: 'الذكر اليومي', description: 'تذكير بذكر الله اليومي', icon: <Sparkles className="h-5 w-5" />, defaultEnabled: true },
+  { key: 'quran-listen-reminder', label: t('notifQuranListen'), description: t('notifQuranListenDesc'), icon: <BookOpen className="h-5 w-5" />, schedule: t('notifAtEvening'), defaultEnabled: true },
+  { key: 'dhikr-daily-reminder', label: t('notifDhikrDaily'), description: t('notifDhikrDailyDesc'), icon: <Sparkles className="h-5 w-5" />, defaultEnabled: true },
 ];
 
 const otherSettings: NotifSetting[] = [
-  { key: 'daily-stories-reminder', label: 'القصص اليومية', description: 'إشعار لمشاهدة القصص اليومية', icon: <MessageSquare className="h-5 w-5" />, schedule: '9:00 مساءً', defaultEnabled: true },
-  { key: 'friday-reminder', label: 'جمعة مميزة', description: 'تذكير بقراءة سورة الكهف كل جمعة', icon: <BookOpen className="h-5 w-5" />, defaultEnabled: true },
-  { key: 'suhoor-reminder', label: 'تذكير بالسحور', description: 'فقط خلال رمضان', icon: <Moon className="h-5 w-5" />, schedule: 'قبل الفجر بساعة', defaultEnabled: true },
+  { key: 'daily-stories-reminder', label: t('notifStories'), description: t('notifStoriesDesc'), icon: <MessageSquare className="h-5 w-5" />, schedule: t('notifAtNight'), defaultEnabled: true },
+  { key: 'friday-reminder', label: t('notifFriday'), description: t('notifFridayDesc'), icon: <BookOpen className="h-5 w-5" />, defaultEnabled: true },
+  { key: 'suhoor-reminder', label: t('notifSuhoor'), description: t('notifSuhoorDesc'), icon: <Moon className="h-5 w-5" />, schedule: t('notifSuhoorSchedule'), defaultEnabled: true },
 ];
 
 function SettingRow({ setting }: { setting: NotifSetting }) {
@@ -49,7 +49,7 @@ function SettingRow({ setting }: { setting: NotifSetting }) {
     if (!enabled) {
       const granted = await requestNotificationPermission();
       if (!granted) {
-        toast.error('يرجى السماح بالإشعارات من إعدادات المتصفح');
+        toast.error(t('allowNotifBrowser'));
         return;
       }
     }
@@ -112,7 +112,7 @@ export default function NotificationSettings() {
     try {
       const granted = await requestNotificationPermission();
       if (!granted) {
-        toast.error('يرجى السماح بالإشعارات من إعدادات المتصفح');
+        toast.error(t('allowNotifBrowser'));
         return;
       }
       // Get user location
@@ -122,15 +122,15 @@ export default function NotificationSettings() {
         const success = await subscribeToPush(loc.latitude, loc.longitude, loc.calculationMethod || 3);
         setPushSubscribed(success);
         if (success) {
-          toast.success('تم تفعيل الإشعارات في الخلفية ✅ ستصلك حتى عند إغلاق التطبيق');
+          toast.success(t('bgNotifEnabled'));
         } else {
-          toast.error('تعذر تفعيل الإشعارات في الخلفية');
+          toast.error(t('bgNotifFailed'));
         }
       } else {
-        toast.error('يرجى تفعيل الموقع أولاً لتحديد أوقات الصلاة');
+        toast.error(t('enableLocationFirst'));
       }
     } catch {
-      toast.error('حدث خطأ');
+      toast.error(t('errorOccurred'));
     } finally {
       setPushLoading(false);
     }
@@ -139,23 +139,23 @@ export default function NotificationSettings() {
   const handleTestNotification = async () => {
     const granted = await requestNotificationPermission();
     if (!granted) {
-      toast.error('يرجى السماح بالإشعارات أولاً');
+      toast.error(t('allowNotifFirst'));
       return;
     }
     const sent = sendTestNotification();
     if (sent) {
-      toast.success('تم إرسال إشعار تجريبي ✅');
+      toast.success(t('testNotifSent'));
     } else {
-      toast.error('تعذر إرسال الإشعار');
+      toast.error(t('testNotifFailed'));
     }
   };
 
   const handleTestAthan = () => {
     const played = testAthanPlayback();
     if (played) {
-      toast.success('جارٍ تشغيل الأذان... (5 ثوانٍ)');
+      toast.success(t('playingAthan'));
     } else {
-      toast.error('تعذر تشغيل الصوت');
+      toast.error(t('playAthanFailed'));
     }
   };
 
@@ -167,7 +167,7 @@ export default function NotificationSettings() {
           <Link to="/more" className="p-2 -me-2 rounded-xl transition-all active:scale-90">
             <ArrowRight className="h-5 w-5 text-foreground" />
           </Link>
-          <h1 className="text-base font-bold text-foreground">الإشعارات والأذان</h1>
+          <h1 className="text-base font-bold text-foreground">{t('notifAndAthan')}</h1>
           <div className="w-9" />
         </div>
       </div>
@@ -179,8 +179,8 @@ export default function NotificationSettings() {
             <div className="flex items-start gap-3">
               <Smartphone className="h-5 w-5 text-primary mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-bold text-foreground">إشعارات الأذان في الخلفية</p>
-                <p className="text-xs text-muted-foreground mt-1">فعّل الإشعارات لتصلك تنبيهات الأذان حتى عند إغلاق التطبيق</p>
+                <p className="text-sm font-bold text-foreground">{t('bgAthanNotif')}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('bgAthanNotifDesc')}</p>
                 <Button
                   onClick={handleEnablePush}
                   disabled={pushLoading}
@@ -188,7 +188,7 @@ export default function NotificationSettings() {
                   className="mt-2 rounded-xl gap-1.5"
                 >
                   {pushLoading ? <Bell className="h-3.5 w-3.5 animate-pulse" /> : <Bell className="h-3.5 w-3.5" />}
-                  تفعيل الإشعارات
+                  {t('enableNotif')}
                 </Button>
               </div>
             </div>
@@ -203,7 +203,7 @@ export default function NotificationSettings() {
           className="flex-1 h-12 rounded-2xl gap-2 text-sm font-bold"
         >
           <TestTube className="h-4 w-4" />
-          اختبار الإشعار
+          {t('testNotif')}
         </Button>
         <Button
           onClick={handleTestAthan}
@@ -211,12 +211,12 @@ export default function NotificationSettings() {
           className="flex-1 h-12 rounded-2xl gap-2 text-sm font-bold"
         >
           <Volume2 className="h-4 w-4" />
-          اختبار الأذان
+          {t('testAthan')}
         </Button>
       </div>
 
       {/* Prayer settings */}
-      <SettingsSection title="الصلوات" settings={prayerSettings} />
+      <SettingsSection title={t("prayersSection")} settings={prayerSettings} />
 
       {/* Athan selector */}
       <div className="px-4 mt-3">
@@ -229,12 +229,12 @@ export default function NotificationSettings() {
               <Volume2 className="h-5 w-5 text-accent-foreground" />
             </div>
             <div className="text-right">
-              <p className="text-sm font-bold text-foreground">تحديد صوت الأذان</p>
+              <p className="text-sm font-bold text-foreground">{t('selectAthanSound')}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {(() => {
                   const id = localStorage.getItem('athan-sound') || 'makkah';
-                  const names: Record<string, string> = { makkah: 'مكة', madinah: 'المدينة', turkish: 'تركي', umayyad: 'الأموي', quds: 'الأقصى', abdulbasit: 'عبد الباسط', shahat: 'شحات', saqqaf: 'السقاف', default: 'تنبيه بسيط' };
-                  return names[id] || 'مكة';
+                  const names: Record<string, string> = { makkah: t('athanMakkah'), madinah: t('athanMadinah'), turkish: t('athanTurkish'), umayyad: t('athanUmayyad'), quds: t('athanQuds'), abdulbasit: t('athanAbdulbasit'), shahat: t('athanShahat'), saqqaf: t('athanSaqqaf'), default: t('athanSimple') };
+                  return names[id] || t('athanMakkah');
                 })()}
               </p>
             </div>
@@ -259,7 +259,7 @@ export default function NotificationSettings() {
       </AnimatePresence>
 
       {/* Daily goals */}
-      <SettingsSection title="الأهداف اليومية" settings={dailyGoalSettings} />
+      <SettingsSection title={t("dailyGoalsSection")} settings={dailyGoalSettings} />
 
       {/* Other */}
       <SettingsSection title="تنبيهات أخرى" settings={otherSettings} />

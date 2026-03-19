@@ -4,8 +4,10 @@ import { Volume2, VolumeX, Play, Square, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import { useLocale } from '@/hooks/useLocale';
 
 export default function AthanSelector() {
+  const { t, dir } = useLocale();
   const [selected, setSelected] = useState(getSelectedAthan().id);
   const [playing, setPlaying] = useState<string | null>(null);
   const [volume, setVolume] = useState(() => parseFloat(localStorage.getItem('athan-volume') || '0.8'));
@@ -44,12 +46,12 @@ export default function AthanSelector() {
   };
 
   return (
-    <div className="space-y-4" dir="rtl">
+    <div className="space-y-4" dir={dir}>
       {/* Volume */}
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="mb-3 flex items-center gap-3">
           {volume > 0 ? <Volume2 className="h-5 w-5 shrink-0 text-primary" /> : <VolumeX className="h-5 w-5 shrink-0 text-muted-foreground" />}
-          <span className="text-sm font-bold text-foreground">مستوى الصوت</span>
+          <span className="text-sm font-bold text-foreground">{t('volumeLevel')}</span>
           <span className="ms-auto text-xs text-muted-foreground" dir="ltr">{Math.round(volume * 100)}%</span>
         </div>
         <Slider
