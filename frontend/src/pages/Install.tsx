@@ -48,7 +48,7 @@ export default function Install() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <div className="gradient-islamic relative px-5 pb-16 pt-safe-header-compact">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white">📲 تثبيت التطبيق</h1>

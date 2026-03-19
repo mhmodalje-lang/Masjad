@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { X, Image, Video, FileText, Send, Loader2, Camera } from 'lucide-react';
@@ -25,6 +26,7 @@ const CONTENT_TYPES = [
 ];
 
 export default function CreatePost() {
+  const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -159,7 +161,7 @@ export default function CreatePost() {
         </div>
       </div>
 
-      <div className="p-4 space-y-4" dir="rtl">
+      <div className="p-4 space-y-4" dir={dir}>
         {/* Content Type Selector */}
         <div className="flex gap-2">
           {CONTENT_TYPES.map((ct) => (
@@ -194,7 +196,7 @@ export default function CreatePost() {
           onChange={(e) => setContent(e.target.value)}
           placeholder="شارك فكرتك مع المجتمع..."
           className="w-full min-h-[150px] bg-gray-900 text-white rounded-xl p-4 border border-gray-800 focus:border-emerald-500 focus:outline-none resize-none text-base leading-relaxed placeholder:text-gray-600"
-          dir="rtl"
+          dir={dir}
           maxLength={5000}
         />
         <div className="text-left text-gray-600 text-xs">{content.length}/5000</div>

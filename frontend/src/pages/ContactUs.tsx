@@ -7,6 +7,7 @@ import { useState } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 export default function ContactUs() {
+  const { t, dir } = useLocale();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -31,7 +32,7 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="contact-page">
+    <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="contact-page">
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center gap-3">
         <Link to="/more" className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></Link>
         <h1 className="text-lg font-bold text-foreground">تواصل معنا</h1>

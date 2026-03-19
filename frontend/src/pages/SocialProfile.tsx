@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowRight, MessageCircle, Settings, Heart, Play, Film, Loader2, Users } from 'lucide-react';
@@ -22,6 +23,7 @@ function formatCount(n: number) {
 }
 
 export default function SocialProfile() {
+  const { t, dir } = useLocale();
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser, getToken } = useAuth();
   const navigate = useNavigate();
@@ -137,7 +139,7 @@ export default function SocialProfile() {
       </div>
 
       {/* Avatar & Info */}
-      <div className="relative px-5 -mt-14" dir="rtl">
+      <div className="relative px-5 -mt-14" dir={dir}>
         <div className="flex justify-center">
           <img
             src={avatar(profile.name, profile.avatar)}
@@ -246,7 +248,7 @@ export default function SocialProfile() {
           )}
         </div>
       ) : (
-        <div className="p-5" dir="rtl">
+        <div className="p-5" dir={dir}>
           <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-4">
             <div>
               <span className="text-gray-500 text-xs">الاسم</span>

@@ -57,7 +57,7 @@ export default function More() {
   const currentLanguage = languages.find(l => l.code === locale) || languages[0];
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="more-page">
+    <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="more-page">
       {/* Header */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
         <h1 className="text-lg font-black text-foreground">{t('more')}</h1>

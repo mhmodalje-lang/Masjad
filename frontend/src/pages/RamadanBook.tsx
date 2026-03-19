@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Moon, Utensils, Heart, Clock, Star, ChevronDown, ChevronUp } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
@@ -106,6 +107,7 @@ function AccordionItem({ item, isOpen, toggle }: { item: { title: string; conten
 }
 
 export default function RamadanBook() {
+  const { t, dir } = useLocale();
   const [activeSection, setActiveSection] = useState('fasting-rules');
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
@@ -120,7 +122,7 @@ export default function RamadanBook() {
   const currentSection = sections.find(s => s.id === activeSection)!;
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader title="كتاب رمضان الشامل" backTo="/" />
 
       {/* Hero */}

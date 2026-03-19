@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { Link } from 'react-router-dom';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { ArrowRight, Heart, Plus, Send, Loader2, AlertTriangle, User, MessageSquare, X } from 'lucide-react';
@@ -21,6 +22,7 @@ interface DonationRequest {
 }
 
 export default function Donations() {
+  const { t, dir } = useLocale();
   const { user } = useAuth();
   const goBack = useSmartBack();
   const [requests, setRequests] = useState<DonationRequest[]>([]);
@@ -41,7 +43,7 @@ export default function Donations() {
   }, []);
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="donations-page">
+    <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="donations-page">
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={goBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
@@ -126,7 +128,7 @@ function CreateDonationSheet({ onClose, onCreated }: { onClose: () => void; onCr
   return (
     <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      className="fixed inset-0 z-[999] flex flex-col" dir={dir}>
       <div className="flex-1 bg-black/60" onClick={onClose} />
       <div className="bg-card rounded-t-3xl max-h-[85vh] flex flex-col border-t border-primary/20">
         <div className="flex items-center justify-between p-4 border-b border-border/20">

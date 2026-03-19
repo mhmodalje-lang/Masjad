@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Calendar, Moon, Clock, ChevronLeft, ChevronRight, AlertCircle, BookOpen, Droplets } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
@@ -53,6 +54,7 @@ function getDaysBetween(d1: string, d2: string): number {
 }
 
 export default function PeriodTracker() {
+  const { t, dir } = useLocale();
   const [data, setData] = useState<PeriodData>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -112,7 +114,7 @@ export default function PeriodTracker() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader title="تتبع الدورة الشهرية" backTo="/more" />
 
       {/* Status Card */}

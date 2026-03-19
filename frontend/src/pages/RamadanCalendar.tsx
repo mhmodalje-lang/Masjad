@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Moon, Sun, Sunrise, Star, ChevronLeft, ChevronRight, BookOpen, Heart, Clock, Sparkles, Share2, Image } from 'lucide-react';
@@ -33,6 +34,7 @@ function to12Hour(t24: string): string {
 const arabicDayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 
 export default function RamadanCalendar() {
+  const { t, dir } = useLocale();
   const location = useGeoLocation();
   const { prayers, hijriDay, hijriMonthNumber, loading } = usePrayerTimes(
     location.latitude, location.longitude, location.calculationMethod, location.school
@@ -60,7 +62,7 @@ export default function RamadanCalendar() {
   const dayOfWeek = arabicDayNames[new Date().getDay()];
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader title="تقويم رمضان ١٤٤٧" backTo="/" />
 
       {/* Ramadan Progress Hero */}

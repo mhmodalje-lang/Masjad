@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useSearchParams } from 'react-router-dom';
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -69,6 +70,7 @@ function getFallbackDuas(categories: string[]): AiDua[] {
 }
 
 export default function DailyDuas() {
+  const { t, dir } = useLocale();
   const [params] = useSearchParams();
   const goBack = useSmartBack();
   const context = params.get('context') || 'morning';
@@ -107,7 +109,7 @@ export default function DailyDuas() {
   const displayDuas = showFavorites ? favorites : duas;
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       {/* Header */}
       <div className={cn('relative overflow-hidden pb-16 pt-safe-header')}>
         <div className={cn('absolute inset-0 bg-gradient-to-br', config.gradient)} />

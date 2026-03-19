@@ -80,7 +80,7 @@ export default function Tasbeeh() {
   const isComplete = count >= dhikr.target;
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('tasbeeh')}
         subtitle="اذكر الله وسبّحه"

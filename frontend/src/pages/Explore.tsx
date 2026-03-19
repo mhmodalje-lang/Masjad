@@ -71,7 +71,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
   return (
     <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-      className="fixed inset-0 z-[999] flex flex-col" dir="rtl">
+      className="fixed inset-0 z-[999] flex flex-col" dir={dir}>
       <div className="flex-1 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="bg-card rounded-t-3xl max-h-[70vh] flex flex-col shadow-2xl border-t border-border/30">
         <div className="flex justify-center pt-2 pb-1"><div className="w-10 h-1 rounded-full bg-muted-foreground/30" /></div>
@@ -151,7 +151,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
   const isEmbed = story.is_embed || story.media_type === 'embed';
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl">
+    <div className="min-h-screen pb-24 bg-background" dir={dir}>
       <div className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/20">
         <div className="flex items-center justify-between px-4 h-14">
           <button onClick={onBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><ArrowRight className="h-5 w-5 text-foreground" /></button>
@@ -214,7 +214,7 @@ function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; ra
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
       className="flex gap-3 p-3 rounded-2xl bg-card border border-border/30 w-full text-right active:scale-[0.98] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
-      dir="rtl" onClick={onOpen}>
+      dir={dir} onClick={onOpen}>
       {mediaUrl ? (
         <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 relative">
           <img src={mediaUrl} alt="" className="h-full w-full object-cover" loading="lazy" />
@@ -406,7 +406,7 @@ export default function Explore() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl" data-testid="explore-page">
+    <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="explore-page">
       {/* HEADER */}
       <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20">
         <div className="px-4 pt-3 pb-3">

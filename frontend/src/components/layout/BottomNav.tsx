@@ -72,7 +72,7 @@ export function BottomNav() {
                 isActive && 'scale-110 stroke-[2.5px]'
               )} />
               <span className={cn(
-                "text-[10px] leading-tight text-center truncate w-full px-0.5",
+                "text-[9px] leading-tight text-center w-full px-0.5 whitespace-nowrap overflow-visible",
                 isActive ? 'font-bold' : 'font-medium'
               )}>
                 {item.label}

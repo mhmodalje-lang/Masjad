@@ -46,7 +46,7 @@ export default function PrayerTimes() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('prayerTimes')}
         subtitle={`${dayName}، ${dateStr}`}

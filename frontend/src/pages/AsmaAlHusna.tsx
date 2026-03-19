@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Heart, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -116,6 +117,7 @@ const COLORS = [
 ];
 
 export default function AsmaAlHusna() {
+  const { t, dir } = useLocale();
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -140,7 +142,7 @@ export default function AsmaAlHusna() {
   }, [search]);
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="asma-al-husna-page">
+    <div className="min-h-screen pb-24" dir={dir} data-testid="asma-al-husna-page">
       {/* Header */}
       <div className="relative bg-gradient-to-br from-emerald-900 via-teal-900 to-green-900 px-4 pb-14 pt-safe-header text-center overflow-hidden">
         <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'80\' height=\'80\' viewBox=\'0 0 80 80\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M40 0L50 15H30zM0 40L15 50V30zM80 40L65 30V50zM40 80L30 65H50z\' fill=\'%23fff\' fill-opacity=\'.3\'/%3E%3C/svg%3E")' }} />

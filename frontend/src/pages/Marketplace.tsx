@@ -27,6 +27,7 @@ const CATEGORIES = [
 ];
 
 export default function Marketplace() {
+  const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState('all');
@@ -99,7 +100,7 @@ export default function Marketplace() {
   const isApprovedVendor = vendorStatus?.status === 'approved';
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl" data-testid="marketplace-page">
+    <div className="min-h-screen pb-24" dir={dir} data-testid="marketplace-page">
       {/* Header with animated background */}
       <div className="relative bg-gradient-to-br from-teal-900 via-emerald-900 to-green-900 px-5 pb-16 pt-safe-header overflow-hidden">
         <AnimatedBackground variant="marketplace" />

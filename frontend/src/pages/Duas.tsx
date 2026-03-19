@@ -189,7 +189,7 @@ export default function Duas() {
       <div className="bg-muted/30 rounded-xl p-4 mb-3">
         <p
           className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
-          dir="rtl"
+          dir={dir}
           style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif" }}
         >
           {dua.arabic}
@@ -242,7 +242,7 @@ export default function Duas() {
   );
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader
         title={t('duasAndDhikr')}
         subtitle={t('duasSubtitle')}
@@ -381,7 +381,7 @@ export default function Duas() {
                       <div className="bg-muted/30 rounded-xl p-4 mb-3">
                         <p
                           className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
-                          dir="rtl"
+                          dir={dir}
                           style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif" }}
                         >
                           {dua.arabic}

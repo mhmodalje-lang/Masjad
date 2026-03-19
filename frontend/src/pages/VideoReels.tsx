@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Heart, MessageCircle, Gift, Share2, ArrowRight, Play, Pause, Volume2, VolumeX } from 'lucide-react';
@@ -24,6 +25,7 @@ interface VideoPost {
 }
 
 export default function VideoReels() {
+  const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -213,7 +215,7 @@ function ReelItem({ post, isActive, onLike, onShare, getMediaUrl }: {
 
       {/* Content text overlay */}
       <div className="absolute inset-0 flex items-center justify-center px-8 z-10 pointer-events-none">
-        <p className="text-white text-xl font-bold text-center leading-relaxed drop-shadow-lg" dir="rtl">
+        <p className="text-white text-xl font-bold text-center leading-relaxed drop-shadow-lg" dir={dir}>
           {post.content}
         </p>
       </div>
@@ -266,7 +268,7 @@ function ReelItem({ post, isActive, onLike, onShare, getMediaUrl }: {
       </div>
 
       {/* Bottom Info */}
-      <div className="absolute bottom-6 left-0 right-16 px-4 z-20" dir="rtl">
+      <div className="absolute bottom-6 left-0 right-16 px-4 z-20" dir={dir}>
         <div className="flex items-center gap-3 mb-2">
           <Link to={`/social-profile/${post.author_id}`} className="text-white font-bold text-base drop-shadow-lg hover:underline">
             {post.author_name}

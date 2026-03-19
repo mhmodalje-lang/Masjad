@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +27,7 @@ const AD_PLACEMENTS = ['home','prayer','quran','duas','ruqyah','notifications','
 const AD_TYPES = ['banner','interstitial','native','video','popup'];
 
 export default function AdminDashboard() {
+  const { t, dir } = useLocale();
   const { user } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const navigate = useNavigate();
@@ -228,7 +230,7 @@ export default function AdminDashboard() {
 
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-5" dir="rtl">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-5" dir={dir}>
       <Shield className="h-16 w-16 text-primary/30" />
       <h1 className="text-xl font-bold text-foreground">لوحة الإدارة</h1>
       <p className="text-sm text-muted-foreground text-center">{user ? 'هذا الحساب ليس مسؤولاً' : 'يجب تسجيل الدخول أولاً'}</p>
@@ -292,7 +294,7 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen pb-28" dir="rtl" data-testid="admin-dashboard">
+    <div className="min-h-screen pb-28" dir={dir} data-testid="admin-dashboard">
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-5 pt-7 pb-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-6 w-6 text-primary" /></div>
@@ -392,7 +394,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-2 max-h-64 overflow-y-auto">
                 {socialPosts.map(p => (
-                  <div key={p.id} className="bg-card rounded-xl p-3 border border-border/20" dir="rtl">
+                  <div key={p.id} className="bg-card rounded-xl p-3 border border-border/20" dir={dir}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <span className="text-xs font-bold text-foreground">{p.author_name}</span>
@@ -416,7 +418,7 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {socialComments.map(c => (
-                  <div key={c.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-start justify-between gap-2" dir="rtl">
+                  <div key={c.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-start justify-between gap-2" dir={dir}>
                     <div className="flex-1 min-w-0">
                       <span className="text-xs font-bold text-foreground">{c.author_name}</span>
                       <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{c.content}</p>
@@ -434,7 +436,7 @@ export default function AdminDashboard() {
               <h3 className="text-sm font-bold text-foreground mb-2">مستخدمي المنصة ({socialUsers.length})</h3>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {socialUsers.map(u => (
-                  <div key={u.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-center gap-2" dir="rtl">
+                  <div key={u.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-center gap-2" dir={dir}>
                     <div className="w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center text-emerald-500 text-xs font-bold shrink-0">
                       {(u.name || '?')[0]}
                     </div>

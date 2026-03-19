@@ -97,6 +97,7 @@ function SettingsSection({ title, settings }: { title: string; settings: NotifSe
 }
 
 export default function NotificationSettings() {
+  const { t, dir } = useLocale();
   const [showAthanSelector, setShowAthanSelector] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
@@ -159,7 +160,7 @@ export default function NotificationSettings() {
   };
 
   return (
-    <div className="min-h-screen pb-24 bg-background" dir="rtl">
+    <div className="min-h-screen pb-24 bg-background" dir={dir}>
       {/* Header */}
       <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3">

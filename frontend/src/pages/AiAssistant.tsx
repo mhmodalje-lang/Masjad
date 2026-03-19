@@ -16,6 +16,7 @@ interface Message {
 }
 
 export default function AiAssistant() {
+  const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -64,7 +65,7 @@ export default function AiAssistant() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center pb-24" dir="rtl" data-testid="ai-assistant-page">
+      <div className="min-h-screen flex items-center justify-center pb-24" dir={dir} data-testid="ai-assistant-page">
         <div className="text-center px-8">
           <Bot className="h-14 w-14 mx-auto mb-4 text-primary" />
           <h2 className="text-xl font-bold text-foreground mb-2">المساعد الإسلامي</h2>
@@ -76,7 +77,7 @@ export default function AiAssistant() {
   }
 
   return (
-    <div className="flex flex-col h-screen" dir="rtl" data-testid="ai-assistant-page">
+    <div className="flex flex-col h-screen" dir={dir} data-testid="ai-assistant-page">
       {/* Header */}
       <div className="bg-gradient-to-b from-primary/15 to-transparent px-5 pt-safe-header-compact pb-3 shrink-0">
         <div className="flex items-center justify-between">

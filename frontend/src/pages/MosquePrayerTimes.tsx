@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -115,6 +116,7 @@ function getCalcSettings(): { method: number; school: number; latitude?: number;
 // Removed fetchAladhanTimes — edge function handles all fallbacks
 
 export default function MosquePrayerTimesPage() {
+  const { t, dir } = useLocale();
   const goBack = useSmartBack();
   const location = useGeoLocation();
   const is12h = detectIs12Hour();
@@ -599,7 +601,7 @@ export default function MosquePrayerTimesPage() {
   const getDiffKey = (key: string): keyof TimeDiffs => `${key}_diff` as keyof TimeDiffs;
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       {/* Header */}
       <div className="relative overflow-hidden pb-16 pt-safe-header">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-emerald-500/10" />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { Minus, Plus } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
@@ -12,6 +13,7 @@ interface DhikrSetting {
 }
 
 export default function DhikrSettings() {
+  const { t, dir } = useLocale();
   const [settings, setSettings] = useState<Record<string, DhikrSetting>>(() => {
     const saved = localStorage.getItem('dhikr-settings');
     if (saved) return JSON.parse(saved);
@@ -45,7 +47,7 @@ export default function DhikrSettings() {
                 <span className="text-sm font-bold text-foreground">{d.title}</span>
                 <Switch checked={s.enabled} onCheckedChange={v => update(d.key, { enabled: v })} />
               </div>
-              <p className="text-xs text-muted-foreground mb-1 font-amiri" dir="rtl">{d.arabic}</p>
+              <p className="text-xs text-muted-foreground mb-1 font-amiri" dir={dir}>{d.arabic}</p>
               <p className="text-xs text-muted-foreground italic mb-3">{d.transliteration}</p>
 
               {s.enabled && (

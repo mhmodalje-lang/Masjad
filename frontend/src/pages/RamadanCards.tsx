@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { motion } from 'framer-motion';
 import { Share2, Download, ChevronLeft, ChevronRight, Heart, Sparkles } from 'lucide-react';
 import PageHeader from '@/components/PageHeader';
@@ -24,6 +25,7 @@ const ramadanCards: RamadanCard[] = [
 ];
 
 export default function RamadanCards() {
+  const { t, dir } = useLocale();
   const [selectedCard, setSelectedCard] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -114,7 +116,7 @@ export default function RamadanCards() {
   };
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={dir}>
       <PageHeader title="بطاقات رمضان" backTo="/" />
       <canvas ref={canvasRef} className="hidden" />
 

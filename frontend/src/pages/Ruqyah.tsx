@@ -114,7 +114,7 @@ export default function Ruqyah() {
     : allContent;
 
   return (
-    <div className="min-h-screen bg-background pb-24" dir="rtl">
+    <div className="min-h-screen bg-background pb-24" dir={dir}>
       {/* Header */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/30">
         <div className="flex items-center justify-between px-4 py-3">
@@ -216,7 +216,7 @@ export default function Ruqyah() {
                     <div className="bg-background rounded-xl p-4 border border-border/20">
                       <p
                         className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
-                        dir="rtl"
+                        dir={dir}
                         style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif", wordSpacing: '2px' }}
                       >
                         {item.arabic}

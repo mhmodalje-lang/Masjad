@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocale } from "@/hooks/useLocale";
 import { motion } from 'framer-motion';
 import { Check, Moon, Heart } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -16,6 +17,7 @@ interface DayState {
 const currentYear = new Date().getFullYear();
 
 export default function RamadanChallenge() {
+  const { t, dir } = useLocale();
   const { user } = useAuth();
   const storageKey = `ramadan-challenge-${currentYear}`;
 
@@ -65,7 +67,7 @@ export default function RamadanChallenge() {
           </div>
         </div>
 
-        <Tabs defaultValue="fasting" dir="rtl">
+        <Tabs defaultValue="fasting" dir={dir}>
           <TabsList className="w-full mb-3">
             <TabsTrigger value="fasting" className="flex-1">صيام</TabsTrigger>
             <TabsTrigger value="deeds" className="flex-1">أعمال</TabsTrigger>
