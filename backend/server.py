@@ -2691,7 +2691,7 @@ async def search_quran_v4(
     page: int = Query(1),
     size: int = Query(20),
 ):
-    """Search the Quran via Quran.com API v4"""
+    """Search the Quran via Quran.com API v4 with fallback to legacy API"""
     try:
         params = {
             "q": q,
@@ -2701,10 +2701,17 @@ async def search_quran_v4(
         }
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/search", params=params)
-            r.raise_for_status()
-            return r.json()
+            if r.status_code == 200:
+                data = r.json()
+                return data
+            # Fallback to legacy alquran.cloud API if v4 search fails
+            r2 = await c.get(f"https://api.alquran.cloud/v1/search/{q}/all/ar")
+            if r2.status_code == 200:
+                return r2.json()
+            return {"search": {"results": [], "total_results": 0}}
     except Exception as e:
-        raise HTTPException(500, f"Quran search error: {str(e)}")
+        # Final fallback - return empty results
+        return {"search": {"results": [], "total_results": 0}, "error": str(e)}
 
 @api_router.get("/quran/v4/juzs")
 async def get_juzs_v4():
