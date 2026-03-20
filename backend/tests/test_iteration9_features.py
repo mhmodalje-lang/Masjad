@@ -13,7 +13,7 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://arabic-academy-dev.preview.emergentagent.com"
+    BASE_URL = "https://pick-up-where-28.preview.emergentagent.com"
 
 # Test credentials
 ADMIN_EMAIL = "mhmd321324t@gmail.com"
