@@ -889,7 +889,7 @@ export default function Stories() {
                 <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
                   className={cn('shrink-0 flex items-center gap-1 px-3.5 py-[7px] rounded-full text-[12px] font-bold transition-all',
                     selectedCategory === cat.key ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/10 text-white/70 hover:bg-white/15')}>
-                  <span className="text-sm">{cat.emoji}</span>{cat.label}
+                  <span className="text-sm">{cat.emoji}</span>{cat.labelKey ? t(cat.labelKey) : cat.label}
                 </button>
               ))}
             </div>

@@ -46,6 +46,9 @@ const NOOR_DAILY_MESSAGES: Record<string, string[]> = {
   fr: ['Bonjour! Aujourd\'hui on apprend une nouvelle lettre ✨', 'Salut champion! Prêt pour la leçon du jour? 🌟', 'Coucou! Commençons notre aventure quotidienne! 📚'],
   tr: ['Günaydın! Bugün yeni bir harf öğreneceğiz ✨', 'Merhaba şampiyon! Bugünkü derse hazır mısın? 🌟', 'Selam! Günlük öğrenme maceramıza başlayalım! 📚'],
   ru: ['Доброе утро! Сегодня выучим новую букву ✨', 'Привет чемпион! Готов к уроку? 🌟', 'Привет! Начнём наше ежедневное путешествие! 📚'],
+  sv: ['God morgon! Idag lär vi oss en ny bokstav ✨', 'Hej mästare! Redo för dagens lektion? 🌟', 'Hej! Låt oss börja vårt dagliga lärande! 📚'],
+  nl: ['Goedemorgen! Vandaag leren we een nieuwe letter ✨', 'Hallo kampioen! Klaar voor de les van vandaag? 🌟', 'Hoi! Laten we beginnen met ons dagelijks avontuur! 📚'],
+  el: ['Καλημέρα! Σήμερα μαθαίνουμε ένα νέο γράμμα ✨', 'Γεια σου πρωταθλητή! Έτοιμος για το μάθημα; 🌟', 'Γεια! Ας ξεκινήσουμε την καθημερινή μας περιπέτεια! 📚'],
 };
 
 export default function ArabicAcademy() {

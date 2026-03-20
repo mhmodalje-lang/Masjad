@@ -8,21 +8,21 @@ import { toast } from 'sonner';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const CATEGORIES = [
-  { key: 'general', label: 'عام', emoji: '🌍' },
-  { key: 'quran', label: 'القرآن', emoji: '📖' },
-  { key: 'hadith', label: 'الحديث', emoji: '📜' },
-  { key: 'dua', label: 'الدعاء', emoji: '🤲' },
-  { key: 'stories', label: 'قصص', emoji: '📝' },
-  { key: 'ramadan', label: 'رمضان', emoji: '🌙' },
-  { key: 'family', label: 'الأسرة', emoji: '👨‍👩‍👧‍👦' },
-  { key: 'youth', label: 'الشباب', emoji: '💪' },
+  { key: 'general', label: 'عام', labelKey: 'sohbaCatGeneral', emoji: '🌍' },
+  { key: 'quran', label: 'القرآن', labelKey: 'sohbaCatQuran', emoji: '📖' },
+  { key: 'hadith', label: 'الحديث', labelKey: 'sohbaCatHadith', emoji: '📜' },
+  { key: 'dua', label: 'الدعاء', labelKey: 'sohbaCatDua', emoji: '🤲' },
+  { key: 'stories', label: 'قصص', labelKey: 'sohbaCatStories', emoji: '📝' },
+  { key: 'ramadan', label: 'رمضان', labelKey: 'sohbaCatRamadan', emoji: '🌙' },
+  { key: 'family', label: 'الأسرة', labelKey: 'sohbaCatFamily', emoji: '👨‍👩‍👧‍👦' },
+  { key: 'youth', label: 'الشباب', labelKey: 'sohbaCatYouth', emoji: '💪' },
 ];
 
 const CONTENT_TYPES = [
-  { key: 'text', label: 'نص', icon: FileText },
-  { key: 'image', label: 'صورة', icon: Image },
-  { key: 'video_short', label: 'ريلز', icon: Video },
-  { key: 'video_long', label: 'فيديو', icon: Camera },
+  { key: 'text', labelKey: 'textOption', label: 'نص', icon: FileText },
+  { key: 'image', labelKey: 'imageOption', label: 'صورة', icon: Image },
+  { key: 'video_short', labelKey: 'videoOption', label: 'ريلز', icon: Video },
+  { key: 'video_long', labelKey: 'videoOption', label: 'فيديو', icon: Camera },
 ];
 
 export default function CreatePost() {
@@ -175,7 +175,7 @@ export default function CreatePost() {
               }`}
             >
               <ct.icon className="w-4 h-4" />
-              {ct.label}
+              {ct.labelKey ? t(ct.labelKey) : ct.label}
             </button>
           ))}
         </div>
@@ -250,7 +250,7 @@ export default function CreatePost() {
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
               >
-                {cat.emoji} {cat.label}
+                {cat.emoji} {cat.labelKey ? t(cat.labelKey) : cat.label}
               </button>
             ))}
           </div>
