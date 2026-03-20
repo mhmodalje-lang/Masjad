@@ -9,6 +9,10 @@ interface HadithData {
   narrator: string;
   source: string;
   number: string;
+  arabic_text?: string;
+  arabic_narrator?: string;
+  arabic_source?: string;
+  translation_language?: string;
 }
 
 export default function DailyHadith() {
@@ -86,9 +90,22 @@ export default function DailyHadith() {
         </div>
 
         <p className="text-sm text-muted-foreground mb-2">{t('prophetSaid')}</p>
-        <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="auto">
-          «{hadith.text}»
-        </p>
+        
+        {/* Arabic text always shown */}
+        {hadith.arabic_text ? (
+          <>
+            <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-3" dir="rtl">
+              «{hadith.arabic_text}»
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed text-center mb-4 border-t border-border/20 pt-3" dir="auto">
+              «{hadith.text}»
+            </p>
+          </>
+        ) : (
+          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="auto">
+            «{hadith.text}»
+          </p>
+        )}
 
         <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-3">
           <span>{t('narratorLabel')} {hadith.narrator}</span>

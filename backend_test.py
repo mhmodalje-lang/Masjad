@@ -155,27 +155,41 @@ class APITester:
         if missing_fields:
             result["issues"].append(f"Missing hadith fields: {missing_fields}")
         
-        # Language-specific validation
-        if "language=en" in endpoint:
+        # Language-specific validation based on review request requirements
+        if "language=ar" in endpoint or endpoint == "/daily-hadith":
+            # Arabic request should NOT have arabic_text field - should return text in Arabic script
+            if "arabic_text" in hadith:
+                result["issues"].append("Arabic hadith request should not contain arabic_text field")
+            else:
+                result["validation_notes"].append("✓ Arabic hadith correctly excludes arabic_text field")
+            
+            # Check if text is in Arabic script (contains Arabic characters)
+            if "text" in hadith:
+                text = hadith["text"]
+                has_arabic_chars = any('\u0600' <= char <= '\u06FF' for char in text)
+                if has_arabic_chars:
+                    result["validation_notes"].append("✓ Arabic request returns text in Arabic script")
+                else:
+                    result["issues"].append("Arabic request should return text in Arabic script")
+                    
+        elif "language=de" in endpoint or "language=ru" in endpoint or "language=fr" in endpoint or "language=tr" in endpoint:
+            # Non-Arabic requests should have arabic_text field + translation_language field
+            if "arabic_text" not in hadith:
+                result["issues"].append("Non-Arabic hadith request missing arabic_text field")
+            else:
+                result["validation_notes"].append("✓ Non-Arabic hadith contains arabic_text field")
+            
+            if "translation_language" not in hadith:
+                result["issues"].append("Non-Arabic hadith request missing translation_language field") 
+            else:
+                result["validation_notes"].append("✓ Non-Arabic hadith contains translation_language field")
+                
+        elif "language=en" in endpoint:
             # English request should have arabic_text field
             if "arabic_text" not in hadith:
                 result["issues"].append("English hadith request missing arabic_text field")
             else:
                 result["validation_notes"].append("✓ English hadith contains arabic_text field")
-                
-        elif "language=ar" in endpoint or endpoint == "/daily-hadith":
-            # Arabic request should NOT have arabic_text field
-            if "arabic_text" in hadith:
-                result["issues"].append("Arabic hadith request should not contain arabic_text field")
-            else:
-                result["validation_notes"].append("✓ Arabic hadith correctly excludes arabic_text field")
-                
-        elif "language=de" in endpoint:
-            # German request should return Arabic text (no translation available)
-            if "arabic_text" in hadith:
-                result["issues"].append("German hadith should return Arabic text without arabic_text field")
-            else:
-                result["validation_notes"].append("✓ German hadith correctly returns Arabic text (no German translation)")
     
     def _validate_items_response(self, api_type: str, data: dict, result: dict):
         """Validate items response structure"""
@@ -277,11 +291,12 @@ class APITester:
     
     async def run_tests(self):
         """Run all the requested API tests"""
-        print("🕌 Starting Islamic App Backend API Tests...")
+        print("🕌 Starting Multi-Language Islamic App Backend API Tests...")
+        print(f"Testing specific endpoints from review request")
         print(f"Base URL: {self.base_url}")
         print("-" * 60)
         
-        # Test cases - 5 CRITICAL endpoints from review request
+        # Test cases - EXACT 7 endpoints from review request
         test_cases = [
             {
                 "method": "GET",
@@ -293,25 +308,37 @@ class APITester:
                 "method": "GET",
                 "endpoint": "/daily-hadith?language=ar",
                 "expected_keys": [],
-                "description": "Get daily hadith in Arabic"
+                "description": "Arabic hadith - should return Arabic text without arabic_text field"
             },
             {
                 "method": "GET",
-                "endpoint": "/stories/categories",
-                "expected_keys": ["categories"],
-                "description": "Story categories"
+                "endpoint": "/daily-hadith?language=de",
+                "expected_keys": [],
+                "description": "German hadith - should return arabic_text + English text"
             },
             {
                 "method": "GET",
-                "endpoint": "/quran/v4/chapters",
+                "endpoint": "/daily-hadith?language=ru",
+                "expected_keys": [],
+                "description": "Russian hadith - should return arabic_text + English text"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/daily-hadith?language=fr",
+                "expected_keys": [],
+                "description": "French hadith - should return arabic_text + English text"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/daily-hadith?language=tr",
+                "expected_keys": [],
+                "description": "Turkish hadith - should return arabic_text + English text"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/quran/v4/chapters?language=de",
                 "expected_keys": ["chapters"],
-                "description": "Fetch Quran chapters"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/store/items", 
-                "expected_keys": ["items"],
-                "description": "Store items"
+                "description": "German Quran chapters"
             }
         ]
         

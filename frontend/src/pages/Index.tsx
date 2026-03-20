@@ -40,7 +40,7 @@ const getQuickAccessItems = (t: (key: string) => string) => [
 ];
 
 export default function Index() {
-  const { t, isRTL } = useLocale();
+  const { t, isRTL, locale } = useLocale();
   const { user } = useAuth();
   const {
     prayers, nextPrayer, remaining, hijriDate, hijriDay, hijriMonthNumber, hijriYear,
@@ -62,7 +62,10 @@ export default function Index() {
   };
 
   // Get today's Gregorian date in user's locale
-  const gregorianDate = new Date().toLocaleDateString(isRTL ? 'ar-SA-u-ca-gregory' : 'en-US', {
+  const localeMap: Record<string, string> = {
+    ar: 'ar-SA-u-ca-gregory', en: 'en-US', de: 'de-DE', ru: 'ru-RU', fr: 'fr-FR', tr: 'tr-TR'
+  };
+  const gregorianDate = new Date().toLocaleDateString(localeMap[locale] || 'en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
 

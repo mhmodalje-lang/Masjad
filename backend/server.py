@@ -2608,14 +2608,14 @@ HADITH_TRANSLATIONS = {
 
 @api_router.get("/daily-hadith")
 async def daily_hadith(language: str = Query("ar")):
-    """Get today's hadith - rotates daily from collection. Supports language parameter."""
+    """Get today's hadith - rotates daily from collection. Supports all languages."""
     today = date.today()
     day_of_year = today.timetuple().tm_yday
     idx = day_of_year % len(STATIC_HADITHS)
     hadith = STATIC_HADITHS[idx]
     
-    # If English language is specifically requested and we have a translation
-    if language == "en" and hadith["number"] in HADITH_TRANSLATIONS:
+    # For non-Arabic languages, return both Arabic text + English translation
+    if language != "ar" and hadith["number"] in HADITH_TRANSLATIONS:
         trans = HADITH_TRANSLATIONS[hadith["number"]]
         return {
             "success": True,
@@ -2625,6 +2625,9 @@ async def daily_hadith(language: str = Query("ar")):
                 "source": trans["source"],
                 "number": hadith["number"],
                 "arabic_text": hadith["text"],
+                "arabic_narrator": hadith["narrator"],
+                "arabic_source": hadith["source"],
+                "translation_language": "en",
             },
             "date": today.isoformat(),
         }

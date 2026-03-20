@@ -608,4 +608,37 @@ html[lang="fr"] body {
   [dir="ltr"] {
     direction: ltr;
   }
+
+  /* Dynamic font scaling for LTR languages with long words (German, Russian) */
+  [dir="ltr"] button,
+  [dir="ltr"] .nav-label,
+  [dir="ltr"] a[class*="rounded"] {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  /* Auto-shrink text in buttons to prevent overflow */
+  [dir="ltr"] button span,
+  [dir="ltr"] .text-xs,
+  [dir="ltr"] .text-\[10px\],
+  [dir="ltr"] .text-\[11px\] {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  /* German/Russian specific - allow hyphenation */
+  [lang="de"] *,
+  [lang="ru"] * {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
+
+  /* Ensure nav labels don't break layout */
+  [dir="ltr"] nav span {
+    font-size: clamp(8px, 2.5vw, 11px);
+  }
 }
