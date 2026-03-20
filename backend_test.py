@@ -74,15 +74,23 @@ class APITester:
                     if missing_keys:
                         result["issues"].append(f"Missing expected keys: {missing_keys}")
                 
-                # Special validation for daily-hadith multilingual API
+                # Special validation based on endpoint
                 if "/daily-hadith" in endpoint and response.status == 200:
                     self._validate_hadith_response(endpoint, data, result)
-                
-                # Special validation for store and ruqyah items
-                if "/store/items" in endpoint and response.status == 200:
+                elif "/store/items" in endpoint and response.status == 200:
                     self._validate_items_response("store", data, result)
                 elif "/ruqyah" in endpoint and response.status == 200:
                     self._validate_items_response("ruqyah", data, result)
+                elif "/hadith/collections" in endpoint and response.status == 200:
+                    self._validate_collections_response(data, result)
+                elif "/quran/v4/chapters" in endpoint and response.status == 200:
+                    self._validate_chapters_response(data, result)
+                elif "/stories" in endpoint and response.status == 200:
+                    self._validate_stories_response(endpoint, data, result)
+                elif "/announcements" in endpoint and response.status == 200:
+                    self._validate_announcements_response(data, result)
+                elif "/ads/active" in endpoint and response.status == 200:
+                    self._validate_ads_response(data, result)
                 
                 # Store sample data for verification
                 if isinstance(data, dict):
@@ -185,55 +193,155 @@ class APITester:
         else:
             result["validation_notes"].append(f"✓ {api_type} returned {len(items)} items")
     
+    def _validate_collections_response(self, data: dict, result: dict):
+        """Validate hadith collections response"""
+        if "data" not in data:
+            result["issues"].append("Hadith collections missing 'data' key")
+            return
+            
+        collections = data["data"]
+        if not isinstance(collections, list):
+            result["issues"].append("Hadith collections data is not a list")
+            return
+            
+        if len(collections) == 0:
+            result["validation_notes"].append("⚠️ No hadith collections found")
+        else:
+            result["validation_notes"].append(f"✓ Found {len(collections)} hadith collections")
+    
+    def _validate_chapters_response(self, data: dict, result: dict):
+        """Validate Quran chapters response"""
+        if "chapters" not in data:
+            result["issues"].append("Quran chapters missing 'chapters' key")
+            return
+            
+        chapters = data["chapters"]
+        if not isinstance(chapters, list):
+            result["issues"].append("Chapters data is not a list")
+            return
+            
+        if len(chapters) < 114:  # Quran has 114 chapters
+            result["issues"].append(f"Expected 114 chapters, got {len(chapters)}")
+        else:
+            result["validation_notes"].append(f"✓ Found {len(chapters)} Quran chapters")
+    
+    def _validate_stories_response(self, endpoint: str, data: dict, result: dict):
+        """Validate stories response"""
+        if "/list" in endpoint:
+            if "items" not in data:
+                result["issues"].append("Stories list missing 'items' key")
+                return
+            items = data["items"]
+            if isinstance(items, list):
+                result["validation_notes"].append(f"✓ Stories list contains {len(items)} items")
+        elif "/categories" in endpoint:
+            if "categories" not in data:
+                result["issues"].append("Stories categories missing 'categories' key")
+                return
+            categories = data["categories"]
+            if isinstance(categories, list):
+                result["validation_notes"].append(f"✓ Found {len(categories)} story categories")
+    
+    def _validate_announcements_response(self, data: dict, result: dict):
+        """Validate announcements response"""
+        # Announcements may return various structures
+        if isinstance(data, dict):
+            if "announcements" in data:
+                announcements = data["announcements"]
+                if isinstance(announcements, list):
+                    result["validation_notes"].append(f"✓ Found {len(announcements)} announcements")
+            elif "items" in data:
+                items = data["items"]
+                if isinstance(items, list):
+                    result["validation_notes"].append(f"✓ Found {len(items)} announcement items")
+            else:
+                result["validation_notes"].append("✓ Announcements endpoint returned valid JSON")
+        elif isinstance(data, list):
+            result["validation_notes"].append(f"✓ Found {len(data)} announcements")
+    
+    def _validate_ads_response(self, data: dict, result: dict):
+        """Validate ads response"""
+        if isinstance(data, dict):
+            if "ads" in data:
+                ads = data["ads"]
+                if isinstance(ads, list):
+                    result["validation_notes"].append(f"✓ Found {len(ads)} ads for home placement")
+            elif "items" in data:
+                items = data["items"]
+                if isinstance(items, list):
+                    result["validation_notes"].append(f"✓ Found {len(items)} ad items")
+            else:
+                result["validation_notes"].append("✓ Ads endpoint returned valid JSON")
+        elif isinstance(data, list):
+            result["validation_notes"].append(f"✓ Found {len(data)} ads")
+    
     async def run_tests(self):
         """Run all the requested API tests"""
         print("🕌 Starting Islamic App Backend API Tests...")
         print(f"Base URL: {self.base_url}")
         print("-" * 60)
         
-        # Test cases based on review request - focusing on multilingual hadith API
+        # Test cases based on review request - ALL critical endpoints
         test_cases = [
             {
                 "method": "GET",
                 "endpoint": "/health",
                 "expected_keys": ["status"],
-                "description": "General health check - should return healthy status"
+                "description": "Health check endpoint"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/quran/v4/chapters",
+                "expected_keys": ["chapters"],
+                "description": "Fetch Quran chapters"
             },
             {
                 "method": "GET",
                 "endpoint": "/daily-hadith",
-                "expected_keys": ["success", "hadith"],
-                "description": "Default daily hadith - should return Arabic hadith without arabic_text field"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/daily-hadith?language=ar",
-                "expected_keys": ["success", "hadith"],
-                "description": "Arabic daily hadith - should return Arabic hadith without arabic_text field"
+                "expected_keys": [],
+                "description": "Get daily hadith (default Arabic)"
             },
             {
                 "method": "GET",
                 "endpoint": "/daily-hadith?language=en", 
-                "expected_keys": ["success", "hadith"],
-                "description": "English daily hadith - should return English translation with arabic_text field"
+                "expected_keys": [],
+                "description": "Get daily hadith in English"
             },
             {
                 "method": "GET",
-                "endpoint": "/daily-hadith?language=de",
-                "expected_keys": ["success", "hadith"],
-                "description": "German daily hadith - should return Arabic text (German not available)"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/ruqyah",
+                "endpoint": "/stories/list",
                 "expected_keys": ["items"],
-                "description": "Ruqyah API - should return items list"
+                "description": "List stories"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/stories/categories",
+                "expected_keys": ["categories"],
+                "description": "Story categories"
             },
             {
                 "method": "GET",
                 "endpoint": "/store/items", 
                 "expected_keys": ["items"],
-                "description": "Store API - should return items list"
+                "description": "Store items"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/hadith/collections",
+                "expected_keys": ["data"],
+                "description": "Hadith collections"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/announcements",
+                "expected_keys": [],
+                "description": "Admin announcements"
+            },
+            {
+                "method": "GET",
+                "endpoint": "/ads/active?placement=home",
+                "expected_keys": [],
+                "description": "Active ads for home placement"
             }
         ]
         

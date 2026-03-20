@@ -50,10 +50,11 @@ export function AdBanner({ position }: { position: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const adConfig = getAdConfig();
 
-  // Don't render if ads are disabled
-  if (!adConfig.ads_enabled) return null;
-
   useEffect(() => {
+    if (!adConfig.ads_enabled) {
+      setLoaded(true);
+      return;
+    }
     let mounted = true;
     fetch(`${BACKEND_URL}/api/ads/active?placement=${position}`)
       .then(r => r.json())
@@ -64,7 +65,7 @@ export function AdBanner({ position }: { position: string }) {
       })
       .catch(() => { if (mounted) setLoaded(true); });
     return () => { mounted = false; };
-  }, [position]);
+  }, [position, adConfig.ads_enabled]);
 
   // Execute ad scripts
   useEffect(() => {
@@ -95,6 +96,7 @@ export function AdBanner({ position }: { position: string }) {
     return () => { while (container.firstChild) container.removeChild(container.firstChild); };
   }, [ads]);
 
+  if (!adConfig.ads_enabled) return null;
   if (loaded && ads.length === 0) return null;
   if (!loaded) return null;
 

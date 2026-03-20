@@ -184,7 +184,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
   categories: Category[]; onClose: () => void; onCreated: (s: Story) => void;
 }) {
   const { user } = useAuth();
-  const { t } = useLocale();
+  const { t, dir } = useLocale();
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('general');
@@ -290,11 +290,11 @@ function CreateSheet({ categories, onClose, onCreated }: {
 
           {/* Content Type */}
           <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
-            {typeBtns.map(t => (
-              <button key={t.key} onClick={() => setContentType(t.key)}
+            {typeBtns.map(btn => (
+              <button key={btn.key} onClick={() => setContentType(btn.key)}
                 className={cn('shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all',
-                  contentType === t.key ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white/5 text-gray-400 hover:bg-white/10')}>
-                <span>{t.icon}</span> {t.label}
+                  contentType === btn.key ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white/5 text-gray-400 hover:bg-white/10')}>
+                <span>{btn.icon}</span> {btn.label}
               </button>
             ))}
           </div>
@@ -380,6 +380,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
   story: Story; onBack: () => void; onOpenViewer: (i: number) => void; videoIdx: number;
 }) {
   const { user } = useAuth();
+  const { t, dir } = useLocale();
   const [liked, setLiked] = useState(story.liked);
   const [likesCount, setLikesCount] = useState(story.likes_count);
   const [saved, setSaved] = useState(story.saved);
@@ -530,6 +531,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
 /* ==================== FULLSCREEN VIEWER ==================== */
 function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]; initialIndex: number; onClose: () => void }) {
   const { user } = useAuth();
+  const { t } = useLocale();
   const [idx, setIdx] = useState(initialIndex);
   const [showComments, setShowComments] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -547,16 +549,60 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
     }
   }, []);
 
+  const goNext = useCallback(() => {
+    if (idx < stories.length - 1) {
+      const newIdx = idx + 1;
+      setIdx(newIdx);
+      if (containerRef.current) {
+        containerRef.current.scrollTo({ top: newIdx * containerRef.current.clientHeight, behavior: 'smooth' });
+      }
+    }
+  }, [idx, stories.length]);
+
+  const goPrev = useCallback(() => {
+    if (idx > 0) {
+      const newIdx = idx - 1;
+      setIdx(newIdx);
+      if (containerRef.current) {
+        containerRef.current.scrollTo({ top: newIdx * containerRef.current.clientHeight, behavior: 'smooth' });
+      }
+    }
+  }, [idx]);
+
   if (!story) return null;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 z-[70] bg-black">
+      {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/70 to-transparent">
-        <button onClick={onClose} className="text-white p-2"><X className="w-6 h-6" /></button>
-        <span className="text-white/50 text-xs">{idx + 1}/{stories.length}</span>
+        <button onClick={onClose} className="text-white p-2 rounded-full bg-black/30 backdrop-blur-sm active:scale-90 transition-transform"><X className="w-6 h-6" /></button>
+        <span className="text-white/50 text-xs bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">{idx + 1}/{stories.length}</span>
         <div className="w-10" />
       </div>
+
+      {/* Previous Button */}
+      {idx > 0 && (
+        <button
+          onClick={goPrev}
+          className="absolute top-1/2 -translate-y-1/2 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
+          aria-label={t('previous') || 'Previous'}
+        >
+          <ChevronDown className="w-5 h-5 rotate-180" />
+        </button>
+      )}
+
+      {/* Next Button */}
+      {idx < stories.length - 1 && (
+        <button
+          onClick={goNext}
+          className="absolute bottom-24 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
+          aria-label={t('next') || 'Next'}
+        >
+          <ChevronDown className="w-5 h-5" />
+        </button>
+      )}
+
       <div ref={containerRef} onScroll={handleScroll}
         className="h-full overflow-y-scroll snap-y snap-mandatory"
         style={{ scrollbarWidth: 'none' }}>
@@ -571,6 +617,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
 
 function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive: boolean; onOpenComments: () => void }) {
   const { user } = useAuth();
+  const { t, dir } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(false);
   const [liked, setLiked] = useState(story.liked);
@@ -1028,6 +1075,7 @@ export default function Stories() {
 
 /* Helper: Fetch and show a single story */
 function StoryReaderFetch({ storyId, onBack, stories }: { storyId: string; onBack: () => void; stories: Story[] }) {
+  const { t } = useLocale();
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [showViewer, setShowViewer] = useState<number | null>(null);

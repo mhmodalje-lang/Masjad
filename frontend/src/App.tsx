@@ -18,6 +18,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
 import GDPRAdConsent from "@/components/GDPRAdConsent";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -89,22 +90,24 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <LocaleProvider>
-          <AuthProvider>
-            <UnifiedPrayerProvider>
-              <AdConfigProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                    <ScrollToTop />
-                    <AnalyticsTracker />
-                    <SEOWrapper>
-                      <PermissionManager />
-                      <AppLayout>
-                        <Suspense fallback={<div className="min-h-screen" />}>
-                          <Routes>
+      <ErrorBoundary>
+        <ThemeProvider>
+          <LocaleProvider>
+            <AuthProvider>
+              <UnifiedPrayerProvider>
+                <AdConfigProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                      <ScrollToTop />
+                      <AnalyticsTracker />
+                      <SEOWrapper>
+                        <PermissionManager />
+                        <AppLayout>
+                          <ErrorBoundary>
+                            <Suspense fallback={<div className="min-h-screen" />}>
+                              <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/social-profile/:userId" element={<SocialProfile />} />
                           <Route path="/reels" element={<VideoReels />} />
@@ -152,17 +155,19 @@ const App = () => {
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>
-                    </AppLayout>
-                    <CookieConsent />
-                    <GDPRAdConsent />
-                  </SEOWrapper>
-                </BrowserRouter>
-              </TooltipProvider>
-            </AdConfigProvider>
-          </UnifiedPrayerProvider>
-        </AuthProvider>
-      </LocaleProvider>
-    </ThemeProvider>
+                    </ErrorBoundary>
+                  </AppLayout>
+                  <CookieConsent />
+                  <GDPRAdConsent />
+                </SEOWrapper>
+              </BrowserRouter>
+            </TooltipProvider>
+          </AdConfigProvider>
+        </UnifiedPrayerProvider>
+      </AuthProvider>
+    </LocaleProvider>
+  </ThemeProvider>
+</ErrorBoundary>
   </QueryClientProvider>
   );
 };

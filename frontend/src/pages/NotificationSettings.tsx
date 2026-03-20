@@ -1,5 +1,5 @@
 import { useLocale } from '@/hooks/useLocale';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Bell, Volume2, Clock, BookOpen, Moon, MessageSquare, Sparkles, TestTube, ChevronDown, Smartphone } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -22,24 +22,31 @@ interface NotifSetting {
   defaultEnabled?: boolean;
 }
 
-const prayerSettings: NotifSetting[] = [
-  { key: 'athan-notifications', label: t('notifPrayerAlerts'), description: t('notifPrayerAlertsDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
-  { key: 'prayer-reminder', label: t('notifPrayerReminder'), description: t('notifPrayerReminderDesc'), icon: <Clock className="h-5 w-5" />, schedule: t('notifBefore10Min'), defaultEnabled: true },
-  { key: 'prayer-tracker-reminder', label: t('notifPrayerTracker'), description: t('notifPrayerTrackerDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
-];
+function getPrayerSettings(t: (k: string) => string): NotifSetting[] {
+  return [
+    { key: 'athan-notifications', label: t('notifPrayerAlerts'), description: t('notifPrayerAlertsDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
+    { key: 'prayer-reminder', label: t('notifPrayerReminder'), description: t('notifPrayerReminderDesc'), icon: <Clock className="h-5 w-5" />, schedule: t('notifBefore10Min'), defaultEnabled: true },
+    { key: 'prayer-tracker-reminder', label: t('notifPrayerTracker'), description: t('notifPrayerTrackerDesc'), icon: <Bell className="h-5 w-5" />, defaultEnabled: true },
+  ];
+}
 
-const dailyGoalSettings: NotifSetting[] = [
-  { key: 'quran-listen-reminder', label: t('notifQuranListen'), description: t('notifQuranListenDesc'), icon: <BookOpen className="h-5 w-5" />, schedule: t('notifAtEvening'), defaultEnabled: true },
-  { key: 'dhikr-daily-reminder', label: t('notifDhikrDaily'), description: t('notifDhikrDailyDesc'), icon: <Sparkles className="h-5 w-5" />, defaultEnabled: true },
-];
+function getDailyGoalSettings(t: (k: string) => string): NotifSetting[] {
+  return [
+    { key: 'quran-listen-reminder', label: t('notifQuranListen'), description: t('notifQuranListenDesc'), icon: <BookOpen className="h-5 w-5" />, schedule: t('notifAtEvening'), defaultEnabled: true },
+    { key: 'dhikr-daily-reminder', label: t('notifDhikrDaily'), description: t('notifDhikrDailyDesc'), icon: <Sparkles className="h-5 w-5" />, defaultEnabled: true },
+  ];
+}
 
-const otherSettings: NotifSetting[] = [
-  { key: 'daily-stories-reminder', label: t('notifStories'), description: t('notifStoriesDesc'), icon: <MessageSquare className="h-5 w-5" />, schedule: t('notifAtNight'), defaultEnabled: true },
-  { key: 'friday-reminder', label: t('notifFriday'), description: t('notifFridayDesc'), icon: <BookOpen className="h-5 w-5" />, defaultEnabled: true },
-  { key: 'suhoor-reminder', label: t('notifSuhoor'), description: t('notifSuhoorDesc'), icon: <Moon className="h-5 w-5" />, schedule: t('notifSuhoorSchedule'), defaultEnabled: true },
-];
+function getOtherSettings(t: (k: string) => string): NotifSetting[] {
+  return [
+    { key: 'daily-stories-reminder', label: t('notifStories'), description: t('notifStoriesDesc'), icon: <MessageSquare className="h-5 w-5" />, schedule: t('notifAtNight'), defaultEnabled: true },
+    { key: 'friday-reminder', label: t('notifFriday'), description: t('notifFridayDesc'), icon: <BookOpen className="h-5 w-5" />, defaultEnabled: true },
+    { key: 'suhoor-reminder', label: t('notifSuhoor'), description: t('notifSuhoorDesc'), icon: <Moon className="h-5 w-5" />, schedule: t('notifSuhoorSchedule'), defaultEnabled: true },
+  ];
+}
 
 function SettingRow({ setting }: { setting: NotifSetting }) {
+  const { t } = useLocale();
   const [enabled, setEnabled] = useState(() => {
     const saved = localStorage.getItem(`notif-${setting.key}`);
     return saved !== null ? saved === 'true' : (setting.defaultEnabled ?? false);
@@ -101,6 +108,10 @@ export default function NotificationSettings() {
   const [showAthanSelector, setShowAthanSelector] = useState(false);
   const [pushSubscribed, setPushSubscribed] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+
+  const prayerSettings = useMemo(() => getPrayerSettings(t), [t]);
+  const dailyGoalSettings = useMemo(() => getDailyGoalSettings(t), [t]);
+  const otherSettings = useMemo(() => getOtherSettings(t), [t]);
 
   // Check push subscription status on mount
   useEffect(() => {
@@ -268,7 +279,7 @@ export default function NotificationSettings() {
       <div className="px-4 mt-6 mb-8">
         <div className="rounded-2xl bg-muted/50 border border-border/30 p-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            💡 {t('pwaNotifTip')}
+            {t('pwaNotifTip')}
           </p>
         </div>
       </div>
