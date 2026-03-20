@@ -281,7 +281,7 @@ class APITester:
         print(f"Base URL: {self.base_url}")
         print("-" * 60)
         
-        # Test cases based on review request - ALL critical endpoints
+        # Test cases - 5 CRITICAL endpoints from review request
         test_cases = [
             {
                 "method": "GET",
@@ -291,27 +291,9 @@ class APITester:
             },
             {
                 "method": "GET",
-                "endpoint": "/quran/v4/chapters",
-                "expected_keys": ["chapters"],
-                "description": "Fetch Quran chapters"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/daily-hadith",
+                "endpoint": "/daily-hadith?language=ar",
                 "expected_keys": [],
-                "description": "Get daily hadith (default Arabic)"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/daily-hadith?language=en", 
-                "expected_keys": [],
-                "description": "Get daily hadith in English"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/stories/list",
-                "expected_keys": ["items"],
-                "description": "List stories"
+                "description": "Get daily hadith in Arabic"
             },
             {
                 "method": "GET",
@@ -321,27 +303,15 @@ class APITester:
             },
             {
                 "method": "GET",
+                "endpoint": "/quran/v4/chapters",
+                "expected_keys": ["chapters"],
+                "description": "Fetch Quran chapters"
+            },
+            {
+                "method": "GET",
                 "endpoint": "/store/items", 
                 "expected_keys": ["items"],
                 "description": "Store items"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/hadith/collections",
-                "expected_keys": ["data"],
-                "description": "Hadith collections"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/announcements",
-                "expected_keys": [],
-                "description": "Admin announcements"
-            },
-            {
-                "method": "GET",
-                "endpoint": "/ads/active?placement=home",
-                "expected_keys": [],
-                "description": "Active ads for home placement"
             }
         ]
         

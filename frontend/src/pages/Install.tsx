@@ -105,19 +105,19 @@ export default function Install() {
                   <p className="text-sm font-bold text-foreground">{t('installOnIOS')}:</p>
                   <div className="flex items-center gap-3 justify-end">
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary font-bold">١.</span> اضغط على زر <span className="font-medium text-foreground">المشاركة</span>
+                      <span className="text-primary font-bold">١.</span> {t('iosStep1Prefix')} <span className="font-medium text-foreground">{t('iosStep1Highlight')}</span>
                     </p>
                     <Share className="h-5 w-5 text-primary shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 justify-end">
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary font-bold">٢.</span> اختر <span className="font-medium text-foreground">"إضافة إلى الشاشة الرئيسية"</span>
+                      <span className="text-primary font-bold">٢.</span> {t('iosStep2Prefix')} <span className="font-medium text-foreground">"{t('iosStep2Highlight')}"</span>
                     </p>
                     <Smartphone className="h-5 w-5 text-primary shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 justify-end">
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary font-bold">٣.</span> اضغط <span className="font-medium text-foreground">"إضافة"</span>
+                      <span className="text-primary font-bold">٣.</span> {t('iosStep3Prefix')} <span className="font-medium text-foreground">"{t('iosStep3Highlight')}"</span>
                     </p>
                     <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
                   </div>
@@ -125,7 +125,7 @@ export default function Install() {
               ) : (
                 <div className="rounded-xl bg-muted p-5">
                   <p className="text-sm text-muted-foreground text-center">
-                    افتح التطبيق من متصفح Chrome ثم اضغط على قائمة المتصفح → "تثبيت التطبيق"
+                    {t('chromeInstallHint')}
                   </p>
                 </div>
               )}

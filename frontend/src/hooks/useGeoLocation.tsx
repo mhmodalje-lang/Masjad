@@ -115,7 +115,7 @@ export function useGeoLocation() {
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      setLocation(prev => ({ ...prev, loading: false, error: 'Geolocation not supported' }));
+      setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
       return;
     }
 

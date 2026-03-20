@@ -150,15 +150,15 @@ export default function AsmaAlHusna() {
           <div className="h-16 w-16 mx-auto mb-3 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center">
             <span className="text-3xl font-arabic text-white font-bold">99</span>
           </div>
-          <h1 className="text-2xl font-bold text-white font-arabic mb-1">أسماء الله الحسنى</h1>
-          <p className="text-white/60 text-sm">وللّه الأسماء الحسنى فادعوه بها</p>
+          <h1 className="text-2xl font-bold text-white font-arabic mb-1">{t('namesOfAllahTitle')}</h1>
+          <p className="text-white/60 text-sm">{t('namesOfAllahVerse')}</p>
           <button
             onClick={() => setShowSearch(!showSearch)}
             className="mt-3 inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 text-white/80 text-sm"
             data-testid="asma-search-toggle"
           >
             {showSearch ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            {showSearch ? 'إخفاء البحث' : 'بحث'}
+            {showSearch ? t('hideSearch') : t('searchLabel')}
           </button>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
@@ -168,14 +168,14 @@ export default function AsmaAlHusna() {
       <AnimatePresence>
         {showSearch && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="px-5 pt-2 mb-4 overflow-hidden">
-            <Input placeholder="ابحث بالاسم أو المعنى أو الرقم..." value={search} onChange={e => setSearch(e.target.value)} className="rounded-2xl bg-card" autoFocus data-testid="asma-search-input" />
+            <Input placeholder={t('searchByNameOrMeaning')} value={search} onChange={e => setSearch(e.target.value)} className="rounded-2xl bg-card" autoFocus data-testid="asma-search-input" />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Counter */}
       <div className="px-5 mb-4">
-        <p className="text-xs text-muted-foreground text-center">{filtered.length} اسم</p>
+        <p className="text-xs text-muted-foreground text-center">{filtered.length} {t('nameCount')}</p>
       </div>
 
       {/* Names Grid */}
