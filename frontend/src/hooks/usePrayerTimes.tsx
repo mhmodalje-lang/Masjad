@@ -51,6 +51,35 @@ function formatTime(time24: string, is12h: boolean): string {
   return to12Hour(time24);
 }
 
+/**
+ * Nordic/High-Latitude Fix:
+ * For latitudes above 48°, standard prayer time calculations can fail
+ * (Fajr/Isha may not occur in summer). This applies special methods:
+ * - latitudeAdjustmentMethod: 1=Middle of Night, 2=One Seventh, 3=Angle Based
+ * - method 3 (Muslim World League) works best for Nordic regions
+ * 
+ * Regions affected: Sweden, Netherlands, Norway, Finland, UK (Scotland), etc.
+ */
+function getHighLatitudeParams(lat: number) {
+  const absLat = Math.abs(lat);
+  if (absLat >= 60) {
+    // Very high latitudes (Northern Sweden, Norway, Finland)
+    // Use angle-based method + MWL calculation
+    return { latitudeAdjustmentMethod: 3, method: 3 };
+  }
+  if (absLat >= 55) {
+    // High latitudes (Southern Sweden, Denmark, Scotland)
+    // Use one-seventh of night method
+    return { latitudeAdjustmentMethod: 2, method: 3 };
+  }
+  if (absLat >= 48) {
+    // Moderate high latitudes (Netherlands, Northern Germany, Poland)
+    // Use middle of night method
+    return { latitudeAdjustmentMethod: 1, method: 3 };
+  }
+  return {};
+}
+
 export function usePrayerTimes(latitude: number, longitude: number, method: number = 2, school: number = 0) {
   const [data, setData] = useState<PrayerTimesData>({
     prayers: [],
@@ -104,10 +133,15 @@ export function usePrayerTimes(latitude: number, longitude: number, method: numb
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const yyyy = today.getFullYear();
 
-        const res = await fetch(
-          `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${method}&school=${school}&adjustment=0`,
-          { cache: 'no-store' }
-        );
+        // Apply Nordic/high-latitude fix
+        const hlParams = getHighLatitudeParams(latitude);
+        const effectiveMethod = hlParams.method || method;
+        let apiUrl = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${effectiveMethod}&school=${school}&adjustment=0`;
+        if (hlParams.latitudeAdjustmentMethod) {
+          apiUrl += `&latitudeAdjustmentMethod=${hlParams.latitudeAdjustmentMethod}`;
+        }
+
+        const res = await fetch(apiUrl, { cache: 'no-store' });
         const json = await res.json();
         const timings = json.data.timings;
         const hijri = json.data.date.hijri;

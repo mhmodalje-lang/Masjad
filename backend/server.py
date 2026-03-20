@@ -4372,6 +4372,262 @@ async def seed_content(user: dict = Depends(get_user)):
     return {"success": True, "created": total_created, "message": f"تم إنشاء {total_created} قصة جديدة"}
 
 
+# ==================== ARABIC ACADEMY ====================
+
+ARABIC_LETTERS = [
+    {"id": 1, "letter": "ا", "name_ar": "ألف", "name_en": "Alif", "transliteration": "a", "form_isolated": "ا", "form_initial": "ا", "form_medial": "ـا", "form_final": "ـا", "example_word": "أسد", "example_meaning": "Lion", "audio_hint": "ah"},
+    {"id": 2, "letter": "ب", "name_ar": "باء", "name_en": "Ba", "transliteration": "b", "form_isolated": "ب", "form_initial": "بـ", "form_medial": "ـبـ", "form_final": "ـب", "example_word": "بيت", "example_meaning": "House", "audio_hint": "bah"},
+    {"id": 3, "letter": "ت", "name_ar": "تاء", "name_en": "Ta", "transliteration": "t", "form_isolated": "ت", "form_initial": "تـ", "form_medial": "ـتـ", "form_final": "ـت", "example_word": "تفاح", "example_meaning": "Apple", "audio_hint": "tah"},
+    {"id": 4, "letter": "ث", "name_ar": "ثاء", "name_en": "Tha", "transliteration": "th", "form_isolated": "ث", "form_initial": "ثـ", "form_medial": "ـثـ", "form_final": "ـث", "example_word": "ثعلب", "example_meaning": "Fox", "audio_hint": "thah"},
+    {"id": 5, "letter": "ج", "name_ar": "جيم", "name_en": "Jim", "transliteration": "j", "form_isolated": "ج", "form_initial": "جـ", "form_medial": "ـجـ", "form_final": "ـج", "example_word": "جمل", "example_meaning": "Camel", "audio_hint": "jeem"},
+    {"id": 6, "letter": "ح", "name_ar": "حاء", "name_en": "Ha", "transliteration": "ḥ", "form_isolated": "ح", "form_initial": "حـ", "form_medial": "ـحـ", "form_final": "ـح", "example_word": "حصان", "example_meaning": "Horse", "audio_hint": "hah"},
+    {"id": 7, "letter": "خ", "name_ar": "خاء", "name_en": "Kha", "transliteration": "kh", "form_isolated": "خ", "form_initial": "خـ", "form_medial": "ـخـ", "form_final": "ـخ", "example_word": "خروف", "example_meaning": "Sheep", "audio_hint": "khah"},
+    {"id": 8, "letter": "د", "name_ar": "دال", "name_en": "Dal", "transliteration": "d", "form_isolated": "د", "form_initial": "د", "form_medial": "ـد", "form_final": "ـد", "example_word": "ديك", "example_meaning": "Rooster", "audio_hint": "daal"},
+    {"id": 9, "letter": "ذ", "name_ar": "ذال", "name_en": "Dhal", "transliteration": "dh", "form_isolated": "ذ", "form_initial": "ذ", "form_medial": "ـذ", "form_final": "ـذ", "example_word": "ذئب", "example_meaning": "Wolf", "audio_hint": "dhaal"},
+    {"id": 10, "letter": "ر", "name_ar": "راء", "name_en": "Ra", "transliteration": "r", "form_isolated": "ر", "form_initial": "ر", "form_medial": "ـر", "form_final": "ـر", "example_word": "رمان", "example_meaning": "Pomegranate", "audio_hint": "raa"},
+    {"id": 11, "letter": "ز", "name_ar": "زاي", "name_en": "Zay", "transliteration": "z", "form_isolated": "ز", "form_initial": "ز", "form_medial": "ـز", "form_final": "ـز", "example_word": "زهرة", "example_meaning": "Flower", "audio_hint": "zaay"},
+    {"id": 12, "letter": "س", "name_ar": "سين", "name_en": "Sin", "transliteration": "s", "form_isolated": "س", "form_initial": "سـ", "form_medial": "ـسـ", "form_final": "ـس", "example_word": "سمك", "example_meaning": "Fish", "audio_hint": "seen"},
+    {"id": 13, "letter": "ش", "name_ar": "شين", "name_en": "Shin", "transliteration": "sh", "form_isolated": "ش", "form_initial": "شـ", "form_medial": "ـشـ", "form_final": "ـش", "example_word": "شمس", "example_meaning": "Sun", "audio_hint": "sheen"},
+    {"id": 14, "letter": "ص", "name_ar": "صاد", "name_en": "Sad", "transliteration": "ṣ", "form_isolated": "ص", "form_initial": "صـ", "form_medial": "ـصـ", "form_final": "ـص", "example_word": "صقر", "example_meaning": "Falcon", "audio_hint": "saad"},
+    {"id": 15, "letter": "ض", "name_ar": "ضاد", "name_en": "Dad", "transliteration": "ḍ", "form_isolated": "ض", "form_initial": "ضـ", "form_medial": "ـضـ", "form_final": "ـض", "example_word": "ضفدع", "example_meaning": "Frog", "audio_hint": "daad"},
+    {"id": 16, "letter": "ط", "name_ar": "طاء", "name_en": "Tah", "transliteration": "ṭ", "form_isolated": "ط", "form_initial": "طـ", "form_medial": "ـطـ", "form_final": "ـط", "example_word": "طائر", "example_meaning": "Bird", "audio_hint": "taa"},
+    {"id": 17, "letter": "ظ", "name_ar": "ظاء", "name_en": "Zah", "transliteration": "ẓ", "form_isolated": "ظ", "form_initial": "ظـ", "form_medial": "ـظـ", "form_final": "ـظ", "example_word": "ظبي", "example_meaning": "Gazelle", "audio_hint": "zhaa"},
+    {"id": 18, "letter": "ع", "name_ar": "عين", "name_en": "Ain", "transliteration": "'", "form_isolated": "ع", "form_initial": "عـ", "form_medial": "ـعـ", "form_final": "ـع", "example_word": "عنب", "example_meaning": "Grapes", "audio_hint": "ain"},
+    {"id": 19, "letter": "غ", "name_ar": "غين", "name_en": "Ghain", "transliteration": "gh", "form_isolated": "غ", "form_initial": "غـ", "form_medial": "ـغـ", "form_final": "ـغ", "example_word": "غزال", "example_meaning": "Deer", "audio_hint": "ghain"},
+    {"id": 20, "letter": "ف", "name_ar": "فاء", "name_en": "Fa", "transliteration": "f", "form_isolated": "ف", "form_initial": "فـ", "form_medial": "ـفـ", "form_final": "ـف", "example_word": "فيل", "example_meaning": "Elephant", "audio_hint": "faa"},
+    {"id": 21, "letter": "ق", "name_ar": "قاف", "name_en": "Qaf", "transliteration": "q", "form_isolated": "ق", "form_initial": "قـ", "form_medial": "ـقـ", "form_final": "ـق", "example_word": "قمر", "example_meaning": "Moon", "audio_hint": "qaaf"},
+    {"id": 22, "letter": "ك", "name_ar": "كاف", "name_en": "Kaf", "transliteration": "k", "form_isolated": "ك", "form_initial": "كـ", "form_medial": "ـكـ", "form_final": "ـك", "example_word": "كتاب", "example_meaning": "Book", "audio_hint": "kaaf"},
+    {"id": 23, "letter": "ل", "name_ar": "لام", "name_en": "Lam", "transliteration": "l", "form_isolated": "ل", "form_initial": "لـ", "form_medial": "ـلـ", "form_final": "ـل", "example_word": "ليمون", "example_meaning": "Lemon", "audio_hint": "laam"},
+    {"id": 24, "letter": "م", "name_ar": "ميم", "name_en": "Mim", "transliteration": "m", "form_isolated": "م", "form_initial": "مـ", "form_medial": "ـمـ", "form_final": "ـم", "example_word": "مسجد", "example_meaning": "Mosque", "audio_hint": "meem"},
+    {"id": 25, "letter": "ن", "name_ar": "نون", "name_en": "Nun", "transliteration": "n", "form_isolated": "ن", "form_initial": "نـ", "form_medial": "ـنـ", "form_final": "ـن", "example_word": "نجمة", "example_meaning": "Star", "audio_hint": "noon"},
+    {"id": 26, "letter": "ه", "name_ar": "هاء", "name_en": "Ha2", "transliteration": "h", "form_isolated": "ه", "form_initial": "هـ", "form_medial": "ـهـ", "form_final": "ـه", "example_word": "هلال", "example_meaning": "Crescent", "audio_hint": "haa"},
+    {"id": 27, "letter": "و", "name_ar": "واو", "name_en": "Waw", "transliteration": "w", "form_isolated": "و", "form_initial": "و", "form_medial": "ـو", "form_final": "ـو", "example_word": "وردة", "example_meaning": "Rose", "audio_hint": "waaw"},
+    {"id": 28, "letter": "ي", "name_ar": "ياء", "name_en": "Ya", "transliteration": "y", "form_isolated": "ي", "form_initial": "يـ", "form_medial": "ـيـ", "form_final": "ـي", "example_word": "يد", "example_meaning": "Hand", "audio_hint": "yaa"},
+]
+
+QURAN_VOCAB = [
+    {"id": 1, "word": "بِسْمِ", "transliteration": "Bismi", "meaning": "In the name of", "surah": "Al-Fatiha", "ayah": 1},
+    {"id": 2, "word": "اللَّهِ", "transliteration": "Allah", "meaning": "God", "surah": "Al-Fatiha", "ayah": 1},
+    {"id": 3, "word": "الرَّحْمَنِ", "transliteration": "Ar-Rahman", "meaning": "The Most Gracious", "surah": "Al-Fatiha", "ayah": 1},
+    {"id": 4, "word": "الرَّحِيمِ", "transliteration": "Ar-Raheem", "meaning": "The Most Merciful", "surah": "Al-Fatiha", "ayah": 1},
+    {"id": 5, "word": "الْحَمْدُ", "transliteration": "Al-Hamdu", "meaning": "All praise", "surah": "Al-Fatiha", "ayah": 2},
+    {"id": 6, "word": "رَبِّ", "transliteration": "Rabbi", "meaning": "Lord of", "surah": "Al-Fatiha", "ayah": 2},
+    {"id": 7, "word": "الْعَالَمِينَ", "transliteration": "Al-Alameen", "meaning": "The Worlds", "surah": "Al-Fatiha", "ayah": 2},
+    {"id": 8, "word": "مَالِكِ", "transliteration": "Maliki", "meaning": "Master of", "surah": "Al-Fatiha", "ayah": 4},
+    {"id": 9, "word": "يَوْمِ", "transliteration": "Yawmi", "meaning": "Day of", "surah": "Al-Fatiha", "ayah": 4},
+    {"id": 10, "word": "الدِّينِ", "transliteration": "Ad-Deen", "meaning": "Judgment", "surah": "Al-Fatiha", "ayah": 4},
+    {"id": 11, "word": "إِيَّاكَ", "transliteration": "Iyyaka", "meaning": "You alone", "surah": "Al-Fatiha", "ayah": 5},
+    {"id": 12, "word": "نَعْبُدُ", "transliteration": "Na'budu", "meaning": "We worship", "surah": "Al-Fatiha", "ayah": 5},
+    {"id": 13, "word": "نَسْتَعِينُ", "transliteration": "Nasta'een", "meaning": "We seek help", "surah": "Al-Fatiha", "ayah": 5},
+    {"id": 14, "word": "اهْدِنَا", "transliteration": "Ihdina", "meaning": "Guide us", "surah": "Al-Fatiha", "ayah": 6},
+    {"id": 15, "word": "الصِّرَاطَ", "transliteration": "As-Sirat", "meaning": "The path", "surah": "Al-Fatiha", "ayah": 6},
+    {"id": 16, "word": "الْمُسْتَقِيمَ", "transliteration": "Al-Mustaqeem", "meaning": "The straight", "surah": "Al-Fatiha", "ayah": 6},
+    {"id": 17, "word": "جَنَّة", "transliteration": "Jannah", "meaning": "Paradise", "surah": "Various", "ayah": 0},
+    {"id": 18, "word": "صَلَاة", "transliteration": "Salah", "meaning": "Prayer", "surah": "Various", "ayah": 0},
+    {"id": 19, "word": "زَكَاة", "transliteration": "Zakah", "meaning": "Charity", "surah": "Various", "ayah": 0},
+    {"id": 20, "word": "صِيَام", "transliteration": "Siyam", "meaning": "Fasting", "surah": "Various", "ayah": 0},
+]
+
+LIVE_STREAMS = [
+    {
+        "id": "makkah",
+        "name_ar": "بث مباشر من مكة المكرمة",
+        "name_en": "Makkah Live",
+        "name_de": "Mekka Live",
+        "name_ru": "Мекка в прямом эфире",
+        "name_fr": "La Mecque en direct",
+        "name_tr": "Mekke Canlı",
+        "name_sv": "Mecka Live",
+        "name_nl": "Mekka Live",
+        "name_el": "Μέκκα Ζωντανά",
+        "youtube_channel": "SaudiQuranTv",
+        "embed_id": "gAzq1ch5RnY",
+        "thumbnail": "https://i.ytimg.com/vi/gAzq1ch5RnY/maxresdefault_live.jpg",
+        "city": "Makkah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True
+    },
+    {
+        "id": "madinah",
+        "name_ar": "بث مباشر من المدينة المنورة",
+        "name_en": "Madinah Live",
+        "name_de": "Medina Live",
+        "name_ru": "Медина в прямом эфире",
+        "name_fr": "Médine en direct",
+        "name_tr": "Medine Canlı",
+        "name_sv": "Medina Live",
+        "name_nl": "Medina Live",
+        "name_el": "Μεδίνα Ζωντανά",
+        "youtube_channel": "SaudiSunnahTv",
+        "embed_id": "VO359jOBfCk",
+        "thumbnail": "https://i.ytimg.com/vi/VO359jOBfCk/maxresdefault_live.jpg",
+        "city": "Madinah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True
+    },
+    {
+        "id": "alaqsa",
+        "name_ar": "بث مباشر من المسجد الأقصى",
+        "name_en": "Al-Aqsa Mosque Live",
+        "name_de": "Al-Aqsa-Moschee Live",
+        "name_ru": "Мечеть Аль-Акса в прямом эфире",
+        "name_fr": "Mosquée Al-Aqsa en direct",
+        "name_tr": "Mescid-i Aksa Canlı",
+        "name_sv": "Al-Aqsa-moskén Live",
+        "name_nl": "Al-Aqsa Moskee Live",
+        "name_el": "Τζαμί Αλ-Άκσα Ζωντανά",
+        "youtube_channel": "AlAqsaTV",
+        "embed_id": "jBYrnVptmCo",
+        "thumbnail": "https://i.ytimg.com/vi/jBYrnVptmCo/maxresdefault_live.jpg",
+        "city": "Jerusalem",
+        "country": "Palestine",
+        "category": "holy",
+        "is_247": True
+    },
+    {
+        "id": "umayyad",
+        "name_ar": "بث مباشر من الجامع الأموي",
+        "name_en": "Umayyad Mosque Live",
+        "name_de": "Umayyaden-Moschee Live",
+        "name_ru": "Мечеть Омейядов в прямом эфире",
+        "name_fr": "Mosquée des Omeyyades en direct",
+        "name_tr": "Emevi Camii Canlı",
+        "name_sv": "Umayyadmoskén Live",
+        "name_nl": "Umayyad Moskee Live",
+        "name_el": "Τζαμί Ομεϋάδ Ζωντανά",
+        "youtube_channel": "UmayyadMosque",
+        "embed_id": "wQMmHBBl3cA",
+        "thumbnail": "https://i.ytimg.com/vi/wQMmHBBl3cA/maxresdefault_live.jpg",
+        "city": "Damascus",
+        "country": "Syria",
+        "category": "historic",
+        "is_247": False
+    },
+    {
+        "id": "cologne",
+        "name_ar": "بث مباشر من مسجد كولونيا الكبير",
+        "name_en": "Cologne Central Mosque Live",
+        "name_de": "DITIB-Zentralmoschee Köln Live",
+        "name_ru": "Центральная мечеть Кёльна в прямом эфире",
+        "name_fr": "Mosquée centrale de Cologne en direct",
+        "name_tr": "Köln Merkez Camii Canlı",
+        "name_sv": "Kölns Centralmoské Live",
+        "name_nl": "Centrale Moskee Keulen Live",
+        "name_el": "Κεντρικό Τζαμί Κολωνίας Ζωντανά",
+        "youtube_channel": "DitibCologne",
+        "embed_id": "o4N9vYUFHzA",
+        "thumbnail": "https://i.ytimg.com/vi/o4N9vYUFHzA/maxresdefault_live.jpg",
+        "city": "Cologne",
+        "country": "Germany",
+        "category": "europe",
+        "is_247": False
+    }
+]
+
+@api_router.get("/arabic-academy/letters")
+async def get_arabic_letters():
+    """Get all 28 Arabic letters with forms and examples"""
+    return {"success": True, "letters": ARABIC_LETTERS, "total": len(ARABIC_LETTERS)}
+
+@api_router.get("/arabic-academy/vocab")
+async def get_quran_vocab():
+    """Get Quranic vocabulary words"""
+    return {"success": True, "words": QURAN_VOCAB, "total": len(QURAN_VOCAB)}
+
+@api_router.get("/arabic-academy/daily-word")
+async def get_daily_word():
+    """Get a daily Quranic word based on day of year"""
+    day_of_year = datetime.utcnow().timetuple().tm_yday
+    word = QURAN_VOCAB[day_of_year % len(QURAN_VOCAB)]
+    return {"success": True, "word": word}
+
+@api_router.get("/arabic-academy/progress/{user_id}")
+async def get_academy_progress(user_id: str):
+    """Get user's Arabic Academy progress"""
+    progress = await db.arabic_progress.find_one({"user_id": user_id})
+    if not progress:
+        progress = {
+            "user_id": user_id,
+            "completed_letters": [],
+            "completed_vocab": [],
+            "stars": 0,
+            "streak": 0,
+            "total_xp": 0,
+            "level": 1,
+            "golden_bricks": 0,
+            "last_activity": None
+        }
+    progress.pop("_id", None)
+    return {"success": True, "progress": progress}
+
+@api_router.post("/arabic-academy/progress")
+async def save_academy_progress(data: dict):
+    """Save user's Arabic Academy progress"""
+    user_id = data.get("user_id", "guest")
+    update_data = {
+        "user_id": user_id,
+        "completed_letters": data.get("completed_letters", []),
+        "completed_vocab": data.get("completed_vocab", []),
+        "stars": data.get("stars", 0),
+        "streak": data.get("streak", 0),
+        "total_xp": data.get("total_xp", 0),
+        "level": data.get("level", 1),
+        "golden_bricks": data.get("golden_bricks", 0),
+        "last_activity": datetime.utcnow().isoformat()
+    }
+    await db.arabic_progress.update_one(
+        {"user_id": user_id},
+        {"$set": update_data},
+        upsert=True
+    )
+    return {"success": True, "message": "Progress saved"}
+
+@api_router.get("/arabic-academy/quiz/{letter_id}")
+async def get_letter_quiz(letter_id: int):
+    """Get quiz for a specific letter"""
+    letter = next((l for l in ARABIC_LETTERS if l["id"] == letter_id), None)
+    if not letter:
+        raise HTTPException(status_code=404, detail="Letter not found")
+    
+    # Generate quiz options (correct + 3 random wrong answers)
+    other_letters = [l for l in ARABIC_LETTERS if l["id"] != letter_id]
+    wrong_answers = random.sample(other_letters, min(3, len(other_letters)))
+    
+    options = [{"letter": letter["letter"], "name_ar": letter["name_ar"], "name_en": letter["name_en"], "correct": True}]
+    for w in wrong_answers:
+        options.append({"letter": w["letter"], "name_ar": w["name_ar"], "name_en": w["name_en"], "correct": False})
+    random.shuffle(options)
+    
+    return {
+        "success": True,
+        "quiz": {
+            "question_letter": letter,
+            "options": options,
+            "type": "identify"
+        }
+    }
+
+# ==================== LIVE STREAMS ====================
+
+@api_router.get("/live-streams")
+async def get_live_streams(category: str = "all"):
+    """Get available live streams"""
+    streams = LIVE_STREAMS
+    if category != "all":
+        streams = [s for s in streams if s["category"] == category]
+    return {"success": True, "streams": streams, "total": len(streams)}
+
+@api_router.get("/live-streams/{stream_id}")
+async def get_live_stream(stream_id: str):
+    """Get a specific live stream"""
+    stream = next((s for s in LIVE_STREAMS if s["id"] == stream_id), None)
+    if not stream:
+        raise HTTPException(status_code=404, detail="Stream not found")
+    return {"success": True, "stream": stream}
+
+
 # ==================== APP SETUP ====================
 app.include_router(api_router)
 
