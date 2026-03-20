@@ -1,326 +1,539 @@
 #!/usr/bin/env python3
 """
-Athan Tales Backend API Testing Script
-Tests Arabic Academy and Live Streams endpoints
+Arabic Academy Backend API Testing Suite - Updated for actual response structure
+Testing all requested endpoints for the Arabic Academy system
 """
 
+import httpx
 import asyncio
-import aiohttp
 import json
-import time
-from typing import Dict, Any, List
+import os
+from typing import Dict, Any
+from datetime import datetime
 
-# Get external URL from frontend .env
-FRONTEND_ENV_PATH = "/app/frontend/.env"
+# Get backend URL from frontend .env
 def get_backend_url():
     try:
-        with open(FRONTEND_ENV_PATH, 'r') as f:
+        with open('/app/frontend/.env', 'r') as f:
             for line in f:
                 if line.startswith('REACT_APP_BACKEND_URL='):
-                    return line.strip().split('=', 1)[1]
+                    return line.split('=', 1)[1].strip()
     except:
         pass
-    return "https://athan-tales.preview.emergentagent.com"
+    return "http://localhost:8001"
 
-BASE_URL = get_backend_url()
-API_BASE = f"{BASE_URL}/api"
+BACKEND_URL = get_backend_url()
 
-class BackendTester:
+class ArabicAcademyTester:
     def __init__(self):
-        self.session = None
+        self.backend_url = BACKEND_URL
         self.results = []
-        
-    async def __aenter__(self):
-        self.session = aiohttp.ClientSession(
-            timeout=aiohttp.ClientTimeout(total=30),
-            connector=aiohttp.TCPConnector(ssl=False)
-        )
-        return self
-        
-    async def __aexit__(self, *args):
-        if self.session:
-            await self.session.close()
+        self.failed_tests = []
+        self.passed_tests = 0
+        self.total_tests = 0
 
-    async def test_endpoint(self, method: str, endpoint: str, data: Dict[Any, Any] = None, expected_status: int = 200) -> Dict[str, Any]:
-        """Test a single endpoint"""
-        url = f"{API_BASE}{endpoint}"
-        start_time = time.time()
+    async def test_endpoint(self, method: str, endpoint: str, expected_status: int = 200, 
+                          data: Dict[Any, Any] = None, validator_func=None, 
+                          description: str = "") -> Dict[str, Any]:
+        """Test a single endpoint with custom validation"""
+        self.total_tests += 1
+        url = f"{self.backend_url}{endpoint}"
         
         try:
-            if method == "GET":
-                async with self.session.get(url) as response:
-                    response_time = time.time() - start_time
-                    response_data = await response.text()
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                if method.upper() == "GET":
+                    response = await client.get(url)
+                elif method.upper() == "POST":
+                    response = await client.post(url, json=data)
+                else:
+                    response = await client.request(method, url, json=data)
+                
+                result = {
+                    "endpoint": endpoint,
+                    "method": method,
+                    "description": description,
+                    "status_code": response.status_code,
+                    "expected_status": expected_status,
+                    "success": response.status_code == expected_status,
+                    "response_time": f"{response.elapsed.total_seconds():.3f}s",
+                    "response_size": len(response.content),
+                }
+                
+                # Parse JSON response
+                try:
+                    json_data = response.json()
+                    result["has_json"] = True
+                    result["json_valid"] = True
                     
-                    try:
-                        json_data = json.loads(response_data)
-                    except json.JSONDecodeError:
-                        json_data = {"raw_response": response_data}
+                    # Custom validation
+                    if validator_func and result["success"]:
+                        validation_result = validator_func(json_data)
+                        result.update(validation_result)
                     
-                    return {
-                        "method": method,
-                        "endpoint": endpoint,
-                        "url": url,
-                        "status": response.status,
-                        "expected_status": expected_status,
-                        "passed": response.status == expected_status,
-                        "response_time": round(response_time, 3),
-                        "response_data": json_data,
-                        "error": None
-                    }
+                    # Store sample for debugging
+                    if isinstance(json_data, dict) and len(str(json_data)) < 500:
+                        result["sample_response"] = json_data
                     
-            elif method == "POST":
-                headers = {"Content-Type": "application/json"}
-                async with self.session.post(url, json=data, headers=headers) as response:
-                    response_time = time.time() - start_time
-                    response_data = await response.text()
-                    
-                    try:
-                        json_data = json.loads(response_data)
-                    except json.JSONDecodeError:
-                        json_data = {"raw_response": response_data}
-                    
-                    return {
-                        "method": method,
-                        "endpoint": endpoint,
-                        "url": url,
-                        "status": response.status,
-                        "expected_status": expected_status,
-                        "passed": response.status == expected_status,
-                        "response_time": round(response_time, 3),
-                        "response_data": json_data,
-                        "request_data": data,
-                        "error": None
-                    }
-                    
+                except json.JSONDecodeError:
+                    result["has_json"] = False
+                    result["json_valid"] = False
+                    result["raw_response"] = response.text[:200] + "..." if len(response.text) > 200 else response.text
+                
+                # Overall success
+                overall_success = result["success"] and result.get("validation_success", True)
+                result["overall_success"] = overall_success
+                
+                if overall_success:
+                    self.passed_tests += 1
+                    print(f"✅ PASSED: {method} {endpoint} ({result['response_time']})")
+                else:
+                    self.failed_tests.append(result)
+                    print(f"❌ FAILED: {method} {endpoint} - Status: {response.status_code}")
+                    if "validation_errors" in result:
+                        for error in result["validation_errors"]:
+                            print(f"   ❌ {error}")
+                
+                self.results.append(result)
+                return result
+                
         except Exception as e:
-            response_time = time.time() - start_time
-            return {
-                "method": method,
+            result = {
                 "endpoint": endpoint,
-                "url": url,
-                "status": 0,
-                "expected_status": expected_status,
-                "passed": False,
-                "response_time": round(response_time, 3),
-                "response_data": {},
-                "error": str(e)
+                "method": method,
+                "description": description,
+                "success": False,
+                "overall_success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
             }
+            self.failed_tests.append(result)
+            self.results.append(result)
+            print(f"❌ ERROR: {method} {endpoint} - {str(e)}")
+            return result
 
-    async def run_tests(self):
-        """Run all backend tests"""
-        print("🔍 Starting Athan Tales Backend API Testing...")
-        print(f"🌐 Testing against: {BASE_URL}")
+    def validate_health(self, data):
+        """Validate health endpoint response"""
+        errors = []
+        if "status" not in data:
+            errors.append("Missing 'status' field")
+        elif data["status"] != "healthy":
+            errors.append(f"Expected status 'healthy', got '{data['status']}'")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Health status: {data.get('status', 'missing')}"
+        }
+
+    def validate_letters(self, data):
+        """Validate letters endpoint (28 letters)"""
+        errors = []
+        if "letters" not in data:
+            errors.append("Missing 'letters' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        letters = data["letters"]
+        if not isinstance(letters, list):
+            errors.append("'letters' should be a list")
+        elif len(letters) != 28:
+            errors.append(f"Expected 28 letters, got {len(letters)}")
+        else:
+            # Check first letter has required fields
+            if len(letters) > 0:
+                first_letter = letters[0]
+                required_fields = ["id", "letter", "name_ar", "name_en"]
+                for field in required_fields:
+                    if field not in first_letter:
+                        errors.append(f"Letter missing field: {field}")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(letters) if isinstance(letters, list) else 0} letters"
+        }
+
+    def validate_curriculum(self, data):
+        """Validate curriculum endpoint (90 days)"""
+        errors = []
+        if "curriculum" not in data:
+            errors.append("Missing 'curriculum' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        curriculum = data["curriculum"]
+        if not isinstance(curriculum, list):
+            errors.append("'curriculum' should be a list")
+        elif len(curriculum) != 90:
+            errors.append(f"Expected 90 days, got {len(curriculum)}")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(curriculum) if isinstance(curriculum, list) else 0} days"
+        }
+
+    def validate_day_lesson(self, data, expected_day=None, expected_type=None):
+        """Validate individual day lesson"""
+        errors = []
+        
+        if "lesson" not in data:
+            errors.append("Missing 'lesson' field")
+        else:
+            lesson = data["lesson"]
+            if "day" not in lesson:
+                errors.append("Missing 'day' field in lesson")
+            elif expected_day and lesson["day"] != expected_day:
+                errors.append(f"Expected day {expected_day}, got {lesson['day']}")
+            
+            if "type" not in lesson:
+                errors.append("Missing 'type' field in lesson")
+            elif expected_type and lesson["type"] != expected_type:
+                errors.append(f"Expected type '{expected_type}', got '{lesson['type']}'")
+        
+        if "content" not in data:
+            errors.append("Missing 'content' field")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Day {data.get('lesson', {}).get('day', '?')} - Type: {data.get('lesson', {}).get('type', '?')}"
+        }
+
+    def validate_numbers(self, data):
+        """Validate numbers endpoint (17 numbers)"""
+        errors = []
+        if "numbers" not in data:
+            errors.append("Missing 'numbers' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        numbers = data["numbers"]
+        if not isinstance(numbers, list):
+            errors.append("'numbers' should be a list")
+        elif len(numbers) != 17:
+            errors.append(f"Expected 17 numbers, got {len(numbers)}")
+        else:
+            # Check first number has required fields
+            if len(numbers) > 0:
+                first_number = numbers[0]
+                required_fields = ["arabic", "word_ar", "word_en", "transliteration"]
+                for field in required_fields:
+                    if field not in first_number:
+                        errors.append(f"Number missing field: {field}")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(numbers) if isinstance(numbers, list) else 0} numbers"
+        }
+
+    def validate_vocabulary(self, data, expected_count=None):
+        """Validate vocabulary endpoint"""
+        errors = []
+        if "words" not in data:
+            errors.append("Missing 'words' field (should contain vocabulary)")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        words = data["words"]
+        if not isinstance(words, list):
+            errors.append("'words' should be a list")
+        elif expected_count and len(words) != expected_count:
+            errors.append(f"Expected {expected_count} words, got {len(words)}")
+        elif expected_count is None and len(words) < 76:
+            errors.append(f"Expected at least 76 words, got {len(words)}")
+        
+        # Check categories exist
+        if "categories" not in data:
+            errors.append("Missing 'categories' field")
+        elif len(data["categories"]) < 9:
+            errors.append(f"Expected at least 9 categories, got {len(data['categories'])}")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(words) if isinstance(words, list) else 0} words, {len(data.get('categories', [])) if 'categories' in data else 0} categories"
+        }
+
+    def validate_sentences(self, data):
+        """Validate sentences endpoint (10 sentences)"""
+        errors = []
+        if "sentences" not in data:
+            errors.append("Missing 'sentences' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        sentences = data["sentences"]
+        if not isinstance(sentences, list):
+            errors.append("'sentences' should be a list")
+        elif len(sentences) != 10:
+            errors.append(f"Expected 10 sentences, got {len(sentences)}")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(sentences) if isinstance(sentences, list) else 0} sentences"
+        }
+
+    def validate_quiz(self, data, expected_letter_id=5):
+        """Validate quiz endpoint"""
+        errors = []
+        if "quiz" not in data:
+            errors.append("Missing 'quiz' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        quiz = data["quiz"]
+        
+        # Check for question_letter (contains the letter info)
+        if "question_letter" not in quiz:
+            errors.append("Quiz missing 'question_letter' field")
+        else:
+            question_letter = quiz["question_letter"]
+            if "id" not in question_letter:
+                errors.append("Question letter missing 'id' field")
+            elif question_letter["id"] != expected_letter_id:
+                errors.append(f"Expected letter ID {expected_letter_id}, got {question_letter['id']}")
+        
+        # Check for options (should have 4 options)
+        if "options" not in quiz:
+            errors.append("Quiz missing 'options' field")
+        elif len(quiz["options"]) != 4:
+            errors.append(f"Expected 4 options, got {len(quiz['options'])}")
+        else:
+            # Check that one option is correct
+            correct_count = sum(1 for option in quiz["options"] if option.get("correct", False))
+            if correct_count != 1:
+                errors.append(f"Expected exactly 1 correct answer, got {correct_count}")
+        
+        # Check quiz type
+        if "type" not in quiz:
+            errors.append("Quiz missing 'type' field")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Letter ID: {quiz.get('question_letter', {}).get('id', '?')}, Options: {len(quiz.get('options', []))}, Type: {quiz.get('type', '?')}"
+        }
+
+    def validate_streams(self, data):
+        """Validate live streams endpoint"""
+        errors = []
+        if "streams" not in data:
+            errors.append("Missing 'streams' field")
+            return {"validation_success": False, "validation_errors": errors}
+        
+        streams = data["streams"]
+        if not isinstance(streams, list):
+            errors.append("'streams' should be a list")
+        elif len(streams) == 0:
+            errors.append("No streams found")
+        else:
+            # Check first stream has embed_url
+            first_stream = streams[0]
+            if "embed_url" not in first_stream and "embed_id" not in first_stream:
+                errors.append("Stream missing 'embed_url' or 'embed_id' field")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Found {len(streams) if isinstance(streams, list) else 0} streams"
+        }
+
+    def validate_progress(self, data):
+        """Validate progress POST response"""
+        errors = []
+        if "success" not in data:
+            errors.append("Missing 'success' field")
+        elif not data["success"]:
+            errors.append("Progress save was not successful")
+        
+        return {
+            "validation_success": len(errors) == 0,
+            "validation_errors": errors,
+            "validation_details": f"Success: {data.get('success', False)}"
+        }
+
+    async def run_all_tests(self):
+        """Run all Arabic Academy API tests from the review request"""
+        print(f"🚀 Starting Arabic Academy Backend Testing - Updated")
+        print(f"Backend URL: {self.backend_url}")
         print("=" * 80)
         
-        # Test cases based on review request
-        test_cases = [
-            # 1. Health check
-            {
-                "name": "Health Check",
-                "method": "GET",
-                "endpoint": "/health",
-                "validation": lambda r: r.get("status") == "healthy"
-            },
-            
-            # 2. Arabic Academy - Letters (28 letters)
-            {
-                "name": "Arabic Academy Letters",
-                "method": "GET", 
-                "endpoint": "/arabic-academy/letters",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    len(r.get("letters", [])) == 28 and
-                    all("id" in letter and "letter" in letter and "name_ar" in letter 
-                        for letter in r.get("letters", []))
-                )
-            },
-            
-            # 3. Arabic Academy - Vocabulary (20 words)
-            {
-                "name": "Arabic Academy Vocabulary",
-                "method": "GET",
-                "endpoint": "/arabic-academy/vocab", 
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    len(r.get("words", [])) == 20 and
-                    all("word" in word and "transliteration" in word and "meaning" in word
-                        for word in r.get("words", []))
-                )
-            },
-            
-            # 4. Arabic Academy - Quiz for letter 1 (Alif)
-            {
-                "name": "Arabic Academy Quiz (Alif)",
-                "method": "GET",
-                "endpoint": "/arabic-academy/quiz/1",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    "quiz" in r and 
-                    len(r["quiz"].get("options", [])) == 4 and
-                    sum(1 for opt in r["quiz"]["options"] if opt.get("correct")) == 1
-                )
-            },
-            
-            # 5. Arabic Academy - Daily word
-            {
-                "name": "Arabic Academy Daily Word", 
-                "method": "GET",
-                "endpoint": "/arabic-academy/daily-word",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    "word" in r and
-                    "word" in r["word"] and "meaning" in r["word"]
-                )
-            },
-            
-            # 6. Arabic Academy - Guest progress
-            {
-                "name": "Arabic Academy Guest Progress",
-                "method": "GET",
-                "endpoint": "/arabic-academy/progress/guest",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    "progress" in r and
-                    all(field in r["progress"] for field in 
-                        ["completed_letters", "stars", "total_xp", "level", "golden_bricks"])
-                )
-            },
-            
-            # 7. Arabic Academy - Save progress (POST)
-            {
-                "name": "Arabic Academy Save Progress",
-                "method": "POST",
-                "endpoint": "/arabic-academy/progress",
-                "data": {
-                    "user_id": "test-user",
-                    "completed_letters": [1, 2, 3],
-                    "stars": 3,
-                    "total_xp": 30,
-                    "level": 1,
-                    "golden_bricks": 3
-                },
-                "validation": lambda r: r.get("success") == True
-            },
-            
-            # 8. Live Streams - All streams
-            {
-                "name": "Live Streams (All)",
-                "method": "GET",
-                "endpoint": "/live-streams",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    len(r.get("streams", [])) > 0 and
-                    all("embed_url" in stream and "youtube.com/embed" in stream["embed_url"]
-                        for stream in r.get("streams", []))
-                )
-            },
-            
-            # 9. Live Streams - Haramain category filter
-            {
-                "name": "Live Streams (Haramain Filter)",
-                "method": "GET",
-                "endpoint": "/live-streams?category=haramain",
-                "validation": lambda r: (
-                    r.get("success") == True and
-                    all(stream.get("category") == "haramain" 
-                        for stream in r.get("streams", [])) and
-                    len(r.get("streams", [])) >= 2  # Should have Makkah and Madinah
-                )
-            }
-        ]
+        # Test 1: Health check
+        await self.test_endpoint(
+            "GET", "/api/health", 
+            validator_func=self.validate_health,
+            description="Health check endpoint"
+        )
         
-        # Execute tests
-        for i, test in enumerate(test_cases, 1):
-            print(f"🧪 Test {i}: {test['name']}")
-            
-            result = await self.test_endpoint(
-                method=test["method"],
-                endpoint=test["endpoint"],
-                data=test.get("data")
-            )
-            
-            # Add validation result
-            if result["passed"] and "validation" in test:
-                try:
-                    validation_passed = test["validation"](result["response_data"])
-                    result["validation_passed"] = validation_passed
-                    if not validation_passed:
-                        result["passed"] = False
-                        result["validation_error"] = "Response structure validation failed"
-                except Exception as e:
-                    result["validation_passed"] = False
-                    result["passed"] = False
-                    result["validation_error"] = f"Validation error: {str(e)}"
-            
-            self.results.append(result)
-            
-            # Print result
-            status = "✅ PASSED" if result["passed"] else "❌ FAILED"
-            print(f"   {status} ({result['status']}) - {result['response_time']}s")
-            
-            if not result["passed"]:
-                if result.get("error"):
-                    print(f"   💥 Error: {result['error']}")
-                elif result.get("validation_error"):
-                    print(f"   ⚠️ Validation: {result['validation_error']}")
-                else:
-                    print(f"   ⚠️ HTTP Status: Expected {result['expected_status']}, got {result['status']}")
-            
-            print()
+        # Test 2: Get Arabic letters (should return 28 letters)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/letters",
+            validator_func=self.validate_letters,
+            description="Get all 28 Arabic letters with metadata"
+        )
+        
+        # Test 3: Get curriculum (should return 90 days)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/curriculum",
+            validator_func=self.validate_curriculum,
+            description="Get full 90-day curriculum"
+        )
+        
+        # Test 4: Get Day 1 lesson (should return Alif letter lesson)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/curriculum/day/1",
+            validator_func=lambda data: self.validate_day_lesson(data, expected_day=1, expected_type="letter"),
+            description="Get Day 1 letter lesson with Alif content"
+        )
+        
+        # Test 5: Get Day 35 lesson (should return number lesson)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/curriculum/day/35",
+            validator_func=lambda data: self.validate_day_lesson(data, expected_day=35, expected_type="number"),
+            description="Get Day 35 number lesson"
+        )
+        
+        # Test 6: Get Day 45 lesson (should return vocab lesson)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/curriculum/day/45",
+            validator_func=lambda data: self.validate_day_lesson(data, expected_day=45, expected_type="vocab"),
+            description="Get Day 45 vocabulary lesson with emoji, word, meaning"
+        )
+        
+        # Test 7: Get Day 80 lesson (should return sentence lesson)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/curriculum/day/80",
+            validator_func=lambda data: self.validate_day_lesson(data, expected_day=80, expected_type="sentence"),
+            description="Get Day 80 sentence lesson with words_ar and sentence_ar"
+        )
+        
+        # Test 8: Get Arabic numbers (should return 17 numbers)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/numbers",
+            validator_func=self.validate_numbers,
+            description="Get 17 Arabic numbers with transliteration"
+        )
+        
+        # Test 9: Get vocabulary (should return 76+ words with categories)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/vocabulary",
+            validator_func=lambda data: self.validate_vocabulary(data),
+            description="Get vocabulary with 9 categories (76+ words)"
+        )
+        
+        # Test 10: Get vocabulary filtered by animals category
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/vocabulary?category=animals",
+            validator_func=lambda data: self.validate_vocabulary(data, expected_count=10),
+            description="Get animals vocabulary (should return 10 words)"
+        )
+        
+        # Test 11: Get sentence templates
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/sentences",
+            validator_func=self.validate_sentences,
+            description="Get 10 sentence templates"
+        )
+        
+        # Test 12: Get quiz for letter 5 (Jim)
+        await self.test_endpoint(
+            "GET", "/api/arabic-academy/quiz/5",
+            validator_func=lambda data: self.validate_quiz(data, expected_letter_id=5),
+            description="Get quiz for letter 5 (Jim) with 4 options"
+        )
+        
+        # Test 13: Get live streams (should have embed_url field)
+        await self.test_endpoint(
+            "GET", "/api/live-streams",
+            validator_func=self.validate_streams,
+            description="Get live streams with embed_url field"
+        )
+        
+        # Test 14: POST progress tracking
+        progress_data = {
+            "user_id": "test_user_2024",
+            "completed_days": [1, 2],
+            "total_xp": 20,
+            "stars": 2
+        }
+        await self.test_endpoint(
+            "POST", "/api/arabic-academy/progress-v2",
+            data=progress_data,
+            validator_func=self.validate_progress,
+            description="POST progress tracking with user data"
+        )
+        
+        # Print final results
+        self.print_summary()
 
     def print_summary(self):
         """Print test summary"""
-        passed_tests = sum(1 for r in self.results if r["passed"])
-        total_tests = len(self.results)
-        success_rate = (passed_tests / total_tests) * 100 if total_tests > 0 else 0
-        avg_response_time = sum(r["response_time"] for r in self.results) / total_tests if total_tests > 0 else 0
-        
+        print("\n" + "=" * 80)
+        print("🎯 ARABIC ACADEMY BACKEND TEST SUMMARY - FINAL RESULTS")
         print("=" * 80)
-        print("📊 ATHAN TALES BACKEND TEST SUMMARY")
-        print("=" * 80)
-        print(f"✅ Passed: {passed_tests}/{total_tests} ({success_rate:.1f}%)")
-        print(f"⏱️ Average Response Time: {avg_response_time:.3f}s")
-        print(f"🌐 Backend URL: {BASE_URL}")
         
-        # Show failed tests
-        failed_tests = [r for r in self.results if not r["passed"]]
-        if failed_tests:
-            print(f"\n❌ Failed Tests ({len(failed_tests)}):")
-            for test in failed_tests:
-                print(f"   • {test['method']} {test['endpoint']}")
-                if test.get("error"):
-                    print(f"     Error: {test['error']}")
-                elif test.get("validation_error"):
-                    print(f"     Validation: {test['validation_error']}")
-                else:
-                    print(f"     HTTP {test['status']} (expected {test['expected_status']})")
+        success_rate = (self.passed_tests / self.total_tests) * 100 if self.total_tests > 0 else 0
         
-        print("\n🎯 Specific Features Tested:")
-        print("   ✅ Health check endpoint")
-        print("   ✅ Arabic Academy: 28 letters with metadata")
-        print("   ✅ Arabic Academy: 20 Quranic vocabulary words")
-        print("   ✅ Arabic Academy: Quiz generation with 4 options")
-        print("   ✅ Arabic Academy: Daily word rotation")
-        print("   ✅ Arabic Academy: Progress tracking system")
-        print("   ✅ Arabic Academy: Progress persistence")
-        print("   ✅ Live Streams: YouTube embed URL generation")
-        print("   ✅ Live Streams: Category filtering (haramain)")
+        print(f"Total Tests: {self.total_tests}")
+        print(f"Passed: {self.passed_tests} ✅")
+        print(f"Failed: {len(self.failed_tests)} ❌")
+        print(f"Success Rate: {success_rate:.1f}%")
         
-        return success_rate == 100.0
+        if self.failed_tests:
+            print(f"\n🔴 FAILED TESTS ({len(self.failed_tests)}):")
+            print("-" * 40)
+            for i, failure in enumerate(self.failed_tests, 1):
+                print(f"{i}. {failure['method']} {failure['endpoint']}")
+                print(f"   Description: {failure.get('description', 'N/A')}")
+                if 'error' in failure:
+                    print(f"   Error: {failure['error']}")
+                elif 'status_code' in failure:
+                    print(f"   Status: {failure['status_code']}, Expected: {failure.get('expected_status', 200)}")
+                if failure.get('validation_errors'):
+                    for error in failure['validation_errors']:
+                        print(f"   ❌ {error}")
+                print()
+        else:
+            print("\n🎉 ALL TESTS PASSED!")
+        
+        # Performance summary
+        if self.results:
+            times = [float(r['response_time'].replace('s', '')) for r in self.results if 'response_time' in r]
+            if times:
+                avg_time = sum(times) / len(times)
+                print(f"📊 PERFORMANCE:")
+                print(f"   Average Response Time: {avg_time:.3f}s")
+                print(f"   Fastest: {min(times):.3f}s")
+                print(f"   Slowest: {max(times):.3f}s")
+        
+        print("\n" + "=" * 80)
+        
+        return {
+            "total_tests": self.total_tests,
+            "passed_tests": self.passed_tests,
+            "failed_tests": len(self.failed_tests),
+            "success_rate": success_rate,
+            "backend_url": self.backend_url,
+            "avg_response_time": sum([float(r['response_time'].replace('s', '')) for r in self.results if 'response_time' in r]) / len(self.results) if self.results else 0,
+            "failed_details": self.failed_tests
+        }
 
 async def main():
     """Main test runner"""
-    async with BackendTester() as tester:
-        await tester.run_tests()
-        all_passed = tester.print_summary()
-        
-        if all_passed:
-            print("\n🎉 ALL TESTS PASSED - Arabic Academy & Live Streams APIs are fully functional!")
-        else:
-            print("\n⚠️ Some tests failed - Review the issues above")
-            
-        return all_passed
+    print("🔍 Arabic Academy Backend API Testing Suite - Updated")
+    print(f"Testing against: {BACKEND_URL}")
+    
+    tester = ArabicAcademyTester()
+    summary = await tester.run_all_tests()
+    
+    # Save detailed results to JSON for debugging
+    with open('/app/backend_test_results_final.json', 'w') as f:
+        json.dump({
+            "summary": summary,
+            "detailed_results": tester.results,
+            "timestamp": datetime.utcnow().isoformat(),
+            "backend_url": BACKEND_URL
+        }, f, indent=2, ensure_ascii=False)
+    
+    print(f"\n✅ Detailed results saved to: /app/backend_test_results_final.json")
+    return summary
 
 if __name__ == "__main__":
     asyncio.run(main())

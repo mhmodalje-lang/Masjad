@@ -1,0 +1,487 @@
+{
+  "summary": null,
+  "detailed_results": [
+    {
+      "endpoint": "/api/health",
+      "method": "GET",
+      "description": "Health check endpoint",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.183s",
+      "response_size": 91,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "status"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "sample_keys": [
+        "status",
+        "timestamp",
+        "app"
+      ],
+      "sample_response": {
+        "status": "healthy",
+        "timestamp": "2026-03-20T05:40:57.461072",
+        "app": "أذان وحكاية"
+      },
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/letters",
+      "method": "GET",
+      "description": "Get all 28 Arabic letters with metadata",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.126s",
+      "response_size": 6683,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "letters"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "expected_count": 28,
+      "actual_count": 28,
+      "count_field": "letters",
+      "count_valid": true,
+      "sample_keys": [
+        "success",
+        "letters",
+        "total"
+      ],
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/curriculum",
+      "method": "GET",
+      "description": "Get full 90-day curriculum",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.084s",
+      "response_size": 11598,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "curriculum"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "expected_count": 90,
+      "actual_count": 90,
+      "count_field": "curriculum",
+      "count_valid": true,
+      "sample_keys": [
+        "success",
+        "curriculum",
+        "total_days"
+      ],
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/curriculum/day/1",
+      "method": "GET",
+      "description": "Get Day 1 letter lesson with Alif content",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.108s",
+      "response_size": 378,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "day",
+        "type",
+        "content"
+      ],
+      "missing_fields": [
+        "day",
+        "type"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "lesson",
+        "content"
+      ],
+      "sample_response": {
+        "success": true,
+        "lesson": {
+          "day": 1,
+          "level": 1,
+          "type": "letter",
+          "content_id": 1,
+          "title_en": "Letter: Alif",
+          "title_ar": "حرف: ألف",
+          "xp": 10
+        },
+        "content": {
+          "id": 1,
+          "letter": "ا",
+          "name_ar": "ألف",
+          "name_en": "Alif",
+          "transliteration": "a",
+          "form_isolated": "ا",
+          "form_initial": "ا",
+          "form_medial": "ـا",
+          "form_final": "ـا",
+          "example_word": "أسد",
+          "example_meaning": "Lion",
+          "audio_hint": "ah"
+        }
+      },
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/curriculum/day/35",
+      "method": "GET",
+      "description": "Get Day 35 number lesson",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.081s",
+      "response_size": 254,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "day",
+        "type",
+        "content"
+      ],
+      "missing_fields": [
+        "day",
+        "type"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "lesson",
+        "content"
+      ],
+      "sample_response": {
+        "success": true,
+        "lesson": {
+          "day": 35,
+          "level": 2,
+          "type": "number",
+          "content_id": 4,
+          "title_en": "Number: Four",
+          "title_ar": "رقم: أربعة",
+          "xp": 10
+        },
+        "content": {
+          "id": 4,
+          "number": 4,
+          "arabic": "٤",
+          "word_ar": "أربعة",
+          "word_en": "Four",
+          "transliteration": "Arba'a"
+        }
+      },
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/curriculum/day/45",
+      "method": "GET",
+      "description": "Get Day 45 vocabulary lesson with emoji, word, meaning",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.121s",
+      "response_size": 331,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "day",
+        "type",
+        "content"
+      ],
+      "missing_fields": [
+        "day",
+        "type"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "lesson",
+        "content"
+      ],
+      "sample_response": {
+        "success": true,
+        "lesson": {
+          "day": 45,
+          "level": 3,
+          "type": "vocab",
+          "content_id": "a3",
+          "title_en": "Word: Lion",
+          "title_ar": "كلمة: أَسَد",
+          "xp": 10
+        },
+        "content": {
+          "id": "a3",
+          "word": "أَسَد",
+          "transliteration": "Asad",
+          "meaning_en": "Lion",
+          "meaning_de": "Löwe",
+          "meaning_fr": "Lion",
+          "meaning_tr": "Aslan",
+          "meaning_ru": "Лев",
+          "emoji": "🦁"
+        }
+      },
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/curriculum/day/80",
+      "method": "GET",
+      "description": "Get Day 80 sentence lesson with words_ar and sentence_ar",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.081s",
+      "response_size": 435,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "day",
+        "type",
+        "content"
+      ],
+      "missing_fields": [
+        "day",
+        "type"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "lesson",
+        "content"
+      ],
+      "sample_response": {
+        "success": true,
+        "lesson": {
+          "day": 80,
+          "level": 4,
+          "type": "sentence",
+          "content_id": "s2",
+          "title_en": "Sentence: This is a beautiful book...",
+          "title_ar": "جملة: هَذَا كِتَاب جَمِيل...",
+          "xp": 15
+        },
+        "content": {
+          "id": "s2",
+          "words_ar": [
+            "هَذَا",
+            "كِتَاب",
+            "جَمِيل"
+          ],
+          "words_en": [
+            "This is",
+            "a book",
+            "beautiful"
+          ],
+          "sentence_ar": "هَذَا كِتَاب جَمِيل",
+          "sentence_en": "This is a beautiful book",
+          "difficulty": 1
+        }
+      },
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/numbers",
+      "method": "GET",
+      "description": "Get 17 Arabic numbers with transliteration",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.083s",
+      "response_size": 1783,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "numbers"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "expected_count": 17,
+      "actual_count": 17,
+      "count_field": "numbers",
+      "count_valid": true,
+      "sample_keys": [
+        "success",
+        "numbers",
+        "total"
+      ],
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/vocabulary",
+      "method": "GET",
+      "description": "Get vocabulary with 9 categories (76+ words)",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.145s",
+      "response_size": 16112,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "vocabulary"
+      ],
+      "missing_fields": [
+        "vocabulary"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "words",
+        "total",
+        "categories"
+      ],
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/vocabulary?category=animals",
+      "method": "GET",
+      "description": "Get animals vocabulary (should return 10 words)",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.120s",
+      "response_size": 2191,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "vocabulary"
+      ],
+      "missing_fields": [
+        "vocabulary"
+      ],
+      "fields_valid": false,
+      "expected_count": 10,
+      "actual_count": 0,
+      "count_field": null,
+      "count_valid": false,
+      "sample_keys": [
+        "success",
+        "words",
+        "total",
+        "categories"
+      ],
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/arabic-academy/sentences",
+      "method": "GET",
+      "description": "Get 10 sentence templates",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.088s",
+      "response_size": 2658,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "sentences"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "expected_count": 10,
+      "actual_count": 10,
+      "count_field": "sentences",
+      "count_valid": true,
+      "sample_keys": [
+        "success",
+        "sentences",
+        "total"
+      ],
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/quiz/5",
+      "method": "GET",
+      "description": "Get quiz for letter 5 (Jim) with 4 options",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.102s",
+      "response_size": 577,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "letter",
+        "question",
+        "options",
+        "correct_answer"
+      ],
+      "missing_fields": [
+        "letter",
+        "question",
+        "options",
+        "correct_answer"
+      ],
+      "fields_valid": false,
+      "sample_keys": [
+        "success",
+        "quiz"
+      ],
+      "overall_success": false
+    },
+    {
+      "endpoint": "/api/live-streams",
+      "method": "GET",
+      "description": "Get live streams with embed_url field",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.082s",
+      "response_size": 1024,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "streams"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "sample_keys": [
+        "success",
+        "streams",
+        "total"
+      ],
+      "overall_success": true
+    },
+    {
+      "endpoint": "/api/arabic-academy/progress-v2",
+      "method": "POST",
+      "description": "POST progress tracking with user data",
+      "status_code": 200,
+      "expected_status": 200,
+      "success": true,
+      "response_time": "0.083s",
+      "response_size": 43,
+      "has_json": true,
+      "json_valid": true,
+      "expected_fields": [
+        "success"
+      ],
+      "missing_fields": [],
+      "fields_valid": true,
+      "sample_keys": [
+        "success",
+        "message"
+      ],
+      "sample_response": {
+        "success": true,
+        "message": "Progress saved"
+      },
+      "overall_success": true
+    }
+  ],
+  "timestamp": "2026-03-20T05:40:59.034421",
+  "backend_url": "https://athan-tales.preview.emergentagent.com"
+}

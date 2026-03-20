@@ -4591,7 +4591,6 @@ async def get_letter_quiz(letter_id: int):
     if not letter:
         raise HTTPException(status_code=404, detail="Letter not found")
     
-    # Generate quiz options (correct + 3 random wrong answers)
     other_letters = [l for l in ARABIC_LETTERS if l["id"] != letter_id]
     wrong_answers = random.sample(other_letters, min(3, len(other_letters)))
     
@@ -4608,6 +4607,262 @@ async def get_letter_quiz(letter_id: int):
             "type": "identify"
         }
     }
+
+# ==================== CURRICULUM 90-DAY ====================
+
+ARABIC_NUMBERS = [
+    {"id": i, "number": i, "arabic": n[0], "word_ar": n[1], "word_en": n[2], "transliteration": n[3]}
+    for i, n in enumerate([
+        ("٠", "صفر", "Zero", "Sifr"), ("١", "واحد", "One", "Wahid"), ("٢", "اثنان", "Two", "Ithnan"),
+        ("٣", "ثلاثة", "Three", "Thalatha"), ("٤", "أربعة", "Four", "Arba'a"), ("٥", "خمسة", "Five", "Khamsa"),
+        ("٦", "ستة", "Six", "Sitta"), ("٧", "سبعة", "Seven", "Sab'a"), ("٨", "ثمانية", "Eight", "Thamaniya"),
+        ("٩", "تسعة", "Nine", "Tis'a"), ("١٠", "عشرة", "Ten", "Ashara"),
+        ("٢٠", "عشرون", "Twenty", "Ishrun"), ("٣٠", "ثلاثون", "Thirty", "Thalathun"),
+        ("٤٠", "أربعون", "Forty", "Arba'un"), ("٥٠", "خمسون", "Fifty", "Khamsun"),
+        ("١٠٠", "مائة", "Hundred", "Mi'a"), ("١٠٠٠", "ألف", "Thousand", "Alf"),
+    ], start=0)
+]
+
+VOCAB_CATEGORIES = {
+    "animals": [
+        {"id": "a1", "word": "قِطَّة", "transliteration": "Qitta", "meaning_en": "Cat", "meaning_de": "Katze", "meaning_fr": "Chat", "meaning_tr": "Kedi", "meaning_ru": "Кошка", "emoji": "🐱"},
+        {"id": "a2", "word": "كَلْب", "transliteration": "Kalb", "meaning_en": "Dog", "meaning_de": "Hund", "meaning_fr": "Chien", "meaning_tr": "Köpek", "meaning_ru": "Собака", "emoji": "🐕"},
+        {"id": "a3", "word": "أَسَد", "transliteration": "Asad", "meaning_en": "Lion", "meaning_de": "Löwe", "meaning_fr": "Lion", "meaning_tr": "Aslan", "meaning_ru": "Лев", "emoji": "🦁"},
+        {"id": "a4", "word": "فِيل", "transliteration": "Fiil", "meaning_en": "Elephant", "meaning_de": "Elefant", "meaning_fr": "Éléphant", "meaning_tr": "Fil", "meaning_ru": "Слон", "emoji": "🐘"},
+        {"id": "a5", "word": "طَائِر", "transliteration": "Taa'ir", "meaning_en": "Bird", "meaning_de": "Vogel", "meaning_fr": "Oiseau", "meaning_tr": "Kuş", "meaning_ru": "Птица", "emoji": "🐦"},
+        {"id": "a6", "word": "سَمَكَة", "transliteration": "Samaka", "meaning_en": "Fish", "meaning_de": "Fisch", "meaning_fr": "Poisson", "meaning_tr": "Balık", "meaning_ru": "Рыба", "emoji": "🐟"},
+        {"id": "a7", "word": "حِصَان", "transliteration": "Hisan", "meaning_en": "Horse", "meaning_de": "Pferd", "meaning_fr": "Cheval", "meaning_tr": "At", "meaning_ru": "Лошадь", "emoji": "🐴"},
+        {"id": "a8", "word": "أَرْنَب", "transliteration": "Arnab", "meaning_en": "Rabbit", "meaning_de": "Kaninchen", "meaning_fr": "Lapin", "meaning_tr": "Tavşan", "meaning_ru": "Кролик", "emoji": "🐰"},
+        {"id": "a9", "word": "بَقَرَة", "transliteration": "Baqara", "meaning_en": "Cow", "meaning_de": "Kuh", "meaning_fr": "Vache", "meaning_tr": "İnek", "meaning_ru": "Корова", "emoji": "🐄"},
+        {"id": "a10", "word": "خَرُوف", "transliteration": "Kharuf", "meaning_en": "Sheep", "meaning_de": "Schaf", "meaning_fr": "Mouton", "meaning_tr": "Koyun", "meaning_ru": "Овца", "emoji": "🐑"},
+    ],
+    "food": [
+        {"id": "f1", "word": "تُفَّاحَة", "transliteration": "Tuffaha", "meaning_en": "Apple", "meaning_de": "Apfel", "meaning_fr": "Pomme", "meaning_tr": "Elma", "meaning_ru": "Яблоко", "emoji": "🍎"},
+        {"id": "f2", "word": "مَوْز", "transliteration": "Mawz", "meaning_en": "Banana", "meaning_de": "Banane", "meaning_fr": "Banane", "meaning_tr": "Muz", "meaning_ru": "Банан", "emoji": "🍌"},
+        {"id": "f3", "word": "خُبْز", "transliteration": "Khubz", "meaning_en": "Bread", "meaning_de": "Brot", "meaning_fr": "Pain", "meaning_tr": "Ekmek", "meaning_ru": "Хлеб", "emoji": "🍞"},
+        {"id": "f4", "word": "مَاء", "transliteration": "Maa'", "meaning_en": "Water", "meaning_de": "Wasser", "meaning_fr": "Eau", "meaning_tr": "Su", "meaning_ru": "Вода", "emoji": "💧"},
+        {"id": "f5", "word": "حَلِيب", "transliteration": "Haleeb", "meaning_en": "Milk", "meaning_de": "Milch", "meaning_fr": "Lait", "meaning_tr": "Süt", "meaning_ru": "Молоко", "emoji": "🥛"},
+        {"id": "f6", "word": "أُرْز", "transliteration": "Urz", "meaning_en": "Rice", "meaning_de": "Reis", "meaning_fr": "Riz", "meaning_tr": "Pirinç", "meaning_ru": "Рис", "emoji": "🍚"},
+        {"id": "f7", "word": "بَيْض", "transliteration": "Bayd", "meaning_en": "Eggs", "meaning_de": "Eier", "meaning_fr": "Œufs", "meaning_tr": "Yumurta", "meaning_ru": "Яйца", "emoji": "🥚"},
+        {"id": "f8", "word": "عَسَل", "transliteration": "Asal", "meaning_en": "Honey", "meaning_de": "Honig", "meaning_fr": "Miel", "meaning_tr": "Bal", "meaning_ru": "Мёд", "emoji": "🍯"},
+        {"id": "f9", "word": "بُرْتُقَالَة", "transliteration": "Burtuqala", "meaning_en": "Orange", "meaning_de": "Orange", "meaning_fr": "Orange", "meaning_tr": "Portakal", "meaning_ru": "Апельсин", "emoji": "🍊"},
+        {"id": "f10", "word": "عِنَب", "transliteration": "Inab", "meaning_en": "Grapes", "meaning_de": "Trauben", "meaning_fr": "Raisins", "meaning_tr": "Üzüm", "meaning_ru": "Виноград", "emoji": "🍇"},
+    ],
+    "body": [
+        {"id": "b1", "word": "رَأْس", "transliteration": "Ra's", "meaning_en": "Head", "meaning_de": "Kopf", "meaning_fr": "Tête", "meaning_tr": "Baş", "meaning_ru": "Голова", "emoji": "🗣️"},
+        {"id": "b2", "word": "يَد", "transliteration": "Yad", "meaning_en": "Hand", "meaning_de": "Hand", "meaning_fr": "Main", "meaning_tr": "El", "meaning_ru": "Рука", "emoji": "✋"},
+        {"id": "b3", "word": "عَيْن", "transliteration": "Ayn", "meaning_en": "Eye", "meaning_de": "Auge", "meaning_fr": "Œil", "meaning_tr": "Göz", "meaning_ru": "Глаз", "emoji": "👁️"},
+        {"id": "b4", "word": "أُذُن", "transliteration": "Udhun", "meaning_en": "Ear", "meaning_de": "Ohr", "meaning_fr": "Oreille", "meaning_tr": "Kulak", "meaning_ru": "Ухо", "emoji": "👂"},
+        {"id": "b5", "word": "قَلْب", "transliteration": "Qalb", "meaning_en": "Heart", "meaning_de": "Herz", "meaning_fr": "Cœur", "meaning_tr": "Kalp", "meaning_ru": "Сердце", "emoji": "❤️"},
+        {"id": "b6", "word": "قَدَم", "transliteration": "Qadam", "meaning_en": "Foot", "meaning_de": "Fuß", "meaning_fr": "Pied", "meaning_tr": "Ayak", "meaning_ru": "Нога", "emoji": "🦶"},
+        {"id": "b7", "word": "أَنْف", "transliteration": "Anf", "meaning_en": "Nose", "meaning_de": "Nase", "meaning_fr": "Nez", "meaning_tr": "Burun", "meaning_ru": "Нос", "emoji": "👃"},
+        {"id": "b8", "word": "فَم", "transliteration": "Fam", "meaning_en": "Mouth", "meaning_de": "Mund", "meaning_fr": "Bouche", "meaning_tr": "Ağız", "meaning_ru": "Рот", "emoji": "👄"},
+    ],
+    "family": [
+        {"id": "fm1", "word": "أَب", "transliteration": "Ab", "meaning_en": "Father", "meaning_de": "Vater", "meaning_fr": "Père", "meaning_tr": "Baba", "meaning_ru": "Отец", "emoji": "👨"},
+        {"id": "fm2", "word": "أُمّ", "transliteration": "Umm", "meaning_en": "Mother", "meaning_de": "Mutter", "meaning_fr": "Mère", "meaning_tr": "Anne", "meaning_ru": "Мать", "emoji": "👩"},
+        {"id": "fm3", "word": "أَخ", "transliteration": "Akh", "meaning_en": "Brother", "meaning_de": "Bruder", "meaning_fr": "Frère", "meaning_tr": "Kardeş", "meaning_ru": "Брат", "emoji": "👦"},
+        {"id": "fm4", "word": "أُخْت", "transliteration": "Ukht", "meaning_en": "Sister", "meaning_de": "Schwester", "meaning_fr": "Sœur", "meaning_tr": "Kız kardeş", "meaning_ru": "Сестра", "emoji": "👧"},
+        {"id": "fm5", "word": "جَدّ", "transliteration": "Jadd", "meaning_en": "Grandfather", "meaning_de": "Großvater", "meaning_fr": "Grand-père", "meaning_tr": "Dede", "meaning_ru": "Дед", "emoji": "👴"},
+        {"id": "fm6", "word": "جَدَّة", "transliteration": "Jadda", "meaning_en": "Grandmother", "meaning_de": "Großmutter", "meaning_fr": "Grand-mère", "meaning_tr": "Nine", "meaning_ru": "Бабушка", "emoji": "👵"},
+        {"id": "fm7", "word": "طِفْل", "transliteration": "Tifl", "meaning_en": "Child", "meaning_de": "Kind", "meaning_fr": "Enfant", "meaning_tr": "Çocuk", "meaning_ru": "Ребёнок", "emoji": "👶"},
+        {"id": "fm8", "word": "عَائِلَة", "transliteration": "Aa'ila", "meaning_en": "Family", "meaning_de": "Familie", "meaning_fr": "Famille", "meaning_tr": "Aile", "meaning_ru": "Семья", "emoji": "👨‍👩‍👧‍👦"},
+    ],
+    "nature": [
+        {"id": "n1", "word": "شَمْس", "transliteration": "Shams", "meaning_en": "Sun", "meaning_de": "Sonne", "meaning_fr": "Soleil", "meaning_tr": "Güneş", "meaning_ru": "Солнце", "emoji": "☀️"},
+        {"id": "n2", "word": "قَمَر", "transliteration": "Qamar", "meaning_en": "Moon", "meaning_de": "Mond", "meaning_fr": "Lune", "meaning_tr": "Ay", "meaning_ru": "Луна", "emoji": "🌙"},
+        {"id": "n3", "word": "نَجْمَة", "transliteration": "Najma", "meaning_en": "Star", "meaning_de": "Stern", "meaning_fr": "Étoile", "meaning_tr": "Yıldız", "meaning_ru": "Звезда", "emoji": "⭐"},
+        {"id": "n4", "word": "سَمَاء", "transliteration": "Samaa'", "meaning_en": "Sky", "meaning_de": "Himmel", "meaning_fr": "Ciel", "meaning_tr": "Gökyüzü", "meaning_ru": "Небо", "emoji": "🌤️"},
+        {"id": "n5", "word": "مَطَر", "transliteration": "Matar", "meaning_en": "Rain", "meaning_de": "Regen", "meaning_fr": "Pluie", "meaning_tr": "Yağmur", "meaning_ru": "Дождь", "emoji": "🌧️"},
+        {"id": "n6", "word": "بَحْر", "transliteration": "Bahr", "meaning_en": "Sea", "meaning_de": "Meer", "meaning_fr": "Mer", "meaning_tr": "Deniz", "meaning_ru": "Море", "emoji": "🌊"},
+        {"id": "n7", "word": "جَبَل", "transliteration": "Jabal", "meaning_en": "Mountain", "meaning_de": "Berg", "meaning_fr": "Montagne", "meaning_tr": "Dağ", "meaning_ru": "Гора", "emoji": "⛰️"},
+        {"id": "n8", "word": "شَجَرَة", "transliteration": "Shajara", "meaning_en": "Tree", "meaning_de": "Baum", "meaning_fr": "Arbre", "meaning_tr": "Ağaç", "meaning_ru": "Дерево", "emoji": "🌳"},
+        {"id": "n9", "word": "زَهْرَة", "transliteration": "Zahra", "meaning_en": "Flower", "meaning_de": "Blume", "meaning_fr": "Fleur", "meaning_tr": "Çiçek", "meaning_ru": "Цветок", "emoji": "🌸"},
+        {"id": "n10", "word": "أَرْض", "transliteration": "Ard", "meaning_en": "Earth", "meaning_de": "Erde", "meaning_fr": "Terre", "meaning_tr": "Toprak", "meaning_ru": "Земля", "emoji": "🌍"},
+    ],
+    "colors": [
+        {"id": "c1", "word": "أَحْمَر", "transliteration": "Ahmar", "meaning_en": "Red", "meaning_de": "Rot", "meaning_fr": "Rouge", "meaning_tr": "Kırmızı", "meaning_ru": "Красный", "emoji": "🔴"},
+        {"id": "c2", "word": "أَزْرَق", "transliteration": "Azraq", "meaning_en": "Blue", "meaning_de": "Blau", "meaning_fr": "Bleu", "meaning_tr": "Mavi", "meaning_ru": "Синий", "emoji": "🔵"},
+        {"id": "c3", "word": "أَخْضَر", "transliteration": "Akhdar", "meaning_en": "Green", "meaning_de": "Grün", "meaning_fr": "Vert", "meaning_tr": "Yeşil", "meaning_ru": "Зелёный", "emoji": "🟢"},
+        {"id": "c4", "word": "أَصْفَر", "transliteration": "Asfar", "meaning_en": "Yellow", "meaning_de": "Gelb", "meaning_fr": "Jaune", "meaning_tr": "Sarı", "meaning_ru": "Жёлтый", "emoji": "🟡"},
+        {"id": "c5", "word": "أَبْيَض", "transliteration": "Abyad", "meaning_en": "White", "meaning_de": "Weiß", "meaning_fr": "Blanc", "meaning_tr": "Beyaz", "meaning_ru": "Белый", "emoji": "⚪"},
+        {"id": "c6", "word": "أَسْوَد", "transliteration": "Aswad", "meaning_en": "Black", "meaning_de": "Schwarz", "meaning_fr": "Noir", "meaning_tr": "Siyah", "meaning_ru": "Чёрный", "emoji": "⚫"},
+        {"id": "c7", "word": "بُرْتُقَالِي", "transliteration": "Burtuqali", "meaning_en": "Orange", "meaning_de": "Orange", "meaning_fr": "Orange", "meaning_tr": "Turuncu", "meaning_ru": "Оранжевый", "emoji": "🟠"},
+        {"id": "c8", "word": "بَنَفْسَجِي", "transliteration": "Banafsaji", "meaning_en": "Purple", "meaning_de": "Lila", "meaning_fr": "Violet", "meaning_tr": "Mor", "meaning_ru": "Фиолетовый", "emoji": "🟣"},
+    ],
+    "home": [
+        {"id": "h1", "word": "بَيْت", "transliteration": "Bayt", "meaning_en": "House", "meaning_de": "Haus", "meaning_fr": "Maison", "meaning_tr": "Ev", "meaning_ru": "Дом", "emoji": "🏠"},
+        {"id": "h2", "word": "بَاب", "transliteration": "Bab", "meaning_en": "Door", "meaning_de": "Tür", "meaning_fr": "Porte", "meaning_tr": "Kapı", "meaning_ru": "Дверь", "emoji": "🚪"},
+        {"id": "h3", "word": "كُرْسِي", "transliteration": "Kursi", "meaning_en": "Chair", "meaning_de": "Stuhl", "meaning_fr": "Chaise", "meaning_tr": "Sandalye", "meaning_ru": "Стул", "emoji": "🪑"},
+        {"id": "h4", "word": "طَاوِلَة", "transliteration": "Tawila", "meaning_en": "Table", "meaning_de": "Tisch", "meaning_fr": "Table", "meaning_tr": "Masa", "meaning_ru": "Стол", "emoji": "🪵"},
+        {"id": "h5", "word": "سَرِير", "transliteration": "Sareer", "meaning_en": "Bed", "meaning_de": "Bett", "meaning_fr": "Lit", "meaning_tr": "Yatak", "meaning_ru": "Кровать", "emoji": "🛏️"},
+        {"id": "h6", "word": "نَافِذَة", "transliteration": "Nafidha", "meaning_en": "Window", "meaning_de": "Fenster", "meaning_fr": "Fenêtre", "meaning_tr": "Pencere", "meaning_ru": "Окно", "emoji": "🪟"},
+        {"id": "h7", "word": "مَسْجِد", "transliteration": "Masjid", "meaning_en": "Mosque", "meaning_de": "Moschee", "meaning_fr": "Mosquée", "meaning_tr": "Cami", "meaning_ru": "Мечеть", "emoji": "🕌"},
+        {"id": "h8", "word": "كِتَاب", "transliteration": "Kitab", "meaning_en": "Book", "meaning_de": "Buch", "meaning_fr": "Livre", "meaning_tr": "Kitap", "meaning_ru": "Книга", "emoji": "📖"},
+    ],
+    "verbs": [
+        {"id": "v1", "word": "كَتَبَ", "transliteration": "Kataba", "meaning_en": "Wrote", "meaning_de": "Schrieb", "meaning_fr": "A écrit", "meaning_tr": "Yazdı", "meaning_ru": "Написал", "emoji": "✍️"},
+        {"id": "v2", "word": "قَرَأَ", "transliteration": "Qara'a", "meaning_en": "Read", "meaning_de": "Las", "meaning_fr": "A lu", "meaning_tr": "Okudu", "meaning_ru": "Читал", "emoji": "📖"},
+        {"id": "v3", "word": "أَكَلَ", "transliteration": "Akala", "meaning_en": "Ate", "meaning_de": "Aß", "meaning_fr": "A mangé", "meaning_tr": "Yedi", "meaning_ru": "Ел", "emoji": "🍽️"},
+        {"id": "v4", "word": "شَرِبَ", "transliteration": "Shariba", "meaning_en": "Drank", "meaning_de": "Trank", "meaning_fr": "A bu", "meaning_tr": "İçti", "meaning_ru": "Пил", "emoji": "🥤"},
+        {"id": "v5", "word": "ذَهَبَ", "transliteration": "Dhahaba", "meaning_en": "Went", "meaning_de": "Ging", "meaning_fr": "Est allé", "meaning_tr": "Gitti", "meaning_ru": "Пошёл", "emoji": "🚶"},
+        {"id": "v6", "word": "جَلَسَ", "transliteration": "Jalasa", "meaning_en": "Sat", "meaning_de": "Saß", "meaning_fr": "S'est assis", "meaning_tr": "Oturdu", "meaning_ru": "Сел", "emoji": "🪑"},
+        {"id": "v7", "word": "نَامَ", "transliteration": "Nama", "meaning_en": "Slept", "meaning_de": "Schlief", "meaning_fr": "A dormi", "meaning_tr": "Uyudu", "meaning_ru": "Спал", "emoji": "😴"},
+        {"id": "v8", "word": "لَعِبَ", "transliteration": "La'iba", "meaning_en": "Played", "meaning_de": "Spielte", "meaning_fr": "A joué", "meaning_tr": "Oynadı", "meaning_ru": "Играл", "emoji": "⚽"},
+    ],
+    "greetings": [
+        {"id": "g1", "word": "السَّلَامُ عَلَيْكُم", "transliteration": "As-Salamu Alaykum", "meaning_en": "Peace be upon you", "meaning_de": "Friede sei mit euch", "meaning_fr": "Paix sur vous", "meaning_tr": "Selamun aleyküm", "meaning_ru": "Мир вам", "emoji": "🤝"},
+        {"id": "g2", "word": "صَبَاحُ الْخَيْر", "transliteration": "Sabah Al-Khayr", "meaning_en": "Good morning", "meaning_de": "Guten Morgen", "meaning_fr": "Bonjour", "meaning_tr": "Günaydın", "meaning_ru": "Доброе утро", "emoji": "🌅"},
+        {"id": "g3", "word": "مَسَاءُ الْخَيْر", "transliteration": "Masa' Al-Khayr", "meaning_en": "Good evening", "meaning_de": "Guten Abend", "meaning_fr": "Bonsoir", "meaning_tr": "İyi akşamlar", "meaning_ru": "Добрый вечер", "emoji": "🌆"},
+        {"id": "g4", "word": "شُكْرًا", "transliteration": "Shukran", "meaning_en": "Thank you", "meaning_de": "Danke", "meaning_fr": "Merci", "meaning_tr": "Teşekkürler", "meaning_ru": "Спасибо", "emoji": "🙏"},
+        {"id": "g5", "word": "مَعَ السَّلَامَة", "transliteration": "Ma'a As-Salama", "meaning_en": "Goodbye", "meaning_de": "Auf Wiedersehen", "meaning_fr": "Au revoir", "meaning_tr": "Güle güle", "meaning_ru": "До свидания", "emoji": "👋"},
+        {"id": "g6", "word": "مِنْ فَضْلِك", "transliteration": "Min Fadlik", "meaning_en": "Please", "meaning_de": "Bitte", "meaning_fr": "S'il vous plaît", "meaning_tr": "Lütfen", "meaning_ru": "Пожалуйста", "emoji": "😊"},
+    ],
+}
+
+SENTENCE_TEMPLATES = [
+    {"id": "s1", "words_ar": ["أَنَا", "أُحِبُّ", "التُّفَّاح"], "words_en": ["I", "love", "apples"], "sentence_ar": "أَنَا أُحِبُّ التُّفَّاح", "sentence_en": "I love apples", "difficulty": 1},
+    {"id": "s2", "words_ar": ["هَذَا", "كِتَاب", "جَمِيل"], "words_en": ["This is", "a book", "beautiful"], "sentence_ar": "هَذَا كِتَاب جَمِيل", "sentence_en": "This is a beautiful book", "difficulty": 1},
+    {"id": "s3", "words_ar": ["الْوَلَد", "يَلْعَبُ", "فِي الْحَدِيقَة"], "words_en": ["The boy", "plays", "in the park"], "sentence_ar": "الْوَلَد يَلْعَبُ فِي الْحَدِيقَة", "sentence_en": "The boy plays in the park", "difficulty": 2},
+    {"id": "s4", "words_ar": ["ذَهَبْتُ", "إِلَى", "الْمَسْجِد"], "words_en": ["I went", "to", "the mosque"], "sentence_ar": "ذَهَبْتُ إِلَى الْمَسْجِد", "sentence_en": "I went to the mosque", "difficulty": 1},
+    {"id": "s5", "words_ar": ["الشَّمْسُ", "سَاطِعَة", "الْيَوْم"], "words_en": ["The sun", "is bright", "today"], "sentence_ar": "الشَّمْسُ سَاطِعَة الْيَوْم", "sentence_en": "The sun is bright today", "difficulty": 2},
+    {"id": "s6", "words_ar": ["أُمِّي", "تَطْبَخُ", "طَعَامًا", "لَذِيذًا"], "words_en": ["My mother", "cooks", "food", "delicious"], "sentence_ar": "أُمِّي تَطْبَخُ طَعَامًا لَذِيذًا", "sentence_en": "My mother cooks delicious food", "difficulty": 2},
+    {"id": "s7", "words_ar": ["الْقَمَر", "جَمِيل", "فِي اللَّيْل"], "words_en": ["The moon", "is beautiful", "at night"], "sentence_ar": "الْقَمَر جَمِيل فِي اللَّيْل", "sentence_en": "The moon is beautiful at night", "difficulty": 2},
+    {"id": "s8", "words_ar": ["بِسْمِ اللَّه", "الرَّحْمَن", "الرَّحِيم"], "words_en": ["In the name of Allah", "the Most Gracious", "the Most Merciful"], "sentence_ar": "بِسْمِ اللَّه الرَّحْمَن الرَّحِيم", "sentence_en": "In the name of Allah, the Most Gracious, the Most Merciful", "difficulty": 1},
+    {"id": "s9", "words_ar": ["قَرَأَ", "الطِّفْل", "الْقُرْآن"], "words_en": ["Read", "the child", "the Quran"], "sentence_ar": "قَرَأَ الطِّفْل الْقُرْآن", "sentence_en": "The child read the Quran", "difficulty": 2},
+    {"id": "s10", "words_ar": ["الْمَاء", "ضَرُورِيّ", "لِلْحَيَاة"], "words_en": ["Water", "is essential", "for life"], "sentence_ar": "الْمَاء ضَرُورِيّ لِلْحَيَاة", "sentence_en": "Water is essential for life", "difficulty": 3},
+]
+
+# Build 90-day curriculum
+def build_90_day_curriculum():
+    days = []
+    day_num = 0
+    # Level 1: Alphabet (Days 1-30) - 28 letters + 2 review
+    for i, letter in enumerate(ARABIC_LETTERS):
+        day_num += 1
+        days.append({"day": day_num, "level": 1, "type": "letter", "content_id": letter["id"],
+                      "title_en": f"Letter: {letter['name_en']}", "title_ar": f"حرف: {letter['name_ar']}", "xp": 10})
+    days.append({"day": 29, "level": 1, "type": "review", "content_id": 0, "title_en": "Alphabet Review 1", "title_ar": "مراجعة الأبجدية ١", "xp": 20})
+    days.append({"day": 30, "level": 1, "type": "review", "content_id": 0, "title_en": "Alphabet Review 2", "title_ar": "مراجعة الأبجدية ٢", "xp": 20})
+    
+    # Level 2: Numbers (Days 31-42)
+    for i, num in enumerate(ARABIC_NUMBERS):
+        day_num = 31 + i
+        if day_num > 42: break
+        days.append({"day": day_num, "level": 2, "type": "number", "content_id": num["id"],
+                      "title_en": f"Number: {num['word_en']}", "title_ar": f"رقم: {num['word_ar']}", "xp": 10})
+    
+    # Level 3: Vocabulary (Days 43-78)
+    all_vocab = []
+    for cat_words in VOCAB_CATEGORIES.values():
+        all_vocab.extend(cat_words)
+    for i in range(36):
+        day_num = 43 + i
+        vocab_idx = i % len(all_vocab)
+        v = all_vocab[vocab_idx]
+        days.append({"day": day_num, "level": 3, "type": "vocab", "content_id": v["id"],
+                      "title_en": f"Word: {v['meaning_en']}", "title_ar": f"كلمة: {v['word']}", "xp": 10})
+    
+    # Level 4: Sentences (Days 79-90)
+    for i in range(12):
+        day_num = 79 + i
+        sent_idx = i % len(SENTENCE_TEMPLATES)
+        s = SENTENCE_TEMPLATES[sent_idx]
+        days.append({"day": day_num, "level": 4, "type": "sentence", "content_id": s["id"],
+                      "title_en": f"Sentence: {s['sentence_en'][:30]}...", "title_ar": f"جملة: {s['sentence_ar'][:30]}...", "xp": 15})
+    
+    return days
+
+CURRICULUM_90 = build_90_day_curriculum()
+
+@api_router.get("/arabic-academy/curriculum")
+async def get_curriculum():
+    """Get the full 90-day curriculum"""
+    return {"success": True, "curriculum": CURRICULUM_90, "total_days": len(CURRICULUM_90)}
+
+@api_router.get("/arabic-academy/curriculum/day/{day}")
+async def get_curriculum_day(day: int):
+    """Get specific day lesson"""
+    lesson = next((d for d in CURRICULUM_90 if d["day"] == day), None)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Day not found")
+    
+    content = None
+    if lesson["type"] == "letter":
+        content = next((l for l in ARABIC_LETTERS if l["id"] == lesson["content_id"]), None)
+    elif lesson["type"] == "number":
+        content = next((n for n in ARABIC_NUMBERS if n["id"] == lesson["content_id"]), None)
+    elif lesson["type"] == "vocab":
+        for cat_words in VOCAB_CATEGORIES.values():
+            found = next((v for v in cat_words if v["id"] == lesson["content_id"]), None)
+            if found:
+                content = found
+                break
+    elif lesson["type"] == "sentence":
+        content = next((s for s in SENTENCE_TEMPLATES if s["id"] == lesson["content_id"]), None)
+    
+    return {"success": True, "lesson": lesson, "content": content}
+
+@api_router.get("/arabic-academy/numbers")
+async def get_arabic_numbers():
+    """Get all Arabic numbers"""
+    return {"success": True, "numbers": ARABIC_NUMBERS, "total": len(ARABIC_NUMBERS)}
+
+@api_router.get("/arabic-academy/vocabulary")
+async def get_vocabulary(category: str = "all"):
+    """Get vocabulary by category"""
+    if category == "all":
+        all_words = []
+        for cat, words in VOCAB_CATEGORIES.items():
+            for w in words:
+                all_words.append({**w, "category": cat})
+        return {"success": True, "words": all_words, "total": len(all_words), "categories": list(VOCAB_CATEGORIES.keys())}
+    elif category in VOCAB_CATEGORIES:
+        words = [{**w, "category": category} for w in VOCAB_CATEGORIES[category]]
+        return {"success": True, "words": words, "total": len(words), "categories": list(VOCAB_CATEGORIES.keys())}
+    raise HTTPException(status_code=404, detail="Category not found")
+
+@api_router.get("/arabic-academy/sentences")
+async def get_sentences(difficulty: int = 0):
+    """Get sentence building templates"""
+    sentences = SENTENCE_TEMPLATES
+    if difficulty > 0:
+        sentences = [s for s in sentences if s["difficulty"] == difficulty]
+    return {"success": True, "sentences": sentences, "total": len(sentences)}
+
+@api_router.post("/arabic-academy/progress-v2")
+async def save_progress_v2(data: dict):
+    """Save enhanced progress with growth tree and day tracking"""
+    user_id = data.get("user_id", "guest")
+    update = {
+        "user_id": user_id,
+        "completed_days": data.get("completed_days", []),
+        "completed_letters": data.get("completed_letters", []),
+        "completed_numbers": data.get("completed_numbers", []),
+        "completed_vocab": data.get("completed_vocab", []),
+        "completed_sentences": data.get("completed_sentences", []),
+        "stars": data.get("stars", 0),
+        "total_xp": data.get("total_xp", 0),
+        "golden_bricks": data.get("golden_bricks", 0),
+        "tree_level": data.get("tree_level", 1),
+        "streak": data.get("streak", 0),
+        "last_activity": datetime.utcnow().isoformat(),
+    }
+    await db.arabic_progress.update_one({"user_id": user_id}, {"$set": update}, upsert=True)
+    return {"success": True, "message": "Progress saved"}
+
+@api_router.get("/arabic-academy/progress-v2/{user_id}")
+async def get_progress_v2(user_id: str):
+    """Get enhanced progress"""
+    progress = await db.arabic_progress.find_one({"user_id": user_id})
+    if not progress:
+        progress = {
+            "user_id": user_id, "completed_days": [], "completed_letters": [], "completed_numbers": [],
+            "completed_vocab": [], "completed_sentences": [], "stars": 0, "total_xp": 0,
+            "golden_bricks": 0, "tree_level": 1, "streak": 0, "last_activity": None
+        }
+    progress.pop("_id", None)
+    return {"success": True, "progress": progress}
 
 # ==================== LIVE STREAMS (MongoDB-backed + Admin CRUD) ====================
 
