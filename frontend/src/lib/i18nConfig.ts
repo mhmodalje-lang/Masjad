@@ -18,6 +18,9 @@ import deTranslations from '@/locales/de.json';
 import ruTranslations from '@/locales/ru.json';
 import frTranslations from '@/locales/fr.json';
 import trTranslations from '@/locales/tr.json';
+import svTranslations from '@/locales/sv.json';
+import nlTranslations from '@/locales/nl.json';
+import elTranslations from '@/locales/el.json';
 
 // RTL languages list
 export const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'yi', 'ku'];
@@ -30,6 +33,9 @@ export const SUPPORTED_LANGUAGES: Array<{code: string; label: string; flag: stri
   { code: 'ru', label: 'Русский', flag: '🇷🇺', dir: 'ltr', nativeName: 'Русский' },
   { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr', nativeName: 'Français' },
   { code: 'tr', label: 'Türkçe', flag: '🇹🇷', dir: 'ltr', nativeName: 'Türkçe' },
+  { code: 'sv', label: 'Svenska', flag: '🇸🇪', dir: 'ltr', nativeName: 'Svenska' },
+  { code: 'nl', label: 'Nederlands', flag: '🇳🇱', dir: 'ltr', nativeName: 'Nederlands' },
+  { code: 'el', label: 'Ελληνικά', flag: '🇬🇷', dir: 'ltr', nativeName: 'Ελληνικά' },
 ];
 
 export const SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map(l => l.code);
@@ -78,6 +84,9 @@ i18n
       ru: { translation: ruTranslations },
       fr: { translation: frTranslations },
       tr: { translation: trTranslations },
+      sv: { translation: svTranslations },
+      nl: { translation: nlTranslations },
+      el: { translation: elTranslations },
     },
     fallbackLng: 'ar',
     supportedLngs: SUPPORTED_LANGUAGE_CODES,

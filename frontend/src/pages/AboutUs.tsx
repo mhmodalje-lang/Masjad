@@ -26,12 +26,10 @@ export default function AboutUs() {
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Heart className="h-4 w-4 text-red-400" />
-            {isRTL ? 'رسالتنا' : 'Our Mission'}
+            {t('ourMission')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {isRTL
-              ? 'نهدف إلى تقديم تجربة إسلامية رقمية متكاملة تجمع بين التكنولوجيا الحديثة والقيم الإسلامية الأصيلة. نسعى لخدمة المسلمين حول العالم بأدوات تساعدهم في عبادتهم وتعلمهم الديني، مع الالتزام الكامل بالخصوصية وحماية البيانات.'
-              : 'We aim to provide a comprehensive digital Islamic experience that combines modern technology with authentic Islamic values. We strive to serve Muslims around the world with tools that help them in their worship and religious learning, with full commitment to privacy and data protection.'}
+            {t('ourMissionText')}
           </p>
         </div>
 
@@ -39,17 +37,15 @@ export default function AboutUs() {
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Star className="h-4 w-4 text-primary" />
-            {isRTL ? 'مميزاتنا' : 'Our Features'}
+            {t('ourFeatures')}
           </h3>
           <ul className="space-y-3 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'مواقيت صلاة دقيقة مع إشعارات الأذان' : 'Accurate prayer times with Azan notifications'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'قراءة القرآن الكريم مع التفسير' : 'Holy Quran reading with interpretation'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'مساعد ذكي مدعوم بالذكاء الاصطناعي' : 'AI-powered smart assistant'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'حكايات وقصص إسلامية ملهمة' : 'Inspiring Islamic stories'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'أدعية وأذكار يومية شاملة' : 'Comprehensive daily duas and adhkar'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'حاسبة الزكاة والتسبيح' : 'Zakat calculator and Tasbeeh'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'الرقية الشرعية بالفيديو والصوت' : 'Ruqyah with video and audio'}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{isRTL ? 'دعم متعدد اللغات (عربي، إنجليزي، ألماني، فرنسي، روسي، تركي)' : 'Multi-language support (Arabic, English, German, French, Russian, Turkish)'}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_prayer')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_quran')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_ai')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_stories')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_duas')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_zakat')}</li>
           </ul>
         </div>
 
@@ -57,15 +53,13 @@ export default function AboutUs() {
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Users className="h-4 w-4 text-blue-400" />
-            {isRTL ? 'فريقنا' : 'Our Team'}
+            {t('ourTeam')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            {isRTL
-              ? 'تم تطوير هذا التطبيق بحب وإخلاص لخدمة الأمة الإسلامية. نعمل باستمرار على تحسين التطبيق وإضافة ميزات جديدة.'
-              : 'This app was developed with love and dedication to serve the Islamic community. We continuously work on improving the app and adding new features.'}
+            {t('ourTeamText')}
           </p>
           <p className="text-sm text-primary font-bold mt-3">
-            {isRTL ? 'المؤسس: محمد الرجب' : 'Founder: Mohammed Al-Rejab'}
+            {t('founder')}: Mohammed Al-Rejab
           </p>
         </div>
 
@@ -73,10 +67,10 @@ export default function AboutUs() {
         <div className="rounded-2xl bg-card border border-border/30 p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Globe className="h-4 w-4 text-teal-400" />
-            {isRTL ? 'معلومات قانونية (Impressum)' : 'Legal Information (Impressum)'}
+            {t('legalInfo')}
           </h3>
           <div className="space-y-2 text-sm text-muted-foreground">
-            <p><strong>{isRTL ? 'المسؤول:' : 'Responsible:'}</strong> {isRTL ? 'محمد الرجب' : 'Mohammed Al-Rejab'}</p>
+            <p><strong>{t('responsible')}:</strong> Mohammed Al-Rejab</p>
             <p className="flex items-center gap-2">
               <Mail className="h-3.5 w-3.5" />
               <a href="mailto:mohammedalrejab@gmail.com" className="text-primary">mohammedalrejab@gmail.com</a>
@@ -90,7 +84,7 @@ export default function AboutUs() {
 
         {/* Links */}
         <div className="rounded-2xl bg-card border border-border/30 p-5">
-          <h3 className="text-base font-bold text-foreground mb-3">{isRTL ? 'روابط قانونية' : 'Legal Links'}</h3>
+          <h3 className="text-base font-bold text-foreground mb-3">{t('legalLinks')}</h3>
           <div className="space-y-2">
             <Link to="/privacy" className="block text-sm text-primary hover:underline">{t('privacyPolicy')} →</Link>
             <Link to="/terms" className="block text-sm text-primary hover:underline">{t('termsOfService')} →</Link>
@@ -98,7 +92,7 @@ export default function AboutUs() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground/40 pt-4">
-          {isRTL ? `أذان وحكاية v2.0 | جميع الحقوق محفوظة © ${new Date().getFullYear()}` : `Azan & Hikaya v2.0 | All rights reserved © ${new Date().getFullYear()}`}
+          {t('appName')} v2.0 | {t('allRightsReserved')} © {new Date().getFullYear()}
         </p>
       </div>
     </div>
