@@ -5740,6 +5740,412 @@ async def get_mosque_status(user_id: str = ""):
 
 
 
+# ==================== KIDS JOURNEY - CONNECTED LEARNING PATH ====================
+
+# IRS Method: Introduce → Recognize → Say
+# 5 Worlds, each with multiple stages, each stage has 3 activities
+
+JOURNEY_WORLDS = [
+    {
+        "id": "w1", "title_ar": "الحروف", "title_en": "Letters",
+        "emoji": "🔤", "color": "#3B82F6",
+        "description_ar": "تعلم الحروف العربية", "description_en": "Learn Arabic Letters",
+        "stages": [
+            {"id": "w1s1", "title_ar": "أ ب ت ث", "title_en": "Alif Ba Ta Tha", "letters": [1, 2, 3, 4], "type": "letters"},
+            {"id": "w1s2", "title_ar": "ج ح خ", "title_en": "Jim Ha Kha", "letters": [5, 6, 7], "type": "letters"},
+            {"id": "w1s3", "title_ar": "د ذ ر ز", "title_en": "Dal Dhal Ra Za", "letters": [8, 9, 10, 11], "type": "letters"},
+            {"id": "w1s4", "title_ar": "س ش ص ض", "title_en": "Sin Shin Sad Dad", "letters": [12, 13, 14, 15], "type": "letters"},
+            {"id": "w1s5", "title_ar": "ط ظ ع غ", "title_en": "Tah Zah Ain Ghain", "letters": [16, 17, 18, 19], "type": "letters"},
+            {"id": "w1s6", "title_ar": "ف ق ك ل", "title_en": "Fa Qaf Kaf Lam", "letters": [20, 21, 22, 23], "type": "letters"},
+            {"id": "w1s7", "title_ar": "م ن ه و ي", "title_en": "Mim Nun Ha Waw Ya", "letters": [24, 25, 26, 27, 28], "type": "letters"},
+            {"id": "w1boss", "title_ar": "تحدي الحروف", "title_en": "Letter Boss", "letters": list(range(1, 29)), "type": "boss"},
+        ],
+    },
+    {
+        "id": "w2", "title_ar": "الحركات", "title_en": "Vowels",
+        "emoji": "📝", "color": "#10B981",
+        "description_ar": "تعلم الحركات والتشكيل", "description_en": "Learn Harakat & Diacritics",
+        "stages": [
+            {"id": "w2s1", "title_ar": "الفَتحة", "title_en": "Fathah (a)", "haraka": "fathah", "type": "harakat",
+             "examples": [{"letter": "بَ", "sound": "ba"}, {"letter": "تَ", "sound": "ta"}, {"letter": "سَ", "sound": "sa"}, {"letter": "نَ", "sound": "na"}]},
+            {"id": "w2s2", "title_ar": "الكَسرة", "title_en": "Kasrah (i)", "haraka": "kasrah", "type": "harakat",
+             "examples": [{"letter": "بِ", "sound": "bi"}, {"letter": "تِ", "sound": "ti"}, {"letter": "سِ", "sound": "si"}, {"letter": "نِ", "sound": "ni"}]},
+            {"id": "w2s3", "title_ar": "الضَّمة", "title_en": "Dammah (u)", "haraka": "dammah", "type": "harakat",
+             "examples": [{"letter": "بُ", "sound": "bu"}, {"letter": "تُ", "sound": "tu"}, {"letter": "سُ", "sound": "su"}, {"letter": "نُ", "sound": "nu"}]},
+            {"id": "w2s4", "title_ar": "السُّكون", "title_en": "Sukoon", "haraka": "sukoon", "type": "harakat",
+             "examples": [{"letter": "بْ", "sound": "b"}, {"letter": "تْ", "sound": "t"}, {"letter": "سْ", "sound": "s"}, {"letter": "نْ", "sound": "n"}]},
+            {"id": "w2s5", "title_ar": "التنوين", "title_en": "Tanween", "haraka": "tanween", "type": "harakat",
+             "examples": [{"letter": "بًا", "sound": "ban"}, {"letter": "بٍ", "sound": "bin"}, {"letter": "بٌ", "sound": "bun"}]},
+            {"id": "w2boss", "title_ar": "تحدي الحركات", "title_en": "Harakat Boss", "haraka": "all", "type": "boss"},
+        ],
+    },
+    {
+        "id": "w3", "title_ar": "القراءة", "title_en": "Reading",
+        "emoji": "📖", "color": "#8B5CF6",
+        "description_ar": "تعلم قراءة الكلمات", "description_en": "Learn to Read Words",
+        "stages": [
+            {"id": "w3s1", "title_ar": "كلمات بسيطة", "title_en": "Simple Words", "type": "reading",
+             "words": [{"ar": "كَتَبَ", "en": "wrote", "trans": "kataba"}, {"ar": "ذَهَبَ", "en": "went", "trans": "dhahaba"}, {"ar": "قَرَأَ", "en": "read", "trans": "qara'a"}]},
+            {"id": "w3s2", "title_ar": "كلمات القرآن", "title_en": "Quran Words", "type": "reading",
+             "words": [{"ar": "بِسْمِ", "en": "In the name", "trans": "bismi"}, {"ar": "اللَّهِ", "en": "Allah", "trans": "Allahi"}, {"ar": "الرَّحْمَنِ", "en": "Most Gracious", "trans": "Ar-Rahmani"}]},
+            {"id": "w3s3", "title_ar": "جمل قصيرة", "title_en": "Short Phrases", "type": "reading",
+             "words": [{"ar": "الحَمْدُ لِلَّهِ", "en": "Praise be to Allah", "trans": "Alhamdulillah"}, {"ar": "سُبْحَانَ اللَّهِ", "en": "Glory to Allah", "trans": "SubhanAllah"}]},
+            {"id": "w3boss", "title_ar": "تحدي القراءة", "title_en": "Reading Boss", "type": "boss"},
+        ],
+    },
+    {
+        "id": "w4", "title_ar": "القرآن", "title_en": "Quran",
+        "emoji": "🕌", "color": "#F59E0B",
+        "description_ar": "اقرأ سور قصيرة", "description_en": "Read Short Surahs",
+        "stages": [
+            {"id": "w4s1", "title_ar": "الفاتحة", "title_en": "Al-Fatiha", "type": "surah",
+             "ayahs": ["بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", "الرَّحْمَنِ الرَّحِيمِ", "مَالِكِ يَوْمِ الدِّينِ", "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ"],
+             "meanings": ["In the name of Allah, Most Gracious, Most Merciful", "Praise be to Allah, Lord of all worlds", "The Most Gracious, Most Merciful", "Master of the Day of Judgment", "You alone we worship, You alone we ask for help", "Guide us to the straight path", "The path of those You have blessed, not of those who earned anger, nor of those who went astray"]},
+            {"id": "w4s2", "title_ar": "الإخلاص", "title_en": "Al-Ikhlas", "type": "surah",
+             "ayahs": ["بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", "قُلْ هُوَ اللَّهُ أَحَدٌ", "اللَّهُ الصَّمَدُ", "لَمْ يَلِدْ وَلَمْ يُولَدْ", "وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ"],
+             "meanings": ["In the name of Allah, Most Gracious, Most Merciful", "Say: He is Allah, the One", "Allah, the Eternal Refuge", "He neither begets nor was He begotten", "Nor is there to Him any equal"]},
+            {"id": "w4s3", "title_ar": "الناس", "title_en": "An-Nas", "type": "surah",
+             "ayahs": ["بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", "قُلْ أَعُوذُ بِرَبِّ النَّاسِ", "مَلِكِ النَّاسِ", "إِلَهِ النَّاسِ", "مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ", "الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ", "مِنَ الْجِنَّةِ وَالنَّاسِ"],
+             "meanings": ["In the name of Allah, Most Gracious, Most Merciful", "Say: I seek refuge in the Lord of mankind", "The King of mankind", "The God of mankind", "From the evil of the whisperer who withdraws", "Who whispers in the chests of mankind", "From among the jinn and mankind"]},
+            {"id": "w4s4", "title_ar": "الفلق", "title_en": "Al-Falaq", "type": "surah",
+             "ayahs": ["بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ", "مِنْ شَرِّ مَا خَلَقَ", "وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ", "وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ", "وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ"],
+             "meanings": ["In the name of Allah, Most Gracious, Most Merciful", "Say: I seek refuge in the Lord of daybreak", "From the evil of that which He created", "From the evil of darkness when it settles", "From the evil of the blowers in knots", "From the evil of an envier when they envy"]},
+            {"id": "w4boss", "title_ar": "تحدي القرآن", "title_en": "Quran Boss", "type": "boss"},
+        ],
+    },
+    {
+        "id": "w5", "title_ar": "التجويد", "title_en": "Tajweed",
+        "emoji": "🎯", "color": "#EF4444",
+        "description_ar": "أحكام التجويد", "description_en": "Tajweed Rules",
+        "stages": [
+            {"id": "w5s1", "title_ar": "إظهار و إدغام", "title_en": "Izhar & Idgham", "type": "tajweed",
+             "rules": [
+                 {"id": "izhar", "name_ar": "إظهار", "name_en": "Clear", "desc": "Noon Sakinah before throat letters", "example": "مَنْ آمَنَ"},
+                 {"id": "idgham", "name_ar": "إدغام", "name_en": "Merge", "desc": "Noon Sakinah before ي ن م و ل ر", "example": "مَن يَعْمَلُ"},
+             ]},
+            {"id": "w5s2", "title_ar": "إخفاء و إقلاب", "title_en": "Ikhfa & Iqlab", "type": "tajweed",
+             "rules": [
+                 {"id": "ikhfa", "name_ar": "إخفاء", "name_en": "Hide", "desc": "Noon Sakinah before 15 letters", "example": "مِنْ قَبْلِ"},
+                 {"id": "iqlab", "name_ar": "إقلاب", "name_en": "Convert", "desc": "Noon Sakinah before ب", "example": "أَنْبِئْهُمْ"},
+             ]},
+            {"id": "w5s3", "title_ar": "المدود", "title_en": "Madd (Stretching)", "type": "tajweed",
+             "rules": [
+                 {"id": "madd_tabii", "name_ar": "مد طبيعي", "name_en": "Natural (2 counts)", "desc": "Alif after Fathah, Ya after Kasrah, Waw after Dammah", "example": "قَالَ"},
+             ]},
+            {"id": "w5s4", "title_ar": "القلقلة", "title_en": "Qalqalah", "type": "tajweed",
+             "rules": [
+                 {"id": "qalqalah", "name_ar": "قلقلة", "name_en": "Echo", "desc": "Bouncing sound on ق ط ب ج د with Sukoon", "example": "أَحَدْ"},
+             ]},
+            {"id": "w5boss", "title_ar": "تحدي التجويد", "title_en": "Tajweed Boss", "type": "boss"},
+        ],
+    },
+]
+
+def build_flat_stages():
+    """Build a flat list of all stages with world info."""
+    stages = []
+    for w in JOURNEY_WORLDS:
+        for s in w["stages"]:
+            stages.append({**s, "world_id": w["id"], "world_title_ar": w["title_ar"], "world_emoji": w["emoji"], "world_color": w["color"]})
+    return stages
+
+ALL_STAGES = build_flat_stages()
+STAGE_INDEX = {s["id"]: i for i, s in enumerate(ALL_STAGES)}
+
+
+@api_router.get("/kids-zone/journey")
+async def get_journey(user_id: str = ""):
+    """Get the full learning journey map with user progress."""
+    # Get user progress
+    prog = await db.kids_journey.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+    if not prog:
+        prog = {"user_id": user_id or "guest", "completed": {}, "stars": {}, "current_stage": "w1s1"}
+
+    completed = prog.get("completed", {})
+    stars_map = prog.get("stars", {})
+    current = prog.get("current_stage", "w1s1")
+
+    # Build worlds with unlock status
+    worlds = []
+    prev_unlocked = True
+    for w in JOURNEY_WORLDS:
+        stages = []
+        world_completed = 0
+        for s in w["stages"]:
+            sid = s["id"]
+            is_complete = completed.get(sid, False)
+            st = stars_map.get(sid, 0)
+            is_current = sid == current
+            is_unlocked = prev_unlocked
+            if is_complete:
+                world_completed += 1
+                prev_unlocked = True
+            elif is_current:
+                is_unlocked = True
+                prev_unlocked = False
+            else:
+                prev_unlocked = False
+
+            stages.append({
+                "id": sid,
+                "title_ar": s["title_ar"],
+                "title_en": s.get("title_en", ""),
+                "type": s["type"],
+                "unlocked": is_unlocked,
+                "completed": is_complete,
+                "stars": st,
+                "is_current": is_current,
+                "is_boss": s["type"] == "boss",
+            })
+        worlds.append({
+            "id": w["id"],
+            "title_ar": w["title_ar"],
+            "title_en": w["title_en"],
+            "emoji": w["emoji"],
+            "color": w["color"],
+            "description_ar": w["description_ar"],
+            "description_en": w["description_en"],
+            "stages": stages,
+            "progress": world_completed,
+            "total": len(stages),
+        })
+    
+    # Get mosque/XP data
+    skill = await db.kids_skills.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+    xp = skill.get("total_xp", 0) if skill else 0
+    bricks_val = skill.get("golden_bricks", 0) if skill else 0
+
+    return {
+        "success": True,
+        "worlds": worlds,
+        "current_stage": current,
+        "total_xp": xp,
+        "golden_bricks": bricks_val,
+        "mosque": get_mosque_progress(bricks_val),
+    }
+
+
+@api_router.get("/kids-zone/stage/{stage_id}")
+async def get_stage_content(stage_id: str, user_id: str = ""):
+    """Get the IRS content for a specific stage."""
+    import random
+    if stage_id not in STAGE_INDEX:
+        raise HTTPException(status_code=404, detail="Stage not found")
+
+    idx = STAGE_INDEX[stage_id]
+    stage = ALL_STAGES[idx]
+    stype = stage["type"]
+
+    # Build IRS (Introduce-Recognize-Say) activities
+    activities = []
+
+    if stype == "letters":
+        letter_ids = stage.get("letters", [])
+        letters = [lt for lt in ARABIC_LETTERS if lt["id"] in letter_ids]
+        # INTRODUCE: Show letters with names and sounds
+        activities.append({
+            "phase": "introduce",
+            "phase_ar": "تعرّف",
+            "phase_emoji": "👁️",
+            "content": [{
+                "id": lt["id"], "letter": lt["letter"], "name_ar": lt["name_ar"],
+                "name_en": lt["name_en"], "transliteration": lt["transliteration"],
+                "audio_hint": lt["audio_hint"], "example_word": lt["example_word"],
+                "example_meaning": lt["example_meaning"],
+            } for lt in letters],
+        })
+        # RECOGNIZE: Find letters in grid
+        target = random.choice(letters)
+        distractors = [lt for lt in ARABIC_LETTERS if lt["id"] not in letter_ids]
+        grid_size = 3
+        grid = []
+        for r in range(grid_size):
+            row = []
+            for c in range(grid_size):
+                if r == 0 and c == 0:
+                    row.append({"letter": target["letter"], "id": target["id"], "correct": True})
+                else:
+                    d = random.choice(distractors)
+                    row.append({"letter": d["letter"], "id": d["id"], "correct": False})
+            grid.append(row)
+        tr = random.randint(0, grid_size - 1)
+        tc = random.randint(0, grid_size - 1)
+        grid[0][0], grid[tr][tc] = grid[tr][tc], grid[0][0]
+        activities.append({
+            "phase": "recognize",
+            "phase_ar": "اكتشف",
+            "phase_emoji": "🔍",
+            "game_type": "find_letter",
+            "target": {"id": target["id"], "letter": target["letter"], "name_ar": target["name_ar"], "audio_hint": target["audio_hint"]},
+            "grid": grid, "grid_size": grid_size,
+        })
+        # SAY: Pronounce each letter
+        activities.append({
+            "phase": "say",
+            "phase_ar": "انطق",
+            "phase_emoji": "🎤",
+            "targets": [{"id": lt["id"], "letter": lt["letter"], "word": lt["example_word"], "transliteration": lt["transliteration"]} for lt in letters],
+        })
+
+    elif stype == "harakat":
+        examples = stage.get("examples", [])
+        activities.append({
+            "phase": "introduce", "phase_ar": "تعرّف", "phase_emoji": "👁️",
+            "haraka": stage.get("haraka"), "title_ar": stage["title_ar"],
+            "content": examples,
+        })
+        # RECOGNIZE: Match letter+haraka to sound
+        random.shuffle(examples)
+        activities.append({
+            "phase": "recognize", "phase_ar": "اكتشف", "phase_emoji": "🔍",
+            "game_type": "match_sound",
+            "pairs": [{"display": ex["letter"], "answer": ex["sound"]} for ex in examples],
+        })
+        activities.append({
+            "phase": "say", "phase_ar": "انطق", "phase_emoji": "🎤",
+            "targets": [{"letter": ex["letter"], "word": ex["letter"], "transliteration": ex["sound"]} for ex in examples],
+        })
+
+    elif stype == "reading":
+        words = stage.get("words", [])
+        activities.append({
+            "phase": "introduce", "phase_ar": "تعرّف", "phase_emoji": "👁️",
+            "content": words,
+        })
+        shuffled_meanings = list(words)
+        random.shuffle(shuffled_meanings)
+        activities.append({
+            "phase": "recognize", "phase_ar": "اكتشف", "phase_emoji": "🔍",
+            "game_type": "match_meaning",
+            "words": [{"ar": w["ar"], "trans": w["trans"]} for w in words],
+            "meanings": [{"ar": w["ar"], "en": w["en"]} for w in shuffled_meanings],
+        })
+        activities.append({
+            "phase": "say", "phase_ar": "انطق", "phase_emoji": "🎤",
+            "targets": [{"letter": w["ar"], "word": w["ar"], "transliteration": w["trans"]} for w in words],
+        })
+
+    elif stype == "surah":
+        ayahs = stage.get("ayahs", [])
+        meanings = stage.get("meanings", [])
+        activities.append({
+            "phase": "introduce", "phase_ar": "تعرّف", "phase_emoji": "👁️",
+            "surah_name": stage["title_ar"],
+            "ayahs": [{"text": a, "meaning": meanings[i] if i < len(meanings) else ""} for i, a in enumerate(ayahs)],
+        })
+        # RECOGNIZE: Put ayahs in correct order
+        indices = list(range(len(ayahs)))
+        shuffled = list(indices)
+        random.shuffle(shuffled)
+        activities.append({
+            "phase": "recognize", "phase_ar": "اكتشف", "phase_emoji": "🔍",
+            "game_type": "order_ayahs",
+            "shuffled_ayahs": [{"text": ayahs[i], "correct_index": i} for i in shuffled],
+        })
+        activities.append({
+            "phase": "say", "phase_ar": "انطق", "phase_emoji": "🎤",
+            "targets": [{"letter": a, "word": a, "transliteration": ""} for a in ayahs[:3]],
+        })
+
+    elif stype == "tajweed":
+        rules = stage.get("rules", [])
+        activities.append({
+            "phase": "introduce", "phase_ar": "تعرّف", "phase_emoji": "👁️",
+            "content": rules,
+        })
+        target_rule = random.choice(rules)
+        all_rule_ids = ["izhar", "idgham", "ikhfa", "iqlab", "madd_tabii", "qalqalah"]
+        choices = [target_rule["id"]]
+        others = [r for r in all_rule_ids if r != target_rule["id"]]
+        choices.extend(random.sample(others, min(2, len(others))))
+        random.shuffle(choices)
+        activities.append({
+            "phase": "recognize", "phase_ar": "اكتشف", "phase_emoji": "🔍",
+            "game_type": "identify_rule",
+            "example": target_rule["example"],
+            "rule_name_ar": target_rule["name_ar"],
+            "correct": target_rule["id"],
+            "choices": choices,
+        })
+        activities.append({
+            "phase": "say", "phase_ar": "انطق", "phase_emoji": "🎤",
+            "targets": [{"letter": r["example"], "word": r["example"], "transliteration": r["name_en"]} for r in rules],
+        })
+
+    elif stype == "boss":
+        activities.append({
+            "phase": "boss", "phase_ar": "تحدي", "phase_emoji": "🏆",
+            "world_id": stage["world_id"],
+        })
+
+    return {
+        "success": True,
+        "stage": {
+            "id": stage_id,
+            "title_ar": stage["title_ar"],
+            "title_en": stage.get("title_en", ""),
+            "type": stype,
+            "world_id": stage["world_id"],
+            "world_emoji": stage["world_emoji"],
+            "world_color": stage["world_color"],
+        },
+        "activities": activities,
+    }
+
+
+@api_router.post("/kids-zone/complete-stage")
+async def complete_stage(payload: dict):
+    """Mark a stage as complete and unlock next."""
+    user_id = payload.get("user_id", "guest")
+    stage_id = payload.get("stage_id", "")
+    stars_earned = min(3, max(1, payload.get("stars", 1)))
+
+    if stage_id not in STAGE_INDEX:
+        raise HTTPException(status_code=404, detail="Stage not found")
+
+    idx = STAGE_INDEX[stage_id]
+    next_id = ALL_STAGES[idx + 1]["id"] if idx + 1 < len(ALL_STAGES) else None
+
+    # Update journey progress
+    prog = await db.kids_journey.find_one({"user_id": user_id})
+    if not prog:
+        prog = {"id": str(uuid.uuid4()), "user_id": user_id, "completed": {}, "stars": {}, "current_stage": "w1s1"}
+        await db.kids_journey.insert_one(prog)
+
+    update = {
+        "$set": {
+            f"completed.{stage_id}": True,
+            f"stars.{stage_id}": max(stars_earned, prog.get("stars", {}).get(stage_id, 0)),
+        }
+    }
+    if next_id:
+        update["$set"]["current_stage"] = next_id
+
+    await db.kids_journey.update_one({"user_id": user_id}, update)
+
+    # Also award XP and bricks
+    xp_reward = 15 if "boss" in stage_id else 10
+    brick_reward = 3 if "boss" in stage_id else 1
+    await db.kids_skills.update_one(
+        {"user_id": user_id},
+        {"$inc": {"total_xp": xp_reward, "golden_bricks": brick_reward, "games_played": 1}},
+        upsert=True,
+    )
+
+    skill = await db.kids_skills.find_one({"user_id": user_id}, {"_id": 0})
+    bricks_val = skill.get("golden_bricks", 0) if skill else brick_reward
+
+    return {
+        "success": True,
+        "stars": stars_earned,
+        "xp_earned": xp_reward,
+        "bricks_earned": brick_reward,
+        "next_stage": next_id,
+        "mosque": get_mosque_progress(bricks_val),
+    }
+
+
+
 # ==================== APP SETUP ====================
 app.include_router(api_router)
 

@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any, List
 
 # Base URL from frontend .env file
-BASE_URL = "https://audit-rebuild.preview.emergentagent.com"
+BASE_URL = "https://structured-learning-3.preview.emergentagent.com"
 
 def test_endpoint(method: str, endpoint: str, expected_status: int = 200, params: Dict = None, json_data: Dict = None) -> Dict[str, Any]:
     """Test a single endpoint and return results"""
