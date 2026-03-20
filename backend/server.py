@@ -5306,6 +5306,440 @@ async def batch_translate_stories(
     return {"message": f"Translated {translated_count} stories to {target_lang}", "count": translated_count}
 
 
+
+# ==================== KIDS ZONE - INFINITE GAME ENGINE (PCG) ====================
+
+# Confusable phoneme pairs for adaptive difficulty
+CONFUSABLE_PHONEMES = [
+    (6, 7, "ح", "خ"),   # Ha vs Kha
+    (12, 13, "س", "ش"), # Sin vs Shin
+    (14, 15, "ص", "ض"), # Sad vs Dad
+    (16, 17, "ط", "ظ"), # Tah vs Zah
+    (8, 9, "د", "ذ"),   # Dal vs Dhal
+    (4, 5, "ث", "ج"),   # Tha vs Jim
+    (18, 19, "ع", "غ"), # Ain vs Ghain
+    (26, 27, "ه", "و"), # Ha2 vs Waw
+    (3, 16, "ت", "ط"),  # Ta vs emphatic Tah
+    (8, 15, "د", "ض"),  # Dal vs emphatic Dad
+]
+
+# Difficulty tiers with thresholds
+DIFFICULTY_TIERS = [
+    {"name": "seedling", "min_xp": 0, "choices": 2, "time_bonus": 30, "brick_reward": 1},
+    {"name": "sprout", "min_xp": 100, "choices": 3, "time_bonus": 25, "brick_reward": 2},
+    {"name": "sapling", "min_xp": 300, "choices": 4, "time_bonus": 20, "brick_reward": 3},
+    {"name": "tree", "min_xp": 600, "choices": 4, "time_bonus": 15, "brick_reward": 4},
+    {"name": "forest", "min_xp": 1000, "choices": 5, "time_bonus": 12, "brick_reward": 5},
+]
+
+# Virtual Mosque building stages
+MOSQUE_STAGES = [
+    {"stage": 1, "name": "foundation", "bricks_needed": 10, "emoji": "🧱"},
+    {"stage": 2, "name": "walls", "bricks_needed": 25, "emoji": "🏗️"},
+    {"stage": 3, "name": "dome", "bricks_needed": 50, "emoji": "🕌"},
+    {"stage": 4, "name": "minaret", "bricks_needed": 80, "emoji": "🗼"},
+    {"stage": 5, "name": "garden", "bricks_needed": 120, "emoji": "🌳"},
+    {"stage": 6, "name": "golden_dome", "bricks_needed": 200, "emoji": "✨"},
+]
+
+def get_difficulty_tier(total_xp: int) -> dict:
+    tier = DIFFICULTY_TIERS[0]
+    for t in DIFFICULTY_TIERS:
+        if total_xp >= t["min_xp"]:
+            tier = t
+    return tier
+
+def get_mosque_progress(total_bricks: int) -> dict:
+    current_stage = MOSQUE_STAGES[0]
+    next_stage = MOSQUE_STAGES[1] if len(MOSQUE_STAGES) > 1 else None
+    for i, stage in enumerate(MOSQUE_STAGES):
+        if total_bricks >= stage["bricks_needed"]:
+            current_stage = stage
+            next_stage = MOSQUE_STAGES[i + 1] if i + 1 < len(MOSQUE_STAGES) else None
+    return {
+        "current_stage": current_stage,
+        "next_stage": next_stage,
+        "total_bricks": total_bricks,
+        "bricks_to_next": (next_stage["bricks_needed"] - total_bricks) if next_stage else 0,
+        "progress_pct": min(100, int((total_bricks / (next_stage["bricks_needed"] if next_stage else current_stage["bricks_needed"])) * 100)),
+        "stages": MOSQUE_STAGES,
+    }
+
+
+@api_router.get("/kids-zone/generate-game")
+async def generate_game(user_id: str = "", game_type: str = "auto", locale: str = "ar"):
+    """Procedural Content Generator: generates a game based on user skill gaps."""
+    import random
+    
+    # Get or create user skill profile
+    skill = await db.kids_skills.find_one({"user_id": user_id}) if user_id else None
+    if not skill:
+        skill = {
+            "user_id": user_id or "guest",
+            "phoneme_accuracy": {},
+            "total_xp": 0,
+            "golden_bricks": 0,
+            "games_played": 0,
+            "weak_phonemes": [],
+        }
+    
+    tier = get_difficulty_tier(skill.get("total_xp", 0))
+    phoneme_acc = skill.get("phoneme_accuracy", {})
+    
+    # Identify weak phonemes (accuracy < 70%)
+    weak_letters = []
+    for pair in CONFUSABLE_PHONEMES:
+        id_a, id_b = str(pair[0]), str(pair[1])
+        acc_a = phoneme_acc.get(id_a, {}).get("accuracy", 50)
+        acc_b = phoneme_acc.get(id_b, {}).get("accuracy", 50)
+        if acc_a < 70:
+            weak_letters.append(pair[0])
+        if acc_b < 70:
+            weak_letters.append(pair[1])
+    
+    # Auto-select game type based on weak areas
+    game_types = ["letter_maze", "word_match", "tajweed_puzzle", "pronunciation"]
+    if game_type == "auto":
+        if weak_letters:
+            # Prioritize pronunciation and letter games for weak phonemes
+            game_type = random.choice(["letter_maze", "pronunciation", "tajweed_puzzle"])
+        else:
+            game_type = random.choice(game_types)
+    
+    # Procedurally generate game content
+    if game_type == "letter_maze":
+        game_data = _gen_letter_maze(tier, weak_letters)
+    elif game_type == "word_match":
+        game_data = _gen_word_match(tier)
+    elif game_type == "tajweed_puzzle":
+        game_data = _gen_tajweed_puzzle(tier, weak_letters)
+    elif game_type == "pronunciation":
+        game_data = _gen_pronunciation(tier, weak_letters)
+    else:
+        game_data = _gen_word_match(tier)
+    
+    game_id = str(uuid.uuid4())
+    game_data["game_id"] = game_id
+    game_data["game_type"] = game_type
+    game_data["difficulty"] = tier["name"]
+    game_data["time_limit"] = tier["time_bonus"]
+    game_data["brick_reward"] = tier["brick_reward"]
+    game_data["xp_reward"] = 10 + (DIFFICULTY_TIERS.index(tier) * 5)
+    
+    return {"success": True, "game": game_data}
+
+
+def _gen_letter_maze(tier: dict, weak_letters: list) -> dict:
+    """Generate a letter identification maze game."""
+    import random
+    # Pick target letters - prefer weak ones
+    all_letters = list(ARABIC_LETTERS)
+    if weak_letters:
+        targets = [lt for lt in all_letters if lt["id"] in weak_letters]
+        if len(targets) < 2:
+            targets = random.sample(all_letters, 2)
+    else:
+        targets = random.sample(all_letters, min(3, tier["choices"]))
+    
+    target = random.choice(targets)
+    # Generate grid with distractors
+    grid_size = 3 if tier["choices"] <= 3 else 4
+    grid = []
+    distractors = [lt for lt in all_letters if lt["id"] != target["id"]]
+    
+    for row in range(grid_size):
+        grid_row = []
+        for col in range(grid_size):
+            if row == 0 and col == 0:
+                grid_row.append({"letter": target["letter"], "id": target["id"], "is_target": True})
+            else:
+                d = random.choice(distractors)
+                grid_row.append({"letter": d["letter"], "id": d["id"], "is_target": False})
+        grid.append(grid_row)
+    
+    # Shuffle target position
+    target_row = random.randint(0, grid_size - 1)
+    target_col = random.randint(0, grid_size - 1)
+    grid[0][0], grid[target_row][target_col] = grid[target_row][target_col], grid[0][0]
+    
+    # Add confusable pair if exists
+    confusable = None
+    for pair in CONFUSABLE_PHONEMES:
+        if target["id"] == pair[0]:
+            confusable = {"id": pair[1], "letter": pair[3]}
+            break
+        if target["id"] == pair[1]:
+            confusable = {"id": pair[0], "letter": pair[2]}
+            break
+    
+    return {
+        "target_letter": {
+            "id": target["id"],
+            "letter": target["letter"],
+            "name_ar": target["name_ar"],
+            "name_en": target["name_en"],
+            "transliteration": target["transliteration"],
+            "audio_hint": target["audio_hint"],
+            "example_word": target["example_word"],
+            "example_meaning": target["example_meaning"],
+        },
+        "grid": grid,
+        "grid_size": grid_size,
+        "confusable": confusable,
+        "find_count": 1,
+    }
+
+
+def _gen_word_match(tier: dict) -> dict:
+    """Generate a Quranic word matching game."""
+    import random
+    pool = list(QURAN_VOCAB)
+    count = min(tier["choices"], len(pool))
+    selected = random.sample(pool, count)
+    
+    words = [{"id": w["id"], "word": w["word"], "transliteration": w["transliteration"]} for w in selected]
+    meanings = [{"id": w["id"], "meaning": w["meaning"], "surah": w["surah"]} for w in selected]
+    random.shuffle(meanings)
+    
+    return {
+        "words": words,
+        "meanings": meanings,
+        "pair_count": count,
+    }
+
+
+def _gen_tajweed_puzzle(tier: dict, weak_letters: list) -> dict:
+    """Generate a Tajweed pronunciation rule puzzle."""
+    import random
+    
+    tajweed_rules = [
+        {"id": "idgham", "name_ar": "إدغام", "name_en": "Idgham (Merging)", "description": "When Noon Sakinah or Tanween is followed by ي ن م و ل ر", "example": "مَن يَعْمَلُ", "correct_rule": "merge"},
+        {"id": "ikhfa", "name_ar": "إخفاء", "name_en": "Ikhfa (Hiding)", "description": "When Noon Sakinah or Tanween is followed by 15 specific letters", "example": "مِنْ قَبْلِ", "correct_rule": "hide"},
+        {"id": "iqlab", "name_ar": "إقلاب", "name_en": "Iqlab (Conversion)", "description": "When Noon Sakinah or Tanween is followed by ب", "example": "أَنْبِئْهُمْ", "correct_rule": "convert"},
+        {"id": "izhar", "name_ar": "إظهار", "name_en": "Izhar (Clear)", "description": "When Noon Sakinah or Tanween is followed by throat letters", "example": "مَنْ آمَنَ", "correct_rule": "clear"},
+        {"id": "madd_tabii", "name_ar": "مدّ طبيعي", "name_en": "Madd Tabii (Natural)", "description": "Alif after Fathah, Ya after Kasrah, or Waw after Dammah (2 counts)", "example": "قَالَ", "correct_rule": "natural_stretch"},
+        {"id": "qalqalah", "name_ar": "قلقلة", "name_en": "Qalqalah (Echoing)", "description": "Bouncing sound on Sukoon of letters ق ط ب ج د", "example": "أَحَدْ", "correct_rule": "echo"},
+    ]
+    
+    selected = random.sample(tajweed_rules, min(3, len(tajweed_rules)))
+    target_rule = random.choice(selected)
+    
+    # Generate choices - one correct + distractors
+    all_rules = [r["correct_rule"] for r in tajweed_rules]
+    choices = [target_rule["correct_rule"]]
+    distractors = [r for r in all_rules if r != target_rule["correct_rule"]]
+    choices.extend(random.sample(distractors, min(tier["choices"] - 1, len(distractors))))
+    random.shuffle(choices)
+    
+    return {
+        "question_rule": {
+            "id": target_rule["id"],
+            "name_ar": target_rule["name_ar"],
+            "name_en": target_rule["name_en"],
+            "example": target_rule["example"],
+        },
+        "description": target_rule["description"],
+        "choices": choices,
+        "correct_answer": target_rule["correct_rule"],
+        "all_rules": [{"id": r["id"], "name_ar": r["name_ar"], "name_en": r["name_en"], "correct_rule": r["correct_rule"]} for r in tajweed_rules],
+    }
+
+
+def _gen_pronunciation(tier: dict, weak_letters: list) -> dict:
+    """Generate a pronunciation challenge targeting weak phonemes."""
+    import random
+    
+    # Pick words from Quran vocab + letter examples
+    candidates = []
+    if weak_letters:
+        for lt in ARABIC_LETTERS:
+            if lt["id"] in weak_letters:
+                candidates.append({
+                    "word": lt["example_word"],
+                    "transliteration": lt["transliteration"],
+                    "meaning": lt["example_meaning"],
+                    "letter_id": lt["id"],
+                    "letter": lt["letter"],
+                    "source": "letter",
+                })
+    
+    # Add Quranic words
+    for qw in QURAN_VOCAB:
+        candidates.append({
+            "word": qw["word"],
+            "transliteration": qw["transliteration"],
+            "meaning": qw["meaning"],
+            "letter_id": None,
+            "letter": None,
+            "source": "quran",
+        })
+    
+    if not candidates:
+        candidates = [{"word": lt["example_word"], "transliteration": lt["transliteration"], "meaning": lt["example_meaning"], "letter_id": lt["id"], "letter": lt["letter"], "source": "letter"} for lt in ARABIC_LETTERS]
+    
+    target = random.choice(candidates)
+    accuracy_threshold = max(60, 85 - (DIFFICULTY_TIERS.index(tier) * 5))
+    
+    return {
+        "target_word": target["word"],
+        "transliteration": target["transliteration"],
+        "meaning": target["meaning"],
+        "letter_id": target["letter_id"],
+        "letter": target["letter"],
+        "source": target["source"],
+        "accuracy_threshold": accuracy_threshold,
+    }
+
+
+@api_router.post("/kids-zone/submit-result")
+async def submit_game_result(payload: dict):
+    """Submit game result and update skill profile."""
+    user_id = payload.get("user_id", "guest")
+    game_type = payload.get("game_type", "")
+    correct = payload.get("correct", False)
+    score = payload.get("score", 0)
+    phonemes_tested = payload.get("phonemes_tested", [])
+    pronunciation_accuracy = payload.get("pronunciation_accuracy", 0)
+    
+    # Get or create skill profile
+    skill = await db.kids_skills.find_one({"user_id": user_id})
+    if not skill:
+        skill = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "phoneme_accuracy": {},
+            "total_xp": 0,
+            "golden_bricks": 0,
+            "games_played": 0,
+            "weak_phonemes": [],
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        await db.kids_skills.insert_one(skill)
+    
+    # Calculate rewards
+    xp_earned = score if correct else max(2, score // 3)
+    tier = get_difficulty_tier(skill.get("total_xp", 0))
+    bricks_earned = tier["brick_reward"] if correct else 0
+    
+    # Update phoneme accuracy for tested phonemes
+    phoneme_acc = skill.get("phoneme_accuracy", {})
+    for pid in phonemes_tested:
+        pid_str = str(pid)
+        if pid_str not in phoneme_acc:
+            phoneme_acc[pid_str] = {"attempts": 0, "correct": 0, "accuracy": 50}
+        phoneme_acc[pid_str]["attempts"] += 1
+        if correct:
+            phoneme_acc[pid_str]["correct"] += 1
+        total = phoneme_acc[pid_str]["attempts"]
+        corr = phoneme_acc[pid_str]["correct"]
+        phoneme_acc[pid_str]["accuracy"] = int((corr / total) * 100) if total > 0 else 50
+    
+    # For pronunciation games, also update based on accuracy
+    if game_type == "pronunciation" and pronunciation_accuracy > 0:
+        for pid in phonemes_tested:
+            pid_str = str(pid)
+            if pid_str in phoneme_acc:
+                # Blend speech accuracy with game accuracy
+                old_acc = phoneme_acc[pid_str]["accuracy"]
+                phoneme_acc[pid_str]["accuracy"] = int((old_acc * 0.7) + (pronunciation_accuracy * 0.3))
+    
+    # Identify new weak phonemes
+    weak = []
+    for pair in CONFUSABLE_PHONEMES:
+        for pid in [pair[0], pair[1]]:
+            pid_str = str(pid)
+            if pid_str in phoneme_acc and phoneme_acc[pid_str]["accuracy"] < 70:
+                weak.append(pid)
+    
+    # Update skill profile
+    update = {
+        "$set": {
+            "phoneme_accuracy": phoneme_acc,
+            "weak_phonemes": weak,
+            "updated_at": datetime.utcnow().isoformat(),
+        },
+        "$inc": {
+            "total_xp": xp_earned,
+            "golden_bricks": bricks_earned,
+            "games_played": 1,
+        },
+    }
+    await db.kids_skills.update_one({"user_id": user_id}, update)
+    
+    new_xp = skill.get("total_xp", 0) + xp_earned
+    new_bricks = skill.get("golden_bricks", 0) + bricks_earned
+    new_tier = get_difficulty_tier(new_xp)
+    mosque = get_mosque_progress(new_bricks)
+    
+    return {
+        "success": True,
+        "xp_earned": xp_earned,
+        "bricks_earned": bricks_earned,
+        "total_xp": new_xp,
+        "total_bricks": new_bricks,
+        "difficulty": new_tier["name"],
+        "mosque_progress": mosque,
+        "weak_phonemes": weak,
+        "level_up": new_tier["name"] != tier["name"],
+    }
+
+
+@api_router.get("/kids-zone/progress")
+async def get_kids_progress(user_id: str = ""):
+    """Get user's skill map and progression data."""
+    skill = await db.kids_skills.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+    if not skill:
+        skill = {
+            "user_id": user_id or "guest",
+            "phoneme_accuracy": {},
+            "total_xp": 0,
+            "golden_bricks": 0,
+            "games_played": 0,
+            "weak_phonemes": [],
+        }
+    
+    tier = get_difficulty_tier(skill.get("total_xp", 0))
+    mosque = get_mosque_progress(skill.get("golden_bricks", 0))
+    
+    # Build per-letter skill map
+    letter_skills = []
+    for lt in ARABIC_LETTERS:
+        pid = str(lt["id"])
+        acc_data = skill.get("phoneme_accuracy", {}).get(pid, {"accuracy": 50, "attempts": 0, "correct": 0})
+        letter_skills.append({
+            "id": lt["id"],
+            "letter": lt["letter"],
+            "name_ar": lt["name_ar"],
+            "accuracy": acc_data.get("accuracy", 50),
+            "attempts": acc_data.get("attempts", 0),
+            "is_weak": lt["id"] in skill.get("weak_phonemes", []),
+        })
+    
+    return {
+        "success": True,
+        "profile": {
+            "total_xp": skill.get("total_xp", 0),
+            "golden_bricks": skill.get("golden_bricks", 0),
+            "games_played": skill.get("games_played", 0),
+            "difficulty": tier["name"],
+            "tier": tier,
+            "weak_phonemes": skill.get("weak_phonemes", []),
+        },
+        "letter_skills": letter_skills,
+        "mosque": mosque,
+        "confusable_pairs": [{"a": p[2], "b": p[3], "id_a": p[0], "id_b": p[1]} for p in CONFUSABLE_PHONEMES],
+    }
+
+
+@api_router.get("/kids-zone/mosque")
+async def get_mosque_status(user_id: str = ""):
+    """Get the virtual mosque building progress."""
+    skill = await db.kids_skills.find_one({"user_id": user_id}, {"_id": 0}) if user_id else None
+    bricks = skill.get("golden_bricks", 0) if skill else 0
+    return {"success": True, "mosque": get_mosque_progress(bricks)}
+
+
+
 # ==================== APP SETUP ====================
 app.include_router(api_router)
 
