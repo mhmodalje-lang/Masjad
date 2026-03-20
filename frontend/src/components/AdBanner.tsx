@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, ExternalLink } from 'lucide-react';
+import i18n from '@/lib/i18nConfig';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -115,7 +116,7 @@ export function AdBanner({ position }: { position: string }) {
             <div className="relative aspect-video bg-black">
               <iframe
                 src={`https://www.youtube.com/embed/${videoId}?rel=0${muteParam}`}
-                title={ad.name || 'فيديو'}
+                title={ad.name || i18n.t('videoLabel')}
                 className="w-full h-full"
                 frameBorder={0}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -125,7 +126,7 @@ export function AdBanner({ position }: { position: string }) {
             {ad.name && (
               <div className="px-3 py-2 flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground truncate">{ad.name}</span>
-                <span className="text-[9px] text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded">إعلان</span>
+                <span className="text-[9px] text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded">{i18n.t('adLabel')}</span>
               </div>
             )}
           </div>
@@ -142,14 +143,14 @@ export function AdBanner({ position }: { position: string }) {
         <div className="w-full max-w-lg mx-auto rounded-2xl overflow-hidden border border-primary/10">
           {ad.link_url ? (
             <a href={ad.link_url} target="_blank" rel="noopener noreferrer nofollow">
-              <img src={imgUrl} alt={ad.name || 'إعلان'} className="w-full rounded-t-2xl" loading="lazy" />
+              <img src={imgUrl} alt={ad.name || i18n.t('adLabel')} className="w-full rounded-t-2xl" loading="lazy" />
             </a>
           ) : (
-            <img src={imgUrl} alt={ad.name || 'إعلان'} className="w-full rounded-t-2xl" loading="lazy" />
+            <img src={imgUrl} alt={ad.name || i18n.t('adLabel')} className="w-full rounded-t-2xl" loading="lazy" />
           )}
           <div className="bg-card px-3 py-1.5 flex items-center justify-between">
             {ad.name && <span className="text-[11px] text-foreground/70 font-medium truncate">{ad.name}</span>}
-            <span className="text-[9px] text-muted-foreground/50">إعلان</span>
+            <span className="text-[9px] text-muted-foreground/50">{i18n.t('adLabel')}</span>
           </div>
         </div>
       </div>
@@ -167,10 +168,10 @@ export function AdBanner({ position }: { position: string }) {
               <ExternalLink className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-foreground truncate">{ad.name || 'رابط'}</p>
+              <p className="text-sm font-bold text-foreground truncate">{ad.name || i18n.t('linkLabel')}</p>
               <p className="text-[10px] text-muted-foreground truncate">{adCode}</p>
             </div>
-            <span className="text-[9px] text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded shrink-0">إعلان</span>
+            <span className="text-[9px] text-muted-foreground/50 bg-muted/50 px-1.5 py-0.5 rounded shrink-0">{i18n.t('adLabel')}</span>
           </div>
         </a>
       </div>

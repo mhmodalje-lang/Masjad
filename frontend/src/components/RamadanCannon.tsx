@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import i18n from '@/lib/i18nConfig';
 
 interface RamadanCannonProps {
   show: boolean;
@@ -161,10 +162,10 @@ export default function RamadanCannon({ show, onComplete }: RamadanCannonProps) 
             className="text-center mt-6"
           >
             <p className="text-3xl font-bold text-amber-400 font-arabic" style={{ textShadow: '0 2px 10px rgba(245,158,11,0.5)' }}>
-              🌙 مدفع الإفطار 🌙
+              🌙 {i18n.t('iftarCannon')} 🌙
             </p>
             <p className="text-white/70 text-sm mt-2 font-arabic">
-              اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ
+              {i18n.t('iftarDuaText')}
             </p>
           </motion.div>
         </div>

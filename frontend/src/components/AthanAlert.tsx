@@ -142,7 +142,7 @@ export default function AthanAlert({ prayerKey, prayerTime, onDismiss }: AthanAl
               className="text-white/30 text-sm font-arabic leading-relaxed max-w-xs"
               dir="rtl"
             >
-              حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ
+              {t('guardPrayers')}
             </motion.p>
           </motion.div>
 

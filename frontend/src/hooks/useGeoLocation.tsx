@@ -128,7 +128,7 @@ export function useGeoLocation() {
 
         try {
           const res = await fetch(
-            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${i18n.language || 'en'}`
           );
           const data = await res.json();
           const countryCode = data.countryCode || '';

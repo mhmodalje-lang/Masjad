@@ -1,9 +1,11 @@
+import i18n from '@/lib/i18nConfig';
+
 export default function MosqueScene() {
   return (
     <div className="relative w-full h-48 overflow-hidden">
       <img
         src="/mecca-hero.webp"
-        alt="المسجد الحرام - مكة المكرمة"
+        alt={i18n.t('holyMosque')}
         className="w-full h-full object-cover"
         loading="eager"
       />

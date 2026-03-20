@@ -1,17 +1,18 @@
 import { ExternalLink } from 'lucide-react';
+import i18n from '@/lib/i18nConfig';
 
 interface VideoItem {
   id: string;
-  title: string;
-  channel: string;
+  titleKey: string;
+  channelKey: string;
   youtubeId: string;
 }
 
 const videos: VideoItem[] = [
-  { id: '1', title: 'سورة يس - تلاوة خاشعة', channel: 'القرآن الكريم', youtubeId: 'CZyaMQPQzKU' },
-  { id: '2', title: 'أذكار الصباح كاملة', channel: 'أذكار المسلم', youtubeId: 'XeAKk15nf7U' },
-  { id: '3', title: 'سورة الكهف كاملة', channel: 'القرآن الكريم', youtubeId: 'pr3wAE8u5sY' },
-  { id: '4', title: 'دعاء الرزق والفرج', channel: 'أدعية مستجابة', youtubeId: 'HcNsBCLBVVs' },
+  { id: '1', titleKey: 'videoSurahYasin', channelKey: 'channelQuranKareem', youtubeId: 'CZyaMQPQzKU' },
+  { id: '2', titleKey: 'videoMorningAdhkar', channelKey: 'channelAdhkarMuslim', youtubeId: 'XeAKk15nf7U' },
+  { id: '3', titleKey: 'videoSurahKahf', channelKey: 'channelQuranKareem', youtubeId: 'pr3wAE8u5sY' },
+  { id: '4', titleKey: 'videoDuaRizq', channelKey: 'channelDuasAccepted', youtubeId: 'HcNsBCLBVVs' },
 ];
 
 function VideoThumb({ video }: { video: VideoItem }) {
@@ -25,7 +26,7 @@ function VideoThumb({ video }: { video: VideoItem }) {
   return (
     <img
       src={`https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`}
-      alt={video.title}
+      alt={i18n.t(video.titleKey)}
       className="w-full h-full object-cover group-active:scale-105 transition-transform"
       loading="lazy"
       decoding="async"
@@ -58,8 +59,8 @@ export default function VideoContentCarousel() {
               <ExternalLink className="h-3 w-3 text-white" />
             </div>
           </div>
-          <p className="text-xs font-medium mt-2 text-end line-clamp-2 leading-relaxed">{video.title}</p>
-          <p className="text-xs text-muted-foreground text-end">{video.channel}</p>
+          <p className="text-xs font-medium mt-2 text-end line-clamp-2 leading-relaxed">{i18n.t(video.titleKey)}</p>
+          <p className="text-xs text-muted-foreground text-end">{i18n.t(video.channelKey)}</p>
         </a>
       ))}
     </div>

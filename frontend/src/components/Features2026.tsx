@@ -38,7 +38,7 @@ export function DailyDuaWidget() {
         }
       })
       .catch(() => {
-        setDua({ text: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى', source: 'صحيح مسلم' });
+        setDua({ text: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى', source: t('sahihMuslim') });
       });
   }, []);
 
@@ -235,7 +235,7 @@ export function VerseOfDay() {
         }
       })
       .catch(() => {
-        setVerse({ text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', surah: 'الطلاق', ayah: 2 });
+        setVerse({ text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', surah: t('surahAtTalaq'), ayah: 2 });
       });
   }, []);
 
@@ -274,7 +274,7 @@ export function HadithOfDay() {
         }
       })
       .catch(() => {
-        setHadith({ text: 'إنما الأعمال بالنيات وإنما لكل امرئ ما نوى', narrator: 'عمر بن الخطاب', source: 'البخاري ومسلم' });
+        setHadith({ text: 'إنما الأعمال بالنيات وإنما لكل امرئ ما نوى', narrator: t('umarIbnKhattab'), source: t('bukhariAndMuslim') });
       });
   }, []);
 
@@ -285,7 +285,7 @@ export function HadithOfDay() {
       <p className="text-[14px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         «{hadith.text}»
       </p>
-      <p className="text-[10px] text-muted-foreground mt-2">عن {hadith.narrator} - {hadith.source}</p>
+      <p className="text-[10px] text-muted-foreground mt-2">{t('narratedBy')} {hadith.narrator} - {hadith.source}</p>
     </div>
   );
 }

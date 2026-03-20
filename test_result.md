@@ -94,6 +94,23 @@ Phase 1: Arabic Academy + Noor Mascot, Nordic GPS Fix, Live Streams
 - **Hadith API**: Extended to return Arabic text + English translation for all non-Arabic users
 - **DailyHadith component**: Shows Arabic + translation side by side for non-Arabic languages
 
+## Translation System Fix Progress (2026-03-20 - Comprehensive Arabic Text Cleanup)
+### Phase 7 - Hardcoded Arabic Text Cleanup:
+- **useGeoLocation.tsx**: Fixed `localityLanguage=ar` hardcoded → now uses `i18n.language` dynamically. City name shows in user's language (e.g., "Osnabrück" in English instead of "أوسنابروك")
+- **Features2026.tsx**: Fixed Dua/Verse/Hadith fallback content:
+  - Dua source: "صحيح مسلم" → t('sahihMuslim')
+  - Verse surah: "الطلاق" → t('surahAtTalaq')  
+  - Hadith reference: "عن عمر بن الخطاب - البخاري ومسلم" → t('narratedBy') + t('umarIbnKhattab') + t('bukhariAndMuslim')
+- **AdBanner.tsx**: Replaced 7 hardcoded Arabic labels (إعلان, فيديو, رابط) with i18n.t()
+- **VideoContentCarousel.tsx**: All 4 video titles and channels translated with keys
+- **QiblaMap.tsx**: Map popup labels (الكعبة المشرفة, موقعك, خط اتجاه القبلة) now use i18n.t()
+- **MosqueScene.tsx**: Alt text "المسجد الحرام" → i18n.t('holyMosque')
+- **AnalyticsTracker.tsx**: 21 Arabic page names replaced with i18n.t(key) translation keys
+- **RamadanCannon.tsx**: "مدفع الإفطار" and iftar dua text now use i18n.t()
+- **OccasionAthanAlert.tsx**: All hardcoded Arabic strings (حان وقت الصلاة, اللّهُ أَكْبَرُ, إغلاق, etc.) → t() keys
+- **AthanAlert.tsx**: Hardcoded Quran verse now uses t('guardPrayers')
+- **Added 36 new translation keys** to all 9 locale files (ar, en, de, fr, ru, tr, nl, sv, el)
+
 ## Translation System Fix Progress (2026-03-19)
 ### Phase 4 - Final Fix: Athan Selection, Adhkar References, Install Banner, AthanAlert:
 - Fixed AthanSelector: All 9 athan names now show in selected language (Makkah Athan, Madinah Athan, etc.)

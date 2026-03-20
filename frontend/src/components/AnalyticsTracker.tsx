@@ -1,32 +1,33 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackPageView, initAnalytics, setAnalyticsUserProperties } from '@/lib/analytics';
+import i18n from '@/lib/i18nConfig';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
-// Page name mapping for Arabic names
-const PAGE_NAMES: Record<string, string> = {
-  '/': 'الرئيسية',
-  '/prayer-times': 'مواقيت الصلاة',
-  '/qibla': 'اتجاه القبلة',
-  '/quran': 'القرآن الكريم',
-  '/tasbeeh': 'التسبيح',
-  '/duas': 'الأدعية',
-  '/more': 'المزيد',
-  '/tracker': 'متتبع الصلاة',
-  '/zakat': 'حاسبة الزكاة',
-  '/stories': 'الحكايات',
-  '/auth': 'تسجيل الدخول',
-  '/admin': 'لوحة التحكم',
-  '/ruqyah': 'الرقية الشرعية',
-  '/asma-al-husna': 'أسماء الله الحسنى',
-  '/sohba': 'صُحبة',
-  '/explore': 'استكشاف',
-  '/ai-assistant': 'المساعد الذكي',
-  '/marketplace': 'السوق',
-  '/rewards': 'المكافآت',
-  '/store': 'المتجر',
-  '/donations': 'التبرعات',
+// Page name mapping using translation keys
+const PAGE_NAME_KEYS: Record<string, string> = {
+  '/': 'home',
+  '/prayer-times': 'prayerTimes',
+  '/qibla': 'qibla',
+  '/quran': 'quran',
+  '/tasbeeh': 'tasbeeh',
+  '/duas': 'duas',
+  '/more': 'more',
+  '/tracker': 'prayerTracker',
+  '/zakat': 'zakatCalculator',
+  '/stories': 'stories',
+  '/auth': 'auth',
+  '/admin': 'admin',
+  '/ruqyah': 'ruqyah',
+  '/asma-al-husna': 'asmaAlHusna',
+  '/sohba': 'sohba',
+  '/explore': 'explore',
+  '/ai-assistant': 'aiAssistant',
+  '/marketplace': 'marketplace',
+  '/rewards': 'rewards',
+  '/store': 'store',
+  '/donations': 'donations',
 };
 
 // Get or create session ID
@@ -63,7 +64,8 @@ export default function AnalyticsTracker() {
   // Track page views on route change
   useEffect(() => {
     const pagePath = location.pathname;
-    const pageName = PAGE_NAMES[pagePath] || pagePath;
+    const pageKey = PAGE_NAME_KEYS[pagePath];
+    const pageName = pageKey ? i18n.t(pageKey) : pagePath;
 
     // Firebase Analytics
     trackPageView(pagePath, pageName);

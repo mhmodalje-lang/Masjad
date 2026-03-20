@@ -93,17 +93,17 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
 
   const prayerName = isAr ? info.nameAr : info.nameEn;
   const titleText = isIftar
-    ? (isAr ? 'حان وقت الإفطار' : 'Time to break your fast')
+    ? t('iftarTime')
     : isTakbirat
-      ? 'اللّهُ أَكْبَرُ'
-      : (isAr ? 'حان وقت الصلاة' : 'Time for Prayer');
+      ? t('allahuAkbar')
+      : t('timeToPray');
   const prayerLabel = isIftar
-    ? (isAr ? 'الإفطار' : 'Iftar')
-    : (isAr ? `صلاة ${info.nameAr}` : `${info.nameEn} Prayer`);
+    ? t('iftar')
+    : (isAr ? `${t('prayerLabel')} ${info.nameAr}` : `${info.nameEn} ${t('prayerLabel')}`);
   const audioText = isTakbirat
-    ? (isAr ? 'جاري تشغيل التكبيرات...' : 'Playing Takbirat...')
-    : (isAr ? 'جاري تشغيل الأذان...' : 'Playing Athan...');
-  const dismissText = isAr ? 'إغلاق' : 'Dismiss';
+    ? t('playingTakbirat')
+    : t('playingAthan');
+  const dismissText = t('dismissBtn');
 
   // Generate stars
   const stars = Array.from({ length: 30 }, (_, i) => ({
@@ -249,7 +249,7 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                     {occasion.duaAr}
                   </p>
                   <p className="text-white/40 text-xs mt-2">
-                    {isAr ? 'دعاء الإفطار' : 'Iftar Dua'}
+                    {t('iftarDuaTitle')}
                   </p>
                 </motion.div>
               )}
@@ -281,7 +281,7 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                 transition={{ delay: 1 }}
                 className="text-white/25 text-sm font-arabic leading-relaxed max-w-xs"
               >
-                {occasion?.message || 'حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ'}
+                {occasion?.message || t('guardPrayers')}
               </motion.p>
             </motion.div>
 

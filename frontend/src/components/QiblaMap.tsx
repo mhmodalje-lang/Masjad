@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import i18n from '@/lib/i18nConfig';
 
 const MAKKAH_LAT = 21.4225;
 const MAKKAH_LNG = 39.8262;
@@ -78,11 +79,11 @@ export default function QiblaMap({ userLat, userLng, city }: QiblaMapProps) {
     // Add markers
     L.marker([MAKKAH_LAT, MAKKAH_LNG], { icon: kaabaIcon })
       .addTo(map)
-      .bindPopup('<b>الكعبة المشرفة</b><br/>مكة المكرمة');
+      .bindPopup(`<b>${i18n.t('kaabaLabel')}</b><br/>${i18n.t('makkahCity')}`);
 
     L.marker([userLat, userLng], { icon: userIcon })
       .addTo(map)
-      .bindPopup(`<b>موقعك</b><br/>${city || ''}`);
+      .bindPopup(`<b>${i18n.t('yourLocation')}</b><br/>${city || ''}`);
 
     // Qibla line (geodesic approximation with intermediate points)
     const points: [number, number][] = [];
@@ -127,14 +128,14 @@ export default function QiblaMap({ userLat, userLng, city }: QiblaMapProps) {
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 px-1">
         <div className="flex items-center gap-2 min-w-0">
           <div className="h-[2px] w-4 border-t-2 border-dashed border-primary" />
-          <span className="text-[10px] text-muted-foreground break-words">خط اتجاه القبلة</span>
+          <span className="text-[10px] text-muted-foreground break-words">{i18n.t('qiblaLine')}</span>
         </div>
         <div className="flex min-w-0 items-center gap-1.5">
           <span className="text-xs">🕋</span>
-          <span className="text-[10px] text-muted-foreground">الكعبة</span>
+          <span className="text-[10px] text-muted-foreground">{i18n.t('kaabaLabel')}</span>
           <span className="mx-1 text-muted-foreground/30">|</span>
           <span className="text-xs">📍</span>
-          <span className="text-[10px] text-muted-foreground">موقعك</span>
+          <span className="text-[10px] text-muted-foreground">{i18n.t('yourLocation')}</span>
         </div>
       </div>
     </div>
