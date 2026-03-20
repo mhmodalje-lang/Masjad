@@ -31,31 +31,37 @@ function getRuqyahCategories(t: (key: string) => string) {
   ];
 }
 
-function getStaticRuqyah(t: (key: string) => string) {
+function getStaticRuqyah(t: (key: string) => string, locale: string) {
+  const isAr = locale === 'ar';
   return [
     {
       id: 'ayat-kursi', title: t('ruqyahAyatKursiTitle'), subtitle: t('ruqyahAyatKursiSubtitle'), icon: '🛡',
       arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+      translation: isAr ? '' : t('ruqyahAyatKursiTranslation'),
       reference: t('ruqyahRefBaqara255'), category: 'protection',
     },
     {
       id: 'falaq', title: t('ruqyahFalaqTitle'), subtitle: t('ruqyahFalaqSubtitle'), icon: '🧿',
       arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+      translation: isAr ? '' : t('ruqyahFalaqTranslation'),
       reference: t('ruqyahRefFalaq'), category: 'envy',
     },
     {
       id: 'nas', title: t('ruqyahNasTitle'), subtitle: t('ruqyahNasSubtitle'), icon: '💭',
       arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ',
+      translation: isAr ? '' : t('ruqyahNasTranslation'),
       reference: t('ruqyahRefNas'), category: 'whispers',
     },
     {
       id: 'ikhlas', title: t('ruqyahIkhlasTitle'), subtitle: t('ruqyahIkhlasSubtitle'), icon: '📖',
       arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
+      translation: isAr ? '' : t('ruqyahIkhlasTranslation'),
       reference: t('ruqyahRefIkhlas'), category: 'general',
     },
     {
       id: 'home-protection', title: t('ruqyahHomeProtTitle'), subtitle: t('ruqyahHomeProtSubtitle'), icon: '🏠',
-      arabic: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ\n\n' + t('ruqyahReadThrice'),
+      arabic: 'بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ',
+      translation: isAr ? '' : t('ruqyahHomeProtTranslation') + '\n\n' + t('ruqyahReadThrice'),
       reference: t('ruqyahRefSahihHadith'), category: 'protection',
     },
   ];
@@ -83,13 +89,13 @@ export default function Ruqyah() {
   const goBack = useSmartBack();
   const { t, dir, locale } = useLocale();
   const categories = getRuqyahCategories(t);
-  const staticRuqyah = getStaticRuqyah(t);
+  const staticRuqyah = getStaticRuqyah(t, locale);
   const [allContent, setAllContent] = useState<any[]>(staticRuqyah);
 
   useEffect(() => {
     // Regenerate static content when locale changes
     setAllContent(prev => {
-      const newStatic = getStaticRuqyah(t);
+      const newStatic = getStaticRuqyah(t, locale);
       const staticIds = new Set(newStatic.map(s => s.id));
       const apiItems = prev.filter(item => !staticIds.has(item.id));
       return [...newStatic, ...apiItems];
@@ -117,7 +123,7 @@ export default function Ruqyah() {
           }));
           const staticIds = new Set(staticRuqyah.map(s => s.id));
           const uniqueApiItems = items.filter((i: any) => !staticIds.has(i.id));
-          setAllContent([...getStaticRuqyah(t), ...uniqueApiItems]);
+          setAllContent([...getStaticRuqyah(t, locale), ...uniqueApiItems]);
         }
       }).catch(() => {});
   }, []);
@@ -217,13 +223,35 @@ export default function Ruqyah() {
                   )}
                   {item.arabic && (
                     <div className="bg-background rounded-xl p-4 border border-border/20">
-                      <p
-                        className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
-                        dir="rtl"
-                        style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif", wordSpacing: '2px' }}
-                      >
-                        {item.arabic}
-                      </p>
+                      {/* Show translation first for non-Arabic users */}
+                      {item.translation && locale !== 'ar' && (
+                        <p className="text-base text-foreground leading-relaxed mb-3 whitespace-pre-line" dir={dir}>
+                          {item.translation}
+                        </p>
+                      )}
+                      {/* Arabic original - collapsible for non-Arabic */}
+                      {locale !== 'ar' && (
+                        <details className="mt-2">
+                          <summary className="text-xs text-primary cursor-pointer font-bold">{t('showArabicOriginal')}</summary>
+                          <p
+                            className="text-base text-foreground/80 leading-[2.4] text-center whitespace-pre-line mt-2"
+                            dir="rtl"
+                            style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif", wordSpacing: '2px' }}
+                          >
+                            {item.arabic}
+                          </p>
+                        </details>
+                      )}
+                      {/* Arabic users see the text directly */}
+                      {locale === 'ar' && (
+                        <p
+                          className="text-base text-foreground leading-[2.4] text-center whitespace-pre-line"
+                          dir="rtl"
+                          style={{ fontFamily: "'Amiri', 'Traditional Arabic', 'Noto Naskh Arabic', serif", wordSpacing: '2px' }}
+                        >
+                          {item.arabic}
+                        </p>
+                      )}
                     </div>
                   )}
                   <div className="flex items-center justify-between gap-2">

@@ -4609,23 +4609,188 @@ async def get_letter_quiz(letter_id: int):
         }
     }
 
-# ==================== LIVE STREAMS ====================
+# ==================== LIVE STREAMS (MongoDB-backed + Admin CRUD) ====================
+
+DEFAULT_STREAMS = [
+    {
+        "id": str(uuid.uuid4())[:8],
+        "name": "Makkah Live - الحرم المكي",
+        "embed_type": "channel",
+        "embed_value": "UC2l1w7FCuff2-h429sAUSXQ",
+        "thumbnail": "",
+        "city": "Makkah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 1
+    },
+    {
+        "id": str(uuid.uuid4())[:8],
+        "name": "Madinah Live - المسجد النبوي",
+        "embed_type": "video",
+        "embed_value": "rHWSRMcGGBQ",
+        "thumbnail": "",
+        "city": "Madinah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 2
+    },
+    {
+        "id": str(uuid.uuid4())[:8],
+        "name": "Al-Aqsa Mosque Live - المسجد الأقصى",
+        "embed_type": "channel",
+        "embed_value": "UC2l1w7FCuff2-h429sAUSXQ",
+        "thumbnail": "",
+        "city": "Jerusalem",
+        "country": "Palestine",
+        "category": "holy",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 3
+    },
+]
 
 @api_router.get("/live-streams")
 async def get_live_streams(category: str = "all"):
-    """Get available live streams"""
-    streams = LIVE_STREAMS
+    """Get available live streams from DB"""
+    query = {"is_active": True}
     if category != "all":
-        streams = [s for s in streams if s["category"] == category]
+        query["category"] = category
+    streams_cursor = db.live_streams.find(query).sort("sort_order", 1)
+    streams = []
+    async for s in streams_cursor:
+        s.pop("_id", None)
+        # Build embed URL
+        if s.get("embed_type") == "channel":
+            s["embed_url"] = f"https://www.youtube.com/embed/live_stream?channel={s['embed_value']}"
+        else:
+            s["embed_url"] = f"https://www.youtube.com/embed/{s['embed_value']}"
+        streams.append(s)
+    # If no streams in DB, seed defaults
+    if not streams and category == "all":
+        for ds in DEFAULT_STREAMS:
+            await db.live_streams.insert_one({**ds})
+        return await get_live_streams(category)
     return {"success": True, "streams": streams, "total": len(streams)}
 
 @api_router.get("/live-streams/{stream_id}")
 async def get_live_stream(stream_id: str):
     """Get a specific live stream"""
-    stream = next((s for s in LIVE_STREAMS if s["id"] == stream_id), None)
+    stream = await db.live_streams.find_one({"id": stream_id})
     if not stream:
         raise HTTPException(status_code=404, detail="Stream not found")
+    stream.pop("_id", None)
+    if stream.get("embed_type") == "channel":
+        stream["embed_url"] = f"https://www.youtube.com/embed/live_stream?channel={stream['embed_value']}"
+    else:
+        stream["embed_url"] = f"https://www.youtube.com/embed/{stream['embed_value']}"
     return {"success": True, "stream": stream}
+
+# Admin CRUD for Live Streams
+@api_router.post("/admin/live-streams")
+async def admin_create_stream(data: dict, user: dict = Depends(get_user)):
+    """Admin: Add a new live stream"""
+    if not user or user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    # Parse embed URL/ID from user input
+    embed_input = data.get("embed_url", "").strip()
+    embed_type = "video"
+    embed_value = embed_input
+    
+    # Detect embed type from URL
+    if "youtube.com/embed/live_stream?channel=" in embed_input:
+        embed_type = "channel"
+        embed_value = embed_input.split("channel=")[-1].split("&")[0]
+    elif "youtube.com/embed/" in embed_input:
+        embed_value = embed_input.split("/embed/")[-1].split("?")[0]
+    elif "youtube.com/watch?v=" in embed_input:
+        embed_value = embed_input.split("v=")[-1].split("&")[0]
+    elif "youtu.be/" in embed_input:
+        embed_value = embed_input.split("youtu.be/")[-1].split("?")[0]
+    elif "youtube.com/channel/" in embed_input:
+        embed_type = "channel"
+        embed_value = embed_input.split("/channel/")[-1].split("/")[0]
+    
+    stream = {
+        "id": str(uuid.uuid4())[:8],
+        "name": data.get("name", "Live Stream"),
+        "embed_type": embed_type,
+        "embed_value": embed_value,
+        "thumbnail": data.get("thumbnail", ""),
+        "city": data.get("city", ""),
+        "country": data.get("country", ""),
+        "category": data.get("category", "other"),
+        "is_247": data.get("is_247", False),
+        "is_active": True,
+        "sort_order": data.get("sort_order", 99),
+        "created_at": datetime.utcnow().isoformat(),
+        "created_by": user["id"]
+    }
+    await db.live_streams.insert_one(stream)
+    stream.pop("_id", None)
+    return {"success": True, "stream": stream}
+
+@api_router.put("/admin/live-streams/{stream_id}")
+async def admin_update_stream(stream_id: str, data: dict, user: dict = Depends(get_user)):
+    """Admin: Update a live stream"""
+    if not user or user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    
+    update = {}
+    for field in ["name", "embed_type", "embed_value", "thumbnail", "city", "country", "category", "is_247", "is_active", "sort_order"]:
+        if field in data:
+            update[field] = data[field]
+    
+    # Handle embed_url input
+    if "embed_url" in data:
+        embed_input = data["embed_url"].strip()
+        if "youtube.com/embed/live_stream?channel=" in embed_input:
+            update["embed_type"] = "channel"
+            update["embed_value"] = embed_input.split("channel=")[-1].split("&")[0]
+        elif "youtube.com/embed/" in embed_input:
+            update["embed_type"] = "video"
+            update["embed_value"] = embed_input.split("/embed/")[-1].split("?")[0]
+        elif "youtube.com/watch?v=" in embed_input:
+            update["embed_type"] = "video"
+            update["embed_value"] = embed_input.split("v=")[-1].split("&")[0]
+        elif "youtu.be/" in embed_input:
+            update["embed_type"] = "video"
+            update["embed_value"] = embed_input.split("youtu.be/")[-1].split("?")[0]
+    
+    if update:
+        await db.live_streams.update_one({"id": stream_id}, {"$set": update})
+    
+    stream = await db.live_streams.find_one({"id": stream_id})
+    if stream:
+        stream.pop("_id", None)
+    return {"success": True, "stream": stream}
+
+@api_router.delete("/admin/live-streams/{stream_id}")
+async def admin_delete_stream(stream_id: str, user: dict = Depends(get_user)):
+    """Admin: Delete a live stream"""
+    if not user or user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    await db.live_streams.delete_one({"id": stream_id})
+    return {"success": True, "message": "Stream deleted"}
+
+@api_router.get("/admin/live-streams")
+async def admin_list_streams(user: dict = Depends(get_user)):
+    """Admin: List all streams (including inactive)"""
+    if not user or user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin only")
+    streams = []
+    async for s in db.live_streams.find().sort("sort_order", 1):
+        s.pop("_id", None)
+        if s.get("embed_type") == "channel":
+            s["embed_url"] = f"https://www.youtube.com/embed/live_stream?channel={s['embed_value']}"
+        else:
+            s["embed_url"] = f"https://www.youtube.com/embed/{s['embed_value']}"
+        streams.append(s)
+    return {"success": True, "streams": streams, "total": len(streams)}
 
 
 # ==================== APP SETUP ====================
