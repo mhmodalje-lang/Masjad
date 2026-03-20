@@ -737,14 +737,12 @@ async def video_feed(content_type: str = "all", page: int = 1, limit: int = 20, 
     user_id = user["id"] if user else None
     post_ids = [p["id"] for p in posts]
     likes_set = set()
-    saves_set = set()
     if user_id and post_ids:
         user_likes = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
         likes_set = {d["post_id"] for d in user_likes}
     
     likes_counts = {}
     comments_counts = {}
-    shares_counts = {}
     if post_ids:
         lc = db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}])
         async for doc in lc:
@@ -2866,7 +2864,7 @@ async def get_hadith_collections():
             r = await c.get(f"{SUNNAH_API_BASE}/collections", headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"})
             r.raise_for_status()
             return r.json()
-    except Exception as e:
+    except Exception:
         # Fallback to static collections list
         return {
             "data": [
@@ -3155,7 +3153,7 @@ async def admin_create_page(page: CustomPage, admin=Depends(get_admin_user)):
 
 @api_router.delete("/admin/pages/{page_id}")
 async def admin_delete_page(page_id: str, admin=Depends(get_admin_user)):
-    result = await db.custom_pages.delete_one({"id": page_id})
+    await db.custom_pages.delete_one({"id": page_id})
     return {"success": True}
 
 @api_router.get("/pages")
@@ -3733,7 +3731,7 @@ async def get_my_liked_stories(limit: int = 50, user: dict = Depends(get_user)):
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
     liked_docs = await db.likes.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(limit)
-    post_ids = [l["post_id"] for l in liked_docs]
+    post_ids = [doc["post_id"] for doc in liked_docs]
     if not post_ids:
         return {"stories": []}
     stories = []
@@ -4703,11 +4701,11 @@ async def save_academy_progress(data: dict):
 @api_router.get("/arabic-academy/quiz/{letter_id}")
 async def get_letter_quiz(letter_id: int):
     """Get quiz for a specific letter"""
-    letter = next((l for l in ARABIC_LETTERS if l["id"] == letter_id), None)
+    letter = next((lt for lt in ARABIC_LETTERS if lt["id"] == letter_id), None)
     if not letter:
         raise HTTPException(status_code=404, detail="Letter not found")
     
-    other_letters = [l for l in ARABIC_LETTERS if l["id"] != letter_id]
+    other_letters = [lt for lt in ARABIC_LETTERS if lt["id"] != letter_id]
     wrong_answers = random.sample(other_letters, min(3, len(other_letters)))
     
     options = [{"letter": letter["letter"], "name_ar": letter["name_ar"], "name_en": letter["name_en"], "correct": True}]
@@ -4864,7 +4862,8 @@ def build_90_day_curriculum():
     # Level 2: Numbers (Days 31-42)
     for i, num in enumerate(ARABIC_NUMBERS):
         day_num = 31 + i
-        if day_num > 42: break
+        if day_num > 42:
+            break
         days.append({"day": day_num, "level": 2, "type": "number", "content_id": num["id"],
                       "title_en": f"Number: {num['word_en']}", "title_ar": f"رقم: {num['word_ar']}", "xp": 10})
     
@@ -4905,7 +4904,7 @@ async def get_curriculum_day(day: int):
     
     content = None
     if lesson["type"] == "letter":
-        content = next((l for l in ARABIC_LETTERS if l["id"] == lesson["content_id"]), None)
+        content = next((lt for lt in ARABIC_LETTERS if lt["id"] == lesson["content_id"]), None)
     elif lesson["type"] == "number":
         content = next((n for n in ARABIC_NUMBERS if n["id"] == lesson["content_id"]), None)
     elif lesson["type"] == "vocab":

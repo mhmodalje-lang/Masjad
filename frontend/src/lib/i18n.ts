@@ -23,6 +23,8 @@ export function detectDeviceLanguage(): string {
   // Auto-detect from browser/device
   try {
     const browserLang = navigator.language?.toLowerCase() || '';
+    // Check for Austrian German specifically
+    if (browserLang === 'de-at' || browserLang.startsWith('de-at')) return 'de-AT';
     const langCode = browserLang.split('-')[0];
     
     if (SUPPORTED_LANGUAGE_CODES.includes(langCode)) {
@@ -32,7 +34,9 @@ export function detectDeviceLanguage(): string {
     // Check navigator.languages for secondary preferences
     const langs = navigator.languages || [];
     for (const lang of langs) {
-      const code = lang.toLowerCase().split('-')[0];
+      const full = lang.toLowerCase();
+      if (full === 'de-at' || full.startsWith('de-at')) return 'de-AT';
+      const code = full.split('-')[0];
       if (SUPPORTED_LANGUAGE_CODES.includes(code)) {
         return code;
       }

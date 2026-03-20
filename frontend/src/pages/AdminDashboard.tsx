@@ -635,8 +635,8 @@ export default function AdminDashboard() {
             <h2 className="text-base font-bold text-foreground">{t('publishBroadcast')}</h2>
             <p className="text-xs text-muted-foreground"></p>
             <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-              <InputField label={t('notifTitle')} value={broadcastTitle} onChange={setBroadcastTitle} placeholder={t('notifTitle')} ..." />
-              <InputField label={t('notifBody')} value={broadcastBody} onChange={setBroadcastBody} placeholder={t('notifBody')} ..." multiline />
+              <InputField label={t('notifTitle')} value={broadcastTitle} onChange={setBroadcastTitle} placeholder={t('notifTitle')} />
+              <InputField label={t('notifBody')} value={broadcastBody} onChange={setBroadcastBody} placeholder={t('notifBody')} multiline />
               <SelectField label={t('type')} value={broadcastType} onChange={setBroadcastType} options={['info','warning','promo']} />
               <Button onClick={publishBroadcast} className="w-full rounded-xl gap-2" data-testid="publish-broadcast-btn">
                 <Megaphone className="h-4 w-4" />{t('publishBroadcast')}
@@ -670,17 +670,17 @@ export default function AdminDashboard() {
 
             {showEmbedForm && (
               <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-                <InputField label={t('notifTitle')} value={embedForm.title} onChange={(v: string) => setEmbedForm(f => ({...f, title: v}))} placeholder={t('notifTitle')} ..." />
-                <InputField label={t('adDescription')} value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder={t('adDescription')} ..." multiline />
+                <InputField label={t('notifTitle')} value={embedForm.title} onChange={(v: string) => setEmbedForm(f => ({...f, title: v}))} placeholder={t('notifTitle')} />
+                <InputField label={t('adDescription')} value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder={t('adDescription')} multiline />
                 <InputField label={t('embedUrl')} value={embedForm.embed_url} onChange={(v: string) => setEmbedForm(f => ({...f, embed_url: v}))} placeholder="https://youtube.com/watch?v=..." />
                 <SelectField label={t('settingsLabel')} value={embedForm.platform} onChange={(v: string) => setEmbedForm(f => ({...f, platform: v}))} options={['youtube','dailymotion','vimeo','tiktok','instagram','other']} />
                 <SelectField label="" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','istighfar','sahaba','quran','prophets','ruqyah','rizq','tawba','miracles','embed']} />
-                <InputField label="صورة مصغرة (اختياري)" value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder={t('adLinkUrl')} />
+                <InputField label={t('thumbnail')} value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder={t('adLinkUrl')} />
                 <div className="flex gap-2 pt-1">
-                  <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />حفظ </Button>
+                  <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />{t('save')}</Button>
                   <Button variant="outline" onClick={() => setShowEmbedForm(false)} className="rounded-xl">{t('cancel')}</Button>
                 </div>
-                <p className="text-[10px] text-muted-foreground">💡 ملاحظة: استخدم التضمين (embed) لنشر محتوى من أي منصة بشكل قانوني بدون مخالفة حقوق النشر</p>
+                <p className="text-[10px] text-muted-foreground">{t('embedNote')}</p>
               </div>
             )}
 
@@ -741,9 +741,9 @@ export default function AdminDashboard() {
 
             {showAdForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
-                <InputField label="اسم " value={adForm.name} onChange={(v:string)=>setAdForm({...adForm,name:v})} placeholder="إعلان {t('home')}..." />
+                <InputField label={t('adName')} value={adForm.name} onChange={(v:string)=>setAdForm({...adForm,name:v})} placeholder={t('adName')} />
                 <SelectField label={t('settingsLabel')} value={adForm.provider} onChange={(v:string)=>setAdForm({...adForm,provider:v})} options={AD_PROVIDERS} />
-                <InputField label="كود  (HTML/Script)" value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>..." multiline />
+                <InputField label={t('adCode')} value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>...</script>" multiline />
                 <div className="grid grid-cols-2 gap-2">
                   <SelectField label={t('adPosition')} value={adForm.placement} onChange={(v:string)=>setAdForm({...adForm,placement:v})} options={AD_PLACEMENTS} />
                   <SelectField label={t('type')} value={adForm.ad_type} onChange={(v:string)=>setAdForm({...adForm,ad_type:v})} options={AD_TYPES} />
@@ -755,7 +755,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {ads.length===0 && !showAdForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')} بعد</p> :
+            {ads.length===0 && !showAdForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             ads.map(ad=>(
               <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-3">
                 <div className="flex items-center justify-between mb-1">
@@ -774,7 +774,7 @@ export default function AdminDashboard() {
             ))}
 
             <div className="rounded-xl bg-muted/50 border border-border/30 p-3">
-              <p className="text-xs font-bold text-foreground mb-1">:</p>
+              <p className="text-xs font-bold text-foreground mb-1">{t('adProviders')}:</p>
               <div className="flex flex-wrap gap-1">{AD_PROVIDERS.map(p=><span key={p} className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{p}</span>)}</div>
             </div>
           </div>
@@ -788,8 +788,8 @@ export default function AdminDashboard() {
             {/* Send instant */}
             <div className="rounded-xl bg-card border border-border/50 p-3 space-y-2">
               <p className="text-xs font-bold text-foreground">{t('send')}</p>
-              <InputField label={t('notifTitle')} value={nTitle} onChange={setNTitle} placeholder={t('notifTitle')}..." />
-              <InputField label={t('notifBody')} value={nBody} onChange={setNBody} placeholder={t('notifBody')}..." multiline />
+              <InputField label={t('notifTitle')} value={nTitle} onChange={setNTitle} placeholder={t('notifTitle')} />
+              <InputField label={t('notifBody')} value={nBody} onChange={setNBody} placeholder={t('notifBody')} multiline />
               <Button onClick={sendNotif} size="sm" className="w-full rounded-lg gap-1"><Send className="h-3 w-3"/>{t('send')}</Button>
             </div>
 
@@ -802,8 +802,8 @@ export default function AdminDashboard() {
 
             {showNotifForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
-                <InputField label={t('notifTitle')} value={notifForm.title} onChange={(v:string)=>setNotifForm({...notifForm,title:v})} placeholder="{t('scheduledNotifications')}..." />
-                <InputField label={t('notifBody')} value={notifForm.body} onChange={(v:string)=>setNotifForm({...notifForm,body:v})} placeholder={t('notifBody')}..." />
+                <InputField label={t('notifTitle')} value={notifForm.title} onChange={(v:string)=>setNotifForm({...notifForm,title:v})} placeholder={t('scheduledNotifications')} />
+                <InputField label={t('notifBody')} value={notifForm.body} onChange={(v:string)=>setNotifForm({...notifForm,body:v})} placeholder={t('notifBody')} />
                 <div className="grid grid-cols-2 gap-2">
                   <InputField label={`${t('schedTime')} (HH:MM)`} value={notifForm.schedule_time} onChange={(v:string)=>setNotifForm({...notifForm,schedule_time:v})} placeholder="08:00" />
                   <SelectField label={t('recurring')} value={notifForm.repeat} onChange={(v:string)=>setNotifForm({...notifForm,repeat:v})} options={['once','daily','weekly']} />
@@ -835,9 +835,9 @@ export default function AdminDashboard() {
 
             {showPageForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
-                <InputField label="عنوان الصفحة" value={pageForm.title} onChange={(v:string)=>setPageForm({...pageForm,title:v})} placeholder="رقية العين..." />
-                <InputField label={t('categoryField')} value={pageForm.category} onChange={(v:string)=>setPageForm({...pageForm,category:v})} placeholder="رقية / أذكار / ..." />
-                <InputField label={t('notifBody')} value={pageForm.content} onChange={(v:string)=>setPageForm({...pageForm,content:v})} placeholder={t('notifBody')} الصفحة..." multiline />
+                <InputField label={t('pageTitle')} value={pageForm.title} onChange={(v:string)=>setPageForm({...pageForm,title:v})} placeholder={t('pageTitle')} />
+                <InputField label={t('categoryField')} value={pageForm.category} onChange={(v:string)=>setPageForm({...pageForm,category:v})} placeholder={t('categoryField')} />
+                <InputField label={t('notifBody')} value={pageForm.content} onChange={(v:string)=>setPageForm({...pageForm,content:v})} placeholder={t('notifBody')} multiline />
                 <div className="flex gap-2">
                   <Button onClick={savePage} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>{t('save')}</Button>
                   <Button onClick={()=>setShowPageForm(false)} size="sm" variant="outline" className="rounded-lg"><X className="h-3 w-3"/></Button>
@@ -845,10 +845,10 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {pages.length===0 && !showPageForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد صفحات ة</p> :
+            {pages.length===0 && !showPageForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             pages.map(p=>(
               <div key={p.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
-                <div><p className="text-sm font-bold text-foreground">{p.title}</p><p className="text-[10px] text-muted-foreground">{p.category} • {p.enabled?t('adActive'):'معطّل'}</p></div>
+                <div><p className="text-sm font-bold text-foreground">{p.title}</p><p className="text-[10px] text-muted-foreground">{p.category} • {p.enabled?t('adActive'):t('disabled')}</p></div>
                 <button onClick={()=>deletePage(p.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
               </div>
             ))}

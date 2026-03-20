@@ -21,6 +21,7 @@ import trTranslations from '@/locales/tr.json';
 import svTranslations from '@/locales/sv.json';
 import nlTranslations from '@/locales/nl.json';
 import elTranslations from '@/locales/el.json';
+import deATTranslations from '@/locales/de-AT.json';
 
 // RTL languages list
 export const RTL_LANGUAGES = ['ar', 'he', 'fa', 'ur', 'ps', 'sd', 'yi', 'ku'];
@@ -36,6 +37,7 @@ export const SUPPORTED_LANGUAGES: Array<{code: string; label: string; flag: stri
   { code: 'sv', label: 'Svenska', flag: '🇸🇪', dir: 'ltr', nativeName: 'Svenska' },
   { code: 'nl', label: 'Nederlands', flag: '🇳🇱', dir: 'ltr', nativeName: 'Nederlands' },
   { code: 'el', label: 'Ελληνικά', flag: '🇬🇷', dir: 'ltr', nativeName: 'Ελληνικά' },
+  { code: 'de-AT', label: 'Österreichisch', flag: '🇦🇹', dir: 'ltr', nativeName: 'Österreichisches Deutsch' },
 ];
 
 export const SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map(l => l.code);
@@ -87,6 +89,7 @@ i18n
       sv: { translation: svTranslations },
       nl: { translation: nlTranslations },
       el: { translation: elTranslations },
+      'de-AT': { translation: deATTranslations },
     },
     fallbackLng: 'ar',
     supportedLngs: SUPPORTED_LANGUAGE_CODES,
@@ -100,7 +103,10 @@ i18n
       caches: ['localStorage'],
       // Map browser languages to supported codes
       convertDetectedLanguage: (lng: string) => {
-        const code = lng.split('-')[0].toLowerCase();
+        const full = lng.toLowerCase();
+        // Check for Austrian German specifically
+        if (full === 'de-at' || full.startsWith('de-at')) return 'de-AT';
+        const code = full.split('-')[0];
         return SUPPORTED_LANGUAGE_CODES.includes(code) ? code : 'ar';
       },
     },
