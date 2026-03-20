@@ -6,7 +6,7 @@ Debugging specific failed endpoints
 import requests
 import json
 
-BASE_URL = "https://noor-localize.preview.emergentagent.com/api"
+BASE_URL = "https://continue-app-99.preview.emergentagent.com/api"
 
 def test_login_debug():
     """Debug login endpoint"""
