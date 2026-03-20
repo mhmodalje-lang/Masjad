@@ -1412,5 +1412,8 @@
   "iosStep2Highlight": "Add to Home Screen",
   "iosStep3Prefix": "Tap",
   "iosStep3Highlight": "Add",
-  "chromeInstallHint": "Open the app in Chrome browser, then tap the browser menu → \"Install App\""
+  "chromeInstallHint": "Open the app in Chrome browser, then tap the browser menu → \"Install App\"",
+  "gregorianDate": "Gregorian",
+  "switchToHijri": "Hijri Calendar",
+  "switchToGregorian": "Gregorian Calendar"
 }

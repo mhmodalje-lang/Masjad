@@ -1412,5 +1412,8 @@
   "iosStep2Highlight": "إضافة إلى الشاشة الرئيسية",
   "iosStep3Prefix": "اضغط",
   "iosStep3Highlight": "إضافة",
-  "chromeInstallHint": "افتح التطبيق من متصفح Chrome ثم اضغط على قائمة المتصفح → \"تثبيت التطبيق\""
+  "chromeInstallHint": "افتح التطبيق من متصفح Chrome ثم اضغط على قائمة المتصفح → \"تثبيت التطبيق\"",
+  "gregorianDate": "ميلادي",
+  "switchToHijri": "التقويم الهجري",
+  "switchToGregorian": "التقويم الميلادي"
 }

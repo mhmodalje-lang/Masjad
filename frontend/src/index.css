@@ -491,8 +491,9 @@ textarea {
 [dir="rtl"] .border-r-4 { border-right: 0; border-left-width: 4px; }
 
 /* RTL position overrides */
-[dir="rtl"] .left-0 { left: auto; right: 0; }
-[dir="rtl"] .right-0 { right: auto; left: 0; }
+/* Note: When left-0 AND right-0 are both needed (full-width absolute), use .abs-full-x instead */
+[dir="rtl"] .left-0:not(.right-0) { left: auto; right: 0; }
+[dir="rtl"] .right-0:not(.left-0) { right: auto; left: 0; }
 [dir="rtl"] .left-1 { left: auto; right: 0.25rem; }
 [dir="rtl"] .right-1 { right: auto; left: 0.25rem; }
 [dir="rtl"] .left-2 { left: auto; right: 0.5rem; }

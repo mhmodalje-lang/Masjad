@@ -50,6 +50,22 @@ export default function Index() {
   
   const usingMosque = source === 'mosque';
 
+  const [showHijri, setShowHijri] = useState(() => {
+    const saved = localStorage.getItem('date-display-mode');
+    return saved ? saved === 'hijri' : true; // Default Hijri
+  });
+
+  const toggleDateMode = () => {
+    const newMode = !showHijri;
+    setShowHijri(newMode);
+    localStorage.setItem('date-display-mode', newMode ? 'hijri' : 'gregorian');
+  };
+
+  // Get today's Gregorian date in user's locale
+  const gregorianDate = new Date().toLocaleDateString(isRTL ? 'ar-SA-u-ca-gregory' : 'en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
     return localStorage.getItem('athan-notifications') === 'true';
   });
@@ -198,7 +214,7 @@ export default function Index() {
       )}
 
       {/* ===== HERO ===== */}
-      <div className="relative overflow-hidden h-[260px]">
+      <div className="relative overflow-hidden h-[280px]">
         <img
           src={meccaImage}
           alt={t('holyMosqueAlt')}
@@ -207,17 +223,17 @@ export default function Index() {
           // @ts-ignore
           fetchpriority="high"
           width="1335"
-          height="260"
+          height="280"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background" />
         
-        {/* Top bar */}
+        {/* Top bar - notifications & profile */}
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
           <button
             onClick={toggleNotifications}
             aria-label={notificationsEnabled ? t('disableNotifications') : t('enableNotificationsLabel')}
-            className="p-2.5 rounded-2xl glass-dark transition-all active:scale-95"
+            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-sm transition-all active:scale-95"
           >
             {notificationsEnabled ? (
               <Bell className="h-5 w-5 text-white fill-current" />
@@ -228,22 +244,40 @@ export default function Index() {
           <div className="flex-1" />
           <Link
             to="/account"
-            className="p-2.5 rounded-2xl glass-dark transition-all active:scale-95"
+            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-sm transition-all active:scale-95"
           >
             <User className="h-5 w-5 text-white/90" />
           </Link>
         </div>
 
-        {/* City + Hijri on hero */}
-        <div className="absolute bottom-14 left-0 right-0 text-center">
-          <p className="text-white/80 text-xs tracking-wider uppercase mb-1.5 font-semibold drop-shadow-lg">
-            {loading ? '...' : hijriDate}
-          </p>
-          <div className="flex items-center justify-center gap-2">
-            <MapPin className="h-3.5 w-3.5 text-white/90" />
-            <p className="text-white font-bold text-sm drop-shadow-lg">
-              {locationLoading ? '...' : city || t('detectLocation')}
-            </p>
+        {/* Center content - Date + Location */}
+        <div className="absolute bottom-12 left-0 right-0 px-5">
+          {/* Date with toggle */}
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <button
+              onClick={toggleDateMode}
+              className="group flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 transition-all active:scale-95 hover:bg-black/40"
+            >
+              <span className="text-white/90 text-xs font-bold tracking-wide drop-shadow-lg">
+                {showHijri && hijriDate ? hijriDate : gregorianDate}
+              </span>
+              <span className="text-[9px] text-emerald-300/80 font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded-full">
+                {showHijri && hijriDate ? t('hijriDate') : t('gregorianDate')}
+              </span>
+            </button>
+          </div>
+
+          {/* Location */}
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => detectLocation()}
+              className="flex items-center gap-2 bg-black/25 backdrop-blur-sm rounded-full px-4 py-2 transition-all active:scale-95 hover:bg-black/35"
+            >
+              <MapPin className="h-4 w-4 text-emerald-400" />
+              <span className="text-white font-bold text-sm drop-shadow-lg">
+                {locationLoading ? '...' : city || t('detectLocation')}
+              </span>
+            </button>
           </div>
         </div>
       </div>

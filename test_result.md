@@ -29,10 +29,17 @@ Full Code Audit & Bug Fixing - System Repair & Stability
 ### Phase 3 - Arabic Text & Translation Fixes:
 - **Geolocation error**: Fixed English error string 'Geolocation not supported' → uses translation key
 - **CSS word-break**: Added `word-break: normal` for RTL mode to prevent Arabic text garbling
+- **RTL positioning**: Fixed `left-0.right-0` CSS conflict that broke full-width absolute elements in RTL
 - **AsmaAlHusna**: Translated hardcoded headers (أسماء الله الحسنى, search, name count)
 - **Install page**: Translated iOS install instructions and Chrome hint to use t() keys
 - **Locale sync**: Added 39 missing keys to Russian, German, French, Turkish locales
-- **New translation keys**: Added 39+ new keys covering common UI elements, Zakat, Period Tracker, Install instructions
+- **New translation keys**: Added 42+ new keys covering common UI elements, Zakat, Period Tracker, Install instructions
+
+### Phase 4 - UI Layout Fixes:
+- **Bottom Nav**: Completely redesigned with proper icon frames, elevated + button, active state indicators, proper RTL spacing
+- **Hero Section**: Moved date and location to centered pill-shaped buttons with better visual hierarchy
+- **Date Toggle**: Added switchable Hijri/Gregorian date display with badge indicator, saved to localStorage
+- **Date Fallback**: Gregorian date shows by default when Hijri isn't available (no location)
 
 ## Translation System Fix Progress (2026-03-19)
 ### Phase 4 - Final Fix: Athan Selection, Adhkar References, Install Banner, AthanAlert:
