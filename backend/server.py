@@ -5105,6 +5105,149 @@ async def admin_list_streams(user: dict = Depends(get_user)):
     return {"success": True, "streams": streams, "total": len(streams)}
 
 
+# ==================== TRANSLATION SERVICE ====================
+SUPPORTED_LANGUAGES = ['ar', 'en', 'sv', 'nl', 'el', 'de', 'ru', 'fr', 'tr']
+LANGUAGE_NAMES = {
+    'ar': 'Arabic', 'en': 'English', 'sv': 'Swedish', 'nl': 'Dutch',
+    'el': 'Greek', 'de': 'German', 'ru': 'Russian', 'fr': 'French', 'tr': 'Turkish'
+}
+
+async def translate_text_ai(text: str, source_lang: str, target_lang: str) -> str:
+    """Translate text using OpenAI GPT with Islamic context."""
+    if not EMERGENT_LLM_KEY or source_lang == target_lang:
+        return text
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=EMERGENT_LLM_KEY,
+            session_id=f"translate-{uuid.uuid4().hex[:8]}",
+            system_message=f"You are an expert Islamic text translator. Translate the given text from {LANGUAGE_NAMES.get(source_lang, source_lang)} to {LANGUAGE_NAMES.get(target_lang, target_lang)}. Preserve Islamic terminology and spiritual meaning. Return ONLY the translated text, nothing else."
+        )
+        response = await chat.send_message(UserMessage(text=text))
+        return response.strip()
+    except Exception as e:
+        logger.error(f"Translation error: {e}")
+        return text
+
+@api_router.post("/translate/story")
+async def translate_story_content(
+    story_id: str = Query(...),
+    target_lang: str = Query(...),
+    background_tasks: BackgroundTasks = BackgroundTasks(),
+    user: dict = Depends(get_user)
+):
+    """Translate a story's title and content to the target language and store it."""
+    if target_lang not in SUPPORTED_LANGUAGES:
+        raise HTTPException(400, f"Unsupported language: {target_lang}")
+    
+    story = await db.posts.find_one({"id": story_id, "is_story": True}, {"_id": 0})
+    if not story:
+        raise HTTPException(404, "Story not found")
+    
+    # Check if translation already exists
+    existing = story.get("translations", {}).get(target_lang)
+    if existing:
+        return {"translated": True, "title": existing.get("title", ""), "content": existing.get("content", "")}
+    
+    # Detect source language (assume Arabic if contains Arabic chars)
+    source_lang = "ar" if re.search(r'[\u0600-\u06FF]', story.get("content", "")) else "en"
+    
+    title = await translate_text_ai(story.get("title", ""), source_lang, target_lang) if story.get("title") else ""
+    content = await translate_text_ai(story.get("content", ""), source_lang, target_lang)
+    
+    # Store translation in DB
+    await db.posts.update_one(
+        {"id": story_id},
+        {"$set": {f"translations.{target_lang}": {"title": title, "content": content}}}
+    )
+    
+    return {"translated": True, "title": title, "content": content}
+
+
+@api_router.get("/stories/list-translated")
+async def list_stories_translated(
+    category: str = "all",
+    page: int = 1,
+    limit: int = 20,
+    language: str = Query("ar"),
+    user: dict = Depends(get_user)
+):
+    """List stories with translated content for the requested language."""
+    query = {"is_story": True}
+    if category != "all":
+        query["category"] = category
+    skip = (page - 1) * limit
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    stories = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    # Enrich with likes/saves/comments
+    post_ids = [s["id"] for s in stories]
+    user_id = user["id"] if user else None
+    likes_set, saves_set = set(), set()
+    if user_id and post_ids:
+        ul = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in ul}
+        us = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        saves_set = {d["post_id"] for d in us}
+    likes_counts, comments_counts = {}, {}
+    if post_ids:
+        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            likes_counts[doc["_id"]] = doc["c"]
+        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            comments_counts[doc["_id"]] = doc["c"]
+    
+    for s in stories:
+        pid = s["id"]
+        s["liked"] = pid in likes_set
+        s["saved"] = pid in saves_set
+        s["likes_count"] = likes_counts.get(pid, 0)
+        s["comments_count"] = comments_counts.get(pid, 0)
+        # Apply translation if available and language is not source
+        if language != "ar" and language in s.get("translations", {}):
+            trans = s["translations"][language]
+            s["title"] = trans.get("title", s.get("title", ""))
+            s["content"] = trans.get("content", s.get("content", ""))
+        s.pop("translations", None)  # Don't send all translations to client
+    
+    return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
+
+
+@api_router.post("/stories/batch-translate")
+async def batch_translate_stories(
+    target_lang: str = Query(...),
+    user: dict = Depends(get_user)
+):
+    """Batch translate all stories to a target language. Admin/background task."""
+    if target_lang not in SUPPORTED_LANGUAGES:
+        raise HTTPException(400, f"Unsupported language: {target_lang}")
+    
+    # Find stories without this language translation
+    stories = await db.posts.find(
+        {"is_story": True, f"translations.{target_lang}": {"$exists": False}},
+        {"_id": 0, "id": 1, "title": 1, "content": 1}
+    ).to_list(100)
+    
+    if not stories:
+        return {"message": f"All stories already translated to {target_lang}", "count": 0}
+    
+    translated_count = 0
+    for story in stories:
+        try:
+            source_lang = "ar" if re.search(r'[\u0600-\u06FF]', story.get("content", "")) else "en"
+            title = await translate_text_ai(story.get("title", ""), source_lang, target_lang) if story.get("title") else ""
+            content = await translate_text_ai(story.get("content", ""), source_lang, target_lang)
+            await db.posts.update_one(
+                {"id": story["id"]},
+                {"$set": {f"translations.{target_lang}": {"title": title, "content": content}}}
+            )
+            translated_count += 1
+        except Exception as e:
+            logger.error(f"Failed to translate story {story['id']}: {e}")
+    
+    return {"message": f"Translated {translated_count} stories to {target_lang}", "count": translated_count}
+
+
 # ==================== APP SETUP ====================
 app.include_router(api_router)
 

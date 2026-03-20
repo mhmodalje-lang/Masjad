@@ -10,6 +10,7 @@ interface NoorMascotProps {
   autoSpeak?: boolean;
   className?: string;
   onClick?: () => void;
+  storyLanguage?: string; // Override language for story sync
 }
 
 const NOOR_MESSAGES: Record<string, Record<string, string>> = {
@@ -98,9 +99,17 @@ export function useNoorTTS() {
     if (!synthRef.current) return;
     synthRef.current.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = TTS_LANG_MAP[lang || locale] || 'ar-SA';
+    const targetLang = lang || locale;
+    utterance.lang = TTS_LANG_MAP[targetLang] || 'ar-SA';
     utterance.rate = 0.85;
     utterance.pitch = 1.2;
+    
+    // Try to find a native voice for the target language
+    const voices = synthRef.current.getVoices();
+    const langCode = TTS_LANG_MAP[targetLang] || 'ar-SA';
+    const nativeVoice = voices.find(v => v.lang === langCode) || voices.find(v => v.lang.startsWith(targetLang));
+    if (nativeVoice) utterance.voice = nativeVoice;
+    
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
@@ -121,24 +130,25 @@ export function getNoorMessage(key: string, locale: string): string {
   return NOOR_MESSAGES[key]?.[locale] || NOOR_MESSAGES[key]?.['en'] || '';
 }
 
-export default function NoorMascot({ message, mood = 'happy', size = 'md', autoSpeak = false, className, onClick }: NoorMascotProps) {
+export default function NoorMascot({ message, mood = 'happy', size = 'md', autoSpeak = false, className, onClick, storyLanguage }: NoorMascotProps) {
   const { locale } = useLocale();
   const { speak, stop, isSpeaking } = useNoorTTS();
   const [isAnimating, setIsAnimating] = useState(false);
-  const displayMessage = message || getNoorMessage('greeting', locale);
+  const effectiveLang = storyLanguage || locale;
+  const displayMessage = message || getNoorMessage('greeting', effectiveLang);
 
   useEffect(() => {
     if (autoSpeak && displayMessage) {
-      const timer = setTimeout(() => speak(displayMessage), 500);
+      const timer = setTimeout(() => speak(displayMessage, effectiveLang), 500);
       return () => clearTimeout(timer);
     }
-  }, [autoSpeak, displayMessage, speak]);
+  }, [autoSpeak, displayMessage, speak, effectiveLang]);
 
   const handleClick = () => {
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 600);
     if (onClick) onClick();
-    else if (displayMessage) speak(displayMessage);
+    else if (displayMessage) speak(displayMessage, effectiveLang);
   };
 
   const sizeClasses = {

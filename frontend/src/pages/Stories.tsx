@@ -697,7 +697,7 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 export default function Stories() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
@@ -759,9 +759,10 @@ export default function Stories() {
 
   const loadStories = useCallback(async (cat?: string, pageNum: number = 1, append: boolean = false) => {
     if (pageNum === 1) setLoading(true); else setLoadingMore(true);
+    const langParam = `&language=${locale}`;
     const url = cat
-      ? `${BACKEND_URL}/api/stories/list?category=${cat}&limit=20&page=${pageNum}`
-      : `${BACKEND_URL}/api/stories/list?limit=20&page=${pageNum}`;
+      ? `${BACKEND_URL}/api/stories/list-translated?category=${cat}&limit=20&page=${pageNum}${langParam}`
+      : `${BACKEND_URL}/api/stories/list-translated?limit=20&page=${pageNum}${langParam}`;
     try {
       const r = await fetch(url, { headers: authHeaders() });
       const d = await r.json();
@@ -770,7 +771,7 @@ export default function Stories() {
       setHasMore(ns.length >= 20);
     } catch {}
     setLoading(false); setLoadingMore(false);
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     setPage(1); setHasMore(true);
