@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { UnifiedPrayerProvider } from "@/hooks/useUnifiedPrayer";
@@ -65,7 +65,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const SocialProfile = lazy(() => import("./pages/SocialProfile"));
 const VideoReels = lazy(() => import("./pages/VideoReels"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
-const ArabicAcademy = lazy(() => import("./pages/ArabicAcademy"));
 const KidsZone = lazy(() => import("./pages/KidsZone"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 
@@ -155,7 +154,7 @@ const App = () => {
                           <Route path="/contact" element={<ContactUs />} />
                           <Route path="/donations" element={<Donations />} />
                           <Route path="/terms" element={<TermsOfService />} />
-                          <Route path="/arabic-academy" element={<ArabicAcademy />} />
+                          <Route path="/arabic-academy" element={<Navigate to="/kids-zone" replace />} />
                           <Route path="/kids-zone" element={<KidsZone />} />
                           <Route path="/live-streams" element={<LiveStreams />} />
                           <Route path="*" element={<NotFound />} />
