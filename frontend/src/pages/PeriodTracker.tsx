@@ -30,23 +30,23 @@ const periodDuas = [
   { text: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ', ref: 'صيغة الصلاة على النبي' },
 ];
 
-const allowedActs = [
-  { emoji: '📿', text: 'الذكر والتسبيح والتهليل والاستغفار' },
-  { emoji: '🤲', text: 'الدعاء في كل وقت' },
-  { emoji: '📖', text: 'قراءة تفسير القرآن (دون مسّ المصحف)' },
-  { emoji: '🎧', text: 'سماع القرآن والمحاضرات الدينية' },
-  { emoji: '💰', text: 'الصدقة والإنفاق في سبيل الله' },
-  { emoji: '🕌', text: 'حضور مجالس العلم والذكر' },
-  { emoji: '💭', text: 'التفكر والتأمل في خلق الله' },
-  { emoji: '😊', text: 'الابتسامة وإفشاء السلام' },
+const allowedActKeys = [
+  { emoji: '📿', key: 'allowedAct1' },
+  { emoji: '🤲', key: 'allowedAct2' },
+  { emoji: '📖', key: 'allowedAct3' },
+  { emoji: '🎧', key: 'allowedAct4' },
+  { emoji: '💰', key: 'allowedAct5' },
+  { emoji: '🕌', key: 'allowedAct6' },
+  { emoji: '💭', key: 'allowedAct7' },
+  { emoji: '😊', key: 'allowedAct8' },
 ];
 
-const exemptedActs = [
-  { emoji: '🚫', text: 'الصلاة — معفاة ولا تُقضى' },
-  { emoji: '⏸️', text: 'الصيام — يُقضى بعد رمضان' },
-  { emoji: '📕', text: 'مسّ المصحف — استخدمي التطبيق أو القفازات' },
-  { emoji: '🕌', text: 'المكث في المسجد — يجوز المرور فقط' },
-  { emoji: '🔄', text: 'الطواف حول الكعبة' },
+const exemptedActKeys = [
+  { emoji: '🚫', key: 'exemptedAct1' },
+  { emoji: '⏸️', key: 'exemptedAct2' },
+  { emoji: '📕', key: 'exemptedAct3' },
+  { emoji: '🕌', key: 'exemptedAct4' },
+  { emoji: '🔄', key: 'exemptedAct5' },
 ];
 
 function getDaysBetween(d1: string, d2: string): number {
@@ -115,7 +115,7 @@ export default function PeriodTracker() {
 
   return (
     <div className="min-h-screen pb-24" dir={dir}>
-      <PageHeader title="تتبع الدورة الشهرية" backTo="/more" />
+      <PageHeader title={t('periodTrackerTitle')} backTo="/more" />
 
       {/* Status Card */}
       <div className="px-4 mb-4">
@@ -129,14 +129,14 @@ export default function PeriodTracker() {
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
               <Droplets className="h-5 w-5" />
-              <h2 className="text-lg font-bold">{isOnPeriod ? 'فترة الحيض' : 'فترة الطهارة'}</h2>
+              <h2 className="text-lg font-bold">{isOnPeriod ? t('periodPhase') : t('purityPhase')}</h2>
             </div>
 
             {data.startDate ? (
               <>
                 {isOnPeriod ? (
                   <div>
-                    <p className="text-sm opacity-90">اليوم {currentDay} من {data.duration}</p>
+                    <p className="text-sm opacity-90">{t('periodDayProgress', { current: currentDay, total: data.duration })}</p>
                     <div className="w-full bg-primary-foreground/20 rounded-full h-2 mt-2">
                       <motion.div
                         className="bg-primary-foreground h-2 rounded-full"
@@ -144,17 +144,17 @@ export default function PeriodTracker() {
                         animate={{ width: `${(currentDay / data.duration) * 100}%` }}
                       />
                     </div>
-                    <p className="text-xs opacity-70 mt-2">الصلاة معفاة — أكثري من الذكر والدعاء</p>
+                    <p className="text-xs opacity-70 mt-2">{t('prayerExemptNote')}</p>
                   </div>
                 ) : (
                   <div>
-                    <p className="text-sm opacity-90">الدورة القادمة بعد {daysUntilNext} يوم</p>
-                    <p className="text-xs opacity-70 mt-1">حافظي على صلاتك وعباداتك ✨</p>
+                    <p className="text-sm opacity-90">{t('nextCycleIn', { days: daysUntilNext })}</p>
+                    <p className="text-xs opacity-70 mt-1">{t('keepPrayingNote')}</p>
                   </div>
                 )}
               </>
             ) : (
-              <p className="text-sm opacity-80">ابدأي بتسجيل أول يوم في الدورة</p>
+              <p className="text-sm opacity-80">{t('startFirstRecord')}</p>
             )}
           </div>
         </div>
@@ -167,14 +167,14 @@ export default function PeriodTracker() {
             onClick={handleStartPeriod}
             className="flex-1 rounded-2xl bg-islamic-rose/10 border border-islamic-rose/30 text-islamic-rose py-3 text-sm font-bold transition-all active:scale-95"
           >
-            🩸 بدء الدورة اليوم
+            🩸 {t('startPeriodBtn')}
           </button>
         ) : (
           <button
             onClick={handleEndPeriod}
             className="flex-1 rounded-2xl bg-primary/10 border border-primary/30 text-primary py-3 text-sm font-bold transition-all active:scale-95"
           >
-            ✅ انتهت الدورة
+            ✅ {t('endPeriodBtn')}
           </button>
         )}
         <button
@@ -195,9 +195,9 @@ export default function PeriodTracker() {
             className="px-4 mb-4 overflow-hidden"
           >
             <div className="rounded-2xl bg-card border border-border/50 p-4 space-y-4">
-              <h4 className="text-sm font-bold text-foreground">إعدادات الدورة</h4>
+              <h4 className="text-sm font-bold text-foreground">{t('cycleSettingsTitle')}</h4>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">مدة الحيض (أيام)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('periodDurationLabel')}</label>
                 <div className="flex items-center gap-3">
                   <button onClick={() => setData(p => ({ ...p, duration: Math.max(3, p.duration - 1) }))} className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-lg">−</button>
                   <span className="text-lg font-bold text-foreground w-8 text-center">{data.duration}</span>
@@ -205,7 +205,7 @@ export default function PeriodTracker() {
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">طول الدورة الكاملة (أيام)</label>
+                <label className="text-xs text-muted-foreground mb-1 block">{t('cycleLengthLabel')}</label>
                 <div className="flex items-center gap-3">
                   <button onClick={() => setData(p => ({ ...p, cycleLength: Math.max(21, p.cycleLength - 1) }))} className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-lg">−</button>
                   <span className="text-lg font-bold text-foreground w-8 text-center">{data.cycleLength}</span>
@@ -221,9 +221,9 @@ export default function PeriodTracker() {
       <div className="px-4 mb-4">
         <div className="flex gap-1 rounded-xl bg-muted p-1">
           {[
-            { key: 'tracker' as const, label: '📊 التتبع', },
-            { key: 'guide' as const, label: '📖 الدليل', },
-            { key: 'duas' as const, label: '🤲 أدعية', },
+            { key: 'tracker' as const, label: t('tabTracking'), },
+            { key: 'guide' as const, label: t('tabGuide'), },
+            { key: 'duas' as const, label: t('tabDuas'), },
           ].map(tab => (
             <button
               key={tab.key}
@@ -248,7 +248,7 @@ export default function PeriodTracker() {
               <div className="rounded-2xl bg-card border border-border/50 p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
-                  الدورة الحالية
+                  {t('currentCycleTitle')}
                 </h4>
                 <div className="grid grid-cols-7 gap-1">
                   {Array.from({ length: data.cycleLength > 35 ? 35 : data.cycleLength }, (_, i) => {
@@ -275,11 +275,11 @@ export default function PeriodTracker() {
                 <div className="flex items-center gap-4 mt-3 text-[10px] text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <div className="h-3 w-3 rounded bg-islamic-rose/20" />
-                    فترة الحيض
+                    {t('periodDaysLegend')}
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="h-3 w-3 rounded bg-muted/30" />
-                    فترة الطهارة
+                    {t('purityDaysLegend')}
                   </div>
                 </div>
               </div>
@@ -289,14 +289,14 @@ export default function PeriodTracker() {
                 <div className="rounded-2xl bg-card border border-border/50 p-4">
                   <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />
-                    السجل
+                    {t('historyTitle')}
                   </h4>
                   <div className="space-y-2">
                     {data.history.slice(-5).reverse().map((entry, i) => (
                       <div key={i} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
                         <span className="text-xs text-foreground">{entry.start}</span>
                         <span className="text-xs text-muted-foreground">
-                          {entry.end ? `${getDaysBetween(entry.start, entry.end)} أيام` : 'جارية...'}
+                          {entry.end ? `${getDaysBetween(entry.start, entry.end)} ${t('daysUnit')}` : t('ongoingText')}
                         </span>
                       </div>
                     ))}
@@ -312,13 +312,13 @@ export default function PeriodTracker() {
               <div className="rounded-2xl bg-card border border-border/50 p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Heart className="h-4 w-4 text-primary" />
-                  عبادات مسموحة أثناء الحيض
+                  {t('allowedWorshipTitle')}
                 </h4>
                 <div className="space-y-2">
-                  {allowedActs.map((act, i) => (
+                  {allowedActKeys.map((act, i) => (
                     <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-primary/5">
                       <span className="text-lg">{act.emoji}</span>
-                      <span className="text-sm text-foreground">{act.text}</span>
+                      <span className="text-sm text-foreground">{t(act.key)}</span>
                     </div>
                   ))}
                 </div>
@@ -328,13 +328,13 @@ export default function PeriodTracker() {
               <div className="rounded-2xl bg-card border border-border/50 p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-islamic-rose" />
-                  عبادات معفاة أثناء الحيض
+                  {t('exemptedWorshipTitle')}
                 </h4>
                 <div className="space-y-2">
-                  {exemptedActs.map((act, i) => (
+                  {exemptedActKeys.map((act, i) => (
                     <div key={i} className="flex items-center gap-3 p-2 rounded-lg bg-islamic-rose/5">
                       <span className="text-lg">{act.emoji}</span>
-                      <span className="text-sm text-foreground">{act.text}</span>
+                      <span className="text-sm text-foreground">{t(act.key)}</span>
                     </div>
                   ))}
                 </div>
@@ -344,14 +344,14 @@ export default function PeriodTracker() {
               <div className="rounded-2xl bg-accent/10 border border-accent/20 p-4">
                 <h4 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-accent" />
-                  ملاحظات مهمة
+                  {t('importantNotesTitle')}
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• الصلاة لا تُقضى بعد الحيض — هي معفاة بالكامل</li>
-                  <li>• الصيام يجب قضاؤه بعد رمضان</li>
-                  <li>• يجوز قراءة القرآن من الهاتف أو الحفظ دون مسّ المصحف</li>
-                  <li>• الغُسل واجب بعد انتهاء الحيض قبل استئناف الصلاة</li>
-                  <li>• عند الشك في الطهارة، انتظري حتى تتأكدي تماماً</li>
+                  <li>{t('periodNote1')}</li>
+                  <li>{t('periodNote2')}</li>
+                  <li>{t('periodNote3')}</li>
+                  <li>{t('periodNote4')}</li>
+                  <li>{t('periodNote5')}</li>
                 </ul>
               </div>
             </motion.div>
@@ -360,7 +360,7 @@ export default function PeriodTracker() {
           {activeTab === 'duas' && (
             <motion.div key="duas" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               <p className="text-sm text-muted-foreground text-center mb-2">
-                أدعية وأذكار يمكن قراءتها أثناء الحيض
+                {t('periodDuasIntro')}
               </p>
               {periodDuas.map((dua, i) => (
                 <motion.div

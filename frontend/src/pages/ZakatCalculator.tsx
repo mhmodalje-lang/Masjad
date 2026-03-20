@@ -246,11 +246,11 @@ export default function ZakatCalculator() {
               <div className="flex items-start gap-2">
                 <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="text-xs text-muted-foreground leading-relaxed">
-                  <p className="font-semibold text-foreground mb-1">نصاب الزكاة بـ{currencyInfo.name}</p>
-                  <p>• ذهب (85 غرام): {formatNumber(nisabValues.gold, currencyInfo.symbol)}</p>
-                  <p>• فضة (595 غرام): {formatNumber(nisabValues.silver, currencyInfo.symbol)}</p>
+                  <p className="font-semibold text-foreground mb-1">{t('zakatNisabTitle', { currency: currencyInfo.name })}</p>
+                  <p>{t('zakatGoldNisab', { value: formatNumber(nisabValues.gold, currencyInfo.symbol) })}</p>
+                  <p>{t('zakatSilverNisab', { value: formatNumber(nisabValues.silver, currencyInfo.symbol) })}</p>
                   <p className="mt-1 text-primary font-medium">
-                    النصاب المعتمد: {formatNumber(nisabValues.recommended, currencyInfo.symbol)}
+                    {t('zakatRecommendedNisab', { value: formatNumber(nisabValues.recommended, currencyInfo.symbol) })}
                   </p>
                 </div>
               </div>

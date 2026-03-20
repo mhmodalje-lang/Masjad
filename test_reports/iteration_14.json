@@ -1,0 +1,83 @@
+{
+  "summary": "Iteration 14: i18n localization testing for Athan Tales app. Tested translation switching for Terms of Service, Privacy Policy, Period Tracker, and Zakat Calculator pages across multiple languages.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Terms of Service - Swedish (sv)",
+        "issue": "Header shows 'Användarvillkor' (Swedish) but ALL content shows English text fallback. sv.json has English text for termsIntroTitle, termsIntroText, termsServiceTitle, etc.",
+        "affected_selectors": ["termsIntroTitle", "termsIntroText", "termsServiceTitle", "termsAccountsTitle"],
+        "priority": "HIGH"
+      },
+      {
+        "flow": "Terms of Service - Dutch (nl)",
+        "issue": "Header shows 'Gebruiksvoorwaarden' (Dutch) but ALL content shows English text fallback. nl.json has English text for all terms-related keys.",
+        "affected_selectors": ["termsIntroTitle", "termsIntroText", "termsServiceTitle", "termsAccountsTitle"],
+        "priority": "HIGH"
+      },
+      {
+        "flow": "Terms of Service - Greek (el)",
+        "issue": "el.json has English text for all terms-related keys instead of Greek translations.",
+        "affected_selectors": ["termsIntroTitle", "termsIntroText", "termsServiceTitle", "termsAccountsTitle"],
+        "priority": "HIGH"
+      }
+    ],
+    "design_issues": []
+  },
+  "test_results": {
+    "terms_of_service": {
+      "de": {"status": "PASS", "notes": "Fully translated - Nutzungsbedingungen, Einleitung, etc."},
+      "fr": {"status": "PASS", "notes": "Fully translated - Conditions d'utilisation"},
+      "sv": {"status": "FAIL", "notes": "Header Swedish but content English fallback"},
+      "nl": {"status": "FAIL", "notes": "Header Dutch but content English fallback"},
+      "el": {"status": "FAIL", "notes": "Locale file has English text for terms keys"}
+    },
+    "period_tracker": {
+      "en": {"status": "PASS", "notes": "English translations working"},
+      "de": {"status": "PASS", "notes": "Zyklusverfolgung, Reinheitsphase, Zykluseinstellungen all translated"}
+    },
+    "zakat_calculator": {
+      "en": {"status": "PASS", "notes": "Zakat Calculator, Currency, Nisab, Gold Value, Silver Value in English"}
+    },
+    "privacy_policy": {
+      "de": {"status": "PASS", "notes": "Datenschutzerklärung, Einleitung, Verantwortlicher fully translated"},
+      "el": {"status": "PASS", "notes": "Greek content showing correctly with Εισαγωγή, Υπεύθυνος Επεξεργασίας"}
+    }
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_14.json"
+  ],
+  "action_items": [
+    "CRITICAL: Add Swedish translations for Terms of Service keys in /app/frontend/src/locales/sv.json (termsIntroTitle, termsIntroText, termsServiceTitle, termsServiceText, termsAccountsTitle, termsAccount1-4, etc.)",
+    "CRITICAL: Add Dutch translations for Terms of Service keys in /app/frontend/src/locales/nl.json",
+    "CRITICAL: Add Greek translations for Terms of Service keys in /app/frontend/src/locales/el.json"
+  ],
+  "critical_code_review_comments": [
+    "sv.json, nl.json, el.json locale files have English text instead of proper translations for Terms of Service section (lines ~1580-1602)",
+    "The termsOfService header key is translated but the content keys (termsIntroTitle, termsIntroText, etc.) are English placeholders"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend only test)",
+    "frontend": "70% (7/10 localization tests passed)"
+  },
+  "test_credentials": {},
+  "seed_data_creation": "",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "The app uses i18next for translations. Language can be switched via localStorage.setItem('user-selected-locale', 'de'). Routes are /terms (not /terms-of-service), /privacy (not /privacy-policy), /zakat (not /zakat-calculator), /period-tracker. Privacy Policy uses PRIVACY_CONTENT object in PrivacyPolicy.tsx which is correctly translated for all languages. Terms of Service uses t() function with i18n locale files where sv, nl, el are missing translations.",
+  "screenshots_taken": [
+    ".screenshots/tos_german_v2.png",
+    ".screenshots/tos_french_v2.png", 
+    ".screenshots/tos_swedish_v2.png",
+    ".screenshots/period_german_v2.png",
+    ".screenshots/zakat_en_v3.png",
+    ".screenshots/privacy_german_final.png",
+    ".screenshots/privacy_greek_final.png",
+    ".screenshots/tos_dutch_final.png"
+  ]
+}
