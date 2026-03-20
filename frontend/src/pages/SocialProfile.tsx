@@ -202,7 +202,7 @@ export default function SocialProfile() {
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
             activeTab === 'posts' ? 'text-white border-b-2 border-emerald-500' : 'text-gray-600'
           }`}>
-          المنشورات
+          ال{t('postsCount')}
         </button>
         <button onClick={() => setActiveTab('info')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
@@ -217,7 +217,7 @@ export default function SocialProfile() {
         <div className="grid grid-cols-2 gap-1.5 p-3">
           {posts.length === 0 ? (
             <div className="col-span-2 text-center py-16 text-gray-600 text-sm">
-              لا توجد منشورات حتى الآن
+              لا توجد {t('postsCount')} حتى الآن
             </div>
           ) : (
             posts.map(post => (

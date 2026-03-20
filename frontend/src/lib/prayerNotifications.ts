@@ -17,8 +17,8 @@ interface PrayerTimesResult {
 }
 
 const PRAYER_NAMES_AR: Record<string, string> = {
-  fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر',
-  asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
+  fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr',
+  asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha'
 };
 
 const PRAYER_EMOJIS: Record<string, string> = {
@@ -248,7 +248,7 @@ function showPrayerNotification(prayer: string) {
 function showPrayerReminder(prayer: string, minutes: number) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   
-  const title = `⏰ بعد ${minutes} دقيقة صلاة ${PRAYER_NAMES_AR[prayer]}`;
+  const title = `⏰ remaining ${minutes} min صلاة ${PRAYER_NAMES_AR[prayer]}`;
   const body = 'استعد للصلاة - حي على الصلاة';
   
   if ('serviceWorker' in navigator) {

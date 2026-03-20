@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
-import { ramadanDeeds } from '@/data/ramadanDeeds';
+import { ramadanDeedsAr, ramadanDeedsEn } from '@/data/ramadanDeeds';
 import PageHeader from '@/components/PageHeader';
 
 interface DayState {
@@ -51,18 +51,18 @@ export default function RamadanChallenge() {
         {/* Progress card */}
         <div className="rounded-2xl bg-card border border-border/50 p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-bold text-foreground">{totalDone}/60 مكتمل</span>
+            <span className="text-sm font-bold text-foreground">{totalDone}/60 {t('completed')}</span>
             <span className="text-xs text-muted-foreground">{Math.round((totalDone / 60) * 100)}%</span>
           </div>
           <Progress value={(totalDone / 60) * 100} className="h-2.5 mb-3" />
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
               <Moon className="h-4 w-4 text-primary" />
-              <span className="text-xs text-muted-foreground">صيام {fastingCount}/30</span>
+              <span className="text-xs text-muted-foreground">{t('fastingDays')} {fastingCount}/30</span>
             </div>
             <div className="flex items-center gap-2">
               <Heart className="h-4 w-4 text-accent" />
-              <span className="text-xs text-muted-foreground">أعمال {deedCount}/30</span>
+              <span className="text-xs text-muted-foreground">{t('deeds')} {deedCount}/30</span>
             </div>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function RamadanChallenge() {
                     </div>
                     <div className="flex-1">
                       <p className={cn('text-sm font-bold', done && 'text-primary line-through')}>
-                        اليوم {day}
+                        {t('today')} {day}
                       </p>
                     </div>
                     <Moon className={cn('h-4 w-4', done ? 'text-primary' : 'text-muted-foreground')} />
@@ -109,7 +109,7 @@ export default function RamadanChallenge() {
 
           <TabsContent value="deeds">
             <div className="space-y-2">
-              {ramadanDeeds.map((deed, i) => {
+              {(locale === 'ar' ? ramadanDeedsAr : ramadanDeedsEn).map((deed, i) => {
                 const day = i + 1;
                 const done = days[day]?.deed;
                 return (

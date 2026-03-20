@@ -246,7 +246,7 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                   className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/15 px-6 py-4 mb-6 max-w-xs"
                 >
                   <p className="text-white text-base font-arabic leading-[2] text-center">
-                    {occasion.duaAr}
+                    {isAr ? occasion.duaAr : (occasion.duaEn || occasion.duaAr)}
                   </p>
                   <p className="text-white/40 text-xs mt-2">
                     {t('iftarDuaTitle')}

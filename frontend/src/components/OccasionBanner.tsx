@@ -127,7 +127,7 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
                 className="overflow-hidden"
               >
                 <div className="mt-4 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-                  <p className="text-white text-lg font-arabic text-center leading-[2.2]">{occasion.duaAr}</p>
+                  <p className="text-white text-lg font-arabic text-center leading-[2.2]">{isRTL ? occasion.duaAr : (occasion.duaEn || occasion.duaAr)}</p>
                 </div>
               </motion.div>
             )}

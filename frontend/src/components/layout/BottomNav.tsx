@@ -86,7 +86,7 @@ export function BottomNav() {
                 </div>
                 {/* Label */}
                 <span className={cn(
-                  "text-[10px] leading-none text-center whitespace-nowrap",
+                  "text-[10px] leading-none text-center truncate max-w-[60px]",
                   isActive ? 'font-bold' : 'font-medium opacity-70'
                 )}>
                   {item.label}

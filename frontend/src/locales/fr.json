@@ -1734,5 +1734,15 @@
   "calculate": "Calculer",
   "chooseMosque": "Choisissez votre mosquée pour les horaires de prière",
   "ramadanKareem": "Ramadan Kareem",
-  "laylatAlQadr": "Laylat al-Qadr"
+  "laylatAlQadr": "Laylat al-Qadr",
+  "euro": "Euro",
+  "dollar": "Dollar",
+  "pound": "Livre",
+  "fajrTime": "Fajr",
+  "dhuhrTime": "Dhuhr",
+  "asrTime": "Asr",
+  "maghribTime": "Maghrib",
+  "ishaTime": "Isha",
+  "logOut": "Déconnexion",
+  "searchQuran": "Rechercher dans le Coran..."
 }

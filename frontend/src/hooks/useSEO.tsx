@@ -1,58 +1,58 @@
 import { useEffect } from 'react';
+import { useLocale } from '@/hooks/useLocale';
 import { useLocation } from 'react-router-dom';
 
-const PAGE_SEO: Record<string, { title: string; description: string }> = {
-  '/': {
-    title: 'أذان وحكاية - مواقيت الصلاة | القرآن الكريم | اتجاه القبلة | أذكار وأدعية',
-    description: 'مواقيت الصلاة الدقيقة في كل مدينة بالعالم، القرآن الكريم مع التلاوة، اتجاه القبلة، الأذكار والأدعية، حاسبة الزكاة، التسبيح، أوقات المساجد القريبة. تطبيق إسلامي شامل ومجاني.',
-  },
-  '/prayer-times': {
-    title: 'مواقيت الصلاة اليوم - الفجر الظهر العصر المغرب العشاء | أذان وحكاية',
-    description: 'مواقيت الصلاة الدقيقة اليوم حسب موقعك: الفجر، الشروق، الظهر، العصر، المغرب، العشاء. Prayer times today - Gebetszeiten heute.',
-  },
-  '/quran': {
-    title: 'القرآن الكريم - قراءة واستماع جميع السور | أذان وحكاية',
-    description: 'اقرأ واستمع إلى القرآن الكريم كاملاً. جميع السور مع التفسير والترجمة. Read and listen to the Holy Quran.',
-  },
-  '/qibla': {
-    title: 'اتجاه القبلة - بوصلة القبلة الدقيقة | أذان وحكاية',
-    description: 'حدد اتجاه القبلة بدقة من أي مكان في العالم باستخدام بوصلة القبلة. Qibla direction finder - Qibla-Richtung.',
-  },
-  '/duas': {
-    title: 'الأذكار والأدعية - أدعية مأثورة | أذان وحكاية',
-    description: 'مجموعة شاملة من الأذكار والأدعية المأثورة من القرآن والسنة. أذكار الصباح والمساء وأدعية يومية.',
-  },
-  '/tasbeeh': {
-    title: 'التسبيح الإلكتروني - عداد الأذكار | أذان وحكاية',
-    description: 'عداد التسبيح الإلكتروني. سبحان الله، الحمد لله، الله أكبر. سبّح واحفظ عدد أذكارك.',
-  },
-  '/zakat': {
-    title: 'حاسبة الزكاة - احسب زكاتك بدقة | أذان وحكاية',
-    description: 'احسب زكاة المال بدقة وسهولة. حاسبة الزكاة الإلكترونية تحسب النصاب والزكاة المستحقة. Zakat calculator.',
-  },
-  '/mosque-times': {
-    title: 'أوقات المساجد القريبة - مواقيت الصلاة في مسجدك | أذان وحكاية',
-    description: 'اعرف أوقات الصلاة في المساجد القريبة منك. أوقات إقامة الصلاة مباشرة من المسجد. Mosque prayer times near me.',
-  },
-  '/stories': {
-    title: 'قصص إسلامية - قصص وعبر | أذان وحكاية',
-    description: 'قصص إسلامية ملهمة وعبر من القرآن والسنة. شارك قصصك وتجاربك مع المجتمع.',
-  },
-  '/tracker': {
-    title: 'متابعة الصلاة - تتبع صلواتك اليومية | أذان وحكاية',
-    description: 'تتبع صلواتك اليومية وحافظ على المداومة. سجل صلواتك وتابع تقدمك.',
-  },
-  '/daily-duas': {
-    title: 'دعاء اليوم - أدعية يومية متجددة | أذان وحكاية',
-    description: 'دعاء اليوم من القرآن والسنة. أدعية متجددة يومياً لتبدأ يومك بالذكر.',
-  },
+type SeoData = Record<string, { title: string; description: string }>;
+
+const SEO_AR: SeoData = {
+  '/': { title: 'أذان وحكاية - مواقيت الصلاة | القرآن الكريم | أذكار وأدعية', description: 'مواقيت الصلاة الدقيقة، القرآن الكريم، الأذكار والأدعية، حاسبة الزكاة، التسبيح. تطبيق إسلامي شامل.' },
+  '/prayer-times': { title: 'مواقيت الصلاة اليوم | أذان وحكاية', description: 'مواقيت الصلاة الدقيقة حسب موقعك.' },
+  '/quran': { title: 'القرآن الكريم - قراءة واستماع | أذان وحكاية', description: 'اقرأ واستمع إلى القرآن الكريم كاملاً.' },
+  '/qibla': { title: 'اتجاه القبلة | أذان وحكاية', description: 'حدد اتجاه القبلة بدقة من أي مكان.' },
+  '/duas': { title: 'الأذكار والأدعية | أذان وحكاية', description: 'مجموعة شاملة من الأذكار والأدعية.' },
+  '/tasbeeh': { title: 'التسبيح الإلكتروني | أذان وحكاية', description: 'عداد التسبيح الإلكتروني.' },
+  '/zakat': { title: 'حاسبة الزكاة | أذان وحكاية', description: 'احسب زكاة المال بدقة وسهولة.' },
+  '/mosque-times': { title: 'أوقات المساجد القريبة | أذان وحكاية', description: 'اعرف أوقات الصلاة في المساجد القريبة.' },
+  '/stories': { title: 'قصص إسلامية | أذان وحكاية', description: 'قصص إسلامية ملهمة وعبر.' },
+  '/tracker': { title: 'متابعة الصلاة | أذان وحكاية', description: 'تتبع صلواتك اليومية.' },
+  '/daily-duas': { title: 'دعاء اليوم | أذان وحكاية', description: 'أدعية يومية متجددة.' },
+  '/ruqyah': { title: 'الرقية الشرعية | أذان وحكاية', description: 'الرقية الشرعية من القرآن والسنة.' },
 };
+
+const SEO_EN: SeoData = {
+  '/': { title: 'Athan & Hikaya - Prayer Times | Quran | Duas', description: 'Accurate prayer times, Quran, Duas, Zakat calculator, Tasbeeh. Complete Islamic app.' },
+  '/prayer-times': { title: 'Prayer Times Today | Athan & Hikaya', description: 'Accurate prayer times for your location.' },
+  '/quran': { title: 'Holy Quran - Read & Listen | Athan & Hikaya', description: 'Read and listen to the Holy Quran.' },
+  '/qibla': { title: 'Qibla Direction | Athan & Hikaya', description: 'Find Qibla direction from anywhere.' },
+  '/duas': { title: 'Islamic Duas & Adhkar | Athan & Hikaya', description: 'Complete collection of Islamic duas.' },
+  '/tasbeeh': { title: 'Digital Tasbeeh Counter | Athan & Hikaya', description: 'Digital tasbeeh and dhikr counter.' },
+  '/zakat': { title: 'Zakat Calculator | Athan & Hikaya', description: 'Calculate your Zakat accurately.' },
+  '/mosque-times': { title: 'Nearby Mosque Times | Athan & Hikaya', description: 'Find prayer times at nearby mosques.' },
+  '/stories': { title: 'Islamic Stories | Athan & Hikaya', description: 'Inspiring Islamic stories and lessons.' },
+  '/tracker': { title: 'Prayer Tracker | Athan & Hikaya', description: 'Track your daily prayers.' },
+  '/daily-duas': { title: 'Dua of the Day | Athan & Hikaya', description: 'Daily renewed duas.' },
+  '/ruqyah': { title: 'Ruqyah Ash-Shariah | Athan & Hikaya', description: 'Ruqyah from Quran and Sunnah.' },
+};
+
+const SEO_DE: SeoData = {
+  '/': { title: 'Athan & Hikaya - Gebetszeiten | Quran | Duas', description: 'Genaue Gebetszeiten, Quran, Duas, Zakat-Rechner. Islamische App.' },
+  '/prayer-times': { title: 'Gebetszeiten Heute | Athan & Hikaya', description: 'Genaue Gebetszeiten.' },
+  '/quran': { title: 'Heiliger Quran | Athan & Hikaya', description: 'Quran lesen und hören.' },
+};
+
+const SEO_FR: SeoData = {
+  '/': { title: 'Athan & Hikaya - Horaires de Prière | Coran | Duas', description: 'Horaires de prière, Coran, Duas. Application islamique.' },
+};
+
+const SEO_MAP: Record<string, SeoData> = { ar: SEO_AR, en: SEO_EN, de: SEO_DE, fr: SEO_FR };
 
 export function useSEO() {
   const location = useLocation();
+  const { locale } = useLocale();
 
   useEffect(() => {
-    const seo = PAGE_SEO[location.pathname] || PAGE_SEO['/'];
+    const seoMap = SEO_MAP[locale] || SEO_EN;
+    const seo = seoMap[location.pathname] || seoMap['/'] || SEO_EN['/'];
     document.title = seo.title;
 
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -70,10 +70,9 @@ export function useSEO() {
     const twDesc = document.querySelector('meta[name="twitter:description"]');
     if (twDesc) twDesc.setAttribute('content', seo.description);
 
-    // Update canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (canonical) {
       canonical.href = `https://qibla-guidance-hub.lovable.app${location.pathname}`;
     }
-  }, [location.pathname]);
+  }, [location.pathname, locale]);
 }

@@ -6,105 +6,105 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 const NAMES = [
-  { num: 1, ar: 'الرَّحْمَنُ', meaning: 'الذي وسعت رحمته كل شيء' },
-  { num: 2, ar: 'الرَّحِيمُ', meaning: 'الذي يرحم عباده المؤمنين' },
-  { num: 3, ar: 'المَلِكُ', meaning: 'المالك لكل شيء، المتصرف في خلقه' },
-  { num: 4, ar: 'القُدُّوسُ', meaning: 'المنزه عن كل عيب ونقص' },
-  { num: 5, ar: 'السَّلَامُ', meaning: 'السالم من كل عيب وآفة' },
-  { num: 6, ar: 'المُؤْمِنُ', meaning: 'الذي يُصَدِّق عباده ويؤمنهم من عذابه' },
-  { num: 7, ar: 'المُهَيْمِنُ', meaning: 'الشاهد على خلقه، المسيطر عليهم' },
-  { num: 8, ar: 'العَزِيزُ', meaning: 'الغالب الذي لا يُغلب' },
-  { num: 9, ar: 'الجَبَّارُ', meaning: 'الذي يجبر كسر عباده ويُصلح أحوالهم' },
-  { num: 10, ar: 'المُتَكَبِّرُ', meaning: 'المتعالي عن صفات الخلق' },
-  { num: 11, ar: 'الخَالِقُ', meaning: 'الذي أوجد الأشياء من العدم' },
-  { num: 12, ar: 'البَارِئُ', meaning: 'الذي خلق الخلق لا على مثال سابق' },
-  { num: 13, ar: 'المُصَوِّرُ', meaning: 'الذي صوّر جميع المخلوقات' },
-  { num: 14, ar: 'الغَفَّارُ', meaning: 'الذي يغفر الذنوب مرة بعد مرة' },
-  { num: 15, ar: 'القَهَّارُ', meaning: 'الذي قهر جميع المخلوقات' },
-  { num: 16, ar: 'الوَهَّابُ', meaning: 'الذي يهب النعم بلا عوض' },
-  { num: 17, ar: 'الرَّزَّاقُ', meaning: 'الذي يرزق جميع المخلوقات' },
-  { num: 18, ar: 'الفَتَّاحُ', meaning: 'الذي يفتح أبواب الرزق والرحمة' },
-  { num: 19, ar: 'العَلِيمُ', meaning: 'الذي يعلم كل شيء ظاهره وباطنه' },
-  { num: 20, ar: 'القَابِضُ', meaning: 'الذي يقبض الأرزاق والأرواح' },
-  { num: 21, ar: 'البَاسِطُ', meaning: 'الذي يبسط الرزق لمن يشاء' },
-  { num: 22, ar: 'الخَافِضُ', meaning: 'الذي يخفض من يشاء' },
-  { num: 23, ar: 'الرَّافِعُ', meaning: 'الذي يرفع من يشاء بالعز والطاعة' },
-  { num: 24, ar: 'المُعِزُّ', meaning: 'الذي يهب العزة لمن يشاء' },
-  { num: 25, ar: 'المُذِلُّ', meaning: 'الذي يذل من يشاء من الطغاة' },
-  { num: 26, ar: 'السَّمِيعُ', meaning: 'الذي يسمع كل شيء' },
-  { num: 27, ar: 'البَصِيرُ', meaning: 'الذي يرى كل شيء' },
-  { num: 28, ar: 'الحَكَمُ', meaning: 'الحاكم العدل بين خلقه' },
-  { num: 29, ar: 'العَدْلُ', meaning: 'العادل الذي لا يظلم أحداً' },
-  { num: 30, ar: 'اللَّطِيفُ', meaning: 'الرفيق بعباده الذي يوصل لهم مصالحهم' },
-  { num: 31, ar: 'الخَبِيرُ', meaning: 'العالم بحقائق الأشياء وبواطنها' },
-  { num: 32, ar: 'الحَلِيمُ', meaning: 'الذي لا يعاجل بالعقوبة' },
-  { num: 33, ar: 'العَظِيمُ', meaning: 'ذو العظمة المطلقة في ذاته وصفاته' },
-  { num: 34, ar: 'الغَفُورُ', meaning: 'الذي يكثر من المغفرة' },
-  { num: 35, ar: 'الشَّكُورُ', meaning: 'الذي يشكر اليسير من العمل ويثيب عليه' },
-  { num: 36, ar: 'العَلِيُّ', meaning: 'المتعالي فوق خلقه بذاته وصفاته' },
-  { num: 37, ar: 'الكَبِيرُ', meaning: 'ذو الكبرياء والعظمة' },
-  { num: 38, ar: 'الحَفِيظُ', meaning: 'الذي يحفظ كل شيء' },
-  { num: 39, ar: 'المُقِيتُ', meaning: 'الذي يقيت الخلائق ويوصل لهم أرزاقهم' },
-  { num: 40, ar: 'الحَسِيبُ', meaning: 'الكافي الذي يحاسب عباده' },
-  { num: 41, ar: 'الجَلِيلُ', meaning: 'ذو الجلال والعظمة' },
-  { num: 42, ar: 'الكَرِيمُ', meaning: 'الكثير الخير الجواد المعطي' },
-  { num: 43, ar: 'الرَّقِيبُ', meaning: 'المطلع على ما أكنّته الصدور' },
-  { num: 44, ar: 'المُجِيبُ', meaning: 'الذي يجيب دعاء الداعي' },
-  { num: 45, ar: 'الوَاسِعُ', meaning: 'الذي وسع رزقه جميع خلقه' },
-  { num: 46, ar: 'الحَكِيمُ', meaning: 'الذي يضع كل شيء في موضعه' },
-  { num: 47, ar: 'الوَدُودُ', meaning: 'المحب لعباده المؤمنين' },
-  { num: 48, ar: 'المَجِيدُ', meaning: 'ذو المجد والشرف العظيم' },
-  { num: 49, ar: 'البَاعِثُ', meaning: 'الذي يبعث الخلق يوم القيامة' },
-  { num: 50, ar: 'الشَّهِيدُ', meaning: 'المطلع على كل شيء لا يغيب عنه شيء' },
-  { num: 51, ar: 'الحَقُّ', meaning: 'الموجود حقاً الثابت بلا شك' },
-  { num: 52, ar: 'الوَكِيلُ', meaning: 'الذي يتولى أمور خلقه' },
-  { num: 53, ar: 'القَوِيُّ', meaning: 'التام القدرة الذي لا يعجزه شيء' },
-  { num: 54, ar: 'المَتِينُ', meaning: 'شديد القوة الذي لا يلحقه ضعف' },
-  { num: 55, ar: 'الوَلِيُّ', meaning: 'الناصر لعباده المؤمنين' },
-  { num: 56, ar: 'الحَمِيدُ', meaning: 'المحمود المستحق للحمد' },
-  { num: 57, ar: 'المُحْصِي', meaning: 'الذي أحصى كل شيء عدداً' },
-  { num: 58, ar: 'المُبْدِئُ', meaning: 'الذي بدأ خلق الأشياء' },
-  { num: 59, ar: 'المُعِيدُ', meaning: 'الذي يعيد الخلق بعد الموت' },
-  { num: 60, ar: 'المُحْيِي', meaning: 'الذي يحيي الموتى ويهب الحياة' },
-  { num: 61, ar: 'المُمِيتُ', meaning: 'الذي يميت الأحياء' },
-  { num: 62, ar: 'الحَيُّ', meaning: 'الحي الذي لا يموت' },
-  { num: 63, ar: 'القَيُّومُ', meaning: 'القائم بذاته المقيم لغيره' },
-  { num: 64, ar: 'الوَاجِدُ', meaning: 'الغني الذي لا يفتقر لشيء' },
-  { num: 65, ar: 'المَاجِدُ', meaning: 'التام الكمال ذو الشرف والسلطان' },
-  { num: 66, ar: 'الوَاحِدُ', meaning: 'المنفرد بذاته وصفاته وأفعاله' },
-  { num: 67, ar: 'الصَّمَدُ', meaning: 'الذي يصمد إليه في الحوائج' },
-  { num: 68, ar: 'القَادِرُ', meaning: 'الذي يقدر على ما يشاء' },
-  { num: 69, ar: 'المُقْتَدِرُ', meaning: 'التام القدرة الذي لا يمتنع عليه شيء' },
-  { num: 70, ar: 'المُقَدِّمُ', meaning: 'الذي يقدم من يشاء' },
-  { num: 71, ar: 'المُؤَخِّرُ', meaning: 'الذي يؤخر من يشاء' },
-  { num: 72, ar: 'الأَوَّلُ', meaning: 'الذي ليس قبله شيء' },
-  { num: 73, ar: 'الآخِرُ', meaning: 'الذي ليس بعده شيء' },
-  { num: 74, ar: 'الظَّاهِرُ', meaning: 'الذي ظهر فوق كل شيء' },
-  { num: 75, ar: 'البَاطِنُ', meaning: 'المحتجب عن أبصار الخلق' },
-  { num: 76, ar: 'الوَالِي', meaning: 'المالك لكل شيء المتصرف فيه' },
-  { num: 77, ar: 'المُتَعَالِي', meaning: 'المتعالي عن صفات المخلوقين' },
-  { num: 78, ar: 'البَرُّ', meaning: 'العطوف الرحيم بعباده' },
-  { num: 79, ar: 'التَّوَّابُ', meaning: 'الذي يقبل التوبة عن عباده' },
-  { num: 80, ar: 'المُنْتَقِمُ', meaning: 'الذي ينتقم من المجرمين بعدله' },
-  { num: 81, ar: 'العَفُوُّ', meaning: 'الذي يعفو عن الذنوب' },
-  { num: 82, ar: 'الرَّؤُوفُ', meaning: 'ذو الرأفة والرحمة الشديدة' },
-  { num: 83, ar: 'مَالِكُ المُلْكِ', meaning: 'المالك لجميع الأملاك' },
-  { num: 84, ar: 'ذُو الجَلَالِ وَالإِكْرَامِ', meaning: 'المستحق للتعظيم والإكرام' },
-  { num: 85, ar: 'المُقْسِطُ', meaning: 'العادل في حكمه' },
-  { num: 86, ar: 'الجَامِعُ', meaning: 'الذي يجمع الخلائق يوم القيامة' },
-  { num: 87, ar: 'الغَنِيُّ', meaning: 'المستغني عن كل شيء' },
-  { num: 88, ar: 'المُغْنِي', meaning: 'الذي يغني من يشاء من خلقه' },
-  { num: 89, ar: 'المَانِعُ', meaning: 'الذي يمنع العطاء عمن يشاء لحكمة' },
-  { num: 90, ar: 'الضَّارُّ', meaning: 'الذي يقدر الضر على من يشاء' },
-  { num: 91, ar: 'النَّافِعُ', meaning: 'الذي يقدر النفع لمن يشاء' },
-  { num: 92, ar: 'النُّورُ', meaning: 'نور السماوات والأرض' },
-  { num: 93, ar: 'الهَادِي', meaning: 'الذي يهدي عباده للحق' },
-  { num: 94, ar: 'البَدِيعُ', meaning: 'الذي أبدع الخلق بلا مثال' },
-  { num: 95, ar: 'البَاقِي', meaning: 'الدائم الذي لا يفنى' },
-  { num: 96, ar: 'الوَارِثُ', meaning: 'الباقي بعد فناء خلقه' },
-  { num: 97, ar: 'الرَّشِيدُ', meaning: 'المرشد لعباده إلى ما فيه صلاحهم' },
-  { num: 98, ar: 'الصَّبُورُ', meaning: 'الذي لا يعاجل العصاة بالعقوبة' },
-  { num: 99, ar: 'اللَّهُ', meaning: 'الاسم الأعظم الجامع لجميع الأسماء والصفات' },
+  { num: 1, ar: 'الرَّحْمَنُ', en: 'Ar-Rahman', meaning: 'الذي وسعت رحمته كل شيء', meaningEn: 'The Most Gracious' },
+  { num: 2, ar: 'الرَّحِيمُ', en: 'Ar-Raheem', meaning: 'الذي يرحم عباده المؤمنين', meaningEn: 'The Most Merciful' },
+  { num: 3, ar: 'المَلِكُ', en: 'Al-Malik', meaning: 'المالك لكل شيء، المتصرف في خلقه', meaningEn: 'The King, The Sovereign' },
+  { num: 4, ar: 'القُدُّوسُ', en: 'Al-Quddus', meaning: 'المنزه عن كل عيب ونقص', meaningEn: 'The Most Holy' },
+  { num: 5, ar: 'السَّلَامُ', en: 'As-Salam', meaning: 'السالم من كل عيب وآفة', meaningEn: 'The Source of Peace' },
+  { num: 6, ar: 'المُؤْمِنُ', en: 'Al-Mu'min', meaning: 'الذي يُصَدِّق عباده ويؤمنهم من عذابه', meaningEn: 'The Guardian of Faith' },
+  { num: 7, ar: 'المُهَيْمِنُ', en: 'Al-Muhaymin', meaning: 'الشاهد على خلقه، المسيطر عليهم', meaningEn: 'The Protector' },
+  { num: 8, ar: 'العَزِيزُ', en: 'Al-Aziz', meaning: 'الغالب الذي لا يُغلب', meaningEn: 'The Almighty' },
+  { num: 9, ar: 'الجَبَّارُ', en: 'Al-Jabbar', meaning: 'الذي يجبر كسر عباده ويُصلح أحوالهم', meaningEn: 'The Compeller' },
+  { num: 10, ar: 'المُتَكَبِّرُ', en: 'Al-Mutakabbir', meaning: 'المتعالي عن صفات الخلق', meaningEn: 'The Supreme' },
+  { num: 11, ar: 'الخَالِقُ', en: 'Al-Khaliq', meaning: 'الذي أوجد الأشياء من العدم', meaningEn: 'The Creator' },
+  { num: 12, ar: 'البَارِئُ', en: 'Al-Bari', meaning: 'الذي خلق الخلق لا على مثال سابق', meaningEn: 'The Originator' },
+  { num: 13, ar: 'المُصَوِّرُ', en: 'Al-Musawwir', meaning: 'الذي صوّر جميع المخلوقات', meaningEn: 'The Fashioner' },
+  { num: 14, ar: 'الغَفَّارُ', en: 'Al-Ghaffar', meaning: 'الذي يغفر الذنوب مرة بعد مرة', meaningEn: 'The Forgiving' },
+  { num: 15, ar: 'القَهَّارُ', en: 'Al-Qahhar', meaning: 'الذي قهر جميع المخلوقات', meaningEn: 'The Subduer' },
+  { num: 16, ar: 'الوَهَّابُ', en: 'Al-Wahhab', meaning: 'الذي يهب النعم بلا عوض', meaningEn: 'The Bestower' },
+  { num: 17, ar: 'الرَّزَّاقُ', en: 'Ar-Razzaq', meaning: 'الذي يرزق جميع المخلوقات', meaningEn: 'The Provider' },
+  { num: 18, ar: 'الفَتَّاحُ', en: 'Al-Fattah', meaning: 'الذي يفتح أبواب الرزق والرحمة', meaningEn: 'The Opener' },
+  { num: 19, ar: 'العَلِيمُ', en: 'Al-Aleem', meaning: 'الذي يعلم كل شيء ظاهره وباطنه', meaningEn: 'The All-Knowing' },
+  { num: 20, ar: 'القَابِضُ', en: 'Al-Qabid', meaning: 'الذي يقبض الأرزاق والأرواح', meaningEn: 'The Restrainer' },
+  { num: 21, ar: 'البَاسِطُ', en: 'Al-Basit', meaning: 'الذي يبسط الرزق لمن يشاء', meaningEn: 'The Expander' },
+  { num: 22, ar: 'الخَافِضُ', en: 'Al-Khafid', meaning: 'الذي يخفض من يشاء', meaningEn: 'The Abaser' },
+  { num: 23, ar: 'الرَّافِعُ', en: 'Ar-Rafi', meaning: 'الذي يرفع من يشاء بالعز والطاعة', meaningEn: 'The Exalter' },
+  { num: 24, ar: 'المُعِزُّ', en: 'Al-Mu'izz', meaning: 'الذي يهب العزة لمن يشاء', meaningEn: 'The Bestower of Honor' },
+  { num: 25, ar: 'المُذِلُّ', en: 'Al-Mudhill', meaning: 'الذي يذل من يشاء من الطغاة', meaningEn: 'The Humiliator' },
+  { num: 26, ar: 'السَّمِيعُ', en: 'As-Sami', meaning: 'الذي يسمع كل شيء', meaningEn: 'The All-Hearing' },
+  { num: 27, ar: 'البَصِيرُ', en: 'Al-Basir', meaning: 'الذي يرى كل شيء', meaningEn: 'The All-Seeing' },
+  { num: 28, ar: 'الحَكَمُ', en: 'Al-Hakam', meaning: 'الحاكم العدل بين خلقه', meaningEn: 'The Judge' },
+  { num: 29, ar: 'العَدْلُ', en: 'Al-Adl', meaning: 'العادل الذي لا يظلم أحداً', meaningEn: 'The Just' },
+  { num: 30, ar: 'اللَّطِيفُ', en: 'Al-Latif', meaning: 'الرفيق بعباده الذي يوصل لهم مصالحهم', meaningEn: 'The Subtle One' },
+  { num: 31, ar: 'الخَبِيرُ', en: 'Al-Khabir', meaning: 'العالم بحقائق الأشياء وبواطنها', meaningEn: 'The All-Aware' },
+  { num: 32, ar: 'الحَلِيمُ', en: 'Al-Haleem', meaning: 'الذي لا يعاجل بالعقوبة', meaningEn: 'The Forbearing' },
+  { num: 33, ar: 'العَظِيمُ', en: 'Al-Azeem', meaning: 'ذو العظمة المطلقة في ذاته وصفاته', meaningEn: 'The Magnificent' },
+  { num: 34, ar: 'الغَفُورُ', en: 'Al-Ghafur', meaning: 'الذي يكثر من المغفرة', meaningEn: 'The Forgiving' },
+  { num: 35, ar: 'الشَّكُورُ', en: 'Ash-Shakur', meaning: 'الذي يشكر اليسير من العمل ويثيب عليه', meaningEn: 'The Grateful' },
+  { num: 36, ar: 'العَلِيُّ', en: 'Al-Ali', meaning: 'المتعالي فوق خلقه بذاته وصفاته', meaningEn: 'The Most High' },
+  { num: 37, ar: 'الكَبِيرُ', en: 'Al-Kabir', meaning: 'ذو الكبرياء والعظمة', meaningEn: 'The Greatest' },
+  { num: 38, ar: 'الحَفِيظُ', en: 'Al-Hafiz', meaning: 'الذي يحفظ كل شيء', meaningEn: 'The Preserver' },
+  { num: 39, ar: 'المُقِيتُ', en: 'Al-Muqit', meaning: 'الذي يقيت الخلائق ويوصل لهم أرزاقهم', meaningEn: 'The Nourisher' },
+  { num: 40, ar: 'الحَسِيبُ', en: 'Al-Hasib', meaning: 'الكافي الذي يحاسب عباده', meaningEn: 'The Reckoner' },
+  { num: 41, ar: 'الجَلِيلُ', en: 'Al-Jalil', meaning: 'ذو الجلال والعظمة', meaningEn: 'The Majestic' },
+  { num: 42, ar: 'الكَرِيمُ', en: 'Al-Karim', meaning: 'الكثير الخير الجواد المعطي', meaningEn: 'The Generous' },
+  { num: 43, ar: 'الرَّقِيبُ', en: 'Ar-Raqib', meaning: 'المطلع على ما أكنّته الصدور', meaningEn: 'The Watchful' },
+  { num: 44, ar: 'المُجِيبُ', en: 'Al-Mujib', meaning: 'الذي يجيب دعاء الداعي', meaningEn: 'The Responsive' },
+  { num: 45, ar: 'الوَاسِعُ', en: 'Al-Wasi', meaning: 'الذي وسع رزقه جميع خلقه', meaningEn: 'The All-Encompassing' },
+  { num: 46, ar: 'الحَكِيمُ', en: 'Al-Hakim', meaning: 'الذي يضع كل شيء في موضعه', meaningEn: 'The Wise' },
+  { num: 47, ar: 'الوَدُودُ', en: 'Al-Wadud', meaning: 'المحب لعباده المؤمنين', meaningEn: 'The Loving' },
+  { num: 48, ar: 'المَجِيدُ', en: 'Al-Majid', meaning: 'ذو المجد والشرف العظيم', meaningEn: 'The Glorious' },
+  { num: 49, ar: 'البَاعِثُ', en: 'Al-Ba'ith', meaning: 'الذي يبعث الخلق يوم القيامة', meaningEn: 'The Resurrector' },
+  { num: 50, ar: 'الشَّهِيدُ', en: 'Ash-Shahid', meaning: 'المطلع على كل شيء لا يغيب عنه شيء', meaningEn: 'The Witness' },
+  { num: 51, ar: 'الحَقُّ', en: 'Al-Haqq', meaning: 'الموجود حقاً الثابت بلا شك', meaningEn: 'The Truth' },
+  { num: 52, ar: 'الوَكِيلُ', en: 'Al-Wakil', meaning: 'الذي يتولى أمور خلقه', meaningEn: 'The Trustee' },
+  { num: 53, ar: 'القَوِيُّ', en: 'Al-Qawi', meaning: 'التام القدرة الذي لا يعجزه شيء', meaningEn: 'The Strong' },
+  { num: 54, ar: 'المَتِينُ', en: 'Al-Matin', meaning: 'شديد القوة الذي لا يلحقه ضعف', meaningEn: 'The Firm' },
+  { num: 55, ar: 'الوَلِيُّ', en: 'Al-Wali', meaning: 'الناصر لعباده المؤمنين', meaningEn: 'The Protecting Friend' },
+  { num: 56, ar: 'الحَمِيدُ', en: 'Al-Hamid', meaning: 'المحمود المستحق للحمد', meaningEn: 'The Praiseworthy' },
+  { num: 57, ar: 'المُحْصِي', en: 'Al-Muhsi', meaning: 'الذي أحصى كل شيء عدداً', meaningEn: 'The Counter' },
+  { num: 58, ar: 'المُبْدِئُ', en: 'Al-Mubdi', meaning: 'الذي بدأ خلق الأشياء', meaningEn: 'The Originator' },
+  { num: 59, ar: 'المُعِيدُ', en: 'Al-Mu'id', meaning: 'الذي يعيد الخلق بعد الموت', meaningEn: 'The Restorer' },
+  { num: 60, ar: 'المُحْيِي', en: 'Al-Muhyi', meaning: 'الذي يحيي الموتى ويهب الحياة', meaningEn: 'The Giver of Life' },
+  { num: 61, ar: 'المُمِيتُ', en: 'Al-Mumit', meaning: 'الذي يميت الأحياء', meaningEn: 'The Taker of Life' },
+  { num: 62, ar: 'الحَيُّ', en: 'Al-Hayy', meaning: 'الحي الذي لا يموت', meaningEn: 'The Ever Living' },
+  { num: 63, ar: 'القَيُّومُ', en: 'Al-Qayyum', meaning: 'القائم بذاته المقيم لغيره', meaningEn: 'The Self-Subsisting' },
+  { num: 64, ar: 'الوَاجِدُ', en: 'Al-Wajid', meaning: 'الغني الذي لا يفتقر لشيء', meaningEn: 'The Finder' },
+  { num: 65, ar: 'المَاجِدُ', en: 'Al-Majid', meaning: 'التام الكمال ذو الشرف والسلطان', meaningEn: 'The Noble' },
+  { num: 66, ar: 'الوَاحِدُ', en: 'Al-Wahid', meaning: 'المنفرد بذاته وصفاته وأفعاله', meaningEn: 'The One' },
+  { num: 67, ar: 'الصَّمَدُ', en: 'As-Samad', meaning: 'الذي يصمد إليه في الحوائج', meaningEn: 'The Eternal' },
+  { num: 68, ar: 'القَادِرُ', en: 'Al-Qadir', meaning: 'الذي يقدر على ما يشاء', meaningEn: 'The All-Powerful' },
+  { num: 69, ar: 'المُقْتَدِرُ', en: 'Al-Muqtadir', meaning: 'التام القدرة الذي لا يمتنع عليه شيء', meaningEn: 'The Powerful' },
+  { num: 70, ar: 'المُقَدِّمُ', en: 'Al-Muqaddim', meaning: 'الذي يقدم من يشاء', meaningEn: 'The Expediter' },
+  { num: 71, ar: 'المُؤَخِّرُ', en: 'Al-Mu'akhkhir', meaning: 'الذي يؤخر من يشاء', meaningEn: 'The Delayer' },
+  { num: 72, ar: 'الأَوَّلُ', en: 'Al-Awwal', meaning: 'الذي ليس قبله شيء', meaningEn: 'The First' },
+  { num: 73, ar: 'الآخِرُ', en: 'Al-Akhir', meaning: 'الذي ليس بعده شيء', meaningEn: 'The Last' },
+  { num: 74, ar: 'الظَّاهِرُ', en: 'Az-Zahir', meaning: 'الذي ظهر فوق كل شيء', meaningEn: 'The Manifest' },
+  { num: 75, ar: 'البَاطِنُ', en: 'Al-Batin', meaning: 'المحتجب عن أبصار الخلق', meaningEn: 'The Hidden' },
+  { num: 76, ar: 'الوَالِي', en: 'Al-Wali', meaning: 'المالك لكل شيء المتصرف فيه', meaningEn: 'The Governor' },
+  { num: 77, ar: 'المُتَعَالِي', en: 'Al-Muta'ali', meaning: 'المتعالي عن صفات المخلوقين', meaningEn: 'The Most Exalted' },
+  { num: 78, ar: 'البَرُّ', en: 'Al-Barr', meaning: 'العطوف الرحيم بعباده', meaningEn: 'The Source of Goodness' },
+  { num: 79, ar: 'التَّوَّابُ', en: 'At-Tawwab', meaning: 'الذي يقبل التوبة عن عباده', meaningEn: 'The Acceptor of Repentance' },
+  { num: 80, ar: 'المُنْتَقِمُ', en: 'Al-Muntaqim', meaning: 'الذي ينتقم من المجرمين بعدله', meaningEn: 'The Avenger' },
+  { num: 81, ar: 'العَفُوُّ', en: 'Al-Afuw', meaning: 'الذي يعفو عن الذنوب', meaningEn: 'The Pardoner' },
+  { num: 82, ar: 'الرَّؤُوفُ', en: 'Ar-Ra'uf', meaning: 'ذو الرأفة والرحمة الشديدة', meaningEn: 'The Compassionate' },
+  { num: 83, ar: 'مَالِكُ المُلْكِ', en: 'Malik-ul-Mulk', meaning: 'المالك لجميع الأملاك', meaningEn: 'Owner of Sovereignty' },
+  { num: 84, ar: 'ذُو الجَلَالِ وَالإِكْرَامِ', en: 'Dhul-Jalal-wal-Ikram', meaning: 'المستحق للتعظيم والإكرام', meaningEn: 'Lord of Majesty and Generosity' },
+  { num: 85, ar: 'المُقْسِطُ', en: 'Al-Muqsit', meaning: 'العادل في حكمه', meaningEn: 'The Equitable' },
+  { num: 86, ar: 'الجَامِعُ', en: 'Al-Jami', meaning: 'الذي يجمع الخلائق يوم القيامة', meaningEn: 'The Gatherer' },
+  { num: 87, ar: 'الغَنِيُّ', en: 'Al-Ghani', meaning: 'المستغني عن كل شيء', meaningEn: 'The Self-Sufficient' },
+  { num: 88, ar: 'المُغْنِي', en: 'Al-Mughni', meaning: 'الذي يغني من يشاء من خلقه', meaningEn: 'The Enricher' },
+  { num: 89, ar: 'المَانِعُ', en: 'Al-Mani', meaning: 'الذي يمنع العطاء عمن يشاء لحكمة', meaningEn: 'The Preventer' },
+  { num: 90, ar: 'الضَّارُّ', en: 'Ad-Darr', meaning: 'الذي يقدر الضر على من يشاء', meaningEn: 'The Distresser' },
+  { num: 91, ar: 'النَّافِعُ', en: 'An-Nafi', meaning: 'الذي يقدر النفع لمن يشاء', meaningEn: 'The Propitious' },
+  { num: 92, ar: 'النُّورُ', en: 'An-Nur', meaning: 'نور السماوات والأرض', meaningEn: 'The Light' },
+  { num: 93, ar: 'الهَادِي', en: 'Al-Hadi', meaning: 'الذي يهدي عباده للحق', meaningEn: 'The Guide' },
+  { num: 94, ar: 'البَدِيعُ', en: 'Al-Badi', meaning: 'الذي أبدع الخلق بلا مثال', meaningEn: 'The Originator' },
+  { num: 95, ar: 'البَاقِي', en: 'Al-Baqi', meaning: 'الدائم الذي لا يفنى', meaningEn: 'The Everlasting' },
+  { num: 96, ar: 'الوَارِثُ', en: 'Al-Warith', meaning: 'الباقي بعد فناء خلقه', meaningEn: 'The Inheritor' },
+  { num: 97, ar: 'الرَّشِيدُ', en: 'Ar-Rashid', meaning: 'المرشد لعباده إلى ما فيه صلاحهم', meaningEn: 'The Guide to the Right Path' },
+  { num: 98, ar: 'الصَّبُورُ', en: 'As-Sabur', meaning: 'الذي لا يعاجل العصاة بالعقوبة', meaningEn: 'The Patient' },
+  { num: 99, ar: 'اللَّهُ', en: 'Al-Ahad', meaning: 'الاسم الأعظم الجامع لجميع الأسماء والصفات', meaningEn: 'The Unique' },
 ];
 
 const COLORS = [
@@ -117,7 +117,8 @@ const COLORS = [
 ];
 
 export default function AsmaAlHusna() {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
+  const isAr = locale === 'ar';
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -137,7 +138,7 @@ export default function AsmaAlHusna() {
     if (!search.trim()) return NAMES;
     const q = search.trim();
     return NAMES.filter(n =>
-      n.ar.includes(q) || n.meaning.includes(q) || String(n.num) === q
+      n.ar.includes(q) || n.meaning.includes(q) || (n.en && n.en.toLowerCase().includes(q.toLowerCase())) || (n.meaningEn && n.meaningEn.toLowerCase().includes(q.toLowerCase())) || String(n.num) === q
     );
   }, [search]);
 
@@ -211,13 +212,13 @@ export default function AsmaAlHusna() {
                   </span>
                 </div>
                 <p className="text-xl font-arabic font-bold text-foreground leading-relaxed mb-1">
-                  {name.ar}
+                  {isAr ? name.ar : (name.en || name.ar)}
                 </p>
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
                       <p className="text-xs text-muted-foreground leading-relaxed mt-2 border-t border-border/30 pt-2">
-                        {name.meaning}
+                        {isAr ? name.meaning : (name.meaningEn || name.meaning)}
                       </p>
                     </motion.div>
                   )}
@@ -234,10 +235,10 @@ export default function AsmaAlHusna() {
       {/* Hadith footer */}
       <div className="px-5 mt-6 mb-4">
         <div className="rounded-2xl bg-muted/50 border border-border/30 p-4 text-center">
-          <p className="text-sm font-arabic text-foreground leading-relaxed">
-            قال رسول الله صلى الله عليه وسلم: "إنّ لله تسعة وتسعين اسماً مائة إلا واحداً من أحصاها دخل الجنة"
+          <p className="text-sm text-foreground leading-relaxed">
+            {isAr ? 'قال رسول الله صلى الله عليه وسلم: "إنّ لله تسعة وتسعين اسماً مائة إلا واحداً من أحصاها دخل الجنة"' : 'The Prophet ﷺ said: "Allah has ninety-nine names, one hundred minus one, whoever memorizes them will enter Paradise"'}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-2">رواه البخاري ومسلم</p>
+          <p className="text-[10px] text-muted-foreground mt-2">{isAr ? 'رواه البخاري ومسلم' : 'Bukhari & Muslim'}</p>
         </div>
       </div>
     </div>

@@ -1762,5 +1762,17 @@
   "chooseMosque": "Wählen Sie Ihre Moschee für Gebetszeiten",
   "ramadanKareem": "Ramadan Kareem",
   "ramadanBookFull": "Vollständiger Ramadan-Leitfaden",
-  "laylatAlQadr": "Laylat al-Qadr"
+  "laylatAlQadr": "Laylat al-Qadr",
+  "euro": "Euro",
+  "dollar": "Dollar",
+  "pound": "Pfund",
+  "riyal": "Riyal",
+  "fajrTime": "Fajr",
+  "dhuhrTime": "Dhuhr",
+  "asrTime": "Asr",
+  "maghribTime": "Maghrib",
+  "ishaTime": "Isha",
+  "daysLabel": "Tage",
+  "logOut": "Abmelden",
+  "searchQuran": "Quran durchsuchen..."
 }

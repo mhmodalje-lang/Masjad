@@ -31,7 +31,7 @@ function to12Hour(t24: string): string {
   return `${h === 0 ? 12 : h > 12 ? h - 12 : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'م' : 'ص'}`;
 }
 
-const arabicDayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+const arabicDayNames = [t('sunday'), 'الاثنين', t('tuesday'), t('wednesday'), t('thursday'), t('friday'), t('saturday')];
 
 export default function RamadanCalendar() {
   const { t, dir } = useLocale();
@@ -80,7 +80,7 @@ export default function RamadanCalendar() {
               <div>
                 <h2 className="text-xl font-bold">{t('ramadanKareem')}</h2>
                 <p className="text-sm opacity-80 mt-1">
-                  {currentRamadanDay ? `اليوم ${currentRamadanDay} من 30` : 'رمضان ١٤٤٧ هـ'}
+                  {currentRamadanDay ? `{t('today')} ${currentRamadanDay} من 30` : 'رمضان ١٤٤٧ هـ'}
                 </p>
               </div>
               <div className="text-left">
@@ -175,7 +175,7 @@ export default function RamadanCalendar() {
                   <div className="flex items-center gap-2 mb-2">
                     {isPotentialLaylatAlQadr && <Sparkles className="h-5 w-5 text-accent" />}
                     <h3 className="font-bold text-foreground">
-                      اليوم {selectedDay} من رمضان
+                      {t('today')} {selectedDay} من رمضان
                     </h3>
                     {isPotentialLaylatAlQadr && (
                       <span className="text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">

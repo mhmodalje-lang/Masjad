@@ -1721,5 +1721,14 @@
   "postsCount": "Публикации",
   "publishPost": "Опубликовать",
   "calculate": "Рассчитать",
-  "ramadanKareem": "Рамадан Карим"
+  "ramadanKareem": "Рамадан Карим",
+  "euro": "Евро",
+  "dollar": "Доллар",
+  "pound": "Фунт",
+  "fajrTime": "Фаджр",
+  "dhuhrTime": "Зухр",
+  "asrTime": "Аср",
+  "maghribTime": "Магриб",
+  "ishaTime": "Иша",
+  "logOut": "Выход"
 }

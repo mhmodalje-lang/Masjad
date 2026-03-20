@@ -16,6 +16,7 @@ export interface IslamicOccasion {
   message: string;
   messageEn?: string;
   duaAr: string;
+  duaEn: string;
   specialAthan?: boolean;
   hasCannon?: boolean;
   takbirat?: boolean;
@@ -36,6 +37,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'اللهم بلغنا رمضان وأعنا على صيامه وقيامه',
     messageEn: 'O Allah, let us reach Ramadan and help us fast and pray during it',
     duaAr: 'اللَّهُمَّ إِنِّي لَكَ صُمْتُ وَعَلَى رِزْقِكَ أَفْطَرْتُ',
+    duaEn: 'O Allah, I fasted for You and with Your provision I break my fast',
     specialAthan: true,
     hasCannon: true,
     colors: { primary: '#7C3AED', secondary: '#4F46E5', accent: '#F59E0B' },
@@ -53,6 +55,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'ليلة القدر خير من ألف شهر',
     messageEn: 'The Night of Decree is better than a thousand months',
     duaAr: 'اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي',
+    duaEn: 'O Allah, You are Pardoning and love pardon, so pardon me',
     colors: { primary: '#F59E0B', secondary: '#D97706', accent: '#FBBF24' },
   },
   // Eid al-Fitr - Month 10, Days 1-3
@@ -68,6 +71,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'تقبل الله منا ومنكم صالح الأعمال',
     messageEn: 'May Allah accept from us and from you our good deeds',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
+    duaEn: 'Allah is the Greatest, Allah is the Greatest, there is no deity but Allah',
     takbirat: true,
     colors: { primary: '#059669', secondary: '#047857', accent: '#34D399' },
   },
@@ -84,6 +88,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'ما من أيام العمل الصالح فيها أحب إلى الله من هذه الأيام',
     messageEn: 'There are no days in which good deeds are more beloved to Allah than these days',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
+    duaEn: 'Allah is the Greatest, Allah is the Greatest, there is no deity but Allah',
     colors: { primary: '#D97706', secondary: '#B45309', accent: '#FBBF24' },
   },
   // Day of Arafah
@@ -99,6 +104,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'صيام يوم عرفة يكفّر السنة التي قبله والسنة التي بعده',
     messageEn: 'Fasting on the Day of Arafah expiates the sins of the previous and following year',
     duaAr: 'لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ',
+    duaEn: 'There is no deity but Allah alone, with no partner. His is the dominion and His is the praise, and He is capable of all things',
     colors: { primary: '#0284C7', secondary: '#0369A1', accent: '#38BDF8' },
   },
   // Eid al-Adha - Month 12, Days 10-13
@@ -114,6 +120,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'عيدكم مبارك، تقبل الله منا ومنكم',
     messageEn: 'Eid Mubarak! May Allah accept from us and from you',
     duaAr: 'اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَٰهَ إِلَّا اللَّهُ',
+    duaEn: 'Allah is the Greatest, Allah is the Greatest, Allah is the Greatest, there is no deity but Allah',
     takbirat: true,
     colors: { primary: '#059669', secondary: '#047857', accent: '#6EE7B7' },
   },
@@ -130,6 +137,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'كل عام وأنتم بخير، عام هجري مبارك',
     messageEn: 'Happy Islamic New Year! May it be a blessed year',
     duaAr: 'اللَّهُمَّ أَدْخِلْهُ عَلَيْنَا بِالْأَمْنِ وَالْإِيمَانِ وَالسَّلَامَةِ وَالْإِسْلَامِ',
+    duaEn: 'O Allah, let it enter upon us with security, faith, safety, and Islam',
     colors: { primary: '#0D9488', secondary: '#0F766E', accent: '#2DD4BF' },
   },
   // Ashura - Muharram 10
@@ -145,6 +153,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'صيام يوم عاشوراء يكفّر ذنوب سنة ماضية',
     messageEn: 'Fasting on Ashura expiates the sins of the past year',
     duaAr: 'اللَّهُمَّ اغْفِرْ لِي ذُنُوبِي',
+    duaEn: 'O Allah, forgive my sins',
     colors: { primary: '#475569', secondary: '#334155', accent: '#94A3B8' },
   },
   // Mawlid al-Nabi - Rabi al-Awwal 12
@@ -160,6 +169,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'اللهم صل وسلم وبارك على نبينا محمد ﷺ',
     messageEn: 'O Allah, send blessings and peace upon our Prophet Muhammad ﷺ',
     duaAr: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ',
+    duaEn: 'O Allah, send blessings upon Muhammad and upon the family of Muhammad',
     colors: { primary: '#059669', secondary: '#047857', accent: '#6EE7B7' },
   },
   // Isra and Mi'raj - Rajab 27
@@ -175,6 +185,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا',
     messageEn: 'Glory be to Him who took His servant on a Night Journey',
     duaAr: 'سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا مِنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى',
+    duaEn: 'Glory be to Him who took His servant on a Night Journey from the Sacred Mosque to the Farthest Mosque',
     colors: { primary: '#7C3AED', secondary: '#6D28D9', accent: '#A78BFA' },
   },
   // Shaban 15 - Night of Mid-Shaban
@@ -190,6 +201,7 @@ export const ISLAMIC_OCCASIONS: IslamicOccasion[] = [
     message: 'اللهم بارك لنا في شعبان وبلغنا رمضان',
     messageEn: 'O Allah, bless us in Shaban and let us reach Ramadan',
     duaAr: 'اللَّهُمَّ بَارِكْ لَنَا فِي شَعْبَانَ وَبَلِّغْنَا رَمَضَانَ',
+    duaEn: 'O Allah, bless us in Shaban and let us reach Ramadan',
     colors: { primary: '#3B82F6', secondary: '#2563EB', accent: '#60A5FA' },
   },
 ];

@@ -1,4 +1,4 @@
-export const ramadanDeeds: string[] = [
+export const ramadanDeedsAr: string[] = [
   'تناول سحوراً صحياً',
   'تعلّم دعاءً جديداً',
   'تصدّق بصدقة',
@@ -28,5 +28,40 @@ export const ramadanDeeds: string[] = [
   'صلِّ ركعتي شكر',
   'اقرأ دعاء ليلة القدر',
   'أكثر من الدعاء في آخر ساعة قبل الإفطار',
-  'اختم رمضان بالاستغفار والدعاء',
+  'اختم رمضان بالتوبة والاستغفار',
 ];
+
+export const ramadanDeedsEn: string[] = [
+  'Eat a healthy Suhoor',
+  'Learn a new Dua',
+  'Give charity',
+  'Read a Juz of the Quran',
+  'Pray Taraweeh',
+  'Feed a fasting person',
+  'Teach a child a good deed',
+  'Visit a sick person',
+  'Call a relative to maintain family ties',
+  'Make Dua for a fellow Muslim',
+  'Memorize a verse from the Quran',
+  'Read Surah Yasin',
+  'Pray Duha prayer',
+  'Ask Allah for forgiveness 100 times',
+  'Send Salawat on the Prophet 100 times',
+  'Read morning and evening Adhkar',
+  'Smile at someone',
+  'Remove harm from the road',
+  'Read Surah Al-Kahf',
+  'Learn a noble Hadith',
+  'Forgive someone who wronged you',
+  'Make Dua in Sujood',
+  'Read Surah Al-Mulk before sleeping',
+  'Donate clothes',
+  'Help your neighbor',
+  'Remember Allah with every action',
+  'Pray 2 Rakaat of gratitude',
+  'Read the Dua of Laylat al-Qadr',
+  'Increase Dua in the last hour before Iftar',
+  'End Ramadan with repentance and seeking forgiveness',
+];
+
+export const ramadanDeeds = ramadanDeedsEn;

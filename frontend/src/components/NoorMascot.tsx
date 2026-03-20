@@ -15,7 +15,7 @@ interface NoorMascotProps {
 
 const NOOR_MESSAGES: Record<string, Record<string, string>> = {
   greeting: {
-    ar: 'مرحباً! أنا نور، صديقك في تعلم العربية!',
+    ar: '👋! أنا نور، صديقك في تعلم العربية!',
     en: 'Hello! I am Noor, your Arabic learning friend!',
     de: 'Hallo! Ich bin Noor, dein Arabisch-Lernfreund!',
     ru: 'Привет! Я Нур, твой друг в изучении арабского!',

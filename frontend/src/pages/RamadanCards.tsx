@@ -14,13 +14,13 @@ interface RamadanCard {
 }
 
 const ramadanCards: RamadanCard[] = [
-  { id: 1, text: 'رمضان كريم\nأعاده الله علينا وعليكم بالخير واليمن والبركات', emoji: '🌙', gradient: 'from-primary via-islamic-emerald to-primary', decorEmoji: '✨' },
+  { id: 1, text: 'Ramadan Kareem\nأعاده الله علينا وعليكم بالخير واليمن والبركات', emoji: '🌙', gradient: 'from-primary via-islamic-emerald to-primary', decorEmoji: '✨' },
   { id: 2, text: 'اللَّهُمَّ بَلِّغْنَا رَمَضَانَ\nوَأَعِنَّا عَلَى صِيَامِهِ وَقِيَامِهِ', emoji: '🤲', gradient: 'from-[hsl(42,85%,55%)] via-[hsl(35,60%,45%)] to-[hsl(42,85%,55%)]', decorEmoji: '🌟' },
-  { id: 3, text: 'كل عام وأنتم بخير\nرمضان مبارك', emoji: '🕌', gradient: 'from-[hsl(200,45%,15%)] via-[hsl(160,55%,28%)] to-[hsl(200,45%,15%)]', decorEmoji: '🌙' },
+  { id: 3, text: 'كل عام وأنتم بخير\nRamadan Mubarak', emoji: '🕌', gradient: 'from-[hsl(200,45%,15%)] via-[hsl(160,55%,28%)] to-[hsl(200,45%,15%)]', decorEmoji: '🌙' },
   { id: 4, text: 'اللَّهُمَّ إِنَّكَ عَفُوٌّ\nتُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي', emoji: '💫', gradient: 'from-[hsl(280,35%,40%)] via-primary to-[hsl(280,35%,40%)]', decorEmoji: '🤲' },
   { id: 5, text: 'تقبّل الله صيامكم\nوقيامكم وصالح أعمالكم', emoji: '🎉', gradient: 'from-islamic-emerald via-primary to-islamic-emerald', decorEmoji: '🕌' },
   { id: 6, text: 'اللَّهُمَّ تَقَبَّلْ صِيَامَنَا\nوَقِيَامَنَا وَاجْعَلْنَا مِنْ عُتَقَاءِ\nشَهْرِ رَمَضَانَ', emoji: '🌟', gradient: 'from-primary via-[hsl(175,50%,30%)] to-primary', decorEmoji: '💫' },
-  { id: 7, text: 'ليلة القدر خيرٌ من ألف شهر\nاللهم بلّغنا إياها واجعلنا من أهلها', emoji: '⭐', gradient: 'from-[hsl(42,85%,55%)] via-[hsl(25,60%,50%)] to-[hsl(42,85%,55%)]', decorEmoji: '🌙' },
+  { id: 7, text: 'Laylat al-Qadr is better than a thousand months\nO Allah let us reach it', emoji: '⭐', gradient: 'from-[hsl(42,85%,55%)] via-[hsl(25,60%,50%)] to-[hsl(42,85%,55%)]', decorEmoji: '🌙' },
   { id: 8, text: 'أسأل الله أن يجعل\nأيام رمضان رحمة\nوأوسطه مغفرة\nوآخره عتق من النار', emoji: '🔥', gradient: 'from-[hsl(350,45%,55%)] via-primary to-[hsl(350,45%,55%)]', decorEmoji: '🤲' },
 ];
 

@@ -330,13 +330,13 @@ export default function Index() {
               <div className="flex items-center gap-2 mt-3">
                 <Link
                   to="/tracker"
-                  className="text-xs text-primary font-bold bg-primary/10 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/15"
+                  className="text-xs text-primary font-bold bg-primary/10 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/15 truncate max-w-[45%]"
                 >
                   {t('prayerTracking')}
                 </Link>
                 <Link
                   to="/notifications"
-                  className="text-xs text-muted-foreground bg-muted/60 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted"
+                  className="text-xs text-muted-foreground bg-muted/60 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted truncate max-w-[45%]"
                 >
                   <Volume2 className="h-3 w-3 inline me-1" />
                   {t('athanLabel')}

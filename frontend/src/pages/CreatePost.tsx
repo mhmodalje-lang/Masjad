@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const CATEGORIES = [
-  { key: 'general', label: 'عام', labelKey: 'sohbaCatGeneral', emoji: '🌍' },
+  { key: 'general', label: t('generalCategory'), labelKey: 'sohbaCatGeneral', emoji: '🌍' },
   { key: 'quran', label: 'القرآن', labelKey: 'sohbaCatQuran', emoji: '📖' },
   { key: 'hadith', label: 'الحديث', labelKey: 'sohbaCatHadith', emoji: '📜' },
   { key: 'dua', label: 'الدعاء', labelKey: 'sohbaCatDua', emoji: '🤲' },

@@ -1721,5 +1721,14 @@
   "postsCount": "Gönderiler",
   "publishPost": "Yayınla",
   "calculate": "Hesapla",
-  "ramadanKareem": "Ramazan Mübarek"
+  "ramadanKareem": "Ramazan Mübarek",
+  "euro": "Euro",
+  "dollar": "Dolar",
+  "pound": "Sterlin",
+  "fajrTime": "Fecr",
+  "dhuhrTime": "Öğle",
+  "asrTime": "İkindi",
+  "maghribTime": "Akşam",
+  "ishaTime": "Yatsı",
+  "logOut": "Çıkış"
 }
