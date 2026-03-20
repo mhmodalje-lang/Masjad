@@ -4045,18 +4045,33 @@ async def get_daily_dua():
     return {"dua": {"text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", "source": "سورة البقرة 201"}}
 
 @api_router.get("/ai/verse-of-day")
-async def get_verse_of_day():
-    """Get AI-selected verse of the day"""
+async def get_verse_of_day(language: str = Query("ar")):
+    """Get AI-selected verse of the day with translation"""
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
-        prompt = """اختر آية قرآنية ملهمة ومؤثرة. أعطني:
+        
+        lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
+        
+        if language == "ar":
+            prompt = """اختر آية قرآنية ملهمة ومؤثرة. أعطني:
 1. نص الآية بالعربية
 2. اسم السورة
 3. رقم الآية
 
 أجب بصيغة JSON فقط:
 {"text": "نص الآية", "surah": "اسم السورة", "ayah": رقم_الآية}"""
+        else:
+            lang_name = lang_names.get(language, "English")
+            prompt = f"""Select an inspiring Quran verse. Give me:
+1. The Arabic text of the verse
+2. The {lang_name} translation of the verse
+3. The Surah name in {lang_name} transliteration (e.g., "At-Talaq", "Al-Baqarah")
+4. The Ayah number
+
+Reply ONLY in JSON:
+{{"text": "Arabic verse text", "translation": "{lang_name} translation", "surah": "Surah name in {lang_name}", "ayah": ayah_number}}"""
+        
         response = await chat.chat([UserMessage(content=prompt)])
         import re
         match = re.search(r'\{[^}]+\}', response.content)
@@ -4065,21 +4080,51 @@ async def get_verse_of_day():
             return {"verse": data}
     except Exception as e:
         logging.error(f"Verse error: {e}")
-    return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق", "ayah": 3}}
+    
+    # Fallback with translation
+    fallback_translations = {
+        "en": {"translation": "And whoever fears Allah - He will make for him a way out", "surah": "At-Talaq"},
+        "de": {"translation": "Und wer Allah fürchtet, dem wird Er einen Ausweg schaffen", "surah": "At-Talaq"},
+        "fr": {"translation": "Et quiconque craint Allah, Il lui donnera une issue", "surah": "At-Talaq"},
+        "ru": {"translation": "Тому, кто боится Аллаха, Он создаст выход", "surah": "Ат-Таляк"},
+        "tr": {"translation": "Kim Allah'tan korkarsa, Allah ona bir çıkış yolu yaratır", "surah": "Talak"},
+        "nl": {"translation": "En wie Allah vreest, Hij zal hem een uitweg verschaffen", "surah": "At-Talaq"},
+        "sv": {"translation": "Och den som fruktar Allah, Han ska ge honom en utväg", "surah": "At-Talaq"},
+        "el": {"translation": "Και όποιος φοβάται τον Αλλάχ, Αυτός θα του δώσει διέξοδο", "surah": "Ατ-Ταλάκ"},
+    }
+    fb = fallback_translations.get(language, fallback_translations["en"])
+    if language == "ar":
+        return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق", "ayah": 3}}
+    return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "translation": fb["translation"], "surah": fb["surah"], "ayah": 3}}
 
 @api_router.get("/ai/hadith-of-day")
-async def get_hadith_of_day():
-    """Get AI-selected hadith of the day"""
+async def get_hadith_of_day(language: str = Query("ar")):
+    """Get AI-selected hadith of the day with translation"""
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
         chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
-        prompt = """اختر حديث نبوي صحيح ومشهور. أعطني:
+        
+        lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
+        
+        if language == "ar":
+            prompt = """اختر حديث نبوي صحيح ومشهور. أعطني:
 1. نص الحديث مختصر
 2. اسم الراوي
 3. المصدر (البخاري/مسلم/الترمذي...)
 
 أجب بصيغة JSON فقط:
 {"text": "نص الحديث", "narrator": "اسم الراوي", "source": "المصدر"}"""
+        else:
+            lang_name = lang_names.get(language, "English")
+            prompt = f"""Select a famous authentic hadith of Prophet Muhammad (PBUH). Give me:
+1. The Arabic text of the hadith (short)
+2. The {lang_name} translation
+3. The narrator name in {lang_name}
+4. The source in {lang_name} (e.g., "Sahih Bukhari", "Sahih Muslim")
+
+Reply ONLY in JSON:
+{{"text": "Arabic hadith text", "translation": "{lang_name} translation", "narrator": "Narrator in {lang_name}", "source": "Source in {lang_name}"}}"""
+        
         response = await chat.chat([UserMessage(content=prompt)])
         import re
         match = re.search(r'\{[^}]+\}', response.content)
@@ -4088,7 +4133,21 @@ async def get_hadith_of_day():
             return {"hadith": data}
     except Exception as e:
         logging.error(f"Hadith error: {e}")
-    return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "narrator": "عثمان بن عفان", "source": "صحيح البخاري"}}
+    
+    fallback_translations = {
+        "en": {"translation": "The best of you are those who learn the Quran and teach it", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
+        "de": {"translation": "Die Besten unter euch sind diejenigen, die den Quran lernen und lehren", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
+        "fr": {"translation": "Les meilleurs d'entre vous sont ceux qui apprennent le Coran et l'enseignent", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
+        "ru": {"translation": "Лучшие из вас те, кто изучает Коран и обучает ему", "narrator": "Усман ибн Аффан", "source": "Сахих Бухари"},
+        "tr": {"translation": "Sizin en hayırlınız Kuran'ı öğrenen ve öğretendir", "narrator": "Osman bin Affan", "source": "Sahih Buhari"},
+        "nl": {"translation": "De besten onder jullie zijn degenen die de Koran leren en onderwijzen", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
+        "sv": {"translation": "De bästa bland er är de som lär sig Koranen och lär ut den", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
+        "el": {"translation": "Οι καλύτεροι από εσάς είναι αυτοί που μαθαίνουν το Κοράνι και το διδάσκουν", "narrator": "Ουθμάν ιμπν Αφφάν", "source": "Σαχίχ Μπουχάρι"},
+    }
+    fb = fallback_translations.get(language, fallback_translations.get("en", {}))
+    if language == "ar":
+        return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "narrator": "عثمان بن عفان", "source": "صحيح البخاري"}}
+    return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "translation": fb.get("translation", ""), "narrator": fb.get("narrator", "Uthman ibn Affan"), "source": fb.get("source", "Sahih Bukhari")}}
 
 # ==================== VOICE SEARCH AI (بحث صوتي ذكي) ====================
 

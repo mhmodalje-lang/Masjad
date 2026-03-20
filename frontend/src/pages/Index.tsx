@@ -577,9 +577,14 @@ export default function Index() {
             {t('duaOfDay')}
           </span>
           <p className="text-sm font-bold text-foreground mb-3">{t(todayDua.subtitleKey)}</p>
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4 line-clamp-2">
+          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-2 line-clamp-2" dir="rtl">
             {todayDua.arabic}
           </p>
+          {locale !== 'ar' && todayDua.translationKey && (
+            <p className="text-sm text-muted-foreground leading-relaxed text-center mb-3 line-clamp-2" dir="auto">
+              {t(todayDua.translationKey)}
+            </p>
+          )}
           <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary/10">
             {t('readWithTranslation')}
           </span>

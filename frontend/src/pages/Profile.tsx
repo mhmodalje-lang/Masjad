@@ -326,7 +326,7 @@ export default function Profile() {
           {/* ===== DROPDOWN MENU ===== */}
           <DropdownMenu open={menuOpen} onClose={() => setMenuOpen(false)}>
             <div className="py-1">
-              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">الإعدادات</p>
+              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('settingsPage')}</p>
               <MenuItem icon={Edit3} label="{t('editProfile')}" to="/account" color="text-primary" />
               <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`المظهر: ${themeLabel}`}
                 onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
@@ -335,7 +335,7 @@ export default function Profile() {
               <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-gray-400" />
             </div>
             <div className="border-t border-border/20 py-1">
-              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">المساعدة</p>
+              <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('helpPage')}</p>
               <MenuItem icon={HelpCircle} label={t('supportHelp')} onClick={() => { navigate('/contact'); setMenuOpen(false); }} color="text-green-400" />
               <MenuItem icon={Star} label={t('rateApp')} onClick={() => { toast.info(t('thankYouRating')); setMenuOpen(false); }} color="text-yellow-400" />
               <MenuItem icon={Share2} label={t('inviteFriend')} onClick={() => {

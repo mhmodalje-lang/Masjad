@@ -238,7 +238,7 @@ export default function CreatePost() {
 
         {/* Category Selector */}
         <div>
-          <h3 className="text-white text-sm font-bold mb-2">التصنيف</h3>
+          <h3 className="text-white text-sm font-bold mb-2">{t('categoryLabel')}</h3>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (
               <button

@@ -379,7 +379,7 @@ export default function ZakatCalculator() {
         <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/50">
           <p className="font-bold text-foreground mb-2 text-sm">{`📌 ${t('zakatLegalNote')}`}</p>
           <p>
-            تعتمد هذه الحاسبة على نصاب الفضة (595 غرام) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
+            تعتمد هذه الحاسبة على نصاب الفضة (595 {t('gram')}) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
             نسبة الزكاة الثابتة هي 2.5% من إجمالي المال الذي بلغ النصاب ومرّ عليه حول كامل.
           </p>
         </div>

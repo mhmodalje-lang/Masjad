@@ -214,78 +214,92 @@ export function PrayerCountdown({ nextPrayer }: { nextPrayer?: { name: string; t
 
 /* 9. Verse of the Day */
 export function VerseOfDay() {
-  const { t } = useLocale();
-  const [verse, setVerse] = useState<{ text: string; surah: string; ayah: number } | null>(null);
+  const { t, locale } = useLocale();
+  const [verse, setVerse] = useState<{ text: string; translation?: string; surah: string; ayah: number } | null>(null);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cached = localStorage.getItem('verse_of_day');
+    const cacheKey = `verse_of_day_${locale}`;
+    const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try {
         const d = JSON.parse(cached);
         if (d.date === today) { setVerse(d.verse); return; }
       } catch {}
     }
-    fetch(`${BACKEND_URL}/api/ai/verse-of-day`)
+    fetch(`${BACKEND_URL}/api/ai/verse-of-day?language=${locale}`)
       .then(r => r.json())
       .then(d => {
         if (d.verse) {
           setVerse(d.verse);
-          localStorage.setItem('verse_of_day', JSON.stringify({ date: today, verse: d.verse }));
+          localStorage.setItem(cacheKey, JSON.stringify({ date: today, verse: d.verse }));
         }
       })
       .catch(() => {
         setVerse({ text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', surah: t('surahAtTalaq'), ayah: 2 });
       });
-  }, []);
+  }, [locale]);
 
   if (!verse) return null;
+  const isAr = locale === 'ar';
   return (
-    <div className="mx-4 mb-4 rounded-2xl bg-card border border-primary/10 p-4" dir="rtl">
+    <div className="mx-4 mb-4 rounded-2xl bg-card border border-primary/10 p-4">
       <p className="text-[10px] font-bold text-primary mb-2">📖 {t('verseOfDay')}</p>
-      <p className="text-[15px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
+      <p className="text-[15px] text-foreground leading-[2] text-center" dir="rtl" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         ﴿{verse.text}﴾
       </p>
-      <p className="text-[10px] text-muted-foreground mt-2 text-left">{t('surahLabel')} {verse.surah} - {t('ayahLabel')} {verse.ayah}</p>
+      {!isAr && verse.translation && (
+        <p className="text-sm text-muted-foreground leading-relaxed text-center mt-2 pt-2 border-t border-border/30" dir="auto">
+          {verse.translation}
+        </p>
+      )}
+      <p className="text-[10px] text-muted-foreground mt-2" dir="auto">{t('surahLabel')} {verse.surah} - {t('ayahLabel')} {verse.ayah}</p>
     </div>
   );
 }
 
 /* 10. Hadith of the Day */
 export function HadithOfDay() {
-  const { t } = useLocale();
-  const [hadith, setHadith] = useState<{ text: string; narrator: string; source: string } | null>(null);
+  const { t, locale } = useLocale();
+  const [hadith, setHadith] = useState<{ text: string; translation?: string; narrator: string; source: string } | null>(null);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cached = localStorage.getItem('hadith_of_day');
+    const cacheKey = `hadith_of_day_${locale}`;
+    const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try {
         const d = JSON.parse(cached);
         if (d.date === today) { setHadith(d.hadith); return; }
       } catch {}
     }
-    fetch(`${BACKEND_URL}/api/ai/hadith-of-day`)
+    fetch(`${BACKEND_URL}/api/ai/hadith-of-day?language=${locale}`)
       .then(r => r.json())
       .then(d => {
         if (d.hadith) {
           setHadith(d.hadith);
-          localStorage.setItem('hadith_of_day', JSON.stringify({ date: today, hadith: d.hadith }));
+          localStorage.setItem(cacheKey, JSON.stringify({ date: today, hadith: d.hadith }));
         }
       })
       .catch(() => {
         setHadith({ text: 'إنما الأعمال بالنيات وإنما لكل امرئ ما نوى', narrator: t('umarIbnKhattab'), source: t('bukhariAndMuslim') });
       });
-  }, []);
+  }, [locale]);
 
   if (!hadith) return null;
+  const isAr = locale === 'ar';
   return (
-    <div className="mx-4 mb-4 rounded-2xl bg-card border border-border/30 p-4" dir="rtl">
+    <div className="mx-4 mb-4 rounded-2xl bg-card border border-border/30 p-4">
       <p className="text-[10px] font-bold text-primary mb-2">📿 {t('hadithOfDay')}</p>
-      <p className="text-[14px] text-foreground leading-[2]" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
+      <p className="text-[14px] text-foreground leading-[2] text-center" dir="rtl" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
         «{hadith.text}»
       </p>
-      <p className="text-[10px] text-muted-foreground mt-2">{t('narratedBy')} {hadith.narrator} - {hadith.source}</p>
+      {!isAr && hadith.translation && (
+        <p className="text-sm text-muted-foreground leading-relaxed text-center mt-2 pt-2 border-t border-border/30" dir="auto">
+          «{hadith.translation}»
+        </p>
+      )}
+      <p className="text-[10px] text-muted-foreground mt-2" dir="auto">{t('narratedBy')} {hadith.narrator} - {hadith.source}</p>
     </div>
   );
 }

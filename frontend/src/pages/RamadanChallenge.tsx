@@ -69,8 +69,8 @@ export default function RamadanChallenge() {
 
         <Tabs defaultValue="fasting" dir={dir}>
           <TabsList className="w-full mb-3">
-            <TabsTrigger value="fasting" className="flex-1">صيام</TabsTrigger>
-            <TabsTrigger value="deeds" className="flex-1">أعمال</TabsTrigger>
+            <TabsTrigger value="fasting" className="flex-1">{t('fastingDays')}</TabsTrigger>
+            <TabsTrigger value="deeds" className="flex-1">{t('deeds')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="fasting">

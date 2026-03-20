@@ -170,7 +170,7 @@ export default function AdminDashboard() {
     return url;
   }
   async function saveEmbedContent() {
-    if (!embedForm.title.trim() || !embedForm.embed_url.trim()) { toast.error('العنوان والرابط مطلوبان'); return; }
+    if (!embedForm.title.trim() || !embedForm.embed_url.trim()) { toast.error(t('titleAndLinkRequired')); return; }
     const processedUrl = buildEmbedUrl(embedForm.embed_url, embedForm.platform);
     let thumbnailUrl = embedForm.thumbnail_url;
     if (!thumbnailUrl && embedForm.platform === 'youtube') {
@@ -178,16 +178,16 @@ export default function AdminDashboard() {
       if (vid) thumbnailUrl = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
     }
     const d = await api('/admin/embed-content','POST',{...embedForm, embed_url: processedUrl, thumbnail_url: thumbnailUrl || undefined});
-    if (d.success) { toast.success('تم إضافة المحتوى المضمن'); setShowEmbedForm(false); setEmbedForm({title:'',description:'',embed_url:'',platform:'youtube',category:'general',thumbnail_url:''}); fetchEmbedContent(); }
+    if (d.success) { toast.success(t('embedSavedSuccess')); setShowEmbedForm(false); setEmbedForm({title:'',description:'',embed_url:'',platform:'youtube',category:'general',thumbnail_url:''}); fetchEmbedContent(); }
   }
-  async function deleteEmbedContent(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/embed-content/${id}`,'DELETE'); toast.success('تم'); fetchEmbedContent(); }
+  async function deleteEmbedContent(id: string) { if(!confirm(t('confirmDelete'))) return; await api(`/admin/embed-content/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchEmbedContent(); }
 
-  async function deleteUser(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/users/${id}`,'DELETE'); toast.success('تم'); fetchUsers(usersPage); fetchStats(); }
-  async function sendNotif() { if(!nTitle||!nBody) return toast.error('املأ الحقول'); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
-  async function saveSettings() { const d = await api('/admin/settings','PUT',{announcement,maintenance_mode:maintenance}); if(d.success) toast.success('تم الحفظ'); }
+  async function deleteUser(id: string) { if(!confirm(t('confirmDelete'))) return; await api(`/admin/users/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchUsers(usersPage); fetchStats(); }
+  async function sendNotif() { if(!nTitle||!nBody) return toast.error(t('fillFields')); const d = await api('/admin/send-notification','POST',{title:nTitle,body:nBody}); if(d.success) { toast.success(d.message); setNTitle(''); setNBody(''); } }
+  async function saveSettings() { const d = await api('/admin/settings','PUT',{announcement,maintenance_mode:maintenance}); if(d.success) toast.success(t('savedSuccess')); }
   async function saveAdSettings() { 
     const d = await api('/admin/settings','PUT', adSettings); 
-    if(d.success) toast.success('تم حفظ إعدادات الإعلانات'); 
+    if(d.success) toast.success(t('adSettingsSavedSuccess')); 
   }
   async function fetchAnalytics() {
     try { const d = await api('/admin/analytics/summary?days=7'); setAnalyticsData(d); } catch {}
@@ -196,64 +196,64 @@ export default function AdminDashboard() {
   async function fetchSocialPosts() { try { const d = await api('/admin/social/posts?limit=30'); setSocialPosts(d.posts || []); } catch {} }
   async function fetchSocialComments() { try { const d = await api('/admin/social/comments?limit=50'); setSocialComments(d.comments || []); } catch {} }
   async function fetchSocialUsers() { try { const d = await api('/admin/social/users?limit=50'); setSocialUsers(d.users || []); } catch {} }
-  async function deleteSocialPost(id: string) { if (!confirm('حذف المنشور؟')) return; await api(`/admin/social/posts/${id}`, 'DELETE'); toast.success('تم حذف المنشور'); fetchSocialPosts(); fetchSocialStats(); }
-  async function deleteSocialComment(id: string) { if (!confirm('حذف التعليق؟')) return; await api(`/admin/social/comments/${id}`, 'DELETE'); toast.success('تم حذف التعليق'); fetchSocialComments(); }
-  async function saveAd() { const d = await api('/admin/ads','POST',adForm); if(d.success) { toast.success('تم حفظ الإعلان'); setShowAdForm(false); fetchAds(); } }
-  async function deleteAd(id: string) { await api(`/admin/ads/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAds(); }
-  async function savePage() { const d = await api('/admin/pages','POST',pageForm); if(d.success) { toast.success('تم حفظ الصفحة'); setShowPageForm(false); fetchPages(); } }
-  async function deletePage(id: string) { await api(`/admin/pages/${id}`,'DELETE'); toast.success('تم'); fetchPages(); }
-  async function saveSchedNotif() { const d = await api('/admin/scheduled-notifications','POST',notifForm); if(d.success) { toast.success('تم'); setShowNotifForm(false); fetchNotifs(); } }
-  async function deleteSchedNotif(id: string) { await api(`/admin/scheduled-notifications/${id}`,'DELETE'); toast.success('تم'); fetchNotifs(); }
-  async function updateAdStatus(id: string, status: string) { await api(`/admin/user-ads/${id}`,'PUT',{status}); toast.success('تم التحديث'); fetchUserAds(); }
-  async function saveBankInfo() { await api('/admin/bank-account','POST',bankForm); toast.success('تم حفظ الحساب البنكي'); }
-  async function saveCommission() { await api('/admin/marketplace/commission','PUT',{commission_rate:commissionRate}); toast.success('تم'); }
+  async function deleteSocialPost(id: string) { if (!confirm(t('confirmDeletePost'))) return; await api(`/admin/social/posts/${id}`, 'DELETE'); toast.success(t('deletedSuccess')); fetchSocialPosts(); fetchSocialStats(); }
+  async function deleteSocialComment(id: string) { if (!confirm(t('confirmDeleteComment'))) return; await api(`/admin/social/comments/${id}`, 'DELETE'); toast.success(t('deletedSuccess')); fetchSocialComments(); }
+  async function saveAd() { const d = await api('/admin/ads','POST',adForm); if(d.success) { toast.success(t('adSavedSuccess')); setShowAdForm(false); fetchAds(); } }
+  async function deleteAd(id: string) { await api(`/admin/ads/${id}`,'DELETE'); toast.success(t('deletedSuccess')); fetchAds(); }
+  async function savePage() { const d = await api('/admin/pages','POST',pageForm); if(d.success) { toast.success(t('pageSavedSuccess')); setShowPageForm(false); fetchPages(); } }
+  async function deletePage(id: string) { await api(`/admin/pages/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchPages(); }
+  async function saveSchedNotif() { const d = await api('/admin/scheduled-notifications','POST',notifForm); if(d.success) { toast.success(t('savedSuccess')); setShowNotifForm(false); fetchNotifs(); } }
+  async function deleteSchedNotif(id: string) { await api(`/admin/scheduled-notifications/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchNotifs(); }
+  async function updateAdStatus(id: string, status: string) { await api(`/admin/user-ads/${id}`,'PUT',{status}); toast.success(t('statusUpdated')); fetchUserAds(); }
+  async function saveBankInfo() { await api('/admin/bank-account','POST',bankForm); toast.success(t('bankSavedSuccess')); }
+  async function saveCommission() { await api('/admin/marketplace/commission','PUT',{commission_rate:commissionRate}); toast.success(t('savedSuccess')); }
   async function publishBroadcast() {
-    if (!broadcastTitle.trim() || !broadcastBody.trim()) { toast.error('يجب ملء العنوان والمحتوى'); return; }
+    if (!broadcastTitle.trim() || !broadcastBody.trim()) { toast.error(t('fillTitleAndBody')); return; }
     await api('/admin/announcements','POST',{title:broadcastTitle,body:broadcastBody,type:broadcastType});
-    toast.success('تم النشر للجميع!');
+    toast.success(t('publishedSuccess'));
     setBroadcastTitle(''); setBroadcastBody(''); fetchBroadcasts();
   }
-  async function deleteBroadcast(id: string) { await api(`/admin/announcements/${id}`,'DELETE'); toast.success('تم'); fetchBroadcasts(); }
-  async function updateVendorStatus(id: string, status: string) { await api(`/admin/vendors/${id}`,'PUT',{status}); toast.success('تم'); fetchVendors(); }
+  async function deleteBroadcast(id: string) { await api(`/admin/announcements/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchBroadcasts(); }
+  async function updateVendorStatus(id: string, status: string) { await api(`/admin/vendors/${id}`,'PUT',{status}); toast.success(t('savedSuccess')); fetchVendors(); }
   // Stories management
   async function fetchAdminStories() { try { const d = await api(`/admin/all-stories?status=${storiesFilter}`); setAdminStories(d.stories||[]); setStoriesTotal(d.total||0); } catch {} }
-  async function moderateStory(id: string, action: string) { await api(`/admin/stories/${id}`,'PUT',{action}); toast.success(action === 'approve' ? 'تمت الموافقة' : 'تم الرفض'); fetchAdminStories(); }
-  async function deleteStory(id: string) { if(!confirm('حذف القصة؟')) return; await api(`/admin/stories/${id}`,'DELETE'); toast.success('تم الحذف'); fetchAdminStories(); }
+  async function moderateStory(id: string, action: string) { await api(`/admin/stories/${id}`,'PUT',{action}); toast.success(action === 'approve' ? t('approved') : t('rejected')); fetchAdminStories(); }
+  async function deleteStory(id: string) { if(!confirm(t('confirmDeleteStory'))) return; await api(`/admin/stories/${id}`,'DELETE'); toast.success(t('deletedSuccess')); fetchAdminStories(); }
   // Ruqyah management
   async function fetchRuqyah() { try { const d = await api('/admin/ruqyah'); setRuqyahItems(d.items||[]); } catch {} }
-  async function saveRuqyah() { if(!ruqyahForm.title.trim()) { toast.error('العنوان مطلوب'); return; } const d = await api('/admin/ruqyah','POST',ruqyahForm); if(d.success) { toast.success('تم الحفظ'); setShowRuqyahForm(false); setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); fetchRuqyah(); } }
-  async function deleteRuqyah(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/ruqyah/${id}`,'DELETE'); toast.success('تم'); fetchRuqyah(); }
+  async function saveRuqyah() { if(!ruqyahForm.title.trim()) { toast.error(t('titleRequired')); return; } const d = await api('/admin/ruqyah','POST',ruqyahForm); if(d.success) { toast.success(t('savedSuccess')); setShowRuqyahForm(false); setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); fetchRuqyah(); } }
+  async function deleteRuqyah(id: string) { if(!confirm(t('confirmDelete'))) return; await api(`/admin/ruqyah/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchRuqyah(); }
   // Donations management
   async function fetchAdminDonations() { try { const d = await api(`/admin/donations?status=${donationsFilter}`); setAdminDonations(d.donations||[]); setDonationsTotal(d.total||0); setDonationsTotalAmount(d.total_amount||0); } catch {} }
-  async function moderateDonation(id: string, action: string) { await api(`/admin/donations/${id}`,'PUT',{action}); toast.success(action === 'approve' ? 'تمت الموافقة' : 'تم الرفض'); fetchAdminDonations(); }
-  async function deleteDonation(id: string) { if(!confirm('حذف؟')) return; await api(`/admin/donations/${id}`,'DELETE'); toast.success('تم'); fetchAdminDonations(); }
+  async function moderateDonation(id: string, action: string) { await api(`/admin/donations/${id}`,'PUT',{action}); toast.success(action === 'approve' ? t('approved') : t('rejected')); fetchAdminDonations(); }
+  async function deleteDonation(id: string) { if(!confirm(t('confirmDelete'))) return; await api(`/admin/donations/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchAdminDonations(); }
 
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-5" dir={dir}>
       <Shield className="h-16 w-16 text-primary/30" />
-      <h1 className="text-xl font-bold text-foreground">لوحة الإدارة</h1>
-      <p className="text-sm text-muted-foreground text-center">{user ? 'هذا الحساب ليس مسؤولاً' : 'يجب تسجيل الدخول أولاً'}</p>
-      <button onClick={() => navigate(user ? '/' : '/auth')} className="rounded-xl bg-primary text-primary-foreground px-6 py-3 text-sm font-bold">{user ? 'الرئيسية' : 'تسجيل الدخول'}</button>
+      <h1 className="text-xl font-bold text-foreground">{t('adminPanel')}</h1>
+      <p className="text-sm text-muted-foreground text-center">{user ? t('notAdminAccount') : t('loginFirst')}</p>
+      <button onClick={() => navigate(user ? '/' : '/auth')} className="rounded-xl bg-primary text-primary-foreground px-6 py-3 text-sm font-bold">{user ? t('home') : t('loginLabel')}</button>
     </div>
   );
 
   const tabs = [
-    { key:'overview', label:'نظرة عامة', icon:BarChart3 },
-    { key:'social-mgmt', label:'المنصة الاجتماعية', icon:MessageSquare },
-    { key:'stories-mgmt', label:'القصص', icon:BookOpen },
-    { key:'ruqyah-mgmt', label:'الرقية', icon:Volume2 },
-    { key:'donations-mgmt', label:'التبرعات', icon:Heart },
-    { key:'embed', label:'محتوى مضمن', icon:Film },
-    { key:'broadcast', label:'البث', icon:Megaphone },
-    { key:'users', label:'المستخدمين', icon:Users },
-    { key:'ads', label:'الإعلانات', icon:Monitor },
-    { key:'user-ads', label:'إعلانات القنوات', icon:Film },
-    { key:'vendors', label:'البائعين', icon:ShoppingBag },
-    { key:'notifications', label:'الإشعارات', icon:Bell },
-    { key:'pages', label:'الصفحات', icon:FileText },
-    { key:'revenue', label:'الإيرادات', icon:CreditCard },
-    { key:'settings', label:'الإعدادات', icon:Settings },
+    { key:'overview', label:t('overview'), icon:BarChart3 },
+    { key:'social-mgmt', label:t('socialManagement'), icon:MessageSquare },
+    { key:'stories-mgmt', label:t('storiesManagement'), icon:BookOpen },
+    { key:'ruqyah-mgmt', label:t('ruqyahManagement'), icon:Volume2 },
+    { key:'donations-mgmt', label:t('donationsManagement'), icon:Heart },
+    { key:'embed', label:t('embedContent'), icon:Film },
+    { key:'broadcast', label:t('broadcast'), icon:Megaphone },
+    { key:'users', label:t('usersManagement'), icon:Users },
+    { key:'ads', label:t('adsManagement'), icon:Monitor },
+    { key:'user-ads', label:t('userAdsManagement'), icon:Film },
+    { key:'vendors', label:t('vendorRole'), icon:ShoppingBag },
+    { key:'notifications', label:t('scheduledNotifications'), icon:Bell },
+    { key:'pages', label:t('pagesManagement'), icon:FileText },
+    { key:'revenue', label:t('commissionRate'), icon:CreditCard },
+    { key:'settings', label:t('settingsLabel'), icon:Settings },
   ];
 
   const InputField = memo(({ label, value, onChange, placeholder, multiline=false }: any) => {
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-5 pt-7 pb-5">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-6 w-6 text-primary" /></div>
-          <div><h1 className="text-xl font-bold text-foreground">لوحة الإدارة</h1><p className="text-xs text-muted-foreground">{user?.email}</p></div>
+          <div><h1 className="text-xl font-bold text-foreground">{t('adminPanel')}</h1><p className="text-xs text-muted-foreground">{user?.email}</p></div>
         </div>
         <div dir="ltr" className="w-full overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="flex gap-2" style={{ direction: 'rtl', minWidth: 'max-content' }}>
@@ -319,7 +319,7 @@ export default function AdminDashboard() {
         {tab==='overview' && (
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3">
-              {[{l:'مستخدمين',v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},{l:'مشتركين',v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},{l:'إعلانات',v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'}]
+              {[{l:t('totalUsers'),v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},{l:t('scheduledNotifications'),v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},{l:t('totalAds'),v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'}]
               .map(s=>(
                 <div key={s.l} className="rounded-2xl bg-card border border-border/50 p-4 text-center">
                   <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center mx-auto mb-2",s.c)}><s.i className="h-5 w-5"/></div>
@@ -331,34 +331,34 @@ export default function AdminDashboard() {
             
             {/* Admin Info Card */}
             <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />معلومات المالك</h3>
-              <p className="text-xs text-muted-foreground">البريد: <span className="text-primary" dir="ltr">mohammadalrejab@gmail.com</span></p>
-              <p className="text-xs text-muted-foreground mt-1">الهاتف: <span className="text-primary" dir="ltr">+4917684034961</span></p>
+              <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />{t('settingsLabel')}</h3>
+              <p className="text-xs text-muted-foreground">{t('email')}: <span className="text-primary" dir="ltr">mohammadalrejab@gmail.com</span></p>
+              <p className="text-xs text-muted-foreground mt-1">{t('name')}: <span className="text-primary" dir="ltr">+4917684034961</span></p>
             </div>
 
             {/* Category Stats */}
             <div className="rounded-2xl bg-card border border-border/50 p-4">
-              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" />آخر إحصائيات الفئات</h3>
+              <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" />{t('overview')} {t('categoryField')}</h3>
               <div className="space-y-2">
                 {stats?.categories?.length > 0 ? stats.categories.map((cat: any) => (
                   <div key={cat.category} className="flex items-center justify-between py-1.5 border-b border-border/10 last:border-0">
                     <span className="text-xs font-medium text-foreground">{cat.category}</span>
                     <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{cat.count}</span>
                   </div>
-                )) : <p className="text-xs text-muted-foreground text-center py-4">لا توجد بيانات</p>}
+                )) : <p className="text-xs text-muted-foreground text-center py-4">{t('noData')}</p>}
               </div>
               {/* Seed Content Button */}
               <button 
                 onClick={async () => {
                   try {
                     const r = await api('/admin/seed-content', 'POST');
-                    toast.success(r.message || `تم إنشاء ${r.created} قصة`);
+                    toast.success(r.message || `تم {t('add')} ${r.created}`);
                     fetchStats();
-                  } catch { toast.error('خطأ في تحميل المحتوى'); }
+                  } catch { toast.error(t('loadingData')); }
                 }}
                 className="w-full mt-3 py-2.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs font-bold active:scale-[0.98] transition-transform"
               >
-                تعبئة المحتوى الإسلامي (قصص + أذكار)
+                {t('embedContent')}
               </button>
             </div>
           </div>
@@ -372,11 +372,11 @@ export default function AdminDashboard() {
             {socialStats && (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {[
-                  { label: 'المنشورات', value: socialStats.total_posts, color: 'text-emerald-500' },
-                  { label: 'المستخدمين', value: socialStats.total_users, color: 'text-blue-500' },
-                  { label: 'التعليقات', value: socialStats.total_comments, color: 'text-purple-500' },
-                  { label: 'الإعجابات', value: socialStats.total_likes, color: 'text-red-500' },
-                  { label: 'المتابعات', value: socialStats.total_follows, color: 'text-yellow-500' },
+                  { label: t('totalPosts'), value: socialStats.total_posts, color: 'text-emerald-500' },
+                  { label: t('totalUsers'), value: socialStats.total_users, color: 'text-blue-500' },
+                  { label: t('adsManagement'), value: socialStats.total_comments, color: 'text-purple-500' },
+                  { label: t('overview'), value: socialStats.total_likes, color: 'text-red-500' },
+                  { label: t('usersManagement'), value: socialStats.total_follows, color: 'text-yellow-500' },
                 ].map((s, i) => (
                   <div key={i} className="bg-card rounded-xl p-3 border border-border/30">
                     <p className={cn("text-lg font-bold", s.color)}>{s.value}</p>
@@ -389,7 +389,7 @@ export default function AdminDashboard() {
             {/* Social Posts */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold text-foreground">المنشورات الاجتماعية ({socialPosts.length})</h3>
+                <h3 className="text-sm font-bold text-foreground">{t('totalPosts')} ({socialPosts.length})</h3>
                 <button onClick={fetchSocialPosts} className="p-1.5 rounded-lg bg-muted"><RefreshCw className="h-3.5 w-3.5 text-muted-foreground" /></button>
               </div>
               <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -413,7 +413,7 @@ export default function AdminDashboard() {
             {/* Social Comments */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-bold text-foreground">التعليقات ({socialComments.length})</h3>
+                <h3 className="text-sm font-bold text-foreground">{t('adsManagement')} ({socialComments.length})</h3>
                 <button onClick={fetchSocialComments} className="p-1.5 rounded-lg bg-muted"><RefreshCw className="h-3.5 w-3.5 text-muted-foreground" /></button>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -433,7 +433,7 @@ export default function AdminDashboard() {
 
             {/* Social Users */}
             <div>
-              <h3 className="text-sm font-bold text-foreground mb-2">مستخدمي المنصة ({socialUsers.length})</h3>
+              <h3 className="text-sm font-bold text-foreground mb-2">{t('usersManagement')} ({socialUsers.length})</h3>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {socialUsers.map(u => (
                   <div key={u.id} className="bg-card rounded-xl p-2.5 border border-border/20 flex items-center gap-2" dir={dir}>
@@ -445,8 +445,8 @@ export default function AdminDashboard() {
                       <span className="text-[10px] text-muted-foreground mr-2">{u.email}</span>
                     </div>
                     <div className="flex gap-2 text-[10px] text-muted-foreground shrink-0">
-                      <span>{u.posts_count || 0} منشور</span>
-                      <span>{u.followers_count || 0} متابع</span>
+                      <span>{u.posts_count || 0} {t('totalPosts')}</span>
+                      <span>{u.followers_count || 0} {t('usersManagement')}</span>
                     </div>
                   </div>
                 ))}
@@ -459,11 +459,11 @@ export default function AdminDashboard() {
         {tab==='stories-mgmt' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground">إدارة القصص ({storiesTotal})</h2>
+              <h2 className="text-base font-bold text-foreground">{t('storiesManagement')} ({storiesTotal})</h2>
               <button onClick={fetchAdminStories} className="p-2 rounded-lg bg-muted"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {[{k:'',l:'الكل'},{k:'pending',l:'بانتظار'},{k:'approved',l:'موافق'},{k:'rejected',l:'مرفوض'}].map(f=>(
+              {[{k:'',l:t('overview')},{k:'pending',l:t('pending')},{k:'approved',l:t('approved')},{k:'rejected',l:t('rejected')}].map(f=>(
                 <button key={f.k} onClick={()=>setStoriesFilter(f.k)}
                   className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
                     storiesFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
@@ -471,31 +471,31 @@ export default function AdminDashboard() {
                 </button>
               ))}
             </div>
-            {adminStories.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد قصص</p> :
+            {adminStories.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             adminStories.map(s => (
               <div key={s.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{s.title || 'بدون عنوان'}</p>
+                    <p className="text-sm font-bold text-foreground truncate">{s.title || t('noData')}</p>
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{s.content?.slice(0,120)}</p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
-                      <span className="text-[10px] bg-muted px-2 py-0.5 rounded">{s.category || 'عام'}</span>
-                      <span className="text-[10px] text-muted-foreground">{s.author_name || 'مجهول'}</span>
+                      <span className="text-[10px] bg-muted px-2 py-0.5 rounded">{s.category || t('overview')}</span>
+                      <span className="text-[10px] text-muted-foreground">{s.author_name || t('noData')}</span>
                       <span className="text-[10px] text-muted-foreground">❤️ {s.likes_count||0} 💬 {s.comments_count||0} 👁 {s.views_count||0}</span>
                       <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
                         s.status === 'approved' ? 'bg-green-500/10 text-green-500' :
                         s.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                         'bg-amber-500/10 text-amber-500'
                       )}>
-                        {s.status === 'approved' ? 'موافق' : s.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
+                        {s.status === 'approved' ? t('approved') : s.status === 'rejected' ? t('rejected') : t('pending')}
                       </span>
                     </div>
                   </div>
                   {s.image_url && <img src={s.image_url.startsWith('http') ? s.image_url : `${BACKEND_URL}${s.image_url}`} alt="" className="h-16 w-16 rounded-lg object-cover shrink-0" />}
                 </div>
                 <div className="flex gap-2 pt-1">
-                  {s.status !== 'approved' && <Button onClick={() => moderateStory(s.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>موافقة</Button>}
-                  {s.status !== 'rejected' && <Button onClick={() => moderateStory(s.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>رفض</Button>}
+                  {s.status !== 'approved' && <Button onClick={() => moderateStory(s.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>{t('approveAction')}</Button>}
+                  {s.status !== 'rejected' && <Button onClick={() => moderateStory(s.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>{t('rejectAction')}</Button>}
                   <button onClick={() => deleteStory(s.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
@@ -508,38 +508,38 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-foreground">الرقية الشرعية ({ruqyahItems.length})</h2>
-                <p className="text-xs text-muted-foreground">إضافة وإدارة الرقية الشرعية</p>
+                <h2 className="text-base font-bold text-foreground">{t('ruqyahManagement')} ({ruqyahItems.length})</h2>
+                <p className="text-xs text-muted-foreground"> {t('ruqyahManagement')}</p>
               </div>
-              <Button onClick={() => { setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); setShowRuqyahForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" />إضافة</Button>
+              <Button onClick={() => { setRuqyahForm({title:'',content:'',category:'general',audio_url:'',video_url:'',order:0,enabled:true}); setShowRuqyahForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3.5 w-3.5" />{t('add')}</Button>
             </div>
 
             {showRuqyahForm && (
               <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-                <InputField label="العنوان" value={ruqyahForm.title} onChange={(v: string) => setRuqyahForm({...ruqyahForm, title: v})} placeholder="رقية العين والحسد..." />
-                <InputField label="المحتوى (النص الكامل)" value={ruqyahForm.content} onChange={(v: string) => setRuqyahForm({...ruqyahForm, content: v})} placeholder="بسم الله الذي لا يضر مع اسمه شيء..." multiline />
-                <SelectField label="الفئة" value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general','عين','حسد','سحر','مس','أرق','وسواس','حماية']} />
-                <InputField label="رابط الصوت (اختياري)" value={ruqyahForm.audio_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, audio_url: v})} placeholder="https://..." />
-                <InputField label="🎬 رابط الفيديو (YouTube, Vimeo, Dailymotion...)" value={ruqyahForm.video_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, video_url: v})} placeholder="https://www.youtube.com/watch?v=..." />
+                <InputField label={t('notifTitle')} value={ruqyahForm.title} onChange={(v: string) => setRuqyahForm({...ruqyahForm, title: v})} placeholder="..." />
+                <InputField label={t('notifBody')} value={ruqyahForm.content} onChange={(v: string) => setRuqyahForm({...ruqyahForm, content: v})} placeholder="..." multiline />
+                <SelectField label={t('categoryField')} value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general','عين','حسد','سحر','مس','أرق','وسواس',t('protectionLabel')]} />
+                <InputField label={t('adLinkUrl')} value={ruqyahForm.audio_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, audio_url: v})} placeholder="https://..." />
+                <InputField label={t('adVideoUrl')} value={ruqyahForm.video_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, video_url: v})} placeholder="https://www.youtube.com/watch?v=..." />
                 {ruqyahForm.video_url && (
                   <div className="rounded-lg bg-muted/50 p-2">
-                    <p className="text-[10px] text-muted-foreground mb-1">✅ سيتم تضمين الفيديو تلقائياً (embed) - لا يخالف حقوق النشر</p>
+                    <p className="text-[10px] text-muted-foreground mb-1"></p>
                     <p className="text-[10px] text-primary truncate">{ruqyahForm.video_url}</p>
                   </div>
                 )}
-                <InputField label="الترتيب" value={String(ruqyahForm.order)} onChange={(v: string) => setRuqyahForm({...ruqyahForm, order: Number(v)||0})} placeholder="0" />
+                <InputField label={t('settingsLabel')} value={String(ruqyahForm.order)} onChange={(v: string) => setRuqyahForm({...ruqyahForm, order: Number(v)||0})} placeholder="0" />
                 <div className="flex items-center gap-2">
                   <Switch checked={ruqyahForm.enabled} onCheckedChange={(v) => setRuqyahForm({...ruqyahForm, enabled: v})} />
-                  <span className="text-xs text-foreground">مفعّل</span>
+                  <span className="text-xs text-foreground">{t('adActive')}</span>
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <Button onClick={saveRuqyah} className="flex-1 rounded-xl gap-2"><Check className="h-4 w-4" />حفظ</Button>
-                  <Button variant="outline" onClick={() => setShowRuqyahForm(false)} className="rounded-xl">إلغاء</Button>
+                  <Button onClick={saveRuqyah} className="flex-1 rounded-xl gap-2"><Check className="h-4 w-4" />{t('save')}</Button>
+                  <Button variant="outline" onClick={() => setShowRuqyahForm(false)} className="rounded-xl">{t('cancel')}</Button>
                 </div>
               </div>
             )}
 
-            {ruqyahItems.length === 0 && !showRuqyahForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد رقية مضافة بعد</p> :
+            {ruqyahItems.length === 0 && !showRuqyahForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             ruqyahItems.map(item => (
               <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -551,9 +551,9 @@ export default function AdminDashboard() {
                     <p className="text-xs text-muted-foreground line-clamp-2 mt-1">{item.content?.slice(0,100)}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{item.category}</span>
-                      {item.audio_url && <span className="text-[10px] text-blue-500">🔊 صوت</span>}
-                      {item.video_url && <span className="text-[10px] text-red-500">🎬 فيديو ({item.video_type || 'مخصص'})</span>}
-                      <span className="text-[10px] text-muted-foreground">ترتيب: {item.order}</span>
+                      {item.audio_url && <span className="text-[10px] text-blue-500">🔊</span>}
+                      {item.video_url && <span className="text-[10px] text-red-500">🎬 ({item.video_type || ''})</span>}
+                      <span className="text-[10px] text-muted-foreground">{t('settingsLabel')}: {item.order}</span>
                     </div>
                   </div>
                   <div className="flex gap-1">
@@ -571,8 +571,8 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-foreground">إدارة التبرعات ({donationsTotal})</h2>
-                <p className="text-xs text-muted-foreground">مراجعة وموافقة على منشورات التبرعات</p>
+                <h2 className="text-base font-bold text-foreground">{t('donationsManagement')} ({donationsTotal})</h2>
+                <p className="text-xs text-muted-foreground"></p>
               </div>
               <button onClick={fetchAdminDonations} className="p-2 rounded-lg bg-muted"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>
             </div>
@@ -580,12 +580,12 @@ export default function AdminDashboard() {
             {donationsTotalAmount > 0 && (
               <div className="rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 p-4 text-center">
                 <p className="text-2xl font-bold text-green-600">${donationsTotalAmount.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">إجمالي التبرعات المعتمدة</p>
+                <p className="text-xs text-muted-foreground">{t('donationsManagement')}</p>
               </div>
             )}
 
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {[{k:'',l:'الكل'},{k:'pending',l:'بانتظار'},{k:'approved',l:'معتمد'},{k:'rejected',l:'مرفوض'}].map(f=>(
+              {[{k:'',l:t('overview')},{k:'pending',l:t('pending')},{k:'approved',l:t('approved')},{k:'rejected',l:t('rejected')}].map(f=>(
                 <button key={f.k} onClick={()=>setDonationsFilter(f.k)}
                   className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
                     donationsFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
@@ -594,30 +594,30 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            {adminDonations.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد تبرعات</p> :
+            {adminDonations.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             adminDonations.map(d => (
               <div key={d.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground">{d.title || 'تبرع'}</p>
+                    <p className="text-sm font-bold text-foreground">{d.title || t('donationsManagement')}</p>
                     <p className="text-xs text-muted-foreground mt-1">{d.description?.slice(0,100)}</p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full font-bold">${d.amount || 0}</span>
-                      <span className="text-[10px] text-muted-foreground">{d.donor_name || 'مجهول'}</span>
+                      <span className="text-[10px] text-muted-foreground">{d.donor_name || t('noData')}</span>
                       <span className={cn('text-[10px] px-2 py-0.5 rounded-full font-bold',
                         d.status === 'approved' ? 'bg-green-500/10 text-green-500' :
                         d.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                         'bg-amber-500/10 text-amber-500'
                       )}>
-                        {d.status === 'approved' ? 'معتمد' : d.status === 'rejected' ? 'مرفوض' : 'بانتظار'}
+                        {d.status === 'approved' ? t('approved') : d.status === 'rejected' ? t('rejected') : t('pending')}
                       </span>
                     </div>
                   </div>
                 </div>
                 {d.status === 'pending' && (
                   <div className="flex gap-2 pt-1">
-                    <Button onClick={() => moderateDonation(d.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>موافقة</Button>
-                    <Button onClick={() => moderateDonation(d.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>رفض</Button>
+                    <Button onClick={() => moderateDonation(d.id, 'approve')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700 text-[11px]"><Check className="h-3 w-3"/>{t('approveAction')}</Button>
+                    <Button onClick={() => moderateDonation(d.id, 'reject')} size="sm" variant="outline" className="flex-1 rounded-xl gap-1 text-[11px] border-red-500/30 text-red-500"><X className="h-3 w-3"/>{t('rejectAction')}</Button>
                   </div>
                 )}
                 <div className="flex justify-end">
@@ -629,21 +629,21 @@ export default function AdminDashboard() {
         )}
 
 
-        {/* ===== BROADCAST (البث) ===== */}
+        {/* ===== BROADCAST ({t('broadcast')}) ===== */}
         {tab==='broadcast' && (
           <div className="space-y-4">
-            <h2 className="text-base font-bold text-foreground">نشر إعلان عام</h2>
-            <p className="text-xs text-muted-foreground">سيظهر فوراً في الصفحة الرئيسية لجميع المستخدمين</p>
+            <h2 className="text-base font-bold text-foreground">{t('publishBroadcast')}</h2>
+            <p className="text-xs text-muted-foreground"></p>
             <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-              <InputField label="العنوان" value={broadcastTitle} onChange={setBroadcastTitle} placeholder="عنوان الإعلان..." />
-              <InputField label="المحتوى" value={broadcastBody} onChange={setBroadcastBody} placeholder="نص الإعلان..." multiline />
-              <SelectField label="النوع" value={broadcastType} onChange={setBroadcastType} options={['info','warning','promo']} />
+              <InputField label={t('notifTitle')} value={broadcastTitle} onChange={setBroadcastTitle} placeholder={t('notifTitle')} ..." />
+              <InputField label={t('notifBody')} value={broadcastBody} onChange={setBroadcastBody} placeholder={t('notifBody')} ..." multiline />
+              <SelectField label={t('type')} value={broadcastType} onChange={setBroadcastType} options={['info','warning','promo']} />
               <Button onClick={publishBroadcast} className="w-full rounded-xl gap-2" data-testid="publish-broadcast-btn">
-                <Megaphone className="h-4 w-4" />نشر للجميع
+                <Megaphone className="h-4 w-4" />{t('publishBroadcast')}
               </Button>
             </div>
             
-            <h3 className="text-sm font-bold text-foreground mt-4">الإعلانات النشطة ({broadcastList.length})</h3>
+            <h3 className="text-sm font-bold text-foreground mt-4">{t('adsManagement')}  ({broadcastList.length})</h3>
             {broadcastList.map(a => (
               <div key={a.id} className="rounded-xl bg-card border border-border/50 p-4 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -662,31 +662,31 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-foreground">المحتوى المضمن</h2>
-                <p className="text-xs text-muted-foreground">أضف فيديوهات وصور من YouTube وأي منصة بالتضمين</p>
+                <h2 className="text-base font-bold text-foreground">{t('embedContent')}</h2>
+                <p className="text-xs text-muted-foreground"></p>
               </div>
-              <Button onClick={() => setShowEmbedForm(true)} size="sm" className="rounded-xl gap-1 shrink-0"><Plus className="h-3.5 w-3.5" />إضافة</Button>
+              <Button onClick={() => setShowEmbedForm(true)} size="sm" className="rounded-xl gap-1 shrink-0"><Plus className="h-3.5 w-3.5" />{t('add')}</Button>
             </div>
 
             {showEmbedForm && (
               <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
-                <InputField label="العنوان" value={embedForm.title} onChange={(v: string) => setEmbedForm(f => ({...f, title: v}))} placeholder="عنوان المحتوى..." />
-                <InputField label="الوصف" value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder="وصف مختصر..." multiline />
-                <InputField label="رابط الفيديو/المحتوى" value={embedForm.embed_url} onChange={(v: string) => setEmbedForm(f => ({...f, embed_url: v}))} placeholder="https://youtube.com/watch?v=..." />
-                <SelectField label="المنصة" value={embedForm.platform} onChange={(v: string) => setEmbedForm(f => ({...f, platform: v}))} options={['youtube','dailymotion','vimeo','tiktok','instagram','other']} />
-                <SelectField label="القسم في الحكايات" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','istighfar','sahaba','quran','prophets','ruqyah','rizq','tawba','miracles','embed']} />
-                <InputField label="صورة مصغرة (اختياري)" value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder="رابط الصورة المصغرة (تلقائي لـ YouTube)" />
+                <InputField label={t('notifTitle')} value={embedForm.title} onChange={(v: string) => setEmbedForm(f => ({...f, title: v}))} placeholder={t('notifTitle')} ..." />
+                <InputField label={t('adDescription')} value={embedForm.description} onChange={(v: string) => setEmbedForm(f => ({...f, description: v}))} placeholder={t('adDescription')} ..." multiline />
+                <InputField label={t('embedUrl')} value={embedForm.embed_url} onChange={(v: string) => setEmbedForm(f => ({...f, embed_url: v}))} placeholder="https://youtube.com/watch?v=..." />
+                <SelectField label={t('settingsLabel')} value={embedForm.platform} onChange={(v: string) => setEmbedForm(f => ({...f, platform: v}))} options={['youtube','dailymotion','vimeo','tiktok','instagram','other']} />
+                <SelectField label="" value={embedForm.category} onChange={(v: string) => setEmbedForm(f => ({...f, category: v}))} options={['general','istighfar','sahaba','quran','prophets','ruqyah','rizq','tawba','miracles','embed']} />
+                <InputField label="صورة مصغرة (اختياري)" value={embedForm.thumbnail_url} onChange={(v: string) => setEmbedForm(f => ({...f, thumbnail_url: v}))} placeholder={t('adLinkUrl')} />
                 <div className="flex gap-2 pt-1">
-                  <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />حفظ المحتوى</Button>
-                  <Button variant="outline" onClick={() => setShowEmbedForm(false)} className="rounded-xl">إلغاء</Button>
+                  <Button onClick={saveEmbedContent} className="flex-1 rounded-xl gap-2"><Film className="h-4 w-4" />حفظ </Button>
+                  <Button variant="outline" onClick={() => setShowEmbedForm(false)} className="rounded-xl">{t('cancel')}</Button>
                 </div>
                 <p className="text-[10px] text-muted-foreground">💡 ملاحظة: استخدم التضمين (embed) لنشر محتوى من أي منصة بشكل قانوني بدون مخالفة حقوق النشر</p>
               </div>
             )}
 
-            <h3 className="text-sm font-bold text-foreground">المحتوى المنشور ({embedContent.length})</h3>
+            <h3 className="text-sm font-bold text-foreground"> ال{t('totalPosts')} ({embedContent.length})</h3>
             {embedContent.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد محتوى مضمن بعد</p>
+              <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')} مضمن بعد</p>
             ) : (
               embedContent.map(item => (
                 <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
@@ -699,7 +699,7 @@ export default function AdminDashboard() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-foreground">{item.title}</p>
                       {item.description && <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>}
-                      <p className="text-[10px] text-muted-foreground mt-1">{item.platform} • {item.category} • {item.views || 0} مشاهدة</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{item.platform} • {item.category} • {item.views || 0} {t('viewAction')}</p>
                     </div>
                     <button onClick={() => deleteEmbedContent(item.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
                   </div>
@@ -719,11 +719,11 @@ export default function AdminDashboard() {
         {/* ===== USERS ===== */}
         {tab==='users' && (
           <div className="space-y-2">
-            <h2 className="text-base font-bold text-foreground">المستخدمين ({usersTotal})</h2>
-            {users.length===0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد مستخدمين</p> :
+            <h2 className="text-base font-bold text-foreground">{t('usersManagement')} ({usersTotal})</h2>
+            {users.length===0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             users.map(u=>(
               <div key={u.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
-                <div className="min-w-0 flex-1"><p className="text-sm font-bold text-foreground truncate">{u.name||'بدون اسم'}</p><p className="text-xs text-muted-foreground truncate">{u.email}</p></div>
+                <div className="min-w-0 flex-1"><p className="text-sm font-bold text-foreground truncate">{u.name||t('noData')}</p><p className="text-xs text-muted-foreground truncate">{u.email}</p></div>
                 <button onClick={()=>deleteUser(u.id)} className="p-1.5 rounded-lg bg-destructive/10 text-destructive mr-2"><Trash2 className="h-3.5 w-3.5"/></button>
               </div>
             ))}
@@ -734,28 +734,28 @@ export default function AdminDashboard() {
         {tab==='ads' && (
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold text-foreground">إدارة الإعلانات</h2>
+              <h2 className="text-base font-bold text-foreground">{t('adminPanel')} {t('adsManagement')}</h2>
               <button onClick={()=>{setAdForm({name:'',provider:'Google AdSense',code:'',placement:'home',ad_type:'banner',enabled:true,priority:0}); setShowAdForm(true);}}
-                className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"><Plus className="h-3 w-3"/>جديد</button>
+                className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"><Plus className="h-3 w-3"/>{t('add')}</button>
             </div>
 
             {showAdForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
-                <InputField label="اسم الإعلان" value={adForm.name} onChange={(v:string)=>setAdForm({...adForm,name:v})} placeholder="إعلان الرئيسية..." />
-                <SelectField label="المنصة" value={adForm.provider} onChange={(v:string)=>setAdForm({...adForm,provider:v})} options={AD_PROVIDERS} />
-                <InputField label="كود الإعلان (HTML/Script)" value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>..." multiline />
+                <InputField label="اسم " value={adForm.name} onChange={(v:string)=>setAdForm({...adForm,name:v})} placeholder="إعلان {t('home')}..." />
+                <SelectField label={t('settingsLabel')} value={adForm.provider} onChange={(v:string)=>setAdForm({...adForm,provider:v})} options={AD_PROVIDERS} />
+                <InputField label="كود  (HTML/Script)" value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>..." multiline />
                 <div className="grid grid-cols-2 gap-2">
-                  <SelectField label="الموضع" value={adForm.placement} onChange={(v:string)=>setAdForm({...adForm,placement:v})} options={AD_PLACEMENTS} />
-                  <SelectField label="النوع" value={adForm.ad_type} onChange={(v:string)=>setAdForm({...adForm,ad_type:v})} options={AD_TYPES} />
+                  <SelectField label={t('adPosition')} value={adForm.placement} onChange={(v:string)=>setAdForm({...adForm,placement:v})} options={AD_PLACEMENTS} />
+                  <SelectField label={t('type')} value={adForm.ad_type} onChange={(v:string)=>setAdForm({...adForm,ad_type:v})} options={AD_TYPES} />
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={saveAd} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>حفظ</Button>
+                  <Button onClick={saveAd} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>{t('save')}</Button>
                   <Button onClick={()=>setShowAdForm(false)} size="sm" variant="outline" className="rounded-lg"><X className="h-3 w-3"/></Button>
                 </div>
               </div>
             )}
 
-            {ads.length===0 && !showAdForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد إعلانات بعد</p> :
+            {ads.length===0 && !showAdForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')} بعد</p> :
             ads.map(ad=>(
               <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-3">
                 <div className="flex items-center justify-between mb-1">
@@ -774,7 +774,7 @@ export default function AdminDashboard() {
             ))}
 
             <div className="rounded-xl bg-muted/50 border border-border/30 p-3">
-              <p className="text-xs font-bold text-foreground mb-1">المنصات المدعومة:</p>
+              <p className="text-xs font-bold text-foreground mb-1">:</p>
               <div className="flex flex-wrap gap-1">{AD_PROVIDERS.map(p=><span key={p} className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">{p}</span>)}</div>
             </div>
           </div>
@@ -783,33 +783,33 @@ export default function AdminDashboard() {
         {/* ===== NOTIFICATIONS ===== */}
         {tab==='notifications' && (
           <div className="space-y-3">
-            <h2 className="text-base font-bold text-foreground">الإشعارات</h2>
+            <h2 className="text-base font-bold text-foreground">{t('scheduledNotifications')}</h2>
             
             {/* Send instant */}
             <div className="rounded-xl bg-card border border-border/50 p-3 space-y-2">
-              <p className="text-xs font-bold text-foreground">إرسال فوري</p>
-              <InputField label="العنوان" value={nTitle} onChange={setNTitle} placeholder="عنوان..." />
-              <InputField label="المحتوى" value={nBody} onChange={setNBody} placeholder="محتوى..." multiline />
-              <Button onClick={sendNotif} size="sm" className="w-full rounded-lg gap-1"><Send className="h-3 w-3"/>إرسال</Button>
+              <p className="text-xs font-bold text-foreground">{t('send')}</p>
+              <InputField label={t('notifTitle')} value={nTitle} onChange={setNTitle} placeholder={t('notifTitle')}..." />
+              <InputField label={t('notifBody')} value={nBody} onChange={setNBody} placeholder={t('notifBody')}..." multiline />
+              <Button onClick={sendNotif} size="sm" className="w-full rounded-lg gap-1"><Send className="h-3 w-3"/>{t('send')}</Button>
             </div>
 
             {/* Scheduled */}
             <div className="flex justify-between items-center">
-              <p className="text-xs font-bold text-foreground">إشعارات مجدولة</p>
+              <p className="text-xs font-bold text-foreground">{t('scheduledNotifications')}</p>
               <button onClick={()=>{setNotifForm({title:'',body:'',schedule_time:'',repeat:'once',enabled:true}); setShowNotifForm(true);}}
-                className="flex items-center gap-1 text-[10px] bg-primary text-primary-foreground px-2 py-1 rounded"><Plus className="h-3 w-3"/>جديد</button>
+                className="flex items-center gap-1 text-[10px] bg-primary text-primary-foreground px-2 py-1 rounded"><Plus className="h-3 w-3"/>{t('add')}</button>
             </div>
 
             {showNotifForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
-                <InputField label="العنوان" value={notifForm.title} onChange={(v:string)=>setNotifForm({...notifForm,title:v})} placeholder="تذكير..." />
-                <InputField label="المحتوى" value={notifForm.body} onChange={(v:string)=>setNotifForm({...notifForm,body:v})} placeholder="محتوى..." />
+                <InputField label={t('notifTitle')} value={notifForm.title} onChange={(v:string)=>setNotifForm({...notifForm,title:v})} placeholder="{t('scheduledNotifications')}..." />
+                <InputField label={t('notifBody')} value={notifForm.body} onChange={(v:string)=>setNotifForm({...notifForm,body:v})} placeholder={t('notifBody')}..." />
                 <div className="grid grid-cols-2 gap-2">
-                  <InputField label="الوقت (HH:MM)" value={notifForm.schedule_time} onChange={(v:string)=>setNotifForm({...notifForm,schedule_time:v})} placeholder="08:00" />
-                  <SelectField label="التكرار" value={notifForm.repeat} onChange={(v:string)=>setNotifForm({...notifForm,repeat:v})} options={['once','daily','weekly']} />
+                  <InputField label={`${t('schedTime')} (HH:MM)`} value={notifForm.schedule_time} onChange={(v:string)=>setNotifForm({...notifForm,schedule_time:v})} placeholder="08:00" />
+                  <SelectField label={t('recurring')} value={notifForm.repeat} onChange={(v:string)=>setNotifForm({...notifForm,repeat:v})} options={['once','daily','weekly']} />
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={saveSchedNotif} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>حفظ</Button>
+                  <Button onClick={saveSchedNotif} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>{t('save')}</Button>
                   <Button onClick={()=>setShowNotifForm(false)} size="sm" variant="outline" className="rounded-lg"><X className="h-3 w-3"/></Button>
                 </div>
               </div>
@@ -817,7 +817,7 @@ export default function AdminDashboard() {
 
             {scheduledNotifs.map(n=>(
               <div key={n.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
-                <div><p className="text-sm font-bold text-foreground">{n.title}</p><p className="text-[10px] text-muted-foreground">{n.schedule_time||'فوري'} • {n.repeat}</p></div>
+                <div><p className="text-sm font-bold text-foreground">{n.title}</p><p className="text-[10px] text-muted-foreground">{n.schedule_time||t('send')} • {n.repeat}</p></div>
                 <button onClick={()=>deleteSchedNotif(n.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
               </div>
             ))}
@@ -828,27 +828,27 @@ export default function AdminDashboard() {
         {tab==='pages' && (
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold text-foreground">إدارة الصفحات</h2>
+              <h2 className="text-base font-bold text-foreground">{t('adminPanel')} {t('pagesManagement')}</h2>
               <button onClick={()=>{setPageForm({title:'',category:'',content:'',enabled:true,order:0}); setShowPageForm(true);}}
-                className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"><Plus className="h-3 w-3"/>صفحة جديدة</button>
+                className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"><Plus className="h-3 w-3"/>{t('add')}</button>
             </div>
 
             {showPageForm && (
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
                 <InputField label="عنوان الصفحة" value={pageForm.title} onChange={(v:string)=>setPageForm({...pageForm,title:v})} placeholder="رقية العين..." />
-                <InputField label="الفئة" value={pageForm.category} onChange={(v:string)=>setPageForm({...pageForm,category:v})} placeholder="رقية / أذكار / ..." />
-                <InputField label="المحتوى" value={pageForm.content} onChange={(v:string)=>setPageForm({...pageForm,content:v})} placeholder="محتوى الصفحة..." multiline />
+                <InputField label={t('categoryField')} value={pageForm.category} onChange={(v:string)=>setPageForm({...pageForm,category:v})} placeholder="رقية / أذكار / ..." />
+                <InputField label={t('notifBody')} value={pageForm.content} onChange={(v:string)=>setPageForm({...pageForm,content:v})} placeholder={t('notifBody')} الصفحة..." multiline />
                 <div className="flex gap-2">
-                  <Button onClick={savePage} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>حفظ</Button>
+                  <Button onClick={savePage} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>{t('save')}</Button>
                   <Button onClick={()=>setShowPageForm(false)} size="sm" variant="outline" className="rounded-lg"><X className="h-3 w-3"/></Button>
                 </div>
               </div>
             )}
 
-            {pages.length===0 && !showPageForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد صفحات مخصصة</p> :
+            {pages.length===0 && !showPageForm ? <p className="text-center py-8 text-muted-foreground text-sm">لا يوجد صفحات ة</p> :
             pages.map(p=>(
               <div key={p.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
-                <div><p className="text-sm font-bold text-foreground">{p.title}</p><p className="text-[10px] text-muted-foreground">{p.category} • {p.enabled?'مفعّل':'معطّل'}</p></div>
+                <div><p className="text-sm font-bold text-foreground">{p.title}</p><p className="text-[10px] text-muted-foreground">{p.category} • {p.enabled?t('adActive'):'معطّل'}</p></div>
                 <button onClick={()=>deletePage(p.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
               </div>
             ))}
@@ -861,41 +861,41 @@ export default function AdminDashboard() {
             <h2 className="text-base font-bold text-foreground">إعدادات التطبيق</h2>
             <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">وضع الصيانة</p><p className="text-[10px] text-muted-foreground">إيقاف مؤقت</p></div></div>
+                <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">{t('maintenanceMode')}</p><p className="text-[10px] text-muted-foreground">إيقاف مؤقت</p></div></div>
                 <Switch checked={maintenance} onCheckedChange={setMaintenance} />
               </div>
               <InputField label="إعلان عام" value={announcement} onChange={setAnnouncement} placeholder="رسالة للجميع..." />
-              <Button onClick={saveSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ</Button>
+              <Button onClick={saveSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>{t('save')}</Button>
             </div>
             
             {/* Admin Bank Account */}
-            <h2 className="text-base font-bold text-foreground">الحساب البنكي (لاستقبال الأرباح)</h2>
+            <h2 className="text-base font-bold text-foreground">الحساب {t('bankAccount')}ي (لاستقبال الأرباح)</h2>
             <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
-              <InputField label="اسم البنك" value={bankForm.bank_name||''} onChange={(v:string)=>setBankForm({...bankForm,bank_name:v})} placeholder="بنك..." />
-              <InputField label="صاحب الحساب" value={bankForm.account_holder||''} onChange={(v:string)=>setBankForm({...bankForm,account_holder:v})} placeholder="الاسم..." />
+              <InputField label="اسم {t('bankAccount')}" value={bankForm.bank_name||''} onChange={(v:string)=>setBankForm({...bankForm,bank_name:v})} placeholder="بنك..." />
+              <InputField label="{t('accountHolder')}" value={bankForm.account_holder||''} onChange={(v:string)=>setBankForm({...bankForm,account_holder:v})} placeholder="الاسم..." />
               <InputField label="IBAN" value={bankForm.iban||''} onChange={(v:string)=>setBankForm({...bankForm,iban:v})} placeholder="SA00..." />
               <InputField label="SWIFT" value={bankForm.swift||''} onChange={(v:string)=>setBankForm({...bankForm,swift:v})} placeholder="SWIFT..." />
-              <Button onClick={saveBankInfo} size="sm" className="w-full rounded-xl gap-1"><Building2 className="h-3 w-3"/>حفظ الحساب البنكي</Button>
+              <Button onClick={saveBankInfo} size="sm" className="w-full rounded-xl gap-1"><Building2 className="h-3 w-3"/>حفظ الحساب {t('bankAccount')}ي</Button>
             </div>
 
             {/* Marketplace Commission */}
             <h2 className="text-base font-bold text-foreground">عمولة السوق</h2>
             <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
               <div className="flex items-center gap-3">
-                <InputField label="نسبة العمولة %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
-                <Button onClick={saveCommission} size="sm" className="rounded-xl mt-5">حفظ</Button>
+                <InputField label="{t('commissionRate')} %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
+                <Button onClick={saveCommission} size="sm" className="rounded-xl mt-5">{t('save')}</Button>
               </div>
             </div>
 
-            {/* Ad Settings - إعدادات الإعلانات */}
+            {/* Ad Settings - إعدادات {t('adsManagement')} */}
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Film className="h-4 w-4 text-primary"/>إعدادات الإعلانات
+              <Film className="h-4 w-4 text-primary"/>إعدادات {t('adsManagement')}
             </h2>
             <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-emerald-500"/>
-                  <div><p className="text-sm font-bold text-foreground">تفعيل الإعلانات</p><p className="text-[10px] text-muted-foreground">عرض الإعلانات في التطبيق</p></div>
+                  <div><p className="text-sm font-bold text-foreground">تفعيل {t('adsManagement')}</p><p className="text-[10px] text-muted-foreground">عرض {t('adsManagement')} في التطبيق</p></div>
                 </div>
                 <Switch checked={adSettings.ads_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ads_enabled:v})} />
               </div>
@@ -909,18 +909,18 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-amber-500"/>
-                  <div><p className="text-sm font-bold text-foreground">موافقة GDPR</p><p className="text-[10px] text-muted-foreground">طلب الموافقة من المستخدمين الأوروبيين</p></div>
+                  <div><p className="text-sm font-bold text-foreground">موافقة GDPR</p><p className="text-[10px] text-muted-foreground">طلب الموافقة من {t('usersManagement')} الأوروبيين</p></div>
                 </div>
                 <Switch checked={adSettings.gdpr_consent_required} onCheckedChange={(v)=>setAdSettings({...adSettings, gdpr_consent_required:v})} />
               </div>
               <div className="border-t border-border/30 pt-3 space-y-2">
-                <p className="text-xs font-bold text-foreground">أنواع الإعلانات:</p>
+                <p className="text-xs font-bold text-foreground">أنواع {t('adsManagement')}:</p>
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">إعلانات البانر</p>
                   <Switch checked={adSettings.ad_banner_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_banner_enabled:v})} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">إعلانات بين الصفحات</p>
+                  <p className="text-xs text-muted-foreground">إعلانات بين {t('pagesManagement')}</p>
                   <Switch checked={adSettings.ad_interstitial_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_interstitial_enabled:v})} />
                 </div>
                 <div className="flex items-center justify-between">
@@ -932,7 +932,7 @@ export default function AdminDashboard() {
                 <InputField label="AdMob App ID" value={adSettings.admob_app_id} onChange={(v:string)=>setAdSettings({...adSettings, admob_app_id:v})} placeholder="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
                 <InputField label="AdSense Publisher ID" value={adSettings.adsense_publisher_id} onChange={(v:string)=>setAdSettings({...adSettings, adsense_publisher_id:v})} placeholder="pub-XXXXXXXXXXXXXXXX" />
               </div>
-              <Button onClick={saveAdSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ إعدادات الإعلانات</Button>
+              <Button onClick={saveAdSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ إعدادات {t('adsManagement')}</Button>
             </div>
 
             {/* Analytics Quick View */}
@@ -955,7 +955,7 @@ export default function AdminDashboard() {
                   </div>
                   {analyticsData.top_pages?.length > 0 && (
                     <div>
-                      <p className="text-xs font-bold text-foreground mb-1">أكثر الصفحات زيارة:</p>
+                      <p className="text-xs font-bold text-foreground mb-1">أكثر {t('pagesManagement')} زيارة:</p>
                       {analyticsData.top_pages.slice(0, 5).map((p: any, i: number) => (
                         <div key={i} className="flex justify-between text-xs py-0.5">
                           <span className="text-muted-foreground">{p.page}</span>
@@ -981,7 +981,7 @@ export default function AdminDashboard() {
         {tab==='user-ads' && (
           <div className="space-y-3">
             <h2 className="text-base font-bold text-foreground">إعلانات القنوات ({userAds.length})</h2>
-            <p className="text-xs text-muted-foreground">الإعلانات المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
+            <p className="text-xs text-muted-foreground">{t('adsManagement')} المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
             {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد إعلانات بعد</p> :
             userAds.map(ad => (
               <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
@@ -995,7 +995,7 @@ export default function AdminDashboard() {
                     ad.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {ad.status === 'approved' ? 'موافق' : ad.status === 'rejected' ? 'مرفوض' : 'في الانتظار'}
+                    {ad.status === 'approved' ? t('approved') : ad.status === 'rejected' ? t('rejected') : 'في الانتظار'}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{ad.description}</p>
@@ -1006,8 +1006,8 @@ export default function AdminDashboard() {
                 </div>
                 {ad.status === 'pending' && (
                   <div className="flex gap-2 pt-1">
-                    <Button onClick={() => updateAdStatus(ad.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>موافقة</Button>
-                    <Button onClick={() => updateAdStatus(ad.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>رفض</Button>
+                    <Button onClick={() => updateAdStatus(ad.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>{t('approveAction')}</Button>
+                    <Button onClick={() => updateAdStatus(ad.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>{t('rejectAction')}</Button>
                   </div>
                 )}
               </div>
@@ -1015,10 +1015,10 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* ===== VENDORS (البائعين) ===== */}
+        {/* ===== VENDORS ({t('vendorRole')}) ===== */}
         {tab==='vendors' && (
           <div className="space-y-3">
-            <h2 className="text-base font-bold text-foreground">طلبات البائعين ({vendors.length})</h2>
+            <h2 className="text-base font-bold text-foreground">طلبات {t('vendorRole')} ({vendors.length})</h2>
             <p className="text-xs text-muted-foreground">لا يُنشر أي منتج إلا بعد موافقتك على البائع</p>
             {vendors.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد طلبات</p> :
             vendors.map(v => (
@@ -1033,15 +1033,15 @@ export default function AdminDashboard() {
                     v.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {v.status === 'approved' ? 'موافق' : v.status === 'rejected' ? 'مرفوض' : 'في الانتظار'}
+                    {v.status === 'approved' ? t('approved') : v.status === 'rejected' ? t('rejected') : 'في الانتظار'}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{v.description}</p>
                 {v.iban && <p className="text-[10px] text-muted-foreground">IBAN: {v.iban}</p>}
                 {v.status === 'pending' && (
                   <div className="flex gap-2 pt-1">
-                    <Button onClick={() => updateVendorStatus(v.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>موافقة</Button>
-                    <Button onClick={() => updateVendorStatus(v.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>رفض</Button>
+                    <Button onClick={() => updateVendorStatus(v.id, 'approved')} size="sm" className="flex-1 rounded-xl gap-1 bg-green-600 hover:bg-green-700"><Check className="h-3 w-3"/>{t('approveAction')}</Button>
+                    <Button onClick={() => updateVendorStatus(v.id, 'rejected')} size="sm" variant="destructive" className="flex-1 rounded-xl gap-1"><X className="h-3 w-3"/>{t('rejectAction')}</Button>
                   </div>
                 )}
               </div>
@@ -1068,9 +1068,9 @@ export default function AdminDashboard() {
             <div className="rounded-xl bg-muted/50 border border-border/30 p-4 text-sm text-muted-foreground">
               <p className="font-bold text-foreground mb-2">كيف يعمل نظام الإيرادات:</p>
               <ul className="space-y-1 text-xs list-disc list-inside">
-                <li>عند إرسال هدية: 50% للإدارة و 50% لصانع المحتوى</li>
-                <li>المستخدمون يشترون النقاط عبر Stripe</li>
-                <li>أصحاب القنوات يرفعون إعلانات وتحدد الإدارة السعر</li>
+                <li>عند إرسال هدية: 50% لل{t('adminPanel')} و 50% لصانع </li>
+                <li>{t('usersManagement')} يشترون النقاط عبر Stripe</li>
+                <li>أصحاب القنوات يرفعون إعلانات وتحدد ال{t('adminPanel')} السعر</li>
                 <li>عمولة السوق تُخصم تلقائياً من كل عملية بيع</li>
               </ul>
             </div>

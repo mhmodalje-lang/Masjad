@@ -78,7 +78,7 @@ export default function RamadanCalendar() {
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h2 className="text-xl font-bold">رمضان كريم 🌙</h2>
+                <h2 className="text-xl font-bold">{t('ramadanKareem')}</h2>
                 <p className="text-sm opacity-80 mt-1">
                   {currentRamadanDay ? `اليوم ${currentRamadanDay} من 30` : 'رمضان ١٤٤٧ هـ'}
                 </p>
@@ -105,12 +105,12 @@ export default function RamadanCalendar() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-primary-foreground/15 rounded-xl p-3 text-center backdrop-blur-sm">
                 <Sunrise className="h-5 w-5 mx-auto mb-1 opacity-80" />
-                <p className="text-xs opacity-70">الإمساك / السحور</p>
+                <p className="text-xs opacity-70">{t('imsak')}</p>
                 <p className="text-lg font-bold">{fmtTime(suhoorTime)}</p>
               </div>
               <div className="bg-primary-foreground/15 rounded-xl p-3 text-center backdrop-blur-sm">
                 <Sun className="h-5 w-5 mx-auto mb-1 opacity-80" />
-                <p className="text-xs opacity-70">الإفطار / المغرب</p>
+                <p className="text-xs opacity-70">{t('iftarMaghrib')}</p>
                 <p className="text-lg font-bold">{fmtTime(iftarTime)}</p>
               </div>
             </div>
@@ -122,8 +122,8 @@ export default function RamadanCalendar() {
       <div className="px-4 mb-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="w-full grid grid-cols-3">
-            <TabsTrigger value="calendar">📅 التقويم</TabsTrigger>
-            <TabsTrigger value="qadr">🌟 ليلة القدر</TabsTrigger>
+            <TabsTrigger value="calendar">{t('calendarTab')}</TabsTrigger>
+            <TabsTrigger value="qadr">🌟 {t('laylatAlQadr')}</TabsTrigger>
             <TabsTrigger value="duas">🤲 الأدعية</TabsTrigger>
           </TabsList>
 
@@ -185,7 +185,7 @@ export default function RamadanCalendar() {
                   </div>
                   {isPotentialLaylatAlQadr && (
                     <p className="text-sm text-muted-foreground">
-                      قد تكون ليلة القدر — أكثر من الدعاء والعبادة
+                      قد تكون {t('laylatAlQadr')} — أكثر من الدعاء والعبادة
                     </p>
                   )}
                 </div>
@@ -207,7 +207,7 @@ export default function RamadanCalendar() {
                 <div className="bg-card rounded-xl p-4 border border-border/50">
                   <div className="flex items-center gap-2 mb-3">
                     <Clock className="h-4 w-4 text-primary" />
-                    <h4 className="text-sm font-semibold text-foreground">أوقات الصلاة اليوم</h4>
+                    <h4 className="text-sm font-semibold text-foreground">{t('todayPrayerTimes')}</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {prayers.map(p => (
@@ -229,7 +229,7 @@ export default function RamadanCalendar() {
             {/* Hero */}
             <div className="bg-gradient-to-br from-accent/20 via-primary/10 to-accent/5 rounded-2xl p-5 border border-accent/20 text-center">
               <div className="text-4xl mb-2">🌟</div>
-              <h3 className="text-xl font-bold text-foreground mb-2">ليلة القدر</h3>
+              <h3 className="text-xl font-bold text-foreground mb-2">{t('laylatAlQadr')}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 خيرٌ من ألف شهر — تحرّاها في العشر الأواخر من رمضان في الليالي الوترية
               </p>
@@ -252,8 +252,8 @@ export default function RamadanCalendar() {
 
             {/* Dua of Laylat al-Qadr */}
             <div className="bg-card rounded-xl p-5 border border-border/50">
-              <h4 className="font-bold text-foreground mb-1">الدعاء الأعظم لليلة القدر</h4>
-              <p className="text-xs text-muted-foreground mb-3">عن عائشة رضي الله عنها — رواه الترمذي</p>
+              <h4 className="font-bold text-foreground mb-1">الدعاء الأعظم ل{t('laylatAlQadr')}</h4>
+              <p className="text-xs text-muted-foreground mb-3">{t('aishaHadith')}</p>
               <div className="bg-primary/5 rounded-xl p-4 text-center">
                 <p className="text-xl font-amiri leading-loose text-foreground">
                   اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي
@@ -263,7 +263,7 @@ export default function RamadanCalendar() {
 
             {/* More Duas */}
             <div className="space-y-2">
-              <h4 className="font-bold text-foreground px-1">أدعية مستحبة في ليلة القدر</h4>
+              <h4 className="font-bold text-foreground px-1">أدعية مستحبة في {t('laylatAlQadr')}</h4>
               {laylatAlQadrDuas.slice(1).map((dua, i) => (
                 <motion.div
                   key={i}
@@ -281,7 +281,7 @@ export default function RamadanCalendar() {
 
             {/* What to do */}
             <div className="bg-card rounded-xl p-4 border border-border/50">
-              <h4 className="font-bold text-foreground mb-3">ماذا تفعل في ليلة القدر؟</h4>
+              <h4 className="font-bold text-foreground mb-3">ماذا تفعل في {t('laylatAlQadr')}؟</h4>
               <div className="space-y-2">
                 {[
                   { emoji: '🤲', text: 'الإكثار من الدعاء والاستغفار' },
@@ -332,7 +332,7 @@ export default function RamadanCalendar() {
                       </span>
                       <span className="text-xs text-muted-foreground">{dua.reference}</span>
                     </div>
-                    {isToday && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-semibold">اليوم</span>}
+                    {isToday && <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-semibold">اليو{t('pmLabel')}</span>}
                     {dua.day >= 21 && dua.day % 2 === 1 && (
                       <Star className="h-3.5 w-3.5 text-accent fill-accent" />
                     )}
@@ -353,7 +353,7 @@ export default function RamadanCalendar() {
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-lg">📖</div>
             <div>
-              <p className="text-sm font-bold text-foreground">كتاب رمضان الشامل</p>
+              <p className="text-sm font-bold text-foreground">{t('ramadanBookFull')}</p>
               <p className="text-[10px] text-muted-foreground">أحكام • آداب • برنامج عبادة</p>
             </div>
           </div>
@@ -363,8 +363,8 @@ export default function RamadanCalendar() {
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center text-lg">🎨</div>
             <div>
-              <p className="text-sm font-bold text-foreground">بطاقات رمضان</p>
-              <p className="text-[10px] text-muted-foreground">شارك التهاني والأدعية</p>
+              <p className="text-sm font-bold text-foreground">{t('ramadanCards')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('shareGreetingsAndDuas')}</p>
             </div>
           </div>
           <ChevronLeft className="h-4 w-4 text-muted-foreground" />

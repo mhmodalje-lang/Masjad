@@ -117,7 +117,7 @@ export default function RamadanCards() {
 
   return (
     <div className="min-h-screen pb-24" dir={dir}>
-      <PageHeader title="بطاقات رمضان" backTo="/" />
+      <PageHeader title="{t('ramadanCards')}" backTo="/" />
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Card Preview */}
@@ -176,7 +176,7 @@ export default function RamadanCards() {
       <div className="px-4 mb-4">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="h-4 w-4 text-accent" />
-          <h3 className="text-sm font-bold text-foreground">اختر بطاقة</h3>
+          <h3 className="text-sm font-bold text-foreground">{t('chooseCard')}</h3>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {ramadanCards.map((card, i) => (
@@ -201,10 +201,10 @@ export default function RamadanCards() {
         <div className="rounded-2xl bg-card border border-border/50 p-4">
           <div className="flex items-center gap-2 mb-2">
             <Heart className="h-4 w-4 text-islamic-rose" />
-            <h4 className="text-sm font-bold text-foreground">شارك البركة</h4>
+            <h4 className="text-sm font-bold text-foreground">{t('shareBlessing')}</h4>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            شارك بطاقات رمضان مع عائلتك وأصدقائك على واتساب وانستغرام وغيرها من وسائل التواصل الاجتماعي. انشر الخير والدعاء في هذا الشهر الفضيل.
+            شارك {t('ramadanCards')} مع عائلتك وأصدقائك على واتساب وانست{t('gram')} وغيرها من وسائل التواصل الاجتماعي. انشر الخير والدعاء في هذا الشهر الفضيل.
           </p>
         </div>
       </div>

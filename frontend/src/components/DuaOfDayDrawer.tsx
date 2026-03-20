@@ -16,8 +16,9 @@ function getTodayDua() {
 }
 
 export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
-  const { t, dir } = useLocale();
+  const { t, dir, locale } = useLocale();
   const dua = getTodayDua();
+  const isAr = locale === 'ar';
   const [done, setDone] = useState(() => {
     const key = new Date().toISOString().split('T')[0];
     return localStorage.getItem(`dua-done-${key}`) === '1';
@@ -39,7 +40,7 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
           <p className="text-xs text-muted-foreground mb-4">{t(dua.subtitleKey)}</p>
 
           {/* Arabic Text - Clean container with no overflow */}
-          <div className="bg-muted/30 rounded-2xl p-5 mb-5 w-full">
+          <div className="bg-muted/30 rounded-2xl p-5 mb-3 w-full">
             <p
               className="text-lg text-foreground text-center leading-[2.5] whitespace-pre-line"
               dir="rtl"
@@ -48,6 +49,15 @@ export default function DuaOfDayDrawer({ open, onOpenChange }: Props) {
               {dua.arabic}
             </p>
           </div>
+
+          {/* Translation for non-Arabic users */}
+          {!isAr && dua.translationKey && (
+            <div className="bg-primary/5 rounded-xl p-3.5 mb-3 w-full border border-primary/10">
+              <p className="text-sm text-foreground text-center leading-relaxed" dir="auto">
+                {t(dua.translationKey)}
+              </p>
+            </div>
+          )}
 
           {/* Transliteration - Separate clear section */}
           {dua.transliteration && (

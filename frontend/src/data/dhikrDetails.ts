@@ -40,6 +40,7 @@ export interface DailyDua {
   arabic: string;
   transliteration: string;
   referenceKey: string;
+  translationKey: string;
 }
 
 export const dailyDuas: DailyDua[] = [
@@ -49,6 +50,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
     transliteration: 'Allahu la ilaha illa huwa al-Hayyu al-Qayyum...',
     referenceKey: 'refBaqarah255',
+    translationKey: 'duaTranslationAyatKursi',
   },
   {
     titleKey: 'duaTitleAnxiety',
@@ -56,6 +58,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْهَمِّ وَالْحُزْنِ، وَالْعَجْزِ وَالْكَسَلِ، وَالْبُخْلِ وَالْجُبْنِ، وَضَلَعِ الدَّيْنِ وَغَلَبَةِ الرِّجَالِ',
     transliteration: "Allahumma inni a'udhu bika minal-hammi wal-hazan...",
     referenceKey: 'refBukhari',
+    translationKey: 'duaTranslationAnxiety',
   },
   {
     titleKey: 'duaTitleSayyidIstighfar',
@@ -63,6 +66,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُمَّ أَنْتَ رَبِّي لَا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتُ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتُ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ وَأَبُوءُ بِذَنْبِي فَاغْفِرْ لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ',
     transliteration: 'Allahumma anta Rabbi la ilaha illa anta...',
     referenceKey: 'refBukhari',
+    translationKey: 'duaTranslationSayyidIstighfar',
   },
   {
     titleKey: 'duaTitleRizq',
@@ -70,6 +74,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
     transliteration: "Allahumma inni as'aluka ilman nafi'an...",
     referenceKey: 'refIbnMajah',
+    translationKey: 'duaTranslationRizq',
   },
   {
     titleKey: 'duaTitleEnterMosque',
@@ -77,6 +82,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ',
     transliteration: 'Allahumma iftah li abwaba rahmatik',
     referenceKey: 'refMuslim',
+    translationKey: 'duaTranslationEnterMosque',
   },
   {
     titleKey: 'duaTitleTawakkul',
@@ -84,6 +90,7 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
     transliteration: 'Bismillah, tawakkaltu ala Allah...',
     referenceKey: 'refAbuDawud',
+    translationKey: 'duaTranslationTawakkul',
   },
   {
     titleKey: 'duaTitleHealing',
@@ -91,5 +98,6 @@ export const dailyDuas: DailyDua[] = [
     arabic: 'اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأسَ اشْفِهِ وَأَنْتَ الشَّافِي لَا شِفَاءَ إِلَّا شِفَاؤُكَ شِفَاءً لَا يُغَادِرُ سَقَمًا',
     transliteration: "Allahumma Rabba an-nas, adhibil-ba's...",
     referenceKey: 'refBukhariMuslim',
+    translationKey: 'duaTranslationHealing',
   },
 ];

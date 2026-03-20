@@ -6,7 +6,7 @@
 - Verify RTL/LTR CSS works correctly
 
 ## Current Task
-Phase 1: Arabic Academy + Noor Mascot, Nordic GPS Fix, Live Streams
+Phase 2: Comprehensive Arabic Text Cleanup - ALL 9 languages
 
 ## New Features Added (2026-03-20):
 ### Feature 1: AI Arabic Academy + Mascot Noor
@@ -93,6 +93,48 @@ Phase 1: Arabic Academy + Noor Mascot, Nordic GPS Fix, Live Streams
 - **Quran API**: Already integrated with quran.com API - supports 30+ translation languages
 - **Hadith API**: Extended to return Arabic text + English translation for all non-Arabic users
 - **DailyHadith component**: Shows Arabic + translation side by side for non-Arabic languages
+
+## Translation System Fix Progress (2026-03-20 - COMPREHENSIVE Cleanup Phase 2)
+### Backend API Changes:
+- `/api/ai/verse-of-day` now accepts `?language=` param, returns Arabic text + translation + transliterated surah name
+- `/api/ai/hadith-of-day` now accepts `?language=` param, returns Arabic text + translation + translated narrator/source
+- Both APIs have fallback translations for all 9 languages
+
+### Frontend Component Fixes:
+- **Features2026.tsx**: VerseOfDay & HadithOfDay now pass locale, show Arabic + translation side by side
+- **DuaOfDayDrawer.tsx**: Shows translation below Arabic dua text for non-Arabic locales
+- **Index.tsx**: Dua of Day card shows translation text
+- **useGeoLocation.tsx**: City name uses user's language dynamically
+- **AdBanner.tsx**: All 7 Arabic labels translated
+- **VideoContentCarousel.tsx**: All video titles/channels translated
+- **QiblaMap.tsx**: Map labels translated
+- **MosqueScene.tsx**: Image alt text translated
+- **AnalyticsTracker.tsx**: 21 page names translated
+- **RamadanCannon.tsx**: Iftar cannon text translated
+- **OccasionAthanAlert.tsx**: All prayer alert strings translated
+- **AthanAlert.tsx**: Quran verse reference translated
+
+### Data File Changes:
+- **dhikrDetails.ts**: Added `translationKey` field to each dua for 9-language translations
+
+### Bulk Replacements (200+ replacements across 26+ files):
+- AdminDashboard.tsx: 100+ Arabic strings replaced with t() calls
+- SocialProfile.tsx, ZakatCalculator.tsx, MosquePrayerTimes.tsx, RamadanBook.tsx, RamadanCalendar.tsx, RamadanCards.tsx, RamadanChallenge.tsx, CreatePost.tsx, Quran.tsx, Ruqyah.tsx, VideoReels.tsx, Profile.tsx, More.tsx, Explore.tsx
+
+### Translation Keys Added:
+- 36+ core keys (ads, video, qibla, mosque, athan, iftar, etc.)
+- 108+ admin keys (dashboard tabs, form labels, toast messages, etc.)
+- 58+ page keys (profile, zakat, ramadan, quran, social, etc.)
+- 7 dua translation keys with full translations
+- Total: ~209 new keys added to ALL 9 locale files
+
+### Remaining Arabic text (intentional content):
+- data/duas.ts (150 lines) - Original Arabic dua text
+- AsmaAlHusna.tsx (101 lines) - 99 Names of Allah in Arabic
+- PrivacyPolicy.tsx (72 lines) - Arabic privacy policy sections
+- data/ramadanDuas.ts (46 lines) - Ramadan dua content
+- lib/referenceTranslator.ts (31 lines) - Reference translation map (already translates)
+- ~400 lines of Arabic religious content across other data files
 
 ## Translation System Fix Progress (2026-03-20 - Comprehensive Arabic Text Cleanup)
 ### Phase 7 - Hardcoded Arabic Text Cleanup:

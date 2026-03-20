@@ -616,7 +616,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">{t('mosqueTimesLabel')}</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — نطاق 5 كم` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — {t('searchRadius')} 5 {t('km')}` : 'جارٍ تحديد الموقع...'}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -876,10 +876,10 @@ export default function MosquePrayerTimesPage() {
         {!selectedMosque && !loading && mosques.length > 0 && (
           <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
             <p className="text-sm text-muted-foreground">
-              اختر مسجدك لعرض أوقات الصلاة حسبه
+              {t('chooseMosque')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              المساجد المحيطة بك ضمن نطاق 5 كم
+              المساجد المحيطة بك ضمن {t('searchRadius')} 5 {t('km')}
             </p>
           </div>
         )}
@@ -986,7 +986,7 @@ export default function MosquePrayerTimesPage() {
         <div className="mt-6 rounded-2xl bg-muted/30 border border-border/30 p-4">
           <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-amber-500" />
-            مساجد بدون توقيت تلقائي؟
+            {t('noAutoTimeMosques')}
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             بعض المساجد لا تتوفر أوقاتها على الإنترنت. يمكنك:

@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const CATEGORY_ICONS: Record<string, string> = {
-  'حماية': '🛡', 'protection': '🛡',
+  t('protectionLabel'): '🛡', 'protection': '🛡',
   'عام': '📖', 'general': '📖',
   'عين': '👁', 'evil-eye': '👁',
   'حسد': '🧿', 'envy': '🧿',

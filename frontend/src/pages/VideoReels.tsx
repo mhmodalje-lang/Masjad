@@ -116,8 +116,8 @@ export default function VideoReels() {
           <ArrowRight className="w-6 h-6" />
         </button>
         <div className="flex items-center gap-4">
-          <span className="text-white/60 text-sm font-bold">الترندات</span>
-          <span className="text-white text-sm font-bold border-b-2 border-white pb-0.5">فيديو</span>
+          <span className="text-white/60 text-sm font-bold">{t('trending')}</span>
+          <span className="text-white text-sm font-bold border-b-2 border-white pb-0.5">{t('videoTab')}</span>
         </div>
         <div className="w-6" />
       </div>

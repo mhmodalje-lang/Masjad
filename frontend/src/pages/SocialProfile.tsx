@@ -108,8 +108,8 @@ export default function SocialProfile() {
     return (
       <div className="min-h-screen bg-[#0a0e13] flex flex-col items-center justify-center gap-4 text-gray-400">
         <Users className="w-12 h-12 text-gray-700" />
-        <p>المستخدم غير موجود</p>
-        <button onClick={() => navigate(-1)} className="text-emerald-500 text-sm font-bold">رجوع</button>
+        <p>{t('userNotFound')}</p>
+        <button onClick={() => navigate(-1)} className="text-emerald-500 text-sm font-bold">{t('goBack')}</button>
       </div>
     );
   }
@@ -156,15 +156,15 @@ export default function SocialProfile() {
         <div className="flex items-center justify-center gap-8 mt-5">
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.following_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">متابعة</p>
+            <p className="text-gray-500 text-[11px]">{t('follow')}</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.followers_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">متابعين</p>
+            <p className="text-gray-500 text-[11px]">{t('followers')}</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.likes_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">الإعجابات</p>
+            <p className="text-gray-500 text-[11px]">{t('likes')}</p>
           </div>
           <div className="text-center">
             <p className="text-white text-lg font-bold">{formatCount(stats.gifts_count || 0)}</p>
@@ -185,7 +185,7 @@ export default function SocialProfile() {
                 className={`flex-1 py-2.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
                   isFollowing ? 'bg-white/5 border border-white/10 text-gray-300' : 'bg-emerald-600 text-white'
                 }`}>
-                {isFollowing ? 'متابَع ✓' : '+ متابعة'}
+                {isFollowing ? 'متابَع ✓' : t('follow')}
               </button>
               <Link to="/messages"
                 className="flex-1 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white text-center font-bold text-sm flex items-center justify-center gap-2">
@@ -251,21 +251,21 @@ export default function SocialProfile() {
         <div className="p-5" dir={dir}>
           <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-4">
             <div>
-              <span className="text-gray-500 text-xs">الاسم</span>
+              <span className="text-gray-500 text-xs">{t('nameLabel')}</span>
               <p className="text-white font-bold mt-0.5">{profile.name}</p>
             </div>
             {profile.bio && (
               <div>
-                <span className="text-gray-500 text-xs">النبذة</span>
+                <span className="text-gray-500 text-xs">{t('bio')}</span>
                 <p className="text-white mt-0.5">{profile.bio}</p>
               </div>
             )}
             <div>
-              <span className="text-gray-500 text-xs">تاريخ الانضمام</span>
+              <span className="text-gray-500 text-xs">{t('joinDate')}</span>
               <p className="text-white mt-0.5">{profile.created_at ? new Date(profile.created_at).toLocaleDateString('ar-SA') : '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">عدد المنشورات</span>
+              <span className="text-gray-500 text-xs">{t('postsCount')}</span>
               <p className="text-white mt-0.5">{stats.posts_count || 0}</p>
             </div>
           </div>
