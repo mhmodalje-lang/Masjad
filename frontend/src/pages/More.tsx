@@ -54,6 +54,9 @@ export default function More() {
     { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
     { code: 'fr', name: 'French', nativeName: 'Français', flag: '🇫🇷' },
     { code: 'tr', name: 'Turkish', nativeName: 'Türkçe', flag: '🇹🇷' },
+    { code: 'sv', name: 'Swedish', nativeName: 'Svenska', flag: '🇸🇪' },
+    { code: 'nl', name: 'Dutch', nativeName: 'Nederlands', flag: '🇳🇱' },
+    { code: 'el', name: 'Greek', nativeName: 'Ελληνικά', flag: '🇬🇷' },
   ];
   
   const currentLanguage = languages.find(l => l.code === locale) || languages[0];
