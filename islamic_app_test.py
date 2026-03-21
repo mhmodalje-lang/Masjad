@@ -23,7 +23,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://islamic-prayer-44.preview.emergentagent.com/api"
+BACKEND_URL = "https://day-night-design.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'
