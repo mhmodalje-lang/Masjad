@@ -332,7 +332,7 @@ export default function Profile() {
                 onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
                 color="text-amber-500" />
               <MenuItem icon={Bell} label="الإشعارات" to="/notifications" color="text-red-400" />
-              <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-gray-400" />
+              <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-muted-foreground" />
             </div>
             <div className="border-t border-border/20 py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('helpPage')}</p>

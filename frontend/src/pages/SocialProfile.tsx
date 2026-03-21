@@ -98,7 +98,7 @@ export default function SocialProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0e13] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
@@ -106,8 +106,8 @@ export default function SocialProfile() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#0a0e13] flex flex-col items-center justify-center gap-4 text-gray-400">
-        <Users className="w-12 h-12 text-gray-700" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 text-muted-foreground">
+        <Users className="w-12 h-12 text-muted-foreground/60" />
         <p>{t('userNotFound')}</p>
         <button onClick={() => navigate(-1)} className="text-emerald-500 text-sm font-bold">{t('goBack')}</button>
       </div>
@@ -115,7 +115,7 @@ export default function SocialProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0e13] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       {/* Cover */}
       <div className="relative h-44 bg-gradient-to-br from-emerald-900 via-emerald-800 to-gray-900 overflow-hidden">
         {profile.cover_image && (
@@ -148,27 +148,27 @@ export default function SocialProfile() {
           />
         </div>
         <div className="text-center mt-3">
-          <h1 className="text-white text-xl font-bold">{profile.name}</h1>
-          {profile.bio && <p className="text-gray-400 text-sm mt-1 max-w-xs mx-auto">{profile.bio}</p>}
+          <h1 className="text-foreground text-xl font-bold">{profile.name}</h1>
+          {profile.bio && <p className="text-muted-foreground text-sm mt-1 max-w-xs mx-auto">{profile.bio}</p>}
         </div>
 
         {/* Stats */}
         <div className="flex items-center justify-center gap-8 mt-5">
           <div className="text-center">
-            <p className="text-white text-lg font-bold">{formatCount(stats.following_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">{t('follow')}</p>
+            <p className="text-foreground text-lg font-bold">{formatCount(stats.following_count || 0)}</p>
+            <p className="text-muted-foreground text-[11px]">{t('follow')}</p>
           </div>
           <div className="text-center">
-            <p className="text-white text-lg font-bold">{formatCount(stats.followers_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">{t('followers')}</p>
+            <p className="text-foreground text-lg font-bold">{formatCount(stats.followers_count || 0)}</p>
+            <p className="text-muted-foreground text-[11px]">{t('followers')}</p>
           </div>
           <div className="text-center">
-            <p className="text-white text-lg font-bold">{formatCount(stats.likes_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">{t('likes')}</p>
+            <p className="text-foreground text-lg font-bold">{formatCount(stats.likes_count || 0)}</p>
+            <p className="text-muted-foreground text-[11px]">{t('likes')}</p>
           </div>
           <div className="text-center">
-            <p className="text-white text-lg font-bold">{formatCount(stats.gifts_count || 0)}</p>
-            <p className="text-gray-500 text-[11px]">الهدايا</p>
+            <p className="text-foreground text-lg font-bold">{formatCount(stats.gifts_count || 0)}</p>
+            <p className="text-muted-foreground text-[11px]">الهدايا</p>
           </div>
         </div>
 
@@ -183,12 +183,12 @@ export default function SocialProfile() {
             <>
               <button onClick={handleFollow}
                 className={`flex-1 py-2.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
-                  isFollowing ? 'bg-white/5 border border-white/10 text-gray-300' : 'bg-emerald-600 text-white'
+                  isFollowing ? 'bg-muted/30 border border-border/30 text-muted-foreground' : 'bg-emerald-600 text-white'
                 }`}>
                 {isFollowing ? 'متابَع ✓' : t('follow')}
               </button>
               <Link to="/messages"
-                className="flex-1 py-2.5 rounded-2xl bg-white/5 border border-white/10 text-white text-center font-bold text-sm flex items-center justify-center gap-2">
+                className="flex-1 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-foreground text-center font-bold text-sm flex items-center justify-center gap-2">
                 <MessageCircle className="w-4 h-4" /> المحادثة
               </Link>
             </>
@@ -200,13 +200,13 @@ export default function SocialProfile() {
       <div className="flex border-b border-white/5 mt-6">
         <button onClick={() => setActiveTab('posts')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
-            activeTab === 'posts' ? 'text-white border-b-2 border-emerald-500' : 'text-gray-600'
+            activeTab === 'posts' ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground'
           }`}>
           ال{t('postsCount')}
         </button>
         <button onClick={() => setActiveTab('info')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
-            activeTab === 'info' ? 'text-white border-b-2 border-emerald-500' : 'text-gray-600'
+            activeTab === 'info' ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground'
           }`}>
           المعلومات
         </button>
@@ -216,7 +216,7 @@ export default function SocialProfile() {
       {activeTab === 'posts' ? (
         <div className="grid grid-cols-2 gap-1.5 p-3">
           {posts.length === 0 ? (
-            <div className="col-span-2 text-center py-16 text-gray-600 text-sm">
+            <div className="col-span-2 text-center py-16 text-muted-foreground text-sm">
               لا توجد {t('postsCount')} حتى الآن
             </div>
           ) : (
@@ -228,7 +228,7 @@ export default function SocialProfile() {
                     className="w-full h-full object-cover" loading="lazy" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-900/50 to-gray-900 flex items-center justify-center p-3">
-                    <p className="text-white/60 text-xs text-center line-clamp-4">{post.content}</p>
+                    <p className="text-muted-foreground text-xs text-center line-clamp-4">{post.content}</p>
                   </div>
                 )}
                 {(post.content_type?.includes('video') || post.video_url) && (
@@ -237,10 +237,10 @@ export default function SocialProfile() {
                   </div>
                 )}
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                  <p className="text-white text-[10px] line-clamp-2">{post.content}</p>
+                  <p className="text-foreground text-[10px] line-clamp-2">{post.content}</p>
                   <div className="flex items-center gap-1 mt-0.5">
-                    <Heart className="w-2.5 h-2.5 text-white/50" />
-                    <span className="text-white/50 text-[9px]">{post.likes_count || 0}</span>
+                    <Heart className="w-2.5 h-2.5 text-muted-foreground" />
+                    <span className="text-muted-foreground text-[9px]">{post.likes_count || 0}</span>
                   </div>
                 </div>
               </Link>
@@ -249,23 +249,23 @@ export default function SocialProfile() {
         </div>
       ) : (
         <div className="p-5" dir={dir}>
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-5 space-y-4">
+          <div className="bg-card border border-border/30 rounded-2xl p-5 space-y-4">
             <div>
-              <span className="text-gray-500 text-xs">{t('nameLabel')}</span>
-              <p className="text-white font-bold mt-0.5">{profile.name}</p>
+              <span className="text-muted-foreground text-xs">{t('nameLabel')}</span>
+              <p className="text-foreground font-bold mt-0.5">{profile.name}</p>
             </div>
             {profile.bio && (
               <div>
-                <span className="text-gray-500 text-xs">{t('bio')}</span>
-                <p className="text-white mt-0.5">{profile.bio}</p>
+                <span className="text-muted-foreground text-xs">{t('bio')}</span>
+                <p className="text-foreground mt-0.5">{profile.bio}</p>
               </div>
             )}
             <div>
-              <span className="text-gray-500 text-xs">{t('joinDate')}</span>
+              <span className="text-muted-foreground text-xs">{t('joinDate')}</span>
               <p className="text-white mt-0.5">{profile.created_at ? new Date(profile.created_at).toLocaleDateString('ar-SA') : '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">{t('postsCount')}</span>
+              <span className="text-muted-foreground text-xs">{t('postsCount')}</span>
               <p className="text-white mt-0.5">{stats.posts_count || 0}</p>
             </div>
           </div>

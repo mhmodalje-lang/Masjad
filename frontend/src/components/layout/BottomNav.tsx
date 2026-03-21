@@ -4,11 +4,14 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
+import { useTheme } from '@/components/ThemeProvider';
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const { t, dir } = useLocale();
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const navItems = [
     { path: '/', icon: Home, label: t('navHome'), exact: true },
@@ -26,8 +29,13 @@ export function BottomNav() {
       data-testid="bottom-nav"
       className="fixed bottom-0 left-0 right-0 z-50"
     >
-      {/* Glass background */}
-      <div className="bg-[#0d1f17]/95 backdrop-blur-xl border-t border-emerald-700/30 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]">
+      {/* Glass background - theme-aware */}
+      <div className={cn(
+        'backdrop-blur-xl border-t transition-colors duration-300',
+        isDark
+          ? 'bg-[#0d1f17]/95 border-emerald-700/30 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
+          : 'bg-white/95 border-border/40 shadow-[0_-4px_30px_rgba(0,0,0,0.06)]'
+      )}>
         <div
           className="flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom,4px)] pt-1.5"
           dir={dir}
@@ -45,7 +53,10 @@ export function BottomNav() {
                   data-testid="nav-create"
                   className="relative flex flex-col items-center -mt-5"
                 >
-                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/40 active:scale-90 transition-transform border-2 border-emerald-300/40 ring-4 ring-[#0d1f17]/90">
+                  <div className={cn(
+                    'h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/40 active:scale-90 transition-transform border-2 border-emerald-300/40 ring-4',
+                    isDark ? 'ring-[#0d1f17]/90' : 'ring-white/90'
+                  )}>
                     <Plus className="h-7 w-7 text-white stroke-[3px]" />
                   </div>
                 </Link>
@@ -60,15 +71,18 @@ export function BottomNav() {
                 className={cn(
                   'relative flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 min-w-[56px]',
                   isActive
-                    ? 'text-emerald-300'
-                    : 'text-emerald-200/50 active:text-emerald-200'
+                    ? isDark ? 'text-emerald-300' : 'text-primary'
+                    : isDark ? 'text-emerald-200/50 active:text-emerald-200' : 'text-muted-foreground active:text-foreground'
                 )}
               >
                 {/* Active indicator dot */}
                 {isActive && (
                   <motion.div
                     layoutId="nav-dot"
-                    className="absolute -top-0.5 h-1 w-1 rounded-full bg-emerald-400"
+                    className={cn(
+                      'absolute -top-0.5 h-1 w-1 rounded-full',
+                      isDark ? 'bg-emerald-400' : 'bg-primary'
+                    )}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -76,7 +90,7 @@ export function BottomNav() {
                 <div className={cn(
                   'h-8 w-8 rounded-xl flex items-center justify-center transition-all duration-200',
                   isActive
-                    ? 'bg-emerald-500/20 scale-110'
+                    ? isDark ? 'bg-emerald-500/20 scale-110' : 'bg-primary/10 scale-110'
                     : 'bg-transparent'
                 )}>
                   <item.icon className={cn(

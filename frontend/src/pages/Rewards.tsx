@@ -83,7 +83,7 @@ export default function Rewards() {
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 60% 30%, rgba(255,215,0,0.4), transparent 50%)' }} />
         <div className="relative pt-4 text-center">
           <Coins className="h-10 w-10 mx-auto mb-2 text-amber-300" />
-          <h1 className="text-2xl font-bold text-white mb-3">{t('rewardsTitle')}</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-3">{t('rewardsTitle')}</h1>
           <div className="flex items-center justify-center gap-6">
             <div className="text-center">
               <span className="text-3xl font-bold text-amber-300 tabular-nums">{gold}</span>

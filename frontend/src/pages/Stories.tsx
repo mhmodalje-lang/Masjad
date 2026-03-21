@@ -116,15 +116,15 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
       className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-        className="absolute bottom-0 left-0 right-0 max-h-[70vh] bg-[#0f1419] rounded-t-[28px] overflow-hidden flex flex-col border-t border-emerald-800/30"
+        className="absolute bottom-0 left-0 right-0 max-h-[70vh] bg-card rounded-t-[28px] overflow-hidden flex flex-col border-t border-primary/30"
         onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-          <h3 className="text-white font-bold">{t('commentsTitle')} ({comments.length})</h3>
-          <button onClick={onClose} className="p-1.5 rounded-full bg-white/5 hover:bg-white/10"><X className="w-4 h-4 text-gray-400" /></button>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border/20">
+          <h3 className="text-foreground font-bold">{t('commentsTitle')} ({comments.length})</h3>
+          <button onClick={onClose} className="p-1.5 rounded-full bg-muted/30 hover:bg-muted/50"><X className="w-4 h-4 text-muted-foreground" /></button>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={dir}>
           {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
-           : comments.length === 0 ? <p className="text-center text-gray-600 py-8 text-sm">{t('beFirstToComment')}</p>
+           : comments.length === 0 ? <p className="text-center text-muted-foreground py-8 text-sm">{t('beFirstToComment')}</p>
            : comments.map(c => {
             const canDel = user && (c.author_id === user.id || user.email === 'mohammadalrejab@gmail.com');
             return (
@@ -132,18 +132,18 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
                 <img src={avatar(c.author_name, c.author_avatar)} alt="" className="w-8 h-8 rounded-full shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-bold text-white">{c.author_name}</span>
-                    <span className="text-[10px] text-gray-600">{timeAgo(c.created_at)}</span>
+                    <span className="text-[13px] font-bold text-foreground">{c.author_name}</span>
+                    <span className="text-[10px] text-muted-foreground">{timeAgo(c.created_at)}</span>
                   </div>
-                  <p className="text-gray-300 text-[13px] mt-0.5 leading-relaxed">{c.content}</p>
+                  <p className="text-foreground/80 text-[13px] mt-0.5 leading-relaxed">{c.content}</p>
                   <div className="flex items-center gap-4 mt-1">
                     <button onClick={() => { setReplyTo(c); inputRef.current?.focus(); }}
-                      className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-emerald-400">
+                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-emerald-400">
                       <Reply className="w-3 h-3" /> {t('replyLabel')}
                     </button>
                     {canDel && (
                       <button onClick={() => deleteComment(c.id)}
-                        className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-red-400">
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-400">
                         <Trash2 className="w-3 h-3" /> {t('deleteLabel')}
                       </button>
                     )}
@@ -154,23 +154,23 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
           })}
         </div>
         {replyTo && (
-          <div className="px-4 py-2 bg-emerald-900/20 flex items-center justify-between border-t border-white/5" dir={dir}>
+          <div className="px-4 py-2 bg-emerald-900/20 flex items-center justify-between border-t border-border/20" dir={dir}>
             <span className="text-xs text-emerald-400">{t('replyTo')} {replyTo.author_name}</span>
-            <button onClick={() => setReplyTo(null)}><X className="w-3.5 h-3.5 text-gray-500" /></button>
+            <button onClick={() => setReplyTo(null)}><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
           </div>
         )}
         {user ? (
-          <div className="flex items-center gap-2 p-3 border-t border-white/5 bg-[#0f1419]" dir={dir}>
+          <div className="flex items-center gap-2 p-3 border-t border-border/20 bg-card" dir={dir}>
             <input ref={inputRef} value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()}
               placeholder={replyTo ? `${t('replyToPlaceholder')} ${replyTo.author_name}...` : t('writeComment')}
-              className="flex-1 bg-white/5 text-white rounded-full px-4 py-2.5 text-sm placeholder:text-gray-600 border border-white/5 outline-none focus:border-emerald-600/50" />
+              className="flex-1 bg-muted/30 text-foreground rounded-full px-4 py-2.5 text-sm placeholder:text-muted-foreground/60 border border-border/20 outline-none focus:border-emerald-600/50" />
             <button onClick={submit} disabled={!text.trim()}
               className="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center disabled:opacity-30 active:scale-90">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>
         ) : (
-          <div className="p-4 border-t border-white/5 text-center">
+          <div className="p-4 border-t border-border/20 text-center">
             <Link to="/auth" className="text-emerald-400 text-sm font-bold hover:underline">{t('loginToComment')}</Link>
           </div>
         )}
@@ -277,15 +277,15 @@ function CreateSheet({ categories, onClose, onCreated }: {
       className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-        className="absolute bottom-0 left-0 right-0 max-h-[92vh] bg-[#0f1419] rounded-t-[28px] overflow-y-auto border-t border-emerald-800/30"
+        className="absolute bottom-0 left-0 right-0 max-h-[92vh] bg-card rounded-t-[28px] overflow-y-auto border-t border-primary/30"
         onClick={e => e.stopPropagation()}>
         <div className="p-5 space-y-4" dir={dir}>
           {/* Handle bar */}
           <div className="w-10 h-1 bg-white/10 rounded-full mx-auto -mt-1 mb-2" />
 
           <div className="flex items-center justify-between">
-            <h3 className="text-white font-bold text-lg">{t('newPost')}</h3>
-            <button onClick={onClose} className="p-2 rounded-full bg-white/5"><X className="w-5 h-5 text-gray-400" /></button>
+            <h3 className="text-foreground font-bold text-lg">{t('newPost')}</h3>
+            <button onClick={onClose} className="p-2 rounded-full bg-muted/30"><X className="w-5 h-5 text-muted-foreground" /></button>
           </div>
 
           {/* Content Type */}
@@ -293,7 +293,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
             {typeBtns.map(btn => (
               <button key={btn.key} onClick={() => setContentType(btn.key)}
                 className={cn('shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-medium transition-all',
-                  contentType === btn.key ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-white/5 text-gray-400 hover:bg-white/10')}>
+                  contentType === btn.key ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'bg-muted/30 text-muted-foreground hover:bg-muted/50')}>
                 <span>{btn.icon}</span> {btn.label}
               </button>
             ))}
@@ -303,26 +303,26 @@ function CreateSheet({ categories, onClose, onCreated }: {
           {user && (
             <div className="flex items-center gap-3">
               <img src={avatar(user.name || '', user.avatar)} alt="" className="w-10 h-10 rounded-full" />
-              <span className="text-white font-bold text-sm">{user.name}</span>
+              <span className="text-foreground font-bold text-sm">{user.name}</span>
             </div>
           )}
 
           {/* Title (optional) */}
           <input data-testid="create-post-title" value={title} onChange={e => setTitle(e.target.value)} placeholder={t("titleOptional")}
-            className="w-full bg-white/5 text-white rounded-2xl px-4 py-3 text-sm border border-white/5 outline-none focus:border-emerald-600/50 placeholder:text-gray-600" />
+            className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60" />
 
           {/* Content */}
           <textarea data-testid="create-post-content" value={content} onChange={e => setContent(e.target.value)}
             placeholder={t("shareIdea")}
-            className="w-full bg-white/5 text-white rounded-2xl px-4 py-3 text-sm min-h-[140px] resize-none border border-white/5 outline-none focus:border-emerald-600/50 placeholder:text-gray-600 leading-relaxed"
+            className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm min-h-[140px] resize-none border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60 leading-relaxed"
             maxLength={5000} />
-          <p className="text-left text-gray-700 text-[10px]">{content.length}/5000</p>
+          <p className="text-left text-muted-foreground text-[10px]">{content.length}/5000</p>
 
           {/* Embed URL */}
           {contentType === 'embed' && (
             <input value={embedUrl} onChange={e => setEmbedUrl(e.target.value)}
               placeholder={t('videoUrlPlaceholder')}
-              className="w-full bg-white/5 text-white rounded-2xl px-4 py-3 text-sm border border-white/5 outline-none focus:border-emerald-600/50 placeholder:text-gray-600" dir="ltr" />
+              className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60" dir="ltr" />
           )}
 
           {/* File Upload */}
@@ -341,7 +341,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
                 </div>
               ) : (
                 <button onClick={() => fileRef.current?.click()}
-                  className="w-full py-14 border border-dashed border-white/10 rounded-2xl text-gray-500 hover:border-emerald-600/50 hover:text-emerald-500 transition-all flex flex-col items-center gap-2 bg-white/[0.02]">
+                  className="w-full py-14 border border-dashed border-border/30 rounded-2xl text-muted-foreground hover:border-emerald-600/50 hover:text-emerald-500 transition-all flex flex-col items-center gap-2 bg-muted/15">
                   {contentType === 'image' ? <Image className="w-7 h-7" /> : <Video className="w-7 h-7" />}
                   <span className="text-sm">{contentType === 'image' ? t('chooseImage') : t('chooseVideo')}</span>
                 </button>
@@ -351,12 +351,12 @@ function CreateSheet({ categories, onClose, onCreated }: {
 
           {/* Category */}
           <div>
-            <p className="text-gray-500 text-xs mb-2">{t('categoryLabel')}</p>
+            <p className="text-muted-foreground text-xs mb-2">{t('categoryLabel')}</p>
             <div className="flex flex-wrap gap-2">
               {catBtns.map(c => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
                   className={cn('px-3.5 py-2 rounded-2xl text-xs font-medium transition-all',
-                    category === c.key ? 'bg-emerald-600 text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10')}>
+                    category === c.key ? 'bg-emerald-600 text-white' : 'bg-muted/30 text-muted-foreground hover:bg-muted/50')}>
                   {c.e} {c.label}
                 </button>
               ))}
@@ -433,18 +433,18 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0e13] pb-24" dir={dir}>
+    <div className="min-h-screen bg-background pb-24" dir={dir}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-[#0a0e13]/95 backdrop-blur-xl border-b border-white/5">
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/20">
         <div className="flex items-center justify-between px-4 h-14">
-          <button onClick={onBack} className="p-2 rounded-xl bg-white/5 active:scale-95">
-            <ArrowRight className="h-5 w-5 text-white" />
+          <button onClick={onBack} className="p-2 rounded-xl bg-muted/30 active:scale-95">
+            <ArrowRight className="h-5 w-5 text-foreground" />
           </button>
-          <h2 className="text-sm font-bold text-white/80 truncate flex-1 mx-3 text-center">
+          <h2 className="text-sm font-bold text-foreground/80 truncate flex-1 mx-3 text-center">
             {story.title || t('thePost')}
           </h2>
           {(isVideo || isEmbed) && (
-            <button onClick={() => onOpenViewer(videoIdx)} className="p-2 rounded-xl bg-white/5">
+            <button onClick={() => onOpenViewer(videoIdx)} className="p-2 rounded-xl bg-muted/30">
               <Play className="h-4 w-4 text-emerald-400" />
             </button>
           )}
@@ -474,17 +474,17 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
               className="h-11 w-11 rounded-full border-2 border-emerald-600/30" />
           </Link>
           <div className="flex-1">
-            <Link to={`/social-profile/${story.author_id}`} className="text-sm font-bold text-white hover:underline">
+            <Link to={`/social-profile/${story.author_id}`} className="text-sm font-bold text-foreground hover:underline">
               {story.author_name}
             </Link>
-            <p className="text-[11px] text-gray-500">{timeAgo(story.created_at)}</p>
+            <p className="text-[11px] text-muted-foreground">{timeAgo(story.created_at)}</p>
           </div>
         </div>
       </div>
 
       {/* Title */}
       {story.title && (
-        <h1 className="text-xl font-bold text-white px-5 mb-3">{story.title}</h1>
+        <h1 className="text-xl font-bold text-foreground px-5 mb-3">{story.title}</h1>
       )}
 
       {/* Content with inline ads */}
@@ -493,7 +493,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
           item.type === 'ad' ? (
             <div key={`ad-${i}`} className="my-4"><AdBanner position="home" /></div>
           ) : (
-            <p key={i} className="text-[15px] text-gray-200 leading-[2.4] mb-2"
+            <p key={i} className="text-[15px] text-foreground/80 leading-[2.4] mb-2"
               style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
               {item.content}
             </p>
@@ -502,22 +502,22 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
       </div>
 
       {/* Actions Bar */}
-      <div className="mx-5 mt-6 flex items-center gap-4 py-4 border-t border-white/5">
+      <div className="mx-5 mt-6 flex items-center gap-4 py-4 border-t border-border/20">
         <button onClick={toggleLike} className="flex items-center gap-1.5 active:scale-90 transition-transform">
-          <Heart className={cn("h-6 w-6", liked ? "text-red-500 fill-red-500" : "text-gray-500")} />
-          <span className={cn("font-bold text-sm", liked ? "text-red-500" : "text-gray-400")}>{likesCount}</span>
+          <Heart className={cn("h-6 w-6", liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+          <span className={cn("font-bold text-sm", liked ? "text-red-500" : "text-muted-foreground")}>{likesCount}</span>
         </button>
         <button onClick={() => setShowComments(true)} className="flex items-center gap-1.5 active:scale-90 transition-transform">
-          <MessageCircle className="h-6 w-6 text-gray-500" />
-          <span className="font-bold text-sm text-gray-400">{commentsCount}</span>
+          <MessageCircle className="h-6 w-6 text-muted-foreground" />
+          <span className="font-bold text-sm text-muted-foreground">{commentsCount}</span>
         </button>
         <button onClick={handleShare} className="active:scale-90 transition-transform">
-          <Share2 className="h-6 w-6 text-gray-500" />
+          <Share2 className="h-6 w-6 text-muted-foreground" />
         </button>
         <button onClick={toggleSave} className="active:scale-90 transition-transform mr-auto">
-          <Bookmark className={cn("h-6 w-6", saved ? "text-emerald-500 fill-emerald-500" : "text-gray-500")} />
+          <Bookmark className={cn("h-6 w-6", saved ? "text-emerald-500 fill-emerald-500" : "text-muted-foreground")} />
         </button>
-        <span className="flex items-center gap-1 text-[11px] text-gray-600"><Eye className="h-3.5 w-3.5" />{story.views_count || 0}</span>
+        <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Eye className="h-3.5 w-3.5" />{story.views_count || 0}</span>
       </div>
 
       <AnimatePresence>
@@ -843,7 +843,7 @@ export default function Stories() {
   const textStories = stories.filter(s => !s.is_embed && s.media_type !== 'embed' && s.media_type !== 'video' && !s.content_type?.includes('video'));
 
   return (
-    <div className="min-h-screen bg-[#0a0e13] pb-24" dir={dir} data-testid="stories-page">
+    <div className="min-h-screen bg-background pb-24" dir={dir} data-testid="stories-page">
       {/* === MODERN 2026 HEADER === */}
       <div className="sticky top-0 z-50">
         <div className="relative bg-gradient-to-b from-emerald-800 via-emerald-700 to-emerald-800/95 backdrop-blur-xl overflow-hidden">
@@ -855,24 +855,24 @@ export default function Stories() {
           <div className="absolute top-0 right-2 text-base opacity-40 animate-pulse" style={{ animationDelay: '0.7s' }}>🏮</div>
 
           <div className="relative flex items-center justify-between px-4 pt-3 pb-2">
-            <Link to="/explore" className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/15 transition-all">
+            <Link to="/explore" className="p-2.5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all text-white">
               <Search className="w-[18px] h-[18px]" />
             </Link>
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-5 text-white">
               <button onClick={() => setActiveTab('video')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'video' ? 'text-white border-b-2 border-emerald-300' : 'text-white/40')}>
+                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'video' ? 'text-white border-b-2 border-emerald-300' : 'text-white/50')}>
                 {t('videoTab')}
               </button>
               <button onClick={() => setActiveTab('trending')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'trending' ? 'text-white border-b-2 border-emerald-300' : 'text-white/40')}>
+                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'trending' ? 'text-white border-b-2 border-emerald-300' : 'text-white/50')}>
                 {t('trendsTab')}
               </button>
-              <h1 className="text-[17px] font-black flex items-center gap-1.5">
+              <h1 className="text-[17px] font-black flex items-center gap-1.5 text-white">
                 <BookOpen className="w-[18px] h-[18px]" /> {t('myStoriesTab')}
               </h1>
             </div>
             {user ? (
-              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm hover:bg-white/15">
+              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white">
                 <Plus className="w-[18px] h-[18px]" />
               </button>
             ) : <div className="w-10" />}
@@ -883,13 +883,13 @@ export default function Stories() {
             <div className="relative flex gap-1.5 px-3 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
               <button onClick={() => handleSelectCategory(null)}
                 className={cn('shrink-0 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all',
-                  !selectedCategory ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/10 text-white/70 hover:bg-white/15')}>
+                  !selectedCategory ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/15 text-white/80 hover:bg-white/25')}>
                 <Flame className="w-3 h-3 inline mr-1" />{t('allLabel')}
               </button>
               {sortedCats.map(cat => (
                 <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
                   className={cn('shrink-0 flex items-center gap-1 px-3.5 py-[7px] rounded-full text-[12px] font-bold transition-all',
-                    selectedCategory === cat.key ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/10 text-white/70 hover:bg-white/15')}>
+                    selectedCategory === cat.key ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/15 text-white/80 hover:bg-white/25')}>
                   <span className="text-sm">{cat.emoji}</span>{cat.labelKey ? t(cat.labelKey) : cat.label}
                 </button>
               ))}
@@ -903,8 +903,8 @@ export default function Stories() {
         {activeTab === 'video' ? (
           videoStories.length === 0 ? (
             <div className="text-center py-20">
-              <Film className="w-14 h-14 text-gray-800 mx-auto mb-3" />
-              <p className="text-gray-600 text-sm">{t('noVideosYet')}</p>
+              <Film className="w-14 h-14 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">{t('noVideosYet')}</p>
               {user && <button onClick={() => setShowCreate(true)}
                 className="mt-4 px-6 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold">{t('addVideo')}</button>}
             </div>
@@ -942,8 +942,8 @@ export default function Stories() {
               <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-emerald-500" /></div>
             ) : stories.length === 0 ? (
               <div className="text-center py-10">
-                <BookOpen className="h-14 w-14 text-gray-800 mx-auto mb-3" />
-                <p className="text-gray-500 text-sm mb-6">{t('noContent')}</p>
+                <BookOpen className="h-14 w-14 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground text-sm mb-6">{t('noContent')}</p>
                 {user && <button onClick={() => setShowCreate(true)}
                   className="bg-emerald-600 text-white px-8 py-3 rounded-2xl text-sm font-bold active:scale-95">{t('createContent')}</button>}
               </div>
@@ -952,19 +952,19 @@ export default function Stories() {
                 {/* Recommended Users */}
                 {recommended.length > 0 && (
                   <div className="mb-4">
-                    <h3 className="text-white/80 text-[13px] font-bold mb-2.5 flex items-center gap-1.5">
+                    <h3 className="text-foreground/80 text-[13px] font-bold mb-2.5 flex items-center gap-1.5">
                       <Users className="w-3.5 h-3.5 text-emerald-500" /> {t('recommendedUsers')}
                     </h3>
                     <div className="flex gap-2.5 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
                       {recommended.map(u => (
-                        <div key={u.id} className="shrink-0 w-[100px] flex flex-col items-center bg-white/[0.03] border border-white/5 rounded-2xl p-3 gap-1.5">
+                        <div key={u.id} className="shrink-0 w-[100px] flex flex-col items-center bg-muted/20 border border-border/20 rounded-2xl p-3 gap-1.5">
                           <Link to={`/social-profile/${u.id}`}>
                             <img src={avatar(u.name, u.avatar)} alt="" className="w-14 h-14 rounded-full border-2 border-emerald-700/50" />
                           </Link>
-                          <span className="text-white text-[11px] font-bold text-center truncate w-full">{u.name}</span>
+                          <span className="text-foreground text-[11px] font-bold text-center truncate w-full">{u.name}</span>
                           <button onClick={() => handleFollow(u.id)}
                             className={cn("w-full py-1.5 rounded-xl text-[10px] font-bold transition-all",
-                              followedIds.has(u.id) ? 'bg-white/5 text-gray-500' : 'bg-emerald-600 text-white')}>
+                              followedIds.has(u.id) ? 'bg-muted/30 text-muted-foreground' : 'bg-emerald-600 text-white')}>
                             {followedIds.has(u.id) ? t('unfollow') : t('follow')}
                           </button>
                         </div>
@@ -1008,7 +1008,7 @@ export default function Stories() {
                 <div className="space-y-3">
                   {textStories.map((s, idx) => (
                     <div key={s.id}>
-                      <div className="bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden hover:border-emerald-800/30 transition-all">
+                      <div className="bg-muted/20 border border-border/20 rounded-2xl overflow-hidden hover:border-primary/30 transition-all">
                         {/* Media */}
                         {getMediaUrl(s.image_url) && (
                           <div className="relative cursor-pointer" onClick={() => handleOpenStory(s.id)}>
@@ -1018,27 +1018,27 @@ export default function Stories() {
                         <div className="p-4 cursor-pointer" onClick={() => handleOpenStory(s.id)}>
                           <div className="flex items-center gap-2.5 mb-2.5">
                             <img src={avatar(s.author_name, s.author_avatar)} alt="" className="h-8 w-8 rounded-full" />
-                            <span className="text-[13px] font-bold text-white">{s.author_name}</span>
-                            <span className="text-[10px] text-gray-600 mr-auto">{timeAgo(s.created_at)}</span>
+                            <span className="text-[13px] font-bold text-foreground">{s.author_name}</span>
+                            <span className="text-[10px] text-muted-foreground mr-auto">{timeAgo(s.created_at)}</span>
                           </div>
-                          {s.title && <h3 className="text-[15px] font-bold text-white mb-1.5 line-clamp-2">{s.title}</h3>}
-                          <p className="text-[13px] text-gray-400 leading-relaxed line-clamp-3">{s.content}</p>
+                          {s.title && <h3 className="text-[15px] font-bold text-foreground mb-1.5 line-clamp-2">{s.title}</h3>}
+                          <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3">{s.content}</p>
                         </div>
-                        <div className="flex items-center justify-between px-4 pb-3 border-t border-white/5 mx-4 pt-2.5">
+                        <div className="flex items-center justify-between px-4 pb-3 border-t border-border/20 mx-4 pt-2.5">
                           <div className="flex items-center gap-5">
                             <button onClick={() => toggleLike(s.id)} className="flex items-center gap-1.5 text-xs active:scale-90">
-                              <Heart className={cn("h-[18px] w-[18px]", s.liked ? "text-red-500 fill-red-500" : "text-gray-600")} />
-                              <span className={cn("font-bold", s.liked ? "text-red-500" : "text-gray-600")}>{s.likes_count || 0}</span>
+                              <Heart className={cn("h-[18px] w-[18px]", s.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
+                              <span className={cn("font-bold", s.liked ? "text-red-500" : "text-muted-foreground")}>{s.likes_count || 0}</span>
                             </button>
                             <button onClick={() => setShowCommentsFor(s.id)} className="flex items-center gap-1.5 text-xs active:scale-90">
-                              <MessageCircle className="h-[18px] w-[18px] text-gray-600" />
-                              <span className="font-bold text-gray-600">{s.comments_count || 0}</span>
+                              <MessageCircle className="h-[18px] w-[18px] text-muted-foreground" />
+                              <span className="font-bold text-muted-foreground">{s.comments_count || 0}</span>
                             </button>
                             <button onClick={() => handleShare(s.id)} className="active:scale-90">
-                              <Share2 className="h-[18px] w-[18px] text-gray-600" />
+                              <Share2 className="h-[18px] w-[18px] text-muted-foreground" />
                             </button>
                             <button onClick={() => toggleSave(s.id)} className="active:scale-90">
-                              <Bookmark className={cn("h-[18px] w-[18px]", s.saved ? "text-emerald-500 fill-emerald-500" : "text-gray-600")} />
+                              <Bookmark className={cn("h-[18px] w-[18px]", s.saved ? "text-emerald-500 fill-emerald-500" : "text-muted-foreground")} />
                             </button>
                           </div>
                         </div>
@@ -1052,7 +1052,7 @@ export default function Stories() {
                   <div className="flex justify-center mt-6">
                     <button onClick={() => { const n = page + 1; setPage(n); loadStories(selectedCategory || undefined, n, true); }}
                       disabled={loadingMore}
-                      className="px-8 py-3 rounded-2xl bg-white/5 border border-white/5 text-emerald-400 text-sm font-bold active:scale-95 disabled:opacity-50">
+                      className="px-8 py-3 rounded-2xl bg-muted/30 border border-border/20 text-emerald-400 text-sm font-bold active:scale-95 disabled:opacity-50">
                       {loadingMore ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t('loadMore')}
                     </button>
                   </div>
@@ -1087,8 +1087,8 @@ function StoryReaderFetch({ storyId, onBack, stories }: { storyId: string; onBac
       .catch(() => setLoading(false));
   }, [storyId]);
 
-  if (loading) return <div className="min-h-screen bg-[#0a0e13] flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-emerald-500" /></div>;
-  if (!story) return <div className="min-h-screen bg-[#0a0e13] flex items-center justify-center text-gray-500">{t('contentNotFound')}</div>;
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-emerald-500" /></div>;
+  if (!story) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">{t('contentNotFound')}</div>;
 
   return (
     <>

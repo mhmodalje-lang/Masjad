@@ -142,7 +142,7 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 pb-20">
+    <div className="min-h-screen bg-background pb-20">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-gray-900 border-b border-gray-800">
         <div className="flex items-center justify-between px-4 py-3">
@@ -171,7 +171,7 @@ export default function CreatePost() {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                 contentType === ct.key
                   ? 'bg-emerald-600 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
               }`}
             >
               <ct.icon className="w-4 h-4" />
@@ -199,7 +199,7 @@ export default function CreatePost() {
           dir={dir}
           maxLength={5000}
         />
-        <div className="text-left text-gray-600 text-xs">{content.length}/5000</div>
+        <div className="text-left text-muted-foreground text-xs">{content.length}/5000</div>
 
         {/* Media Upload */}
         <div>
@@ -228,7 +228,7 @@ export default function CreatePost() {
           ) : (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-12 border-2 border-dashed border-gray-700 rounded-xl text-gray-500 hover:border-emerald-600 hover:text-emerald-500 transition-colors flex flex-col items-center gap-2"
+              className="w-full py-12 border-2 border-dashed border-border/50 rounded-xl text-muted-foreground hover:border-emerald-600 hover:text-emerald-500 transition-colors flex flex-col items-center gap-2"
             >
               <Image className="w-8 h-8" />
               <span className="text-sm">إضافة صورة أو فيديو</span>
@@ -247,7 +247,7 @@ export default function CreatePost() {
                 className={`px-3 py-1.5 rounded-full text-sm transition-all ${
                   category === cat.key
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
                 }`}
               >
                 {cat.emoji} {cat.labelKey ? t(cat.labelKey) : cat.label}
