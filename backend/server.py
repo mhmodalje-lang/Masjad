@@ -28,6 +28,15 @@ import re
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# Kids Learning Module
+from kids_learning import (
+    build_daily_lesson, get_quran_memorization_plan, get_all_duas,
+    get_all_hadiths, get_prophet_stories, get_islamic_pillars,
+    get_library_categories, get_library_items,
+    QURAN_SURAHS_FOR_KIDS, KIDS_DUAS, KIDS_HADITHS, PROPHET_STORIES, 
+    ISLAMIC_PILLARS, KIDS_LIBRARY_CATEGORIES, KIDS_LIBRARY_ITEMS,
+)
+
 # ==================== CONFIG ====================
 JWT_SECRET = os.environ.get('JWT_SECRET', 'almuadhin-global-secret-2026')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
@@ -6144,6 +6153,199 @@ async def complete_stage(payload: dict):
         "mosque": get_mosque_progress(bricks_val),
     }
 
+
+
+# ==================== KIDS LEARNING MODULE API ====================
+
+@api_router.get("/kids-learn/daily-lesson")
+async def get_daily_lesson(day: int = 0, locale: str = "ar"):
+    """Get comprehensive daily lesson. If day=0, use today's day of year."""
+    if day <= 0:
+        day = datetime.now().timetuple().tm_yday
+    lesson = build_daily_lesson(day, locale)
+    return {"success": True, "lesson": lesson}
+
+
+@api_router.get("/kids-learn/quran/surahs")
+async def get_quran_surahs_for_kids(locale: str = "ar"):
+    """Get all Quran surahs available for kids memorization."""
+    plan = get_quran_memorization_plan(locale)
+    return {"success": True, "surahs": plan, "total": len(plan)}
+
+
+@api_router.get("/kids-learn/quran/surah/{surah_id}")
+async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
+    """Get specific surah with ayahs for memorization."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    surah = next((s for s in QURAN_SURAHS_FOR_KIDS if s["id"] == surah_id), None)
+    if not surah:
+        raise HTTPException(status_code=404, detail="Surah not found")
+    return {
+        "success": True,
+        "surah": {
+            "id": surah["id"], "number": surah["number"],
+            "name_ar": surah["name_ar"], "name_en": surah["name_en"],
+            "difficulty": surah["difficulty"], "total_ayahs": surah["total_ayahs"],
+            "ayahs": [{"number": a["num"], "arabic": a["ar"], "translation": a.get(lang, a["en"])} for a in surah["ayahs"]],
+        }
+    }
+
+
+@api_router.get("/kids-learn/duas")
+async def get_kids_duas(category: str = "all", locale: str = "ar"):
+    """Get all kids duas, optionally filtered by category."""
+    all_duas = get_all_duas(locale)
+    if category != "all":
+        all_duas = [d for d in all_duas if d["category"] == category]
+    categories = list(set(d["category"] for d in KIDS_DUAS))
+    return {"success": True, "duas": all_duas, "total": len(all_duas), "categories": categories}
+
+
+@api_router.get("/kids-learn/hadiths")
+async def get_kids_hadiths(category: str = "all", locale: str = "ar"):
+    """Get all kids hadiths with simplified explanations."""
+    all_hadiths = get_all_hadiths(locale)
+    if category != "all":
+        all_hadiths = [h for h in all_hadiths if h["category"] == category]
+    categories = list(set(h["category"] for h in KIDS_HADITHS))
+    return {"success": True, "hadiths": all_hadiths, "total": len(all_hadiths), "categories": categories}
+
+
+@api_router.get("/kids-learn/prophets")
+async def get_kids_prophets(locale: str = "ar"):
+    """Get all prophet stories for kids."""
+    stories = get_prophet_stories(locale)
+    return {"success": True, "prophets": stories, "total": len(stories)}
+
+
+@api_router.get("/kids-learn/prophets/{prophet_id}")
+async def get_prophet_detail(prophet_id: str, locale: str = "ar"):
+    """Get specific prophet story detail."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    prophet = next((p for p in PROPHET_STORIES if p["id"] == prophet_id), None)
+    if not prophet:
+        raise HTTPException(status_code=404, detail="Prophet story not found")
+    return {
+        "success": True,
+        "prophet": {
+            "id": prophet["id"], "number": prophet["number"], "emoji": prophet["emoji"],
+            "name": prophet["name"].get(lang, prophet["name"]["en"]),
+            "title": prophet["title"].get(lang, prophet["title"]["en"]),
+            "summary": prophet["summary"].get(lang, prophet["summary"]["en"]),
+            "lesson": prophet["lesson"].get(lang, prophet["lesson"]["en"]),
+            "quran_ref": prophet["quran_ref"],
+        }
+    }
+
+
+@api_router.get("/kids-learn/islamic-pillars")
+async def get_kids_islamic_pillars(locale: str = "ar"):
+    """Get the 5 pillars of Islam for kids."""
+    pillars = get_islamic_pillars(locale)
+    return {"success": True, "pillars": pillars, "total": len(pillars)}
+
+
+@api_router.get("/kids-learn/library/categories")
+async def get_kids_library_categories(locale: str = "ar"):
+    """Get all kids library categories."""
+    cats = get_library_categories(locale)
+    return {"success": True, "categories": cats, "total": len(cats)}
+
+
+@api_router.get("/kids-learn/library/items")
+async def get_kids_library_items(category: str = "all", locale: str = "ar"):
+    """Get library items, optionally filtered by category."""
+    items = get_library_items(category, locale)
+    return {"success": True, "items": items, "total": len(items)}
+
+
+@api_router.post("/kids-learn/progress")
+async def save_kids_learn_progress(payload: dict):
+    """Save kids learning progress."""
+    user_id = payload.get("user_id", "guest")
+    day = payload.get("day", 0)
+    sections_completed = payload.get("sections_completed", [])
+    
+    # Update or create progress record
+    prog = await db.kids_learn_progress.find_one({"user_id": user_id})
+    if not prog:
+        prog = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "completed_days": [],
+            "total_lessons": 0,
+            "streak": 0,
+            "longest_streak": 0,
+            "memorized_surahs": [],
+            "memorized_ayahs": 0,
+            "learned_duas": [],
+            "learned_hadiths": [],
+            "xp": 0,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        await db.kids_learn_progress.insert_one(prog)
+    
+    completed_days = prog.get("completed_days", [])
+    if day not in completed_days:
+        completed_days.append(day)
+    
+    # Calculate streak
+    streak = prog.get("streak", 0) + 1
+    longest = max(streak, prog.get("longest_streak", 0))
+    
+    xp_earned = len(sections_completed) * 10
+    
+    update = {
+        "$set": {
+            "completed_days": completed_days,
+            "streak": streak,
+            "longest_streak": longest,
+        },
+        "$inc": {
+            "total_lessons": 1,
+            "xp": xp_earned,
+            "memorized_ayahs": 1 if "quran" in sections_completed else 0,
+        }
+    }
+    
+    # Track learned duas and hadiths
+    if "dua" in sections_completed:
+        dua_id = payload.get("dua_id", "")
+        if dua_id:
+            update.setdefault("$addToSet", {})["learned_duas"] = dua_id
+    if "hadith" in sections_completed:
+        hadith_id = payload.get("hadith_id", "")
+        if hadith_id:
+            update.setdefault("$addToSet", {})["learned_hadiths"] = hadith_id
+    
+    await db.kids_learn_progress.update_one({"user_id": user_id}, update)
+    
+    return {
+        "success": True,
+        "xp_earned": xp_earned,
+        "total_days": len(completed_days),
+        "streak": streak,
+    }
+
+
+@api_router.get("/kids-learn/progress")
+async def get_kids_learn_progress(user_id: str = "guest"):
+    """Get kids learning progress."""
+    prog = await db.kids_learn_progress.find_one({"user_id": user_id}, {"_id": 0})
+    if not prog:
+        prog = {
+            "user_id": user_id,
+            "completed_days": [],
+            "total_lessons": 0,
+            "streak": 0,
+            "longest_streak": 0,
+            "memorized_surahs": [],
+            "memorized_ayahs": 0,
+            "learned_duas": [],
+            "learned_hadiths": [],
+            "xp": 0,
+        }
+    return {"success": True, "progress": prog}
 
 
 # ==================== APP SETUP ====================
