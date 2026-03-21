@@ -20,7 +20,7 @@ EXPECTED_POSITIONS = {
 
 # Required fields for each salah step
 REQUIRED_FIELDS = {
-    'step', 'position', 'title', 'description', 
+    'step', 'position', 'image_url', 'title', 'description', 
     'dhikr_ar', 'dhikr_transliteration', 'body_position'
 }
 
@@ -96,10 +96,18 @@ class SalahAPITester:
                 errors.append(f"Missing required field: {field}")
         
         # Check non-dhikr fields are not empty
-        non_dhikr_fields = ['step', 'position', 'title', 'description', 'body_position']
+        non_dhikr_fields = ['step', 'position', 'image_url', 'title', 'description', 'body_position']
         for field in non_dhikr_fields:
             if field in step and (not step[field] or step[field] == ""):
                 errors.append(f"Empty value for field: {field}")
+        
+        # Validate image_url format
+        if 'image_url' in step:
+            image_url = step['image_url']
+            if not image_url.startswith("/assets/kids_zone/prayer_v2/"):
+                errors.append(f"image_url should start with '/assets/kids_zone/prayer_v2/', got: {image_url}")
+            if not image_url.endswith(".webp"):
+                errors.append(f"image_url should end with '.webp', got: {image_url}")
         
         # dhikr_ar and dhikr_transliteration can be empty for step 1 (intention)
         if step_number != 1:  # Not the intention step
@@ -121,7 +129,7 @@ class SalahAPITester:
                 errors.append(f"Invalid position '{step['position']}', expected one of: {EXPECTED_POSITIONS}")
         
         # Validate string fields
-        string_fields = ['title', 'description', 'dhikr_ar', 'dhikr_transliteration', 'body_position']
+        string_fields = ['image_url', 'title', 'description', 'dhikr_ar', 'dhikr_transliteration', 'body_position']
         for field in string_fields:
             if field in step and not isinstance(step[field], str):
                 errors.append(f"Field '{field}' should be string, got {type(step[field])}")
@@ -209,10 +217,15 @@ class SalahAPITester:
         
         # Validate each step
         all_errors = []
+        image_urls = []
         for i, step in enumerate(steps, 1):
             step_errors = self.validate_salah_step(step, i)
             if step_errors:
                 all_errors.extend([f"Step {i}: {error}" for error in step_errors])
+            
+            # Collect image URLs for testing
+            if 'image_url' in step:
+                image_urls.append(step['image_url'])
         
         if all_errors:
             self.log_result(
@@ -236,7 +249,7 @@ class SalahAPITester:
         
         # Extract sample data for verification
         sample_step = steps[0]
-        sample_details = f"11 steps returned, sample step 1: position='{sample_step.get('position')}', title='{sample_step.get('title', '')[:30]}...'"
+        sample_details = f"11 steps returned, sample step 1: position='{sample_step.get('position')}', title='{sample_step.get('title', '')[:30]}...', image_url='{sample_step.get('image_url')}'"
         
         self.log_result(
             f"GET {endpoint}",
@@ -244,6 +257,11 @@ class SalahAPITester:
             sample_details,
             result['response_time']
         )
+        
+        # Test image accessibility for this locale
+        if image_urls:
+            print(f"\nTesting image accessibility for {locale} locale...")
+            self.test_image_accessibility(image_urls)
 
     def validate_locale_content(self, steps: List[Dict], locale: str) -> List[str]:
         """Validate locale-specific content"""
@@ -286,10 +304,78 @@ class SalahAPITester:
         
         return errors
 
+    def test_image_accessibility(self, image_urls: List[str]):
+        """Test image file accessibility"""
+        tested_count = 0
+        max_tests = 3  # Test at least 3 images as requested
+        
+        for image_url in image_urls:
+            if tested_count >= max_tests:
+                break
+                
+            # Test image accessibility
+            full_url = f"{BACKEND_URL}{image_url}"
+            start_time = time.time()
+            
+            try:
+                response = requests.get(full_url, timeout=10)
+                response_time = time.time() - start_time
+                
+                if response.status_code != 200:
+                    self.log_result(
+                        f"GET {image_url}",
+                        "❌ FAILED",
+                        f"HTTP {response.status_code} - Image not accessible",
+                        response_time
+                    )
+                    tested_count += 1
+                    continue
+                
+                # Check content-type header
+                content_type = response.headers.get('content-type', '').lower()
+                if not content_type.startswith('image/'):
+                    self.log_result(
+                        f"GET {image_url}",
+                        "❌ FAILED",
+                        f"Invalid content-type: {content_type}, expected image/*",
+                        response_time
+                    )
+                    tested_count += 1
+                    continue
+                
+                # Check if response has content
+                if len(response.content) == 0:
+                    self.log_result(
+                        f"GET {image_url}",
+                        "❌ FAILED",
+                        "Empty image content",
+                        response_time
+                    )
+                    tested_count += 1
+                    continue
+                
+                self.log_result(
+                    f"GET {image_url}",
+                    "✅ PASSED",
+                    f"Image accessible, content-type: {content_type}, size: {len(response.content)} bytes",
+                    response_time
+                )
+                tested_count += 1
+                
+            except requests.exceptions.RequestException as e:
+                response_time = time.time() - start_time
+                self.log_result(
+                    f"GET {image_url}",
+                    "❌ FAILED",
+                    f"Request failed: {str(e)}",
+                    response_time
+                )
+                tested_count += 1
+
     def run_all_tests(self):
         """Run all Salah API tests"""
         print("=" * 60)
-        print("SALAH TEACHING API ENDPOINTS TESTING")
+        print("SALAH TEACHING API WITH IMAGE URLS TESTING")
         print("=" * 60)
         print(f"Backend URL: {BACKEND_URL}")
         print()
@@ -302,6 +388,10 @@ class SalahAPITester:
         
         # Test English salah endpoint
         self.test_salah_endpoint('en')
+        
+        # Test specific image mentioned in review request
+        print("\nTesting specific image from review request...")
+        self.test_image_accessibility(["/assets/kids_zone/prayer_v2/prayer_step_1.webp"])
         
         # Print summary
         print("=" * 60)

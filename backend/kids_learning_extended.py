@@ -321,13 +321,29 @@ WUDU_STEPS = [
 # SALAH (PRAYER) STEPS FOR KIDS
 # ═══════════════════════════════════════════════════════════════
 # Source: Based on authentic Islamic jurisprudence (fiqh) references
-# Images: Inline SVG illustrations matching correct prayer positions
+# Images: 4K 3D renders generated with OpenAI gpt-image-1 (Pixar/UE5 style)
 # ═══════════════════════════════════════════════════════════════
+
+# Image path mapping (10 generated images mapped to 11 steps)
+SALAH_IMAGE_MAP = {
+    "qiyam_niyyah": "/assets/kids_zone/prayer_v2/prayer_step_1.webp",
+    "takbir": "/assets/kids_zone/prayer_v2/prayer_step_2.webp",
+    "qiyam_qiraa": "/assets/kids_zone/prayer_v2/prayer_step_3.webp",
+    "qiyam_fatiha": "/assets/kids_zone/prayer_v2/prayer_step_3.webp",   # Same standing position
+    "ruku": "/assets/kids_zone/prayer_v2/prayer_step_4.webp",
+    "itidal": "/assets/kids_zone/prayer_v2/prayer_step_5.webp",
+    "sujud_1": "/assets/kids_zone/prayer_v2/prayer_step_6.webp",
+    "juloos": "/assets/kids_zone/prayer_v2/prayer_step_7.webp",
+    "sujud_2": "/assets/kids_zone/prayer_v2/prayer_step_8.webp",
+    "tashahhud": "/assets/kids_zone/prayer_v2/prayer_step_9.webp",
+    "tasleem": "/assets/kids_zone/prayer_v2/prayer_step_10.webp",
+}
 
 SALAH_STEPS = [
     {
         "step": 1,
         "position": "qiyam_niyyah",
+        "image_url": SALAH_IMAGE_MAP["qiyam_niyyah"],
         "ar": "النية والقيام",
         "en": "Intention & Standing (Niyyah & Qiyam)",
         "desc_ar": "قف مستقيماً باتجاه القبلة، واجعل بينك وبين موضع سجودك مسافة ذراع. انوِ في قلبك الصلاة التي تريد أداءها (مثلاً: نويت أن أصلي فرض الظهر أربع ركعات لله تعالى). النية محلها القلب ولا يُشترط التلفظ بها.",
@@ -340,6 +356,7 @@ SALAH_STEPS = [
     {
         "step": 2,
         "position": "takbir",
+        "image_url": SALAH_IMAGE_MAP["takbir"],
         "ar": "تكبيرة الإحرام",
         "en": "Opening Takbir (Takbiratul Ihram)",
         "desc_ar": "ارفع يديك حذو أذنيك (أو حذو منكبيك) مع فرد الأصابع وتوجيه الكفين نحو القبلة، وقل: «اللّهُ أَكْبَر». هذه التكبيرة تبدأ بها الصلاة ويَحرُم بعدها الكلام والحركة.",
@@ -352,6 +369,7 @@ SALAH_STEPS = [
     {
         "step": 3,
         "position": "qiyam_qiraa",
+        "image_url": SALAH_IMAGE_MAP["qiyam_qiraa"],
         "ar": "وضع اليدين وقراءة دعاء الاستفتاح",
         "en": "Hands on Chest & Opening Supplication",
         "desc_ar": "ضع يدك اليمنى فوق اليسرى على صدرك. ثم اقرأ دعاء الاستفتاح: «سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ». ثم قل: «أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ» و«بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ».",
@@ -364,6 +382,7 @@ SALAH_STEPS = [
     {
         "step": 4,
         "position": "qiyam_fatiha",
+        "image_url": SALAH_IMAGE_MAP["qiyam_fatiha"],
         "ar": "قراءة سورة الفاتحة",
         "en": "Reciting Surah Al-Fatiha",
         "desc_ar": "اقرأ سورة الفاتحة كاملة وهي ركن من أركان الصلاة: «الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ❊ الرَّحْمَنِ الرَّحِيمِ ❊ مَالِكِ يَوْمِ الدِّينِ ❊ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ❊ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ❊ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ». ثم قل: «آمين». ثم اقرأ ما تيسر من القرآن (سورة قصيرة).",
@@ -376,6 +395,7 @@ SALAH_STEPS = [
     {
         "step": 5,
         "position": "ruku",
+        "image_url": SALAH_IMAGE_MAP["ruku"],
         "ar": "الركوع",
         "en": "Bowing (Ruku')",
         "desc_ar": "كبّر «اللّهُ أَكْبَر» وانحنِ حتى يستوي ظهرك مع رأسك (كأنه طاولة مستوية). ضع كفيك على ركبتيك مع تفريق الأصابع. قل: «سُبْحَانَ رَبِّيَ الْعَظِيم» ثلاث مرات على الأقل.",
@@ -388,6 +408,7 @@ SALAH_STEPS = [
     {
         "step": 6,
         "position": "itidal",
+        "image_url": SALAH_IMAGE_MAP["itidal"],
         "ar": "الاعتدال من الركوع",
         "en": "Rising from Bowing (I'tidal)",
         "desc_ar": "ارفع من الركوع قائلاً: «سَمِعَ اللّهُ لِمَنْ حَمِدَه». ثم قف مستقيماً تماماً وقل: «رَبَّنَا وَلَكَ الْحَمْد، حَمْداً كَثِيراً طَيِّباً مُبَارَكاً فِيه».",
@@ -400,6 +421,7 @@ SALAH_STEPS = [
     {
         "step": 7,
         "position": "sujud_1",
+        "image_url": SALAH_IMAGE_MAP["sujud_1"],
         "ar": "السجدة الأولى",
         "en": "First Prostration (Sujud)",
         "desc_ar": "كبّر «اللّهُ أَكْبَر» وانزل للسجود. يجب أن تسجد على سبعة أعضاء: الجبهة مع الأنف، الكفين، الركبتين، وأطراف أصابع القدمين. ارفع ذراعيك عن الأرض ولا تفرشهما. قل: «سُبْحَانَ رَبِّيَ الأَعْلَى» ثلاث مرات على الأقل. السجود أقرب ما يكون العبد من ربه.",
@@ -412,6 +434,7 @@ SALAH_STEPS = [
     {
         "step": 8,
         "position": "juloos",
+        "image_url": SALAH_IMAGE_MAP["juloos"],
         "ar": "الجلسة بين السجدتين",
         "en": "Sitting Between Two Prostrations",
         "desc_ar": "كبّر «اللّهُ أَكْبَر» وارفع من السجود واجلس على رجلك اليسرى مفترشاً إياها، وانصب رجلك اليمنى. ضع يديك على فخذيك. قل: «رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي» (مرتين أو أكثر).",
@@ -424,6 +447,7 @@ SALAH_STEPS = [
     {
         "step": 9,
         "position": "sujud_2",
+        "image_url": SALAH_IMAGE_MAP["sujud_2"],
         "ar": "السجدة الثانية",
         "en": "Second Prostration (Sujud)",
         "desc_ar": "كبّر «اللّهُ أَكْبَر» واسجد مرة ثانية كالسجدة الأولى تماماً على الأعضاء السبعة. قل: «سُبْحَانَ رَبِّيَ الأَعْلَى» ثلاث مرات على الأقل. وبهذا تكتمل الركعة الأولى.",
@@ -436,6 +460,7 @@ SALAH_STEPS = [
     {
         "step": 10,
         "position": "tashahhud",
+        "image_url": SALAH_IMAGE_MAP["tashahhud"],
         "ar": "التشهد (التحيات)",
         "en": "Tashahhud (Testimony of Faith)",
         "desc_ar": "بعد السجدة الثانية من الركعة الأخيرة، اجلس للتشهد. اجلس مفترشاً (في التشهد الأول) أو متوركاً (في التشهد الأخير). ضع يديك على فخذيك وأشر بسبابة يدك اليمنى عند قول «لا إله إلا الله». اقرأ التحيات: «التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ». ثم الصلاة الإبراهيمية.",
@@ -448,6 +473,7 @@ SALAH_STEPS = [
     {
         "step": 11,
         "position": "tasleem",
+        "image_url": SALAH_IMAGE_MAP["tasleem"],
         "ar": "التسليم",
         "en": "Ending the Prayer (Tasleem)",
         "desc_ar": "التفت برأسك إلى اليمين وقل: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّه»، ثم التفت إلى اليسار وقل: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّه». وبهذا تنتهي الصلاة. بارك الله فيك!",
@@ -690,6 +716,7 @@ def get_salah_steps(locale="ar"):
         step_data = {
             "step": s["step"],
             "position": s.get("position", ""),
+            "image_url": s.get("image_url", ""),
             "title": s[lang],
             "description": s[f"desc_{lang}"],
             "dhikr_ar": s.get("dhikr_ar", ""),
