@@ -63,8 +63,146 @@ CURRICULUM_STAGES = [
 ]
 
 # ═══════════════════════════════════════════════════════════════
-# CONTENT DATA POOLS
+# CONTENT DATA POOLS - FULL 9-LANGUAGE SUPPORT
 # ═══════════════════════════════════════════════════════════════
+
+# Multi-language word translations for letter examples
+# Format: {"ar": ..., "en": ..., "de": ..., "fr": ..., "tr": ..., "ru": ..., "sv": ..., "nl": ..., "el": ...}
+WORD_TRANSLATIONS = {
+    "Lion":{"de":"Löwe","fr":"Lion","tr":"Aslan","ru":"Лев","sv":"Lejon","nl":"Leeuw","el":"Λιοντάρι"},
+    "Duck":{"de":"Ente","fr":"Canard","tr":"Ördek","ru":"Утка","sv":"Anka","nl":"Eend","el":"Πάπια"},
+    "Apple":{"de":"Apfel","fr":"Pomme","tr":"Elma","ru":"Яблоко","sv":"Äpple","nl":"Appel","el":"Μήλο"},
+    "Fox":{"de":"Fuchs","fr":"Renard","tr":"Tilki","ru":"Лиса","sv":"Räv","nl":"Vos","el":"Αλεπού"},
+    "Camel":{"de":"Kamel","fr":"Chameau","tr":"Deve","ru":"Верблюд","sv":"Kamel","nl":"Kameel","el":"Καμήλα"},
+    "Horse":{"de":"Pferd","fr":"Cheval","tr":"At","ru":"Лошадь","sv":"Häst","nl":"Paard","el":"Άλογο"},
+    "Sheep":{"de":"Schaf","fr":"Mouton","tr":"Koyun","ru":"Овца","sv":"Får","nl":"Schaap","el":"Πρόβατο"},
+    "Chicken":{"de":"Huhn","fr":"Poulet","tr":"Tavuk","ru":"Курица","sv":"Kyckling","nl":"Kip","el":"Κοτόπουλο"},
+    "Corn":{"de":"Mais","fr":"Maïs","tr":"Mısır","ru":"Кукуруза","sv":"Majs","nl":"Maïs","el":"Καλαμπόκι"},
+    "Pomegranate":{"de":"Granatapfel","fr":"Grenade","tr":"Nar","ru":"Гранат","sv":"Granatäpple","nl":"Granaatappel","el":"Ρόδι"},
+    "Giraffe":{"de":"Giraffe","fr":"Girafe","tr":"Zürafa","ru":"Жираф","sv":"Giraff","nl":"Giraf","el":"Καμηλοπάρδαλη"},
+    "Fish":{"de":"Fisch","fr":"Poisson","tr":"Balık","ru":"Рыба","sv":"Fisk","nl":"Vis","el":"Ψάρι"},
+    "Sun":{"de":"Sonne","fr":"Soleil","tr":"Güneş","ru":"Солнце","sv":"Sol","nl":"Zon","el":"Ήλιος"},
+    "Falcon":{"de":"Falke","fr":"Faucon","tr":"Şahin","ru":"Сокол","sv":"Falk","nl":"Valk","el":"Γεράκι"},
+    "Frog":{"de":"Frosch","fr":"Grenouille","tr":"Kurbağa","ru":"Лягушка","sv":"Groda","nl":"Kikker","el":"Βάτραχος"},
+    "Bird":{"de":"Vogel","fr":"Oiseau","tr":"Kuş","ru":"Птица","sv":"Fågel","nl":"Vogel","el":"Πουλί"},
+    "Envelope":{"de":"Umschlag","fr":"Enveloppe","tr":"Zarf","ru":"Конверт","sv":"Kuvert","nl":"Envelop","el":"Φάκελος"},
+    "Grapes":{"de":"Trauben","fr":"Raisins","tr":"Üzüm","ru":"Виноград","sv":"Druvor","nl":"Druiven","el":"Σταφύλια"},
+    "Gazelle":{"de":"Gazelle","fr":"Gazelle","tr":"Ceylan","ru":"Газель","sv":"Gasell","nl":"Gazelle","el":"Γαζέλα"},
+    "Butterfly":{"de":"Schmetterling","fr":"Papillon","tr":"Kelebek","ru":"Бабочка","sv":"Fjäril","nl":"Vlinder","el":"Πεταλούδα"},
+    "Moon":{"de":"Mond","fr":"Lune","tr":"Ay","ru":"Луна","sv":"Måne","nl":"Maan","el":"Φεγγάρι"},
+    "Book":{"de":"Buch","fr":"Livre","tr":"Kitap","ru":"Книга","sv":"Bok","nl":"Boek","el":"Βιβλίο"},
+    "Lemon":{"de":"Zitrone","fr":"Citron","tr":"Limon","ru":"Лимон","sv":"Citron","nl":"Citroen","el":"Λεμόνι"},
+    "Mosque":{"de":"Moschee","fr":"Mosquée","tr":"Cami","ru":"Мечеть","sv":"Moské","nl":"Moskee","el":"Τζαμί"},
+    "Star":{"de":"Stern","fr":"Étoile","tr":"Yıldız","ru":"Звезда","sv":"Stjärna","nl":"Ster","el":"Αστέρι"},
+    "Crescent":{"de":"Halbmond","fr":"Croissant","tr":"Hilal","ru":"Полумесяц","sv":"Halvmåne","nl":"Halve maan","el":"Ημισέληνος"},
+    "Rose":{"de":"Rose","fr":"Rose","tr":"Gül","ru":"Роза","sv":"Ros","nl":"Roos","el":"Τριαντάφυλλο"},
+    "Hand":{"de":"Hand","fr":"Main","tr":"El","ru":"Рука","sv":"Hand","nl":"Hand","el":"Χέρι"},
+    # HARAKAT meanings
+    "door":{"de":"Tür","fr":"porte","tr":"kapı","ru":"дверь","sv":"dörr","nl":"deur","el":"πόρτα"},
+    "girl":{"de":"Mädchen","fr":"fille","tr":"kız","ru":"девочка","sv":"flicka","nl":"meisje","el":"κορίτσι"},
+    "orange":{"de":"Orange","fr":"orange","tr":"portakal","ru":"апельсин","sv":"apelsin","nl":"sinaasappel","el":"πορτοκάλι"},
+    "patience":{"de":"Geduld","fr":"patience","tr":"sabır","ru":"терпение","sv":"tålamod","nl":"geduld","el":"υπομονή"},
+    "Lord":{"de":"Herr","fr":"Seigneur","tr":"Rab","ru":"Господь","sv":"Herre","nl":"Heer","el":"Κύριος"},
+    "a book":{"de":"ein Buch","fr":"un livre","tr":"bir kitap","ru":"книга","sv":"en bok","nl":"een boek","el":"ένα βιβλίο"},
+    # Vocab: Colors
+    "Red":{"de":"Rot","fr":"Rouge","tr":"Kırmızı","ru":"Красный","sv":"Röd","nl":"Rood","el":"Κόκκινο"},
+    "Blue":{"de":"Blau","fr":"Bleu","tr":"Mavi","ru":"Синий","sv":"Blå","nl":"Blauw","el":"Μπλε"},
+    "Green":{"de":"Grün","fr":"Vert","tr":"Yeşil","ru":"Зелёный","sv":"Grön","nl":"Groen","el":"Πράσινο"},
+    "Yellow":{"de":"Gelb","fr":"Jaune","tr":"Sarı","ru":"Жёлтый","sv":"Gul","nl":"Geel","el":"Κίτρινο"},
+    "Orange":{"de":"Orange","fr":"Orange","tr":"Turuncu","ru":"Оранжевый","sv":"Orange","nl":"Oranje","el":"Πορτοκαλί"},
+    "Purple":{"de":"Lila","fr":"Violet","tr":"Mor","ru":"Фиолетовый","sv":"Lila","nl":"Paars","el":"Μωβ"},
+    "White":{"de":"Weiß","fr":"Blanc","tr":"Beyaz","ru":"Белый","sv":"Vit","nl":"Wit","el":"Λευκό"},
+    "Black":{"de":"Schwarz","fr":"Noir","tr":"Siyah","ru":"Чёрный","sv":"Svart","nl":"Zwart","el":"Μαύρο"},
+    "Pink":{"de":"Rosa","fr":"Rose","tr":"Pembe","ru":"Розовый","sv":"Rosa","nl":"Roze","el":"Ροζ"},
+    "Brown":{"de":"Braun","fr":"Marron","tr":"Kahverengi","ru":"Коричневый","sv":"Brun","nl":"Bruin","el":"Καφέ"},
+    # Vocab: Animals
+    "Cat":{"de":"Katze","fr":"Chat","tr":"Kedi","ru":"Кошка","sv":"Katt","nl":"Kat","el":"Γάτα"},
+    "Dog":{"de":"Hund","fr":"Chien","tr":"Köpek","ru":"Собака","sv":"Hund","nl":"Hond","el":"Σκύλος"},
+    "Elephant":{"de":"Elefant","fr":"Éléphant","tr":"Fil","ru":"Слон","sv":"Elefant","nl":"Olifant","el":"Ελέφαντας"},
+    "Bee":{"de":"Biene","fr":"Abeille","tr":"Arı","ru":"Пчела","sv":"Bi","nl":"Bij","el":"Μέλισσα"},
+    "Ant":{"de":"Ameise","fr":"Fourmi","tr":"Karınca","ru":"Муравей","sv":"Myra","nl":"Mier","el":"Μυρμήγκι"},
+    "Rabbit":{"de":"Hase","fr":"Lapin","tr":"Tavşan","ru":"Кролик","sv":"Kanin","nl":"Konijn","el":"Κουνέλι"},
+    "Cow":{"de":"Kuh","fr":"Vache","tr":"İnek","ru":"Корова","sv":"Ko","nl":"Koe","el":"Αγελάδα"},
+    # Vocab: Family
+    "Father":{"de":"Vater","fr":"Père","tr":"Baba","ru":"Отец","sv":"Pappa","nl":"Vader","el":"Πατέρας"},
+    "Mother":{"de":"Mutter","fr":"Mère","tr":"Anne","ru":"Мать","sv":"Mamma","nl":"Moeder","el":"Μητέρα"},
+    "Brother":{"de":"Bruder","fr":"Frère","tr":"Erkek kardeş","ru":"Брат","sv":"Bror","nl":"Broer","el":"Αδελφός"},
+    "Sister":{"de":"Schwester","fr":"Sœur","tr":"Kız kardeş","ru":"Сестра","sv":"Syster","nl":"Zus","el":"Αδελφή"},
+    "Grandfather":{"de":"Großvater","fr":"Grand-père","tr":"Büyükbaba","ru":"Дедушка","sv":"Farfar","nl":"Opa","el":"Παππούς"},
+    "Grandmother":{"de":"Großmutter","fr":"Grand-mère","tr":"Büyükanne","ru":"Бабушка","sv":"Farmor","nl":"Oma","el":"Γιαγιά"},
+    "Uncle":{"de":"Onkel","fr":"Oncle","tr":"Amca","ru":"Дядя","sv":"Farbror","nl":"Oom","el":"Θείος"},
+    "Aunt":{"de":"Tante","fr":"Tante","tr":"Teyze","ru":"Тётя","sv":"Faster","nl":"Tante","el":"Θεία"},
+    "Son":{"de":"Sohn","fr":"Fils","tr":"Oğul","ru":"Сын","sv":"Son","nl":"Zoon","el":"Γιος"},
+    "Daughter":{"de":"Tochter","fr":"Fille","tr":"Kız","ru":"Дочь","sv":"Dotter","nl":"Dochter","el":"Κόρη"},
+    # Body, Food, Home, Nature, School, Greetings
+    "Head":{"de":"Kopf","fr":"Tête","tr":"Baş","ru":"Голова","sv":"Huvud","nl":"Hoofd","el":"Κεφάλι"},
+    "Eye":{"de":"Auge","fr":"Œil","tr":"Göz","ru":"Глаз","sv":"Öga","nl":"Oog","el":"Μάτι"},
+    "Nose":{"de":"Nase","fr":"Nez","tr":"Burun","ru":"Нос","sv":"Näsa","nl":"Neus","el":"Μύτη"},
+    "Mouth":{"de":"Mund","fr":"Bouche","tr":"Ağız","ru":"Рот","sv":"Mun","nl":"Mond","el":"Στόμα"},
+    "Ear":{"de":"Ohr","fr":"Oreille","tr":"Kulak","ru":"Ухо","sv":"Öra","nl":"Oor","el":"Αυτί"},
+    "Foot":{"de":"Fuß","fr":"Pied","tr":"Ayak","ru":"Нога","sv":"Fot","nl":"Voet","el":"Πόδι"},
+    "Heart":{"de":"Herz","fr":"Cœur","tr":"Kalp","ru":"Сердце","sv":"Hjärta","nl":"Hart","el":"Καρδιά"},
+    "Hair":{"de":"Haar","fr":"Cheveux","tr":"Saç","ru":"Волосы","sv":"Hår","nl":"Haar","el":"Μαλλιά"},
+    "Finger":{"de":"Finger","fr":"Doigt","tr":"Parmak","ru":"Палец","sv":"Finger","nl":"Vinger","el":"Δάχτυλο"},
+    "Banana":{"de":"Banane","fr":"Banane","tr":"Muz","ru":"Банан","sv":"Banan","nl":"Banaan","el":"Μπανάνα"},
+    "Bread":{"de":"Brot","fr":"Pain","tr":"Ekmek","ru":"Хлеб","sv":"Bröd","nl":"Brood","el":"Ψωμί"},
+    "Milk":{"de":"Milch","fr":"Lait","tr":"Süt","ru":"Молоко","sv":"Mjölk","nl":"Melk","el":"Γάλα"},
+    "Water":{"de":"Wasser","fr":"Eau","tr":"Su","ru":"Вода","sv":"Vatten","nl":"Water","el":"Νερό"},
+    "Rice":{"de":"Reis","fr":"Riz","tr":"Pirinç","ru":"Рис","sv":"Ris","nl":"Rijst","el":"Ρύζι"},
+    "Egg":{"de":"Ei","fr":"Œuf","tr":"Yumurta","ru":"Яйцо","sv":"Ägg","nl":"Ei","el":"Αυγό"},
+    "Date":{"de":"Dattel","fr":"Datte","tr":"Hurma","ru":"Финик","sv":"Dadel","nl":"Dadel","el":"Χουρμάς"},
+    "Honey":{"de":"Honig","fr":"Miel","tr":"Bal","ru":"Мёд","sv":"Honung","nl":"Honing","el":"Μέλι"},
+    "House":{"de":"Haus","fr":"Maison","tr":"Ev","ru":"Дом","sv":"Hus","nl":"Huis","el":"Σπίτι"},
+    "Door":{"de":"Tür","fr":"Porte","tr":"Kapı","ru":"Дверь","sv":"Dörr","nl":"Deur","el":"Πόρτα"},
+    "Window":{"de":"Fenster","fr":"Fenêtre","tr":"Pencere","ru":"Окно","sv":"Fönster","nl":"Raam","el":"Παράθυρο"},
+    "Chair":{"de":"Stuhl","fr":"Chaise","tr":"Sandalye","ru":"Стул","sv":"Stol","nl":"Stoel","el":"Καρέκλα"},
+    "Table":{"de":"Tisch","fr":"Table","tr":"Masa","ru":"Стол","sv":"Bord","nl":"Tafel","el":"Τραπέζι"},
+    "Bed":{"de":"Bett","fr":"Lit","tr":"Yatak","ru":"Кровать","sv":"Säng","nl":"Bed","el":"Κρεβάτι"},
+    "Kitchen":{"de":"Küche","fr":"Cuisine","tr":"Mutfak","ru":"Кухня","sv":"Kök","nl":"Keuken","el":"Κουζίνα"},
+    "Bathroom":{"de":"Badezimmer","fr":"Salle de bain","tr":"Banyo","ru":"Ванная","sv":"Badrum","nl":"Badkamer","el":"Μπάνιο"},
+    "Room":{"de":"Zimmer","fr":"Chambre","tr":"Oda","ru":"Комната","sv":"Rum","nl":"Kamer","el":"Δωμάτιο"},
+    "Garden":{"de":"Garten","fr":"Jardin","tr":"Bahçe","ru":"Сад","sv":"Trädgård","nl":"Tuin","el":"Κήπος"},
+    "Tree":{"de":"Baum","fr":"Arbre","tr":"Ağaç","ru":"Дерево","sv":"Träd","nl":"Boom","el":"Δέντρο"},
+    "Flower":{"de":"Blume","fr":"Fleur","tr":"Çiçek","ru":"Цветок","sv":"Blomma","nl":"Bloem","el":"Λουλούδι"},
+    "Sea":{"de":"Meer","fr":"Mer","tr":"Deniz","ru":"Море","sv":"Hav","nl":"Zee","el":"Θάλασσα"},
+    "Mountain":{"de":"Berg","fr":"Montagne","tr":"Dağ","ru":"Гора","sv":"Berg","nl":"Berg","el":"Βουνό"},
+    "River":{"de":"Fluss","fr":"Rivière","tr":"Nehir","ru":"Река","sv":"Flod","nl":"Rivier","el":"Ποτάμι"},
+    "Sky":{"de":"Himmel","fr":"Ciel","tr":"Gökyüzü","ru":"Небо","sv":"Himmel","nl":"Lucht","el":"Ουρανός"},
+    "Rain":{"de":"Regen","fr":"Pluie","tr":"Yağmur","ru":"Дождь","sv":"Regn","nl":"Regen","el":"Βροχή"},
+    "School":{"de":"Schule","fr":"École","tr":"Okul","ru":"Школа","sv":"Skola","nl":"School","el":"Σχολείο"},
+    "Pen":{"de":"Stift","fr":"Stylo","tr":"Kalem","ru":"Ручка","sv":"Penna","nl":"Pen","el":"Στυλό"},
+    "Teacher":{"de":"Lehrer","fr":"Professeur","tr":"Öğretmen","ru":"Учитель","sv":"Lärare","nl":"Leraar","el":"Δάσκαλος"},
+    "Student":{"de":"Schüler","fr":"Élève","tr":"Öğrenci","ru":"Ученик","sv":"Elev","nl":"Leerling","el":"Μαθητής"},
+    "Class":{"de":"Klasse","fr":"Classe","tr":"Sınıf","ru":"Класс","sv":"Klass","nl":"Klas","el":"Τάξη"},
+    "Homework":{"de":"Hausaufgabe","fr":"Devoir","tr":"Ödev","ru":"Домашнее задание","sv":"Läxa","nl":"Huiswerk","el":"Εργασία"},
+    "Exam":{"de":"Prüfung","fr":"Examen","tr":"Sınav","ru":"Экзамен","sv":"Prov","nl":"Examen","el":"Εξέταση"},
+    "Peace be upon you":{"de":"Friede sei mit dir","fr":"La paix soit sur vous","tr":"Selam olsun","ru":"Мир вам","sv":"Frid vare med dig","nl":"Vrede zij met u","el":"Ειρήνη σε εσένα"},
+    "And upon you peace":{"de":"Und Friede mit dir","fr":"Et sur vous la paix","tr":"Ve aleykümselam","ru":"И вам мир","sv":"Och med dig frid","nl":"En met u vrede","el":"Και σε εσένα ειρήνη"},
+    "Good morning":{"de":"Guten Morgen","fr":"Bonjour","tr":"Günaydın","ru":"Доброе утро","sv":"God morgon","nl":"Goedemorgen","el":"Καλημέρα"},
+    "Good evening":{"de":"Guten Abend","fr":"Bonsoir","tr":"İyi akşamlar","ru":"Добрый вечер","sv":"God kväll","nl":"Goedenavond","el":"Καλησπέρα"},
+    "Goodbye":{"de":"Auf Wiedersehen","fr":"Au revoir","tr":"Hoşça kal","ru":"До свидания","sv":"Hejdå","nl":"Tot ziens","el":"Αντίο"},
+    "Thank you":{"de":"Danke","fr":"Merci","tr":"Teşekkürler","ru":"Спасибо","sv":"Tack","nl":"Dank u","el":"Ευχαριστώ"},
+    "You're welcome":{"de":"Bitte","fr":"De rien","tr":"Rica ederim","ru":"Пожалуйста","sv":"Varsågod","nl":"Graag gedaan","el":"Παρακαλώ"},
+    "Please":{"de":"Bitte","fr":"S'il vous plaît","tr":"Lütfen","ru":"Пожалуйста","sv":"Snälla","nl":"Alstublieft","el":"Παρακαλώ"},
+    "Yes":{"de":"Ja","fr":"Oui","tr":"Evet","ru":"Да","sv":"Ja","nl":"Ja","el":"Ναι"},
+    "No":{"de":"Nein","fr":"Non","tr":"Hayır","ru":"Нет","sv":"Nej","nl":"Nee","el":"Όχι"},
+}
+
+def _tw(en_word: str, lang: str) -> str:
+    """Translate a word to the target language. Falls back: lang -> ar name -> en."""
+    if lang == "en":
+        return en_word
+    if lang == "ar":
+        return en_word  # Will use ar field directly
+    entry = WORD_TRANSLATIONS.get(en_word, {})
+    return entry.get(lang, entry.get(lang.split("-")[0], en_word))
+
+# "Letter" prefix translations
+LETTER_PREFIX = {"ar":"حرف","en":"Letter","de":"Buchstabe","fr":"Lettre","tr":"Harf","ru":"Буква","sv":"Bokstav","nl":"Letter","el":"Γράμμα","de-AT":"Buchstabe"}
+FORMS_PREFIX = {"ar":"أشكال","en":"Forms of","de":"Formen von","fr":"Formes de","tr":"Biçimleri:","ru":"Формы","sv":"Former av","nl":"Vormen van","el":"Μορφές","de-AT":"Formen von"}
+REVIEW_FORMS = {"ar":"مراجعة الأشكال","en":"Review Letter Forms","de":"Buchstabenformen wiederholen","fr":"Révision des formes","tr":"Harf Formlarını Tekrarla","ru":"Повторение форм букв","sv":"Repetera bokstavsformer","nl":"Lettervorm herhaling","el":"Επανάληψη μορφών","de-AT":"Buchstabenformen wiederholen"}
+WRITING_PRACTICE = {"ar":"تمرين كتابة وتوصيل","en":"Writing & Connection Practice","de":"Schreib- & Verbindungsübung","fr":"Exercice d'écriture","tr":"Yazma & Bağlantı Alıştırması","ru":"Практика письма и соединения","sv":"Skriv- & kopplingsövning","nl":"Schrijf- & verbindingsoefening","el":"Εξάσκηση γραφής","de-AT":"Schreib- & Verbindungsübung"}
+VOWELS_REVIEW = {"ar":"مراجعة الحركات","en":"Vowels Review","de":"Vokal-Wiederholung","fr":"Révision des voyelles","tr":"Sesli Harf Tekrarı","ru":"Повторение гласных","sv":"Vokal-repetition","nl":"Klinker herhaling","el":"Επανάληψη φωνηέντων","de-AT":"Vokal-Wiederholung"}
 
 LETTERS_28 = [
     {"letter":"أ","name_ar":"ألف","name_en":"Alif","sound":"/a/","word":"أسد","word_en":"Lion","emoji":"🦁","forms":["ـا","ا","أ"]},
@@ -268,11 +406,14 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         if lesson_in_stage < 28:
             # Day 1-28: One letter per day
             lt = LETTERS_28[lesson_in_stage]
-            lesson["title"] = {"ar": f"حرف {lt['name_ar']}", "en": f"Letter {lt['name_en']}"}
+            lp = LETTER_PREFIX.get(lang, LETTER_PREFIX["en"])
+            lt_name = lt["name_ar"] if lang == "ar" else lt["name_en"]
+            lesson["title"] = {lang: f"{lp} {lt_name}"}
+            word_translated = _tw(lt["word_en"], lang) if lang != "ar" else lt["word"]
             lesson["sections"] = [
                 {"type": "learn", "emoji": "📝", "title": t("meet_the_letter", lang),
-                 "content": {"letter": lt["letter"], "name_ar": lt["name_ar"], "name_en": lt["name_en"],
-                             "sound": lt["sound"], "example_word": lt["word"], "example_en": lt["word_en"],
+                 "content": {"letter": lt["letter"], "name_ar": lt["name_ar"], "name": lt_name,
+                             "sound": lt["sound"], "example_word": lt["word"], "example_translated": word_translated,
                              "example_emoji": lt["emoji"]}},
                 {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
                  "content": {"text": lt["letter"], "word": lt["word"], "tip": t("tip_tap_letter", lang)}},
@@ -289,29 +430,33 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
             if idx < 28:
                 lt = LETTERS_28[idx]
                 lt2 = LETTERS_28[min(idx+1, 27)]
-                lesson["title"] = {"ar": f"أشكال {lt['name_ar']} و{lt2['name_ar']}", "en": f"Forms of {lt['name_en']} & {lt2['name_en']}"}
+                fp = FORMS_PREFIX.get(lang, FORMS_PREFIX["en"])
+                n1 = lt["name_ar"] if lang == "ar" else lt["name_en"]
+                n2 = lt2["name_ar"] if lang == "ar" else lt2["name_en"]
+                lesson["title"] = {lang: f"{fp} {n1} & {n2}" if lang != "ar" else f"أشكال {n1} و{n2}"}
                 lesson["sections"] = [
                     {"type": "learn", "emoji": "📝", "title": t("learn", lang),
                      "content": {"letters": [
-                         {"letter": lt["letter"], "forms": lt["forms"], "name": lt["name_en"]},
-                         {"letter": lt2["letter"], "forms": lt2["forms"], "name": lt2["name_en"]},
+                         {"letter": lt["letter"], "forms": lt["forms"], "name": n1},
+                         {"letter": lt2["letter"], "forms": lt2["forms"], "name": n2},
                      ]}},
                     {"type": "practice", "emoji": "🎯", "title": t("test", lang),
                      "content": {"tip": t("learn", lang)}},
                 ]
             else:
-                lesson["title"] = {"ar": "مراجعة الأشكال", "en": "Review Letter Forms"}
+                lesson["title"] = {lang: REVIEW_FORMS.get(lang, REVIEW_FORMS["en"])}
                 lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("comprehensive_review", lang),
                      "content": {"tip": t("review", lang)}}]
         else:
             review_idx = (lesson_in_stage - 42) * 2
             lt = LETTERS_28[min(review_idx, 27)]
-            lesson["title"] = {"ar": f"تمرين كتابة وتوصيل", "en": f"Writing & Connection Practice"}
+            lesson["title"] = {lang: WRITING_PRACTICE.get(lang, WRITING_PRACTICE["en"])}
+            word_translated = _tw(lt["word_en"], lang) if lang != "ar" else lt["word"]
             lesson["sections"] = [
                 {"type": "connect", "emoji": "🔗", "title": t("learn", lang),
                  "content": {"tip": t("learn", lang)}},
                 {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
-                 "content": {"word": lt["word"], "word_en": lt["word_en"], "tip": t("tip_write_letter_5", lang)}},
+                 "content": {"word": lt["word"], "word_translated": word_translated, "tip": t("tip_write_letter_5", lang)}},
             ]
     
     # ═══ STAGE 2: VOWELS (Days 57-84) ═══
@@ -319,12 +464,14 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         h_idx = lesson_in_stage % len(HARAKAT)
         h = HARAKAT[h_idx]
         if lesson_in_stage < len(HARAKAT) * 3:
-            lesson["title"] = {"ar": h["name_ar"], "en": h["name_en"]}
+            h_name = h["name_ar"] if lang == "ar" else h["name_en"]
+            lesson["title"] = {lang: h_name}
+            meaning_translated = _tw(h["meaning"], lang) if lang != "ar" else h["meaning"]
             lesson["sections"] = [
                 {"type": "learn", "emoji": "🎵", "title": t("learn", lang),
-                 "content": {"name_ar": h["name_ar"], "name_en": h["name_en"], "symbol": h["symbol"],
+                 "content": {"name_ar": h["name_ar"], "name": h_name, "symbol": h["symbol"],
                              "sound": h["sound"], "example": h["example"],
-                             "example_word": h["example_word"], "meaning": h["meaning"]}},
+                             "example_word": h["example_word"], "meaning": meaning_translated}},
                 {"type": "practice", "emoji": "🎯", "title": t("test", lang),
                  "content": {"tip": t("listen_repeat", lang),
                              "items": [f"{lt['letter']}{h['symbol']}" for lt in LETTERS_28[:7]]}},
@@ -333,9 +480,9 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
                              "correct": h["sound"], "options": [h["sound"], HARAKAT[(h_idx+1)%len(HARAKAT)]["sound"], HARAKAT[(h_idx+2)%len(HARAKAT)]["sound"]]}},
             ]
         else:
-            lesson["title"] = {"ar": "مراجعة الحركات", "en": "Vowels Review"}
+            lesson["title"] = {lang: VOWELS_REVIEW.get(lang, VOWELS_REVIEW["en"])}
             lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("review", lang),
-                 "content": {"items": [{"name": h["name_en"], "symbol": h["symbol"], "sound": h["sound"]} for h in HARAKAT]}}]
+                 "content": {"items": [{"name": h["name_ar"] if lang == "ar" else h["name_en"], "symbol": h["symbol"], "sound": h["sound"]} for h in HARAKAT]}}]
     
     # ═══ STAGE 3: NUMBERS (Days 85-112) ═══
     elif stage_id == "S03":
