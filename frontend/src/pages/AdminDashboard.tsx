@@ -1129,10 +1129,10 @@ export default function AdminDashboard() {
         {tab==='ad-rules' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Shield className="h-5 w-5 text-amber-500"/>Ad Rules (God-Mode)</h2>
-              <Button onClick={saveAdRules} size="sm" className="rounded-xl bg-green-600 hover:bg-green-700 gap-1"><Check className="h-3 w-3"/>Save All Rules</Button>
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Shield className="h-5 w-5 text-amber-500"/>{t('adRulesGodMode')}</h2>
+              <Button onClick={saveAdRules} size="sm" className="rounded-xl bg-green-600 hover:bg-green-700 gap-1"><Check className="h-3 w-3"/>{t('saveAllRules')}</Button>
             </div>
-            <p className="text-xs text-muted-foreground">Toggle ads on/off per page. Add country ISO codes (e.g., DE, TR, SA, US) to enable/block.</p>
+            <p className="text-xs text-muted-foreground">{t('adRulesDesc')}</p>
             <div className="space-y-3">
               {adRules.map((rule: any, i: number) => (
                 <div key={rule.page} className={cn("rounded-2xl border p-4 space-y-3", rule.enabled ? "bg-card border-green-500/30" : "bg-muted/30 border-red-500/30")}>
@@ -1146,19 +1146,19 @@ export default function AdminDashboard() {
                   {rule.enabled && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div>
-                        <label className="text-muted-foreground block mb-1">Countries Enabled (empty=all)</label>
+                        <label className="text-muted-foreground block mb-1">{t('countriesEnabled')}</label>
                         <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="DE, US, SA, TR"
                           value={(rule.countries_enabled||[]).join(', ')}
                           onChange={e => toggleAdRule(rule.page, 'countries_enabled', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
                       </div>
                       <div>
-                        <label className="text-muted-foreground block mb-1">Countries Blocked</label>
+                        <label className="text-muted-foreground block mb-1">{t('countriesBlocked')}</label>
                         <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="CN, KP"
                           value={(rule.countries_blocked||[]).join(', ')}
                           onChange={e => toggleAdRule(rule.page, 'countries_blocked', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
                       </div>
                       <div className="col-span-2">
-                        <label className="text-muted-foreground block mb-1">Allowed Ad Types</label>
+                        <label className="text-muted-foreground block mb-1">{t('allowedAdTypes')}</label>
                         <div className="flex gap-2 flex-wrap">
                           {['banner','interstitial','rewarded','native','video'].map(at => (
                             <button key={at} onClick={() => {
@@ -1183,28 +1183,28 @@ export default function AdminDashboard() {
         {tab==='daily-content' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Sparkles className="h-5 w-5 text-amber-500"/>Daily Content</h2>
-              <Button onClick={() => { setDailyForm({ content_type:'hadith', title:{}, body:{}, source:{}, arabic_text:'', active:true, schedule_date:'', priority:0 }); setShowDailyForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3 w-3"/>Add Content</Button>
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Sparkles className="h-5 w-5 text-amber-500"/>{t('dailyContentTitle')}</h2>
+              <Button onClick={() => { setDailyForm({ content_type:'hadith', title:{}, body:{}, source:{}, arabic_text:'', active:true, schedule_date:'', priority:0 }); setShowDailyForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3 w-3"/>{t('addContent')}</Button>
             </div>
 
             {showDailyForm && (
               <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
                 <div className="flex gap-2 items-center">
                   <select className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={dailyForm.content_type} onChange={e => setDailyForm({...dailyForm, content_type: e.target.value})}>
-                    <option value="hadith">Hadith</option>
-                    <option value="story">Story</option>
-                    <option value="dua">Dua</option>
-                    <option value="tip">Tip</option>
-                    <option value="verse">Verse</option>
+                    <option value="hadith">{t('hadithType')}</option>
+                    <option value="story">{t('storyType')}</option>
+                    <option value="dua">{t('duaType')}</option>
+                    <option value="tip">{t('tipType')}</option>
+                    <option value="verse">{t('verseType')}</option>
                   </select>
                   <input type="date" className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder="Schedule Date" value={dailyForm.schedule_date} onChange={e => setDailyForm({...dailyForm, schedule_date: e.target.value})} />
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground">Active</span>
+                    <span className="text-xs text-muted-foreground">{t('activeLabel')}</span>
                     <Switch checked={dailyForm.active} onCheckedChange={v => setDailyForm({...dailyForm, active: v})} />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Arabic Text (Original)</label>
+                  <label className="text-xs text-muted-foreground mb-1 block">{t('arabicTextOriginal')}</label>
                   <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder="النص العربي الأصلي..." />
                 </div>
                 <div>
@@ -1235,7 +1235,7 @@ export default function AdminDashboard() {
             )}
 
             <div className="space-y-2">
-              {dailyContentItems.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No daily content yet. Add your first Hadith or Story!</p>}
+              {dailyContentItems.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('noContentYet')}</p>}
               {dailyContentItems.map((item: any) => (
                 <div key={item.id} className="rounded-2xl bg-card border border-border/30 p-3 space-y-1">
                   <div className="flex items-center justify-between">
@@ -1252,7 +1252,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <p className="text-xs text-foreground font-medium" dir="rtl">{item.arabic_text?.substring(0, 100) || item.title?.ar || item.title?.en || 'Untitled'}...</p>
-                  <p className="text-xs text-muted-foreground">Languages: {Object.keys(item.title || {}).filter(k => item.title[k]).join(', ') || 'None'}</p>
+                  <p className="text-xs text-muted-foreground">{t('languages')}: {Object.keys(item.title || {}).filter(k => item.title[k]).join(', ') || '-'}</p>
                 </div>
               ))}
             </div>
@@ -1262,14 +1262,14 @@ export default function AdminDashboard() {
         {/* ===== GOD-MODE: MULTILINGUAL PUSH NOTIFICATIONS ===== */}
         {tab==='multilingual-notif' && (
           <div className="space-y-4">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Send className="h-5 w-5 text-blue-500"/>Multilingual Push Notifications</h2>
-            <p className="text-xs text-muted-foreground">Compose notification in all 10 languages. Each user receives it in their saved locale automatically.</p>
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Send className="h-5 w-5 text-blue-500"/>{t('multilingualPushTitle')}</h2>
+            <p className="text-xs text-muted-foreground">{t('multilingualPushDesc')}</p>
 
             <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
               <div>
-                <label className="text-xs font-bold text-foreground block mb-1">Target</label>
+                <label className="text-xs font-bold text-foreground block mb-1">{t('target')}</label>
                 <select className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={mlNotifTarget} onChange={e => setMlNotifTarget(e.target.value)}>
-                  <option value="all">All Users</option>
+                  <option value="all">{t('allUsers')}</option>
                   {SUPPORTED_LOCALES.map(loc => <option key={loc} value={`locale:${loc}`}>Locale: {loc}</option>)}
                   {['DE','TR','SA','US','GB','FR','RU','SE','NL','GR','AT'].map(c => <option key={c} value={`country:${c}`}>Country: {c}</option>)}
                 </select>
@@ -1289,17 +1289,17 @@ export default function AdminDashboard() {
                 ))}
               </div>
 
-              <Button onClick={sendMlNotification} className="w-full rounded-xl gap-2 bg-blue-600 hover:bg-blue-700"><Send className="h-4 w-4"/>Send Multilingual Notification</Button>
+              <Button onClick={sendMlNotification} className="w-full rounded-xl gap-2 bg-blue-600 hover:bg-blue-700"><Send className="h-4 w-4"/>{t('sendMultiNotif')}</Button>
             </div>
 
             {mlNotifHistory.length > 0 && (
               <div className="space-y-2">
-                <h3 className="text-sm font-bold text-foreground">History</h3>
+                <h3 className="text-sm font-bold text-foreground">{t('historyLabel')}</h3>
                 {mlNotifHistory.map((n: any, i: number) => (
                   <div key={i} className="rounded-xl bg-card border border-border/30 p-3 text-xs space-y-1">
                     <div className="flex justify-between"><span className="font-bold text-foreground">{n.title?.ar || n.title?.en || 'Notification'}</span><span className="text-muted-foreground">{n.created_at?.substring(0,10)}</span></div>
-                    <p className="text-muted-foreground">Target: {n.target} | Sent: {n.total_sent}</p>
-                    <p className="text-muted-foreground">Locales: {JSON.stringify(n.locale_breakdown)}</p>
+                    <p className="text-muted-foreground">{t('target')}: {n.target} | {t('sentTo')} {n.total_sent}</p>
+                    <p className="text-muted-foreground">{t('localesLabel')} {JSON.stringify(n.locale_breakdown)}</p>
                   </div>
                 ))}
               </div>
