@@ -8,6 +8,7 @@ Progressive pedagogy: Letters → Words → Sentences → Reading → Quran → 
 """
 import random
 from typing import Optional
+from localization_engine import t, get_cat_name
 
 # ═══════════════════════════════════════════════════════════════
 # CURRICULUM STRUCTURE - 15 STAGES, 1000+ LESSONS
@@ -269,18 +270,18 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
             lt = LETTERS_28[lesson_in_stage]
             lesson["title"] = {"ar": f"حرف {lt['name_ar']}", "en": f"Letter {lt['name_en']}"}
             lesson["sections"] = [
-                {"type": "learn", "emoji": "📝", "title": _t("تعرّف على الحرف", "Meet the Letter", lang),
+                {"type": "learn", "emoji": "📝", "title": t("meet_the_letter", lang),
                  "content": {"letter": lt["letter"], "name_ar": lt["name_ar"], "name_en": lt["name_en"],
                              "sound": lt["sound"], "example_word": lt["word"], "example_en": lt["word_en"],
                              "example_emoji": lt["emoji"]}},
-                {"type": "listen", "emoji": "🔊", "title": _t("استمع وردد", "Listen & Repeat", lang),
-                 "content": {"text": lt["letter"], "word": lt["word"], "tip": _t("اضغط على الحرف للاستماع ثم ردد بصوت عالٍ", "Tap the letter to listen, then repeat out loud", lang)}},
-                {"type": "quiz", "emoji": "❓", "title": _t("اختبر نفسك", "Test Yourself", lang),
-                 "content": {"question": _t(f"أي حرف صوته {lt['sound']}؟", f"Which letter sounds like {lt['sound']}?", lang),
+                {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+                 "content": {"text": lt["letter"], "word": lt["word"], "tip": t("tip_tap_letter", lang)}},
+                {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+                 "content": {"question": t("quiz_which_letter_sounds", lang, sound=lt['sound']),
                              "correct": lt["letter"],
                              "options": _make_letter_options(lt["letter"], lesson_in_stage)}},
-                {"type": "write", "emoji": "✍️", "title": _t("تدرب على الكتابة", "Practice Writing", lang),
-                 "content": {"letter": lt["letter"], "tip": _t("اكتب الحرف 5 مرات على ورقة", "Write the letter 5 times on paper", lang)}},
+                {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
+                 "content": {"letter": lt["letter"], "tip": t("tip_write_letter_5", lang)}},
             ]
         elif lesson_in_stage < 42:
             # Day 29-42: Letter forms (beginning, middle, end)
@@ -290,28 +291,27 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
                 lt2 = LETTERS_28[min(idx+1, 27)]
                 lesson["title"] = {"ar": f"أشكال {lt['name_ar']} و{lt2['name_ar']}", "en": f"Forms of {lt['name_en']} & {lt2['name_en']}"}
                 lesson["sections"] = [
-                    {"type": "learn", "emoji": "📝", "title": _t("أشكال الحرف", "Letter Forms", lang),
+                    {"type": "learn", "emoji": "📝", "title": t("learn", lang),
                      "content": {"letters": [
                          {"letter": lt["letter"], "forms": lt["forms"], "name": lt["name_en"]},
                          {"letter": lt2["letter"], "forms": lt2["forms"], "name": lt2["name_en"]},
                      ]}},
-                    {"type": "practice", "emoji": "🎯", "title": _t("تمرين", "Practice", lang),
-                     "content": {"tip": _t("جد الحرف في أشكاله المختلفة", "Find the letter in its different forms", lang)}},
+                    {"type": "practice", "emoji": "🎯", "title": t("test", lang),
+                     "content": {"tip": t("learn", lang)}},
                 ]
             else:
                 lesson["title"] = {"ar": "مراجعة الأشكال", "en": "Review Letter Forms"}
-                lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": _t("مراجعة شاملة", "Full Review", lang),
-                     "content": {"tip": _t("راجع جميع أشكال الحروف", "Review all letter forms", lang)}}]
+                lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("comprehensive_review", lang),
+                     "content": {"tip": t("review", lang)}}]
         else:
-            # Day 43-56: Writing and connection practice
             review_idx = (lesson_in_stage - 42) * 2
             lt = LETTERS_28[min(review_idx, 27)]
             lesson["title"] = {"ar": f"تمرين كتابة وتوصيل", "en": f"Writing & Connection Practice"}
             lesson["sections"] = [
-                {"type": "connect", "emoji": "🔗", "title": _t("وصّل الحروف", "Connect Letters", lang),
-                 "content": {"tip": _t("تعلم كيف تتصل الحروف ببعضها", "Learn how letters connect together", lang)}},
-                {"type": "write", "emoji": "✍️", "title": _t("اكتب كلمة", "Write a Word", lang),
-                 "content": {"word": lt["word"], "word_en": lt["word_en"], "tip": _t("اكتب الكلمة ببطء وحرفاً حرفاً", "Write the word slowly, letter by letter", lang)}},
+                {"type": "connect", "emoji": "🔗", "title": t("learn", lang),
+                 "content": {"tip": t("learn", lang)}},
+                {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
+                 "content": {"word": lt["word"], "word_en": lt["word_en"], "tip": t("tip_write_letter_5", lang)}},
             ]
     
     # ═══ STAGE 2: VOWELS (Days 57-84) ═══
@@ -321,20 +321,20 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         if lesson_in_stage < len(HARAKAT) * 3:
             lesson["title"] = {"ar": h["name_ar"], "en": h["name_en"]}
             lesson["sections"] = [
-                {"type": "learn", "emoji": "🎵", "title": _t(f"تعرّف على {h['name_ar']}", f"Learn {h['name_en']}", lang),
+                {"type": "learn", "emoji": "🎵", "title": t("learn", lang),
                  "content": {"name_ar": h["name_ar"], "name_en": h["name_en"], "symbol": h["symbol"],
                              "sound": h["sound"], "example": h["example"],
                              "example_word": h["example_word"], "meaning": h["meaning"]}},
-                {"type": "practice", "emoji": "🎯", "title": _t("تمرين", "Practice", lang),
-                 "content": {"tip": _t(f"اقرأ الحروف مع {h['name_ar']}", f"Read letters with {h['name_en']}", lang),
+                {"type": "practice", "emoji": "🎯", "title": t("test", lang),
+                 "content": {"tip": t("listen_repeat", lang),
                              "items": [f"{lt['letter']}{h['symbol']}" for lt in LETTERS_28[:7]]}},
-                {"type": "quiz", "emoji": "❓", "title": _t("اختبر نفسك", "Test", lang),
-                 "content": {"question": _t(f"ما صوت هذه الحركة: {h['symbol']}؟", f"What sound does this diacritic make: {h['symbol']}?", lang),
+                {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+                 "content": {"question": t("quiz_which_letter_sounds", lang, sound=h['symbol']),
                              "correct": h["sound"], "options": [h["sound"], HARAKAT[(h_idx+1)%len(HARAKAT)]["sound"], HARAKAT[(h_idx+2)%len(HARAKAT)]["sound"]]}},
             ]
         else:
             lesson["title"] = {"ar": "مراجعة الحركات", "en": "Vowels Review"}
-            lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": _t("مراجعة", "Review", lang),
+            lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("review", lang),
                  "content": {"items": [{"name": h["name_en"], "symbol": h["symbol"], "sound": h["sound"]} for h in HARAKAT]}}]
     
     # ═══ STAGE 3: NUMBERS (Days 85-112) ═══
@@ -343,12 +343,12 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         n = NUMBERS_FULL[n_idx]
         lesson["title"] = {"ar": f"العدد {n['ar']}", "en": f"Number {n['en']}"}
         lesson["sections"] = [
-            {"type": "learn", "emoji": "🔢", "title": _t(f"تعلم العدد {n['display']}", f"Learn Number {n['num']}", lang),
+            {"type": "learn", "emoji": "🔢", "title": t("learn", lang),
              "content": {"number": n["num"], "arabic": n["ar"], "english": n["en"], "display": n["display"]}},
-            {"type": "practice", "emoji": "🎯", "title": _t("عُدّ معنا", "Count With Us", lang),
-             "content": {"tip": _t(f"عُدّ من ١ إلى {n['display']}", f"Count from 1 to {n['num']}", lang)}},
-            {"type": "quiz", "emoji": "❓", "title": _t("اختبر", "Test", lang),
-             "content": {"question": _t(f"ما هذا العدد: {n['display']}؟", f"What number is this: {n['display']}?", lang),
+            {"type": "practice", "emoji": "🎯", "title": t("listen_repeat", lang),
+             "content": {"tip": t("listen_repeat", lang)}},
+            {"type": "quiz", "emoji": "❓", "title": t("test", lang),
+             "content": {"question": t("quiz_what_number", lang, number=n['display']),
                          "correct": n["ar"], "options": [n["ar"], NUMBERS_FULL[(n_idx+1)%len(NUMBERS_FULL)]["ar"], NUMBERS_FULL[(n_idx+2)%len(NUMBERS_FULL)]["ar"]]}},
         ]
     
@@ -361,17 +361,16 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         words = VOCAB_CATEGORIES[cat]
         word = words[word_idx % len(words)]
         
-        cat_titles = {"colors":"Colors","animals":"Animals","family":"Family","body":"Body","food":"Food","home":"Home","nature":"Nature","school":"School","greetings":"Greetings"}
-        cat_ar = {"colors":"ألوان","animals":"حيوانات","family":"عائلة","body":"جسم","food":"طعام","home":"بيت","nature":"طبيعة","school":"مدرسة","greetings":"تحيات"}
+        cat_locale = get_cat_name(cat, lang)
         
-        lesson["title"] = {"ar": f"{cat_ar.get(cat,cat)}: {word['ar']}", "en": f"{cat_titles.get(cat,cat)}: {word['en']}"}
+        lesson["title"] = {"ar": f"{get_cat_name(cat, 'ar')}: {word['ar']}", "en": f"{get_cat_name(cat, 'en')}: {word['en']}"}
         lesson["sections"] = [
-            {"type": "learn", "emoji": word.get("emoji","📝"), "title": _t(f"كلمة جديدة: {word['ar']}", f"New Word: {word['en']}", lang),
-             "content": {"arabic": word["ar"], "english": word["en"], "emoji": word.get("emoji",""), "category": cat}},
-            {"type": "listen", "emoji": "🔊", "title": _t("استمع وردد", "Listen & Repeat", lang),
-             "content": {"text": word["ar"], "tip": _t("انطق الكلمة بصوت عالٍ", "Say the word out loud", lang)}},
-            {"type": "quiz", "emoji": "❓", "title": _t("اختبر", "Test", lang),
-             "content": {"question": _t(f"ما معنى {word['emoji']} بالعربية؟", f"What is {word['emoji']} in Arabic?", lang),
+            {"type": "learn", "emoji": word.get("emoji","📝"), "title": f"{t('new_word', lang)}: {word['ar']}",
+             "content": {"arabic": word["ar"], "english": word["en"], "emoji": word.get("emoji",""), "category": cat, "category_locale": cat_locale}},
+            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+             "content": {"text": word["ar"], "tip": t("tip_say_word", lang)}},
+            {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+             "content": {"question": t("quiz_what_in_arabic", lang, emoji=word.get('emoji', word['en'])),
                          "correct": word["ar"],
                          "options": [word["ar"]] + [w["ar"] for w in random.sample([w2 for w2 in words if w2["ar"]!=word["ar"]], min(2, len(words)-1))]}},
         ]
@@ -382,12 +381,12 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         sent = SENTENCES_BASIC[s_idx]
         lesson["title"] = {"ar": sent["ar"], "en": sent["en"]}
         lesson["sections"] = [
-            {"type": "learn", "emoji": sent["emoji"], "title": _t("جملة جديدة", "New Sentence", lang),
+            {"type": "learn", "emoji": sent["emoji"], "title": t("new_sentence", lang),
              "content": {"arabic": sent["ar"], "english": sent["en"], "emoji": sent["emoji"]}},
-            {"type": "listen", "emoji": "🔊", "title": _t("استمع وردد", "Listen & Repeat", lang),
-             "content": {"text": sent["ar"], "tip": _t("ردد الجملة كاملة", "Repeat the full sentence", lang)}},
-            {"type": "practice", "emoji": "✍️", "title": _t("اكتب الجملة", "Write the Sentence", lang),
-             "content": {"tip": _t("اكتب الجملة 3 مرات", "Write the sentence 3 times", lang), "sentence": sent["ar"]}},
+            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+             "content": {"text": sent["ar"], "tip": t("tip_repeat_sentence", lang)}},
+            {"type": "practice", "emoji": "✍️", "title": t("write_sentence", lang),
+             "content": {"tip": t("tip_write_sentence_3", lang), "sentence": sent["ar"]}},
         ]
     
     # ═══ STAGES 6-15: Use content from kids_learning.py ═══
@@ -401,11 +400,6 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
     lesson["xp_reward"] = 10 + (5 * len(lesson["sections"]))
     
     return lesson
-
-
-def _t(ar: str, en: str, lang: str) -> str:
-    """Quick translate - returns Arabic for ar, English for all others."""
-    return ar if lang == "ar" else en
 
 
 def _make_letter_options(correct: str, idx: int) -> list:
@@ -429,9 +423,9 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
             words.extend(cat)
         w = words[lesson_idx % len(words)]
         sections = [
-            {"type": "read", "emoji": "📖", "title": _t("اقرأ الكلمة", "Read the Word", lang),
+            {"type": "read", "emoji": "📖", "title": t("read_word", lang),
              "content": {"arabic": w["ar"], "english": w["en"], "emoji": w.get("emoji","")}},
-            {"type": "listen", "emoji": "🔊", "title": _t("استمع وردد", "Listen & Repeat", lang),
+            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
              "content": {"text": w["ar"]}},
         ]
     
@@ -452,10 +446,10 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         }
         tc = topic_content.get(topic, topic_content["shahada"])
         sections = [
-            {"type": "learn", "emoji": "🤲", "title": _t("تعلم", "Learn", lang),
+            {"type": "learn", "emoji": "🤲", "title": t("learn", lang),
              "content": {"arabic": tc["ar"], "english": tc["en"]}},
-            {"type": "memorize", "emoji": "🧠", "title": _t("احفظ", "Memorize", lang),
-             "content": {"text": tc["ar"], "tip": _t("اقرأ 3 مرات ثم ردد من الذاكرة", "Read 3 times then repeat from memory", lang)}},
+            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
+             "content": {"text": tc["ar"], "tip": t("tip_read_3_memory", lang)}},
         ]
     
     elif stage_id in ["S08","S14"]:  # Quran Memorization
@@ -466,16 +460,16 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
             surah = QURAN_SURAHS_FOR_KIDS[s_idx]
             ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
             sections = [
-                {"type": "quran", "emoji": "📖", "title": _t(f"حفظ: {surah['name_ar']}", f"Memorize: {surah['name_en']}", lang),
+                {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah['name_en']),
                  "content": {"surah": surah["name_en"], "ayah_num": ayah["num"],
                              "arabic": ayah["ar"], "translation": ayah.get(lang, ayah["en"])}},
-                {"type": "listen", "emoji": "🔊", "title": _t("استمع", "Listen", lang),
+                {"type": "listen", "emoji": "🔊", "title": t("listen", lang),
                  "content": {"text": ayah["ar"]}},
-                {"type": "memorize", "emoji": "🧠", "title": _t("سمّع", "Recite", lang),
-                 "content": {"tip": _t("أغلق عينيك وسمّع الآية", "Close your eyes and recite the ayah", lang)}},
+                {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
+                 "content": {"tip": t("tip_close_eyes_recite", lang)}},
             ]
         else:
-            sections = [{"type": "review", "emoji": "🔄", "title": _t("مراجعة", "Review", lang), "content": {}}]
+            sections = [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {}}]
     
     elif stage_id == "S09":  # Duas
         from kids_learning import KIDS_DUAS
@@ -483,19 +477,19 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         sections = [
             {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["en"]),
              "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d["en"])}},
-            {"type": "memorize", "emoji": "🧠", "title": _t("احفظ الدعاء", "Memorize the Dua", lang),
-             "content": {"tip": _t("ردد الدعاء 5 مرات", "Repeat the dua 5 times", lang)}},
+            {"type": "memorize", "emoji": "🧠", "title": t("memorize_dua", lang),
+             "content": {"tip": t("tip_repeat_dua_5", lang)}},
         ]
     
     elif stage_id == "S10":  # Hadiths
         from kids_learning import KIDS_HADITHS
         h = KIDS_HADITHS[lesson_idx % len(KIDS_HADITHS)]
         sections = [
-            {"type": "hadith", "emoji": h["emoji"], "title": _t("حديث اليوم", "Today's Hadith", lang),
+            {"type": "hadith", "emoji": h["emoji"], "title": t("todays_hadith", lang),
              "content": {"arabic": h["ar"], "translation": h.get(lang, h["en"]), "source": h["source"],
                          "lesson": h["lesson"].get(lang, h["lesson"]["en"])}},
-            {"type": "reflect", "emoji": "💭", "title": _t("تأمل", "Reflect", lang),
-             "content": {"tip": _t("فكر كيف تطبق هذا الحديث في حياتك", "Think about how to apply this hadith in your life", lang)}},
+            {"type": "reflect", "emoji": "💭", "title": t("reflect", lang),
+             "content": {"tip": t("tip_apply_hadith", lang)}},
         ]
     
     elif stage_id == "S11":  # Prophet Stories
@@ -516,26 +510,25 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
             {"emoji":"🐑","ar":"عيد الأضحى: نتذكر قصة إبراهيم وإسماعيل ونضحي","en":"Eid Al-Adha: We remember Ibrahim and Ismail's story and offer sacrifice"},
             {"emoji":"🕌","ar":"يوم الجمعة: أفضل أيام الأسبوع، نصلي صلاة الجمعة في المسجد","en":"Friday: The best day of the week, we pray Jumu'ah prayer at the mosque"},
         ]
-        t = topics[lesson_idx % len(topics)]
+        topic_item = topics[lesson_idx % len(topics)]
         sections = [
-            {"type": "learn", "emoji": t["emoji"], "title": _t("تعلم", "Learn", lang),
-             "content": {"arabic": t["ar"], "english": t["en"]}},
+            {"type": "learn", "emoji": topic_item["emoji"], "title": t("learn", lang),
+             "content": {"arabic": topic_item["ar"], "english": topic_item["en"]}},
         ]
     
     elif stage_id == "S13":  # Advanced Arabic
         sections = [
-            {"type": "grammar", "emoji": "📚", "title": _t("قواعد", "Grammar", lang),
-             "content": {"tip": _t("تعلم قواعد جديدة", "Learn new grammar rules", lang)}},
+            {"type": "grammar", "emoji": "📚", "title": t("grammar", lang),
+             "content": {"tip": t("tip_learn_grammar", lang)}},
         ]
     
     elif stage_id == "S15":  # Mastery
         sections = [
-            {"type": "review", "emoji": "🎓", "title": _t("مراجعة شاملة", "Comprehensive Review", lang),
-             "content": {"tip": _t("راجع كل ما تعلمته!", "Review everything you learned!", lang)}},
+            {"type": "review", "emoji": "🎓", "title": t("comprehensive_review", lang),
+             "content": {"tip": t("tip_review_all", lang)}},
         ]
     
-    # Ensure at least one section
     if not sections:
-        sections = [{"type": "learn", "emoji": "📝", "title": _t("درس", "Lesson", lang), "content": {}}]
+        sections = [{"type": "learn", "emoji": "📝", "title": t("lesson", lang), "content": {}}]
     
     return sections
