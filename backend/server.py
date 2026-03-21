@@ -36,6 +36,17 @@ from kids_learning import (
     QURAN_SURAHS_FOR_KIDS, KIDS_DUAS, KIDS_HADITHS, PROPHET_STORIES, 
     ISLAMIC_PILLARS, KIDS_LIBRARY_CATEGORIES, KIDS_LIBRARY_ITEMS,
 )
+# Extended Learning Module
+from kids_learning_extended import (
+    ALL_PROPHETS, WUDU_STEPS, SALAH_STEPS, ARABIC_ALPHABET,
+    ACHIEVEMENT_BADGES, EXTENDED_LIBRARY, EXTENDED_DUAS, EXTENDED_HADITHS,
+    get_wudu_steps, get_salah_steps, get_alphabet, get_vocabulary as ext_get_vocabulary,
+    get_achievements, get_all_prophets,
+)
+# Curriculum Engine
+from kids_curriculum import (
+    get_curriculum_overview, generate_lesson, CURRICULUM_STAGES,
+)
 
 # ==================== CONFIG ====================
 JWT_SECRET = os.environ.get('JWT_SECRET', 'almuadhin-global-secret-2026')
@@ -6344,6 +6355,139 @@ async def get_kids_learn_progress(user_id: str = "guest"):
             "learned_duas": [],
             "learned_hadiths": [],
             "xp": 0,
+        }
+    return {"success": True, "progress": prog}
+
+
+# ==================== CURRICULUM ENGINE API ====================
+
+@api_router.get("/kids-learn/curriculum")
+async def api_curriculum_overview(locale: str = "en"):
+    """Get the full 1000-day curriculum overview with 15 stages."""
+    data = get_curriculum_overview(locale)
+    return {"success": True, **data}
+
+
+@api_router.get("/kids-learn/curriculum/lesson/{day}")
+async def api_curriculum_lesson(day: int, locale: str = "en"):
+    """Get a structured lesson for a specific day (1-1000)."""
+    if day < 1 or day > 1000:
+        raise HTTPException(status_code=400, detail="Day must be between 1 and 1000")
+    lesson = generate_lesson(day, locale)
+    return {"success": True, "lesson": lesson}
+
+
+@api_router.get("/kids-learn/wudu")
+async def api_wudu_steps(locale: str = "ar"):
+    """Get Wudu (ablution) steps for kids."""
+    steps = get_wudu_steps(locale)
+    return {"success": True, "steps": steps, "total": len(steps)}
+
+
+@api_router.get("/kids-learn/salah")
+async def api_salah_steps(locale: str = "ar"):
+    """Get Salah (prayer) steps for kids."""
+    steps = get_salah_steps(locale)
+    return {"success": True, "steps": steps, "total": len(steps)}
+
+
+@api_router.get("/kids-learn/alphabet")
+async def api_arabic_alphabet():
+    """Get the full Arabic alphabet course."""
+    letters = get_alphabet()
+    return {"success": True, "letters": letters, "total": len(letters)}
+
+
+@api_router.get("/kids-learn/vocabulary/{category}")
+async def api_arabic_vocabulary(category: str):
+    """Get Arabic vocabulary by category: numbers, colors, animals, body, family."""
+    vocab = ext_get_vocabulary(category)
+    if not vocab:
+        raise HTTPException(status_code=404, detail="Category not found. Use: numbers, colors, animals, body, family")
+    return {"success": True, "items": vocab, "total": len(vocab), "category": category}
+
+
+@api_router.get("/kids-learn/achievements")
+async def api_achievements(user_id: str = "guest"):
+    """Get user's earned achievement badges."""
+    prog = await db.kids_learn_progress.find_one({"user_id": user_id}, {"_id": 0})
+    if not prog:
+        prog = {"total_lessons": 0, "streak": 0, "memorized_ayahs": 0, "learned_duas": [], "learned_hadiths": [], "xp": 0}
+    lang = "en"
+    earned = get_achievements(prog)
+    all_badges = [{"id": b["id"], "emoji": b["emoji"], "title_ar": b["title_ar"], "title_en": b["title_en"],
+                   "desc_ar": b["desc_ar"], "desc_en": b["desc_en"],
+                   "earned": any(e["id"] == b["id"] for e in earned)} for b in ACHIEVEMENT_BADGES]
+    return {"success": True, "badges": all_badges, "earned_count": len(earned), "total": len(ACHIEVEMENT_BADGES)}
+
+
+@api_router.get("/kids-learn/prophets-full")
+async def api_all_25_prophets(locale: str = "ar"):
+    """Get all 25 prophets mentioned in Quran."""
+    prophets = get_all_prophets(locale)
+    return {"success": True, "prophets": prophets, "total": len(prophets)}
+
+
+@api_router.post("/kids-learn/curriculum/progress")
+async def save_curriculum_progress(payload: dict):
+    """Save curriculum progress for a specific day."""
+    user_id = payload.get("user_id", "guest")
+    day = payload.get("day", 0)
+    sections_done = payload.get("sections_done", 0)
+    total_sections = payload.get("total_sections", 1)
+    xp_reward = payload.get("xp_reward", 10)
+    
+    prog = await db.kids_curriculum_progress.find_one({"user_id": user_id})
+    if not prog:
+        prog = {
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "current_day": 1,
+            "completed_days": [],
+            "total_xp": 0,
+            "streak": 0,
+            "longest_streak": 0,
+            "stage_progress": {},
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        await db.kids_curriculum_progress.insert_one(prog)
+    
+    completed = prog.get("completed_days", [])
+    if day not in completed:
+        completed.append(day)
+    
+    current = max(completed) + 1 if completed else 1
+    streak = prog.get("streak", 0) + 1
+    longest = max(streak, prog.get("longest_streak", 0))
+    
+    await db.kids_curriculum_progress.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "completed_days": completed,
+            "current_day": min(current, 1000),
+            "streak": streak,
+            "longest_streak": longest,
+        }, "$inc": {"total_xp": xp_reward}}
+    )
+    
+    return {
+        "success": True,
+        "current_day": min(current, 1000),
+        "total_completed": len(completed),
+        "total_xp": prog.get("total_xp", 0) + xp_reward,
+        "streak": streak,
+        "xp_earned": xp_reward,
+    }
+
+
+@api_router.get("/kids-learn/curriculum/progress")
+async def get_curriculum_progress(user_id: str = "guest"):
+    """Get curriculum progress."""
+    prog = await db.kids_curriculum_progress.find_one({"user_id": user_id}, {"_id": 0})
+    if not prog:
+        prog = {
+            "user_id": user_id, "current_day": 1, "completed_days": [],
+            "total_xp": 0, "streak": 0, "longest_streak": 0,
         }
     return {"success": True, "progress": prog}
 
