@@ -1,343 +1,332 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Arabic Kids Learning Curriculum Localization
-==================================================================
-Tests comprehensive localization fix for the Arabic kids learning curriculum.
-Critical validation: Every non-English locale should have ZERO English content.
+Backend API Testing for Salah Teaching Endpoints
+Islamic Prayer App - Testing Agent
 """
 
 import requests
 import json
-import re
-import sys
+import time
 from typing import Dict, List, Any
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://kids-platform-review.preview.emergentagent.com"
+# Backend URL from environment
+BACKEND_URL = "https://islamic-prayer-44.preview.emergentagent.com"
 
-class LocalizationTester:
+# Expected position values for validation
+EXPECTED_POSITIONS = {
+    'qiyam_niyyah', 'takbir', 'qiyam_qiraa', 'qiyam_fatiha', 
+    'ruku', 'itidal', 'sujud_1', 'juloos', 'sujud_2', 'tashahhud', 'tasleem'
+}
+
+# Required fields for each salah step
+REQUIRED_FIELDS = {
+    'step', 'position', 'title', 'description', 
+    'dhikr_ar', 'dhikr_transliteration', 'body_position'
+}
+
+class SalahAPITester:
     def __init__(self):
         self.results = []
-        self.failed_tests = []
-        self.passed_tests = []
+        self.total_tests = 0
+        self.passed_tests = 0
         
-    def log_result(self, test_name: str, passed: bool, details: str = ""):
+    def log_result(self, test_name: str, status: str, details: str, response_time: float = 0):
         """Log test result"""
         result = {
-            "test": test_name,
-            "passed": passed,
-            "details": details
+            'test': test_name,
+            'status': status,
+            'details': details,
+            'response_time': f"{response_time:.3f}s" if response_time > 0 else "N/A"
         }
         self.results.append(result)
-        if passed:
-            self.passed_tests.append(test_name)
-            print(f"✅ {test_name}: PASSED")
-        else:
-            self.failed_tests.append(test_name)
-            print(f"❌ {test_name}: FAILED - {details}")
-            
-    def make_request(self, endpoint: str) -> Dict[str, Any]:
-        """Make API request and return response"""
-        url = f"{BACKEND_URL}/api{endpoint}"
+        self.total_tests += 1
+        if status == "✅ PASSED":
+            self.passed_tests += 1
+        print(f"{test_name}: {status}")
+        print(f"  Details: {details}")
+        if response_time > 0:
+            print(f"  Response Time: {response_time:.3f}s")
+        print()
+
+    def test_endpoint(self, endpoint: str, expected_status: int = 200) -> Dict[str, Any]:
+        """Test a single endpoint and return response data"""
+        url = f"{BACKEND_URL}{endpoint}"
+        start_time = time.time()
+        
         try:
             response = requests.get(url, timeout=10)
-            if response.status_code == 200:
-                return {"success": True, "data": response.json(), "status": 200}
-            else:
-                return {"success": False, "error": f"HTTP {response.status_code}", "status": response.status_code}
-        except Exception as e:
-            return {"success": False, "error": str(e), "status": 0}
-    
-    def check_no_english_content(self, data: Any, locale: str, context: str = "") -> List[str]:
-        """Check for English content in non-English locales"""
-        english_violations = []
-        
-        # Skip if locale is English or Arabic
-        if locale in ["en", "ar"]:
-            return english_violations
+            response_time = time.time() - start_time
             
-        def search_for_english(obj, path=""):
-            if isinstance(obj, dict):
-                # Check for "english" key
-                if "english" in obj:
-                    english_violations.append(f"{context}{path}: Found 'english' key")
+            if response.status_code != expected_status:
+                return {
+                    'success': False,
+                    'error': f"HTTP {response.status_code} (expected {expected_status})",
+                    'response_time': response_time
+                }
+            
+            try:
+                data = response.json()
+                return {
+                    'success': True,
+                    'data': data,
+                    'response_time': response_time
+                }
+            except json.JSONDecodeError:
+                return {
+                    'success': False,
+                    'error': "Invalid JSON response",
+                    'response_time': response_time
+                }
                 
-                # Check for common English words in values
-                for key, value in obj.items():
-                    if isinstance(value, str):
-                        # Check for common English words that should be translated
-                        english_words = ["Zero", "Lion", "This is", "Praise be", "One", "Two", "Three", "Four", "Five"]
-                        for word in english_words:
-                            if word in value:
-                                english_violations.append(f"{context}{path}.{key}: Found English word '{word}' in '{value}'")
-                    
-                    # Recursively check nested objects
-                    search_for_english(value, f"{path}.{key}" if path else key)
-                    
-            elif isinstance(obj, list):
-                for i, item in enumerate(obj):
-                    search_for_english(item, f"{path}[{i}]")
+        except requests.exceptions.RequestException as e:
+            response_time = time.time() - start_time
+            return {
+                'success': False,
+                'error': f"Request failed: {str(e)}",
+                'response_time': response_time
+            }
+
+    def validate_salah_step(self, step: Dict[str, Any], step_number: int) -> List[str]:
+        """Validate a single salah step structure"""
+        errors = []
         
-        search_for_english(data)
-        return english_violations
-    
-    def test_curriculum_overview(self):
-        """Test 1: Curriculum Overview in 3 languages"""
-        print("\n=== Test 1: Curriculum Overview in 3 languages ===")
+        # Check required fields exist
+        for field in REQUIRED_FIELDS:
+            if field not in step:
+                errors.append(f"Missing required field: {field}")
         
-        locales = ["sv", "nl", "el"]  # Swedish, Dutch, Greek
+        # Check non-dhikr fields are not empty
+        non_dhikr_fields = ['step', 'position', 'title', 'description', 'body_position']
+        for field in non_dhikr_fields:
+            if field in step and (not step[field] or step[field] == ""):
+                errors.append(f"Empty value for field: {field}")
         
-        for locale in locales:
-            endpoint = f"/kids-learn/curriculum?locale={locale}"
-            response = self.make_request(endpoint)
-            
-            if not response["success"]:
-                self.log_result(f"Curriculum Overview ({locale})", False, f"API Error: {response['error']}")
-                continue
-                
-            data = response["data"]
-            
-            # Check if we have stages
-            if "stages" not in data:
-                self.log_result(f"Curriculum Overview ({locale})", False, "No 'stages' field in response")
-                continue
-                
-            stages = data["stages"]
-            if len(stages) != 15:
-                self.log_result(f"Curriculum Overview ({locale})", False, f"Expected 15 stages, got {len(stages)}")
-                continue
-            
-            # Check for English content violations
-            violations = self.check_no_english_content(data, locale, f"Curriculum Overview ({locale}) ")
-            
-            if violations:
-                self.log_result(f"Curriculum Overview ({locale})", False, f"English content found: {'; '.join(violations)}")
-            else:
-                # Check that stage titles are actually translated (not empty or same as English)
-                translated_titles = [stage.get("title", "") for stage in stages]
-                if any(not title.strip() for title in translated_titles):
-                    self.log_result(f"Curriculum Overview ({locale})", False, "Some stage titles are empty")
-                else:
-                    self.log_result(f"Curriculum Overview ({locale})", True, f"All 15 stage titles properly translated")
-    
-    def test_core_curriculum_content(self):
-        """Test 2: Stage 1-5 content (core curriculum)"""
-        print("\n=== Test 2: Stage 1-5 content (core curriculum) ===")
+        # dhikr_ar and dhikr_transliteration can be empty for step 1 (intention)
+        if step_number != 1:  # Not the intention step
+            if 'dhikr_ar' in step and (not step['dhikr_ar'] or step['dhikr_ar'] == ""):
+                errors.append(f"Empty dhikr_ar for step {step_number} (dhikr required for non-intention steps)")
+            if 'dhikr_transliteration' in step and (not step['dhikr_transliteration'] or step['dhikr_transliteration'] == ""):
+                errors.append(f"Empty dhikr_transliteration for step {step_number} (dhikr required for non-intention steps)")
         
-        test_cases = [
-            {"lesson": 1, "locale": "de", "description": "Letter lesson in German"},
-            {"lesson": 85, "locale": "tr", "description": "Number lesson in Turkish"},
-            {"lesson": 113, "locale": "sv", "description": "Word lesson in Swedish"},
-            {"lesson": 211, "locale": "fr", "description": "Sentence lesson in French"},
-        ]
+        # Validate step number
+        if 'step' in step:
+            if not isinstance(step['step'], int):
+                errors.append(f"Step number should be integer, got {type(step['step'])}")
+            elif step['step'] != step_number:
+                errors.append(f"Step number mismatch: expected {step_number}, got {step['step']}")
         
-        for case in test_cases:
-            endpoint = f"/kids-learn/curriculum/lesson/{case['lesson']}?locale={case['locale']}"
-            response = self.make_request(endpoint)
-            
-            if not response["success"]:
-                self.log_result(f"Core Curriculum Lesson {case['lesson']} ({case['locale']})", False, f"API Error: {response['error']}")
-                continue
-            
-            data = response["data"]
-            
-            # Check for English content violations
-            violations = self.check_no_english_content(data, case['locale'], f"Lesson {case['lesson']} ({case['locale']}) ")
-            
-            # Specific checks based on lesson type
-            lesson_passed = True
-            details = []
-            
-            if case['lesson'] == 1:  # Letter lesson
-                # Check for example_translated field
-                sections = data.get("sections", [])
-                for section in sections:
-                    content = section.get("content", {})
-                    if "example_translated" in content:
-                        example = content["example_translated"]
-                        if example == "Lion":  # Should not be English
-                            violations.append(f"example_translated still contains English 'Lion'")
-                            
-            elif case['lesson'] == 85:  # Number lesson
-                # Check for translated number names
-                sections = data.get("sections", [])
-                for section in sections:
-                    content = section.get("content", {})
-                    if "translated" in content:
-                        translated = content["translated"]
-                        if translated == "Zero":  # Should not be English
-                            violations.append(f"translated field still contains English 'Zero'")
-                            
-            elif case['lesson'] == 211:  # Sentence lesson
-                # Check for translated sentences
-                sections = data.get("sections", [])
-                for section in sections:
-                    content = section.get("content", {})
-                    if "translated" in content:
-                        translated = content["translated"]
-                        if "This is a book" in translated:  # Should not be English
-                            violations.append(f"translated field still contains English 'This is a book'")
-            
-            if violations:
-                self.log_result(f"Core Curriculum Lesson {case['lesson']} ({case['locale']})", False, f"English content found: {'; '.join(violations)}")
-            else:
-                self.log_result(f"Core Curriculum Lesson {case['lesson']} ({case['locale']})", True, f"{case['description']} properly localized")
-    
-    def test_advanced_stages(self):
-        """Test 3: Advanced stages (S07-S12)"""
-        print("\n=== Test 3: Advanced stages (S07-S12) ===")
+        # Validate position
+        if 'position' in step:
+            if step['position'] not in EXPECTED_POSITIONS:
+                errors.append(f"Invalid position '{step['position']}', expected one of: {EXPECTED_POSITIONS}")
         
-        test_cases = [
-            {"lesson": 309, "locale": "de", "description": "S07 Islamic content in German"},
-            {"lesson": 491, "locale": "tr", "description": "S09 Duas meaning in Turkish"},
-            {"lesson": 561, "locale": "sv", "description": "S10 Hadiths translation in Swedish"},
-            {"lesson": 631, "locale": "el", "description": "S11 Prophet stories in Greek"},
-            {"lesson": 721, "locale": "nl", "description": "S12 Islamic Life content in Dutch"},
-        ]
+        # Validate string fields
+        string_fields = ['title', 'description', 'dhikr_ar', 'dhikr_transliteration', 'body_position']
+        for field in string_fields:
+            if field in step and not isinstance(step[field], str):
+                errors.append(f"Field '{field}' should be string, got {type(step[field])}")
         
-        for case in test_cases:
-            endpoint = f"/kids-learn/curriculum/lesson/{case['lesson']}?locale={case['locale']}"
-            response = self.make_request(endpoint)
-            
-            if not response["success"]:
-                self.log_result(f"Advanced Stage Lesson {case['lesson']} ({case['locale']})", False, f"API Error: {response['error']}")
-                continue
-            
-            data = response["data"]
-            
-            # Check for English content violations
-            violations = self.check_no_english_content(data, case['locale'], f"Advanced Lesson {case['lesson']} ({case['locale']}) ")
-            
-            # Special check for Greek lesson 631 - should have "Αδάμ" for Adam
-            if case['lesson'] == 631 and case['locale'] == "el":
-                # Look for prophet name translations
-                data_str = json.dumps(data, ensure_ascii=False)
-                if "Αδάμ" not in data_str:
-                    violations.append("Greek lesson should contain 'Αδάμ' (Adam in Greek)")
-            
-            if violations:
-                self.log_result(f"Advanced Stage Lesson {case['lesson']} ({case['locale']})", False, f"English content found: {'; '.join(violations)}")
-            else:
-                self.log_result(f"Advanced Stage Lesson {case['lesson']} ({case['locale']})", True, f"{case['description']} properly localized")
-    
-    def test_english_still_works(self):
-        """Test 4: English still works"""
-        print("\n=== Test 4: English still works ===")
+        return errors
+
+    def test_health_endpoint(self):
+        """Test health check endpoint"""
+        result = self.test_endpoint("/api/health")
         
-        endpoint = "/kids-learn/curriculum/lesson/1?locale=en"
-        response = self.make_request(endpoint)
-        
-        if not response["success"]:
-            self.log_result("English Lesson Test", False, f"API Error: {response['error']}")
+        if not result['success']:
+            self.log_result(
+                "GET /api/health",
+                "❌ FAILED",
+                result['error'],
+                result['response_time']
+            )
             return
         
-        data = response["data"]
+        data = result['data']
         
-        # For English, we expect English content
-        data_str = json.dumps(data, ensure_ascii=False)
-        
-        # Check that we have English content
-        if "Letter" not in data_str or "Lion" not in data_str:
-            self.log_result("English Lesson Test", False, "English lesson missing expected English content")
-        else:
-            self.log_result("English Lesson Test", True, "English lesson returns English content correctly")
-    
-    def test_arabic_still_works(self):
-        """Test 5: Arabic still works"""
-        print("\n=== Test 5: Arabic still works ===")
-        
-        endpoint = "/kids-learn/curriculum/lesson/1?locale=ar"
-        response = self.make_request(endpoint)
-        
-        if not response["success"]:
-            self.log_result("Arabic Lesson Test", False, f"API Error: {response['error']}")
+        # Validate health response structure
+        if 'status' not in data:
+            self.log_result(
+                "GET /api/health",
+                "❌ FAILED",
+                "Missing 'status' field in health response",
+                result['response_time']
+            )
             return
         
-        data = response["data"]
+        if data['status'] != 'healthy':
+            self.log_result(
+                "GET /api/health",
+                "❌ FAILED",
+                f"Health status is '{data['status']}', expected 'healthy'",
+                result['response_time']
+            )
+            return
         
-        # For Arabic, we expect Arabic content
-        data_str = json.dumps(data, ensure_ascii=False)
+        self.log_result(
+            "GET /api/health",
+            "✅ PASSED",
+            f"Health check successful, status: {data['status']}",
+            result['response_time']
+        )
+
+    def test_salah_endpoint(self, locale: str):
+        """Test salah endpoint for specific locale"""
+        endpoint = f"/api/kids-learn/salah?locale={locale}"
+        result = self.test_endpoint(endpoint)
         
-        # Check that we have Arabic content
-        if "حرف" not in data_str or "أسد" not in data_str:
-            self.log_result("Arabic Lesson Test", False, "Arabic lesson missing expected Arabic content")
-        else:
-            self.log_result("Arabic Lesson Test", True, "Arabic lesson returns Arabic content correctly")
-    
-    def test_comprehensive_localization_check(self):
-        """Additional comprehensive check for localization"""
-        print("\n=== Comprehensive Localization Check ===")
+        if not result['success']:
+            self.log_result(
+                f"GET {endpoint}",
+                "❌ FAILED",
+                result['error'],
+                result['response_time']
+            )
+            return
         
-        # Test curriculum overview for all non-English locales
-        locales = ["de", "fr", "tr", "ru", "sv", "nl", "el"]
+        data = result['data']
         
-        for locale in locales:
-            endpoint = f"/kids-learn/curriculum?locale={locale}"
-            response = self.make_request(endpoint)
+        # Check if response has steps
+        if 'steps' not in data:
+            self.log_result(
+                f"GET {endpoint}",
+                "❌ FAILED",
+                "Response missing 'steps' field",
+                result['response_time']
+            )
+            return
+        
+        steps = data['steps']
+        
+        # Validate step count
+        if len(steps) != 11:
+            self.log_result(
+                f"GET {endpoint}",
+                "❌ FAILED",
+                f"Expected 11 steps, got {len(steps)}",
+                result['response_time']
+            )
+            return
+        
+        # Validate each step
+        all_errors = []
+        for i, step in enumerate(steps, 1):
+            step_errors = self.validate_salah_step(step, i)
+            if step_errors:
+                all_errors.extend([f"Step {i}: {error}" for error in step_errors])
+        
+        if all_errors:
+            self.log_result(
+                f"GET {endpoint}",
+                "❌ FAILED",
+                f"Validation errors: {'; '.join(all_errors[:5])}{'...' if len(all_errors) > 5 else ''}",
+                result['response_time']
+            )
+            return
+        
+        # Validate locale-specific content
+        locale_errors = self.validate_locale_content(steps, locale)
+        if locale_errors:
+            self.log_result(
+                f"GET {endpoint}",
+                "❌ FAILED",
+                f"Locale validation errors: {'; '.join(locale_errors[:3])}{'...' if len(locale_errors) > 3 else ''}",
+                result['response_time']
+            )
+            return
+        
+        # Extract sample data for verification
+        sample_step = steps[0]
+        sample_details = f"11 steps returned, sample step 1: position='{sample_step.get('position')}', title='{sample_step.get('title', '')[:30]}...'"
+        
+        self.log_result(
+            f"GET {endpoint}",
+            "✅ PASSED",
+            sample_details,
+            result['response_time']
+        )
+
+    def validate_locale_content(self, steps: List[Dict], locale: str) -> List[str]:
+        """Validate locale-specific content"""
+        errors = []
+        
+        for i, step in enumerate(steps, 1):
+            if locale == 'ar':
+                # For Arabic locale, check if Arabic content is present
+                if 'title' in step and step['title']:
+                    # Check if title contains Arabic characters
+                    has_arabic = any('\u0600' <= char <= '\u06FF' for char in step['title'])
+                    if not has_arabic:
+                        errors.append(f"Step {i} title should contain Arabic text for Arabic locale")
+                
+                if 'description' in step and step['description']:
+                    # Check if description contains Arabic characters
+                    has_arabic = any('\u0600' <= char <= '\u06FF' for char in step['description'])
+                    if not has_arabic:
+                        errors.append(f"Step {i} description should contain Arabic text for Arabic locale")
             
-            if not response["success"]:
-                self.log_result(f"Comprehensive Check ({locale})", False, f"API Error: {response['error']}")
-                continue
+            elif locale == 'en':
+                # For English locale, check if content is in Latin script
+                if 'title' in step and step['title']:
+                    # Check if title is primarily Latin characters
+                    has_arabic = any('\u0600' <= char <= '\u06FF' for char in step['title'])
+                    if has_arabic:
+                        errors.append(f"Step {i} title should be in English for English locale")
+                
+                if 'description' in step and step['description']:
+                    # Check if description is primarily Latin characters
+                    has_arabic = any('\u0600' <= char <= '\u06FF' for char in step['description'])
+                    if has_arabic:
+                        errors.append(f"Step {i} description should be in English for English locale")
             
-            data = response["data"]
-            data_str = json.dumps(data, ensure_ascii=False).lower()
-            
-            # Check for the word "english" as a key (case insensitive)
-            if '"english"' in data_str:
-                self.log_result(f"Comprehensive Check ({locale})", False, "Found 'english' key in response")
-            else:
-                self.log_result(f"Comprehensive Check ({locale})", True, "No 'english' key found - properly localized")
-    
+            # dhikr_ar should always be in Arabic regardless of locale
+            if 'dhikr_ar' in step and step['dhikr_ar']:
+                has_arabic = any('\u0600' <= char <= '\u06FF' for char in step['dhikr_ar'])
+                if not has_arabic:
+                    errors.append(f"Step {i} dhikr_ar should contain Arabic text")
+        
+        return errors
+
     def run_all_tests(self):
-        """Run all localization tests"""
-        print("🚀 Starting Arabic Kids Learning Curriculum Localization Tests")
+        """Run all Salah API tests"""
+        print("=" * 60)
+        print("SALAH TEACHING API ENDPOINTS TESTING")
+        print("=" * 60)
         print(f"Backend URL: {BACKEND_URL}")
-        print("=" * 80)
+        print()
         
-        # Run all test suites
-        self.test_curriculum_overview()
-        self.test_core_curriculum_content()
-        self.test_advanced_stages()
-        self.test_english_still_works()
-        self.test_arabic_still_works()
-        self.test_comprehensive_localization_check()
+        # Test health endpoint
+        self.test_health_endpoint()
+        
+        # Test Arabic salah endpoint
+        self.test_salah_endpoint('ar')
+        
+        # Test English salah endpoint
+        self.test_salah_endpoint('en')
         
         # Print summary
-        print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
-        print("=" * 80)
+        print("=" * 60)
+        print("TEST SUMMARY")
+        print("=" * 60)
+        print(f"Total Tests: {self.total_tests}")
+        print(f"Passed: {self.passed_tests}")
+        print(f"Failed: {self.total_tests - self.passed_tests}")
+        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%")
+        print()
         
-        total_tests = len(self.results)
-        passed_count = len(self.passed_tests)
-        failed_count = len(self.failed_tests)
+        # Print detailed results
+        for result in self.results:
+            print(f"{result['test']}: {result['status']}")
+            print(f"  {result['details']}")
+            print(f"  Response Time: {result['response_time']}")
+            print()
         
-        print(f"Total Tests: {total_tests}")
-        print(f"✅ Passed: {passed_count}")
-        print(f"❌ Failed: {failed_count}")
-        print(f"Success Rate: {(passed_count/total_tests*100):.1f}%")
-        
-        if self.failed_tests:
-            print("\n🔍 FAILED TESTS:")
-            for i, result in enumerate(self.results):
-                if not result["passed"]:
-                    print(f"{i+1}. {result['test']}: {result['details']}")
-        
-        print("\n" + "=" * 80)
-        
-        # Return success status
-        return failed_count == 0
+        return self.passed_tests == self.total_tests
 
-def main():
-    """Main test execution"""
-    tester = LocalizationTester()
+if __name__ == "__main__":
+    tester = SalahAPITester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎉 ALL TESTS PASSED - Localization fix is working correctly!")
-        sys.exit(0)
+        print("🎉 ALL SALAH API TESTS PASSED!")
     else:
-        print("⚠️  SOME TESTS FAILED - Localization needs attention")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+        print("❌ SOME TESTS FAILED - CHECK DETAILS ABOVE")

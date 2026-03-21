@@ -320,19 +320,143 @@ WUDU_STEPS = [
 # ═══════════════════════════════════════════════════════════════
 # SALAH (PRAYER) STEPS FOR KIDS
 # ═══════════════════════════════════════════════════════════════
+# Source: Based on authentic Islamic jurisprudence (fiqh) references
+# Images: Inline SVG illustrations matching correct prayer positions
+# ═══════════════════════════════════════════════════════════════
 
 SALAH_STEPS = [
-    {"step": 1, "emoji": "🧍", "ar": "القيام والنية", "en": "Standing & Intention", "desc_ar": "قف باتجاه القبلة وانوِ الصلاة", "desc_en": "Stand facing the Qibla and make intention"},
-    {"step": 2, "emoji": "🙌", "ar": "تكبيرة الإحرام", "en": "Takbiratul Ihram", "desc_ar": "ارفع يديك وقل: الله أكبر", "desc_en": "Raise your hands and say: Allahu Akbar"},
-    {"step": 3, "emoji": "📖", "ar": "قراءة الفاتحة", "en": "Recite Al-Fatiha", "desc_ar": "اقرأ سورة الفاتحة", "desc_en": "Recite Surah Al-Fatiha"},
-    {"step": 4, "emoji": "📖", "ar": "قراءة سورة قصيرة", "en": "Recite a Short Surah", "desc_ar": "اقرأ سورة قصيرة مثل الإخلاص", "desc_en": "Recite a short surah like Al-Ikhlas"},
-    {"step": 5, "emoji": "🙇", "ar": "الركوع", "en": "Ruku (Bowing)", "desc_ar": "انحنِ وقل: سبحان ربي العظيم ثلاث مرات", "desc_en": "Bow and say: Subhana Rabbiyal Adheem three times"},
-    {"step": 6, "emoji": "🧍", "ar": "الرفع من الركوع", "en": "Rising from Ruku", "desc_ar": "قم وقل: سمع الله لمن حمده، ربنا ولك الحمد", "desc_en": "Rise and say: Sami'Allahu liman hamidah, Rabbana wa lakal hamd"},
-    {"step": 7, "emoji": "🧎", "ar": "السجدة الأولى", "en": "First Sujud", "desc_ar": "اسجد وقل: سبحان ربي الأعلى ثلاث مرات", "desc_en": "Prostrate and say: Subhana Rabbiyal A'la three times"},
-    {"step": 8, "emoji": "🧘", "ar": "الجلسة بين السجدتين", "en": "Sitting Between Sujud", "desc_ar": "اجلس وقل: رب اغفر لي", "desc_en": "Sit and say: Rabbi ighfir li"},
-    {"step": 9, "emoji": "🧎", "ar": "السجدة الثانية", "en": "Second Sujud", "desc_ar": "اسجد مرة أخرى وقل: سبحان ربي الأعلى ثلاث مرات", "desc_en": "Prostrate again and say: Subhana Rabbiyal A'la three times"},
-    {"step": 10, "emoji": "🧘", "ar": "التشهد", "en": "Tashahhud", "desc_ar": "اجلس واقرأ التحيات", "desc_en": "Sit and recite At-Tahiyyat"},
-    {"step": 11, "emoji": "👋", "ar": "التسليم", "en": "Tasleem", "desc_ar": "التفت يميناً وقل: السلام عليكم ورحمة الله، ثم يساراً", "desc_en": "Turn right and say: Assalamu Alaikum wa Rahmatullah, then turn left"},
+    {
+        "step": 1,
+        "position": "qiyam_niyyah",
+        "ar": "النية والقيام",
+        "en": "Intention & Standing (Niyyah & Qiyam)",
+        "desc_ar": "قف مستقيماً باتجاه القبلة، واجعل بينك وبين موضع سجودك مسافة ذراع. انوِ في قلبك الصلاة التي تريد أداءها (مثلاً: نويت أن أصلي فرض الظهر أربع ركعات لله تعالى). النية محلها القلب ولا يُشترط التلفظ بها.",
+        "desc_en": "Stand upright facing the Qibla, about an arm's length from where you will prostrate. Make the intention in your heart for the prayer you want to perform (e.g., I intend to pray the obligatory Dhuhr prayer, four rak'ahs, for Allah). The intention is in the heart and does not need to be spoken.",
+        "dhikr_ar": "",
+        "dhikr_transliteration": "",
+        "body_position_ar": "الوقوف مستقيماً، النظر إلى موضع السجود",
+        "body_position_en": "Standing straight, eyes looking at the place of prostration"
+    },
+    {
+        "step": 2,
+        "position": "takbir",
+        "ar": "تكبيرة الإحرام",
+        "en": "Opening Takbir (Takbiratul Ihram)",
+        "desc_ar": "ارفع يديك حذو أذنيك (أو حذو منكبيك) مع فرد الأصابع وتوجيه الكفين نحو القبلة، وقل: «اللّهُ أَكْبَر». هذه التكبيرة تبدأ بها الصلاة ويَحرُم بعدها الكلام والحركة.",
+        "desc_en": "Raise both hands up to your ears (or shoulders) with fingers spread and palms facing the Qibla, and say: 'Allahu Akbar' (Allah is the Greatest). This opening Takbir begins the prayer, after which talking and unnecessary movements are forbidden.",
+        "dhikr_ar": "اللّهُ أَكْبَر",
+        "dhikr_transliteration": "Allahu Akbar",
+        "body_position_ar": "رفع اليدين حذو الأذنين أو المنكبين",
+        "body_position_en": "Hands raised to ears or shoulders level"
+    },
+    {
+        "step": 3,
+        "position": "qiyam_qiraa",
+        "ar": "وضع اليدين وقراءة دعاء الاستفتاح",
+        "en": "Hands on Chest & Opening Supplication",
+        "desc_ar": "ضع يدك اليمنى فوق اليسرى على صدرك. ثم اقرأ دعاء الاستفتاح: «سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ». ثم قل: «أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ» و«بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ».",
+        "desc_en": "Place your right hand over your left hand on your chest. Then recite the opening supplication: 'Subhanaka Allahumma wa bihamdika, wa tabaraka ismuka, wa ta'ala jadduka, wa la ilaha ghairuk.' Then say: 'A'udhu billahi minash-shaytanir-rajim' and 'Bismillahir-Rahmanir-Rahim.'",
+        "dhikr_ar": "سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ",
+        "dhikr_transliteration": "Subhanaka Allahumma wa bihamdika, wa tabaraka ismuka, wa ta'ala jadduka, wa la ilaha ghairuk",
+        "body_position_ar": "اليد اليمنى فوق اليسرى على الصدر",
+        "body_position_en": "Right hand over left hand on the chest"
+    },
+    {
+        "step": 4,
+        "position": "qiyam_fatiha",
+        "ar": "قراءة سورة الفاتحة",
+        "en": "Reciting Surah Al-Fatiha",
+        "desc_ar": "اقرأ سورة الفاتحة كاملة وهي ركن من أركان الصلاة: «الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ❊ الرَّحْمَنِ الرَّحِيمِ ❊ مَالِكِ يَوْمِ الدِّينِ ❊ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ❊ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ❊ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ». ثم قل: «آمين». ثم اقرأ ما تيسر من القرآن (سورة قصيرة).",
+        "desc_en": "Recite Surah Al-Fatiha completely - it is an essential pillar of prayer: 'Alhamdulillahi Rabbil 'Aalameen, Ar-Rahmanir-Raheem, Maliki Yawmid-Deen, Iyyaka na'budu wa iyyaka nasta'een, Ihdinas-Siratal-Mustaqeem, Siratal-ladhina an'amta 'alayhim ghayril-maghdubi 'alayhim walad-daalleen.' Then say 'Ameen.' Then recite what you can from the Quran (a short surah).",
+        "dhikr_ar": "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ ❊ الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ...",
+        "dhikr_transliteration": "Bismillahir-Rahmanir-Rahim. Alhamdulillahi Rabbil 'Aalameen...",
+        "body_position_ar": "القيام مع وضع اليدين على الصدر والنظر لموضع السجود",
+        "body_position_en": "Standing with hands on chest, eyes on prostration spot"
+    },
+    {
+        "step": 5,
+        "position": "ruku",
+        "ar": "الركوع",
+        "en": "Bowing (Ruku')",
+        "desc_ar": "كبّر «اللّهُ أَكْبَر» وانحنِ حتى يستوي ظهرك مع رأسك (كأنه طاولة مستوية). ضع كفيك على ركبتيك مع تفريق الأصابع. قل: «سُبْحَانَ رَبِّيَ الْعَظِيم» ثلاث مرات على الأقل.",
+        "desc_en": "Say 'Allahu Akbar' and bow until your back is straight and level (like a flat table). Place your palms on your knees with fingers spread. Say: 'Subhana Rabbiyal-Adheem' (Glory be to my Lord, the Almighty) at least three times.",
+        "dhikr_ar": "سُبْحَانَ رَبِّيَ الْعَظِيم (٣ مرات)",
+        "dhikr_transliteration": "Subhana Rabbiyal-Adheem (3 times)",
+        "body_position_ar": "الانحناء مع استواء الظهر، الكفان على الركبتين",
+        "body_position_en": "Bowing with back straight and level, palms on knees"
+    },
+    {
+        "step": 6,
+        "position": "itidal",
+        "ar": "الاعتدال من الركوع",
+        "en": "Rising from Bowing (I'tidal)",
+        "desc_ar": "ارفع من الركوع قائلاً: «سَمِعَ اللّهُ لِمَنْ حَمِدَه». ثم قف مستقيماً تماماً وقل: «رَبَّنَا وَلَكَ الْحَمْد، حَمْداً كَثِيراً طَيِّباً مُبَارَكاً فِيه».",
+        "desc_en": "Rise from bowing saying: 'Sami'Allahu liman hamidah' (Allah hears whoever praises Him). Then stand completely upright and say: 'Rabbana wa lakal-hamd, hamdan katheeran tayyiban mubarakan fih.'",
+        "dhikr_ar": "سَمِعَ اللّهُ لِمَنْ حَمِدَه، رَبَّنَا وَلَكَ الْحَمْد",
+        "dhikr_transliteration": "Sami'Allahu liman hamidah, Rabbana wa lakal-hamd",
+        "body_position_ar": "الوقوف مستقيماً بعد الركوع",
+        "body_position_en": "Standing straight after bowing"
+    },
+    {
+        "step": 7,
+        "position": "sujud_1",
+        "ar": "السجدة الأولى",
+        "en": "First Prostration (Sujud)",
+        "desc_ar": "كبّر «اللّهُ أَكْبَر» وانزل للسجود. يجب أن تسجد على سبعة أعضاء: الجبهة مع الأنف، الكفين، الركبتين، وأطراف أصابع القدمين. ارفع ذراعيك عن الأرض ولا تفرشهما. قل: «سُبْحَانَ رَبِّيَ الأَعْلَى» ثلاث مرات على الأقل. السجود أقرب ما يكون العبد من ربه.",
+        "desc_en": "Say 'Allahu Akbar' and go down to prostrate. You must prostrate on seven body parts: forehead with nose, both palms, both knees, and toes of both feet. Keep your arms raised off the ground, don't spread them flat. Say: 'Subhana Rabbiyal-A'la' (Glory be to my Lord, the Most High) at least three times. Prostration is when a servant is closest to their Lord.",
+        "dhikr_ar": "سُبْحَانَ رَبِّيَ الأَعْلَى (٣ مرات)",
+        "dhikr_transliteration": "Subhana Rabbiyal-A'la (3 times)",
+        "body_position_ar": "السجود على ٧ أعضاء: الجبهة والأنف، الكفين، الركبتين، أطراف القدمين",
+        "body_position_en": "Prostrating on 7 body parts: forehead+nose, palms, knees, toes"
+    },
+    {
+        "step": 8,
+        "position": "juloos",
+        "ar": "الجلسة بين السجدتين",
+        "en": "Sitting Between Two Prostrations",
+        "desc_ar": "كبّر «اللّهُ أَكْبَر» وارفع من السجود واجلس على رجلك اليسرى مفترشاً إياها، وانصب رجلك اليمنى. ضع يديك على فخذيك. قل: «رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي» (مرتين أو أكثر).",
+        "desc_en": "Say 'Allahu Akbar' and rise from prostration to sit on your left foot (spread beneath you) with your right foot upright. Place your hands on your thighs. Say: 'Rabbighfir li, Rabbighfir li' (My Lord, forgive me) twice or more.",
+        "dhikr_ar": "رَبِّ اغْفِرْ لِي، رَبِّ اغْفِرْ لِي",
+        "dhikr_transliteration": "Rabbighfir li, Rabbighfir li",
+        "body_position_ar": "الجلوس مفترشاً الرجل اليسرى وناصباً اليمنى",
+        "body_position_en": "Sitting on left foot, right foot upright"
+    },
+    {
+        "step": 9,
+        "position": "sujud_2",
+        "ar": "السجدة الثانية",
+        "en": "Second Prostration (Sujud)",
+        "desc_ar": "كبّر «اللّهُ أَكْبَر» واسجد مرة ثانية كالسجدة الأولى تماماً على الأعضاء السبعة. قل: «سُبْحَانَ رَبِّيَ الأَعْلَى» ثلاث مرات على الأقل. وبهذا تكتمل الركعة الأولى.",
+        "desc_en": "Say 'Allahu Akbar' and prostrate again exactly like the first prostration on the seven body parts. Say: 'Subhana Rabbiyal-A'la' (Glory be to my Lord, the Most High) at least three times. This completes the first rak'ah (unit of prayer).",
+        "dhikr_ar": "سُبْحَانَ رَبِّيَ الأَعْلَى (٣ مرات)",
+        "dhikr_transliteration": "Subhana Rabbiyal-A'la (3 times)",
+        "body_position_ar": "نفس السجدة الأولى على الأعضاء السبعة",
+        "body_position_en": "Same as first prostration on seven body parts"
+    },
+    {
+        "step": 10,
+        "position": "tashahhud",
+        "ar": "التشهد (التحيات)",
+        "en": "Tashahhud (Testimony of Faith)",
+        "desc_ar": "بعد السجدة الثانية من الركعة الأخيرة، اجلس للتشهد. اجلس مفترشاً (في التشهد الأول) أو متوركاً (في التشهد الأخير). ضع يديك على فخذيك وأشر بسبابة يدك اليمنى عند قول «لا إله إلا الله». اقرأ التحيات: «التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللَّهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللَّهِ الصَّالِحِينَ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ». ثم الصلاة الإبراهيمية.",
+        "desc_en": "After the second prostration of the last rak'ah, sit for Tashahhud. Sit with left foot spread beneath you (first tashahhud) or in tawarruk position (final tashahhud). Place hands on thighs and point with right index finger when saying 'La ilaha illallah'. Recite At-Tahiyyat: 'At-tahiyyatu lillahi was-salawatu wat-tayyibat, as-salamu 'alayka ayyuhan-nabiyyu wa rahmatullahi wa barakatuh, as-salamu 'alayna wa 'ala 'ibadillahis-saliheen, ash-hadu an la ilaha illallah wa ash-hadu anna Muhammadan 'abduhu wa rasuluh.' Then recite the Ibrahimic prayer.",
+        "dhikr_ar": "التَّحِيَّاتُ لِلَّهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ...",
+        "dhikr_transliteration": "At-tahiyyatu lillahi was-salawatu wat-tayyibat...",
+        "body_position_ar": "الجلوس مع الإشارة بالسبابة",
+        "body_position_en": "Sitting with index finger pointing"
+    },
+    {
+        "step": 11,
+        "position": "tasleem",
+        "ar": "التسليم",
+        "en": "Ending the Prayer (Tasleem)",
+        "desc_ar": "التفت برأسك إلى اليمين وقل: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّه»، ثم التفت إلى اليسار وقل: «السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّه». وبهذا تنتهي الصلاة. بارك الله فيك!",
+        "desc_en": "Turn your head to the right and say: 'Assalamu Alaikum wa Rahmatullah' (Peace and mercy of Allah be upon you), then turn to the left and say: 'Assalamu Alaikum wa Rahmatullah.' This completes the prayer. May Allah bless you!",
+        "dhikr_ar": "السَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللَّه",
+        "dhikr_transliteration": "Assalamu Alaikum wa Rahmatullah",
+        "body_position_ar": "الالتفات يميناً ثم يساراً",
+        "body_position_en": "Turning head right then left"
+    },
 ]
 
 # ═══════════════════════════════════════════════════════════════
@@ -561,7 +685,19 @@ def get_wudu_steps(locale="ar"):
 
 def get_salah_steps(locale="ar"):
     lang = "ar" if locale == "ar" else "en"
-    return [{"step": s["step"], "emoji": s["emoji"], "title": s[lang], "description": s[f"desc_{lang}"]} for s in SALAH_STEPS]
+    result = []
+    for s in SALAH_STEPS:
+        step_data = {
+            "step": s["step"],
+            "position": s.get("position", ""),
+            "title": s[lang],
+            "description": s[f"desc_{lang}"],
+            "dhikr_ar": s.get("dhikr_ar", ""),
+            "dhikr_transliteration": s.get("dhikr_transliteration", ""),
+            "body_position": s.get(f"body_position_{lang}", ""),
+        }
+        result.append(step_data)
+    return result
 
 def get_alphabet():
     return ARABIC_ALPHABET

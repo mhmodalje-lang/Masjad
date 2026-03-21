@@ -5,6 +5,7 @@ import { useNoorTTS, getNoorMessage } from '@/components/NoorMascot';
 import { Star, Mic, MicOff, Volume2, Sparkles, ArrowLeft, Zap, Check, X, ChevronRight, Flame, Lock, Crown, ChevronDown, BookOpen, Heart, GraduationCap, Calendar, Trophy, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import SalahGuide from '@/components/SalahGuide';
 
 const API = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -620,13 +621,7 @@ export default function KidsZone() {
         </div>))}
       </div>)}
 
-      {islamSub==='salah' && (<div className="space-y-2">
-        <div className="text-center p-3 rounded-2xl bg-green-500/10 border border-green-500/20"><span className="text-3xl">🙏</span><h3 className="font-bold mt-1">{t('salahStepsTitle')}</h3></div>
-        {salahSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-card/60 border border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-lg font-bold text-green-400">{s.step}</div>
-          <div><p className="font-bold text-sm">{s.emoji} {s.title}</p><p className="text-xs text-muted-foreground">{s.description}</p></div>
-        </div>))}
-      </div>)}
+      {islamSub==='salah' && (<SalahGuide steps={salahSteps} />)}
     </div>);
   };
 
