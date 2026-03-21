@@ -181,8 +181,8 @@ export default function PointsBalance() {
           {mode === 'kids' ? '🧱 Golden Bricks' : '🤲 Blessing Points'}
         </h1>
         <div className="flex gap-1 p-1 rounded-xl bg-muted/50 border border-border/30">
-          <button onClick={() => setMode('kids')} className={cn("px-3 py-1 rounded-lg text-xs font-bold transition-all", mode === 'kids' ? "bg-amber-500 text-white" : "text-muted-foreground")}>Kids</button>
-          <button onClick={() => setMode('adults')} className={cn("px-3 py-1 rounded-lg text-xs font-bold transition-all", mode === 'adults' ? "bg-emerald-600 text-white" : "text-muted-foreground")}>Adults</button>
+          <button onClick={() => setMode('kids')} className={cn("px-4 py-2.5 rounded-lg text-xs font-bold transition-all min-h-[44px]", mode === 'kids' ? "bg-amber-500 text-white" : "text-muted-foreground")}>Kids</button>
+          <button onClick={() => setMode('adults')} className={cn("px-4 py-2.5 rounded-lg text-xs font-bold transition-all min-h-[44px]", mode === 'adults' ? "bg-emerald-600 text-white" : "text-muted-foreground")}>Adults</button>
         </div>
       </div>
 
@@ -279,7 +279,7 @@ export default function PointsBalance() {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={cn("flex-1 flex items-center justify-center gap-1 py-2 rounded-xl text-xs font-bold transition-all",
+            className={cn("flex-1 flex items-center justify-center gap-1 py-3 rounded-xl text-xs font-bold transition-all min-h-[44px]",
               activeTab === tab.key ? "bg-primary text-primary-foreground" : "text-muted-foreground"
             )}
           >

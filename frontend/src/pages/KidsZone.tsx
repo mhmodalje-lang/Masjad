@@ -674,7 +674,7 @@ export default function KidsZone() {
       {!selectedSurah && !selectedProphet && !selItem && (
         <div className="flex gap-1 overflow-x-auto pb-3 scrollbar-hide mb-1">
           {TABS.map(tab=>(<button key={tab.id} onClick={()=>setMainTab(tab.id)}
-            className={cn("flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",
+            className={cn("flex items-center gap-1.5 px-3 py-3 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0 min-h-[44px]",
               mainTab===tab.id?"bg-gradient-to-r from-violet-500/20 to-pink-500/20 border-violet-400/40 text-violet-300 shadow-lg shadow-violet-500/10":"bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
             )}>
             <span>{tab.emoji}</span><span>{isRTL?tab.ar:tab.en}</span>
