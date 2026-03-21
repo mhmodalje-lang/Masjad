@@ -20,7 +20,7 @@ import time
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://kids-learning-hub-25.preview.emergentagent.com"
+BACKEND_URL = "https://noor-kids-platform.preview.emergentagent.com"
 
 class KidsLearningTester:
     def __init__(self):
