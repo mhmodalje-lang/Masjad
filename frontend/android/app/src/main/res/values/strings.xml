@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">أذان وحكاية</string>
+    <string name="title_activity_main">أذان وحكاية</string>
+    <string name="package_name">com.azanwahikaya.app</string>
+    <string name="custom_url_scheme">com.azanwahikaya.app</string>
+</resources>
