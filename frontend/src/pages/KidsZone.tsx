@@ -18,10 +18,10 @@ type IslamSub = 'duas' | 'hadiths' | 'prophets' | 'pillars' | 'wudu' | 'salah';
 
 /* ═══════ TAB CONFIG ═══════ */
 const TABS: {id:MainTab;emoji:string;key:string}[] = [
-  {id:'curriculum',emoji:'🎓',key:'curriculum'},
-  {id:'lesson',emoji:'📅',key:'todaysLesson'},
   {id:'quran',emoji:'📖',key:'quran'},
   {id:'islam',emoji:'🕌',key:'islam'},
+  {id:'curriculum',emoji:'🎓',key:'curriculum'},
+  {id:'lesson',emoji:'📅',key:'todaysLesson'},
   {id:'library',emoji:'📚',key:'learningLibrary'},
 ];
 
@@ -30,7 +30,7 @@ function Confetti({on}:{on:boolean}){
   if(!on)return null;
   return(<div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
     {Array.from({length:40}).map((_,i)=>(<div key={i} className="absolute animate-confetti-fall" style={{left:`${Math.random()*100}%`,top:'-10px',animationDelay:`${Math.random()*2}s`,animationDuration:`${2+Math.random()*3}s`}}>
-      <span className="text-2xl">{['⭐','🌟','✨','🎉','🧱','🕌','💛','🌙','📖','🤲'][i%10]}</span></div>))}
+      <span className="text-2xl">{['⭐','🌟','✨','🌙','🕌','💛','📖','🤲','🕋','☪️'][i%10]}</span></div>))}
   </div>);
 }
 
@@ -66,7 +66,7 @@ export default function KidsZone() {
   const isRTL = dir === 'rtl';
   const lang = locale || 'ar';
 
-  const [mainTab, setMainTab] = useState<MainTab>('curriculum');
+  const [mainTab, setMainTab] = useState<MainTab>('quran');
   const [userId] = useState(() => localStorage.getItem('kids_user_id') || `kid_${Date.now()}`);
   const [confetti, setConfetti] = useState(false);
 
@@ -85,7 +85,7 @@ export default function KidsZone() {
   const [selectedSurah, setSelectedSurah] = useState<any>(null);
 
   // Islam state
-  const [islamSub, setIslamSub] = useState<IslamSub>('duas');
+  const [islamSub, setIslamSub] = useState<IslamSub>('salah');
   const [duas, setDuas] = useState<any[]>([]);
   const [hadiths, setHadiths] = useState<any[]>([]);
   const [prophets, setProphets] = useState<any[]>([]);
@@ -306,7 +306,7 @@ export default function KidsZone() {
 
       {/* Lesson Title */}
       <div className="p-4 rounded-2xl bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 text-center">
-        <span className="text-3xl">🐣</span>
+        <span className="text-3xl">📚</span>
         <h2 className="text-lg font-bold mt-2">{L.title[locale] || L.title.ar || L.title.en}</h2>
         <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} {t('xpLabel') || 'XP'}</p>
       </div>
@@ -568,12 +568,12 @@ export default function KidsZone() {
     </div>);
 
     const subs:{id:IslamSub;label:string;emoji:string;count:number}[] = [
+      {id:'salah',label:t('salahTab'),emoji:'🕌',count:salahSteps.length},
+      {id:'wudu',label:t('wuduTab'),emoji:'💧',count:wuduSteps.length},
+      {id:'pillars',label:t('pillarsTab'),emoji:'🕋',count:pillars.length},
+      {id:'prophets',label:t('prophetsTab'),emoji:'📿',count:prophets.length},
       {id:'duas',label:t('duasTab'),emoji:'🤲',count:duas.length},
       {id:'hadiths',label:t('hadithsTab'),emoji:'📜',count:hadiths.length},
-      {id:'prophets',label:t('prophetsTab'),emoji:'🕌',count:prophets.length},
-      {id:'pillars',label:t('pillarsTab'),emoji:'☪️',count:pillars.length},
-      {id:'wudu',label:t('wuduTab'),emoji:'💧',count:wuduSteps.length},
-      {id:'salah',label:t('salahTab'),emoji:'🙏',count:salahSteps.length},
     ];
 
     return(<div className="space-y-4 pb-8">
@@ -584,41 +584,79 @@ export default function KidsZone() {
         </button>))}
       </div>
 
-      {islamSub==='duas' && duas.map(d=>(<button key={d.id} onClick={()=>speak(d.arabic,'ar')} className="w-full p-4 rounded-2xl bg-card/60 border border-white/10 text-start hover:border-blue-400/30 transition-all">
-        <div className="flex items-center gap-2 mb-2"><span>{d.emoji}</span><span className="text-xs font-bold text-blue-400">{d.title}</span><Volume2 className="h-3 w-3 text-blue-400 ms-auto"/></div>
-        <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{d.arabic}</p>
-        {d.transliteration && <p className="text-xs text-blue-300/50 mt-1 italic">{d.transliteration}</p>}
-        {d.meaning && <p className="text-sm text-muted-foreground mt-1">{d.meaning}</p>}
-      </button>))}
-
-      {islamSub==='hadiths' && hadiths.map(h=>(<div key={h.id} className="p-4 rounded-2xl bg-card/60 border border-white/10">
-        <div className="flex items-center gap-2 mb-2"><span className="text-xl">{h.emoji}</span><span className="text-xs font-bold text-amber-400 capitalize">{h.category}</span></div>
-        <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{h.arabic}</p>
-        {h.translation && lang!=='ar' && <p className="text-sm text-muted-foreground mt-2 italic">{h.translation}</p>}
-        <p className="text-xs text-muted-foreground mt-2">📌 {h.source}</p>
-        <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-300">💡 {h.lesson}</p></div>
-      </div>))}
-
-      {islamSub==='prophets' && prophets.map(p=>(<button key={p.id} onClick={()=>setSelectedProphet(p)} className="w-full p-4 rounded-2xl bg-card/60 border border-white/10 text-start hover:border-purple-400/30 transition-all">
-        <div className="flex items-center gap-3"><span className="text-3xl">{p.emoji}</span>
-          <div className="flex-1"><p className="font-bold">{p.number}. {p.name}</p><p className="text-xs text-purple-400">{p.title}</p></div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground"/>
+      {islamSub==='duas' && (<div className="space-y-3">
+        <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-blue-500/15 to-indigo-500/10 border border-blue-400/30">
+          <span className="text-4xl">🤲</span>
+          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أدعية يومية للمسلم الصغير' : 'Daily Duas for Young Muslims'}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{dir==='rtl' ? 'وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ' : '"Call upon Me; I will respond to you" - Quran 40:60'}</p>
         </div>
-      </button>))}
+        {duas.map(d=>(<button key={d.id} onClick={()=>speak(d.arabic,'ar')} className="w-full p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/5 border border-blue-500/20 text-start hover:border-blue-400/40 transition-all">
+          <div className="flex items-center gap-2 mb-2"><span>{d.emoji}</span><span className="text-xs font-bold text-blue-300">{d.title}</span><Volume2 className="h-3 w-3 text-blue-400 ms-auto"/></div>
+          <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{d.arabic}</p>
+          {d.transliteration && <p className="text-xs text-blue-300/50 mt-1 italic">{d.transliteration}</p>}
+          {d.meaning && <p className="text-sm text-muted-foreground mt-1">{d.meaning}</p>}
+        </button>))}
+      </div>)}
 
-      {islamSub==='pillars' && pillars.map(p=>(<div key={p.id} className="p-4 rounded-2xl bg-card/60 border border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg">{p.emoji}</div>
-          <div className="flex-1"><p className="font-bold">{p.number}. {p.title}</p><p className="text-sm text-muted-foreground mt-1">{p.description}</p></div>
+      {islamSub==='hadiths' && (<div className="space-y-3">
+        <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 to-orange-500/10 border border-amber-400/30">
+          <span className="text-4xl">📜</span>
+          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أحاديث نبوية للأطفال' : 'Prophetic Hadiths for Children'}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{dir==='rtl' ? 'من كلام النبي محمد ﷺ' : 'From the words of Prophet Muhammad ﷺ'}</p>
         </div>
-      </div>))}
-
-      {islamSub==='wudu' && (<div className="space-y-2">
-        <div className="text-center p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20"><span className="text-3xl">💧</span><h3 className="font-bold mt-1">{t('wuduStepsTitle')}</h3></div>
-        {wuduSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-card/60 border border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-lg font-bold text-blue-400">{s.step}</div>
-          <div><p className="font-bold text-sm">{s.emoji} {s.title}</p><p className="text-xs text-muted-foreground">{s.description}</p></div>
+        {hadiths.map(h=>(<div key={h.id} className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20">
+          <div className="flex items-center gap-2 mb-2"><span className="text-xl">{h.emoji}</span><span className="text-xs font-bold text-amber-300 capitalize">{h.category}</span></div>
+          <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{h.arabic}</p>
+          {h.translation && lang!=='ar' && <p className="text-sm text-muted-foreground mt-2 italic">{h.translation}</p>}
+          <p className="text-xs text-muted-foreground mt-2">📌 {h.source}</p>
+          <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-300">💡 {h.lesson}</p></div>
         </div>))}
+      </div>)}
+
+      {islamSub==='prophets' && (<div className="space-y-3">
+        <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 to-violet-500/10 border border-purple-400/30">
+          <span className="text-4xl">📿</span>
+          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'قصص الأنبياء عليهم السلام' : 'Stories of the Prophets (Peace be upon them)'}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{dir==='rtl' ? 'نَحْنُ نَقُصُّ عَلَيْكَ أَحْسَنَ الْقَصَصِ — يوسف:٣' : '"We relate to you the best of stories" — Yusuf:3'}</p>
+        </div>
+        {prophets.map(p=>(<button key={p.id} onClick={()=>setSelectedProphet(p)} className="w-full p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 to-violet-500/5 border border-purple-500/20 text-start hover:border-purple-400/40 transition-all">
+          <div className="flex items-center gap-3"><span className="text-3xl">{p.emoji}</span>
+            <div className="flex-1"><p className="font-bold text-purple-300">{p.number}. {p.name}</p><p className="text-xs text-purple-400/70">{p.title}</p></div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground"/>
+          </div>
+        </button>))}
+      </div>)}
+
+      {islamSub==='pillars' && (<div className="space-y-3">
+        <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
+          <span className="text-4xl">🕋</span>
+          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أركان الإسلام الخمسة' : 'The Five Pillars of Islam'}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{dir==='rtl' ? 'بُنِيَ الإسلامُ على خمس' : 'Islam is built upon five pillars'}</p>
+        </div>
+        {pillars.map(p=>(<div key={p.id} className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border border-emerald-500/20">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/20">{p.emoji}</div>
+          <div className="flex-1"><p className="font-bold text-emerald-300">{p.number}. {p.title}</p><p className="text-sm text-muted-foreground mt-1 leading-relaxed">{p.description}</p></div>
+        </div>
+      </div>))}
+      </div>)}
+
+      {islamSub==='wudu' && (<div className="space-y-3">
+        <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-blue-500/15 to-cyan-500/10 border border-blue-400/30">
+          <span className="text-4xl">💧</span>
+          <h3 className="font-bold mt-2 text-lg">{t('wuduStepsTitle')}</h3>
+          <p className="text-xs text-muted-foreground mt-1">{dir==='rtl' ? 'تعلّم الوضوء خطوة بخطوة • الطهارة مفتاح الصلاة' : 'Learn Wudu Step by Step • Purity is the Key to Prayer'}</p>
+        </div>
+        {wuduSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg shadow-blue-500/20">{s.step}</div>
+          <div className="flex-1">
+            <p className="font-bold text-sm text-blue-300">{s.emoji} {s.title}</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{s.description}</p>
+          </div>
+        </div>))}
+        <div className="text-center p-3 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-[10px] text-muted-foreground">{dir==='rtl' ? '📚 المرجع: صفة وضوء النبي ﷺ — البخاري ومسلم' : '📚 Reference: The Prophet\'s Wudu ﷺ — Bukhari & Muslim'}</p>
+        </div>
       </div>)}
 
       {islamSub==='salah' && (<SalahGuide steps={salahSteps} />)}

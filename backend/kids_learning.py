@@ -513,7 +513,7 @@ ISLAMIC_PILLARS = [
     {"id": "shahada", "number": 1, "emoji": "☝️",
      "title": {"ar": "الشهادة", "en": "Shahada", "de": "Shahada", "fr": "Shahada", "tr": "Şehadet", "ru": "Шахада"},
      "desc": {"ar": "أشهد أن لا إله إلا الله وأن محمداً رسول الله", "en": "Testifying there is no god but Allah and Muhammad is His messenger", "de": "Bezeugen, dass es keinen Gott außer Allah gibt und Muhammad Sein Gesandter ist", "fr": "Témoigner qu'il n'y a de dieu qu'Allah et que Muhammad est Son messager", "tr": "Allah'tan başka ilah olmadığına ve Muhammed'in O'nun elçisi olduğuna şehadet etmek", "ru": "Свидетельство, что нет бога кроме Аллаха и Мухаммад — Его посланник"}},
-    {"id": "salah", "number": 2, "emoji": "🙏",
+    {"id": "salah", "number": 2, "emoji": "🕌",
      "title": {"ar": "الصلاة", "en": "Salah (Prayer)", "de": "Salah (Gebet)", "fr": "Salat (Prière)", "tr": "Namaz", "ru": "Салят (Молитва)"},
      "desc": {"ar": "خمس صلوات في اليوم: الفجر، الظهر، العصر، المغرب، العشاء", "en": "Five daily prayers: Fajr, Dhuhr, Asr, Maghrib, Isha", "de": "Fünf tägliche Gebete: Fajr, Dhuhr, Asr, Maghrib, Isha", "fr": "Cinq prières quotidiennes: Fajr, Dhouhr, Asr, Maghrib, Isha", "tr": "Beş vakit namaz: Sabah, Öğle, İkindi, Akşam, Yatsı", "ru": "Пять ежедневных молитв: Фаджр, Зухр, Аср, Магриб, Иша"}},
     {"id": "zakat", "number": 3, "emoji": "💰",

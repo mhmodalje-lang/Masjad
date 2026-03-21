@@ -141,7 +141,7 @@ ALL_PROPHETS = [
      "summary": {"ar": "غضب من قومه وركب السفينة. ابتلعه الحوت فدعا الله في ظلمات ثلاث: لا إله إلا أنت سبحانك إني كنت من الظالمين. فأنجاه الله", "en": "He was angry with his people and boarded a ship. A whale swallowed him. He called upon Allah in three layers of darkness: There is no god but You, glory be to You, I was among the wrongdoers. Allah saved him"},
      "lesson": {"ar": "الاستغفار والتوبة", "en": "Seeking forgiveness and repentance"},
      "quran_ref": "الأنبياء 87-88"},
-    {"id": "zakariya", "number": 22, "emoji": "🙏",
+    {"id": "zakariya", "number": 22, "emoji": "🤲",
      "name": {"ar": "زكريا", "en": "Zakariya (Zechariah)", "de": "Zakariya (Zacharias)", "fr": "Zakaria (Zacharie)", "tr": "Zekeriya", "ru": "Закария (Захария)"},
      "title": {"ar": "كافل مريم", "en": "Guardian of Maryam", "de": "Vormund Maryams", "fr": "Tuteur de Maryam", "tr": "Meryem'in Bakıcısı", "ru": "Опекун Марьям"},
      "summary": {"ar": "كفل مريم أم عيسى. دعا الله أن يرزقه ولداً وهو كبير فاستجاب الله وبشره بيحيى", "en": "He was guardian of Maryam, mother of Isa. He prayed to Allah for a child in his old age and Allah answered, giving him glad tidings of Yahya"},
@@ -303,18 +303,18 @@ def get_prophet_field(prophet, field, lang):
 # ═══════════════════════════════════════════════════════════════
 
 WUDU_STEPS = [
-    {"step": 1, "emoji": "🤲", "ar": "النية", "en": "Intention (Niyyah)", "desc_ar": "انوِ في قلبك أنك تتوضأ لله", "desc_en": "Make intention in your heart to perform wudu for Allah"},
-    {"step": 2, "emoji": "🙌", "ar": "غسل اليدين", "en": "Wash Hands", "desc_ar": "اغسل يديك ثلاث مرات", "desc_en": "Wash your hands three times"},
-    {"step": 3, "emoji": "💧", "ar": "المضمضة", "en": "Rinse Mouth", "desc_ar": "تمضمض ثلاث مرات", "desc_en": "Rinse your mouth three times"},
-    {"step": 4, "emoji": "👃", "ar": "الاستنشاق", "en": "Sniff Water", "desc_ar": "استنشق الماء ثلاث مرات", "desc_en": "Sniff water into your nose three times"},
-    {"step": 5, "emoji": "😊", "ar": "غسل الوجه", "en": "Wash Face", "desc_ar": "اغسل وجهك ثلاث مرات من الأذن إلى الأذن ومن الجبهة إلى الذقن", "desc_en": "Wash your face three times from ear to ear and forehead to chin"},
-    {"step": 6, "emoji": "💪", "ar": "غسل اليد اليمنى", "en": "Wash Right Arm", "desc_ar": "اغسل يدك اليمنى إلى المرفق ثلاث مرات", "desc_en": "Wash your right arm up to the elbow three times"},
-    {"step": 7, "emoji": "💪", "ar": "غسل اليد اليسرى", "en": "Wash Left Arm", "desc_ar": "اغسل يدك اليسرى إلى المرفق ثلاث مرات", "desc_en": "Wash your left arm up to the elbow three times"},
-    {"step": 8, "emoji": "🧕", "ar": "مسح الرأس", "en": "Wipe Head", "desc_ar": "امسح رأسك بيديك المبللتين مرة واحدة", "desc_en": "Wipe your head with wet hands once"},
-    {"step": 9, "emoji": "👂", "ar": "مسح الأذنين", "en": "Wipe Ears", "desc_ar": "امسح أذنيك بإصبعيك", "desc_en": "Wipe your ears with your fingers"},
-    {"step": 10, "emoji": "🦶", "ar": "غسل القدم اليمنى", "en": "Wash Right Foot", "desc_ar": "اغسل قدمك اليمنى مع الكعبين ثلاث مرات", "desc_en": "Wash your right foot including ankles three times"},
-    {"step": 11, "emoji": "🦶", "ar": "غسل القدم اليسرى", "en": "Wash Left Foot", "desc_ar": "اغسل قدمك اليسرى مع الكعبين ثلاث مرات", "desc_en": "Wash your left foot including ankles three times"},
-    {"step": 12, "emoji": "🤲", "ar": "الدعاء بعد الوضوء", "en": "Dua After Wudu", "desc_ar": "أشهد أن لا إله إلا الله وأشهد أن محمداً عبده ورسوله", "desc_en": "I bear witness that there is no god but Allah and Muhammad is His servant and messenger"},
+    {"step": 1, "emoji": "🤲", "ar": "النية والتسمية", "en": "Intention & Bismillah", "desc_ar": "انوِ في قلبك الوضوء لله تعالى، ثم قل: بِسْمِ اللَّه", "desc_en": "Make intention in your heart, then say: Bismillah"},
+    {"step": 2, "emoji": "🫧", "ar": "غسل الكفين", "en": "Wash Palms", "desc_ar": "اغسل كفيك (يديك) ثلاث مرات، ابدأ باليمنى", "desc_en": "Wash both palms three times, start with the right"},
+    {"step": 3, "emoji": "💧", "ar": "المضمضة", "en": "Rinse Mouth", "desc_ar": "أدخل الماء في فمك وتمضمض ثلاث مرات", "desc_en": "Put water in your mouth and rinse three times"},
+    {"step": 4, "emoji": "💧", "ar": "الاستنشاق والاستنثار", "en": "Sniff & Blow Nose", "desc_ar": "استنشق الماء بأنفك ثم انثره ثلاث مرات", "desc_en": "Sniff water into your nose then blow it out, three times"},
+    {"step": 5, "emoji": "💦", "ar": "غسل الوجه", "en": "Wash Face", "desc_ar": "اغسل وجهك ثلاث مرات من منبت الشعر إلى الذقن، ومن الأذن إلى الأذن", "desc_en": "Wash your face three times from hairline to chin, ear to ear"},
+    {"step": 6, "emoji": "💧", "ar": "غسل اليد اليمنى", "en": "Wash Right Arm", "desc_ar": "اغسل يدك اليمنى من أطراف الأصابع إلى المرفق ثلاث مرات", "desc_en": "Wash your right arm from fingertips to elbow three times"},
+    {"step": 7, "emoji": "💧", "ar": "غسل اليد اليسرى", "en": "Wash Left Arm", "desc_ar": "اغسل يدك اليسرى من أطراف الأصابع إلى المرفق ثلاث مرات", "desc_en": "Wash your left arm from fingertips to elbow three times"},
+    {"step": 8, "emoji": "💦", "ar": "مسح الرأس", "en": "Wipe Head", "desc_ar": "بلّل يديك وامسح رأسك من المقدمة إلى المؤخرة ثم ارجع، مرة واحدة", "desc_en": "Wet your hands and wipe your head from front to back then return, once"},
+    {"step": 9, "emoji": "💦", "ar": "مسح الأذنين", "en": "Wipe Ears", "desc_ar": "أدخل سبابتيك في أذنيك وامسح ظاهرهما بإبهاميك", "desc_en": "Insert index fingers in ears and wipe outer ears with thumbs"},
+    {"step": 10, "emoji": "💧", "ar": "غسل القدم اليمنى", "en": "Wash Right Foot", "desc_ar": "اغسل قدمك اليمنى مع الكعبين ثلاث مرات، وخلّل بين الأصابع", "desc_en": "Wash right foot including ankles three times, between toes too"},
+    {"step": 11, "emoji": "💧", "ar": "غسل القدم اليسرى", "en": "Wash Left Foot", "desc_ar": "اغسل قدمك اليسرى مع الكعبين ثلاث مرات، وخلّل بين الأصابع", "desc_en": "Wash left foot including ankles three times, between toes too"},
+    {"step": 12, "emoji": "🤲", "ar": "دعاء بعد الوضوء", "en": "Dua After Wudu", "desc_ar": "أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّدًا عَبْدُهُ وَرَسُولُهُ، اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ", "desc_en": "I bear witness that none has the right to be worshipped except Allah alone, and Muhammad is His slave and Messenger. O Allah, make me of those who repent and purify themselves"},
 ]
 
 # ═══════════════════════════════════════════════════════════════
