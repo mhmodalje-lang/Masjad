@@ -16,12 +16,12 @@ type MainTab = 'curriculum' | 'lesson' | 'quran' | 'islam' | 'library';
 type IslamSub = 'duas' | 'hadiths' | 'prophets' | 'pillars' | 'wudu' | 'salah';
 
 /* ═══════ TAB CONFIG ═══════ */
-const TABS: {id:MainTab;emoji:string;ar:string;en:string}[] = [
-  {id:'curriculum',emoji:'🎓',ar:'المنهج',en:'Curriculum'},
-  {id:'lesson',emoji:'📅',ar:'درس اليوم',en:"Today's Lesson"},
-  {id:'quran',emoji:'📖',ar:'القرآن',en:'Quran'},
-  {id:'islam',emoji:'🕌',ar:'الإسلام',en:'Islam'},
-  {id:'library',emoji:'📚',ar:'المكتبة',en:'Library'},
+const TABS: {id:MainTab;emoji:string;key:string}[] = [
+  {id:'curriculum',emoji:'🎓',key:'curriculum'},
+  {id:'lesson',emoji:'📅',key:'todaysLesson'},
+  {id:'quran',emoji:'📖',key:'quran'},
+  {id:'islam',emoji:'🕌',key:'islam'},
+  {id:'library',emoji:'📚',key:'learningLibrary'},
 ];
 
 /* ═══════ CONFETTI ═══════ */
@@ -163,7 +163,7 @@ export default function KidsZone() {
       await fetch(`${API}/api/kids-learn/curriculum/progress`,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({user_id:userId,day:lesson.day,sections_done:completedSections.size,total_sections:lesson.total_sections,xp_reward:lesson.xp_reward})});
       setConfetti(true); setTimeout(()=>setConfetti(false),3000);
-      toast.success(isRTL?'أحسنت! أكملت الدرس! 🎉':'Great job! Lesson complete! 🎉');
+      toast.success(t('lessonCompleteCongrats'));
       loadCurrProgress(); loadBadges();
     }catch{}
   };
@@ -180,24 +180,24 @@ export default function KidsZone() {
       <div className="p-5 rounded-3xl bg-gradient-to-br from-violet-600/20 via-purple-500/15 to-pink-500/10 border border-violet-400/20">
         <div className="text-center mb-4">
           <span className="text-5xl">🎓</span>
-          <h2 className="text-xl font-bold mt-2 bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">{isRTL?'المنهج الشامل':'Complete Curriculum'}</h2>
-          <p className="text-xs text-muted-foreground mt-1">{isRTL?'1000 درس من الصفر إلى الإتقان':'1000 lessons from zero to mastery'}</p>
+          <h2 className="text-xl font-bold mt-2 bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">{t('completeCurriculum')}</h2>
+          <p className="text-xs text-muted-foreground mt-1">{t('completeCurriculumDesc')}</p>
         </div>
         <div className="flex gap-3">
           <div className="flex-1 p-3 rounded-xl bg-black/20 text-center">
             <Calendar className="h-5 w-5 text-blue-400 mx-auto"/>
             <p className="text-lg font-bold text-blue-300">{currentDay}</p>
-            <p className="text-[9px] text-muted-foreground">{isRTL?'الدرس الحالي':'Current'}</p>
+            <p className="text-[9px] text-muted-foreground">{t('currentLesson')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-black/20 text-center">
             <Check className="h-5 w-5 text-green-400 mx-auto"/>
             <p className="text-lg font-bold text-green-300">{completedDays.length}</p>
-            <p className="text-[9px] text-muted-foreground">{isRTL?'مكتمل':'Done'}</p>
+            <p className="text-[9px] text-muted-foreground">{t('completedLabel')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-black/20 text-center">
             <Flame className="h-5 w-5 text-red-400 mx-auto"/>
             <p className="text-lg font-bold text-red-300">{streak}</p>
-            <p className="text-[9px] text-muted-foreground">{isRTL?'متتالية':'Streak'}</p>
+            <p className="text-[9px] text-muted-foreground">{t('streakSmall')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-black/20 text-center">
             <Zap className="h-5 w-5 text-amber-400 mx-auto"/>
@@ -208,7 +208,7 @@ export default function KidsZone() {
         {/* Overall progress bar */}
         <div className="mt-4">
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>{isRTL?'التقدم الكلي':'Overall Progress'}</span>
+            <span>{t('overallProgress')}</span>
             <span>{Math.round((completedDays.length/1000)*100)}%</span>
           </div>
           <div className="h-3 bg-black/30 rounded-full overflow-hidden">
@@ -220,17 +220,17 @@ export default function KidsZone() {
       {/* Badges Preview */}
       {badges.length>0 && (<div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {badges.filter(b=>b.earned).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
-          <span className="text-lg">{b.emoji}</span><span className="text-[10px] font-bold text-amber-300">{isRTL?b.title_ar:b.title_en}</span>
+          <span className="text-lg">{b.emoji}</span><span className="text-[10px] font-bold text-amber-300">{b[`title_${locale}`] || b.title_ar || b.title_en}</span>
         </div>))}
         {badges.filter(b=>!b.earned).slice(0,3).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 shrink-0 opacity-50">
-          <span className="text-lg grayscale">{b.emoji}</span><span className="text-[10px] text-muted-foreground">{isRTL?b.title_ar:b.title_en}</span>
+          <span className="text-lg grayscale">{b.emoji}</span><span className="text-[10px] text-muted-foreground">{b[`title_${locale}`] || b.title_ar || b.title_en}</span>
         </div>))}
       </div>)}
 
       {/* Quick Start */}
       <button onClick={()=>{setMainTab('lesson');loadLesson(currentDay);}} className="w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold text-base shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-3 hover:scale-[1.02] transition-all">
         <Play className="h-5 w-5 fill-white"/>
-        {isRTL?`ابدأ الدرس ${currentDay}`:`Start Lesson ${currentDay}`}
+        {t('startLessonN').replace('{n}', String(currentDay))}
       </button>
 
       {/* Stages */}
@@ -248,13 +248,13 @@ export default function KidsZone() {
             </div>
             <div className="flex-1 text-start">
               <h3 className="font-bold text-sm">{s.title}</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{isRTL?`${s.total_lessons} درس`:`${s.total_lessons} lessons`} • Day {s.day_start}-{s.day_end}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{t('nLessons').replace('{n}', String(s.total_lessons))} • Day {s.day_start}-{s.day_end}</p>
               <div className="flex items-center gap-2 mt-1.5">
                 <div className="flex-1 h-2 bg-black/20 rounded-full"><div className="h-full rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:s.color}}/></div>
                 <span className="text-[10px] font-bold" style={{color:s.color}}>{pct}%</span>
               </div>
             </div>
-            {isCurrent && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 animate-pulse shrink-0">{isRTL?'الآن':'NOW'}</span>}
+            {isCurrent && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 animate-pulse shrink-0">{t('nowLabel')}</span>}
             {pct===100 && <span className="text-green-400"><Check className="h-5 w-5"/></span>}
             {!isLocked && <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform shrink-0",isOpen&&"rotate-180")}/>}
           </button>
@@ -276,7 +276,7 @@ export default function KidsZone() {
                 </button>);
               })}
             </div>
-            {s.total_lessons>42 && <p className="text-[10px] text-muted-foreground text-center mt-2">+{s.total_lessons-42} {isRTL?'درس إضافي':'more lessons'}</p>}
+            {s.total_lessons>42 && <p className="text-[10px] text-muted-foreground text-center mt-2">+{s.total_lessons-42} {t('moreLessons').replace('{n}', String(s.total_lessons-42))}</p>}
           </div>)}
         </div>);
       })}
@@ -297,7 +297,7 @@ export default function KidsZone() {
             <span className="text-xl">{L.stage.emoji}</span>
             <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{background:L.stage.color+'20',color:L.stage.color}}>{L.stage.title}</span>
           </div>
-          <p className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent mt-1">{isRTL?`درس ${L.day}`:`Day ${L.day}`}</p>
+          <p className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent mt-1">{t('dayN').replace('{n}', String(L.day))}</p>
           <p className="text-[10px] text-muted-foreground">{L.lesson_number_in_stage} / {L.total_in_stage}</p>
         </div>
         <button onClick={()=>loadLesson(Math.min(1000,L.day+1))} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-lg font-bold">→</button>
@@ -306,7 +306,7 @@ export default function KidsZone() {
       {/* Lesson Title */}
       <div className="p-4 rounded-2xl bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 text-center">
         <span className="text-3xl">🐣</span>
-        <h2 className="text-lg font-bold mt-2">{isRTL?L.title.ar:L.title.en}</h2>
+        <h2 className="text-lg font-bold mt-2">{L.title[locale] || L.title.ar || L.title.en}</h2>
         <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} XP</p>
       </div>
 
@@ -328,7 +328,7 @@ export default function KidsZone() {
       {/* Complete Button */}
       {completedSections.size >= Math.ceil(L.total_sections * 0.5) && (
         <button onClick={completeLesson} className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold text-lg shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
-          <Sparkles className="h-5 w-5"/> {isRTL?`أكمل الدرس ${L.day}! 🎉`:`Complete Day ${L.day}! 🎉`}
+          <Sparkles className="h-5 w-5"/> {t('completeDayN').replace('{n}', String(L.day))}
         </button>
       )}
     </div>);
@@ -348,7 +348,7 @@ export default function KidsZone() {
               </div>
             </button>
             <p className="text-lg font-bold mt-2">{c.name_ar} ({c.name_en})</p>
-            <p className="text-sm text-muted-foreground">{isRTL?'الصوت:':'Sound:'} {c.sound}</p>
+            <p className="text-sm text-muted-foreground">{t('soundLabel')} {c.sound}</p>
             {c.example_word && <div className="mt-2 p-3 rounded-xl bg-black/10">
               <p className="text-2xl font-bold font-arabic" dir="rtl">{c.example_word}</p>
               <p className="text-sm text-muted-foreground">{c.example_emoji} {c.example_en}</p>
@@ -371,7 +371,7 @@ export default function KidsZone() {
           {c.name_ar && !c.letter && <div className="text-center">
             <p className="text-3xl font-bold">{c.symbol||''}</p>
             <p className="text-lg font-bold">{c.name_ar} ({c.name_en})</p>
-            <p className="text-sm text-muted-foreground">{isRTL?'الصوت:':'Sound:'} {c.sound}</p>
+            <p className="text-sm text-muted-foreground">{t('soundLabel')} {c.sound}</p>
             {c.example_word && <p className="text-2xl font-bold mt-2 font-arabic" dir="rtl">{c.example_word}</p>}
             {c.meaning && <p className="text-sm text-muted-foreground">{c.meaning}</p>}
           </div>}
@@ -401,8 +401,8 @@ export default function KidsZone() {
           <div className="grid grid-cols-2 gap-2">
             {c.options?.map((opt:string,i:number)=>(
               <button key={i} onClick={()=>{
-                if(opt===c.correct){toast.success(isRTL?'إجابة صحيحة! ✅':'Correct! ✅');speak(getNoorMessage('correct',locale));}
-                else{toast.error(isRTL?'حاول مرة أخرى':'Try again');}
+                if(opt===c.correct){toast.success(t('correctAnswer'));speak(getNoorMessage('correct',locale));}
+                else{toast.error(t('tryAgain'));}
               }} className="p-3 rounded-xl bg-card/60 border-2 border-white/10 hover:border-amber-400/40 transition-all text-center">
                 <span className="text-2xl font-bold">{opt}</span>
               </button>
@@ -436,7 +436,7 @@ export default function KidsZone() {
 
       case 'quran':
         return(<div className="text-center space-y-2">
-          <p className="text-xs text-emerald-400">{c.surah} - {isRTL?'آية':'Ayah'} {c.ayah_num}</p>
+          <p className="text-xs text-emerald-400">{c.surah} - {t('ayahSingle')} {c.ayah_num}</p>
           <button onClick={()=>speak(c.arabic,'ar')}>
             <p className="text-2xl font-bold font-arabic leading-loose py-2" dir="rtl">{c.arabic}</p>
           </button>
@@ -502,10 +502,10 @@ export default function KidsZone() {
   // ═══════ RENDER: QURAN ═══════
   const renderQuran = () => {
     if(selectedSurah) return(<div className="space-y-4 pb-8">
-      <button onClick={()=>setSelectedSurah(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{isRTL?'العودة':'Back'}</button>
+      <button onClick={()=>setSelectedSurah(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
         <p className="text-3xl font-bold font-arabic">{selectedSurah.name_ar}</p>
-        <p className="text-sm text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {isRTL?'آيات':'Ayahs'}</p>
+        <p className="text-sm text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {t('ayahPlural')}</p>
       </div>
       {selectedSurah.ayahs?.map((a:any,i:number)=>(
         <button key={i} onClick={()=>speak(a.arabic,'ar')} className="w-full p-4 rounded-2xl bg-card/60 border border-white/10 text-start hover:border-emerald-400/30 transition-all">
@@ -524,8 +524,8 @@ export default function KidsZone() {
     return(<div className="space-y-4 pb-8">
       <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
         <span className="text-4xl">📖</span>
-        <h2 className="text-lg font-bold mt-2">{isRTL?'حفظ القرآن الكريم':'Quran Memorization'}</h2>
-        <p className="text-xs text-muted-foreground mt-1">{isRTL?'سور قصيرة للحفظ مع الترجمة':'Short surahs with translation'}</p>
+        <h2 className="text-lg font-bold mt-2">{t('quranMemTitle')}</h2>
+        <p className="text-xs text-muted-foreground mt-1">{t('shortSurahsWithTranslation')}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {surahs.map(s=>(<button key={s.id} onClick={()=>setSelectedSurah(s)} className="p-4 rounded-2xl bg-card/60 border border-white/10 hover:border-emerald-400/30 transition-all text-start">
@@ -533,7 +533,7 @@ export default function KidsZone() {
             <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400">{s.number}</span>
             <div><p className="font-bold text-sm font-arabic">{s.name_ar}</p><p className="text-[10px] text-muted-foreground">{s.name_en}</p></div>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-2">{s.total_ayahs} {isRTL?'آيات':'ayahs'}</p>
+          <p className="text-[10px] text-muted-foreground mt-2">{s.total_ayahs} {t('ayahPlural')}</p>
         </button>))}
       </div>
     </div>);
@@ -542,7 +542,7 @@ export default function KidsZone() {
   // ═══════ RENDER: ISLAM ═══════
   const renderIslam = () => {
     if(selectedProphet) return(<div className="space-y-4 pb-8">
-      <button onClick={()=>setSelectedProphet(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{isRTL?'العودة':'Back'}</button>
+      <button onClick={()=>setSelectedProphet(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/15 to-violet-500/10 border border-purple-400/30">
         <span className="text-5xl">{selectedProphet.emoji}</span><h2 className="text-xl font-bold mt-2">{selectedProphet.name}</h2>
         <p className="text-sm text-purple-400">{selectedProphet.title}</p>
@@ -553,12 +553,12 @@ export default function KidsZone() {
     </div>);
 
     const subs:{id:IslamSub;label:string;emoji:string;count:number}[] = [
-      {id:'duas',label:isRTL?'أدعية':'Duas',emoji:'🤲',count:duas.length},
-      {id:'hadiths',label:isRTL?'أحاديث':'Hadiths',emoji:'📜',count:hadiths.length},
-      {id:'prophets',label:isRTL?'أنبياء':'Prophets',emoji:'🕌',count:prophets.length},
-      {id:'pillars',label:isRTL?'أركان':'Pillars',emoji:'☪️',count:pillars.length},
-      {id:'wudu',label:isRTL?'الوضوء':'Wudu',emoji:'💧',count:wuduSteps.length},
-      {id:'salah',label:isRTL?'الصلاة':'Salah',emoji:'🙏',count:salahSteps.length},
+      {id:'duas',label:t('duasTab'),emoji:'🤲',count:duas.length},
+      {id:'hadiths',label:t('hadithsTab'),emoji:'📜',count:hadiths.length},
+      {id:'prophets',label:t('prophetsTab'),emoji:'🕌',count:prophets.length},
+      {id:'pillars',label:t('pillarsTab'),emoji:'☪️',count:pillars.length},
+      {id:'wudu',label:t('wuduTab'),emoji:'💧',count:wuduSteps.length},
+      {id:'salah',label:t('salahTab'),emoji:'🙏',count:salahSteps.length},
     ];
 
     return(<div className="space-y-4 pb-8">
@@ -599,7 +599,7 @@ export default function KidsZone() {
       </div>))}
 
       {islamSub==='wudu' && (<div className="space-y-2">
-        <div className="text-center p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20"><span className="text-3xl">💧</span><h3 className="font-bold mt-1">{isRTL?'خطوات الوضوء':'Wudu Steps'}</h3></div>
+        <div className="text-center p-3 rounded-2xl bg-blue-500/10 border border-blue-500/20"><span className="text-3xl">💧</span><h3 className="font-bold mt-1">{t('wuduStepsTitle')}</h3></div>
         {wuduSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-card/60 border border-white/10 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-lg font-bold text-blue-400">{s.step}</div>
           <div><p className="font-bold text-sm">{s.emoji} {s.title}</p><p className="text-xs text-muted-foreground">{s.description}</p></div>
@@ -607,7 +607,7 @@ export default function KidsZone() {
       </div>)}
 
       {islamSub==='salah' && (<div className="space-y-2">
-        <div className="text-center p-3 rounded-2xl bg-green-500/10 border border-green-500/20"><span className="text-3xl">🙏</span><h3 className="font-bold mt-1">{isRTL?'خطوات الصلاة':'Salah Steps'}</h3></div>
+        <div className="text-center p-3 rounded-2xl bg-green-500/10 border border-green-500/20"><span className="text-3xl">🙏</span><h3 className="font-bold mt-1">{t('salahStepsTitle')}</h3></div>
         {salahSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-card/60 border border-white/10 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-lg font-bold text-green-400">{s.step}</div>
           <div><p className="font-bold text-sm">{s.emoji} {s.title}</p><p className="text-xs text-muted-foreground">{s.description}</p></div>
@@ -619,7 +619,7 @@ export default function KidsZone() {
   // ═══════ RENDER: LIBRARY ═══════
   const renderLibrary = () => {
     if(selItem) return(<div className="space-y-4 pb-8">
-      <button onClick={()=>setSelItem(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{isRTL?'العودة':'Back'}</button>
+      <button onClick={()=>setSelItem(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-white"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-blue-500/10 border border-indigo-400/30">
         <span className="text-5xl">{selItem.emoji}</span><h2 className="text-xl font-bold mt-2">{selItem.title}</h2>
         <p className="text-xs text-muted-foreground mt-1">{selItem.age_range}</p>
@@ -630,10 +630,10 @@ export default function KidsZone() {
 
     return(<div className="space-y-4 pb-8">
       <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-blue-500/10 border border-indigo-400/30">
-        <span className="text-4xl">📚</span><h2 className="text-lg font-bold mt-2">{isRTL?'المكتبة التعليمية':'Learning Library'}</h2>
+        <span className="text-4xl">📚</span><h2 className="text-lg font-bold mt-2">{t('learningLibraryTitle')}</h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        <button onClick={()=>{setSelCat('all');loadLibItems('all');}} className={cn("px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat==='all'?"bg-indigo-500/20 border-indigo-400/40 text-indigo-300":"bg-white/5 border-white/10 text-muted-foreground")}>{isRTL?'الكل':'All'}</button>
+        <button onClick={()=>{setSelCat('all');loadLibItems('all');}} className={cn("px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat==='all'?"bg-indigo-500/20 border-indigo-400/40 text-indigo-300":"bg-white/5 border-white/10 text-muted-foreground")}>{t('allFilter')}</button>
         {libCats.map(c=>(<button key={c.id} onClick={()=>{setSelCat(c.id);loadLibItems(c.id);}} className={cn("flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat===c.id?"bg-indigo-500/20 border-indigo-400/40 text-indigo-300":"bg-white/5 border-white/10 text-muted-foreground")}>
           <span>{c.emoji}</span>{c.title}
         </button>))}
@@ -662,7 +662,7 @@ export default function KidsZone() {
         <h1 className="text-lg font-bold flex items-center gap-2">
           <span className="text-xl">{TABS.find(t=>t.id===mainTab)?.emoji}</span>
           <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
-            {isRTL?(TABS.find(t=>t.id===mainTab)?.ar):(TABS.find(t=>t.id===mainTab)?.en)}
+            {t(TABS.find(tb=>tb.id===mainTab)?.key || mainTab)}
           </span>
         </h1>
         <div className="w-10"/>
@@ -677,7 +677,7 @@ export default function KidsZone() {
             className={cn("flex items-center gap-1.5 px-3 py-3 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0 min-h-[44px]",
               mainTab===tab.id?"bg-gradient-to-r from-violet-500/20 to-pink-500/20 border-violet-400/40 text-violet-300 shadow-lg shadow-violet-500/10":"bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10"
             )}>
-            <span>{tab.emoji}</span><span>{isRTL?tab.ar:tab.en}</span>
+            <span>{tab.emoji}</span><span>{t(tab.key)}</span>
           </button>))}
         </div>
       )}
