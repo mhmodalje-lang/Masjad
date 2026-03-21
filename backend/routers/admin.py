@@ -15,7 +15,6 @@ import re
 import httpx
 import os
 import json as json_module
-from deps import get_admin_user
 
 router = APIRouter(tags=["Admin"])
 
@@ -109,12 +108,23 @@ class AdminAppSettings(BaseModel):
 class AdPlacement(BaseModel):
     id: Optional[str] = None
     name: str
-    provider: str  # exoclick, popads, clickadu, hilltopads, monetag, adsterra, ysense, admob, adsense, youtube, custom
+    provider: str = "admob"
     code: str = ""
-    placement: str = "home"  # home, prayer, quran, duas, ruqyah, notifications, all
-    ad_type: str = "banner"  # banner, interstitial, native, video, popup
+    placement: str = "home"  # home, prayer, quran, duas, ruqyah, notifications, kids_zone, arabic_academy, all
+    ad_type: str = "banner"  # banner, interstitial, native, video, rewarded
     enabled: bool = True
     priority: int = 0
+    # Country-level targeting
+    countries_enabled: List[str] = []  # Empty = all countries. ISO codes: DE, TR, US, SA, etc.
+    countries_blocked: List[str] = []  # Block specific countries
+
+class AdPageRule(BaseModel):
+    """Toggle ads on/off for specific pages and countries."""
+    page: str  # home, prayer, quran, duas, ruqyah, kids_zone, arabic_academy, stories, etc.
+    enabled: bool = True
+    countries_enabled: List[str] = []  # Empty = all
+    countries_blocked: List[str] = []
+    ad_types_allowed: List[str] = ["banner", "interstitial", "rewarded"]
 
 @router.get("/admin/ads")
 async def admin_get_ads(admin=Depends(get_admin_user)):
@@ -130,12 +140,7 @@ async def admin_create_ad(ad: AdPlacement, admin=Depends(get_admin_user)):
         ad_dict["id"] = str(uuid.uuid4())[:8]
     ad_dict["created_at"] = datetime.utcnow().isoformat()
     ad_dict["created_by"] = admin.get("email", "")
-    
-    await db.ad_placements.update_one(
-        {"id": ad_dict["id"]},
-        {"$set": ad_dict},
-        upsert=True
-    )
+    await db.ad_placements.update_one({"id": ad_dict["id"]}, {"$set": ad_dict}, upsert=True)
     return {"success": True, "ad": ad_dict}
 
 @router.delete("/admin/ads/{ad_id}")
@@ -146,14 +151,281 @@ async def admin_delete_ad(ad_id: str, admin=Depends(get_admin_user)):
         raise HTTPException(status_code=404, detail="الإعلان غير موجود")
     return {"success": True}
 
+# ==================== ADS PAGE/COUNTRY RULES ====================
+
+@router.get("/admin/ads/rules")
+async def admin_get_ad_rules(admin=Depends(get_admin_user)):
+    """Get ad rules per page/country."""
+    rules = await db.ad_page_rules.find({}, {"_id": 0}).to_list(100)
+    if not rules:
+        # Default rules for all pages
+        default_pages = ["home", "prayer", "quran", "duas", "ruqyah", "kids_zone",
+                         "arabic_academy", "stories", "explore", "live_streams",
+                         "tasbeeh", "qibla", "notifications", "profile"]
+        rules = [{"page": p, "enabled": True, "countries_enabled": [], "countries_blocked": [], "ad_types_allowed": ["banner", "interstitial", "rewarded"]} for p in default_pages]
+    return {"rules": rules}
+
+@router.put("/admin/ads/rules")
+async def admin_update_ad_rules(rules: List[AdPageRule], admin=Depends(get_admin_user)):
+    """Update ad rules per page and country. God-Mode toggle."""
+    for rule in rules:
+        rule_dict = rule.dict()
+        rule_dict["updated_at"] = datetime.utcnow().isoformat()
+        rule_dict["updated_by"] = admin.get("email", "")
+        await db.ad_page_rules.update_one(
+            {"page": rule_dict["page"]},
+            {"$set": rule_dict},
+            upsert=True
+        )
+    return {"success": True, "message": f"Updated {len(rules)} ad rules", "rules_count": len(rules)}
+
 @router.get("/ads/active")
-async def get_active_ads(placement: str = "all"):
-    """Public endpoint - get active ads for a placement"""
+async def get_active_ads(placement: str = "all", country: str = ""):
+    """Public endpoint - get active ads for a placement, filtered by country."""
+    # Check page rule first
+    page_rule = await db.ad_page_rules.find_one({"page": placement}, {"_id": 0})
+    if page_rule and not page_rule.get("enabled", True):
+        return {"ads": [], "page_disabled": True}
+
+    # Country filtering from page rule
+    if page_rule and country:
+        blocked = page_rule.get("countries_blocked", [])
+        enabled = page_rule.get("countries_enabled", [])
+        if country.upper() in blocked:
+            return {"ads": [], "country_blocked": True}
+        if enabled and country.upper() not in enabled:
+            return {"ads": [], "country_not_enabled": True}
+
     query = {"enabled": True}
     if placement != "all":
         query["$or"] = [{"placement": placement}, {"placement": "all"}]
     ads = await db.ad_placements.find(query, {"_id": 0}).sort("priority", -1).to_list(20)
+
+    # Filter by country targeting on individual ads
+    if country:
+        filtered = []
+        for ad in ads:
+            blocked = ad.get("countries_blocked", [])
+            enabled = ad.get("countries_enabled", [])
+            if country.upper() in blocked:
+                continue
+            if enabled and country.upper() not in enabled:
+                continue
+            filtered.append(ad)
+        ads = filtered
+
     return {"ads": ads}
+
+# ==================== DAILY CONTENT CRUD (Hadith/Story - No Code Push) ====================
+
+class DailyContent(BaseModel):
+    id: Optional[str] = None
+    content_type: str = "hadith"  # hadith, story, dua, tip, verse
+    # Multilingual content - all 10 languages
+    title: Dict[str, str] = {}  # {"ar": "...", "en": "...", "de": "...", ...}
+    body: Dict[str, str] = {}
+    source: Dict[str, str] = {}
+    arabic_text: str = ""  # Original Arabic (for hadith/verse)
+    image_url: str = ""
+    active: bool = True
+    schedule_date: str = ""  # YYYY-MM-DD or empty for immediate
+    priority: int = 0
+
+SUPPORTED_LOCALES = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el", "de-AT"]
+
+@router.get("/admin/daily-content")
+async def admin_get_daily_content(admin=Depends(get_admin_user), content_type: str = ""):
+    """Get all daily content items."""
+    query = {}
+    if content_type:
+        query["content_type"] = content_type
+    items = await db.daily_content.find(query, {"_id": 0}).sort("priority", -1).to_list(200)
+    return {"items": items, "total": len(items), "supported_locales": SUPPORTED_LOCALES}
+
+@router.post("/admin/daily-content")
+async def admin_save_daily_content(item: DailyContent, admin=Depends(get_admin_user)):
+    """Create or update daily content (hadith, story, dua, tip, verse)."""
+    item_dict = item.dict()
+    if not item_dict.get("id"):
+        item_dict["id"] = str(uuid.uuid4())[:8]
+    item_dict["updated_at"] = datetime.utcnow().isoformat()
+    item_dict["updated_by"] = admin.get("email", "")
+    await db.daily_content.update_one({"id": item_dict["id"]}, {"$set": item_dict}, upsert=True)
+    return {"success": True, "item": item_dict}
+
+@router.delete("/admin/daily-content/{item_id}")
+async def admin_delete_daily_content(item_id: str, admin=Depends(get_admin_user)):
+    """Delete daily content item."""
+    await db.daily_content.delete_one({"id": item_id})
+    return {"success": True}
+
+@router.get("/daily-content/today")
+async def get_today_daily_content(content_type: str = "hadith", locale: str = "ar"):
+    """Public - get today's daily content in user's language."""
+    today = date.today().isoformat()
+
+    # Try scheduled content for today
+    item = await db.daily_content.find_one(
+        {"content_type": content_type, "active": True, "schedule_date": today},
+        {"_id": 0}
+    )
+
+    # Fallback to any active content (rotation by day of year)
+    if not item:
+        items = await db.daily_content.find(
+            {"content_type": content_type, "active": True},
+            {"_id": 0}
+        ).sort("priority", -1).to_list(365)
+
+        if items:
+            day_of_year = datetime.utcnow().timetuple().tm_yday
+            item = items[day_of_year % len(items)]
+
+    if not item:
+        return {"success": False, "message": "No content available"}
+
+    # Resolve locale - use exact match, then base language, then ar
+    def resolve_text(field_dict, loc):
+        if not isinstance(field_dict, dict):
+            return field_dict if isinstance(field_dict, str) else ""
+        text = field_dict.get(loc)
+        if not text and "-" in loc:
+            text = field_dict.get(loc.split("-")[0])
+        if not text:
+            text = field_dict.get("ar", "")
+        return text or ""
+
+    return {
+        "success": True,
+        "content_type": item.get("content_type", content_type),
+        "title": resolve_text(item.get("title", {}), locale),
+        "body": resolve_text(item.get("body", {}), locale),
+        "source": resolve_text(item.get("source", {}), locale),
+        "arabic_text": item.get("arabic_text", ""),
+        "image_url": item.get("image_url", ""),
+        "locale": locale,
+    }
+
+# ==================== MULTILINGUAL PUSH NOTIFICATION ENGINE ====================
+
+class MultilingualNotification(BaseModel):
+    """Send push notifications in user's saved locale."""
+    title: Dict[str, str] = {}  # {"ar": "...", "en": "...", "de": "...", ...}
+    body: Dict[str, str] = {}
+    target: str = "all"  # all, locale:ar, locale:de, country:DE, user:user_id
+    url: str = ""  # Deep link URL
+    image_url: str = ""
+    schedule_time: str = ""  # ISO datetime or empty for immediate
+    priority: str = "normal"  # normal, high
+
+@router.post("/admin/notifications/send-multilingual")
+async def admin_send_multilingual_notification(data: MultilingualNotification, admin=Depends(get_admin_user)):
+    """Send push notification in each user's saved locale. Auto-detects language."""
+    subs = await db.push_subscriptions.find({}, {"_id": 0}).to_list(10000)
+
+    sent_count = 0
+    locale_counts = {}
+
+    for sub in subs:
+        user_locale = sub.get("locale", sub.get("language", "ar"))
+        base_locale = user_locale.split("-")[0] if "-" in user_locale else user_locale
+
+        # Check targeting
+        if data.target.startswith("locale:"):
+            target_locale = data.target.split(":")[1]
+            if user_locale != target_locale and base_locale != target_locale:
+                continue
+        elif data.target.startswith("country:"):
+            target_country = data.target.split(":")[1].upper()
+            if sub.get("country", "").upper() != target_country:
+                continue
+        elif data.target.startswith("user:"):
+            target_user = data.target.split(":")[1]
+            if sub.get("user_id", "") != target_user:
+                continue
+
+        # Resolve notification text for this user's locale
+        title = data.title.get(user_locale) or data.title.get(base_locale) or data.title.get("ar", "")
+        body = data.body.get(user_locale) or data.body.get(base_locale) or data.body.get("ar", "")
+
+        # In production, this would send via Web Push / FCM
+        # For now, log the notification
+        await db.notification_log.insert_one({
+            "id": str(uuid.uuid4()),
+            "subscription_id": sub.get("id", ""),
+            "user_id": sub.get("user_id", ""),
+            "locale": user_locale,
+            "title": title,
+            "body": body,
+            "url": data.url,
+            "status": "queued",
+            "created_at": datetime.utcnow().isoformat(),
+        })
+
+        sent_count += 1
+        locale_counts[user_locale] = locale_counts.get(user_locale, 0) + 1
+
+    # Save notification record
+    await db.sent_notifications.insert_one({
+        "id": str(uuid.uuid4()),
+        "title": data.title,
+        "body": data.body,
+        "target": data.target,
+        "url": data.url,
+        "total_sent": sent_count,
+        "locale_breakdown": locale_counts,
+        "sent_by": admin.get("email", ""),
+        "created_at": datetime.utcnow().isoformat(),
+    })
+
+    return {
+        "success": True,
+        "total_sent": sent_count,
+        "locale_breakdown": locale_counts,
+        "supported_locales": SUPPORTED_LOCALES,
+    }
+
+@router.get("/admin/notifications/history")
+async def admin_get_notification_history(admin=Depends(get_admin_user), limit: int = 50):
+    """Get notification send history."""
+    history = await db.sent_notifications.find({}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    return {"notifications": history, "total": len(history)}
+
+# ==================== ADMIN STATS (Enhanced God-Mode) ====================
+
+@router.get("/admin/stats")
+async def admin_stats(admin=Depends(get_admin_user)):
+    """Enhanced dashboard statistics - God Mode."""
+    users_count = await db.users.count_documents({})
+    push_subs = await db.push_subscriptions.count_documents({})
+    kids_profiles = await db.kids_points.count_documents({})
+    adult_profiles = await db.adult_points.count_documents({})
+    total_ads_watched = await db.ad_watch_log.count_documents({})
+    stories_count = await db.stories.count_documents({})
+    daily_content_count = await db.daily_content.count_documents({})
+
+    # Today's activity
+    today = date.today().isoformat()
+    today_ads = await db.ad_watch_log.count_documents({"date": today})
+    today_points = await db.points_transactions.count_documents({"created_at": {"$regex": f"^{today}"}})
+
+    # Recent users
+    recent_users = await db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(10)
+
+    return {
+        "stats": {
+            "total_users": users_count,
+            "push_subscribers": push_subs,
+            "kids_profiles": kids_profiles,
+            "adult_profiles": adult_profiles,
+            "total_ads_watched": total_ads_watched,
+            "today_ads_watched": today_ads,
+            "today_points_earned": today_points,
+            "total_stories": stories_count,
+            "daily_content_items": daily_content_count,
+        },
+        "recent_users": recent_users,
+    }
 
 # Story moderation
 @router.get("/admin/stories")
@@ -244,7 +516,6 @@ def parse_video_url(url: str) -> dict:
     if not url:
         return {"embed_url": "", "video_type": "", "thumbnail_url": ""}
     
-    import re
     
     # YouTube
     yt_match = re.match(r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})', url)

@@ -515,25 +515,223 @@ L10N = {
         "nl": "Letter {name}",
         "el": "Γράμμα {name}",
     },
+    # ==================== GAMIFICATION STRINGS ====================
+    # Mosque Building Stages (Kids)
+    "mosque_foundation": {
+        "ar": "الأساس", "en": "Foundation", "de": "Fundament", "de-AT": "Fundament",
+        "fr": "Fondation", "tr": "Temel", "ru": "Фундамент",
+        "sv": "Grund", "nl": "Fundament", "el": "Θεμέλιο",
+    },
+    "mosque_walls": {
+        "ar": "الجدران", "en": "Walls", "de": "Mauern", "de-AT": "Mauern",
+        "fr": "Murs", "tr": "Duvarlar", "ru": "Стены",
+        "sv": "Väggar", "nl": "Muren", "el": "Τοίχοι",
+    },
+    "mosque_pillars": {
+        "ar": "الأعمدة", "en": "Pillars", "de": "Säulen", "de-AT": "Säulen",
+        "fr": "Piliers", "tr": "Sütunlar", "ru": "Колонны",
+        "sv": "Pelare", "nl": "Pilaren", "el": "Κολόνες",
+    },
+    "mosque_dome_base": {
+        "ar": "قاعدة القبة", "en": "Dome Base", "de": "Kuppelbasis", "de-AT": "Kuppelbasis",
+        "fr": "Base du dôme", "tr": "Kubbe Tabanı", "ru": "Основание купола",
+        "sv": "Kupolbas", "nl": "Koepelbasis", "el": "Βάση τρούλου",
+    },
+    "mosque_dome": {
+        "ar": "القبة", "en": "Dome", "de": "Kuppel", "de-AT": "Kuppel",
+        "fr": "Dôme", "tr": "Kubbe", "ru": "Купол",
+        "sv": "Kupol", "nl": "Koepel", "el": "Τρούλος",
+    },
+    "mosque_minaret": {
+        "ar": "المئذنة", "en": "Minaret", "de": "Minarett", "de-AT": "Minarett",
+        "fr": "Minaret", "tr": "Minare", "ru": "Минарет",
+        "sv": "Minaret", "nl": "Minaret", "el": "Μιναρές",
+    },
+    "mosque_garden": {
+        "ar": "الحديقة", "en": "Garden", "de": "Garten", "de-AT": "Garten",
+        "fr": "Jardin", "tr": "Bahçe", "ru": "Сад",
+        "sv": "Trädgård", "nl": "Tuin", "el": "Κήπος",
+    },
+    "mosque_golden_dome": {
+        "ar": "القبة الذهبية", "en": "Golden Dome", "de": "Goldene Kuppel", "de-AT": "Goldene Kuppel",
+        "fr": "Dôme doré", "tr": "Altın Kubbe", "ru": "Золотой купол",
+        "sv": "Gyllene kupol", "nl": "Gouden koepel", "el": "Χρυσός τρούλος",
+    },
+    "mosque_complete": {
+        "ar": "المسجد المكتمل", "en": "Complete Mosque", "de": "Vollständige Moschee", "de-AT": "Vollständige Moschee",
+        "fr": "Mosquée complète", "tr": "Tamamlanmış Cami", "ru": "Готовая мечеть",
+        "sv": "Komplett moské", "nl": "Complete moskee", "el": "Ολοκληρωμένο τζαμί",
+    },
+    # Spiritual Ranks (Adults - Blessing Points)
+    "rank_seeker": {
+        "ar": "باحث", "en": "Seeker", "de": "Suchender", "de-AT": "Suchender",
+        "fr": "Chercheur", "tr": "Arayan", "ru": "Искатель",
+        "sv": "Sökare", "nl": "Zoeker", "el": "Αναζητητής",
+    },
+    "rank_learner": {
+        "ar": "متعلم", "en": "Learner", "de": "Lernender", "de-AT": "Lernender",
+        "fr": "Apprenant", "tr": "Öğrenci", "ru": "Ученик",
+        "sv": "Elev", "nl": "Leerling", "el": "Μαθητής",
+    },
+    "rank_devoted": {
+        "ar": "متفانٍ", "en": "Devoted", "de": "Hingebungsvoll", "de-AT": "Hingebungsvoll",
+        "fr": "Dévoué", "tr": "Adanmış", "ru": "Преданный",
+        "sv": "Hängiven", "nl": "Toegewijd", "el": "Αφοσιωμένος",
+    },
+    "rank_steadfast": {
+        "ar": "ثابت", "en": "Steadfast", "de": "Standhaft", "de-AT": "Standhaft",
+        "fr": "Constant", "tr": "Kararlı", "ru": "Стойкий",
+        "sv": "Ståndaktig", "nl": "Standvastig", "el": "Σταθερός",
+    },
+    "rank_knowledgeable": {
+        "ar": "عالِم", "en": "Knowledgeable", "de": "Wissend", "de-AT": "Wissend",
+        "fr": "Savant", "tr": "Bilgili", "ru": "Знающий",
+        "sv": "Kunnig", "nl": "Geleerd", "el": "Γνώστης",
+    },
+    "rank_hafiz": {
+        "ar": "حافظ", "en": "Hafiz", "de": "Hafiz", "de-AT": "Hafiz",
+        "fr": "Hafiz", "tr": "Hafız", "ru": "Хафиз",
+        "sv": "Hafiz", "nl": "Hafiz", "el": "Χαφίζ",
+    },
+    "rank_mumin": {
+        "ar": "مؤمن", "en": "Mumin", "de": "Mumin", "de-AT": "Mumin",
+        "fr": "Moumin", "tr": "Mümin", "ru": "Мумин",
+        "sv": "Mumin", "nl": "Mumin", "el": "Μουμίν",
+    },
+    "rank_muhsin": {
+        "ar": "محسن", "en": "Muhsin", "de": "Muhsin", "de-AT": "Muhsin",
+        "fr": "Mouhsin", "tr": "Muhsin", "ru": "Мухсин",
+        "sv": "Muhsin", "nl": "Muhsin", "el": "Μουχσίν",
+    },
+    "rank_muttaqin": {
+        "ar": "متقي", "en": "Muttaqin", "de": "Muttaqin", "de-AT": "Muttaqin",
+        "fr": "Mouttaqin", "tr": "Müttaki", "ru": "Муттакин",
+        "sv": "Muttaqin", "nl": "Muttaqin", "el": "Μουττακίν",
+    },
+    # Points & Rewards UI
+    "golden_bricks": {
+        "ar": "الطوب الذهبي", "en": "Golden Bricks", "de": "Goldene Ziegel", "de-AT": "Goldene Ziegel",
+        "fr": "Briques dorées", "tr": "Altın Tuğlalar", "ru": "Золотые кирпичи",
+        "sv": "Gyllene tegelstenar", "nl": "Gouden bakstenen", "el": "Χρυσά τούβλα",
+    },
+    "blessing_points": {
+        "ar": "نقاط البركة", "en": "Blessing Points", "de": "Segenspunkte", "de-AT": "Segenspunkte",
+        "fr": "Points de bénédiction", "tr": "Bereket Puanları", "ru": "Очки благословения",
+        "sv": "Välsignelsepoäng", "nl": "Zegenpunten", "el": "Πόντοι ευλογίας",
+    },
+    "watch_ad_earn": {
+        "ar": "شاهد إعلاناً واكسب {points} نقطة",
+        "en": "Watch an ad and earn {points} points",
+        "de": "Sieh dir eine Anzeige an und verdiene {points} Punkte",
+        "de-AT": "Schau dir eine Anzeige an und verdien {points} Punkte",
+        "fr": "Regarde une pub et gagne {points} points",
+        "tr": "Reklam izle ve {points} puan kazan",
+        "ru": "Посмотри рекламу и получи {points} очков",
+        "sv": "Titta på en annons och tjäna {points} poäng",
+        "nl": "Bekijk een advertentie en verdien {points} punten",
+        "el": "Δες μια διαφήμιση και κέρδισε {points} πόντους",
+    },
+    "parental_gate_title": {
+        "ar": "بوابة الأمان الأبوية",
+        "en": "Parental Safety Gate",
+        "de": "Elterliche Sicherheitssperre",
+        "de-AT": "Elterliche Sicherheitssperre",
+        "fr": "Portail de sécurité parentale",
+        "tr": "Ebeveyn Güvenlik Kapısı",
+        "ru": "Родительский шлюз безопасности",
+        "sv": "Föräldrasäkerhetsgrind",
+        "nl": "Ouderlijke veiligheidspoort",
+        "el": "Πύλη γονικής ασφάλειας",
+    },
+    "parental_gate_hint": {
+        "ar": "اطلب من والديك حل هذه المسألة",
+        "en": "Ask your parents to solve this",
+        "de": "Bitte deine Eltern, dies zu lösen",
+        "de-AT": "Bitt deine Eltern, das zu lösen",
+        "fr": "Demande à tes parents de résoudre ceci",
+        "tr": "Ebeveynlerinden bunu çözmelerini iste",
+        "ru": "Попроси родителей решить эту задачу",
+        "sv": "Be dina föräldrar lösa detta",
+        "nl": "Vraag je ouders om dit op te lossen",
+        "el": "Ζήτησε από τους γονείς σου να το λύσουν",
+    },
+    "daily_streak": {
+        "ar": "سلسلة يومية: {days} يوم",
+        "en": "Daily streak: {days} days",
+        "de": "Tägliche Serie: {days} Tage",
+        "de-AT": "Tägliche Serie: {days} Tage",
+        "fr": "Série quotidienne : {days} jours",
+        "tr": "Günlük seri: {days} gün",
+        "ru": "Ежедневная серия: {days} дней",
+        "sv": "Daglig serie: {days} dagar",
+        "nl": "Dagelijkse reeks: {days} dagen",
+        "el": "Ημερήσιο σερί: {days} ημέρες",
+    },
+    "leaderboard": {
+        "ar": "لوحة المتصدرين", "en": "Leaderboard", "de": "Bestenliste", "de-AT": "Bestenliste",
+        "fr": "Classement", "tr": "Liderlik Tablosu", "ru": "Таблица лидеров",
+        "sv": "Topplista", "nl": "Ranglijst", "el": "Πίνακας κατάταξης",
+    },
+    "premium_content": {
+        "ar": "محتوى متميز", "en": "Premium Content", "de": "Premium-Inhalt", "de-AT": "Premium-Inhalt",
+        "fr": "Contenu premium", "tr": "Premium İçerik", "ru": "Премиум-контент",
+        "sv": "Premiuminnehåll", "nl": "Premium-inhoud", "el": "Premium περιεχόμενο",
+    },
+    "unlock_with_bricks": {
+        "ar": "افتح بـ {cost} طوبة ذهبية",
+        "en": "Unlock with {cost} golden bricks",
+        "de": "Freischalten mit {cost} goldenen Ziegeln",
+        "de-AT": "Freischalten mit {cost} goldenen Ziegeln",
+        "fr": "Débloquer avec {cost} briques dorées",
+        "tr": "{cost} altın tuğla ile aç",
+        "ru": "Открыть за {cost} золотых кирпичей",
+        "sv": "Lås upp med {cost} gyllene tegelstenar",
+        "nl": "Ontgrendel met {cost} gouden bakstenen",
+        "el": "Ξεκλείδωσε με {cost} χρυσά τούβλα",
+    },
+    "unlock_with_ad": {
+        "ar": "افتح بمشاهدة إعلان",
+        "en": "Unlock by watching an ad",
+        "de": "Freischalten durch Ansehen einer Anzeige",
+        "de-AT": "Freischalten durch Anschauen einer Anzeige",
+        "fr": "Débloquer en regardant une pub",
+        "tr": "Reklam izleyerek aç",
+        "ru": "Открыть просмотром рекламы",
+        "sv": "Lås upp genom att titta på en annons",
+        "nl": "Ontgrendel door een advertentie te bekijken",
+        "el": "Ξεκλείδωσε βλέποντας μια διαφήμιση",
+    },
+    "ad_limit_reached": {
+        "ar": "وصلت للحد الأقصى من الإعلانات اليوم",
+        "en": "You reached today's ad limit",
+        "de": "Du hast das Anzeigenlimit für heute erreicht",
+        "de-AT": "Du hast das Anzeigenlimit für heute erreicht",
+        "fr": "Tu as atteint la limite de pubs d'aujourd'hui",
+        "tr": "Bugünkü reklam limitine ulaştın",
+        "ru": "Ты достиг лимита рекламы на сегодня",
+        "sv": "Du har nått dagens annonsgräns",
+        "nl": "Je hebt de advertentielimiet van vandaag bereikt",
+        "el": "Έφτασες το όριο διαφημίσεων για σήμερα",
+    },
 }
 
 
 def t(key: str, lang: str, **kwargs) -> str:
     """
     Get translated string for the given key and locale.
-    Falls back: de-AT -> de -> en -> key
+    Falls back: de-AT -> de -> ar (NO English fallback).
     Supports {placeholder} substitution via kwargs.
     """
     entry = L10N.get(key)
     if not entry:
         return key
 
-    # Locale fallback chain
+    # Locale fallback chain: exact -> base -> ar -> key (NO English fallback)
     text = entry.get(lang)
     if text is None and "-" in lang:
         text = entry.get(lang.split("-")[0])
     if text is None:
-        text = entry.get("en", key)
+        text = entry.get("ar", key)
 
     # Substitute placeholders
     if kwargs:
