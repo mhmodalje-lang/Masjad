@@ -6,115 +6,120 @@
 
 @layer base {
   :root {
-    /* LIGHT THEME: Clean Modern Islamic - نظيف وعصري */
-    --background: 40 20% 96%;
-    --foreground: 220 20% 14%;
+    /* ☀️ LIGHT: صباح النور - Modern Islamic Morning 2026
+     * Warm alabaster mosque interior with teal-emerald & burnished gold
+     * Inspired by Ottoman mosques, Andalusian tiles, modern Arabic design */
+    --background: 35 30% 95%;
+    --foreground: 200 25% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card: 38 25% 98%;
+    --card-foreground: 200 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
+    --popover: 38 25% 98%;
+    --popover-foreground: 200 25% 15%;
 
-    --primary: 160 55% 32%;
+    --primary: 168 58% 30%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 92%;
-    --secondary-foreground: 220 15% 25%;
+    --secondary: 35 20% 91%;
+    --secondary-foreground: 200 18% 28%;
 
-    --muted: 40 10% 90%;
-    --muted-foreground: 220 10% 40%;
+    --muted: 35 15% 89%;
+    --muted-foreground: 200 12% 42%;
 
-    --accent: 38 80% 48%;
+    --accent: 36 85% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 10% 88%;
-    --input: 220 10% 85%;
-    --ring: 160 55% 32%;
+    --border: 35 18% 85%;
+    --input: 35 15% 82%;
+    --ring: 168 58% 30%;
     --radius: 1rem;
 
-    /* Extended Islamic palette */
-    --islamic-green: 160 55% 32%;
-    --islamic-gold: 38 80% 48%;
-    --islamic-emerald: 160 45% 28%;
-    --islamic-emerald-glow: 160 60% 45%;
-    --islamic-navy: 220 25% 12%;
-    --islamic-teal: 175 40% 35%;
-    --islamic-rose: 350 55% 55%;
-    --islamic-copper: 25 60% 48%;
-    --islamic-purple: 260 40% 55%;
-    --islamic-purple-light: 260 35% 70%;
-    --islamic-teal-light: 175 30% 60%;
+    /* Extended Islamic palette - enriched 2026 */
+    --islamic-green: 168 58% 30%;
+    --islamic-gold: 36 85% 50%;
+    --islamic-emerald: 165 50% 26%;
+    --islamic-emerald-glow: 165 65% 42%;
+    --islamic-navy: 210 30% 14%;
+    --islamic-teal: 178 45% 32%;
+    --islamic-rose: 345 55% 55%;
+    --islamic-copper: 22 65% 50%;
+    --islamic-purple: 265 42% 52%;
+    --islamic-purple-light: 265 35% 68%;
+    --islamic-teal-light: 178 32% 55%;
     --islamic-green-foreground: 0 0% 100%;
     --islamic-gold-foreground: 0 0% 100%;
     --islamic-navy-foreground: 0 0% 100%;
 
-    --sidebar-background: 40 15% 94%;
-    --sidebar-foreground: 220 15% 18%;
-    --sidebar-primary: 160 55% 32%;
+    --sidebar-background: 35 22% 93%;
+    --sidebar-foreground: 200 18% 20%;
+    --sidebar-primary: 168 58% 30%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 10% 90%;
-    --sidebar-accent-foreground: 220 15% 25%;
-    --sidebar-border: 220 10% 85%;
-    --sidebar-ring: 160 55% 32%;
+    --sidebar-accent: 35 14% 89%;
+    --sidebar-accent-foreground: 200 18% 28%;
+    --sidebar-border: 35 15% 82%;
+    --sidebar-ring: 168 58% 30%;
   }
 
   .dark {
-    /* DARK THEME: Premium Dark Islamic - داكن فاخر */
-    --background: 225 15% 8%;
-    --foreground: 40 15% 92%;
+    /* 🌙 DARK: ليلة القدر - Night of Decree 2026
+     * Deep indigo sky meets emerald minarets & golden crescents
+     * Rich, warm dark - never pure black. Subtle mosque-lantern glow */
+    --background: 220 22% 7%;
+    --foreground: 38 20% 90%;
 
-    --card: 225 14% 12%;
-    --card-foreground: 40 15% 92%;
+    --card: 220 20% 11%;
+    --card-foreground: 38 20% 90%;
 
-    --popover: 225 14% 12%;
-    --popover-foreground: 40 15% 92%;
+    --popover: 220 20% 11%;
+    --popover-foreground: 38 20% 90%;
 
-    --primary: 160 50% 45%;
-    --primary-foreground: 225 15% 6%;
+    --primary: 162 55% 42%;
+    --primary-foreground: 220 22% 5%;
 
-    --secondary: 225 12% 16%;
-    --secondary-foreground: 40 10% 78%;
+    --secondary: 220 16% 15%;
+    --secondary-foreground: 38 12% 75%;
 
-    --muted: 225 10% 18%;
-    --muted-foreground: 40 8% 58%;
+    --muted: 220 14% 17%;
+    --muted-foreground: 38 10% 52%;
 
-    --accent: 38 85% 55%;
-    --accent-foreground: 225 15% 6%;
+    --accent: 36 90% 52%;
+    --accent-foreground: 220 22% 5%;
 
-    --destructive: 0 62% 40%;
+    --destructive: 0 62% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 225 10% 18%;
-    --input: 225 10% 15%;
-    --ring: 160 50% 45%;
+    --border: 220 14% 17%;
+    --input: 220 14% 14%;
+    --ring: 162 55% 42%;
 
-    --islamic-green: 160 50% 45%;
-    --islamic-gold: 38 85% 55%;
-    --islamic-emerald: 160 40% 38%;
-    --islamic-emerald-glow: 160 55% 50%;
-    --islamic-navy: 225 15% 10%;
-    --islamic-teal: 175 35% 42%;
-    --islamic-rose: 350 50% 55%;
-    --islamic-copper: 25 65% 52%;
-    --islamic-purple: 260 35% 60%;
-    --islamic-purple-light: 260 30% 72%;
-    --islamic-teal-light: 175 28% 58%;
-    --islamic-green-foreground: 225 15% 6%;
-    --islamic-gold-foreground: 225 15% 6%;
-    --islamic-navy-foreground: 40 15% 92%;
+    /* Extended Islamic palette - enriched 2026 */
+    --islamic-green: 162 55% 42%;
+    --islamic-gold: 36 90% 52%;
+    --islamic-emerald: 165 45% 35%;
+    --islamic-emerald-glow: 162 60% 48%;
+    --islamic-navy: 220 22% 9%;
+    --islamic-teal: 178 38% 40%;
+    --islamic-rose: 345 50% 56%;
+    --islamic-copper: 22 70% 54%;
+    --islamic-purple: 265 38% 58%;
+    --islamic-purple-light: 265 30% 70%;
+    --islamic-teal-light: 178 30% 55%;
+    --islamic-green-foreground: 220 22% 5%;
+    --islamic-gold-foreground: 220 22% 5%;
+    --islamic-navy-foreground: 38 20% 90%;
 
-    --sidebar-background: 225 14% 10%;
-    --sidebar-foreground: 40 10% 88%;
-    --sidebar-primary: 160 50% 45%;
-    --sidebar-primary-foreground: 225 15% 6%;
-    --sidebar-accent: 225 12% 16%;
-    --sidebar-accent-foreground: 40 8% 72%;
-    --sidebar-border: 225 10% 16%;
-    --sidebar-ring: 160 50% 45%;
+    --sidebar-background: 220 20% 9%;
+    --sidebar-foreground: 38 12% 85%;
+    --sidebar-primary: 162 55% 42%;
+    --sidebar-primary-foreground: 220 22% 5%;
+    --sidebar-accent: 220 16% 15%;
+    --sidebar-accent-foreground: 38 10% 70%;
+    --sidebar-border: 220 14% 15%;
+    --sidebar-ring: 162 55% 42%;
   }
 }
 
@@ -231,19 +236,19 @@
 
 @layer utilities {
   .islamic-pattern {
-    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L37.5 7.5L30 15L22.5 7.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M0 30L7.5 22.5L15 30L7.5 37.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M60 30L52.5 22.5L45 30L52.5 37.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3Cpath d='M30 60L37.5 52.5L30 45L22.5 52.5Z' fill='%2300805a' fill-opacity='0.04'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23007a5e' fill-opacity='0.035'%3E%3Cpath d='M40 5L48 20H32z'/%3E%3Cpath d='M40 75L32 60H48z'/%3E%3Cpath d='M5 40L20 32V48z'/%3E%3Cpath d='M75 40L60 48V32z'/%3E%3Ccircle cx='40' cy='40' r='3'/%3E%3C/g%3E%3C/svg%3E");
   }
 
   .gradient-islamic {
-    background: linear-gradient(145deg, hsl(160 50% 28%) 0%, hsl(160 45% 18%) 50%, hsl(160 40% 10%) 100%);
+    background: linear-gradient(145deg, hsl(168 55% 28%) 0%, hsl(168 50% 18%) 50%, hsl(165 45% 10%) 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, hsl(160 50% 25%) 0%, hsl(160 45% 15%) 60%, hsl(38 80% 50% / 0.15) 100%);
+    background: linear-gradient(135deg, hsl(168 55% 25%) 0%, hsl(165 48% 16%) 60%, hsl(36 80% 50% / 0.18) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, hsl(38 85% 52%) 0%, hsl(35 70% 42%) 100%);
+    background: linear-gradient(135deg, hsl(36 88% 52%) 0%, hsl(30 72% 42%) 100%);
   }
 
   .text-gradient-islamic {
@@ -254,36 +259,36 @@
   }
 
   .glass-card {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsl(var(--border) / 0.5);
+    background: hsl(var(--card) / 0.75);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--border) / 0.4);
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.25);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
 
   .glow-emerald {
-    box-shadow: 0 0 20px -4px hsl(160 50% 45% / 0.25),
-                0 0 40px -8px hsl(160 50% 45% / 0.1);
+    box-shadow: 0 0 24px -4px hsl(162 55% 42% / 0.25),
+                0 0 48px -8px hsl(162 55% 42% / 0.08);
   }
 
   .glow-gold {
-    box-shadow: 0 0 20px -5px hsl(38 85% 52% / 0.25);
+    box-shadow: 0 0 24px -5px hsl(36 88% 52% / 0.25);
   }
 
   .shadow-elevated {
-    box-shadow: 0 4px 24px -6px hsl(var(--foreground) / 0.06),
-                0 2px 8px -2px hsl(var(--foreground) / 0.04);
+    box-shadow: 0 4px 28px -6px hsl(var(--foreground) / 0.05),
+                0 2px 10px -2px hsl(var(--foreground) / 0.03);
   }
 
   .shadow-card {
-    box-shadow: 0 1px 3px hsl(var(--foreground) / 0.04),
-                0 4px 16px -4px hsl(var(--foreground) / 0.06);
+    box-shadow: 0 1px 4px hsl(var(--foreground) / 0.03),
+                0 4px 20px -4px hsl(var(--foreground) / 0.05);
   }
 
   .pt-safe-header {

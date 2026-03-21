@@ -36,7 +36,7 @@ export function TopNav() {
             data-testid="theme-toggle-nav"
             className={cn(
               'p-2 rounded-xl transition-all active:scale-95',
-              theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-700'
+              theme === 'dark' ? 'bg-primary/10 text-primary' : 'bg-accent/15 text-accent'
             )}
           >
             <ThemeIcon className="h-4 w-4" />

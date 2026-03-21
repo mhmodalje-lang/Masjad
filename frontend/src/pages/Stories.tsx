@@ -846,7 +846,7 @@ export default function Stories() {
     <div className="min-h-screen bg-background pb-24" dir={dir} data-testid="stories-page">
       {/* === MODERN 2026 HEADER === */}
       <div className="sticky top-0 z-50">
-        <div className="relative bg-gradient-to-b from-emerald-800 via-emerald-700 to-emerald-800/95 backdrop-blur-xl overflow-hidden">
+        <div className="relative bg-gradient-to-b from-emerald-800 via-teal-700 to-emerald-800/95 backdrop-blur-xl overflow-hidden">
           {/* Geometric pattern */}
           <div className="absolute inset-0 opacity-[0.06]" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.3'%3E%3Cpath d='M40 10L50 30H30z M40 70L30 50H50z M10 40L30 30V50z M70 40L50 50V30z'/%3E%3C/g%3E%3C/svg%3E")`,

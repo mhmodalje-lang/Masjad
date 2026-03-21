@@ -20,8 +20,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         <motion.div
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
           style={{ background: isDark
-            ? 'linear-gradient(135deg, #0f1520 0%, #1a2332 40%, #0d1b2a 100%)'
-            : 'linear-gradient(135deg, #f5f0e8 0%, #e8e0d0 40%, #f0ead8 100%)'
+            ? 'linear-gradient(135deg, #101720 0%, #182030 40%, #0d1822 100%)'
+            : 'linear-gradient(135deg, #f0ead8 0%, #e5dcc8 40%, #ece4d0 100%)'
           }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}

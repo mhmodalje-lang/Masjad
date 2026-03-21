@@ -33,7 +33,7 @@ export function BottomNav() {
       <div className={cn(
         'backdrop-blur-xl border-t transition-colors duration-300',
         isDark
-          ? 'bg-[#0d1f17]/95 border-emerald-700/30 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
+          ? 'bg-[#0f1a24]/95 border-emerald-800/25 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
           : 'bg-white/95 border-border/40 shadow-[0_-4px_30px_rgba(0,0,0,0.06)]'
       )}>
         <div
@@ -55,7 +55,7 @@ export function BottomNav() {
                 >
                   <div className={cn(
                     'h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/40 active:scale-90 transition-transform border-2 border-emerald-300/40 ring-4',
-                    isDark ? 'ring-[#0d1f17]/90' : 'ring-white/90'
+                    isDark ? 'ring-[#0f1a24]/90' : 'ring-white/90'
                   )}>
                     <Plus className="h-7 w-7 text-white stroke-[3px]" />
                   </div>
