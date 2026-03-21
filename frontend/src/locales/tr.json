@@ -2116,5 +2116,8 @@
   "sendMultiNotif": "Çok Dilli Bildirim Gönder",
   "historyLabel": "Geçmiş",
   "sentTo": "Gönderildi:",
-  "localesLabel": "Diller:"
+  "localesLabel": "Diller:",
+  "xpLabel": "TP",
+  "nextLessonBtn": "Sonraki Ders",
+  "prevLessonBtn": "Önceki Ders"
 }

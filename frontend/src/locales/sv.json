@@ -2130,5 +2130,8 @@
   "sendMultiNotif": "Skicka flerspråkig notis",
   "historyLabel": "Historik",
   "sentTo": "Skickat:",
-  "localesLabel": "Språk:"
+  "localesLabel": "Språk:",
+  "xpLabel": "EP",
+  "nextLessonBtn": "Nästa lektion",
+  "prevLessonBtn": "Föregående lektion"
 }

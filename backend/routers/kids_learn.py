@@ -279,7 +279,12 @@ async def api_achievements(user_id: str = "guest"):
         prog = {"total_lessons": 0, "streak": 0, "memorized_ayahs": 0, "learned_duas": [], "learned_hadiths": [], "xp": 0}
     lang = "en"
     earned = get_achievements(prog)
-    all_badges = [{"id": b["id"], "emoji": b["emoji"], "title_ar": b["title_ar"], "title_en": b["title_en"],
+    all_badges = [{"id": b["id"], "emoji": b["emoji"],
+                   "title_ar": b["title_ar"], "title_en": b["title_en"],
+                   "title_de": b.get("title_de",""), "title_fr": b.get("title_fr",""),
+                   "title_tr": b.get("title_tr",""), "title_ru": b.get("title_ru",""),
+                   "title_sv": b.get("title_sv",""), "title_nl": b.get("title_nl",""),
+                   "title_el": b.get("title_el",""),
                    "desc_ar": b["desc_ar"], "desc_en": b["desc_en"],
                    "earned": any(e["id"] == b["id"] for e in earned)} for b in ACHIEVEMENT_BADGES]
     return {"success": True, "badges": all_badges, "earned_count": len(earned), "total": len(ACHIEVEMENT_BADGES)}

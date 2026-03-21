@@ -2116,5 +2116,8 @@
   "sendMultiNotif": "Отправить мультиязычное уведомление",
   "historyLabel": "История",
   "sentTo": "Отправлено:",
-  "localesLabel": "Языки:"
+  "localesLabel": "Языки:",
+  "xpLabel": "ОО",
+  "nextLessonBtn": "Следующий урок",
+  "prevLessonBtn": "Предыдущий урок"
 }

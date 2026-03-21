@@ -2120,5 +2120,8 @@
   "sendMultiNotif": "Αποστολή πολυγλωσσικής ειδοποίησης",
   "historyLabel": "Ιστορικό",
   "sentTo": "Στάλθηκε:",
-  "localesLabel": "Γλώσσες:"
+  "localesLabel": "Γλώσσες:",
+  "xpLabel": "ΒΕ",
+  "nextLessonBtn": "Επόμενο μάθημα",
+  "prevLessonBtn": "Προηγούμενο μάθημα"
 }

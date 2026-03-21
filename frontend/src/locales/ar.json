@@ -2119,5 +2119,8 @@
   "sendMultiNotif": "إرسال إشعار متعدد اللغات",
   "historyLabel": "السجل",
   "sentTo": "أُرسل إلى",
-  "localesLabel": "اللغات:"
+  "localesLabel": "اللغات:",
+  "xpLabel": "نقاط الخبرة",
+  "nextLessonBtn": "الدرس التالي",
+  "prevLessonBtn": "الدرس السابق"
 }

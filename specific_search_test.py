@@ -7,7 +7,7 @@ Tests the exact endpoints mentioned in the review request
 import requests
 import json
 
-BASE_URL = "https://content-translation-1.preview.emergentagent.com/api"
+BASE_URL = "https://kids-platform-review.preview.emergentagent.com/api"
 
 def get_auth_token():
     """Get auth token for test user"""

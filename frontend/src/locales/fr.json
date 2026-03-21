@@ -2116,5 +2116,8 @@
   "sendMultiNotif": "Envoyer notification multilingue",
   "historyLabel": "Historique",
   "sentTo": "Envoyé:",
-  "localesLabel": "Langues:"
+  "localesLabel": "Langues:",
+  "xpLabel": "PX",
+  "nextLessonBtn": "Leçon suivante",
+  "prevLessonBtn": "Leçon précédente"
 }

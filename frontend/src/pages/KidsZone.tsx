@@ -202,7 +202,7 @@ export default function KidsZone() {
           <div className="flex-1 p-3 rounded-xl bg-black/20 text-center">
             <Zap className="h-5 w-5 text-amber-400 mx-auto"/>
             <p className="text-lg font-bold text-amber-300">{totalXp}</p>
-            <p className="text-[9px] text-muted-foreground">XP</p>
+            <p className="text-[9px] text-muted-foreground">{t('xpLabel') || 'XP'}</p>
           </div>
         </div>
         {/* Overall progress bar */}
@@ -220,10 +220,10 @@ export default function KidsZone() {
       {/* Badges Preview */}
       {badges.length>0 && (<div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {badges.filter(b=>b.earned).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
-          <span className="text-lg">{b.emoji}</span><span className="text-[10px] font-bold text-amber-300">{b[`title_${locale}`] || b.title_ar || b.title_en}</span>
+          <span className="text-lg">{b.emoji}</span><span className="text-[10px] font-bold text-amber-300">{b[`title_${locale}`] || b.title_ar}</span>
         </div>))}
         {badges.filter(b=>!b.earned).slice(0,3).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 shrink-0 opacity-50">
-          <span className="text-lg grayscale">{b.emoji}</span><span className="text-[10px] text-muted-foreground">{b[`title_${locale}`] || b.title_ar || b.title_en}</span>
+          <span className="text-lg grayscale">{b.emoji}</span><span className="text-[10px] text-muted-foreground">{b[`title_${locale}`] || b.title_ar}</span>
         </div>))}
       </div>)}
 
@@ -248,7 +248,7 @@ export default function KidsZone() {
             </div>
             <div className="flex-1 text-start">
               <h3 className="font-bold text-sm">{s.title}</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{t('nLessons').replace('{n}', String(s.total_lessons))} • Day {s.day_start}-{s.day_end}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{t('nLessons').replace('{n}', String(s.total_lessons))} • {t('dayN').replace('{n}', `${s.day_start}-${s.day_end}`)}</p>
               <div className="flex items-center gap-2 mt-1.5">
                 <div className="flex-1 h-2 bg-black/20 rounded-full"><div className="h-full rounded-full transition-all" style={{width:`${pct}%`,backgroundColor:s.color}}/></div>
                 <span className="text-[10px] font-bold" style={{color:s.color}}>{pct}%</span>
@@ -307,7 +307,7 @@ export default function KidsZone() {
       <div className="p-4 rounded-2xl bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 text-center">
         <span className="text-3xl">🐣</span>
         <h2 className="text-lg font-bold mt-2">{L.title[locale] || L.title.ar || L.title.en}</h2>
-        <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} XP</p>
+        <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} {t('xpLabel') || 'XP'}</p>
       </div>
 
       {/* Progress */}
@@ -331,6 +331,20 @@ export default function KidsZone() {
           <Sparkles className="h-5 w-5"/> {t('completeDayN').replace('{n}', String(L.day))}
         </button>
       )}
+
+      {/* Next / Previous Lesson Navigation */}
+      <div className="flex gap-3 pt-2">
+        {L.day > 1 && (
+          <button onClick={()=>loadLesson(L.day-1)} className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all">
+            ← {t('prevLessonBtn')}
+          </button>
+        )}
+        {L.day < 1000 && (
+          <button onClick={()=>loadLesson(L.day+1)} className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+            {t('nextLessonBtn')} →
+          </button>
+        )}
+      </div>
     </div>);
   };
 

@@ -2130,5 +2130,8 @@
   "sendMultiNotif": "Meertalige melding verzenden",
   "historyLabel": "Geschiedenis",
   "sentTo": "Verzonden:",
-  "localesLabel": "Talen:"
+  "localesLabel": "Talen:",
+  "xpLabel": "EP",
+  "nextLessonBtn": "Volgende les",
+  "prevLessonBtn": "Vorige les"
 }
