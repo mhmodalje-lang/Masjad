@@ -347,11 +347,11 @@ export default function KidsZone() {
                 <span className="text-5xl font-bold text-white">{c.letter}</span>
               </div>
             </button>
-            <p className="text-lg font-bold mt-2">{c.name_ar} ({c.name_en})</p>
+            <p className="text-lg font-bold mt-2">{c.name_ar} ({c.name})</p>
             <p className="text-sm text-muted-foreground">{t('soundLabel')} {c.sound}</p>
             {c.example_word && <div className="mt-2 p-3 rounded-xl bg-black/10">
               <p className="text-2xl font-bold font-arabic" dir="rtl">{c.example_word}</p>
-              <p className="text-sm text-muted-foreground">{c.example_emoji} {c.example_en}</p>
+              <p className="text-sm text-muted-foreground">{c.example_emoji} {c.example_translated}</p>
             </div>}
           </div>}
           {c.letters && <div className="space-y-3">{c.letters.map((lt:any,i:number)=>(
@@ -365,12 +365,12 @@ export default function KidsZone() {
             <button onClick={()=>speak(c.arabic,'ar')}>
               <p className="text-2xl font-bold font-arabic leading-loose" dir="rtl">{c.arabic}</p>
             </button>
-            {c.english && <p className="text-sm text-muted-foreground mt-2">{c.english}</p>}
+            {c.translated && <p className="text-sm text-muted-foreground mt-2">{c.translated}</p>}
             {c.emoji && <span className="text-4xl block mt-2">{c.emoji}</span>}
           </div>}
           {c.name_ar && !c.letter && <div className="text-center">
             <p className="text-3xl font-bold">{c.symbol||''}</p>
-            <p className="text-lg font-bold">{c.name_ar} ({c.name_en})</p>
+            <p className="text-lg font-bold">{c.name_ar} ({c.name})</p>
             <p className="text-sm text-muted-foreground">{t('soundLabel')} {c.sound}</p>
             {c.example_word && <p className="text-2xl font-bold mt-2 font-arabic" dir="rtl">{c.example_word}</p>}
             {c.meaning && <p className="text-sm text-muted-foreground">{c.meaning}</p>}
@@ -378,7 +378,7 @@ export default function KidsZone() {
           {c.number!==undefined && <div className="text-center">
             <span className="text-6xl font-bold">{c.display}</span>
             <p className="text-2xl font-bold mt-2">{c.arabic}</p>
-            <p className="text-sm text-muted-foreground">{c.english}</p>
+            <p className="text-sm text-muted-foreground">{c.translated}</p>
           </div>}
         </div>);
 
@@ -415,7 +415,7 @@ export default function KidsZone() {
         return(<div className="text-center space-y-2">
           {c.letter && <span className="text-5xl font-bold">{c.letter}</span>}
           {c.word && <p className="text-2xl font-bold font-arabic" dir="rtl">{c.word}</p>}
-          {c.word_en && <p className="text-sm text-muted-foreground">{c.word_en}</p>}
+          {c.word_translated && <p className="text-sm text-muted-foreground">{c.word_translated}</p>}
           {c.sentence && <p className="text-xl font-bold font-arabic" dir="rtl">{c.sentence}</p>}
           {c.tip && <p className="text-xs text-muted-foreground mt-2">{c.tip}</p>}
         </div>);
@@ -487,7 +487,7 @@ export default function KidsZone() {
           <button onClick={()=>speak(c.arabic,'ar')} className="inline-block">
             <p className="text-3xl font-bold font-arabic" dir="rtl">{c.arabic}</p>
           </button>
-          <p className="text-sm text-muted-foreground">{c.emoji} {c.english}</p>
+          <p className="text-sm text-muted-foreground">{c.emoji} {c.translated}</p>
         </div>);
 
       case 'reflect':

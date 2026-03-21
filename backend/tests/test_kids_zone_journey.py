@@ -10,7 +10,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://kids-curriculum-fix.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://content-translation-1.preview.emergentagent.com')
 
 # Test user IDs
 TEST_USER_ID = f"kid_test_pytest_{int(time.time())}"

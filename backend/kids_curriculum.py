@@ -17,49 +17,49 @@ from localization_engine import t, get_cat_name
 CURRICULUM_STAGES = [
     {"id": "S01", "days": [1, 56], "emoji": "🔤", "color": "#3B82F6",
      "title": {"ar": "الحروف العربية", "en": "Arabic Alphabet", "de": "Arabisches Alphabet", "fr": "Alphabet arabe", "tr": "Arap Alfabesi", "ru": "Арабский алфавит", "sv": "Arabiskt alfabet", "nl": "Arabisch alfabet", "el": "Αραβικό αλφάβητο"},
-     "desc": {"ar": "تعلم الحروف العربية الـ 28 وأشكالها وأصواتها", "en": "Learn all 28 Arabic letters, their forms and sounds", "de": "Lerne alle 28 arabischen Buchstaben", "fr": "Apprenez les 28 lettres arabes", "tr": "28 Arap harfini öğrenin", "ru": "Изучите все 28 арабских букв"}},
+     "desc": {"ar": "تعلم الحروف العربية الـ 28 وأشكالها وأصواتها", "en": "Learn all 28 Arabic letters, their forms and sounds", "de": "Lerne alle 28 arabischen Buchstaben", "fr": "Apprenez les 28 lettres arabes", "tr": "28 Arap harfini öğrenin", "ru": "Изучите все 28 арабских букв", "sv": "Lär dig alla 28 arabiska bokstäver, deras former och ljud", "nl": "Leer alle 28 Arabische letters, hun vormen en klanken", "el": "Μάθε όλα τα 28 αραβικά γράμματα, τις μορφές και τους ήχους τους"}},
     {"id": "S02", "days": [57, 84], "emoji": "🎵", "color": "#8B5CF6",
-     "title": {"ar": "الحركات والتشكيل", "en": "Vowels & Diacritics", "de": "Vokale & Diakritika", "fr": "Voyelles & Diacritiques", "tr": "Sesli Harfler", "ru": "Гласные и диакритика"},
-     "desc": {"ar": "الفتحة والكسرة والضمة والسكون والشدة والتنوين", "en": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "de": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "fr": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "tr": "Fatha, Kasra, Damma, Sukun, Şedde, Tenvin", "ru": "Фатха, Касра, Дамма, Сукун, Шадда и Танвин"}},
+     "title": {"ar": "الحركات والتشكيل", "en": "Vowels & Diacritics", "de": "Vokale & Diakritika", "fr": "Voyelles & Diacritiques", "tr": "Sesli Harfler", "ru": "Гласные и диакритика", "sv": "Vokaler & diakritiska tecken", "nl": "Klinkers & diakritische tekens", "el": "Φωνήεντα & διακριτικά"},
+     "desc": {"ar": "الفتحة والكسرة والضمة والسكون والشدة والتنوين", "en": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "de": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "fr": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "tr": "Fatha, Kasra, Damma, Sukun, Şedde, Tenvin", "ru": "Фатха, Касра, Дамма, Сукун, Шадда и Танвин", "sv": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "nl": "Fatha, Kasra, Damma, Sukun, Shadda & Tanween", "el": "Φάθα, Κάσρα, Ντάμμα, Σουκούν, Σάντα & Τανουίν"}},
     {"id": "S03", "days": [85, 112], "emoji": "🔢", "color": "#06B6D4",
-     "title": {"ar": "الأرقام العربية", "en": "Arabic Numbers", "de": "Arabische Zahlen", "fr": "Chiffres arabes", "tr": "Arapça Sayılar", "ru": "Арабские цифры"},
-     "desc": {"ar": "تعلم الأرقام من ٠ إلى ١٠٠ والعدّ", "en": "Learn numbers from 0 to 100 and counting", "de": "Lerne Zahlen von 0 bis 100", "fr": "Apprenez les chiffres de 0 à 100", "tr": "0'dan 100'e sayıları öğrenin", "ru": "Изучите числа от 0 до 100"}},
+     "title": {"ar": "الأرقام العربية", "en": "Arabic Numbers", "de": "Arabische Zahlen", "fr": "Chiffres arabes", "tr": "Arapça Sayılar", "ru": "Арабские цифры", "sv": "Arabiska siffror", "nl": "Arabische cijfers", "el": "Αραβικοί αριθμοί"},
+     "desc": {"ar": "تعلم الأرقام من ٠ إلى ١٠٠ والعدّ", "en": "Learn numbers from 0 to 100 and counting", "de": "Lerne Zahlen von 0 bis 100", "fr": "Apprenez les chiffres de 0 à 100", "tr": "0'dan 100'e sayıları öğrenin", "ru": "Изучите числа от 0 до 100", "sv": "Lär dig siffror från 0 till 100", "nl": "Leer cijfers van 0 tot 100", "el": "Μάθε αριθμούς από 0 έως 100"}},
     {"id": "S04", "days": [113, 210], "emoji": "📝", "color": "#F59E0B",
-     "title": {"ar": "الكلمات الأولى", "en": "First Words", "de": "Erste Wörter", "fr": "Premiers mots", "tr": "İlk Kelimeler", "ru": "Первые слова"},
-     "desc": {"ar": "ألوان، حيوانات، عائلة، جسم، طعام، بيت، طبيعة", "en": "Colors, Animals, Family, Body, Food, Home, Nature", "de": "Farben, Tiere, Familie, Körper, Essen, Haus, Natur", "fr": "Couleurs, Animaux, Famille, Corps, Nourriture, Maison, Nature", "tr": "Renkler, Hayvanlar, Aile, Vücut, Yiyecek, Ev, Doğa", "ru": "Цвета, Животные, Семья, Тело, Еда, Дом, Природа"}},
+     "title": {"ar": "الكلمات الأولى", "en": "First Words", "de": "Erste Wörter", "fr": "Premiers mots", "tr": "İlk Kelimeler", "ru": "Первые слова", "sv": "Första orden", "nl": "Eerste woorden", "el": "Πρώτες λέξεις"},
+     "desc": {"ar": "ألوان، حيوانات، عائلة، جسم، طعام، بيت، طبيعة", "en": "Colors, Animals, Family, Body, Food, Home, Nature", "de": "Farben, Tiere, Familie, Körper, Essen, Haus, Natur", "fr": "Couleurs, Animaux, Famille, Corps, Nourriture, Maison, Nature", "tr": "Renkler, Hayvanlar, Aile, Vücut, Yiyecek, Ev, Doğa", "ru": "Цвета, Животные, Семья, Тело, Еда, Дом, Природа", "sv": "Färger, Djur, Familj, Kropp, Mat, Hem, Natur", "nl": "Kleuren, Dieren, Familie, Lichaam, Eten, Huis, Natuur", "el": "Χρώματα, Ζώα, Οικογένεια, Σώμα, Φαγητό, Σπίτι, Φύση"}},
     {"id": "S05", "days": [211, 266], "emoji": "💬", "color": "#10B981",
-     "title": {"ar": "الجمل البسيطة", "en": "Simple Sentences", "de": "Einfache Sätze", "fr": "Phrases simples", "tr": "Basit Cümleler", "ru": "Простые предложения"},
-     "desc": {"ar": "التحيات، التعريف بالنفس، الأسئلة الأساسية", "en": "Greetings, introductions, basic questions", "de": "Grüße, Vorstellungen, einfache Fragen", "fr": "Salutations, présentations, questions de base", "tr": "Selamlaşma, tanışma, temel sorular", "ru": "Приветствия, представление, основные вопросы"}},
+     "title": {"ar": "الجمل البسيطة", "en": "Simple Sentences", "de": "Einfache Sätze", "fr": "Phrases simples", "tr": "Basit Cümleler", "ru": "Простые предложения", "sv": "Enkla meningar", "nl": "Eenvoudige zinnen", "el": "Απλές προτάσεις"},
+     "desc": {"ar": "التحيات، التعريف بالنفس، الأسئلة الأساسية", "en": "Greetings, introductions, basic questions", "de": "Grüße, Vorstellungen, einfache Fragen", "fr": "Salutations, présentations, questions de base", "tr": "Selamlaşma, tanışma, temel sorular", "ru": "Приветствия, представление, основные вопросы", "sv": "Hälsningar, presentationer, grundläggande frågor", "nl": "Begroetingen, voorstellingen, basisvragen", "el": "Χαιρετισμοί, συστάσεις, βασικές ερωτήσεις"}},
     {"id": "S06", "days": [267, 308], "emoji": "📖", "color": "#EF4444",
-     "title": {"ar": "تمرين القراءة", "en": "Reading Practice", "de": "Leseübung", "fr": "Exercice de lecture", "tr": "Okuma Alıştırması", "ru": "Практика чтения"},
-     "desc": {"ar": "قراءة كلمات وجمل وفقرات قصيرة", "en": "Reading words, sentences and short paragraphs", "de": "Wörter, Sätze und kurze Absätze lesen", "fr": "Lire des mots, phrases et courts paragraphes", "tr": "Kelime, cümle ve kısa paragraf okuma", "ru": "Чтение слов, предложений и коротких абзацев"}},
+     "title": {"ar": "تمرين القراءة", "en": "Reading Practice", "de": "Leseübung", "fr": "Exercice de lecture", "tr": "Okuma Alıştırması", "ru": "Практика чтения", "sv": "Läsövning", "nl": "Leesoefening", "el": "Εξάσκηση ανάγνωσης"},
+     "desc": {"ar": "قراءة كلمات وجمل وفقرات قصيرة", "en": "Reading words, sentences and short paragraphs", "de": "Wörter, Sätze und kurze Absätze lesen", "fr": "Lire des mots, phrases et courts paragraphes", "tr": "Kelime, cümle ve kısa paragraf okuma", "ru": "Чтение слов, предложений и коротких абзацев", "sv": "Läsa ord, meningar och korta stycken", "nl": "Woorden, zinnen en korte alinea's lezen", "el": "Ανάγνωση λέξεων, προτάσεων και σύντομων παραγράφων"}},
     {"id": "S07", "days": [309, 378], "emoji": "🤲", "color": "#059669",
-     "title": {"ar": "أساسيات الإسلام", "en": "Islamic Foundations", "de": "Islamische Grundlagen", "fr": "Fondements de l'Islam", "tr": "İslam Temelleri", "ru": "Основы Ислама"},
-     "desc": {"ar": "أركان الإسلام، الإيمان، الوضوء، الصلاة، رمضان", "en": "Pillars of Islam, Faith, Wudu, Prayer, Ramadan", "de": "Säulen des Islam, Glaube, Wudu, Gebet, Ramadan", "fr": "Piliers de l'Islam, Foi, Wudu, Prière, Ramadan", "tr": "İslam'ın Şartları, İman, Abdest, Namaz, Ramazan", "ru": "Столпы Ислама, Вера, Вуду, Молитва, Рамадан"}},
+     "title": {"ar": "أساسيات الإسلام", "en": "Islamic Foundations", "de": "Islamische Grundlagen", "fr": "Fondements de l'Islam", "tr": "İslam Temelleri", "ru": "Основы Ислама", "sv": "Islams grunder", "nl": "Islamitische grondslagen", "el": "Θεμέλια του Ισλάμ"},
+     "desc": {"ar": "أركان الإسلام، الإيمان، الوضوء، الصلاة، رمضان", "en": "Pillars of Islam, Faith, Wudu, Prayer, Ramadan", "de": "Säulen des Islam, Glaube, Wudu, Gebet, Ramadan", "fr": "Piliers de l'Islam, Foi, Wudu, Prière, Ramadan", "tr": "İslam'ın Şartları, İman, Abdest, Namaz, Ramazan", "ru": "Столпы Ислама, Вера, Вуду, Молитва, Рамадан", "sv": "Islams pelare, Tro, Wudu, Bön, Ramadan", "nl": "Zuilen van de Islam, Geloof, Woedoe, Gebed, Ramadan", "el": "Πυλώνες του Ισλάμ, Πίστη, Γουντού, Προσευχή, Ραμαζάνι"}},
     {"id": "S08", "days": [379, 490], "emoji": "📖", "color": "#7C3AED",
-     "title": {"ar": "حفظ القرآن", "en": "Quran Memorization", "de": "Koran-Memorierung", "fr": "Mémorisation du Coran", "tr": "Kur'an Ezberleme", "ru": "Заучивание Корана"},
-     "desc": {"ar": "سور جزء عمّ مع التجويد المبسط", "en": "Juz Amma surahs with basic Tajweed", "de": "Juz Amma Suren mit einfachem Tajweed", "fr": "Sourates Juz Amma avec Tajweed de base", "tr": "Cüz Amma sureleri ve temel Tecvid", "ru": "Суры Джуз Амма с основами Таджвида"}},
+     "title": {"ar": "حفظ القرآن", "en": "Quran Memorization", "de": "Koran-Memorierung", "fr": "Mémorisation du Coran", "tr": "Kur'an Ezberleme", "ru": "Заучивание Корана", "sv": "Koranmemorering", "nl": "Koran memoriseren", "el": "Απομνημόνευση Κορανίου"},
+     "desc": {"ar": "سور جزء عمّ مع التجويد المبسط", "en": "Juz Amma surahs with basic Tajweed", "de": "Juz Amma Suren mit einfachem Tajweed", "fr": "Sourates Juz Amma avec Tajweed de base", "tr": "Cüz Amma sureleri ve temel Tecvid", "ru": "Суры Джуз Амма с основами Таджвида", "sv": "Juz Amma-suror med grundläggande Tajweed", "nl": "Juz Amma soera's met basis Tajweed", "el": "Σούρες Τζουζ Άμμα με βασικό Τατζουίντ"}},
     {"id": "S09", "days": [491, 560], "emoji": "🤲", "color": "#0EA5E9",
-     "title": {"ar": "الأدعية والأذكار", "en": "Duas & Daily Phrases", "de": "Duas & Tägliche Phrasen", "fr": "Duas & Phrases quotidiennes", "tr": "Dualar & Günlük İfadeler", "ru": "Дуа и ежедневные фразы"},
-     "desc": {"ar": "أدعية يومية وعبارات إسلامية أساسية", "en": "Daily duas and essential Islamic phrases", "de": "Tägliche Duas und islamische Ausdrücke", "fr": "Duas quotidiennes et phrases islamiques essentielles", "tr": "Günlük dualar ve İslami ifadeler", "ru": "Ежедневные дуа и исламские фразы"}},
+     "title": {"ar": "الأدعية والأذكار", "en": "Duas & Daily Phrases", "de": "Duas & Tägliche Phrasen", "fr": "Duas & Phrases quotidiennes", "tr": "Dualar & Günlük İfadeler", "ru": "Дуа и ежедневные фразы", "sv": "Duas & dagliga fraser", "nl": "Duas & dagelijkse uitdrukkingen", "el": "Ντουάς & καθημερινές φράσεις"},
+     "desc": {"ar": "أدعية يومية وعبارات إسلامية أساسية", "en": "Daily duas and essential Islamic phrases", "de": "Tägliche Duas und islamische Ausdrücke", "fr": "Duas quotidiennes et phrases islamiques essentielles", "tr": "Günlük dualar ve İslami ifadeler", "ru": "Ежедневные дуа и исламские фразы", "sv": "Dagliga duas och grundläggande islamiska fraser", "nl": "Dagelijkse duas en essentiële islamitische uitdrukkingen", "el": "Καθημερινά ντουά και βασικές ισλαμικές φράσεις"}},
     {"id": "S10", "days": [561, 630], "emoji": "📜", "color": "#D97706",
-     "title": {"ar": "الأحاديث والأخلاق", "en": "Hadiths & Morals", "de": "Hadithe & Moral", "fr": "Hadiths & Morale", "tr": "Hadisler & Ahlak", "ru": "Хадисы и нравственность"},
-     "desc": {"ar": "أحاديث نبوية مبسطة ودروس أخلاقية", "en": "Simplified Prophet's hadiths and moral lessons", "de": "Vereinfachte Hadithe und moralische Lektionen", "fr": "Hadiths simplifiés et leçons morales", "tr": "Basitleştirilmiş hadisler ve ahlaki dersler", "ru": "Упрощённые хадисы и нравственные уроки"}},
+     "title": {"ar": "الأحاديث والأخلاق", "en": "Hadiths & Morals", "de": "Hadithe & Moral", "fr": "Hadiths & Morale", "tr": "Hadisler & Ahlak", "ru": "Хадисы и нравственность", "sv": "Hadither & moral", "nl": "Hadiths & moraal", "el": "Χαντίθ & ηθική"},
+     "desc": {"ar": "أحاديث نبوية مبسطة ودروس أخلاقية", "en": "Simplified Prophet's hadiths and moral lessons", "de": "Vereinfachte Hadithe und moralische Lektionen", "fr": "Hadiths simplifiés et leçons morales", "tr": "Basitleştirilmiş hadisler ve ahlaki dersler", "ru": "Упрощённые хадисы и нравственные уроки", "sv": "Förenklade hadither och moraliska lektioner", "nl": "Vereenvoudigde hadiths en morele lessen", "el": "Απλοποιημένα χαντίθ και ηθικά μαθήματα"}},
     {"id": "S11", "days": [631, 720], "emoji": "🕌", "color": "#9333EA",
-     "title": {"ar": "قصص الأنبياء", "en": "Prophet Stories", "de": "Prophetengeschichten", "fr": "Histoires des Prophètes", "tr": "Peygamber Kıssaları", "ru": "Истории пророков"},
-     "desc": {"ar": "قصص الأنبياء الـ 25 المذكورين في القرآن", "en": "Stories of all 25 prophets in the Quran", "de": "Geschichten aller 25 Propheten im Koran", "fr": "Histoires des 25 prophètes du Coran", "tr": "Kur'an'daki 25 peygamberin kıssaları", "ru": "Истории всех 25 пророков Корана"}},
+     "title": {"ar": "قصص الأنبياء", "en": "Prophet Stories", "de": "Prophetengeschichten", "fr": "Histoires des Prophètes", "tr": "Peygamber Kıssaları", "ru": "Истории пророков", "sv": "Profetberättelser", "nl": "Profetverhalen", "el": "Ιστορίες προφητών"},
+     "desc": {"ar": "قصص الأنبياء الـ 25 المذكورين في القرآن", "en": "Stories of all 25 prophets in the Quran", "de": "Geschichten aller 25 Propheten im Koran", "fr": "Histoires des 25 prophètes du Coran", "tr": "Kur'an'daki 25 peygamberin kıssaları", "ru": "Истории всех 25 пророков Корана", "sv": "Berättelser om alla 25 profeter i Koranen", "nl": "Verhalen van alle 25 profeten in de Koran", "el": "Ιστορίες όλων των 25 προφητών στο Κοράνι"}},
     {"id": "S12", "days": [721, 810], "emoji": "🌙", "color": "#DC2626",
-     "title": {"ar": "الحياة الإسلامية", "en": "Islamic Life", "de": "Islamisches Leben", "fr": "Vie islamique", "tr": "İslami Yaşam", "ru": "Исламская жизнь"},
-     "desc": {"ar": "رمضان، الحج، الأعياد، التقويم الإسلامي", "en": "Ramadan, Hajj, Eids, Islamic calendar", "de": "Ramadan, Hadsch, Eid-Feste, islamischer Kalender", "fr": "Ramadan, Hajj, Fêtes de l'Aïd, calendrier islamique", "tr": "Ramazan, Hac, Bayramlar, İslami takvim", "ru": "Рамадан, Хадж, праздники, исламский календарь"}},
+     "title": {"ar": "الحياة الإسلامية", "en": "Islamic Life", "de": "Islamisches Leben", "fr": "Vie islamique", "tr": "İslami Yaşam", "ru": "Исламская жизнь", "sv": "Islamiskt liv", "nl": "Islamitisch leven", "el": "Ισλαμική ζωή"},
+     "desc": {"ar": "رمضان، الحج، الأعياد، التقويم الإسلامي", "en": "Ramadan, Hajj, Eids, Islamic calendar", "de": "Ramadan, Hadsch, Eid-Feste, islamischer Kalender", "fr": "Ramadan, Hajj, Fêtes de l'Aïd, calendrier islamique", "tr": "Ramazan, Hac, Bayramlar, İslami takvim", "ru": "Рамадан, Хадж, праздники, исламский календарь", "sv": "Ramadan, Hajj, Eid-högtider, islamisk kalender", "nl": "Ramadan, Hadj, Eid-feesten, islamitische kalender", "el": "Ραμαζάνι, Χατζ, Εΐντ, ισλαμικό ημερολόγιο"}},
     {"id": "S13", "days": [811, 900], "emoji": "📚", "color": "#0D9488",
-     "title": {"ar": "عربي متقدم", "en": "Advanced Arabic", "de": "Fortgeschrittenes Arabisch", "fr": "Arabe avancé", "tr": "İleri Arapça", "ru": "Продвинутый арабский"},
-     "desc": {"ar": "قواعد أساسية، أفعال، محادثات", "en": "Basic grammar, verbs, conversations", "de": "Grundgrammatik, Verben, Gespräche", "fr": "Grammaire de base, verbes, conversations", "tr": "Temel gramer, fiiller, konuşmalar", "ru": "Базовая грамматика, глаголы, разговоры"}},
+     "title": {"ar": "عربي متقدم", "en": "Advanced Arabic", "de": "Fortgeschrittenes Arabisch", "fr": "Arabe avancé", "tr": "İleri Arapça", "ru": "Продвинутый арабский", "sv": "Avancerad arabiska", "nl": "Gevorderd Arabisch", "el": "Προχωρημένα αραβικά"},
+     "desc": {"ar": "قواعد أساسية، أفعال، محادثات", "en": "Basic grammar, verbs, conversations", "de": "Grundgrammatik, Verben, Gespräche", "fr": "Grammaire de base, verbes, conversations", "tr": "Temel gramer, fiiller, konuşmalar", "ru": "Базовая грамматика, глаголы, разговоры", "sv": "Grundgrammatik, verb, konversationer", "nl": "Basisgrammatica, werkwoorden, gesprekken", "el": "Βασική γραμματική, ρήματα, συνομιλίες"}},
     {"id": "S14", "days": [901, 960], "emoji": "🏆", "color": "#B45309",
-     "title": {"ar": "قرآن متقدم", "en": "Advanced Quran", "de": "Fortgeschrittener Koran", "fr": "Coran avancé", "tr": "İleri Kur'an", "ru": "Продвинутый Коран"},
-     "desc": {"ar": "سور أطول، تفسير مبسط، تجويد متقدم", "en": "Longer surahs, simple Tafsir, advanced Tajweed", "de": "Längere Suren, einfacher Tafsir, fortgeschrittenes Tajweed", "fr": "Sourates plus longues, Tafsir simple, Tajweed avancé", "tr": "Uzun sureler, basit Tefsir, ileri Tecvid", "ru": "Длинные суры, простой Тафсир, продвинутый Таджвид"}},
+     "title": {"ar": "قرآن متقدم", "en": "Advanced Quran", "de": "Fortgeschrittener Koran", "fr": "Coran avancé", "tr": "İleri Kur'an", "ru": "Продвинутый Коран", "sv": "Avancerad Koran", "nl": "Gevorderde Koran", "el": "Προχωρημένο Κοράνι"},
+     "desc": {"ar": "سور أطول، تفسير مبسط، تجويد متقدم", "en": "Longer surahs, simple Tafsir, advanced Tajweed", "de": "Längere Suren, einfacher Tafsir, fortgeschrittenes Tajweed", "fr": "Sourates plus longues, Tafsir simple, Tajweed avancé", "tr": "Uzun sureler, basit Tefsir, ileri Tecvid", "ru": "Длинные суры, простой Тафсир, продвинутый Таджвид", "sv": "Längre suror, enkel Tafsir, avancerad Tajweed", "nl": "Langere soera's, eenvoudige Tafsir, gevorderde Tajweed", "el": "Μεγαλύτερες σούρες, απλό Ταφσίρ, προχωρημένο Τατζουίντ"}},
     {"id": "S15", "days": [961, 1000], "emoji": "🎓", "color": "#4F46E5",
-     "title": {"ar": "الإتقان والتخرج", "en": "Mastery & Graduation", "de": "Meisterschaft & Abschluss", "fr": "Maîtrise & Diplôme", "tr": "Ustalık & Mezuniyet", "ru": "Мастерство и выпускной"},
-     "desc": {"ar": "مراجعة شاملة واختبارات وشهادة إتقان", "en": "Comprehensive review, tests & mastery certificate", "de": "Umfassende Wiederholung, Tests & Meisterschaftszertifikat", "fr": "Révision complète, tests & certificat de maîtrise", "tr": "Kapsamlı tekrar, sınavlar ve ustalık sertifikası", "ru": "Полный обзор, тесты и сертификат мастерства"}},
+     "title": {"ar": "الإتقان والتخرج", "en": "Mastery & Graduation", "de": "Meisterschaft & Abschluss", "fr": "Maîtrise & Diplôme", "tr": "Ustalık & Mezuniyet", "ru": "Мастерство и выпускной", "sv": "Mästerskap & examen", "nl": "Meesterschap & diploma", "el": "Κυριαρχία & αποφοίτηση"},
+     "desc": {"ar": "مراجعة شاملة واختبارات وشهادة إتقان", "en": "Comprehensive review, tests & mastery certificate", "de": "Umfassende Wiederholung, Tests & Meisterschaftszertifikat", "fr": "Révision complète, tests & certificat de maîtrise", "tr": "Kapsamlı tekrar, sınavlar ve ustalık sertifikası", "ru": "Полный обзор, тесты и сертификат мастерства", "sv": "Omfattande genomgång, prov & mästerskapscertifikat", "nl": "Uitgebreide herhaling, toetsen & meesterschapscertificaat", "el": "Ολοκληρωμένη επανάληψη, τεστ & πιστοποιητικό κυριαρχίας"}},
 ]
 
 # ═══════════════════════════════════════════════════════════════
@@ -188,14 +188,14 @@ WORD_TRANSLATIONS = {
     "No":{"de":"Nein","fr":"Non","tr":"Hayır","ru":"Нет","sv":"Nej","nl":"Nee","el":"Όχι"},
 }
 
-def _tw(en_word: str, lang: str) -> str:
-    """Translate a word to the target language. Falls back: lang -> ar name -> en."""
+def _tw(en_word: str, lang: str, ar_word: str = "") -> str:
+    """Translate a word to the target language. Falls back: lang -> ar (NO English fallback)."""
     if lang == "en":
         return en_word
     if lang == "ar":
-        return en_word  # Will use ar field directly
+        return ar_word or en_word
     entry = WORD_TRANSLATIONS.get(en_word, {})
-    return entry.get(lang, entry.get(lang.split("-")[0], en_word))
+    return entry.get(lang, entry.get(lang.split("-")[0], ar_word or en_word))
 
 # "Letter" prefix translations
 LETTER_PREFIX = {"ar":"حرف","en":"Letter","de":"Buchstabe","fr":"Lettre","tr":"Harf","ru":"Буква","sv":"Bokstav","nl":"Letter","el":"Γράμμα","de-AT":"Buchstabe"}
@@ -330,6 +330,42 @@ NUMBERS_FULL = [
     ])
 ]
 
+# Multi-language number name translations
+NUMBER_NAME_TRANSLATIONS = {
+    "Zero":{"de":"Null","fr":"Zéro","tr":"Sıfır","ru":"Ноль","sv":"Noll","nl":"Nul","el":"Μηδέν"},
+    "One":{"de":"Eins","fr":"Un","tr":"Bir","ru":"Один","sv":"Ett","nl":"Een","el":"Ένα"},
+    "Two":{"de":"Zwei","fr":"Deux","tr":"İki","ru":"Два","sv":"Två","nl":"Twee","el":"Δύο"},
+    "Three":{"de":"Drei","fr":"Trois","tr":"Üç","ru":"Три","sv":"Tre","nl":"Drie","el":"Τρία"},
+    "Four":{"de":"Vier","fr":"Quatre","tr":"Dört","ru":"Четыре","sv":"Fyra","nl":"Vier","el":"Τέσσερα"},
+    "Five":{"de":"Fünf","fr":"Cinq","tr":"Beş","ru":"Пять","sv":"Fem","nl":"Vijf","el":"Πέντε"},
+    "Six":{"de":"Sechs","fr":"Six","tr":"Altı","ru":"Шесть","sv":"Sex","nl":"Zes","el":"Έξι"},
+    "Seven":{"de":"Sieben","fr":"Sept","tr":"Yedi","ru":"Семь","sv":"Sju","nl":"Zeven","el":"Επτά"},
+    "Eight":{"de":"Acht","fr":"Huit","tr":"Sekiz","ru":"Восемь","sv":"Åtta","nl":"Acht","el":"Οκτώ"},
+    "Nine":{"de":"Neun","fr":"Neuf","tr":"Dokuz","ru":"Девять","sv":"Nio","nl":"Negen","el":"Εννέα"},
+    "Ten":{"de":"Zehn","fr":"Dix","tr":"On","ru":"Десять","sv":"Tio","nl":"Tien","el":"Δέκα"},
+    "Eleven":{"de":"Elf","fr":"Onze","tr":"On bir","ru":"Одиннадцать","sv":"Elva","nl":"Elf","el":"Έντεκα"},
+    "Twelve":{"de":"Zwölf","fr":"Douze","tr":"On iki","ru":"Двенадцать","sv":"Tolv","nl":"Twaalf","el":"Δώδεκα"},
+    "Thirteen":{"de":"Dreizehn","fr":"Treize","tr":"On üç","ru":"Тринадцать","sv":"Tretton","nl":"Dertien","el":"Δεκατρία"},
+    "Fourteen":{"de":"Vierzehn","fr":"Quatorze","tr":"On dört","ru":"Четырнадцать","sv":"Fjorton","nl":"Veertien","el":"Δεκατέσσερα"},
+    "Fifteen":{"de":"Fünfzehn","fr":"Quinze","tr":"On beş","ru":"Пятнадцать","sv":"Femton","nl":"Vijftien","el":"Δεκαπέντε"},
+    "Sixteen":{"de":"Sechzehn","fr":"Seize","tr":"On altı","ru":"Шестнадцать","sv":"Sexton","nl":"Zestien","el":"Δεκαέξι"},
+    "Seventeen":{"de":"Siebzehn","fr":"Dix-sept","tr":"On yedi","ru":"Семнадцать","sv":"Sjutton","nl":"Zeventien","el":"Δεκαεπτά"},
+    "Eighteen":{"de":"Achtzehn","fr":"Dix-huit","tr":"On sekiz","ru":"Восемнадцать","sv":"Arton","nl":"Achttien","el":"Δεκαοκτώ"},
+    "Nineteen":{"de":"Neunzehn","fr":"Dix-neuf","tr":"On dokuz","ru":"Девятнадцать","sv":"Nitton","nl":"Negentien","el":"Δεκαεννέα"},
+    "Twenty":{"de":"Zwanzig","fr":"Vingt","tr":"Yirmi","ru":"Двадцать","sv":"Tjugo","nl":"Twintig","el":"Είκοσι"},
+}
+
+# Number prefix translations
+NUMBER_PREFIX = {"ar":"العدد","en":"Number","de":"Zahl","fr":"Nombre","tr":"Sayı","ru":"Число","sv":"Nummer","nl":"Nummer","el":"Αριθμός"}
+
+def _translate_number_name(en_name: str, lang: str) -> str:
+    """Translate a number name to the target language. Falls back to Arabic."""
+    if lang == "en":
+        return en_name
+    if lang == "ar":
+        return ""  # Arabic name is in separate 'arabic' field
+    return NUMBER_NAME_TRANSLATIONS.get(en_name, {}).get(lang, "")
+
 SENTENCES_BASIC = [
     {"ar":"هذا كتاب","en":"This is a book","emoji":"📖"},
     {"ar":"هذه تفاحة","en":"This is an apple","emoji":"🍎"},
@@ -348,6 +384,33 @@ SENTENCES_BASIC = [
     {"ar":"الطقس جميل اليوم","en":"The weather is beautiful today","emoji":"☀️"},
 ]
 
+# Multi-language sentence translations
+SENTENCE_TRANSLATIONS = {
+    "This is a book":{"de":"Das ist ein Buch","fr":"C'est un livre","tr":"Bu bir kitap","ru":"Это книга","sv":"Det här är en bok","nl":"Dit is een boek","el":"Αυτό είναι ένα βιβλίο"},
+    "This is an apple":{"de":"Das ist ein Apfel","fr":"C'est une pomme","tr":"Bu bir elma","ru":"Это яблоко","sv":"Det här är ett äpple","nl":"Dit is een appel","el":"Αυτό είναι ένα μήλο"},
+    "I am happy":{"de":"Ich bin glücklich","fr":"Je suis heureux","tr":"Mutluyum","ru":"Я счастлив","sv":"Jag är glad","nl":"Ik ben blij","el":"Είμαι χαρούμενος"},
+    "What is your name?":{"de":"Wie heißt du?","fr":"Comment t'appelles-tu ?","tr":"Adın ne?","ru":"Как тебя зовут?","sv":"Vad heter du?","nl":"Hoe heet je?","el":"Πώς σε λένε;"},
+    "My name is Ahmad":{"de":"Mein Name ist Ahmad","fr":"Je m'appelle Ahmad","tr":"Benim adım Ahmad","ru":"Меня зовут Ахмад","sv":"Jag heter Ahmad","nl":"Mijn naam is Ahmad","el":"Με λένε Αχμάντ"},
+    "How old are you?":{"de":"Wie alt bist du?","fr":"Quel âge as-tu ?","tr":"Kaç yaşındasın?","ru":"Сколько тебе лет?","sv":"Hur gammal är du?","nl":"Hoe oud ben je?","el":"Πόσο χρονών είσαι;"},
+    "Where is the mosque?":{"de":"Wo ist die Moschee?","fr":"Où est la mosquée ?","tr":"Cami nerede?","ru":"Где мечеть?","sv":"Var är moskén?","nl":"Waar is de moskee?","el":"Πού είναι το τζαμί;"},
+    "Praise be to Allah":{"de":"Lob sei Allah","fr":"Louange à Allah","tr":"Allah'a hamd olsun","ru":"Хвала Аллаху","sv":"All lov tillkommer Allah","nl":"Lof zij Allah","el":"Δόξα στον Αλλάχ"},
+    "God willing":{"de":"So Gott will","fr":"Si Dieu le veut","tr":"İnşallah","ru":"Если Аллах пожелает","sv":"Om Gud vill","nl":"Als God het wil","el":"Αν θέλει ο Θεός"},
+    "What Allah willed":{"de":"Was Allah wollte","fr":"Ce qu'Allah a voulu","tr":"Maşallah","ru":"Что пожелал Аллах","sv":"Vad Allah ville","nl":"Wat Allah wilde","el":"Ό,τι θέλησε ο Αλλάχ"},
+    "May Allah bless you":{"de":"Möge Allah dich segnen","fr":"Qu'Allah te bénisse","tr":"Allah seni mübarek kılsın","ru":"Да благословит тебя Аллах","sv":"Må Allah välsigna dig","nl":"Moge Allah je zegenen","el":"Να σε ευλογεί ο Αλλάχ"},
+    "May Allah reward you":{"de":"Möge Allah dich belohnen","fr":"Qu'Allah te récompense","tr":"Allah seni mükâfatlandırsın","ru":"Да вознаградит тебя Аллах","sv":"Må Allah belöna dig","nl":"Moge Allah je belonen","el":"Να σε ανταμείψει ο Αλλάχ"},
+    "I love my mom and dad":{"de":"Ich liebe meine Mama und meinen Papa","fr":"J'aime ma maman et mon papa","tr":"Annemi ve babamı seviyorum","ru":"Я люблю маму и папу","sv":"Jag älskar min mamma och pappa","nl":"Ik hou van mijn mama en papa","el":"Αγαπώ τη μαμά και τον μπαμπά μου"},
+    "I am learning Arabic":{"de":"Ich lerne Arabisch","fr":"J'apprends l'arabe","tr":"Arapça öğreniyorum","ru":"Я изучаю арабский","sv":"Jag lär mig arabiska","nl":"Ik leer Arabisch","el":"Μαθαίνω αραβικά"},
+    "The weather is beautiful today":{"de":"Das Wetter ist heute schön","fr":"Le temps est beau aujourd'hui","tr":"Bugün hava güzel","ru":"Сегодня прекрасная погода","sv":"Vädret är vackert idag","nl":"Het weer is vandaag mooi","el":"Ο καιρός είναι όμορφος σήμερα"},
+}
+
+def _translate_sentence(en_sentence: str, lang: str, ar_sentence: str = "") -> str:
+    """Translate a sentence to the target language. Falls back to Arabic."""
+    if lang == "en":
+        return en_sentence
+    if lang == "ar":
+        return ar_sentence
+    return SENTENCE_TRANSLATIONS.get(en_sentence, {}).get(lang, ar_sentence or en_sentence)
+
 
 # ═══════════════════════════════════════════════════════════════
 # CURRICULUM ENGINE - Generates structured lessons
@@ -355,7 +418,7 @@ SENTENCES_BASIC = [
 
 def get_curriculum_overview(locale: str = "en") -> dict:
     """Get the full curriculum overview with stages."""
-    lang = locale if locale in ["ar","en","de","fr","tr","ru","sv","nl","el"] else "en"
+    lang = locale if locale in ["ar","en","de","fr","tr","ru","sv","nl","el"] else "ar"
     stages = []
     for s in CURRICULUM_STAGES:
         start, end = s["days"]
@@ -363,8 +426,8 @@ def get_curriculum_overview(locale: str = "en") -> dict:
             "id": s["id"],
             "emoji": s["emoji"],
             "color": s["color"],
-            "title": s["title"].get(lang, s["title"]["en"]),
-            "description": s["desc"].get(lang, s["desc"]["en"]),
+            "title": s["title"].get(lang, s["title"]["ar"]),
+            "description": s["desc"].get(lang, s["desc"]["ar"]),
             "day_start": start,
             "day_end": end,
             "total_lessons": end - start + 1,
@@ -382,7 +445,7 @@ def get_stage_for_day(day: int) -> dict:
 
 def generate_lesson(day: int, locale: str = "en") -> dict:
     """Generate a structured lesson for a specific day."""
-    lang = locale if locale in ["ar","en","de","fr","tr","ru","sv","nl","el"] else "en"
+    lang = locale if locale in ["ar","en","de","fr","tr","ru","sv","nl","el"] else "ar"
     stage = get_stage_for_day(day)
     stage_id = stage["id"]
     stage_start = stage["days"][0]
@@ -394,7 +457,7 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
             "id": stage_id,
             "emoji": stage["emoji"],
             "color": stage["color"],
-            "title": stage["title"].get(lang, stage["title"]["en"]),
+            "title": stage["title"].get(lang, stage["title"]["ar"]),
         },
         "lesson_number_in_stage": lesson_in_stage + 1,
         "total_in_stage": stage["days"][1] - stage_start + 1,
@@ -406,10 +469,10 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         if lesson_in_stage < 28:
             # Day 1-28: One letter per day
             lt = LETTERS_28[lesson_in_stage]
-            lp = LETTER_PREFIX.get(lang, LETTER_PREFIX["en"])
+            lp = LETTER_PREFIX.get(lang, LETTER_PREFIX["ar"])
             lt_name = lt["name_ar"] if lang == "ar" else lt["name_en"]
-            lesson["title"] = {lang: f"{lp} {lt_name}"}
-            word_translated = _tw(lt["word_en"], lang) if lang != "ar" else lt["word"]
+            lesson["title"] = {lang: f"{lp} {lt_name}", "ar": f"حرف {lt['name_ar']}"}
+            word_translated = _tw(lt["word_en"], lang, lt["word"]) if lang != "ar" else lt["word"]
             lesson["sections"] = [
                 {"type": "learn", "emoji": "📝", "title": t("meet_the_letter", lang),
                  "content": {"letter": lt["letter"], "name_ar": lt["name_ar"], "name": lt_name,
@@ -430,10 +493,10 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
             if idx < 28:
                 lt = LETTERS_28[idx]
                 lt2 = LETTERS_28[min(idx+1, 27)]
-                fp = FORMS_PREFIX.get(lang, FORMS_PREFIX["en"])
+                fp = FORMS_PREFIX.get(lang, FORMS_PREFIX["ar"])
                 n1 = lt["name_ar"] if lang == "ar" else lt["name_en"]
                 n2 = lt2["name_ar"] if lang == "ar" else lt2["name_en"]
-                lesson["title"] = {lang: f"{fp} {n1} & {n2}" if lang != "ar" else f"أشكال {n1} و{n2}"}
+                lesson["title"] = {lang: f"{fp} {n1} & {n2}" if lang != "ar" else f"أشكال {n1} و{n2}", "ar": f"أشكال {lt['name_ar']} و{lt2['name_ar']}"}
                 lesson["sections"] = [
                     {"type": "learn", "emoji": "📝", "title": t("learn", lang),
                      "content": {"letters": [
@@ -444,14 +507,14 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
                      "content": {"tip": t("learn", lang)}},
                 ]
             else:
-                lesson["title"] = {lang: REVIEW_FORMS.get(lang, REVIEW_FORMS["en"])}
+                lesson["title"] = {lang: REVIEW_FORMS.get(lang, REVIEW_FORMS["ar"]), "ar": REVIEW_FORMS["ar"]}
                 lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("comprehensive_review", lang),
                      "content": {"tip": t("review", lang)}}]
         else:
             review_idx = (lesson_in_stage - 42) * 2
             lt = LETTERS_28[min(review_idx, 27)]
-            lesson["title"] = {lang: WRITING_PRACTICE.get(lang, WRITING_PRACTICE["en"])}
-            word_translated = _tw(lt["word_en"], lang) if lang != "ar" else lt["word"]
+            lesson["title"] = {lang: WRITING_PRACTICE.get(lang, WRITING_PRACTICE["ar"]), "ar": WRITING_PRACTICE["ar"]}
+            word_translated = _tw(lt["word_en"], lang, lt["word"]) if lang != "ar" else lt["word"]
             lesson["sections"] = [
                 {"type": "connect", "emoji": "🔗", "title": t("learn", lang),
                  "content": {"tip": t("learn", lang)}},
@@ -465,8 +528,8 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         h = HARAKAT[h_idx]
         if lesson_in_stage < len(HARAKAT) * 3:
             h_name = h["name_ar"] if lang == "ar" else h["name_en"]
-            lesson["title"] = {lang: h_name}
-            meaning_translated = _tw(h["meaning"], lang) if lang != "ar" else h["meaning"]
+            lesson["title"] = {lang: h_name, "ar": h["name_ar"]}
+            meaning_translated = _tw(h["meaning"], lang, h["meaning"]) if lang != "ar" else h["meaning"]
             lesson["sections"] = [
                 {"type": "learn", "emoji": "🎵", "title": t("learn", lang),
                  "content": {"name_ar": h["name_ar"], "name": h_name, "symbol": h["symbol"],
@@ -480,7 +543,7 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
                              "correct": h["sound"], "options": [h["sound"], HARAKAT[(h_idx+1)%len(HARAKAT)]["sound"], HARAKAT[(h_idx+2)%len(HARAKAT)]["sound"]]}},
             ]
         else:
-            lesson["title"] = {lang: VOWELS_REVIEW.get(lang, VOWELS_REVIEW["en"])}
+            lesson["title"] = {lang: VOWELS_REVIEW.get(lang, VOWELS_REVIEW["ar"]), "ar": VOWELS_REVIEW["ar"]}
             lesson["sections"] = [{"type": "review", "emoji": "🔄", "title": t("review", lang),
                  "content": {"items": [{"name": h["name_ar"] if lang == "ar" else h["name_en"], "symbol": h["symbol"], "sound": h["sound"]} for h in HARAKAT]}}]
     
@@ -488,10 +551,12 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
     elif stage_id == "S03":
         n_idx = lesson_in_stage % len(NUMBERS_FULL)
         n = NUMBERS_FULL[n_idx]
-        lesson["title"] = {"ar": f"العدد {n['ar']}", "en": f"Number {n['en']}"}
+        n_translated = _translate_number_name(n["en"], lang) or n["ar"]
+        n_prefix = NUMBER_PREFIX.get(lang, NUMBER_PREFIX["ar"])
+        lesson["title"] = {lang: f"{n_prefix} {n_translated}", "ar": f"العدد {n['ar']}"}
         lesson["sections"] = [
             {"type": "learn", "emoji": "🔢", "title": t("learn", lang),
-             "content": {"number": n["num"], "arabic": n["ar"], "english": n["en"], "display": n["display"]}},
+             "content": {"number": n["num"], "arabic": n["ar"], "translated": n_translated, "display": n["display"]}},
             {"type": "practice", "emoji": "🎯", "title": t("listen_repeat", lang),
              "content": {"tip": t("listen_repeat", lang)}},
             {"type": "quiz", "emoji": "❓", "title": t("test", lang),
@@ -509,15 +574,16 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
         word = words[word_idx % len(words)]
         
         cat_locale = get_cat_name(cat, lang)
+        word_translated = _tw(word["en"], lang, word["ar"])
         
-        lesson["title"] = {"ar": f"{get_cat_name(cat, 'ar')}: {word['ar']}", "en": f"{get_cat_name(cat, 'en')}: {word['en']}"}
+        lesson["title"] = {lang: f"{cat_locale}: {word_translated}", "ar": f"{get_cat_name(cat, 'ar')}: {word['ar']}"}
         lesson["sections"] = [
             {"type": "learn", "emoji": word.get("emoji","📝"), "title": f"{t('new_word', lang)}: {word['ar']}",
-             "content": {"arabic": word["ar"], "english": word["en"], "emoji": word.get("emoji",""), "category": cat, "category_locale": cat_locale}},
+             "content": {"arabic": word["ar"], "translated": word_translated, "emoji": word.get("emoji",""), "category": cat, "category_locale": cat_locale}},
             {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
              "content": {"text": word["ar"], "tip": t("tip_say_word", lang)}},
             {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-             "content": {"question": t("quiz_what_in_arabic", lang, emoji=word.get('emoji', word['en'])),
+             "content": {"question": t("quiz_what_in_arabic", lang, emoji=word.get('emoji', word_translated)),
                          "correct": word["ar"],
                          "options": [word["ar"]] + [w["ar"] for w in random.sample([w2 for w2 in words if w2["ar"]!=word["ar"]], min(2, len(words)-1))]}},
         ]
@@ -526,10 +592,11 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
     elif stage_id == "S05":
         s_idx = lesson_in_stage % len(SENTENCES_BASIC)
         sent = SENTENCES_BASIC[s_idx]
-        lesson["title"] = {"ar": sent["ar"], "en": sent["en"]}
+        sent_translated = _translate_sentence(sent["en"], lang, sent["ar"])
+        lesson["title"] = {lang: sent_translated, "ar": sent["ar"]}
         lesson["sections"] = [
             {"type": "learn", "emoji": sent["emoji"], "title": t("new_sentence", lang),
-             "content": {"arabic": sent["ar"], "english": sent["en"], "emoji": sent["emoji"]}},
+             "content": {"arabic": sent["ar"], "translated": sent_translated, "emoji": sent["emoji"]}},
             {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
              "content": {"text": sent["ar"], "tip": t("tip_repeat_sentence", lang)}},
             {"type": "practice", "emoji": "✍️", "title": t("write_sentence", lang),
@@ -539,7 +606,8 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
     # ═══ STAGES 6-15: Use content from kids_learning.py ═══
     else:
         # For stages 6+, create dynamic content based on the stage
-        lesson["title"] = {"ar": f"درس {lesson_in_stage + 1}", "en": f"Lesson {lesson_in_stage + 1}"}
+        lesson_prefix = t("lesson_prefix", lang, num=lesson_in_stage + 1)
+        lesson["title"] = {lang: lesson_prefix, "ar": f"درس {lesson_in_stage + 1}"}
         lesson["sections"] = _build_advanced_sections(stage_id, lesson_in_stage, lang)
     
     # Add progress tracking fields
@@ -569,9 +637,10 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         for cat in VOCAB_CATEGORIES.values():
             words.extend(cat)
         w = words[lesson_idx % len(words)]
+        w_translated = _tw(w["en"], lang, w["ar"])
         sections = [
             {"type": "read", "emoji": "📖", "title": t("read_word", lang),
-             "content": {"arabic": w["ar"], "english": w["en"], "emoji": w.get("emoji","")}},
+             "content": {"arabic": w["ar"], "translated": w_translated, "emoji": w.get("emoji","")}},
             {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
              "content": {"text": w["ar"]}},
         ]
@@ -594,7 +663,7 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         tc = topic_content.get(topic, topic_content["shahada"])
         sections = [
             {"type": "learn", "emoji": "🤲", "title": t("learn", lang),
-             "content": {"arabic": tc["ar"], "english": tc["en"]}},
+             "content": {"arabic": tc["ar"], "translated": tc.get(lang, tc["ar"])}},
             {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
              "content": {"text": tc["ar"], "tip": t("tip_read_3_memory", lang)}},
         ]
@@ -607,9 +676,9 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
             surah = QURAN_SURAHS_FOR_KIDS[s_idx]
             ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
             sections = [
-                {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah['name_en']),
-                 "content": {"surah": surah["name_en"], "ayah_num": ayah["num"],
-                             "arabic": ayah["ar"], "translation": ayah.get(lang, ayah["en"])}},
+                {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
+                 "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
+                             "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("ar", ayah["en"]))}},
                 {"type": "listen", "emoji": "🔊", "title": t("listen", lang),
                  "content": {"text": ayah["ar"]}},
                 {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
@@ -622,8 +691,8 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         from kids_learning import KIDS_DUAS
         d = KIDS_DUAS[lesson_idx % len(KIDS_DUAS)]
         sections = [
-            {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["en"]),
-             "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d["en"])}},
+            {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["ar"]),
+             "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d.get("ar", d["en"]))}},
             {"type": "memorize", "emoji": "🧠", "title": t("memorize_dua", lang),
              "content": {"tip": t("tip_repeat_dua_5", lang)}},
         ]
@@ -633,8 +702,8 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         h = KIDS_HADITHS[lesson_idx % len(KIDS_HADITHS)]
         sections = [
             {"type": "hadith", "emoji": h["emoji"], "title": t("todays_hadith", lang),
-             "content": {"arabic": h["ar"], "translation": h.get(lang, h["en"]), "source": h["source"],
-                         "lesson": h["lesson"].get(lang, h["lesson"]["en"])}},
+             "content": {"arabic": h["ar"], "translation": h.get(lang, h.get("ar", h["en"])), "source": h["source"],
+                         "lesson": h["lesson"].get(lang, h["lesson"].get("ar", h["lesson"]["en"]))}},
             {"type": "reflect", "emoji": "💭", "title": t("reflect", lang),
              "content": {"tip": t("tip_apply_hadith", lang)}},
         ]
@@ -643,10 +712,10 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
         from kids_learning_extended import ALL_PROPHETS
         p = ALL_PROPHETS[lesson_idx % len(ALL_PROPHETS)]
         sections = [
-            {"type": "story", "emoji": p["emoji"], "title": p["name"].get(lang, p["name"]["en"]),
-             "content": {"name": p["name"].get(lang, p["name"]["en"]), "title": p["title"].get(lang, p["title"]["en"]),
-                         "summary": p["summary"].get(lang, p["summary"]["en"]),
-                         "lesson": p["lesson"].get(lang, p["lesson"]["en"]), "quran_ref": p["quran_ref"]}},
+            {"type": "story", "emoji": p["emoji"], "title": p["name"].get(lang, p["name"].get("ar", p["name"]["en"])),
+             "content": {"name": p["name"].get(lang, p["name"].get("ar", p["name"]["en"])), "title": p["title"].get(lang, p["title"].get("ar", p["title"]["en"])),
+                         "summary": p["summary"].get(lang, p["summary"].get("ar", p["summary"]["en"])),
+                         "lesson": p["lesson"].get(lang, p["lesson"].get("ar", p["lesson"]["en"])), "quran_ref": p["quran_ref"]}},
         ]
     
     elif stage_id == "S12":  # Islamic Life
@@ -658,9 +727,10 @@ def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
             {"emoji":"🕌","ar":"يوم الجمعة: أفضل أيام الأسبوع، نصلي صلاة الجمعة في المسجد","en":"Friday: The best day of the week, we pray Jumu'ah prayer at the mosque"},
         ]
         topic_item = topics[lesson_idx % len(topics)]
+        topic_translated = topic_item.get(lang, topic_item["ar"])
         sections = [
             {"type": "learn", "emoji": topic_item["emoji"], "title": t("learn", lang),
-             "content": {"arabic": topic_item["ar"], "english": topic_item["en"]}},
+             "content": {"arabic": topic_item["ar"], "translated": topic_translated}},
         ]
     
     elif stage_id == "S13":  # Advanced Arabic
