@@ -6,37 +6,27 @@
 - Verify RTL/LTR CSS works correctly
 
 ## Current Task
-SALAH TEACHING GUIDE REDESIGN - COMPLETE (2026-07)
+SALAH TEACHING GUIDE - 4K 3D IMAGE GENERATION & INTEGRATION - COMPLETE (2026-07)
 
 ### Changes Made:
+**Image Generation (scripts/generate_prayer_images.py)**:
+- Generated 10 high-definition 3D renders using OpenAI gpt-image-1
+- Character: "Noor" - 7-year-old Muslim boy, white Thobe, white prayer cap
+- Style: Pixar/Unreal Engine 5, mosque setting with golden lighting
+- Resolution: 1024x1536 / 1536x1024 pixels, .webp format
+- Saved to: /app/frontend/public/assets/kids_zone/prayer_v2/
+
 **Backend (kids_learning_extended.py)**:
-- Completely rewrote SALAH_STEPS with 11 detailed steps including:
-  - position identifier for SVG illustration mapping
-  - Detailed Arabic and English descriptions with correct fiqh instructions
-  - dhikr_ar: Arabic recitation text with tashkeel
-  - dhikr_transliteration: English transliteration
-  - body_position_ar/en: Physical position description
-- Updated get_salah_steps() to return all new fields (position, dhikr, body_position)
-- Source: Based on authentic Islamic jurisprudence (Shaykh al-Albani's Prophet's Prayer Described)
+- Added SALAH_IMAGE_MAP with 11 position-to-image mappings
+- Added image_url field to all 11 SALAH_STEPS
+- Updated get_salah_steps() to return image_url in API response
 
-**Frontend (components/SalahGuide.tsx)** - NEW:
-- Created comprehensive SalahGuide component with:
-  - 11 inline SVG illustrations showing correct prayer positions
-  - Card view: Interactive step-by-step navigation with progress bar
-  - List view: All 11 steps visible with illustrations
-  - Dhikr/Recitation section with Arabic text and transliteration
-  - Body position indicator for each step
-  - Color-coded step cards
-  - Islamic reference footer
-  - RTL/LTR support
-
-**Frontend (pages/KidsZone.tsx)**:
-- Imported and integrated SalahGuide component
-- Replaced old emoji-based salah display with new illustrated guide
-
-### Backend Endpoint to Test:
-1. GET /api/kids-learn/salah?locale=ar - Arabic salah steps (11 steps with dhikr)
-2. GET /api/kids-learn/salah?locale=en - English salah steps
+**Frontend (components/SalahGuide.tsx)** - V2:
+- Redesigned to display 3D rendered images instead of SVG illustrations
+- Card view with zoom-on-click modal for full-size image viewing
+- List view with large images for each step
+- Consistent dark theme with color-coded step cards
+- Progress bar, dot indicators, Previous/Next navigation
 
 ### Changes Made (Phase 1 + Phase 2):
 **Backend (kids_curriculum.py)**:
