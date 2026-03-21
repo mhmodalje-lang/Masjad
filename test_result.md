@@ -6,27 +6,18 @@
 - Verify RTL/LTR CSS works correctly
 
 ## Current Task
-SALAH TEACHING GUIDE - 4K 3D IMAGE GENERATION & INTEGRATION - COMPLETE (2026-07)
+SALAH TEACHING GUIDE - 4K 3D IMAGES V2 CORRECTED - COMPLETE (2026-07)
 
 ### Changes Made:
-**Image Generation (scripts/generate_prayer_images.py)**:
-- Generated 10 high-definition 3D renders using OpenAI gpt-image-1
-- Character: "Noor" - 7-year-old Muslim boy, white Thobe, white prayer cap
-- Style: Pixar/Unreal Engine 5, mosque setting with golden lighting
-- Resolution: 1024x1536 / 1536x1024 pixels, .webp format
-- Saved to: /app/frontend/public/assets/kids_zone/prayer_v2/
-
-**Backend (kids_learning_extended.py)**:
-- Added SALAH_IMAGE_MAP with 11 position-to-image mappings
-- Added image_url field to all 11 SALAH_STEPS
-- Updated get_salah_steps() to return image_url in API response
-
-**Frontend (components/SalahGuide.tsx)** - V2:
-- Redesigned to display 3D rendered images instead of SVG illustrations
-- Card view with zoom-on-click modal for full-size image viewing
-- List view with large images for each step
-- Consistent dark theme with color-coded step cards
-- Progress bar, dot indicators, Previous/Next navigation
+**Image Generation V2 (Corrected):**
+- Regenerated 6 out of 10 images with corrected prayer positions:
+  - Step 2 (Takbir): Fixed from sitting→STANDING with hands raised to ears ✅
+  - Step 3 (Qiyam): Fixed from kneeling→STANDING with hands on chest ✅
+  - Step 4 (Ruku): Fixed hands from floor→on KNEES, back more flat ✅
+  - Step 6 (Sujud 1): Fixed elbows off ground, palms beside head ✅
+  - Step 7 (Sitting): Fixed eyes from camera→looking DOWN in khushu' ✅
+  - Step 8 (Sujud 2): New generation with proper prostration ✅
+- Steps 1, 5, 9, 10 were already correct (kept as-is)
 
 ### Changes Made (Phase 1 + Phase 2):
 **Backend (kids_curriculum.py)**:
