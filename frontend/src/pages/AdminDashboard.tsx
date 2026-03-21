@@ -99,6 +99,20 @@ export default function AdminDashboard() {
   const [socialComments, setSocialComments] = useState<any[]>([]);
   const [socialStats, setSocialStats] = useState<any>(null);
   const [socialUsers, setSocialUsers] = useState<any[]>([]);
+  // Ad Page Rules (God-Mode)
+  const [adRules, setAdRules] = useState<any[]>([]);
+  // Daily Content Management
+  const [dailyContentItems, setDailyContentItems] = useState<any[]>([]);
+  const [showDailyForm, setShowDailyForm] = useState(false);
+  const [dailyForm, setDailyForm] = useState<any>({ content_type:'hadith', title:{}, body:{}, source:{}, arabic_text:'', active:true, schedule_date:'', priority:0 });
+  const [dailyEditLang, setDailyEditLang] = useState('ar');
+  // Multilingual Notification
+  const [mlNotifTitle, setMlNotifTitle] = useState<Record<string,string>>({});
+  const [mlNotifBody, setMlNotifBody] = useState<Record<string,string>>({});
+  const [mlNotifTarget, setMlNotifTarget] = useState('all');
+  const [mlNotifHistory, setMlNotifHistory] = useState<any[]>([]);
+  const SUPPORTED_LOCALES = ['ar','en','de','fr','tr','ru','sv','nl','el','de-AT'];
+  const ALL_PAGES = ['home','prayer','quran','duas','ruqyah','kids_zone','arabic_academy','stories','explore','live_streams','tasbeeh','qibla','notifications','profile'];
 
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
   useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
@@ -106,6 +120,9 @@ export default function AdminDashboard() {
   useEffect(() => { if (isAdmin && tab === 'stories-mgmt') fetchAdminStories(); }, [isAdmin, tab, storiesFilter]);
   useEffect(() => { if (isAdmin && tab === 'social-mgmt') { fetchSocialStats(); fetchSocialPosts(); fetchSocialComments(); fetchSocialUsers(); } }, [isAdmin, tab]);
   useEffect(() => { if (isAdmin && tab === 'donations-mgmt') fetchAdminDonations(); }, [isAdmin, tab, donationsFilter]);
+  useEffect(() => { if (isAdmin && tab === 'ad-rules') fetchAdRules(); }, [isAdmin, tab]);
+  useEffect(() => { if (isAdmin && tab === 'daily-content') fetchDailyContent(); }, [isAdmin, tab]);
+  useEffect(() => { if (isAdmin && tab === 'multilingual-notif') fetchMlNotifHistory(); }, [isAdmin, tab]);
 
   const api = async (path: string, method='GET', body?: any, useAuth=true) => {
     const opts: any = { method, headers: useAuth ? authHeaders() : {'Content-Type':'application/json'} };
@@ -228,6 +245,34 @@ export default function AdminDashboard() {
   async function moderateDonation(id: string, action: string) { await api(`/admin/donations/${id}`,'PUT',{action}); toast.success(action === 'approve' ? t('approved') : t('rejected')); fetchAdminDonations(); }
   async function deleteDonation(id: string) { if(!confirm(t('confirmDelete'))) return; await api(`/admin/donations/${id}`,'DELETE'); toast.success(t('savedSuccess')); fetchAdminDonations(); }
 
+  // ===== GOD-MODE: Ad Rules per Page/Country =====
+  async function fetchAdRules() { try { const d = await api('/admin/ads/rules'); setAdRules(d.rules||[]); } catch {} }
+  async function saveAdRules() {
+    try { await api('/admin/ads/rules','PUT', adRules); toast.success('Ad rules saved!'); } catch { toast.error('Failed to save'); }
+  }
+  function toggleAdRule(page: string, field: string, value: any) {
+    setAdRules(prev => prev.map(r => r.page === page ? { ...r, [field]: value } : r));
+  }
+
+  // ===== GOD-MODE: Daily Content CRUD =====
+  async function fetchDailyContent() { try { const d = await api('/admin/daily-content'); setDailyContentItems(d.items||[]); } catch {} }
+  async function saveDailyContent() {
+    try { await api('/admin/daily-content','POST', dailyForm); toast.success('Content saved!'); setShowDailyForm(false); fetchDailyContent(); } catch { toast.error('Failed'); }
+  }
+  async function deleteDailyContent(id: string) { if(!confirm('Delete?')) return; await api(`/admin/daily-content/${id}`,'DELETE'); toast.success('Deleted'); fetchDailyContent(); }
+
+  // ===== GOD-MODE: Multilingual Push Notifications =====
+  async function fetchMlNotifHistory() { try { const d = await api('/admin/notifications/history'); setMlNotifHistory(d.notifications||[]); } catch {} }
+  async function sendMlNotification() {
+    if (!mlNotifTitle.ar && !mlNotifTitle.en) { toast.error('Title needed in at least Arabic or English'); return; }
+    try {
+      const d = await api('/admin/notifications/send-multilingual','POST',{ title: mlNotifTitle, body: mlNotifBody, target: mlNotifTarget });
+      toast.success(`Sent to ${d.total_sent} subscribers!`);
+      setMlNotifTitle({}); setMlNotifBody({});
+      fetchMlNotifHistory();
+    } catch { toast.error('Failed to send'); }
+  }
+
   if (adminLoading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-8 w-8 animate-spin text-primary" /></div>;
   if (!isAdmin) return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-5" dir={dir}>
@@ -251,6 +296,9 @@ export default function AdminDashboard() {
     { key:'user-ads', label:t('userAdsManagement'), icon:Film },
     { key:'vendors', label:t('vendorRole'), icon:ShoppingBag },
     { key:'notifications', label:t('scheduledNotifications'), icon:Bell },
+    { key:'multilingual-notif', label:'Multilingual Push', icon:Send },
+    { key:'ad-rules', label:'Ad Rules (God-Mode)', icon:Shield },
+    { key:'daily-content', label:'Daily Content', icon:Sparkles },
     { key:'pages', label:t('pagesManagement'), icon:FileText },
     { key:'revenue', label:t('commissionRate'), icon:CreditCard },
     { key:'settings', label:t('settingsLabel'), icon:Settings },
@@ -1076,6 +1124,189 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* ===== GOD-MODE: AD RULES PER PAGE/COUNTRY ===== */}
+        {tab==='ad-rules' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Shield className="h-5 w-5 text-amber-500"/>Ad Rules (God-Mode)</h2>
+              <Button onClick={saveAdRules} size="sm" className="rounded-xl bg-green-600 hover:bg-green-700 gap-1"><Check className="h-3 w-3"/>Save All Rules</Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Toggle ads on/off per page. Add country ISO codes (e.g., DE, TR, SA, US) to enable/block.</p>
+            <div className="space-y-3">
+              {adRules.map((rule: any, i: number) => (
+                <div key={rule.page} className={cn("rounded-2xl border p-4 space-y-3", rule.enabled ? "bg-card border-green-500/30" : "bg-muted/30 border-red-500/30")}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-foreground capitalize">{rule.page.replace('_', ' ')}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={cn("text-xs font-bold", rule.enabled ? "text-green-500" : "text-red-500")}>{rule.enabled ? 'ON' : 'OFF'}</span>
+                      <Switch checked={rule.enabled} onCheckedChange={(v) => toggleAdRule(rule.page, 'enabled', v)} />
+                    </div>
+                  </div>
+                  {rule.enabled && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <label className="text-muted-foreground block mb-1">Countries Enabled (empty=all)</label>
+                        <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="DE, US, SA, TR"
+                          value={(rule.countries_enabled||[]).join(', ')}
+                          onChange={e => toggleAdRule(rule.page, 'countries_enabled', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
+                      </div>
+                      <div>
+                        <label className="text-muted-foreground block mb-1">Countries Blocked</label>
+                        <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="CN, KP"
+                          value={(rule.countries_blocked||[]).join(', ')}
+                          onChange={e => toggleAdRule(rule.page, 'countries_blocked', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-muted-foreground block mb-1">Allowed Ad Types</label>
+                        <div className="flex gap-2 flex-wrap">
+                          {['banner','interstitial','rewarded','native','video'].map(at => (
+                            <button key={at} onClick={() => {
+                              const current = rule.ad_types_allowed || [];
+                              const next = current.includes(at) ? current.filter((x:string)=>x!==at) : [...current, at];
+                              toggleAdRule(rule.page, 'ad_types_allowed', next);
+                            }} className={cn("px-2 py-1 rounded-lg text-xs font-bold border", (rule.ad_types_allowed||[]).includes(at) ? "bg-primary/20 border-primary text-primary" : "bg-muted border-border/50 text-muted-foreground")}>
+                              {at}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===== GOD-MODE: DAILY CONTENT MANAGEMENT ===== */}
+        {tab==='daily-content' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Sparkles className="h-5 w-5 text-amber-500"/>Daily Content</h2>
+              <Button onClick={() => { setDailyForm({ content_type:'hadith', title:{}, body:{}, source:{}, arabic_text:'', active:true, schedule_date:'', priority:0 }); setShowDailyForm(true); }} size="sm" className="rounded-xl gap-1"><Plus className="h-3 w-3"/>Add Content</Button>
+            </div>
+
+            {showDailyForm && (
+              <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
+                <div className="flex gap-2 items-center">
+                  <select className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={dailyForm.content_type} onChange={e => setDailyForm({...dailyForm, content_type: e.target.value})}>
+                    <option value="hadith">Hadith</option>
+                    <option value="story">Story</option>
+                    <option value="dua">Dua</option>
+                    <option value="tip">Tip</option>
+                    <option value="verse">Verse</option>
+                  </select>
+                  <input type="date" className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder="Schedule Date" value={dailyForm.schedule_date} onChange={e => setDailyForm({...dailyForm, schedule_date: e.target.value})} />
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground">Active</span>
+                    <Switch checked={dailyForm.active} onCheckedChange={v => setDailyForm({...dailyForm, active: v})} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Arabic Text (Original)</label>
+                  <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder="النص العربي الأصلي..." />
+                </div>
+                <div>
+                  <div className="flex gap-1 flex-wrap mb-2">
+                    {SUPPORTED_LOCALES.map(loc => (
+                      <button key={loc} onClick={() => setDailyEditLang(loc)} className={cn("px-2 py-1 rounded text-xs font-bold border", dailyEditLang === loc ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border/50 text-muted-foreground")}>
+                        {loc}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="space-y-2">
+                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder={`Title (${dailyEditLang})`}
+                      dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
+                      value={dailyForm.title[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, title: {...dailyForm.title, [dailyEditLang]: e.target.value}})} />
+                    <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-16" placeholder={`Body (${dailyEditLang})`}
+                      dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
+                      value={dailyForm.body[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, body: {...dailyForm.body, [dailyEditLang]: e.target.value}})} />
+                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder={`Source (${dailyEditLang})`}
+                      dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
+                      value={dailyForm.source[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, source: {...dailyForm.source, [dailyEditLang]: e.target.value}})} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={saveDailyContent} size="sm" className="rounded-xl bg-green-600 hover:bg-green-700 gap-1"><Check className="h-3 w-3"/>Save</Button>
+                  <Button onClick={() => setShowDailyForm(false)} size="sm" variant="outline" className="rounded-xl gap-1"><X className="h-3 w-3"/>Cancel</Button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {dailyContentItems.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">No daily content yet. Add your first Hadith or Story!</p>}
+              {dailyContentItems.map((item: any) => (
+                <div key={item.id} className="rounded-2xl bg-card border border-border/30 p-3 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className={cn("px-2 py-0.5 rounded-full text-xs font-bold", item.content_type === 'hadith' ? "bg-emerald-500/20 text-emerald-400" : item.content_type === 'story' ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400")}>
+                        {item.content_type}
+                      </span>
+                      <span className={cn("w-2 h-2 rounded-full", item.active ? "bg-green-500" : "bg-red-500")} />
+                      {item.schedule_date && <span className="text-xs text-muted-foreground">{item.schedule_date}</span>}
+                    </div>
+                    <div className="flex gap-1">
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => { setDailyForm(item); setShowDailyForm(true); }}><Settings className="h-3 w-3"/></Button>
+                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-red-500" onClick={() => deleteDailyContent(item.id)}><Trash2 className="h-3 w-3"/></Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-foreground font-medium" dir="rtl">{item.arabic_text?.substring(0, 100) || item.title?.ar || item.title?.en || 'Untitled'}...</p>
+                  <p className="text-xs text-muted-foreground">Languages: {Object.keys(item.title || {}).filter(k => item.title[k]).join(', ') || 'None'}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===== GOD-MODE: MULTILINGUAL PUSH NOTIFICATIONS ===== */}
+        {tab==='multilingual-notif' && (
+          <div className="space-y-4">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2"><Send className="h-5 w-5 text-blue-500"/>Multilingual Push Notifications</h2>
+            <p className="text-xs text-muted-foreground">Compose notification in all 10 languages. Each user receives it in their saved locale automatically.</p>
+
+            <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
+              <div>
+                <label className="text-xs font-bold text-foreground block mb-1">Target</label>
+                <select className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={mlNotifTarget} onChange={e => setMlNotifTarget(e.target.value)}>
+                  <option value="all">All Users</option>
+                  {SUPPORTED_LOCALES.map(loc => <option key={loc} value={`locale:${loc}`}>Locale: {loc}</option>)}
+                  {['DE','TR','SA','US','GB','FR','RU','SE','NL','GR','AT'].map(c => <option key={c} value={`country:${c}`}>Country: {c}</option>)}
+                </select>
+              </div>
+
+              <div className="space-y-3">
+                {SUPPORTED_LOCALES.map(loc => (
+                  <div key={loc} className="rounded-xl bg-muted/30 border border-border/30 p-3 space-y-2">
+                    <span className="text-xs font-bold text-primary">{loc.toUpperCase()}</span>
+                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground"
+                      dir={loc === 'ar' ? 'rtl' : 'ltr'} placeholder={`Title (${loc})`}
+                      value={mlNotifTitle[loc] || ''} onChange={e => setMlNotifTitle({...mlNotifTitle, [loc]: e.target.value})} />
+                    <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-12"
+                      dir={loc === 'ar' ? 'rtl' : 'ltr'} placeholder={`Body (${loc})`}
+                      value={mlNotifBody[loc] || ''} onChange={e => setMlNotifBody({...mlNotifBody, [loc]: e.target.value})} />
+                  </div>
+                ))}
+              </div>
+
+              <Button onClick={sendMlNotification} className="w-full rounded-xl gap-2 bg-blue-600 hover:bg-blue-700"><Send className="h-4 w-4"/>Send Multilingual Notification</Button>
+            </div>
+
+            {mlNotifHistory.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-foreground">History</h3>
+                {mlNotifHistory.map((n: any, i: number) => (
+                  <div key={i} className="rounded-xl bg-card border border-border/30 p-3 text-xs space-y-1">
+                    <div className="flex justify-between"><span className="font-bold text-foreground">{n.title?.ar || n.title?.en || 'Notification'}</span><span className="text-muted-foreground">{n.created_at?.substring(0,10)}</span></div>
+                    <p className="text-muted-foreground">Target: {n.target} | Sent: {n.total_sent}</p>
+                    <p className="text-muted-foreground">Locales: {JSON.stringify(n.locale_breakdown)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   );
