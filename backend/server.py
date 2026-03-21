@@ -26,6 +26,7 @@ from routers.arabic_academy import router as arabic_academy_router
 from routers.live_streams import router as live_streams_router
 from routers.kids_zone import router as kids_zone_router
 from routers.kids_learn import router as kids_learn_router
+from routers.kids_ai import router as kids_ai_router
 from routers.gamification import router as gamification_router
 
 # App
@@ -67,6 +68,7 @@ api_router.include_router(arabic_academy_router)
 api_router.include_router(live_streams_router)
 api_router.include_router(kids_zone_router)
 api_router.include_router(kids_learn_router)
+api_router.include_router(kids_ai_router)
 api_router.include_router(gamification_router)
 
 app.include_router(api_router)

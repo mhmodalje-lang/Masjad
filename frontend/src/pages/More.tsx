@@ -28,7 +28,7 @@ const tools = [
   { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-400', bg: 'bg-gradient-to-br from-orange-500/20 to-orange-600/10', emoji: '💰' },
   { icon: CheckCircle2, labelKey: 'followUp', path: '/tracker', color: 'text-cyan-400', bg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/10', emoji: '✅' },
   { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/10', emoji: '✨' },
-  { icon: BookOpen, labelKey: 'kidsZone', path: '/kids-zone', color: 'text-pink-400', bg: 'bg-gradient-to-br from-pink-500/20 to-pink-600/10', emoji: '🎮' },
+  { icon: BookOpen, labelKey: 'kidsZone', path: '/kids-zone', color: 'text-emerald-400', bg: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/10', emoji: '🌟' },
   { icon: Eye, labelKey: 'liveStreams', path: '/live-streams', color: 'text-red-400', bg: 'bg-gradient-to-br from-red-500/20 to-red-600/10', emoji: '📺' },
 ];
 
