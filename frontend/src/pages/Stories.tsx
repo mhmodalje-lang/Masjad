@@ -895,95 +895,116 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir} data-testid="stories-page">
-      {/* === MYSTIC MINIMALISM HEADER === */}
+      {/* === NATIVE APP HEADER === */}
       <div className="sticky top-0 z-50">
-        <div className="relative bg-gradient-to-b from-[hsl(var(--mystic-moss))] via-[hsl(var(--islamic-emerald))] to-[hsl(var(--mystic-moss))]/95 backdrop-blur-xl overflow-hidden">
-          {/* Subtle geometric pattern */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.3'%3E%3Cpath d='M40 10L50 30H30z M40 70L30 50H50z M10 40L30 30V50z M70 40L50 50V30z'/%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-
-          <div className="relative flex items-center justify-between px-4 pt-3 pb-2">
-            <Link to="/explore" className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition-all text-white">
-              <Search className="w-[18px] h-[18px]" />
+        <div className="relative bg-background/95 backdrop-blur-2xl border-b border-border/10">
+          {/* Top bar */}
+          <div className="relative flex items-center justify-between px-4 pt-3 pb-2.5">
+            <Link to="/explore" className="h-10 w-10 rounded-full bg-muted/40 flex items-center justify-center active:scale-90 transition-transform">
+              <Search className="w-[17px] h-[17px] text-foreground/70" />
             </Link>
-            <div className="flex items-center gap-5 text-white">
-              <button onClick={() => setActiveTab('video')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'video' ? 'text-white border-b-2 border-[hsl(var(--mystic-amber))]' : 'text-white/40')}>
-                {t('videoTab')}
-              </button>
-              <button onClick={() => setActiveTab('trending')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'trending' ? 'text-white border-b-2 border-[hsl(var(--mystic-amber))]' : 'text-white/40')}>
-                {t('trendsTab')}
-              </button>
-              <h1 className="text-[17px] font-black flex items-center gap-1.5 text-white">
-                <BookOpen className="w-[18px] h-[18px]" /> {t('myStoriesTab')}
-              </h1>
+
+            {/* Segmented control - iOS style tabs */}
+            <div className="flex bg-muted/30 rounded-2xl p-[3px] gap-[3px]">
+              {(['video', 'trending'] as const).map(tab => (
+                <button key={tab} onClick={() => setActiveTab(tab)}
+                  className={cn(
+                    "px-4 py-[7px] rounded-[14px] text-[12px] font-bold transition-all",
+                    activeTab === tab
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground'
+                  )}>
+                  {tab === 'video' ? t('videoTab') : t('trendsTab')}
+                </button>
+              ))}
             </div>
+
             {user ? (
-              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/15 text-white">
-                <Plus className="w-[18px] h-[18px]" />
+              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)}
+                className="h-10 w-10 rounded-full bg-primary flex items-center justify-center active:scale-90 transition-transform shadow-lg shadow-primary/25">
+                <Plus className="w-[18px] h-[18px] text-primary-foreground" />
               </button>
             ) : <div className="w-10" />}
           </div>
 
-          {/* Category pills — Neumorphic pill-shaped buttons */}
+          {/* Category circles - Instagram/TikTok style */}
           {activeTab === 'trending' && (
-            <div className="relative flex gap-2 px-3 pb-3 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
-              <button onClick={() => handleSelectCategory(null)}
-                className={cn('shrink-0 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all border',
-                  !selectedCategory 
-                    ? 'bg-white/95 text-[hsl(var(--mystic-moss))] shadow-lg border-white/50' 
-                    : 'bg-white/8 text-[hsl(var(--mystic-amber))] border-white/10 hover:bg-white/12')}>
-                <Flame className="w-3 h-3 inline mr-1" />{t('allLabel')}
-              </button>
-              {sortedCats.map(cat => (
-                <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
-                  className={cn('shrink-0 flex items-center gap-1.5 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all border',
-                    selectedCategory === cat.key 
-                      ? 'bg-white/95 text-[hsl(var(--mystic-moss))] shadow-lg border-white/50' 
-                      : 'bg-white/8 text-[hsl(var(--mystic-amber))] border-white/10 hover:bg-white/12')}>
-                  <span className="text-sm">{cat.emoji}</span>{cat.labelKey ? t(cat.labelKey) : cat.label}
+            <div className="px-3 pb-3">
+              <div className="flex gap-3 overflow-x-auto no-scrollbar py-1" style={{ scrollbarWidth: 'none' }}>
+                {/* All button */}
+                <button onClick={() => handleSelectCategory(null)}
+                  className="shrink-0 flex flex-col items-center gap-1.5 w-16">
+                  <div className={cn(
+                    "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
+                    !selectedCategory
+                      ? 'bg-primary shadow-lg shadow-primary/30 ring-2 ring-primary ring-offset-2 ring-offset-background'
+                      : 'bg-muted/30 border border-border/30'
+                  )}>
+                    <Flame className={cn("w-6 h-6", !selectedCategory ? "text-primary-foreground" : "text-muted-foreground")} />
+                  </div>
+                  <span className={cn("text-[10px] font-bold truncate w-full text-center",
+                    !selectedCategory ? "text-primary" : "text-muted-foreground")}>{t('allLabel')}</span>
                 </button>
-              ))}
+
+                {sortedCats.map(cat => (
+                  <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
+                    className="shrink-0 flex flex-col items-center gap-1.5 w-16">
+                    <div className={cn(
+                      "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
+                      selectedCategory === cat.key
+                        ? 'bg-primary shadow-lg shadow-primary/30 ring-2 ring-primary ring-offset-2 ring-offset-background'
+                        : 'bg-muted/30 border border-border/30'
+                    )}>
+                      <span className="text-2xl">{cat.emoji}</span>
+                    </div>
+                    <span className={cn("text-[10px] font-bold truncate w-full text-center",
+                      selectedCategory === cat.key ? "text-primary" : "text-muted-foreground")}>
+                      {cat.labelKey ? t(cat.labelKey) : cat.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* === CONTENT === */}
-      <div className="px-3 py-3">
+      <div className="px-4 py-3">
         {activeTab === 'video' ? (
           videoStories.length === 0 ? (
-            <div className="text-center py-20">
-              <Film className="w-14 h-14 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">{t('noVideosYet')}</p>
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-20 h-20 rounded-3xl bg-muted/20 flex items-center justify-center mb-5">
+                <Film className="w-10 h-10 text-muted-foreground/40" />
+              </div>
+              <p className="text-muted-foreground text-[15px] font-semibold mb-1.5">{t('noVideosYet')}</p>
+              <p className="text-muted-foreground/50 text-[13px] mb-6">{t('noContent')}</p>
               {user && <button onClick={() => setShowCreate(true)}
-                className="mt-4 px-6 py-2.5 bg-emerald-600 text-white rounded-2xl text-sm font-bold">{t('addVideo')}</button>}
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-2xl text-[14px] font-bold active:scale-95 transition-transform shadow-lg shadow-primary/25">{t('addVideo')}</button>}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               {videoStories.map((s, idx) => (
                 <div key={s.id} onClick={() => setShowViewer(idx)}
-                  className="relative aspect-[9/14] rounded-2xl overflow-hidden cursor-pointer group bg-gray-900">
+                  className="relative aspect-[9/14] rounded-3xl overflow-hidden cursor-pointer group bg-muted/20">
                   {getMediaUrl(s.image_url || s.thumbnail_url) ? (
                     <img src={getMediaUrl(s.image_url || s.thumbnail_url)!} alt="" className="w-full h-full object-cover" loading="lazy" />
                   ) : s.embed_url && getYouTubeId(s.embed_url) ? (
                     <img src={`https://img.youtube.com/vi/${getYouTubeId(s.embed_url)}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-emerald-900 to-gray-900 flex items-center justify-center">
-                      <Film className="w-8 h-8 text-white/10" />
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted/20 flex items-center justify-center">
+                      <Film className="w-8 h-8 text-foreground/10" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <Play className="w-6 h-6 text-white fill-white" />
+                    <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
+                      <Play className="w-7 h-7 text-white fill-white" />
                     </div>
                   </div>
-                  <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                    <p className="text-white text-[11px] font-bold line-clamp-2">{s.title || s.content}</p>
-                    <span className="text-white/50 text-[10px]">{s.author_name}</span>
+                  <div className="absolute bottom-0 start-0 end-0 p-3">
+                    <p className="text-white text-[12px] font-bold line-clamp-2 leading-snug">{s.title || s.content}</p>
+                    <span className="text-white/50 text-[10px] mt-0.5 block">{s.author_name}</span>
                   </div>
                 </div>
               ))}
@@ -992,32 +1013,35 @@ export default function Stories() {
         ) : (
           <>
             {loading ? (
-              <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-emerald-500" /></div>
+              <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
             ) : stories.length === 0 ? (
-              <div className="text-center py-10">
-                <BookOpen className="h-14 w-14 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm mb-6">{t('noContent')}</p>
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="w-24 h-24 rounded-[28px] bg-muted/15 flex items-center justify-center mb-5 border border-border/10">
+                  <BookOpen className="h-12 w-12 text-muted-foreground/30" />
+                </div>
+                <p className="text-foreground text-[16px] font-bold mb-1.5">{t('noContent')}</p>
+                <p className="text-muted-foreground/60 text-[13px] text-center max-w-[250px] mb-8 leading-relaxed">{t('createContent')}</p>
                 {user && <button onClick={() => setShowCreate(true)}
-                  className="bg-emerald-600 text-white px-8 py-3 rounded-2xl text-sm font-bold active:scale-95">{t('createContent')}</button>}
+                  className="px-8 py-3.5 bg-primary text-primary-foreground rounded-2xl text-[14px] font-bold active:scale-95 transition-transform shadow-lg shadow-primary/25">{t('createContent')}</button>}
               </div>
             ) : (
               <>
-                {/* Recommended Users */}
+                {/* Recommended Users - Story circles style */}
                 {recommended.length > 0 && (
-                  <div className="mb-4">
-                    <h3 className="text-foreground/80 text-[13px] font-bold mb-2.5 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-emerald-500" /> {t('recommendedUsers')}
+                  <div className="mb-5">
+                    <h3 className="text-foreground/80 text-[13px] font-bold mb-3 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-primary" /> {t('recommendedUsers')}
                     </h3>
-                    <div className="flex gap-2.5 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+                    <div className="flex gap-3 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
                       {recommended.map(u => (
-                        <div key={u.id} className="shrink-0 w-[100px] flex flex-col items-center bg-muted/20 border border-border/20 rounded-2xl p-3 gap-1.5">
+                        <div key={u.id} className="shrink-0 w-[90px] flex flex-col items-center bg-card rounded-3xl p-3 gap-2 border border-border/10">
                           <Link to={`/social-profile/${u.id}`}>
-                            <img src={avatar(u.name, u.avatar)} alt="" className="w-14 h-14 rounded-full border-2 border-emerald-700/50" />
+                            <img src={avatar(u.name, u.avatar)} alt="" className="w-14 h-14 rounded-full ring-2 ring-primary ring-offset-2 ring-offset-card" />
                           </Link>
                           <span className="text-foreground text-[11px] font-bold text-center truncate w-full">{u.name}</span>
                           <button onClick={() => handleFollow(u.id)}
-                            className={cn("w-full py-1.5 rounded-xl text-[10px] font-bold transition-all",
-                              followedIds.has(u.id) ? 'bg-muted/30 text-muted-foreground' : 'bg-emerald-600 text-white')}>
+                            className={cn("w-full py-2 rounded-xl text-[10px] font-bold transition-all active:scale-95",
+                              followedIds.has(u.id) ? 'bg-muted/30 text-muted-foreground border border-border/20' : 'bg-primary text-primary-foreground shadow-sm')}>
                             {followedIds.has(u.id) ? t('unfollow') : t('follow')}
                           </button>
                         </div>
@@ -1026,111 +1050,114 @@ export default function Stories() {
                   </div>
                 )}
 
-                {/* Video section */}
+                {/* Video section - horizontal scroll */}
                 {videoStories.length > 0 && (
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h2 className="text-[13px] font-bold text-white/80 flex items-center gap-1.5">
-                        <Film className="h-3.5 w-3.5 text-emerald-500" /> {t('videosLabel')}
+                  <div className="mb-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-[14px] font-bold text-foreground flex items-center gap-1.5">
+                        <Film className="h-4 w-4 text-primary" /> {t('videosLabel')}
                       </h2>
-                      <button onClick={() => setActiveTab('video')} className="text-[11px] text-emerald-500 dark:text-emerald-400 font-bold">{t('allLabel')}</button>
+                      <button onClick={() => setActiveTab('video')} className="text-[12px] text-primary font-bold">{t('allLabel')}</button>
                     </div>
-                    <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                    <div className="flex gap-2.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                       {videoStories.slice(0, 4).map((s, idx) => (
                         <div key={s.id} onClick={() => setShowViewer(idx)}
-                          className="shrink-0 w-32 aspect-[9/14] rounded-2xl overflow-hidden cursor-pointer relative bg-gray-900">
+                          className="shrink-0 w-32 aspect-[9/14] rounded-3xl overflow-hidden cursor-pointer relative bg-muted/20">
                           {getMediaUrl(s.image_url || s.thumbnail_url) ? (
                             <img src={getMediaUrl(s.image_url || s.thumbnail_url)!} alt="" className="w-full h-full object-cover" />
                           ) : s.embed_url && getYouTubeId(s.embed_url) ? (
                             <img src={`https://img.youtube.com/vi/${getYouTubeId(s.embed_url)}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-emerald-900 to-gray-900" />
+                            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-muted/20" />
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <Play className="w-6 h-6 text-white/70 fill-white/70" />
+                            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                              <Play className="w-5 h-5 text-white fill-white" />
+                            </div>
                           </div>
-                          <p className="absolute bottom-1.5 right-1.5 left-1.5 text-white text-[10px] font-bold line-clamp-2">{s.title || s.content}</p>
+                          <p className="absolute bottom-2 start-2 end-2 text-white text-[10px] font-bold line-clamp-2">{s.title || s.content}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {/* Posts */}
-                <div className="space-y-3">
+                {/* Posts - Native card style */}
+                <div className="space-y-4">
                   {textStories.map((s, idx) => (
                     <div key={s.id}>
-                      {/* Islamic Sponsored Content - after every 3 posts */}
                       {idx > 0 && idx % 3 === 0 && (
-                        <div className="mb-3">
-                          <IslamicAd placement="stories" variant="banner" />
-                        </div>
+                        <div className="mb-4"><IslamicAd placement="stories" variant="banner" /></div>
                       )}
-                      <div className="bg-muted/20 border border-border/20 rounded-2xl overflow-hidden hover:border-primary/30 transition-all">
+                      <div className="bg-card rounded-3xl overflow-hidden border border-border/10 shadow-sm">
                         {/* Media */}
                         {getMediaUrl(s.image_url) && (
                           <div className="relative cursor-pointer" onClick={() => handleOpenStory(s.id)}>
-                            <img src={getMediaUrl(s.image_url)!} alt="" className="w-full max-h-56 object-cover" loading="lazy" />
+                            <img src={getMediaUrl(s.image_url)!} alt="" className="w-full max-h-60 object-cover" loading="lazy" />
                           </div>
                         )}
                         <div className="p-4 cursor-pointer" onClick={() => handleOpenStory(s.id)}>
-                          <div className="flex items-center gap-2.5 mb-2.5">
-                            <img src={avatar(s.author_name, s.author_avatar)} alt="" className="h-8 w-8 rounded-full" />
-                            <span className="text-[13px] font-bold text-foreground">{s.author_name}</span>
-                            <span className="text-[10px] text-muted-foreground ms-auto">{timeAgo(s.created_at)}</span>
+                          {/* Author row */}
+                          <div className="flex items-center gap-3 mb-3">
+                            <img src={avatar(s.author_name, s.author_avatar)} alt="" className="h-10 w-10 rounded-full ring-1 ring-border/20" />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[14px] font-bold text-foreground block">{s.author_name}</span>
+                              <span className="text-[11px] text-muted-foreground/60">{timeAgo(s.created_at)}</span>
+                            </div>
                             {isPremiumStory(s) && (
                               <span className={cn(
-                                "px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1",
+                                "px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1",
                                 isStoryUnlocked(s)
-                                  ? "bg-emerald-500/15 text-emerald-500"
-                                  : "bg-amber-500/15 text-amber-500"
+                                  ? "bg-primary/10 text-primary"
+                                  : "bg-amber-500/10 text-amber-500"
                               )}>
                                 {isStoryUnlocked(s) ? <Star className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
                                 {isStoryUnlocked(s) ? t('premiumStory') : `${s.points_cost || 2} ${t('storyPoints')}`}
                               </span>
                             )}
                           </div>
-                          {s.title && <h3 className="text-[15px] font-bold text-foreground mb-1.5 line-clamp-2">{s.title}</h3>}
-                          <p className={cn("text-[13px] text-muted-foreground leading-relaxed line-clamp-3",
+                          {s.title && <h3 className="text-[16px] font-bold text-foreground mb-2 leading-snug">{s.title}</h3>}
+                          <p className={cn("text-[14px] text-muted-foreground leading-[1.7] line-clamp-3",
                             isPremiumStory(s) && !isStoryUnlocked(s) && "blur-[3px] select-none"
                           )}>{s.content}</p>
                           {isPremiumStory(s) && !isStoryUnlocked(s) && (
-                            <div className="mt-2 flex items-center gap-2 text-amber-500 text-xs font-bold">
+                            <div className="mt-2.5 flex items-center gap-2 text-amber-500 text-xs font-bold">
                               <Lock className="h-3 w-3" />
                               <span>{t('storyUnlockFor')} {s.points_cost || 2} {t('storyPoints')}</span>
                             </div>
                           )}
                         </div>
-                        <div className="flex items-center justify-between px-4 pb-3 border-t border-border/20 mx-4 pt-2.5">
-                          <div className="flex items-center gap-5">
-                            <button onClick={() => toggleLike(s.id)} className="flex items-center gap-1.5 text-xs active:scale-90">
-                              <Heart className={cn("h-[18px] w-[18px]", s.liked ? "text-red-500 fill-red-500" : "text-muted-foreground")} />
-                              <span className={cn("font-bold", s.liked ? "text-red-500" : "text-muted-foreground")}>{s.likes_count || 0}</span>
+                        {/* Action bar */}
+                        <div className="flex items-center px-4 pb-3.5 pt-0">
+                          <div className="flex items-center gap-5 flex-1">
+                            <button onClick={() => toggleLike(s.id)} className="flex items-center gap-1.5 active:scale-90 transition-transform">
+                              <Heart className={cn("h-[20px] w-[20px]", s.liked ? "text-red-500 fill-red-500" : "text-muted-foreground/50")} />
+                              <span className={cn("text-[12px] font-bold", s.liked ? "text-red-500" : "text-muted-foreground/50")}>{s.likes_count || 0}</span>
                             </button>
-                            <button onClick={() => setShowCommentsFor(s.id)} className="flex items-center gap-1.5 text-xs active:scale-90">
-                              <MessageCircle className="h-[18px] w-[18px] text-muted-foreground" />
-                              <span className="font-bold text-muted-foreground">{s.comments_count || 0}</span>
+                            <button onClick={() => setShowCommentsFor(s.id)} className="flex items-center gap-1.5 active:scale-90 transition-transform">
+                              <MessageCircle className="h-[20px] w-[20px] text-muted-foreground/50" />
+                              <span className="text-[12px] font-bold text-muted-foreground/50">{s.comments_count || 0}</span>
                             </button>
-                            <button onClick={() => handleShare(s.id)} className="active:scale-90">
-                              <Share2 className="h-[18px] w-[18px] text-muted-foreground" />
-                            </button>
-                            <button onClick={() => toggleSave(s.id)} className="active:scale-90">
-                              <Bookmark className={cn("h-[18px] w-[18px]", s.saved ? "text-emerald-500 fill-emerald-500" : "text-muted-foreground")} />
+                            <button onClick={() => handleShare(s.id)} className="active:scale-90 transition-transform">
+                              <Send className="h-[18px] w-[18px] text-muted-foreground/50" />
                             </button>
                           </div>
+                          <button onClick={() => toggleSave(s.id)} className="active:scale-90 transition-transform">
+                            <Bookmark className={cn("h-[20px] w-[20px]", s.saved ? "text-primary fill-primary" : "text-muted-foreground/50")} />
+                          </button>
                         </div>
                       </div>
-                      {idx === 2 && <div className="mt-3"><AdBanner position="home" /></div>}
+                      {idx === 2 && <div className="mt-4"><AdBanner position="home" /></div>}
                     </div>
                   ))}
                 </div>
 
                 {hasMore && stories.length >= 20 && (
-                  <div className="flex justify-center mt-6">
+                  <div className="flex justify-center mt-8 mb-4">
                     <button onClick={() => { const n = page + 1; setPage(n); loadStories(selectedCategory || undefined, n, true); }}
                       disabled={loadingMore}
-                      className="px-8 py-3 rounded-2xl bg-muted/30 border border-border/20 text-emerald-500 dark:text-emerald-400 text-sm font-bold active:scale-95 disabled:opacity-50">
+                      className="px-10 py-3.5 rounded-2xl bg-card border border-border/20 text-primary text-[14px] font-bold active:scale-95 transition-transform disabled:opacity-50 shadow-sm">
                       {loadingMore ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t('loadMore')}
                     </button>
                   </div>
