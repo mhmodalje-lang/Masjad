@@ -848,24 +848,49 @@ def get_islamic_pillars(locale: str = "ar") -> list:
 
 
 def get_library_categories(locale: str = "ar") -> list:
-    """Get library categories."""
+    """Get library categories with accurate counts."""
+    from kids_library_content import EXPANDED_LIBRARY_ITEMS
     lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    # Merge items, expanded takes priority (has better translations)
+    seen_ids = set()
+    all_items = []
+    for item in EXPANDED_LIBRARY_ITEMS:
+        if item["id"] not in seen_ids:
+            all_items.append(item)
+            seen_ids.add(item["id"])
+    for item in KIDS_LIBRARY_ITEMS:
+        if item["id"] not in seen_ids:
+            all_items.append(item)
+            seen_ids.add(item["id"])
     result = []
     for c in KIDS_LIBRARY_CATEGORIES:
+        real_count = len([i for i in all_items if i["category"] == c["id"]])
         result.append({
             "id": c["id"],
             "emoji": c["emoji"],
             "color": c["color"],
             "title": c["title"].get(lang, c["title"]["en"]),
-            "count": c["count"],
+            "count": real_count,
         })
     return result
 
 
 def get_library_items(category: str = "all", locale: str = "ar") -> list:
     """Get library items, optionally filtered by category."""
+    from kids_library_content import EXPANDED_LIBRARY_ITEMS
     lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
-    items = KIDS_LIBRARY_ITEMS if category == "all" else [i for i in KIDS_LIBRARY_ITEMS if i["category"] == category]
+    # Merge items, expanded takes priority
+    seen_ids = set()
+    all_items = []
+    for item in EXPANDED_LIBRARY_ITEMS:
+        if item["id"] not in seen_ids:
+            all_items.append(item)
+            seen_ids.add(item["id"])
+    for item in KIDS_LIBRARY_ITEMS:
+        if item["id"] not in seen_ids:
+            all_items.append(item)
+            seen_ids.add(item["id"])
+    items = all_items if category == "all" else [i for i in all_items if i["category"] == category]
     result = []
     for item in items:
         result.append({

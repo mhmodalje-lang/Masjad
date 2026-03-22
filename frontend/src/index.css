@@ -143,6 +143,24 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', 'Lexend', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ensure minimum readable text sizes across the app */
+  p, span, a, button, label, h1, h2, h3, h4, h5, h6, li, td, th, div {
+    min-height: auto;
+  }
+
+  /* Override tiny text sizes for better readability */
+  .text-\[9px\] { font-size: 11px !important; }
+  .text-\[10px\] { font-size: 12px !important; }
+  .text-\[11px\] { font-size: 12px !important; }
+
+  /* Improve text contrast for muted text */
+  .text-muted-foreground {
+    opacity: 0.75;
+  }
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

@@ -1,8 +1,8 @@
 {
-  "timestamp": "2026-03-22 02:09:37",
+  "timestamp": "2026-03-22 02:32:42",
   "summary": {
-    "total": 17,
-    "passed": 17,
+    "total": 18,
+    "passed": 18,
     "failed": 0,
     "success_rate": 100.0,
     "failed_tests": []
@@ -11,104 +11,110 @@
     {
       "test": "API Health Check",
       "status": "PASSED",
-      "response_time": "0.260s",
+      "response_time": "0.128s",
       "details": "Status: healthy"
     },
     {
-      "test": "Lesson 267 (S06 - Reading Practice) - Arabic",
+      "test": "Library Categories (Arabic)",
       "status": "PASSED",
-      "response_time": "0.176s",
-      "details": "4 sections: read: اقرأ الكلمة, listen: استمع وردّد, quiz: اختبر نفسك, write: تمرين الكتابة"
+      "response_time": "0.100s",
+      "details": "8 categories, 28 total items: قصص القرآن, قصص الأنبياء, قصص أخلاقية, العلوم المرحة..."
     },
     {
-      "test": "Lesson 309 (S07 - Islamic Foundations) - Arabic",
+      "test": "Library Categories (English)",
       "status": "PASSED",
-      "response_time": "0.115s",
-      "details": "3 sections: learn: الشهادتان - الركن الأول, memorize: احفظ, quiz: اختبر نفسك"
+      "response_time": "0.104s",
+      "details": "English names: Quran Stories, Prophet Stories, Moral Stories, Fun Science..."
     },
     {
-      "test": "Lesson 385 (S08 - Quran) - Arabic",
+      "test": "Library Items Total",
       "status": "PASSED",
-      "response_time": "0.154s",
-      "details": "4 sections: quran: حفظ: الفاتحة, listen: استمع وردّد, memorize: سمّع, write: تمرين الكتابة"
+      "response_time": "0.122s",
+      "details": "28 unique items found"
     },
     {
-      "test": "Lesson 500 (S09 - Duas) - Arabic",
+      "test": "Quran Stories Items",
       "status": "PASSED",
-      "response_time": "0.154s",
-      "details": "4 sections: dua: عند المطر, listen: استمع وردّد, memorize: احفظ الدعاء, quiz: اختبر نفسك"
+      "response_time": "0.107s",
+      "details": "9 items: قصة أصحاب الفيل, أصحاب الكهف, قصة يوسف عليه السلام..."
     },
     {
-      "test": "Lesson 570 (S10 - Hadiths) - Arabic",
+      "test": "Moral Stories Items",
       "status": "PASSED",
-      "response_time": "0.157s",
-      "details": "3 sections: hadith: حديث اليوم, memorize: احفظ, reflect: تأمّل"
+      "response_time": "0.102s",
+      "details": "6 items: النملة المجتهدة, الصدق ينجي, المشاركة سعادة..."
     },
     {
-      "test": "Lesson 640 (S11 - Prophet Stories) - Arabic",
+      "test": "Islamic Manners Items",
       "status": "PASSED",
-      "response_time": "0.120s",
-      "details": "3 sections: story: يعقوب, memorize: احفظ, quiz: اختبر نفسك"
+      "response_time": "0.098s",
+      "details": "4 items: إلقاء السلام, آداب الطعام, آداب النوم..."
     },
     {
-      "test": "Lesson 725 (S12 - Islamic Life) - Arabic",
+      "test": "Science Items",
       "status": "PASSED",
-      "response_time": "0.106s",
-      "details": "3 sections: learn: يوم الجمعة, listen: استمع وردّد, memorize: احفظ"
+      "response_time": "0.116s",
+      "details": "3 items: دورة الماء, الشمس والقمر, عجائب النحل..."
     },
     {
-      "test": "Lesson 815 (S13 - Advanced Arabic) - Arabic",
-      "status": "PASSED",
-      "response_time": "0.114s",
-      "details": "3 sections: learn: حروف الجر, practice: اختبر, write: تمرين الكتابة"
-    },
-    {
-      "test": "Lesson 910 (S14 - Advanced Quran) - Arabic",
-      "status": "PASSED",
-      "response_time": "0.105s",
-      "details": "3 sections: quran: حفظ: الإخلاص, listen: استمع وردّد, memorize: سمّع"
-    },
-    {
-      "test": "Lesson 965 (S15 - Mastery) - Arabic",
-      "status": "PASSED",
-      "response_time": "0.111s",
-      "details": "3 sections: review: مراجعة: الأنبياء, quiz: اختبر نفسك, memorize: مراجعة شاملة"
-    },
-    {
-      "test": "Quran Surahs List",
-      "status": "PASSED",
-      "response_time": "0.106s",
-      "details": "15 surahs found: الفاتحة, الزلزلة, القارعة, التكاثر, العصر..."
-    },
-    {
-      "test": "Surah Al-Fil (fil)",
-      "status": "PASSED",
-      "response_time": "0.106s",
-      "details": "5 ayahs with Arabic and translations"
-    },
-    {
-      "test": "Surah Al-Kafiroon (kafiroon)",
+      "test": "Quran Stories (English)",
       "status": "PASSED",
       "response_time": "0.112s",
-      "details": "6 ayahs with Arabic and translations"
+      "details": "9 items with English translations: The People of the Elephant"
     },
     {
-      "test": "Surah Az-Zilzal (zilzal)",
+      "test": "Quran Stories (German)",
       "status": "PASSED",
-      "response_time": "0.110s",
-      "details": "8 ayahs with Arabic and translations"
+      "response_time": "0.101s",
+      "details": "9 items with German translations: Die Leute des Elefanten"
     },
     {
-      "test": "English Curriculum Lesson",
+      "test": "Quran Stories (French)",
       "status": "PASSED",
-      "response_time": "0.108s",
-      "details": "3 sections with English content"
+      "response_time": "0.112s",
+      "details": "9 items with French translations: Les gens de l'éléphant"
     },
     {
-      "test": "English Surah Al-Fil",
+      "test": "Quran Stories (Turkish)",
       "status": "PASSED",
-      "response_time": "0.156s",
-      "details": "5 ayahs with English translations"
+      "response_time": "0.100s",
+      "details": "9 items with Turkish translations: Fil Sahipleri"
+    },
+    {
+      "test": "Quran Stories (Russian)",
+      "status": "PASSED",
+      "response_time": "0.111s",
+      "details": "9 items with Russian translations: Люди слона"
+    },
+    {
+      "test": "Quran Stories (Swedish)",
+      "status": "PASSED",
+      "response_time": "0.106s",
+      "details": "9 items with Swedish translations: Elefantens folk"
+    },
+    {
+      "test": "Quran Stories (Dutch)",
+      "status": "PASSED",
+      "response_time": "0.103s",
+      "details": "9 items with Dutch translations: Het volk van de olifant"
+    },
+    {
+      "test": "Quran Stories (Greek)",
+      "status": "PASSED",
+      "response_time": "0.099s",
+      "details": "9 items with Greek translations: Οι άνθρωποι του ελέφαντα"
+    },
+    {
+      "test": "Previous API - Quran Surahs",
+      "status": "PASSED",
+      "response_time": "0.118s",
+      "details": "15 surahs available"
+    },
+    {
+      "test": "Previous API - Curriculum Lesson",
+      "status": "PASSED",
+      "response_time": "0.099s",
+      "details": "Stage 7 lesson with 3 sections"
     }
   ]
 }

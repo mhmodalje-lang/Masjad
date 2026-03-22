@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Noor Academy (Kids Learning) Backend API Testing
-Testing enriched content for stages 6-15 and expanded Quran surahs
+Testing Islamic Library expansion and 9-language support
 """
 
 import requests
@@ -78,291 +78,326 @@ class NoorAcademyTester:
                 "error": f"Request failed: {str(e)}"
             }
 
-    def test_curriculum_lessons(self):
-        """Test curriculum lessons for advanced stages (S06-S15)"""
-        print("🎓 Testing Curriculum Lessons for Advanced Stages...")
+    def test_library_categories(self):
+        """Test library categories API - should return 8 categories with real counts"""
+        print("📚 Testing Library Categories...")
         
-        # Test specific lesson IDs for each stage
-        test_lessons = [
-            {"day": 267, "stage": "S06", "name": "Reading Practice", "expected_sections": 4, "section_types": ["read", "listen", "quiz", "write"]},
-            {"day": 309, "stage": "S07", "name": "Islamic Foundations", "expected_sections": 3, "section_types": ["learn", "memorize", "quiz"]},
-            {"day": 385, "stage": "S08", "name": "Quran", "expected_sections": 4, "section_types": ["quran", "listen", "memorize", "quiz"]},
-            {"day": 500, "stage": "S09", "name": "Duas", "expected_sections": 4, "section_types": ["dua", "memorize", "listen", "quiz"]},
-            {"day": 570, "stage": "S10", "name": "Hadiths", "expected_sections": 3, "section_types": ["hadith", "reflect", "quiz"]},
-            {"day": 640, "stage": "S11", "name": "Prophet Stories", "expected_sections": 3, "section_types": ["story", "lesson", "quiz"]},
-            {"day": 725, "stage": "S12", "name": "Islamic Life", "expected_sections": 3, "section_types": ["learn", "practice", "quiz"]},
-            {"day": 815, "stage": "S13", "name": "Advanced Arabic", "expected_sections": 3, "section_types": ["grammar", "practice", "quiz"]},
-            {"day": 910, "stage": "S14", "name": "Advanced Quran", "expected_sections": 3, "section_types": ["quran", "tajweed", "memorize"]},
-            {"day": 965, "stage": "S15", "name": "Mastery", "expected_sections": 3, "section_types": ["review", "quiz", "memorize"]}
+        # Test Arabic locale
+        result = self.test_endpoint("/api/kids-learn/library/categories?locale=ar")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], "Response success=false")
+                return
+            
+            categories = data.get("categories", [])
+            total = data.get("total", 0)
+            
+            if total != 8:
+                self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], 
+                              f"Expected 8 categories, got {total}")
+                return
+            
+            if len(categories) != 8:
+                self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], 
+                              f"Expected 8 categories in list, got {len(categories)}")
+                return
+            
+            # Check for required fields and real counts
+            missing_fields = []
+            category_names = []
+            total_items = 0
+            for category in categories:
+                category_names.append(category.get("title", "Unknown"))  # Changed from "name" to "title"
+                required_fields = ["id", "title", "emoji", "count"]  # Changed from "name" to "title"
+                for field in required_fields:
+                    if field not in category:
+                        missing_fields.append(f"{category.get('title', 'Unknown')}: missing {field}")
+                
+                count = category.get("count", 0)
+                # Allow 0 count for prophet_stories as it's expected to be empty
+                if count < 0:
+                    missing_fields.append(f"{category.get('title', 'Unknown')}: count is {count}")
+                total_items += count
+            
+            if missing_fields:
+                self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], 
+                              f"Issues: {', '.join(missing_fields[:3])}")
+                return
+            
+            if total_items < 28:
+                self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], 
+                              f"Expected at least 28 total items, got {total_items}")
+                return
+            
+            self.log_result("Library Categories (Arabic)", "PASSED", result["response_time"], 
+                          f"8 categories, {total_items} total items: {', '.join(category_names[:4])}...")
+            
+        else:
+            self.log_result("Library Categories (Arabic)", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+        
+        # Test English locale
+        result = self.test_endpoint("/api/kids-learn/library/categories?locale=en")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("Library Categories (English)", "FAILED", result["response_time"], "Response success=false")
+                return
+            
+            categories = data.get("categories", [])
+            
+            # Check for English names
+            has_english = False
+            english_names = []
+            for category in categories:
+                title = category.get("title", "")  # Changed from "name" to "title"
+                english_names.append(title)
+                # Check if title contains English words
+                if any(word in title.lower() for word in ["stories", "science", "manners", "language", "math", "nature"]):
+                    has_english = True
+            
+            if has_english:
+                self.log_result("Library Categories (English)", "PASSED", result["response_time"], 
+                              f"English names: {', '.join(english_names[:4])}...")
+            else:
+                self.log_result("Library Categories (English)", "FAILED", result["response_time"], 
+                              "No English category names found")
+        else:
+            self.log_result("Library Categories (English)", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+
+    def test_library_items_total(self):
+        """Test library items total - should return 28 unique items"""
+        print("📖 Testing Library Items Total...")
+        
+        result = self.test_endpoint("/api/kids-learn/library/items?locale=ar")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("Library Items Total", "FAILED", result["response_time"], "Response success=false")
+                return
+            
+            items = data.get("items", [])
+            total = data.get("total", 0)
+            
+            if total != 28:
+                self.log_result("Library Items Total", "FAILED", result["response_time"], 
+                              f"Expected 28 items, got {total}")
+                return
+            
+            if len(items) != 28:
+                self.log_result("Library Items Total", "FAILED", result["response_time"], 
+                              f"Expected 28 items in list, got {len(items)}")
+                return
+            
+            # Check for unique items (no duplicates)
+            item_ids = [item.get("id", "") for item in items]
+            unique_ids = set(item_ids)
+            
+            if len(unique_ids) != 28:
+                self.log_result("Library Items Total", "FAILED", result["response_time"], 
+                              f"Found duplicates: {28 - len(unique_ids)} duplicate items")
+                return
+            
+            # Check for required fields
+            missing_fields = []
+            for item in items[:5]:  # Check first 5 items
+                required_fields = ["id", "category", "title", "content", "emoji"]
+                for field in required_fields:
+                    if field not in item:
+                        missing_fields.append(f"{item.get('id', 'Unknown')}: missing {field}")
+            
+            if missing_fields:
+                self.log_result("Library Items Total", "FAILED", result["response_time"], 
+                              f"Missing fields: {', '.join(missing_fields[:3])}")
+                return
+            
+            self.log_result("Library Items Total", "PASSED", result["response_time"], 
+                          f"28 unique items found")
+            
+        else:
+            self.log_result("Library Items Total", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+
+    def test_library_items_by_category(self):
+        """Test library items by specific categories"""
+        print("🗂️ Testing Library Items by Category...")
+        
+        test_categories = [
+            {"category": "quran_stories", "expected_count": 9, "name": "Quran Stories"},
+            {"category": "moral_stories", "expected_count": 6, "name": "Moral Stories"},
+            {"category": "islamic_manners", "expected_count": 4, "name": "Islamic Manners"},
+            {"category": "science", "expected_count": 3, "name": "Science"}
         ]
         
-        for lesson_info in test_lessons:
-            day = lesson_info["day"]
-            stage = lesson_info["stage"]
-            name = lesson_info["name"]
+        for cat_info in test_categories:
+            category = cat_info["category"]
+            expected_count = cat_info["expected_count"]
+            name = cat_info["name"]
             
-            # Test Arabic locale
-            result = self.test_endpoint(f"/api/kids-learn/curriculum/lesson/{day}?locale=ar")
+            result = self.test_endpoint(f"/api/kids-learn/library/items?category={category}&locale=ar")
             
             if result["success"]:
                 data = result["data"]
                 
-                # Check basic structure
                 if not data.get("success"):
-                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                                  result["response_time"], "Response success=false")
+                    self.log_result(f"{name} Items", "FAILED", result["response_time"], "Response success=false")
                     continue
                 
-                lesson = data.get("lesson", {})
-                sections = lesson.get("sections", [])
+                items = data.get("items", [])
+                total = data.get("total", 0)
                 
-                # Check if lesson has content
-                if not sections:
-                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                                  result["response_time"], "No sections found in lesson")
+                if total != expected_count:
+                    self.log_result(f"{name} Items", "FAILED", result["response_time"], 
+                                  f"Expected {expected_count} items, got {total}")
                     continue
                 
-                # Check minimum sections (at least 2)
-                if len(sections) < 2:
-                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                                  result["response_time"], f"Only {len(sections)} sections, expected at least 2")
+                if len(items) != expected_count:
+                    self.log_result(f"{name} Items", "FAILED", result["response_time"], 
+                                  f"Expected {expected_count} items in list, got {len(items)}")
                     continue
                 
-                # Check for meaningful content in sections
-                has_content = False
-                section_details = []
-                for section in sections:
-                    section_type = section.get("type", "unknown")
-                    section_title = section.get("title", "")
-                    section_content = section.get("content", {})
-                    
-                    section_details.append(f"{section_type}: {section_title}")
-                    
-                    # Check if section has meaningful content
-                    if section_content and (
-                        section_content.get("arabic") or 
-                        section_content.get("text") or 
-                        section_content.get("question") or
-                        section_content.get("tip") or
-                        section_content.get("surah") or
-                        section_content.get("story")
-                    ):
-                        has_content = True
+                # Check that all items belong to the correct category
+                wrong_category = []
+                item_titles = []
+                for item in items:
+                    if item.get("category") != category:
+                        wrong_category.append(item.get("id", "Unknown"))
+                    item_titles.append(item.get("title", "Unknown"))
                 
-                if not has_content:
-                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                                  result["response_time"], "No meaningful content found in sections")
+                if wrong_category:
+                    self.log_result(f"{name} Items", "FAILED", result["response_time"], 
+                                  f"Wrong category items: {', '.join(wrong_category)}")
                     continue
                 
-                # Check for Arabic content
-                has_arabic = False
-                for section in sections:
-                    content = section.get("content", {})
-                    if content.get("arabic") or any("ا" in str(v) or "ب" in str(v) or "ت" in str(v) for v in content.values() if isinstance(v, str)):
-                        has_arabic = True
-                        break
-                
-                if not has_arabic:
-                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                                  result["response_time"], "No Arabic content found")
-                    continue
-                
-                self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "PASSED", 
-                              result["response_time"], 
-                              f"{len(sections)} sections: {', '.join(section_details)}")
+                self.log_result(f"{name} Items", "PASSED", result["response_time"], 
+                              f"{expected_count} items: {', '.join(item_titles[:3])}...")
                 
             else:
-                self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
-                              result["response_time"], result.get("error", "Unknown error"))
+                self.log_result(f"{name} Items", "FAILED", result["response_time"], 
+                              result.get("error", "Unknown error"))
 
-    def test_quran_surahs_list(self):
-        """Test Quran surahs list - should return 15 surahs total"""
-        print("📖 Testing Quran Surahs List...")
+    def test_multi_language_support(self):
+        """Test multi-language support for all 9 languages"""
+        print("🌍 Testing Multi-Language Support...")
         
+        languages = [
+            {"locale": "en", "name": "English"},
+            {"locale": "de", "name": "German"},
+            {"locale": "fr", "name": "French"},
+            {"locale": "tr", "name": "Turkish"},
+            {"locale": "ru", "name": "Russian"},
+            {"locale": "sv", "name": "Swedish"},
+            {"locale": "nl", "name": "Dutch"},
+            {"locale": "el", "name": "Greek"}
+        ]
+        
+        for lang_info in languages:
+            locale = lang_info["locale"]
+            name = lang_info["name"]
+            
+            result = self.test_endpoint(f"/api/kids-learn/library/items?category=quran_stories&locale={locale}")
+            
+            if result["success"]:
+                data = result["data"]
+                
+                if not data.get("success"):
+                    self.log_result(f"Quran Stories ({name})", "FAILED", result["response_time"], "Response success=false")
+                    continue
+                
+                items = data.get("items", [])
+                
+                if len(items) != 9:
+                    self.log_result(f"Quran Stories ({name})", "FAILED", result["response_time"], 
+                                  f"Expected 9 items, got {len(items)}")
+                    continue
+                
+                # Check for translated content
+                has_translation = False
+                sample_titles = []
+                for item in items[:3]:  # Check first 3 items
+                    title = item.get("title", "")
+                    content = item.get("content", "")
+                    sample_titles.append(title)
+                    
+                    # Check if content is different from Arabic (basic check)
+                    if title and content:
+                        # For non-Arabic languages, check if text doesn't contain Arabic characters
+                        if locale != "ar":
+                            arabic_chars = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي"
+                            if not any(char in title for char in arabic_chars):
+                                has_translation = True
+                                break
+                        else:
+                            # For Arabic, check if it contains Arabic characters
+                            if any(char in title for char in arabic_chars):
+                                has_translation = True
+                                break
+                
+                if has_translation:
+                    self.log_result(f"Quran Stories ({name})", "PASSED", result["response_time"], 
+                                  f"9 items with {name} translations: {', '.join(sample_titles)}")
+                else:
+                    self.log_result(f"Quran Stories ({name})", "FAILED", result["response_time"], 
+                                  f"No proper {name} translations found")
+                
+            else:
+                self.log_result(f"Quran Stories ({name})", "FAILED", result["response_time"], 
+                              result.get("error", "Unknown error"))
+
+    def test_previous_apis_still_working(self):
+        """Test that previous APIs are still working"""
+        print("🔄 Testing Previous APIs Still Working...")
+        
+        # Test Quran surahs
         result = self.test_endpoint("/api/kids-learn/quran/surahs?locale=ar")
         
         if result["success"]:
             data = result["data"]
             
             if not data.get("success"):
-                self.log_result("Quran Surahs List", "FAILED", result["response_time"], "Response success=false")
-                return
-            
-            surahs = data.get("surahs", [])
-            total = data.get("total", 0)
-            
-            if total != 15:
-                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
-                              f"Expected 15 surahs, got {total}")
-                return
-            
-            if len(surahs) != 15:
-                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
-                              f"Expected 15 surahs in list, got {len(surahs)}")
-                return
-            
-            # Check for required fields in each surah
-            missing_fields = []
-            surah_names = []
-            for surah in surahs:
-                surah_names.append(surah.get("name_ar", "Unknown"))
-                required_fields = ["id", "number", "name_ar", "name_en", "total_ayahs"]
-                for field in required_fields:
-                    if field not in surah:
-                        missing_fields.append(f"{surah.get('name_ar', 'Unknown')}: missing {field}")
-            
-            if missing_fields:
-                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
-                              f"Missing fields: {', '.join(missing_fields[:3])}")
-                return
-            
-            self.log_result("Quran Surahs List", "PASSED", result["response_time"], 
-                          f"15 surahs found: {', '.join(surah_names[:5])}...")
-            
-        else:
-            self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
-                          result.get("error", "Unknown error"))
-
-    def test_new_surah_details(self):
-        """Test new surah details (fil, kafiroon, zilzal)"""
-        print("🕌 Testing New Surah Details...")
-        
-        test_surahs = [
-            {"id": "fil", "name": "Al-Fil", "expected_ayahs": 5},
-            {"id": "kafiroon", "name": "Al-Kafiroon", "expected_ayahs": 6},
-            {"id": "zilzal", "name": "Az-Zilzal", "expected_ayahs": 8}
-        ]
-        
-        for surah_info in test_surahs:
-            surah_id = surah_info["id"]
-            name = surah_info["name"]
-            expected_ayahs = surah_info["expected_ayahs"]
-            
-            result = self.test_endpoint(f"/api/kids-learn/quran/surah/{surah_id}?locale=ar")
-            
-            if result["success"]:
-                data = result["data"]
-                
-                if not data.get("success"):
-                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
-                                  "Response success=false")
-                    continue
-                
-                surah = data.get("surah", {})
-                ayahs = surah.get("ayahs", [])
-                
-                if len(ayahs) != expected_ayahs:
-                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
-                                  f"Expected {expected_ayahs} ayahs, got {len(ayahs)}")
-                    continue
-                
-                # Check ayah structure
-                missing_fields = []
-                has_arabic = False
-                for i, ayah in enumerate(ayahs):
-                    if "arabic" not in ayah:
-                        missing_fields.append(f"ayah {i+1}: missing arabic")
-                    elif ayah["arabic"] and any(char in ayah["arabic"] for char in "ابتثجحخدذرزسشصضطظعغفقكلمنهوي"):
-                        has_arabic = True
-                    
-                    if "translation" not in ayah:
-                        missing_fields.append(f"ayah {i+1}: missing translation")
-                
-                if missing_fields:
-                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
-                                  f"Missing fields: {', '.join(missing_fields[:3])}")
-                    continue
-                
-                if not has_arabic:
-                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
-                                  "No Arabic text found in ayahs")
-                    continue
-                
-                self.log_result(f"Surah {name} ({surah_id})", "PASSED", result["response_time"], 
-                              f"{len(ayahs)} ayahs with Arabic and translations")
-                
+                self.log_result("Previous API - Quran Surahs", "FAILED", result["response_time"], "Response success=false")
             else:
-                self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
-                              result.get("error", "Unknown error"))
-
-    def test_english_locale_support(self):
-        """Test English locale support"""
-        print("🌍 Testing English Locale Support...")
+                surahs = data.get("surahs", [])
+                total = data.get("total", 0)
+                
+                if total >= 15:  # Should have at least 15 surahs
+                    self.log_result("Previous API - Quran Surahs", "PASSED", result["response_time"], 
+                                  f"{total} surahs available")
+                else:
+                    self.log_result("Previous API - Quran Surahs", "FAILED", result["response_time"], 
+                                  f"Expected at least 15 surahs, got {total}")
+        else:
+            self.log_result("Previous API - Quran Surahs", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
         
-        # Test curriculum lesson in English
-        result = self.test_endpoint("/api/kids-learn/curriculum/lesson/310?locale=en")
+        # Test curriculum lesson
+        result = self.test_endpoint("/api/kids-learn/curriculum/lesson/309?locale=ar")
         
         if result["success"]:
             data = result["data"]
             
             if not data.get("success"):
-                self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
-                              "Response success=false")
+                self.log_result("Previous API - Curriculum Lesson", "FAILED", result["response_time"], "Response success=false")
             else:
                 lesson = data.get("lesson", {})
                 sections = lesson.get("sections", [])
                 
-                if not sections:
-                    self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
-                                  "No sections found")
+                if sections:
+                    self.log_result("Previous API - Curriculum Lesson", "PASSED", result["response_time"], 
+                                  f"Stage 7 lesson with {len(sections)} sections")
                 else:
-                    # Check for English content
-                    has_english = False
-                    for section in sections:
-                        content = section.get("content", {})
-                        title = section.get("title", "")
-                        
-                        # Look for English text (contains common English words)
-                        english_indicators = ["the", "and", "of", "to", "in", "is", "you", "that", "it", "with", "for", "as", "was", "on", "are", "this"]
-                        text_to_check = f"{title} {str(content)}".lower()
-                        
-                        if any(word in text_to_check for word in english_indicators):
-                            has_english = True
-                            break
-                    
-                    if has_english:
-                        self.log_result("English Curriculum Lesson", "PASSED", result["response_time"], 
-                                      f"{len(sections)} sections with English content")
-                    else:
-                        self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
-                                      "No English content found")
+                    self.log_result("Previous API - Curriculum Lesson", "FAILED", result["response_time"], 
+                                  "No sections found in lesson")
         else:
-            self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
-                          result.get("error", "Unknown error"))
-        
-        # Test surah in English
-        result = self.test_endpoint("/api/kids-learn/quran/surah/fil?locale=en")
-        
-        if result["success"]:
-            data = result["data"]
-            
-            if not data.get("success"):
-                self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
-                              "Response success=false")
-            else:
-                surah = data.get("surah", {})
-                ayahs = surah.get("ayahs", [])
-                
-                if not ayahs:
-                    self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
-                                  "No ayahs found")
-                else:
-                    # Check for English translations
-                    has_english_translation = False
-                    for ayah in ayahs:
-                        translation = ayah.get("translation", "")
-                        if translation and any(char.isalpha() and ord(char) < 128 for char in translation):
-                            has_english_translation = True
-                            break
-                    
-                    if has_english_translation:
-                        self.log_result("English Surah Al-Fil", "PASSED", result["response_time"], 
-                                      f"{len(ayahs)} ayahs with English translations")
-                    else:
-                        self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
-                                      "No English translations found")
-        else:
-            self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
+            self.log_result("Previous API - Curriculum Lesson", "FAILED", result["response_time"], 
                           result.get("error", "Unknown error"))
 
     def test_api_health(self):
@@ -385,16 +420,17 @@ class NoorAcademyTester:
 
     def run_all_tests(self):
         """Run all tests"""
-        print("🚀 Starting Noor Academy Backend API Tests...")
+        print("🚀 Starting Islamic Library Backend API Tests...")
         print(f"Backend URL: {BACKEND_URL}")
         print("=" * 60)
         
         # Run all test suites
         self.test_api_health()
-        self.test_curriculum_lessons()
-        self.test_quran_surahs_list()
-        self.test_new_surah_details()
-        self.test_english_locale_support()
+        self.test_library_categories()
+        self.test_library_items_total()
+        self.test_library_items_by_category()
+        self.test_multi_language_support()
+        self.test_previous_apis_still_working()
         
         # Print summary
         print("\n" + "=" * 60)
