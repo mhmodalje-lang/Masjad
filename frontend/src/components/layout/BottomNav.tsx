@@ -24,8 +24,8 @@ export function BottomNav() {
   const hiddenPaths = ['/auth'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
-  // Hide bottom nav on reels page for immersive experience
-  if (location.pathname === '/reels') return null;
+  // Hide bottom nav on reels and stories pages (they have their own TikTok-style nav)
+  if (location.pathname === '/reels' || location.pathname === '/stories') return null;
 
   return (
     <nav

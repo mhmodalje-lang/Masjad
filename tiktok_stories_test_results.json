@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-03-22 22:10:01",
+  "summary": {
+    "total": 11,
+    "passed": 11,
+    "failed": 0,
+    "success_rate": 100.0,
+    "failed_tests": []
+  },
+  "detailed_results": [
+    {
+      "test": "API Health Check",
+      "status": "PASSED",
+      "response_time": "0.241s",
+      "details": "Status: healthy"
+    },
+    {
+      "test": "Sohba Explore Feed",
+      "status": "PASSED",
+      "response_time": "0.132s",
+      "details": "Returned 1 posts with proper structure"
+    },
+    {
+      "test": "Sohba Following Feed (401)",
+      "status": "PASSED",
+      "response_time": "0.155s",
+      "details": "Correctly returned 401 Unauthorized"
+    },
+    {
+      "test": "Stories Categories",
+      "status": "PASSED",
+      "response_time": "0.170s",
+      "details": "Returned 10 categories with proper structure"
+    },
+    {
+      "test": "Post Like (401)",
+      "status": "PASSED",
+      "response_time": "0.138s",
+      "details": "Correctly returned 401 Unauthorized"
+    },
+    {
+      "test": "Post Save (401)",
+      "status": "PASSED",
+      "response_time": "0.105s",
+      "details": "Correctly returned 401 Unauthorized"
+    },
+    {
+      "test": "Post Share",
+      "status": "PASSED",
+      "response_time": "0.100s",
+      "details": "Successfully incremented share count"
+    },
+    {
+      "test": "Post Comments",
+      "status": "PASSED",
+      "response_time": "0.109s",
+      "details": "Returned 0 comments"
+    },
+    {
+      "test": "Follow User (401)",
+      "status": "PASSED",
+      "response_time": "0.102s",
+      "details": "Correctly returned 401 Unauthorized"
+    },
+    {
+      "test": "Upload Multipart Endpoint",
+      "status": "PASSED",
+      "response_time": "0.105s",
+      "details": "Endpoint exists (422 validation error expected)"
+    },
+    {
+      "test": "Stories Create (401)",
+      "status": "PASSED",
+      "response_time": "0.303s",
+      "details": "Correctly returned 401 Unauthorized"
+    }
+  ]
+}
