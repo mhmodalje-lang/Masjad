@@ -137,6 +137,15 @@ export default function More() {
             <p className="text-[10px] text-muted-foreground">{t('featuredItems')}</p>
           </div>
         </Link>
+        <Link to="/baraka-market" className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-400/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
+          <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+            <span className="text-xl">☪️</span>
+          </div>
+          <div>
+            <p className="text-[13px] font-bold text-amber-300">{dir==='rtl'?'سوق البركة':'Baraka Market'}</p>
+            <p className="text-[10px] text-foreground/50">{dir==='rtl'?'مركز المكافآت':'Reward Center'}</p>
+          </div>
+        </Link>
         <Link to="/marketplace" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
           <div className="h-10 w-10 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0">
             <ShoppingBag className="h-5 w-5 text-teal-400" />

@@ -1,0 +1,90 @@
+{
+  "timestamp": "2026-03-22 02:46:15",
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "success_rate": 100.0,
+    "failed_tests": []
+  },
+  "detailed_results": [
+    {
+      "test": "API Health Check",
+      "status": "PASSED",
+      "response_time": "0.195s",
+      "details": "Status: healthy"
+    },
+    {
+      "test": "Wallet Creation (new_test_user)",
+      "status": "PASSED",
+      "response_time": "0.135s",
+      "details": "New wallet created with 0 coins and all required fields"
+    },
+    {
+      "test": "Wallet Retrieval (test_user_1)",
+      "status": "PASSED",
+      "response_time": "0.102s",
+      "details": "Wallet retrieved with 20 coins"
+    },
+    {
+      "test": "Earn Coins (First Request)",
+      "status": "PASSED",
+      "response_time": "0.141s",
+      "details": "Earned 20 coins, total: 20, ads remaining: 9"
+    },
+    {
+      "test": "Earn Coins (Second Request)",
+      "status": "PASSED",
+      "response_time": "0.100s",
+      "details": "Earned another 20 coins, total: 40"
+    },
+    {
+      "test": "Transfer Golden Bricks",
+      "status": "PASSED",
+      "response_time": "0.141s",
+      "details": "Transferred 50 golden bricks from parent_1 to kid_1"
+    },
+    {
+      "test": "Kid Wallet Verification",
+      "status": "PASSED",
+      "response_time": "0.103s",
+      "details": "Kid received 50 golden bricks, total: 50"
+    },
+    {
+      "test": "Transactions (Earn User)",
+      "status": "PASSED",
+      "response_time": "0.096s",
+      "details": "Found 2 earn transactions out of 2 total"
+    },
+    {
+      "test": "Transactions (Parent)",
+      "status": "PASSED",
+      "response_time": "0.126s",
+      "details": "Found 1 transfer_out transactions"
+    },
+    {
+      "test": "Leaderboard",
+      "status": "PASSED",
+      "response_time": "0.101s",
+      "details": "Leaderboard with 8 users, sorted correctly"
+    },
+    {
+      "test": "Ad Configuration",
+      "status": "PASSED",
+      "response_time": "0.109s",
+      "details": "Full config with COPPA compliance (kids_zone_ads=False)"
+    },
+    {
+      "test": "Ad Config Update (COPPA)",
+      "status": "PASSED",
+      "response_time": "0.141s",
+      "details": "COPPA enforcement working: kids_zone_ads forced to False"
+    },
+    {
+      "test": "User Eligibility Check",
+      "status": "PASSED",
+      "response_time": "0.112s",
+      "details": "User test_user_1 is eligible for ads"
+    }
+  ]
+}

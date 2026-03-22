@@ -28,6 +28,7 @@ from routers.kids_zone import router as kids_zone_router
 from routers.kids_learn import router as kids_learn_router
 from routers.kids_ai import router as kids_ai_router
 from routers.gamification import router as gamification_router
+from routers.baraka_market import router as baraka_market_router
 
 # App
 app = FastAPI(title="أذان وحكاية API", version="3.0")
@@ -70,6 +71,7 @@ api_router.include_router(kids_zone_router)
 api_router.include_router(kids_learn_router)
 api_router.include_router(kids_ai_router)
 api_router.include_router(gamification_router)
+api_router.include_router(baraka_market_router)
 
 app.include_router(api_router)
 
@@ -91,6 +93,9 @@ async def create_indexes():
         await db.store_items.create_index("category")
         await db.purchases.create_index([("user_id", 1), ("created_at", -1)])
         await db.memberships.create_index("user_id", unique=True)
+        await db.baraka_wallets.create_index("user_id", unique=True)
+        await db.baraka_transactions.create_index([("user_id", 1), ("created_at", -1)])
+        await db.ads_config.create_index("id", unique=True)
     except Exception as e:
         print(f"Index creation note: {e}")
 

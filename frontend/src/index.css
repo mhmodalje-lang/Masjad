@@ -161,11 +161,6 @@
   .text-muted-foreground {
     opacity: 0.75;
   }
-    line-height: 1.75;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0.01em;
-  }
 
   .font-arabic {
     font-family: 'Amiri', 'Noto Naskh Arabic', 'Traditional Arabic', serif;

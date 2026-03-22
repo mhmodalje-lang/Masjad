@@ -68,6 +68,7 @@ const VideoReels = lazy(() => import("./pages/VideoReels"));
 const CreatePost = lazy(() => import("./pages/CreatePost"));
 const KidsZone = lazy(() => import("./pages/KidsZone"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
+const BarakaMarket = lazy(() => import("./pages/BarakaMarket"));
 
 const queryClient = new QueryClient();
 
@@ -158,6 +159,7 @@ const App = () => {
                           <Route path="/terms" element={<TermsOfService />} />
                           <Route path="/arabic-academy" element={<Navigate to="/kids-zone" replace />} />
                           <Route path="/kids-zone" element={<KidsZone />} />
+                          <Route path="/baraka-market" element={<BarakaMarket />} />
                           <Route path="/live-streams" element={<LiveStreams />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
