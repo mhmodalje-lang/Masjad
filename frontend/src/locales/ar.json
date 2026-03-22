@@ -2122,5 +2122,19 @@
   "localesLabel": "اللغات:",
   "xpLabel": "نقاط الخبرة",
   "nextLessonBtn": "الدرس التالي",
-  "prevLessonBtn": "الدرس السابق"
+  "prevLessonBtn": "الدرس السابق",
+  "currentLocation": "الموقع الحالي",
+  "dailyDuas": "أدعية يومية",
+  "dailyHadith": "حديث اليوم",
+  "enableNotifications": "تفعيل الإشعارات",
+  "hadith": "حديث",
+  "islamicStories": "قصص إسلامية",
+  "no": "لا",
+  "yes": "نعم",
+  "ok": "حسناً",
+  "notifications": "الإشعارات",
+  "profile": "الملف الشخصي",
+  "register": "تسجيل",
+  "setLocation": "تحديد الموقع",
+  "suhba": "صحبة"
 }

@@ -2119,5 +2119,22 @@
   "localesLabel": "Locales:",
   "xpLabel": "XP",
   "nextLessonBtn": "Next Lesson",
-  "prevLessonBtn": "Previous Lesson"
+  "prevLessonBtn": "Previous Lesson",
+  "currentLocation": "Current Location",
+  "dailyDuas": "Daily Duas",
+  "dailyHadith": "Daily Hadith",
+  "enableNotifications": "Enable Notifications",
+  "hadith": "Hadith",
+  "islamicStories": "Islamic Stories",
+  "no": "No",
+  "yes": "Yes",
+  "ok": "OK",
+  "notifications": "Notifications",
+  "profile": "Profile",
+  "register": "Register",
+  "setLocation": "Set Location",
+  "suhba": "Companionship",
+  "noorGreetingSv": "Peace be upon you",
+  "noorGreetingNl": "Peace be upon you",
+  "noorGreetingEl": "Peace be upon you"
 }

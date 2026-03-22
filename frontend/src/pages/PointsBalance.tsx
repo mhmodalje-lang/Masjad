@@ -295,10 +295,10 @@ export default function PointsBalance() {
             {leaderboard.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">{t('noLeadersYet')}</p>}
             {leaderboard.map((entry: any, i: number) => (
               <div key={i} className={cn("rounded-2xl border p-3 flex items-center gap-3",
-                i === 0 ? "bg-amber-500/10 border-amber-500/30" : i === 1 ? "bg-gray-300/10 border-gray-400/30" : i === 2 ? "bg-orange-500/10 border-orange-500/30" : "bg-card border-border/30"
+                i === 0 ? "bg-amber-500/10 border-amber-500/30" : i === 1 ? "bg-muted/30 border-muted-foreground/30" : i === 2 ? "bg-orange-500/10 border-orange-500/30" : "bg-card border-border/30"
               )}>
                 <span className={cn("text-lg font-black w-8 text-center",
-                  i === 0 ? "text-amber-500" : i === 1 ? "text-gray-400" : i === 2 ? "text-orange-500" : "text-muted-foreground"
+                  i === 0 ? "text-amber-500" : i === 1 ? "text-muted-foreground" : i === 2 ? "text-orange-500" : "text-muted-foreground"
                 )}>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
                 <div className="flex-1">
                   <p className="text-sm font-bold text-foreground">{entry.display_name}</p>

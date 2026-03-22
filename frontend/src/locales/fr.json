@@ -2119,5 +2119,22 @@
   "localesLabel": "Langues:",
   "xpLabel": "PX",
   "nextLessonBtn": "Leçon suivante",
-  "prevLessonBtn": "Leçon précédente"
+  "prevLessonBtn": "Leçon précédente",
+  "currentLocation": "Emplacement actuel",
+  "dailyDuas": "Duas quotidiennes",
+  "dailyHadith": "Hadith du jour",
+  "enableNotifications": "Activer les notifications",
+  "hadith": "Hadith",
+  "islamicStories": "Histoires islamiques",
+  "no": "Non",
+  "yes": "Oui",
+  "ok": "OK",
+  "notifications": "Notifications",
+  "profile": "Profil",
+  "register": "S'inscrire",
+  "setLocation": "Définir l'emplacement",
+  "suhba": "Compagnonnage",
+  "noorGreetingSv": "Que la paix soit sur vous",
+  "noorGreetingNl": "Que la paix soit sur vous",
+  "noorGreetingEl": "Que la paix soit sur vous"
 }

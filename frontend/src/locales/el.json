@@ -2123,5 +2123,18 @@
   "localesLabel": "Γλώσσες:",
   "xpLabel": "ΒΕ",
   "nextLessonBtn": "Επόμενο μάθημα",
-  "prevLessonBtn": "Προηγούμενο μάθημα"
+  "prevLessonBtn": "Προηγούμενο μάθημα",
+  "currentLocation": "Τρέχουσα τοποθεσία",
+  "dailyDuas": "Καθημερινές Ντουά",
+  "dailyHadith": "Χαντίθ της ημέρας",
+  "enableNotifications": "Ενεργοποίηση ειδοποιήσεων",
+  "hadith": "Χαντίθ",
+  "islamicStories": "Ισλαμικές ιστορίες",
+  "ok": "Εντάξει",
+  "notifications": "Ειδοποιήσεις",
+  "register": "Εγγραφή",
+  "setLocation": "Ορισμός τοποθεσίας",
+  "noorGreetingSv": "Ειρήνη σε εσάς",
+  "noorGreetingNl": "Ειρήνη σε εσάς",
+  "noorGreetingEl": "Ειρήνη σε εσάς"
 }

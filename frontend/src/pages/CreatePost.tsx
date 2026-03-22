@@ -144,7 +144,7 @@ export default function CreatePost() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-gray-900 border-b border-gray-800">
+      <div className="sticky top-0 z-40 bg-card border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           <button onClick={() => navigate(-1)} className="text-white">
             <X className="w-6 h-6" />
@@ -195,7 +195,7 @@ export default function CreatePost() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="شارك فكرتك مع المجتمع..."
-          className="w-full min-h-[150px] bg-gray-900 text-white rounded-xl p-4 border border-gray-800 focus:border-emerald-500 focus:outline-none resize-none text-base leading-relaxed placeholder:text-gray-600"
+          className="w-full min-h-[150px] bg-card text-foreground rounded-xl p-4 border border-border focus:border-primary focus:outline-none resize-none text-base leading-relaxed placeholder:text-muted-foreground"
           dir={dir}
           maxLength={5000}
         />

@@ -2133,5 +2133,8 @@
   "localesLabel": "Talen:",
   "xpLabel": "EP",
   "nextLessonBtn": "Volgende les",
-  "prevLessonBtn": "Vorige les"
+  "prevLessonBtn": "Vorige les",
+  "noorGreetingSv": "Vrede zij met u",
+  "noorGreetingNl": "Vrede zij met u",
+  "noorGreetingEl": "Vrede zij met u"
 }

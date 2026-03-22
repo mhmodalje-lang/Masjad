@@ -2119,5 +2119,22 @@
   "localesLabel": "Языки:",
   "xpLabel": "ОО",
   "nextLessonBtn": "Следующий урок",
-  "prevLessonBtn": "Предыдущий урок"
+  "prevLessonBtn": "Предыдущий урок",
+  "currentLocation": "Текущее местоположение",
+  "dailyDuas": "Ежедневные дуа",
+  "dailyHadith": "Хадис дня",
+  "enableNotifications": "Включить уведомления",
+  "hadith": "Хадис",
+  "islamicStories": "Исламские истории",
+  "no": "Нет",
+  "yes": "Да",
+  "ok": "ОК",
+  "notifications": "Уведомления",
+  "profile": "Профиль",
+  "register": "Регистрация",
+  "setLocation": "Установить местоположение",
+  "suhba": "Сообщество",
+  "noorGreetingSv": "Мир вам",
+  "noorGreetingNl": "Мир вам",
+  "noorGreetingEl": "Мир вам"
 }

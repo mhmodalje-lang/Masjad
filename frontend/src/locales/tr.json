@@ -2119,5 +2119,22 @@
   "localesLabel": "Diller:",
   "xpLabel": "TP",
   "nextLessonBtn": "Sonraki Ders",
-  "prevLessonBtn": "Önceki Ders"
+  "prevLessonBtn": "Önceki Ders",
+  "currentLocation": "Mevcut Konum",
+  "dailyDuas": "Günlük Dualar",
+  "dailyHadith": "Günün Hadisi",
+  "enableNotifications": "Bildirimleri Etkinleştir",
+  "hadith": "Hadis",
+  "islamicStories": "İslami Hikayeler",
+  "no": "Hayır",
+  "yes": "Evet",
+  "ok": "Tamam",
+  "notifications": "Bildirimler",
+  "profile": "Profil",
+  "register": "Kayıt Ol",
+  "setLocation": "Konum Belirle",
+  "suhba": "Sohbet",
+  "noorGreetingSv": "Selam olsun",
+  "noorGreetingNl": "Selam olsun",
+  "noorGreetingEl": "Selam olsun"
 }

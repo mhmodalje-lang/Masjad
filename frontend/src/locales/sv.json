@@ -2133,5 +2133,8 @@
   "localesLabel": "Språk:",
   "xpLabel": "EP",
   "nextLessonBtn": "Nästa lektion",
-  "prevLessonBtn": "Föregående lektion"
+  "prevLessonBtn": "Föregående lektion",
+  "noorGreetingSv": "Frid vare med dig",
+  "noorGreetingNl": "Frid vare med dig",
+  "noorGreetingEl": "Frid vare med dig"
 }
