@@ -225,16 +225,16 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
       {calendarType === 'hijri' && (
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={() => navigateHijri(1)} aria-label={t('nextMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <button onClick={() => navigateHijri(-1)} aria-label={t('prevMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
             </button>
             <button onClick={goToTodayHijri} className="text-center">
               <p className="text-sm font-bold text-foreground">
                 {t(hijriMonthKeys[viewMonth - 1])} {viewYear}
               </p>
             </button>
-            <button onClick={() => navigateHijri(-1)} aria-label={t('prevMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
-              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            <button onClick={() => navigateHijri(1)} aria-label={t('nextMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
 
@@ -277,16 +277,16 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
       {calendarType === 'gregorian' && (
         <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between mb-4">
-            <button onClick={() => navigateGregorian(1)} aria-label={t('nextMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <button onClick={() => navigateGregorian(-1)} aria-label={t('prevMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
             </button>
             <button onClick={goToTodayGregorian} className="text-center">
               <p className="text-sm font-bold text-foreground">
                 {gregorianMonths[gMonth]} {gYear}
               </p>
             </button>
-            <button onClick={() => navigateGregorian(-1)} aria-label={t('prevMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
-              <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+            <button onClick={() => navigateGregorian(1)} aria-label={t('nextMonth')} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
 

@@ -11,7 +11,7 @@ import DailyGoals from '@/components/DailyGoals';
 import NotificationCard from '@/components/NotificationCard';
 import IslamicAd from '@/components/IslamicAd';
 import { Link } from 'react-router-dom';
-import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X, Search, Settings as SettingsIcon } from 'lucide-react';
+import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, ChevronRight, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X, Search, Settings as SettingsIcon } from 'lucide-react';
 import { AdBanner } from '@/components/AdBanner';
 import { VerseOfDay, StreakBadge } from '@/components/Features2026';
 import { cn } from '@/lib/utils';
@@ -412,7 +412,7 @@ export default function Index() {
           </div>
           <Link to="/prayer-times" className="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline">
             {t('moreLabel')}
-            <ChevronLeft className="h-3.5 w-3.5" />
+            {isRTL ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
           </Link>
         </div>
         
@@ -476,7 +476,7 @@ export default function Index() {
               <p className="text-[10px] text-muted-foreground">{t('chooseNearbyMosque')}</p>
             </div>
           </div>
-          <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+          {isRTL ? <ChevronLeft className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </Link>
       </div>
 
@@ -557,7 +557,7 @@ export default function Index() {
             </div>
             <Link to="/ruqyah" className="text-xs text-primary font-bold flex items-center gap-0.5 hover:underline">
               {t('moreLabel')}
-              <ChevronLeft className="h-3.5 w-3.5" />
+              {isRTL ? <ChevronLeft className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
             </Link>
           </div>
           

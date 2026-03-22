@@ -30,14 +30,14 @@ SPONSORED_CONTENT = [
      "desc": {"ar": "أحاديث نبوية مختارة في الأخلاق والعبادات", "en": "Selected hadiths on morals and worship", "de": "Ausgewählte Hadithe über Moral", "fr": "Hadiths sélectionnés sur la morale", "tr": "Ahlak ve ibadet üzerine hadisler", "ru": "Избранные хадисы о нравственности", "sv": "Utvalda hadither om moral", "nl": "Geselecteerde hadith over moraal", "el": "Επιλεγμένα χαντίθ"},
      "cta": {"ar": "تصفح الأحاديث", "en": "Browse Hadiths", "de": "Hadithe durchsuchen", "fr": "Parcourir les hadiths", "tr": "Hadisleri gözat", "ru": "Просмотреть хадисы", "sv": "Bläddra hadither", "nl": "Bekijk hadith", "el": "Δες χαντίθ"},
      "color": "#8B5CF6", "icon": "📚", "coins_reward": 5, "placement": ["main", "duas", "stories"],
-     "target_route": "/duas"},
+     "target_route": "/stories"},
 
     {"id": "sp_40_nawawi", "category": "books", "emoji": "📕",
      "title": {"ar": "الأربعون النووية", "en": "40 Nawawi Hadiths", "de": "40 Nawawi Hadithe", "fr": "40 Hadiths Nawawi", "tr": "Kırk Hadis", "ru": "40 хадисов ан-Навави", "sv": "40 Nawawi hadither", "nl": "40 Nawawi hadith", "el": "40 Χαντίθ Ναουαουί"},
      "desc": {"ar": "أربعون حديثاً جامعاً لأصول الدين", "en": "40 comprehensive hadiths on Islam's foundations", "de": "40 umfassende Hadithe über die Grundlagen", "fr": "40 hadiths sur les fondements de l'Islam", "tr": "İslam'ın temelleri üzerine 40 hadis", "ru": "40 хадисов об основах Ислама", "sv": "40 hadither om Islams grunder", "nl": "40 hadith over de basis van de Islam", "el": "40 χαντίθ για τα θεμέλια"},
      "cta": {"ar": "ابدأ الحفظ", "en": "Start Memorizing", "de": "Auswendig lernen", "fr": "Commence à mémoriser", "tr": "Ezberlemeye başla", "ru": "Начать заучивать", "sv": "Börja memorera", "nl": "Begin met memoriseren", "el": "Ξεκίνα απομνημόνευση"},
      "color": "#EF4444", "icon": "📕", "coins_reward": 5, "placement": ["main", "duas"],
-     "target_route": "/duas"},
+     "target_route": "/stories"},
 
     # ═══ ISLAMIC COURSES ═══
     {"id": "sp_tajweed_course", "category": "courses", "emoji": "🎓",
@@ -60,21 +60,21 @@ SPONSORED_CONTENT = [
      "desc": {"ar": "أنا وكافل اليتيم في الجنة كهاتين — حديث نبوي", "en": "I and the caretaker of an orphan will be in Paradise — Hadith", "de": "Ich und der Betreuer einer Waise werden im Paradies sein", "fr": "Moi et le tuteur de l'orphelin serons au Paradis", "tr": "Ben ve yetimin bakıcısı cennette böyle olacağız", "ru": "Я и опекун сироты будем в Раю", "sv": "Jag och den föräldralöses vårdare i Paradiset", "nl": "Ik en de verzorger van een wees in het Paradijs", "el": "Εγώ και ο κηδεμόνας ορφανού στον Παράδεισο"},
      "cta": {"ar": "تبرع الآن", "en": "Donate Now", "de": "Jetzt spenden", "fr": "Faire un don", "tr": "Şimdi bağış yap", "ru": "Пожертвовать", "sv": "Donera nu", "nl": "Doneer nu", "el": "Δώρισε τώρα"},
      "color": "#EC4899", "icon": "🤲", "coins_reward": 10, "placement": ["main", "duas", "stories"],
-     "target_route": "/zakat"},
+     "target_route": "/donations"},
 
     {"id": "sp_water_well", "category": "charity", "emoji": "💧",
      "title": {"ar": "ساهم في حفر بئر ماء", "en": "Help Build a Water Well", "de": "Helfe beim Brunnenbau", "fr": "Aidez à construire un puits", "tr": "Su kuyusu açılmasına yardım et", "ru": "Помоги построить колодец", "sv": "Hjälp bygga en brunn", "nl": "Help een waterput bouwen", "el": "Βοήθα να χτιστεί πηγάδι"},
      "desc": {"ar": "صدقة جارية تنفع الناس وتستمر بعد الموت", "en": "Ongoing charity that benefits people forever", "de": "Fortlaufende Wohltätigkeit die ewig hilft", "fr": "Charité continue qui aide pour toujours", "tr": "İnsanlara sonsuza dek fayda sağlayan sadaka", "ru": "Непрерывная благотворительность", "sv": "Välgörenhet som hjälper för alltid", "nl": "Doorlopende liefdadigheid", "el": "Συνεχής φιλανθρωπία"},
      "cta": {"ar": "ساهم الآن", "en": "Contribute Now", "de": "Jetzt beitragen", "fr": "Contribuer maintenant", "tr": "Şimdi katkıda bulun", "ru": "Внести вклад", "sv": "Bidra nu", "nl": "Draag nu bij", "el": "Συνεισφέρε τώρα"},
      "color": "#06B6D4", "icon": "💧", "coins_reward": 10, "placement": ["main", "duas"],
-     "target_route": "/zakat"},
+     "target_route": "/donations"},
 
     {"id": "sp_mosque_build", "category": "charity", "emoji": "🕌",
      "title": {"ar": "ساهم في بناء مسجد", "en": "Help Build a Mosque", "de": "Helfe beim Moscheebau", "fr": "Aidez à construire une mosquée", "tr": "Cami yapımına katkı sağla", "ru": "Помоги построить мечеть", "sv": "Hjälp bygga en moské", "nl": "Help een moskee bouwen", "el": "Βοήθα να χτιστεί τζαμί"},
      "desc": {"ar": "من بنى لله مسجدًا بنى الله له بيتًا في الجنة", "en": "Whoever builds a mosque, Allah builds a house in Paradise for them", "de": "Wer eine Moschee baut, dem baut Allah ein Haus im Paradies", "fr": "Qui construit une mosquée, Allah lui construit une maison au Paradis", "tr": "Kim bir mescid yaparsa Allah ona cennette bir ev yapar", "ru": "Кто построит мечеть, Аллах построит ему дом в Раю", "sv": "Den som bygger en moské, bygger Allah ett hus i Paradiset", "nl": "Wie een moskee bouwt, Allah bouwt een huis in het Paradijs", "el": "Όποιος χτίσει τζαμί, ο Αλλάχ χτίζει σπίτι στον Παράδεισο"},
      "cta": {"ar": "ساهم في البناء", "en": "Help Build", "de": "Helfe beim Bau", "fr": "Aidez à construire", "tr": "İnşaata katkıda bulun", "ru": "Помоги построить", "sv": "Hjälp att bygga", "nl": "Help bouwen", "el": "Βοήθα στην κατασκευή"},
      "color": "#059669", "icon": "🕌", "coins_reward": 10, "placement": ["main", "duas", "stories"],
-     "target_route": "/zakat"},
+     "target_route": "/donations"},
 
     # ═══ ISLAMIC PRODUCTS ═══
     {"id": "sp_prayer_mat", "category": "products", "emoji": "🧎",
@@ -97,14 +97,14 @@ SPONSORED_CONTENT = [
      "desc": {"ar": "ألا بذكر الله تطمئن القلوب — الرعد ٢٨", "en": "Surely in the remembrance of Allah hearts find peace — 13:28", "de": "Im Gedenken Allahs finden Herzen Ruhe — 13:28", "fr": "C'est par le rappel d'Allah que les cœurs se tranquillisent — 13:28", "tr": "Kalpler ancak Allah'ın zikriyle huzur bulur — 13:28", "ru": "Поистине, в поминании Аллаха сердца находят покой — 13:28", "sv": "I Allahs åminnelse finner hjärtan frid — 13:28", "nl": "In het gedenken van Allah vinden harten vrede — 13:28", "el": "Στη μνήμη του Αλλάχ βρίσκουν ειρήνη οι καρδιές — 13:28"},
      "cta": {"ar": "ابدأ الذكر", "en": "Start Dhikr", "de": "Dhikr starten", "fr": "Commencer le dhikr", "tr": "Zikre başla", "ru": "Начать зикр", "sv": "Börja dhikr", "nl": "Begin dhikr", "el": "Ξεκίνα ζικρ"},
      "color": "#14B8A6", "icon": "📿", "coins_reward": 3, "placement": ["main", "duas", "stories"],
-     "target_route": "/duas"},
+     "target_route": "/tasbeeh"},
 
     {"id": "sp_sadaqah_daily", "category": "reminder", "emoji": "💝",
      "title": {"ar": "صدقتك اليومية", "en": "Your Daily Sadaqah", "de": "Deine tägliche Sadaqa", "fr": "Ton Sadaqah quotidien", "tr": "Günlük Sadakan", "ru": "Твоя ежедневная садака", "sv": "Din dagliga Sadaqah", "nl": "Je dagelijkse Sadaqah", "el": "Η ημερήσια Σαντάκα σου"},
      "desc": {"ar": "تبسمك في وجه أخيك صدقة — حديث نبوي", "en": "Your smile to your brother is charity — Hadith", "de": "Dein Lächeln zu deinem Bruder ist Sadaqa", "fr": "Ton sourire à ton frère est une aumône", "tr": "Kardeşine gülümsemen sadakadır — Hadis", "ru": "Твоя улыбка брату — садака — Хадис", "sv": "Ditt leende till din broder är välgörenhet", "nl": "Je glimlach naar je broeder is liefdadigheid", "el": "Το χαμόγελό σου είναι φιλανθρωπία"},
      "cta": {"ar": "تصدق اليوم", "en": "Give Today", "de": "Heute spenden", "fr": "Donne aujourd'hui", "tr": "Bugün sadaka ver", "ru": "Пожертвуй сегодня", "sv": "Ge idag", "nl": "Geef vandaag", "el": "Δώσε σήμερα"},
      "color": "#F43F5E", "icon": "💝", "coins_reward": 3, "placement": ["main", "stories"],
-     "target_route": "/zakat"},
+     "target_route": "/donations"},
 ]
 
 

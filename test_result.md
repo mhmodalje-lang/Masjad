@@ -1,29 +1,49 @@
 # Test Results
 
 ## User Problem Statement
-Islamic app update based on Flutter code specification - adding parental consent, daily lesson points limit (5/day), premium stories, rewards store with redemption items, and emerald green + gold + tahini night theme.
+Test the main page (home page) of this Islamic app across all 9 languages to verify text rendering, RTL/LTR layout, chevron arrows direction, calendar arrows, and navigation links.
 
 ## Testing Protocol
 - Backend APIs should be tested with curl or deep_testing_backend_v2
 - Frontend should be tested with auto_frontend_testing_agent
 - Always read this file before invoking any testing agent
 
-## Backend Test Results
-- ✅ `POST /api/parental-consent/save` - Saves consent successfully
-- ✅ `GET /api/parental-consent/check` - Returns consent status
-- ✅ `POST /api/points/lesson-complete` - Awards 1 point per lesson, max 5/day
-- ✅ `GET /api/store/redeem-catalog` - Returns 5 redemption items
-- ✅ `POST /api/store/redeem` - Deducts points and records redemption
-- ✅ `POST /api/stories/unlock-premium` - Unlocks premium stories for points
-- ✅ `GET /api/stories/check-unlocked` - Returns list of unlocked story IDs
-- ✅ Daily limit enforced: 6th lesson attempt returns "daily_lesson_limit_reached"
+## Multi-Language Home Page Test Results (March 22, 2026)
 
-## Frontend Test Results
-- ✅ Emerald green + gold + tahini dark theme applied across all pages
-- ✅ KidsZone shows parental consent dialog on first visit
-- ✅ BarakaMarket shows Rewards Store with 5 items (ebooks, coupons, etc.)
-- ✅ Stories page has premium story badges and locked content indicator
-- ✅ Light mode unchanged and working
+### Languages Tested (9 total):
+1. ✅ **Arabic (ar)** - RTL layout correct, text renders properly, chevron arrows correct (<)
+2. ✅ **English (en)** - LTR layout correct, text renders properly, chevron arrows correct (>)
+3. ✅ **German (de)** - LTR layout correct, text renders properly
+4. ✅ **Russian (ru)** - LTR layout correct, text renders properly, bottom nav translated
+5. ✅ **Turkish (tr)** - LTR layout correct, text renders properly, bottom nav translated
+6. ✅ **Swedish (sv)** - LTR layout correct, text renders properly, bottom nav translated
+7. ✅ **Dutch (nl)** - LTR layout correct, text renders properly, bottom nav translated
+8. ✅ **Greek (el)** - LTR layout correct, text renders properly, bottom nav translated
+9. ✅ **French (fr)** - LTR layout correct, text renders properly
+
+### Chevron Arrows Testing:
+- ✅ Arabic (RTL): "More" links correctly show ChevronLeft (<) - 2 instances tested
+- ✅ English (LTR): "More" links correctly show ChevronRight (>) - 2 instances tested
+- ✅ Chevron direction changes dynamically based on language direction
+
+### Navigation Links Testing (Arabic):
+- ✅ Prayer Tracking button → /tracker (working)
+- ✅ Mosque Times card → /mosque-times (working)
+- ✅ Prayer Times "More" link → /prayer-times (working)
+- ✅ Quran Quick Access → /quran (working)
+- ✅ Bottom navigation: Home, Stories, Academy, More (all working)
+
+### Bottom Navigation Translation:
+- ✅ Russian: "Главная, Мои истории, Академия, Ещё"
+- ✅ Turkish: "Ana Sayfa, Hikayelerim, Akademi, Daha Fazla"
+- ✅ Swedish: "Hem, Mina berättelser, Akademi, Mer"
+- ✅ Dutch: "Thuis, Mijn verhalen, Academie, Meer"
+- ✅ Greek: "Αρχική, Ιστορίες μου, Ακαδημία, Περισσότερα"
+
+### Page Content:
+- ✅ All languages load with proper content (2000+ characters)
+- ✅ Text rendering is correct for all languages
+- ✅ RTL/LTR direction attribute set correctly on document root
 
 ## Incorporate User Feedback
 - Listen to user requirements carefully
