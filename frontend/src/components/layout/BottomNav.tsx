@@ -34,7 +34,7 @@ export function BottomNav() {
         'glass-nav border-t transition-all duration-500',
         isDark
           ? 'bg-[hsl(220,25%,8%)]/95 border-white/[0.06] shadow-[0_-4px_30px_rgba(0,0,0,0.5)]'
-          : 'bg-[hsl(30,20%,97%)]/92 border-[hsl(152,55%,22%)]/[0.08] shadow-[0_-4px_30px_rgba(0,0,0,0.04)]'
+          : 'bg-[hsl(36,22%,90%)]/95 border-[hsl(152,55%,22%)]/[0.08] shadow-[0_-4px_30px_rgba(0,0,0,0.06)]'
       )} style={{ backdropFilter: 'blur(20px) saturate(1.5)', WebkitBackdropFilter: 'blur(20px) saturate(1.5)' }}>
         <div
           className="flex items-center justify-around px-3 pt-2 pb-3"
@@ -64,7 +64,7 @@ export function BottomNav() {
                       'border-[3px]',
                       isDark 
                         ? 'border-[hsl(220,25%,10%)] ring-2 ring-[hsl(155,55%,42%)]/20' 
-                        : 'border-[hsl(30,20%,97%)] ring-2 ring-[hsl(152,55%,22%)]/10'
+                        : 'border-[hsl(36,22%,90%)] ring-2 ring-[hsl(152,55%,22%)]/10'
                     )}
                   >
                     <Plus className="h-6 w-6 text-white stroke-[2.5px]" />
