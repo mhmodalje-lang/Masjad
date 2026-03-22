@@ -1,7 +1,7 @@
 # Test Results
 
 ## User Problem Statement
-Comprehensive frontend testing of Islamic app across all 9 languages: splash screen, main page (RTL/LTR, translations, chevron arrows), navigation links, 40 Nawawi page, calendar arrows, and sponsored content routes.
+Fix Stories page UI: compact category icons (pills instead of big squares), smaller action buttons, better fitting for mobile screen, fix VideoReels buttons sizing, proper post-to-feed connection.
 
 ## Testing Protocol
 - Backend APIs should be tested with curl or deep_testing_backend_v2

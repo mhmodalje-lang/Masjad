@@ -111,15 +111,16 @@ export default function VideoReels() {
   return (
     <div className="h-screen bg-black relative">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/60 to-transparent">
-        <button onClick={() => navigate(-1)} className="text-white">
-          <ArrowRight className="w-6 h-6" />
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3.5 py-2.5 bg-gradient-to-b from-black/50 to-transparent"
+        style={{ paddingTop: 'max(8px, env(safe-area-inset-top, 8px))' }}>
+        <button onClick={() => navigate(-1)} className="text-white p-1 active:scale-90 transition-transform">
+          <ArrowRight className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-4">
-          <span className="text-white/60 text-sm font-bold">{t('trending')}</span>
-          <span className="text-white text-sm font-bold border-b-2 border-white pb-0.5">{t('videoTab')}</span>
+          <span className="text-white/50 text-[12px] font-bold">{t('trending')}</span>
+          <span className="text-white text-[12px] font-bold border-b-2 border-white pb-0.5">{t('videoTab')}</span>
         </div>
-        <div className="w-6" />
+        <div className="w-5" />
       </div>
 
       {/* Reels Container */}
@@ -151,6 +152,7 @@ function ReelItem({ post, isActive, onLike, onShare, getMediaUrl }: {
   onShare: () => void;
   getMediaUrl: (url?: string) => string;
 }) {
+  const { dir } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -207,77 +209,83 @@ function ReelItem({ post, isActive, onLike, onShare, getMediaUrl }: {
       {/* Pause Indicator */}
       {paused && hasVideo && (
         <div className="absolute inset-0 flex items-center justify-center z-10">
-          <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white" />
+          <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+            <Play className="w-7 h-7 text-white fill-white ms-0.5" />
           </div>
         </div>
       )}
 
       {/* Content text overlay */}
-      <div className="absolute inset-0 flex items-center justify-center px-8 z-10 pointer-events-none">
-        <p className="text-white text-xl font-bold text-center leading-relaxed drop-shadow-lg" dir={dir}>
+      <div className="absolute inset-0 flex items-center justify-center px-10 z-10 pointer-events-none">
+        <p className="text-white text-lg font-bold text-center leading-[1.8] drop-shadow-lg" dir={dir}
+          style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
           {post.content}
         </p>
       </div>
 
-      {/* Right Side Actions */}
-      <div className="absolute right-3 bottom-32 flex flex-col items-center gap-5 z-20">
+      {/* Top gradient */}
+      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
+
+      {/* Right Side Actions - compact */}
+      <div className="absolute end-2.5 bottom-24 flex flex-col items-center gap-4 z-20"
+        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {/* Author Avatar */}
-        <Link to={`/social-profile/${post.author_id}`} className="relative">
+        <Link to={`/social-profile/${post.author_id}`} className="relative mb-1">
           <img
             src={post.author_avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author_name)}&background=1a7a4c&color=fff&size=48`}
             alt=""
-            className="w-12 h-12 rounded-full border-2 border-white shadow-lg"
+            className="w-10 h-10 rounded-full border-[2px] border-white shadow-lg"
           />
         </Link>
 
         {/* Like */}
-        <button onClick={onLike} className="flex flex-col items-center">
-          <Heart className={`w-8 h-8 ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'} drop-shadow-lg`} />
-          <span className="text-white text-xs mt-1 font-bold drop-shadow">{post.likes_count}</span>
+        <button onClick={onLike} className="flex flex-col items-center active:scale-90 transition-transform">
+          <Heart className={`w-6 h-6 ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'} drop-shadow-lg`} />
+          <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">{post.likes_count}</span>
         </button>
 
         {/* Comments */}
-        <Link to={`/post/${post.id}`} className="flex flex-col items-center">
-          <MessageCircle className="w-8 h-8 text-white drop-shadow-lg" />
-          <span className="text-white text-xs mt-1 font-bold drop-shadow">{post.comments_count}</span>
+        <Link to={`/post/${post.id}`} className="flex flex-col items-center active:scale-90 transition-transform">
+          <MessageCircle className="w-6 h-6 text-white drop-shadow-lg" />
+          <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">{post.comments_count}</span>
         </Link>
 
         {/* Gift */}
-        <button className="flex flex-col items-center">
-          <Gift className="w-8 h-8 text-white drop-shadow-lg" />
-          <span className="text-white text-xs mt-1 font-bold drop-shadow">0</span>
+        <button className="flex flex-col items-center active:scale-90 transition-transform">
+          <Gift className="w-6 h-6 text-white drop-shadow-lg" />
+          <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">0</span>
         </button>
 
         {/* Share */}
-        <button onClick={onShare} className="flex flex-col items-center">
-          <Share2 className="w-8 h-8 text-white drop-shadow-lg" />
-          <span className="text-white text-xs mt-1 font-bold drop-shadow">{post.shares_count || 0}</span>
+        <button onClick={onShare} className="flex flex-col items-center active:scale-90 transition-transform">
+          <Share2 className="w-6 h-6 text-white drop-shadow-lg" />
+          <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">{post.shares_count || 0}</span>
         </button>
 
         {/* Mute toggle for video */}
         {hasVideo && (
-          <button onClick={() => setMuted(!muted)} className="mt-2">
+          <button onClick={() => setMuted(!muted)} className="mt-1 active:scale-90 transition-transform">
             {muted ? (
-              <VolumeX className="w-6 h-6 text-white/60" />
+              <VolumeX className="w-5 h-5 text-white/50" />
             ) : (
-              <Volume2 className="w-6 h-6 text-white/60" />
+              <Volume2 className="w-5 h-5 text-white/50" />
             )}
           </button>
         )}
       </div>
 
       {/* Bottom Info */}
-      <div className="absolute bottom-6 left-0 right-16 px-4 z-20" dir={dir}>
-        <div className="flex items-center gap-3 mb-2">
-          <Link to={`/social-profile/${post.author_id}`} className="text-white font-bold text-base drop-shadow-lg hover:underline">
+      <div className="absolute bottom-5 left-0 right-14 px-3.5 z-20" dir={dir}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <div className="flex items-center gap-2 mb-1.5">
+          <Link to={`/social-profile/${post.author_id}`} className="text-white font-bold text-[14px] drop-shadow-lg hover:underline">
             {post.author_name}
           </Link>
-          <button className="px-3 py-1 bg-emerald-600 text-white text-xs font-bold rounded-md">
+          <button className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md active:scale-95 transition-transform">
             متابعة
           </button>
         </div>
-        <p className="text-white/90 text-sm line-clamp-2 leading-relaxed drop-shadow">
+        <p className="text-white/85 text-[12px] line-clamp-2 leading-relaxed drop-shadow">
           {post.content}
         </p>
       </div>
