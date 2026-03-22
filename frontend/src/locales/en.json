@@ -1921,7 +1921,7 @@
   "viewAll": "View All",
   "viewProfile": "View Profile",
   "views": "views",
-  "viewsCount": "views",
+  "viewsCount": "{n} views",
   "virtue": "Virtue",
   "voiceNotRecognized": "Voice not recognized, try again",
   "voiceNotSupported": "Your browser doesn't support voice search",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Closeness to Allah",
   "nawawiH39Title": "Forgiveness of mistakes and forgetfulness",
   "nawawiH40Title": "Be in this world as a stranger",
-  "textType": "Text"
+  "textType": "Text",
+  "forYouTab": "For You",
+  "reelsTab": "Reels",
+  "longVideosTab": "Videos",
+  "followingTab": "Following",
+  "navReels": "Reels",
+  "discoverReels": "Discover Reels",
+  "noReelsYet": "No reels yet",
+  "watchReels": "Watch Reels",
+  "longVideos": "Long Videos",
+  "shortClips": "Short Clips",
+  "swipeForMore": "Swipe for more",
+  "followingFeed": "Following Feed",
+  "noFollowingContent": "Follow people to see their content here"
 }

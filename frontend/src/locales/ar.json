@@ -1924,7 +1924,7 @@
   "viewAll": "عرض الكل",
   "viewProfile": "عرض الملف الشخصي",
   "views": "مشاهدة",
-  "viewsCount": "مشاهدة",
+  "viewsCount": "{n} مشاهدة",
   "virtue": "الفضل",
   "voiceNotRecognized": "لم يتم التعرف على الصوت، حاول مرة أخرى",
   "voiceNotSupported": "متصفحك لا يدعم البحث الصوتي",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "ولاية الله",
   "nawawiH39Title": "رفع الخطأ والنسيان",
   "nawawiH40Title": "كن في الدنيا كأنك غريب",
-  "textType": "نص"
+  "textType": "نص",
+  "forYouTab": "لك",
+  "reelsTab": "ريلز",
+  "longVideosTab": "فيديوهات",
+  "followingTab": "متابعين",
+  "navReels": "ريلز",
+  "discoverReels": "اكتشف الريلز",
+  "noReelsYet": "لا توجد ريلز بعد",
+  "watchReels": "شاهد ريلز",
+  "longVideos": "فيديوهات طويلة",
+  "shortClips": "مقاطع قصيرة",
+  "swipeForMore": "اسحب للمزيد",
+  "followingFeed": "منشورات المتابَعين",
+  "noFollowingContent": "تابع أشخاص لرؤية محتواهم هنا"
 }

@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, BookOpen, Plus, GraduationCap, User } from 'lucide-react';
+import { Home, BookOpen, Plus, Film, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,27 +15,33 @@ export function BottomNav() {
 
   const navItems = [
     { path: '/', icon: Home, label: t('navHome'), exact: true },
-    { path: '/stories', icon: BookOpen, label: t('navStories') },
+    { path: '/reels', icon: Film, label: t('navReels') },
     { path: '/create', icon: Plus, label: '', isCreate: true },
-    { path: '/kids-zone', icon: GraduationCap, label: t('navAcademy') },
+    { path: '/stories', icon: BookOpen, label: t('navStories') },
     { path: '/more', icon: User, label: t('navMore') },
   ];
 
-  const hiddenPaths = ['/auth', '/reels'];
+  const hiddenPaths = ['/auth'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
+
+  // Hide bottom nav on reels page for immersive experience
+  if (location.pathname === '/reels') return null;
 
   return (
     <nav
       data-testid="bottom-nav"
       className="fixed bottom-0 left-0 right-0 z-50"
     >
-      {/* Mystic Glass Bar */}
+      {/* Modern Glass Bar */}
       <div className={cn(
-        'glass-nav border-t transition-all duration-500',
+        'border-t transition-all duration-500',
         isDark
           ? 'bg-[hsl(154,35%,8%)]/95 border-[hsl(43,82%,52%)]/[0.1] shadow-[0_-4px_30px_rgba(0,30,15,0.6)]'
           : 'bg-[hsl(32,30%,84%)]/95 border-[hsl(28,30%,60%)]/[0.15] shadow-[0_-4px_30px_rgba(60,40,20,0.08)]'
-      )} style={{ backdropFilter: 'blur(20px) saturate(1.5)', WebkitBackdropFilter: 'blur(20px) saturate(1.5)' }}>
+      )} style={{ 
+        backdropFilter: 'blur(20px) saturate(1.5)', 
+        WebkitBackdropFilter: 'blur(20px) saturate(1.5)',
+      }}>
         <div
           className="flex items-center justify-around px-3 pt-2 pb-3"
           style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}

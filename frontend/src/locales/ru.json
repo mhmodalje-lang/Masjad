@@ -1921,7 +1921,7 @@
   "viewAll": "Показать все",
   "viewProfile": "Просмотр профиля",
   "views": "просмотров",
-  "viewsCount": "просмотров",
+  "viewsCount": "{n} просмотров",
   "virtue": "Достоинство",
   "voiceNotRecognized": "Голос не распознан, попробуйте снова",
   "voiceNotSupported": "Ваш браузер не поддерживает голосовой поиск",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Близость к Аллаху",
   "nawawiH39Title": "Прощение ошибок и забывчивости",
   "nawawiH40Title": "Будь в этом мире как странник",
-  "textType": "Текст"
+  "textType": "Текст",
+  "forYouTab": "Для вас",
+  "reelsTab": "Reels",
+  "longVideosTab": "Видео",
+  "followingTab": "Подписки",
+  "navReels": "Reels",
+  "discoverReels": "Откройте Reels",
+  "noReelsYet": "Пока нет Reels",
+  "watchReels": "Смотреть Reels",
+  "longVideos": "Длинные видео",
+  "shortClips": "Короткие клипы",
+  "swipeForMore": "Свайп для продолжения",
+  "followingFeed": "Лента подписок",
+  "noFollowingContent": "Подпишитесь на людей, чтобы видеть их контент"
 }

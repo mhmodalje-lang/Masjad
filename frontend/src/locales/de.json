@@ -1921,7 +1921,7 @@
   "viewAll": "Alle anzeigen",
   "viewProfile": "Profil anzeigen",
   "views": "Aufrufe",
-  "viewsCount": "Aufrufe",
+  "viewsCount": "{n} Aufrufe",
   "virtue": "Verdienst",
   "voiceNotRecognized": "Nicht erkannt, versuchen Sie erneut",
   "voiceNotSupported": "Ihr Browser unterstützt keine Sprachsuche",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Nähe zu Allah",
   "nawawiH39Title": "Vergebung von Fehlern",
   "nawawiH40Title": "Sei in dieser Welt wie ein Fremder",
-  "textType": "Text"
+  "textType": "Text",
+  "forYouTab": "Für dich",
+  "reelsTab": "Reels",
+  "longVideosTab": "Videos",
+  "followingTab": "Folge ich",
+  "navReels": "Reels",
+  "discoverReels": "Reels entdecken",
+  "noReelsYet": "Noch keine Reels",
+  "watchReels": "Reels ansehen",
+  "longVideos": "Lange Videos",
+  "shortClips": "Kurzclips",
+  "swipeForMore": "Wische für mehr",
+  "followingFeed": "Abonniert",
+  "noFollowingContent": "Folge Leuten um deren Inhalte hier zu sehen"
 }

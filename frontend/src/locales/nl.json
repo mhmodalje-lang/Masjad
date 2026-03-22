@@ -1934,7 +1934,7 @@
   "viewAll": "Bekijk alles",
   "viewProfile": "Bekijk profiel",
   "views": "weergaven",
-  "viewsCount": "weergaven",
+  "viewsCount": "{n} weergaven",
   "virtue": "Beloning",
   "voiceNotRecognized": "Spraak niet herkend, probeer opnieuw",
   "voiceNotSupported": "Uw browser ondersteunt geen spraakherkenning",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Nabijheid tot Allah",
   "nawawiH39Title": "Vergeving van fouten",
   "nawawiH40Title": "Wees in deze wereld als een vreemdeling",
-  "textType": "Tekst"
+  "textType": "Tekst",
+  "forYouTab": "Voor jou",
+  "reelsTab": "Reels",
+  "longVideosTab": "Video's",
+  "followingTab": "Volgend",
+  "navReels": "Reels",
+  "discoverReels": "Ontdek Reels",
+  "noReelsYet": "Nog geen reels",
+  "watchReels": "Reels bekijken",
+  "longVideos": "Lange video's",
+  "shortClips": "Korte clips",
+  "swipeForMore": "Veeg voor meer",
+  "followingFeed": "Volgend feed",
+  "noFollowingContent": "Volg mensen om hun inhoud hier te zien"
 }

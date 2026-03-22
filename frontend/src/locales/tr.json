@@ -1921,7 +1921,7 @@
   "viewAll": "Tümünü Gör",
   "viewProfile": "Profili Görüntüle",
   "views": "görüntüleme",
-  "viewsCount": "görüntüleme",
+  "viewsCount": "{n} görüntüleme",
   "virtue": "Fazilet",
   "voiceNotRecognized": "Ses tanınmadı, tekrar deneyin",
   "voiceNotSupported": "Tarayıcınız sesli aramayı desteklemiyor",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Allah'a yakınlık",
   "nawawiH39Title": "Hata ve unutmanın affı",
   "nawawiH40Title": "Dünyada garip gibi ol",
-  "textType": "Metin"
+  "textType": "Metin",
+  "forYouTab": "Senin İçin",
+  "reelsTab": "Reels",
+  "longVideosTab": "Videolar",
+  "followingTab": "Takip",
+  "navReels": "Reels",
+  "discoverReels": "Reels Keşfet",
+  "noReelsYet": "Henüz reel yok",
+  "watchReels": "Reels İzle",
+  "longVideos": "Uzun Videolar",
+  "shortClips": "Kısa Klipler",
+  "swipeForMore": "Daha fazlası için kaydır",
+  "followingFeed": "Takip Akışı",
+  "noFollowingContent": "İçeriklerini görmek için insanları takip edin"
 }

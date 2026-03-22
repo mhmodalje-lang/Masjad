@@ -1924,7 +1924,7 @@
   "viewAll": "Προβολή όλων",
   "viewProfile": "Προβολή προφίλ",
   "views": "προβολές",
-  "viewsCount": "προβολές",
+  "viewsCount": "{n} προβολές",
   "virtue": "Ανταμοιβή",
   "voiceNotRecognized": "Φωνή δεν αναγνωρίστηκε, δοκιμάστε ξανά",
   "voiceNotSupported": "Ο browser σας δεν υποστηρίζει φωνητική αναζήτηση",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Εγγύτητα στον Αλλάχ",
   "nawawiH39Title": "Συγχώρεση λαθών",
   "nawawiH40Title": "Να είσαι σε αυτόν τον κόσμο σαν ξένος",
-  "textType": "Κείμενο"
+  "textType": "Κείμενο",
+  "forYouTab": "Για εσένα",
+  "reelsTab": "Reels",
+  "longVideosTab": "Βίντεο",
+  "followingTab": "Ακολουθώ",
+  "navReels": "Reels",
+  "discoverReels": "Ανακαλύψτε Reels",
+  "noReelsYet": "Δεν υπάρχουν reels ακόμα",
+  "watchReels": "Δείτε Reels",
+  "longVideos": "Μεγάλα βίντεο",
+  "shortClips": "Σύντομα κλιπ",
+  "swipeForMore": "Σύρετε για περισσότερα",
+  "followingFeed": "Ροή ακολούθησης",
+  "noFollowingContent": "Ακολουθήστε άτομα για να δείτε το περιεχόμενό τους εδώ"
 }

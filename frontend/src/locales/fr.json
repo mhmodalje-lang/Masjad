@@ -1921,7 +1921,7 @@
   "viewAll": "Tout voir",
   "viewProfile": "Voir le profil",
   "views": "vues",
-  "viewsCount": "vues",
+  "viewsCount": "{n} vues",
   "virtue": "Vertu",
   "voiceNotRecognized": "Voix non reconnue, réessayez",
   "voiceNotSupported": "Votre navigateur ne prend pas en charge la recherche vocale",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "La proximité d'Allah",
   "nawawiH39Title": "Le pardon des erreurs",
   "nawawiH40Title": "Sois dans ce monde comme un étranger",
-  "textType": "Texte"
+  "textType": "Texte",
+  "forYouTab": "Pour toi",
+  "reelsTab": "Reels",
+  "longVideosTab": "Vidéos",
+  "followingTab": "Abonnements",
+  "navReels": "Reels",
+  "discoverReels": "Découvrir les Reels",
+  "noReelsYet": "Pas encore de reels",
+  "watchReels": "Regarder les Reels",
+  "longVideos": "Longues vidéos",
+  "shortClips": "Clips courts",
+  "swipeForMore": "Glisser pour plus",
+  "followingFeed": "Flux abonnements",
+  "noFollowingContent": "Suivez des personnes pour voir leur contenu ici"
 }

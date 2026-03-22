@@ -1934,7 +1934,7 @@
   "viewAll": "Visa alla",
   "viewProfile": "Visa profil",
   "views": "visningar",
-  "viewsCount": "visningar",
+  "viewsCount": "{n} visningar",
   "virtue": "Belöning",
   "voiceNotRecognized": "Röst ej igenkänd, försök igen",
   "voiceNotSupported": "Din webbläsare stöder inte röstsökning",
@@ -2217,5 +2217,18 @@
   "nawawiH38Title": "Närhet till Allah",
   "nawawiH39Title": "Förlåtelse av misstag",
   "nawawiH40Title": "Var i denna värld som en främling",
-  "textType": "Text"
+  "textType": "Text",
+  "forYouTab": "För dig",
+  "reelsTab": "Reels",
+  "longVideosTab": "Videor",
+  "followingTab": "Följer",
+  "navReels": "Reels",
+  "discoverReels": "Upptäck Reels",
+  "noReelsYet": "Inga reels ännu",
+  "watchReels": "Titta på Reels",
+  "longVideos": "Långa videor",
+  "shortClips": "Korta klipp",
+  "swipeForMore": "Svep för mer",
+  "followingFeed": "Följer-flöde",
+  "noFollowingContent": "Följ personer för att se deras innehåll här"
 }
