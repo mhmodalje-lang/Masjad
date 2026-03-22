@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Skriv \"radera\" för att bekräfta",
   "deleteWord": "radera",
   "dataWillBeDeleted": "Raderas: dina inlägg, kommentarer, gilla-markeringar, bokmärken och följningar",
-  "comingSoon": "Kommer snart"
+  "comingSoon": "Kommer snart",
+  "addDescription": "Lägg till beskrivning...",
+  "thumbnailGenerated": "Miniatyrbild skapad ✓"
 }

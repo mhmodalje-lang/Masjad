@@ -204,7 +204,7 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
   );
 }
 
-/* ==================== CREATE POST SHEET ==================== */
+/* ==================== CREATE POST SHEET (Professional) ==================== */
 function CreateSheet({ categories, onClose, onCreated }: {
   categories: Category[]; onClose: () => void; onCreated: (s: Story) => void;
 }) {
@@ -216,42 +216,132 @@ function CreateSheet({ categories, onClose, onCreated }: {
   const [contentType, setContentType] = useState('text');
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
+  const [thumbnailBlob, setThumbnailBlob] = useState<Blob | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [embedUrl, setEmbedUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
+  const videoThumbnailRef = useRef<HTMLVideoElement>(null);
 
-  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /** Generate thumbnail from video file */
+  const generateVideoThumbnail = (videoFile: File): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+      const url = URL.createObjectURL(videoFile);
+      video.src = url;
+      
+      video.onloadeddata = () => {
+        // Seek to 1 second or 10% of duration
+        video.currentTime = Math.min(1, video.duration * 0.1);
+      };
+      
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.min(video.videoWidth, 720);
+        canvas.height = Math.round(canvas.width * (video.videoHeight / video.videoWidth));
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(url);
+            if (blob) {
+              setThumbnailPreview(URL.createObjectURL(blob));
+            }
+            resolve(blob);
+          }, 'image/jpeg', 0.8);
+        } else {
+          URL.revokeObjectURL(url);
+          resolve(null);
+        }
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(null);
+      };
+    });
+  };
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0]; if (!f) return;
     setFile(f);
-    const reader = new FileReader();
-    reader.onload = ev => setPreview(ev.target?.result as string);
-    reader.readAsDataURL(f);
-    setContentType(f.type.startsWith('video/') ? 'video_short' : 'image');
+    
+    if (f.type.startsWith('video/')) {
+      setContentType('video_short');
+      // Show video preview
+      const videoUrl = URL.createObjectURL(f);
+      setPreview(videoUrl);
+      // Generate thumbnail
+      const thumb = await generateVideoThumbnail(f);
+      setThumbnailBlob(thumb);
+    } else {
+      setContentType('image');
+      const reader = new FileReader();
+      reader.onload = ev => setPreview(ev.target?.result as string);
+      reader.readAsDataURL(f);
+    }
   };
+
+  const removeFile = () => {
+    setFile(null);
+    setPreview('');
+    setThumbnailBlob(null);
+    setThumbnailPreview('');
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  /** Check if we can submit */
+  const canSubmit = !submitting && (
+    content.trim().length > 0 || 
+    title.trim().length > 0 || 
+    file !== null || 
+    embedUrl.trim().length > 0
+  );
 
   const submit = async () => {
     if (!user) { toast.error(t('loginFirst')); return; }
-    // Allow video/image-only posts (no text required)
-    if (!content.trim() && !embedUrl.trim() && !file) { toast.error(t('writeFirst')); return; }
+    if (!canSubmit) return;
     setSubmitting(true);
+    setUploadProgress(10);
+    
     try {
       let imageUrl: string | null = null;
       let videoUrl: string | null = null;
+      let thumbUrl: string | null = null;
 
-      // Upload file if exists
+      // Upload main file
       if (file) {
+        setUploadProgress(20);
         const fd = new FormData(); fd.append('file', file);
         const r = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', headers: authHeadersMultipart(), body: fd });
         if (r.ok) {
           const d = await r.json();
           if (file.type.startsWith('video/')) videoUrl = d.url;
           else imageUrl = d.url;
-        } else { toast.error(t('uploadFailed')); setSubmitting(false); return; }
+          setUploadProgress(60);
+        } else { toast.error(t('uploadFailed')); setSubmitting(false); setUploadProgress(0); return; }
       }
 
-      // Build the body
+      // Upload thumbnail for video
+      if (thumbnailBlob && videoUrl) {
+        setUploadProgress(70);
+        const thumbFd = new FormData();
+        thumbFd.append('file', thumbnailBlob, 'thumbnail.jpg');
+        const tr = await fetch(`${BACKEND_URL}/api/upload/multipart`, { method: 'POST', headers: authHeadersMultipart(), body: thumbFd });
+        if (tr.ok) {
+          const td = await tr.json();
+          thumbUrl = td.url;
+        }
+        setUploadProgress(80);
+      }
+
+      // Build story body
       const storyBody: Record<string, string | undefined> = {
-        content: content.trim() || title.trim() || (file ? file.name : '') || 'محتوى جديد',
+        content: content.trim() || title.trim() || (file ? (title.trim() || t('newPost')) : '') || t('newPost'),
         category,
         title: title.trim() || undefined,
       };
@@ -262,6 +352,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
       } else if (videoUrl) {
         storyBody.video_url = videoUrl;
         storyBody.media_type = 'video';
+        if (thumbUrl) storyBody.thumbnail_url = thumbUrl;
       } else if (imageUrl) {
         storyBody.image_url = imageUrl;
         storyBody.media_type = 'image';
@@ -269,11 +360,13 @@ function CreateSheet({ categories, onClose, onCreated }: {
         storyBody.media_type = 'text';
       }
 
+      setUploadProgress(90);
       const r = await fetch(`${BACKEND_URL}/api/stories/create`, {
         method: 'POST', headers: authHeaders(), body: JSON.stringify(storyBody)
       });
       const d = await r.json();
       if (d.story) {
+        setUploadProgress(100);
         onCreated(d.story);
         onClose();
         toast.success(t('publishSuccess'));
@@ -282,6 +375,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
       }
     } catch (err) { toast.error(t('errorOccurred')); console.error(err); }
     setSubmitting(false);
+    setUploadProgress(0);
   };
 
   const isAdmin = user?.email === 'mohammadalrejab@gmail.com';
@@ -310,7 +404,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
       className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-        className="absolute bottom-0 left-0 right-0 max-h-[90vh] bg-card rounded-t-2xl overflow-y-auto border-t border-emerald-600/15"
+        className="absolute bottom-0 left-0 right-0 max-h-[92vh] bg-card rounded-t-2xl overflow-y-auto border-t border-emerald-600/15"
         onClick={e => e.stopPropagation()}>
         <div className="p-4 space-y-3" dir={dir}>
           {/* Handle bar */}
@@ -321,10 +415,10 @@ function CreateSheet({ categories, onClose, onCreated }: {
             <button onClick={onClose} className="p-1.5 rounded-full bg-muted/30"><X className="w-4 h-4 text-muted-foreground" /></button>
           </div>
 
-          {/* Content Type */}
+          {/* Content Type Selector */}
           <div className="flex gap-1.5 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
             {typeBtns.map(btn => (
-              <button key={btn.key} onClick={() => setContentType(btn.key)}
+              <button key={btn.key} onClick={() => { setContentType(btn.key); if (btn.key === 'text') removeFile(); }}
                 className={cn('shrink-0 flex items-center gap-1 px-3 py-2 rounded-xl text-[11px] font-semibold transition-all',
                   contentType === btn.key ? 'bg-emerald-600 text-white shadow-sm' : 'bg-muted/20 text-muted-foreground/70')}>
                 <span className="text-[13px]">{btn.icon}</span> {btn.label}
@@ -332,59 +426,79 @@ function CreateSheet({ categories, onClose, onCreated }: {
             ))}
           </div>
 
-          {/* Author */}
+          {/* Author Info */}
           {user && (
             <div className="flex items-center gap-2.5">
-              <img src={avatar(user.name || '', user.avatar)} alt="" className="w-8 h-8 rounded-full" />
-              <span className="text-foreground font-bold text-[12px]">{user.name}</span>
+              <img src={avatar(user.name || '', user.avatar)} alt="" className="w-9 h-9 rounded-full ring-2 ring-emerald-600/20" />
+              <div>
+                <span className="text-foreground font-bold text-[13px] block">{user.name}</span>
+                <span className="text-muted-foreground text-[10px]">{t('publishNow')}</span>
+              </div>
             </div>
           )}
 
-          {/* Title (optional) */}
-          <input data-testid="create-post-title" value={title} onChange={e => setTitle(e.target.value)} placeholder={t("titleOptional")}
-            className="w-full bg-muted/30 text-foreground rounded-xl px-3.5 py-2.5 text-[13px] border border-border/15 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/50" />
+          {/* Title */}
+          <input data-testid="create-post-title" value={title} onChange={e => setTitle(e.target.value)} 
+            placeholder={t("titleOptional")}
+            className="w-full bg-muted/30 text-foreground rounded-xl px-3.5 py-3 text-[14px] font-bold border border-border/15 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/40" />
 
-          {/* Content */}
+          {/* Content / Description */}
           <textarea data-testid="create-post-content" value={content} onChange={e => setContent(e.target.value)}
-            placeholder={t("shareIdea")}
-            className="w-full bg-muted/30 text-foreground rounded-xl px-3.5 py-2.5 text-[13px] min-h-[100px] resize-none border border-border/15 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/50 leading-relaxed"
+            placeholder={contentType === 'text' ? t("shareIdea") : t('addDescription') || t("shareIdea")}
+            className="w-full bg-muted/30 text-foreground rounded-xl px-3.5 py-3 text-[13px] min-h-[80px] resize-none border border-border/15 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/40 leading-relaxed"
             maxLength={10000} />
-          <p className={cn("text-start text-[9px]", content.length > 9500 ? "text-red-400" : content.length > 5000 ? "text-amber-400" : "text-muted-foreground")}>{content.length}/10000</p>
+          <p className={cn("text-start text-[9px]", content.length > 9500 ? "text-red-400" : content.length > 5000 ? "text-amber-400" : "text-muted-foreground/40")}>{content.length}/10000</p>
 
           {/* Embed URL */}
           {contentType === 'embed' && (
             <input value={embedUrl} onChange={e => setEmbedUrl(e.target.value)}
               placeholder={t('videoUrlPlaceholder')}
-              className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60" dir="ltr" />
+              className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/40" dir="ltr" />
           )}
 
-          {/* File Upload */}
+          {/* File Upload Area */}
           {(contentType === 'image' || contentType === 'video_short') && (
             <>
               <input ref={fileRef} type="file" accept={contentType === 'image' ? 'image/*' : 'video/*'} onChange={handleFile} className="hidden" />
-              {preview ? (
-                <div className="relative rounded-2xl overflow-hidden">
-                  {file?.type.startsWith('video/') ? (
-                    <video src={preview} controls className="w-full max-h-52 rounded-2xl bg-black" />
+              {file ? (
+                <div className="relative rounded-2xl overflow-hidden bg-black">
+                  {file.type.startsWith('video/') ? (
+                    <div className="relative">
+                      <video src={preview} className="w-full max-h-56 rounded-2xl bg-black object-contain" controls playsInline />
+                      {/* Thumbnail preview */}
+                      {thumbnailPreview && (
+                        <div className="mt-2 flex items-center gap-2 px-1">
+                          <img src={thumbnailPreview} alt="Thumbnail" className="w-16 h-10 rounded-lg object-cover border border-emerald-600/30" />
+                          <span className="text-[10px] text-emerald-500 font-semibold">{t('thumbnailGenerated') || 'Thumbnail ✓'}</span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
-                    <img src={preview} alt="" className="w-full max-h-52 object-cover rounded-2xl" />
+                    <img src={preview} alt="" className="w-full max-h-56 object-cover rounded-2xl" />
                   )}
-                  <button onClick={() => { setFile(null); setPreview(''); }}
-                    className="absolute top-2 start-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center"><X className="w-3.5 h-3.5 text-white" /></button>
+                  {/* File info */}
+                  <div className="flex items-center justify-between px-2 py-1.5 bg-muted/20">
+                    <span className="text-[10px] text-muted-foreground truncate flex-1">{file.name} ({(file.size / (1024*1024)).toFixed(1)} MB)</span>
+                    <button onClick={removeFile}
+                      className="shrink-0 w-7 h-7 bg-red-500/20 rounded-full flex items-center justify-center active:scale-90">
+                      <X className="w-3.5 h-3.5 text-red-400" />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <button onClick={() => fileRef.current?.click()}
-                  className="w-full py-14 border border-dashed border-border/30 rounded-2xl text-muted-foreground hover:border-emerald-600/50 hover:text-emerald-500 transition-all flex flex-col items-center gap-2 bg-muted/15">
-                  {contentType === 'image' ? <Image className="w-7 h-7" /> : <Video className="w-7 h-7" />}
-                  <span className="text-sm">{contentType === 'image' ? t('chooseImage') : t('chooseVideo')}</span>
+                  className="w-full py-12 border-2 border-dashed border-emerald-600/20 rounded-2xl text-muted-foreground hover:border-emerald-600/50 hover:text-emerald-500 transition-all flex flex-col items-center gap-2.5 bg-emerald-600/5 active:scale-[0.98]">
+                  {contentType === 'image' ? <Image className="w-8 h-8" /> : <Video className="w-8 h-8" />}
+                  <span className="text-[13px] font-semibold">{contentType === 'image' ? t('chooseImage') : t('chooseVideo')}</span>
+                  <span className="text-[10px] text-muted-foreground/50">{contentType === 'video_short' ? 'MP4, MOV, WebM' : 'JPG, PNG, WebP'}</span>
                 </button>
               )}
             </>
           )}
 
-          {/* Category */}
+          {/* Category Selection */}
           <div>
-            <p className="text-muted-foreground text-[10px] mb-1.5">{t('categoryLabel')}</p>
+            <p className="text-muted-foreground text-[10px] mb-1.5 font-semibold">{t('categoryLabel')}</p>
             <div className="flex flex-wrap gap-1.5">
               {catBtns.map(c => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
@@ -396,11 +510,28 @@ function CreateSheet({ categories, onClose, onCreated }: {
             </div>
           </div>
 
-          {/* Submit */}
-          <button data-testid="create-post-submit" onClick={submit} disabled={submitting || (!content.trim() && !embedUrl.trim())}
-            className="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold text-[13px] disabled:opacity-30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-md shadow-emerald-600/15">
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            {t('publishNow')}
+          {/* Upload Progress */}
+          {uploadProgress > 0 && (
+            <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+              <div className="h-full bg-emerald-500 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${uploadProgress}%` }} />
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button data-testid="create-post-submit" onClick={submit} disabled={!canSubmit}
+            className="w-full py-3.5 bg-emerald-600 text-white rounded-xl font-bold text-[14px] disabled:opacity-30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+            {submitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{uploadProgress < 80 ? (t('uploading') || 'Uploading...') : (t('publishing') || 'Publishing...')}</span>
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                {t('publishNow')}
+              </>
+            )}
           </button>
         </div>
       </motion.div>
@@ -987,10 +1118,15 @@ export default function Stories() {
               {videoStories.map((s, idx) => (
                 <div key={s.id} onClick={() => setShowViewer(idx)}
                   className="relative aspect-[9/14] rounded-xl overflow-hidden cursor-pointer group bg-muted/10 active:scale-[0.97] transition-transform">
-                  {getMediaUrl(s.image_url || s.thumbnail_url) ? (
-                    <img src={getMediaUrl(s.image_url || s.thumbnail_url)!} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  {getMediaUrl(s.thumbnail_url) ? (
+                    <img src={getMediaUrl(s.thumbnail_url)!} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  ) : getMediaUrl(s.image_url) ? (
+                    <img src={getMediaUrl(s.image_url)!} alt="" className="w-full h-full object-cover" loading="lazy" />
                   ) : s.embed_url && getYouTubeId(s.embed_url) ? (
                     <img src={`https://img.youtube.com/vi/${getYouTubeId(s.embed_url)}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                  ) : getVideoSrc(s) ? (
+                    <video src={getVideoSrc(s)!} className="w-full h-full object-cover" muted preload="metadata"
+                      onLoadedData={(e) => { const v = e.target as HTMLVideoElement; v.currentTime = 0.5; }} />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-emerald-900/15 to-muted/10 flex items-center justify-center">
                       <Film className="w-6 h-6 text-foreground/10" />
@@ -1061,10 +1197,15 @@ export default function Stories() {
                       {videoStories.slice(0, 4).map((s, idx) => (
                         <div key={s.id} onClick={() => setShowViewer(idx)}
                           className="shrink-0 w-24 aspect-[9/14] rounded-xl overflow-hidden cursor-pointer relative bg-muted/10 active:scale-95 transition-transform">
-                          {getMediaUrl(s.image_url || s.thumbnail_url) ? (
-                            <img src={getMediaUrl(s.image_url || s.thumbnail_url)!} alt="" className="w-full h-full object-cover" />
+                          {getMediaUrl(s.thumbnail_url) ? (
+                            <img src={getMediaUrl(s.thumbnail_url)!} alt="" className="w-full h-full object-cover" />
+                          ) : getMediaUrl(s.image_url) ? (
+                            <img src={getMediaUrl(s.image_url)!} alt="" className="w-full h-full object-cover" />
                           ) : s.embed_url && getYouTubeId(s.embed_url) ? (
                             <img src={`https://img.youtube.com/vi/${getYouTubeId(s.embed_url)}/hqdefault.jpg`} alt="" className="w-full h-full object-cover" />
+                          ) : getVideoSrc(s) ? (
+                            <video src={getVideoSrc(s)!} className="w-full h-full object-cover" muted preload="metadata"
+                              onLoadedData={(e) => { const v = e.target as HTMLVideoElement; v.currentTime = 0.5; }} />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-emerald-900/20 to-muted/10" />
                           )}
@@ -1089,10 +1230,31 @@ export default function Stories() {
                         <div className="mb-4"><IslamicAd placement="stories" variant="banner" /></div>
                       )}
                       <div className="bg-card rounded-2xl overflow-hidden border border-border/10 shadow-sm">
-                        {/* Media */}
-                        {getMediaUrl(s.image_url) && (
+                        {/* Media - supports image, video thumbnail, and video */}
+                        {(getMediaUrl(s.thumbnail_url) || getMediaUrl(s.image_url) || isVideoStory(s)) && (
                           <div className="relative cursor-pointer" onClick={() => handleOpenStory(s.id)}>
-                            <img src={getMediaUrl(s.image_url)!} alt="" className="w-full max-h-48 object-cover" loading="lazy" />
+                            {getMediaUrl(s.thumbnail_url) ? (
+                              <div className="relative">
+                                <img src={getMediaUrl(s.thumbnail_url)!} alt="" className="w-full max-h-48 object-cover" loading="lazy" />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                    <Play className="w-5 h-5 text-white fill-white ms-0.5" />
+                                  </div>
+                                </div>
+                              </div>
+                            ) : getMediaUrl(s.image_url) ? (
+                              <img src={getMediaUrl(s.image_url)!} alt="" className="w-full max-h-48 object-cover" loading="lazy" />
+                            ) : getVideoSrc(s) ? (
+                              <div className="relative">
+                                <video src={getVideoSrc(s)!} className="w-full max-h-48 object-cover bg-black" muted preload="metadata"
+                                  onLoadedData={(e) => { const v = e.target as HTMLVideoElement; v.currentTime = 0.5; }} />
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                  <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                    <Play className="w-5 h-5 text-white fill-white ms-0.5" />
+                                  </div>
+                                </div>
+                              </div>
+                            ) : null}
                           </div>
                         )}
                         <div className="p-3 cursor-pointer" onClick={() => handleOpenStory(s.id)}>

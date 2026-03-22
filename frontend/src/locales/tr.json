@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Onaylamak için \"sil\" yazın",
   "deleteWord": "sil",
   "dataWillBeDeleted": "Silinecekler: gönderileriniz, yorumlarınız, beğenileriniz, yer işaretleriniz ve takipleriniz",
-  "comingSoon": "Yakında"
+  "comingSoon": "Yakında",
+  "addDescription": "Açıklama ekle...",
+  "thumbnailGenerated": "Küçük resim oluşturuldu ✓"
 }

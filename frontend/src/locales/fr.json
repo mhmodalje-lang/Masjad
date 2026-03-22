@@ -1369,7 +1369,7 @@
   "publishYourStory": "Publiez votre histoire",
   "published": "Publié ! ✨",
   "publishedSuccess": "Publié pour tous!",
-  "publishing": "Publication en cours...",
+  "publishing": "Publication...",
   "pullDown": "Tirez vers le bas",
   "purchaseFailed": "Achat échoué",
   "purityDaysLegend": "Jours de pureté",
@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Tapez \"supprimer\" pour confirmer",
   "deleteWord": "supprimer",
   "dataWillBeDeleted": "Seront supprimés : vos publications, commentaires, likes, favoris et abonnements",
-  "comingSoon": "Bientôt disponible"
+  "comingSoon": "Bientôt disponible",
+  "addDescription": "Ajouter une description...",
+  "thumbnailGenerated": "Miniature générée ✓"
 }

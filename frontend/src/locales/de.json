@@ -1888,7 +1888,7 @@
   "uploadError": "Upload-Fehler",
   "uploadFailed": "Upload fehlgeschlagen",
   "uploaded": "Hochgeladen",
-  "uploading": "Hochladen...",
+  "uploading": "Wird hochgeladen...",
   "urdu": "اردو",
   "useChromeForSpeech": "Chrome für Spracherkennung nutzen",
   "user": "Benutzer",
@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Geben Sie \"löschen\" zur Bestätigung ein",
   "deleteWord": "löschen",
   "dataWillBeDeleted": "Gelöscht werden: Ihre Beiträge, Kommentare, Likes, Lesezeichen und Follows",
-  "comingSoon": "Demnächst"
+  "comingSoon": "Demnächst",
+  "addDescription": "Beschreibung hinzufügen...",
+  "thumbnailGenerated": "Vorschaubild erstellt ✓"
 }

@@ -1380,7 +1380,7 @@
   "publishYourStory": "انشر قصتك الآن",
   "published": "تم النشر! ✨",
   "publishedSuccess": "تم النشر للجميع!",
-  "publishing": "جارٍ النشر...",
+  "publishing": "جاري النشر...",
   "pullDown": "اسحب",
   "purchaseFailed": "فشل الشراء",
   "purityDaysLegend": "فترة الطهارة",
@@ -2226,5 +2226,7 @@
   "nawawiH39Title": "رفع الخطأ والنسيان",
   "nawawiH40Title": "كن في الدنيا كأنك غريب",
   "textType": "نص",
-  "comingSoon": "قريباً"
+  "comingSoon": "قريباً",
+  "addDescription": "أضف وصف للمنشور...",
+  "thumbnailGenerated": "تم إنشاء الصورة المصغرة ✓"
 }

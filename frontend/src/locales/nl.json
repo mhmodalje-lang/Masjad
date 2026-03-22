@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Typ \"verwijderen\" om te bevestigen",
   "deleteWord": "verwijderen",
   "dataWillBeDeleted": "Wordt verwijderd: uw berichten, reacties, likes, bladwijzers en volgers",
-  "comingSoon": "Binnenkort"
+  "comingSoon": "Binnenkort",
+  "addDescription": "Beschrijving toevoegen...",
+  "thumbnailGenerated": "Miniatuur gegenereerd ✓"
 }

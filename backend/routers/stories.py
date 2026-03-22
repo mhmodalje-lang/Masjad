@@ -41,6 +41,7 @@ class CreateStoryRequest(BaseModel):
     image_url: Optional[str] = None
     video_url: Optional[str] = None
     embed_url: Optional[str] = None
+    thumbnail_url: Optional[str] = None
 
 @router.post("/stories/create")
 async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user)):
@@ -61,6 +62,7 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
         "image_url": data.image_url,
         "video_url": data.video_url,
         "embed_url": data.embed_url,
+        "thumbnail_url": data.thumbnail_url,
         "is_embed": data.media_type == "embed",
         "views_count": 0,
         "created_at": datetime.utcnow().isoformat(),
@@ -105,6 +107,9 @@ async def list_stories(category: str = "all", page: int = 1, limit: int = 20, us
         s["saved"] = pid in saves_set
         s["likes_count"] = likes_counts.get(pid, 0)
         s["comments_count"] = comments_counts.get(pid, 0)
+        # Ensure thumbnail_url field is always present for API consistency
+        if "thumbnail_url" not in s:
+            s["thumbnail_url"] = None
     return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
 
 @router.get("/stories/my-saved")
@@ -218,6 +223,9 @@ async def list_stories_translated(
         s["saved"] = pid in saves_set
         s["likes_count"] = likes_counts.get(pid, 0)
         s["comments_count"] = comments_counts.get(pid, 0)
+        # Ensure thumbnail_url field is always present for API consistency
+        if "thumbnail_url" not in s:
+            s["thumbnail_url"] = None
         # Apply translation if available and language is not source
         if language != "ar" and language in s.get("translations", {}):
             trans = s["translations"][language]

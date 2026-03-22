@@ -1369,7 +1369,7 @@
   "publishYourStory": "Опубликуйте свою историю",
   "published": "Опубликовано! ✨",
   "publishedSuccess": "Опубликовано для всех!",
-  "publishing": "Публикуется...",
+  "publishing": "Публикация...",
   "pullDown": "Потяните вниз",
   "purchaseFailed": "Покупка не удалась",
   "purityDaysLegend": "Дни чистоты",
@@ -2226,5 +2226,7 @@
   "typeDeleteToConfirm": "Введите \"удалить\" для подтверждения",
   "deleteWord": "удалить",
   "dataWillBeDeleted": "Будут удалены: ваши публикации, комментарии, лайки, закладки и подписки",
-  "comingSoon": "Скоро"
+  "comingSoon": "Скоро",
+  "addDescription": "Добавить описание...",
+  "thumbnailGenerated": "Миниатюра создана ✓"
 }
