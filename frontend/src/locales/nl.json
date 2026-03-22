@@ -2217,5 +2217,13 @@
   "nawawiH38Title": "Nabijheid tot Allah",
   "nawawiH39Title": "Vergeving van fouten",
   "nawawiH40Title": "Wees in deze wereld als een vreemdeling",
-  "textType": "Tekst"
+  "textType": "Tekst",
+  "deleteAccount": "Account verwijderen",
+  "deleteAccountConfirm": "Weet u zeker dat u uw account wilt verwijderen? Al uw gegevens worden permanent verwijderd.",
+  "deleteAccountTitle": "Account permanent verwijderen",
+  "deleteAccountSuccess": "Account succesvol verwijderd",
+  "deleteAccountError": "Fout bij het verwijderen van het account",
+  "typeDeleteToConfirm": "Typ \"verwijderen\" om te bevestigen",
+  "deleteWord": "verwijderen",
+  "dataWillBeDeleted": "Wordt verwijderd: uw berichten, reacties, likes, bladwijzers en volgers"
 }

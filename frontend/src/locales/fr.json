@@ -2217,5 +2217,13 @@
   "nawawiH38Title": "La proximité d'Allah",
   "nawawiH39Title": "Le pardon des erreurs",
   "nawawiH40Title": "Sois dans ce monde comme un étranger",
-  "textType": "Texte"
+  "textType": "Texte",
+  "deleteAccount": "Supprimer le compte",
+  "deleteAccountConfirm": "Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données seront définitivement supprimées.",
+  "deleteAccountTitle": "Supprimer le compte définitivement",
+  "deleteAccountSuccess": "Compte supprimé avec succès",
+  "deleteAccountError": "Erreur lors de la suppression du compte",
+  "typeDeleteToConfirm": "Tapez \"supprimer\" pour confirmer",
+  "deleteWord": "supprimer",
+  "dataWillBeDeleted": "Seront supprimés : vos publications, commentaires, likes, favoris et abonnements"
 }

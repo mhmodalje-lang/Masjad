@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { useNavigate } from 'react-router-dom';
 import { useSmartBack } from '@/hooks/useSmartBack';
-import { User, ArrowRight, ArrowLeft, Camera, Save, Loader2, Eye, EyeOff } from 'lucide-react';
+import { User, ArrowRight, ArrowLeft, Camera, Save, Loader2, Eye, EyeOff, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,9 @@ export default function Account() {
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth', { replace: true });
@@ -87,6 +90,31 @@ export default function Account() {
 
   if (loading) return (<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>);
   if (!user) return null;
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim().toLowerCase() !== t('deleteWord').toLowerCase()) {
+      toast.error(t('typeDeleteToConfirm'));
+      return;
+    }
+    setDeleting(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/auth/delete-account`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      if (r.ok) {
+        toast.success(t('deleteAccountSuccess'));
+        signOut();
+        navigate('/', { replace: true });
+      } else {
+        const d = await r.json();
+        toast.error(d.detail || t('deleteAccountError'));
+      }
+    } catch {
+      toast.error(t('deleteAccountError'));
+    }
+    setDeleting(false);
+  };
 
   const displayAvatar = avatarUrl ? (avatarUrl.startsWith('http') ? avatarUrl : `${BACKEND_URL}${avatarUrl}`) : '';
 
@@ -145,7 +173,56 @@ export default function Account() {
         <button onClick={() => { signOut(); navigate('/'); }} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-500 text-sm font-bold mt-4">
           {t('logout')}
         </button>
+
+        {/* Delete Account - Required by App Store & Play Store */}
+        <button onClick={() => setShowDeleteConfirm(true)}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl border border-red-600/30 bg-red-600/5 text-red-600 text-xs font-semibold mt-3 hover:bg-red-600/10 transition-colors">
+          <Trash2 className="h-3.5 w-3.5" />
+          {t('deleteAccount')}
+        </button>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-5" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-card rounded-2xl p-5 max-w-sm w-full border border-red-500/20 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              </div>
+              <h3 className="text-base font-bold text-foreground">{t('deleteAccountTitle')}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-3 leading-relaxed">{t('deleteAccountConfirm')}</p>
+            <p className="text-xs text-red-500/80 mb-4 bg-red-500/5 rounded-xl p-3 border border-red-500/10">
+              {t('dataWillBeDeleted')}
+            </p>
+            <label className="text-xs font-bold text-muted-foreground mb-1.5 block">
+              {t('typeDeleteToConfirm')}
+            </label>
+            <input
+              type="text"
+              dir="auto"
+              value={deleteConfirmText}
+              onChange={e => setDeleteConfirmText(e.target.value)}
+              placeholder={t('deleteWord')}
+              className="w-full h-11 rounded-xl bg-muted/30 border border-red-500/20 px-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-red-500/50 mb-4"
+            />
+            <div className="flex gap-2">
+              <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                className="flex-1 py-2.5 rounded-xl bg-muted/30 text-foreground text-sm font-bold">
+                {t('cancel')}
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting || deleteConfirmText.trim().toLowerCase() !== t('deleteWord').toLowerCase()}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold disabled:opacity-30 flex items-center justify-center gap-2">
+                {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                {t('deleteAccount')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

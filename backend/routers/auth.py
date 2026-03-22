@@ -168,6 +168,39 @@ async def get_me(user: dict = Depends(get_user)):
 async def logout():
     return {"message": "تم تسجيل الخروج"}
 
+@router.delete("/auth/delete-account")
+async def delete_account(user: dict = Depends(get_user)):
+    """Delete user account and all associated data - required by App Store & Play Store policies"""
+    if not user:
+        raise HTTPException(401, "غير مصادق")
+    uid = user["id"]
+    try:
+        # Delete user's posts/stories
+        await db.posts.delete_many({"author_id": uid})
+        # Delete user's comments
+        await db.comments.delete_many({"author_id": uid})
+        # Delete user's likes
+        await db.likes.delete_many({"user_id": uid})
+        # Delete user's saves/bookmarks
+        await db.saves.delete_many({"user_id": uid})
+        # Delete user's follows
+        await db.follows.delete_many({"$or": [{"follower_id": uid}, {"following_id": uid}]})
+        # Delete user's notifications
+        await db.notifications.delete_many({"$or": [{"user_id": uid}, {"from_user_id": uid}]})
+        # Delete user's messages
+        await db.messages.delete_many({"$or": [{"sender_id": uid}, {"receiver_id": uid}]})
+        # Delete user's points/rewards
+        await db.points.delete_many({"user_id": uid})
+        # Delete user's prayer tracking
+        await db.prayer_tracking.delete_many({"user_id": uid})
+        # Delete user account
+        await db.users.delete_one({"id": uid})
+        logger.info(f"Account deleted: {uid}")
+        return {"success": True, "message": "تم حذف الحساب وجميع البيانات بنجاح"}
+    except Exception as e:
+        logger.error(f"Error deleting account {uid}: {e}")
+        raise HTTPException(500, "حدث خطأ أثناء حذف الحساب")
+
 class UpdateProfileRequest(BaseModel):
     name: Optional[str] = None
     avatar: Optional[str] = None

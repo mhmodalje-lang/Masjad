@@ -2217,5 +2217,13 @@
   "nawawiH38Title": "Allah'a yakınlık",
   "nawawiH39Title": "Hata ve unutmanın affı",
   "nawawiH40Title": "Dünyada garip gibi ol",
-  "textType": "Metin"
+  "textType": "Metin",
+  "deleteAccount": "Hesabı Sil",
+  "deleteAccountConfirm": "Hesabınızı silmek istediğinizden emin misiniz? Tüm verileriniz kalıcı olarak silinecektir.",
+  "deleteAccountTitle": "Hesabı Kalıcı Olarak Sil",
+  "deleteAccountSuccess": "Hesap başarıyla silindi",
+  "deleteAccountError": "Hesap silinirken hata oluştu",
+  "typeDeleteToConfirm": "Onaylamak için \"sil\" yazın",
+  "deleteWord": "sil",
+  "dataWillBeDeleted": "Silinecekler: gönderileriniz, yorumlarınız, beğenileriniz, yer işaretleriniz ve takipleriniz"
 }

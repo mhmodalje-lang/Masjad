@@ -2217,5 +2217,13 @@
   "nawawiH38Title": "Närhet till Allah",
   "nawawiH39Title": "Förlåtelse av misstag",
   "nawawiH40Title": "Var i denna värld som en främling",
-  "textType": "Text"
+  "textType": "Text",
+  "deleteAccount": "Radera konto",
+  "deleteAccountConfirm": "Är du säker på att du vill radera ditt konto? All din data raderas permanent.",
+  "deleteAccountTitle": "Radera konto permanent",
+  "deleteAccountSuccess": "Kontot raderades",
+  "deleteAccountError": "Fel vid radering av konto",
+  "typeDeleteToConfirm": "Skriv \"radera\" för att bekräfta",
+  "deleteWord": "radera",
+  "dataWillBeDeleted": "Raderas: dina inlägg, kommentarer, gilla-markeringar, bokmärken och följningar"
 }

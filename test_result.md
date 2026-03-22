@@ -3,6 +3,12 @@
 ## User Problem Statement
 Fix Stories page UI: compact category icons (pills instead of big squares), smaller action buttons, better fitting for mobile screen, fix VideoReels buttons sizing, proper post-to-feed connection.
 
+### Current Task (July 2025):
+1. Remove up/down arrows from FullscreenViewer in Stories
+2. Move sound/volume button down to avoid overlap with other buttons
+3. Add account deletion feature (required by Play Store & App Store policies)
+4. Fix button linking - each button should work correctly (follow, comments, share, etc.)
+
 ## Testing Protocol
 - Backend APIs should be tested with curl or deep_testing_backend_v2
 - Frontend should be tested with auto_frontend_testing_agent
@@ -239,3 +245,59 @@ All critical issues have been verified and resolved:
 - ✅ All HTTP status codes returned correctly
 
 **Success Rate: 100% (5/5 tests passed)**
+
+---
+
+## AUTH DELETE ACCOUNT ENDPOINT TEST RESULTS (March 22, 2026)
+
+### DELETE /api/auth/delete-account Authentication Testing
+**Status: ✅ PASSED (4/4 tests)**
+
+**Backend URL:** https://story-central-9.preview.emergentagent.com
+
+| Test | Endpoint | Expected | Result | Status |
+|------|----------|----------|---------|---------|
+| Endpoint Existence | DELETE /api/auth/delete-account | 401 (not 404/405) | 401 Unauthorized | ✅ PASS |
+| No Auth Token | DELETE /api/auth/delete-account | 401/403 without auth | 401 Unauthorized | ✅ PASS |
+| Invalid Auth Token | DELETE /api/auth/delete-account | 401/403 invalid token | 401 Unauthorized | ✅ PASS |
+| Malformed Auth Header | DELETE /api/auth/delete-account | 401/403 malformed auth | 401 Unauthorized | ✅ PASS |
+
+**Test Details:**
+
+1. **✅ Endpoint Existence Check**
+   - Endpoint: `DELETE /api/auth/delete-account`
+   - Result: Returns 401 (not 404/405), confirming endpoint exists and requires authentication
+   - Response time: 0.257s
+
+2. **✅ No Authentication Token**
+   - Endpoint: `DELETE /api/auth/delete-account`
+   - Headers: None (no Authorization header)
+   - Result: Correctly returns 401 with Arabic message "غير مصادق" (Not authenticated)
+   - Response time: 0.160s
+
+3. **✅ Invalid Authentication Token**
+   - Endpoint: `DELETE /api/auth/delete-account`
+   - Headers: `Authorization: Bearer invalid_token_12345`
+   - Result: Correctly returns 401 with Arabic message "غير مصادق" (Not authenticated)
+   - Response time: 0.162s
+
+4. **✅ Malformed Authentication Header**
+   - Endpoint: `DELETE /api/auth/delete-account`
+   - Headers: `Authorization: InvalidFormat token123`
+   - Result: Correctly returns 401 with Arabic message "غير مصادق" (Not authenticated)
+   - Response time: 0.143s
+
+**Authentication Security Verified:**
+- ✅ Endpoint exists and is accessible
+- ✅ Properly rejects requests without authentication tokens
+- ✅ Properly rejects requests with invalid authentication tokens
+- ✅ Properly rejects requests with malformed authentication headers
+- ✅ Returns consistent error messages in Arabic
+- ✅ Fast response times (all under 0.3s)
+
+**Compliance Notes:**
+- ✅ Account deletion endpoint implemented as required by App Store & Play Store policies
+- ✅ Proper authentication security prevents unauthorized account deletions
+- ✅ Endpoint follows REST conventions (DELETE method for deletion)
+
+**Success Rate: 100% (4/4 tests passed)**

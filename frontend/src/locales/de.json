@@ -2217,5 +2217,13 @@
   "nawawiH38Title": "Nähe zu Allah",
   "nawawiH39Title": "Vergebung von Fehlern",
   "nawawiH40Title": "Sei in dieser Welt wie ein Fremder",
-  "textType": "Text"
+  "textType": "Text",
+  "deleteAccount": "Konto löschen",
+  "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Alle Ihre Daten werden dauerhaft gelöscht und können nicht wiederhergestellt werden.",
+  "deleteAccountTitle": "Konto dauerhaft löschen",
+  "deleteAccountSuccess": "Konto erfolgreich gelöscht",
+  "deleteAccountError": "Fehler beim Löschen des Kontos",
+  "typeDeleteToConfirm": "Geben Sie \"löschen\" zur Bestätigung ein",
+  "deleteWord": "löschen",
+  "dataWillBeDeleted": "Gelöscht werden: Ihre Beiträge, Kommentare, Likes, Lesezeichen und Follows"
 }

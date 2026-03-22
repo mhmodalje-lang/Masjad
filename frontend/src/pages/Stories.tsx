@@ -615,27 +615,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
         <div className="w-10" />
       </div>
 
-      {/* Previous Button */}
-      {idx > 0 && (
-        <button
-          onClick={goPrev}
-          className="absolute top-1/2 -translate-y-1/2 end-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
-          aria-label={t('previous') || 'Previous'}
-        >
-          <ChevronDown className="w-5 h-5 rotate-180" />
-        </button>
-      )}
-
-      {/* Next Button */}
-      {idx < stories.length - 1 && (
-        <button
-          onClick={goNext}
-          className="absolute bottom-24 end-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
-          aria-label={t('next') || 'Next'}
-        >
-          <ChevronDown className="w-5 h-5" />
-        </button>
-      )}
+      {/* Navigation arrows removed - swipe/scroll to navigate */}
 
       <div ref={containerRef} onScroll={handleScroll}
         className="h-full overflow-y-scroll snap-y snap-mandatory"
@@ -710,7 +690,7 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
       )}
 
       {/* Action buttons - vertical stack, end-aligned for RTL support */}
-      <div className="absolute end-2.5 bottom-24 flex flex-col items-center gap-3.5 z-20">
+      <div className="absolute end-2.5 bottom-32 flex flex-col items-center gap-3.5 z-20">
         <Link to={`/social-profile/${story.author_id}`}>
           <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-lg" />
         </Link>
@@ -725,10 +705,16 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         <button onClick={handleShare} className="flex flex-col items-center active:scale-90 transition-transform">
           <Share2 className="w-5 h-5 text-white drop-shadow-lg" />
         </button>
-        {(isVideo || ytId) && <button onClick={() => setMuted(!muted)} className="active:scale-90 transition-transform">
-          {muted ? <VolumeX className="w-4 h-4 text-white/50" /> : <Volume2 className="w-4 h-4 text-white/50" />}
-        </button>}
       </div>
+
+      {/* Mute button - separated below actions to avoid overlap */}
+      {(isVideo || ytId) && (
+        <div className="absolute end-3 bottom-16 z-20">
+          <button onClick={() => setMuted(!muted)} className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
+            {muted ? <VolumeX className="w-4 h-4 text-white/70" /> : <Volume2 className="w-4 h-4 text-white/70" />}
+          </button>
+        </div>
+      )}
 
       {/* Author info - start-aligned for RTL support */}
       <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
