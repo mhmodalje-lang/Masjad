@@ -37,7 +37,7 @@ SPONSORED_CONTENT = [
      "desc": {"ar": "أربعون حديثاً جامعاً لأصول الدين", "en": "40 comprehensive hadiths on Islam's foundations", "de": "40 umfassende Hadithe über die Grundlagen", "fr": "40 hadiths sur les fondements de l'Islam", "tr": "İslam'ın temelleri üzerine 40 hadis", "ru": "40 хадисов об основах Ислама", "sv": "40 hadither om Islams grunder", "nl": "40 hadith over de basis van de Islam", "el": "40 χαντίθ για τα θεμέλια"},
      "cta": {"ar": "ابدأ الحفظ", "en": "Start Memorizing", "de": "Auswendig lernen", "fr": "Commence à mémoriser", "tr": "Ezberlemeye başla", "ru": "Начать заучивать", "sv": "Börja memorera", "nl": "Begin met memoriseren", "el": "Ξεκίνα απομνημόνευση"},
      "color": "#EF4444", "icon": "📕", "coins_reward": 5, "placement": ["main", "duas"],
-     "target_route": "/stories"},
+     "target_route": "/forty-nawawi"},
 
     # ═══ ISLAMIC COURSES ═══
     {"id": "sp_tajweed_course", "category": "courses", "emoji": "🎓",

@@ -21,6 +21,14 @@ Test the main page (home page) of this Islamic app across all 9 languages to ver
 8. ✅ **Greek (el)** - LTR layout correct, text renders properly, bottom nav translated
 9. ✅ **French (fr)** - LTR layout correct, text renders properly
 
+### Fixes Applied:
+- ✅ Splash screen text centered with proper alignment for all languages
+- ✅ ChevronLeft/Right direction-aware across all 3 locations in Index.tsx
+- ✅ Calendar arrows fixed: < on left (prev), > on right (next)
+- ✅ Created dedicated /forty-nawawi page for 40 Nawawi Hadiths
+- ✅ Fixed sponsored content routes (الأربعون النووية → /forty-nawawi, رياض الصالحين → /stories, ذكر → /tasbeeh, charity → /donations)
+- ✅ Shortened bottom nav labels for long languages (de, ru, fr, sv, nl, el, tr)
+
 ### Chevron Arrows Testing:
 - ✅ Arabic (RTL): "More" links correctly show ChevronLeft (<) - 2 instances tested
 - ✅ English (LTR): "More" links correctly show ChevronRight (>) - 2 instances tested

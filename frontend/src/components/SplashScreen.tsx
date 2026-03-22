@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import i18n from '@/lib/i18nConfig';
+import { isRTL } from '@/lib/i18nConfig';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [visible, setVisible] = useState(true);
   const isDark = document.documentElement.classList.contains('dark');
+  const currentLang = i18n.language || 'ar';
+  const rtl = isRTL(currentLang);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,6 +22,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
       {visible && (
         <motion.div
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
+          dir={rtl ? 'rtl' : 'ltr'}
           style={{ background: isDark
             ? 'linear-gradient(135deg, #071a12 0%, #0d2a1c 40%, #051410 100%)'
             : 'linear-gradient(135deg, #F9FAFB 0%, #F0F5F0 40%, #F9FAFB 100%)'
@@ -50,8 +54,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             </svg>
           </div>
 
-          <h1 className={`relative z-10 text-3xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{i18n.t('appTitle')}</h1>
-          <p className={`relative z-10 text-sm ${isDark ? 'text-white/60' : 'text-gray-500'}`}>{i18n.t('appSubtitle')}</p>
+          <h1 className={`relative z-10 text-3xl font-bold mb-3 text-center px-8 ${isDark ? 'text-white' : 'text-gray-900'}`}>{i18n.t('appTitle')}</h1>
+          <p className={`relative z-10 text-sm text-center px-10 max-w-[320px] leading-relaxed ${isDark ? 'text-white/60' : 'text-gray-500'}`}>{i18n.t('appSubtitle')}</p>
         </motion.div>
       )}
     </AnimatePresence>

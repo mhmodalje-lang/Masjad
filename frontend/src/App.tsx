@@ -70,6 +70,7 @@ const KidsZone = lazy(() => import("./pages/KidsZone"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const BarakaMarket = lazy(() => import("./pages/BarakaMarket"));
 const Tafsir = lazy(() => import("./pages/Tafsir"));
+const FortyNawawi = lazy(() => import("./pages/FortyNawawi"));
 
 const queryClient = new QueryClient();
 
@@ -162,6 +163,7 @@ const App = () => {
                           <Route path="/kids-zone" element={<KidsZone />} />
                           <Route path="/baraka-market" element={<BarakaMarket />} />
                           <Route path="/tafsir" element={<Tafsir />} />
+                          <Route path="/forty-nawawi" element={<FortyNawawi />} />
                           <Route path="/live-streams" element={<LiveStreams />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
