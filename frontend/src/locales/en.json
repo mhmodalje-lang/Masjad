@@ -1050,7 +1050,6 @@
   "deleteAccountError": "Error deleting account",
   "typeDeleteToConfirm": "Type 'delete' to confirm",
   "deleteWord": "delete",
-  "cancel": "Cancel",
   "dataWillBeDeleted": "Will be deleted: your posts, comments, likes, bookmarks, and follows",
   "lowAccuracy": "Low accuracy - calibrate by moving phone in figure 8",
   "lowAccuracyCalibrate": "Low accuracy - please calibrate",
@@ -2226,5 +2225,6 @@
   "nawawiH38Title": "Closeness to Allah",
   "nawawiH39Title": "Forgiveness of mistakes and forgetfulness",
   "nawawiH40Title": "Be in this world as a stranger",
-  "textType": "Text"
+  "textType": "Text",
+  "comingSoon": "Coming soon"
 }

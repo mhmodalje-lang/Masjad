@@ -421,7 +421,7 @@ function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, getMed
         </button>
 
         {/* Gift */}
-        <button className="flex flex-col items-center active:scale-90 transition-transform">
+        <button onClick={() => toast(t('comingSoon') || 'Coming soon')} className="flex flex-col items-center active:scale-90 transition-transform">
           <Gift className="w-6 h-6 text-white drop-shadow-lg" />
           <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">0</span>
         </button>

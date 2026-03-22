@@ -2225,5 +2225,6 @@
   "deleteAccountError": "Erreur lors de la suppression du compte",
   "typeDeleteToConfirm": "Tapez \"supprimer\" pour confirmer",
   "deleteWord": "supprimer",
-  "dataWillBeDeleted": "Seront supprimés : vos publications, commentaires, likes, favoris et abonnements"
+  "dataWillBeDeleted": "Seront supprimés : vos publications, commentaires, likes, favoris et abonnements",
+  "comingSoon": "Bientôt disponible"
 }

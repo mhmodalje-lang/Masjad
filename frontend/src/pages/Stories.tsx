@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, X, Loader2, Image, Video,
   BookOpen, Plus, Eye, ArrowRight, ArrowLeft, Share2, Bookmark, Film,
   Play, Volume2, VolumeX, Trash2, Reply, Search, Users,
-  ChevronDown, TrendingUp, Flame, Star, Clock, Hash, Lock
+  TrendingUp, Flame, Star, Clock, Hash, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -582,26 +582,6 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
       containerRef.current.scrollTo({ top: initialIndex * containerRef.current.clientHeight, behavior: 'auto' });
     }
   }, []);
-
-  const goNext = useCallback(() => {
-    if (idx < stories.length - 1) {
-      const newIdx = idx + 1;
-      setIdx(newIdx);
-      if (containerRef.current) {
-        containerRef.current.scrollTo({ top: newIdx * containerRef.current.clientHeight, behavior: 'smooth' });
-      }
-    }
-  }, [idx, stories.length]);
-
-  const goPrev = useCallback(() => {
-    if (idx > 0) {
-      const newIdx = idx - 1;
-      setIdx(newIdx);
-      if (containerRef.current) {
-        containerRef.current.scrollTo({ top: newIdx * containerRef.current.clientHeight, behavior: 'smooth' });
-      }
-    }
-  }, [idx]);
 
   if (!story) return null;
 

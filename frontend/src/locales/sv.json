@@ -2225,5 +2225,6 @@
   "deleteAccountError": "Fel vid radering av konto",
   "typeDeleteToConfirm": "Skriv \"radera\" för att bekräfta",
   "deleteWord": "radera",
-  "dataWillBeDeleted": "Raderas: dina inlägg, kommentarer, gilla-markeringar, bokmärken och följningar"
+  "dataWillBeDeleted": "Raderas: dina inlägg, kommentarer, gilla-markeringar, bokmärken och följningar",
+  "comingSoon": "Kommer snart"
 }

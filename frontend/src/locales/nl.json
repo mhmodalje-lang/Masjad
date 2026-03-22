@@ -2225,5 +2225,6 @@
   "deleteAccountError": "Fout bij het verwijderen van het account",
   "typeDeleteToConfirm": "Typ \"verwijderen\" om te bevestigen",
   "deleteWord": "verwijderen",
-  "dataWillBeDeleted": "Wordt verwijderd: uw berichten, reacties, likes, bladwijzers en volgers"
+  "dataWillBeDeleted": "Wordt verwijderd: uw berichten, reacties, likes, bladwijzers en volgers",
+  "comingSoon": "Binnenkort"
 }

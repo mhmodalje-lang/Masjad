@@ -1050,7 +1050,6 @@
   "deleteAccountError": "حدث خطأ أثناء حذف الحساب",
   "typeDeleteToConfirm": "اكتب 'حذف' للتأكيد",
   "deleteWord": "حذف",
-  "cancel": "إلغاء",
   "dataWillBeDeleted": "سيتم حذف: منشوراتك، تعليقاتك، إعجاباتك، محفوظاتك، ومتابعاتك",
   "lowAccuracy": "دقة البوصلة منخفضة - حرّك الهاتف بشكل رقم 8",
   "lowAccuracyCalibrate": "دقة منخفضة - يرجى المعايرة",
@@ -2226,5 +2225,6 @@
   "nawawiH38Title": "ولاية الله",
   "nawawiH39Title": "رفع الخطأ والنسيان",
   "nawawiH40Title": "كن في الدنيا كأنك غريب",
-  "textType": "نص"
+  "textType": "نص",
+  "comingSoon": "قريباً"
 }

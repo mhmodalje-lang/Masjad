@@ -2225,5 +2225,6 @@
   "deleteAccountError": "Fehler beim Löschen des Kontos",
   "typeDeleteToConfirm": "Geben Sie \"löschen\" zur Bestätigung ein",
   "deleteWord": "löschen",
-  "dataWillBeDeleted": "Gelöscht werden: Ihre Beiträge, Kommentare, Likes, Lesezeichen und Follows"
+  "dataWillBeDeleted": "Gelöscht werden: Ihre Beiträge, Kommentare, Likes, Lesezeichen und Follows",
+  "comingSoon": "Demnächst"
 }
