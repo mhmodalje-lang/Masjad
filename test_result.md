@@ -189,7 +189,7 @@ All critical issues have been verified and resolved:
 ### STORIES API TESTING - Video Upload and Creation Flow
 **Status: ✅ PASSED (5/5 tests)**
 
-**Backend URL:** https://video-hub-pro-4.preview.emergentagent.com
+**Backend URL:** https://story-central-9.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
