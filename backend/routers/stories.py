@@ -35,16 +35,19 @@ async def get_story_categories():
 
 class CreateStoryRequest(BaseModel):
     title: Optional[str] = None
-    content: str = Field(..., min_length=1, max_length=10000)
+    content: str = Field(default="", max_length=10000)
     category: str = "istighfar"
     media_type: str = "text"  # text, image, video, embed
     image_url: Optional[str] = None
+    video_url: Optional[str] = None
     embed_url: Optional[str] = None
 
 @router.post("/stories/create")
 async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user)):
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول للنشر")
+    if not data.content.strip() and not data.image_url and not data.video_url and not data.embed_url:
+        raise HTTPException(400, "يجب إضافة محتوى أو وسائط")
     post_id = str(uuid.uuid4())
     story = {
         "id": post_id,
@@ -52,10 +55,11 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
         "author_name": user.get("name", "مستخدم"),
         "author_avatar": user.get("avatar"),
         "title": data.title or "",
-        "content": data.content,
+        "content": data.content or data.title or "",
         "category": data.category,
         "media_type": data.media_type,
         "image_url": data.image_url,
+        "video_url": data.video_url,
         "embed_url": data.embed_url,
         "is_embed": data.media_type == "embed",
         "views_count": 0,
@@ -174,6 +178,54 @@ async def auto_categorize_story(data: dict, user: dict = Depends(get_user)):
     except Exception as e:
         logging.error(f"AI categorize error: {e}")
         return {"category": "general"}
+
+@router.get("/stories/list-translated")
+async def list_stories_translated(
+    category: str = "all",
+    page: int = 1,
+    limit: int = 20,
+    language: str = Query("ar"),
+    user: dict = Depends(get_user)
+):
+    """List stories with translated content for the requested language."""
+    query = {"is_story": True}
+    if category != "all":
+        query["category"] = category
+    skip = (page - 1) * limit
+    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    stories = await cursor.to_list(length=limit)
+    total = await db.posts.count_documents(query)
+    
+    # Enrich with likes/saves/comments
+    post_ids = [s["id"] for s in stories]
+    user_id = user["id"] if user else None
+    likes_set, saves_set = set(), set()
+    if user_id and post_ids:
+        ul = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        likes_set = {d["post_id"] for d in ul}
+        us = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
+        saves_set = {d["post_id"] for d in us}
+    likes_counts, comments_counts = {}, {}
+    if post_ids:
+        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            likes_counts[doc["_id"]] = doc["c"]
+        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
+            comments_counts[doc["_id"]] = doc["c"]
+    
+    for s in stories:
+        pid = s["id"]
+        s["liked"] = pid in likes_set
+        s["saved"] = pid in saves_set
+        s["likes_count"] = likes_counts.get(pid, 0)
+        s["comments_count"] = comments_counts.get(pid, 0)
+        # Apply translation if available and language is not source
+        if language != "ar" and language in s.get("translations", {}):
+            trans = s["translations"][language]
+            s["title"] = trans.get("title", s.get("title", ""))
+            s["content"] = trans.get("content", s.get("content", ""))
+        s.pop("translations", None)  # Don't send all translations to client
+    
+    return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
 
 @router.get("/stories/{story_id}")
 async def get_story(story_id: str, user: dict = Depends(get_user)):
@@ -370,6 +422,21 @@ async def voice_search_stories(data: dict, user: dict = Depends(get_user)):
 
 ADMIN_EMAILS = ['mohammadalrejab@gmail.com']
 
+# Supported languages for translation
+SUPPORTED_LANGUAGES = ["ar", "en", "de", "ru", "fr", "tr", "sv", "nl", "el"]
+
+# Language names mapping
+LANGUAGE_NAMES = {
+    "ar": "Arabic",
+    "en": "English", 
+    "de": "German",
+    "ru": "Russian",
+    "fr": "French",
+    "tr": "Turkish",
+    "sv": "Swedish",
+    "nl": "Dutch",
+    "el": "Greek"
+}
 
 async def translate_text_ai(text: str, source_lang: str, target_lang: str) -> str:
     """Translate text using OpenAI GPT with Islamic context."""
@@ -422,54 +489,6 @@ async def translate_story_content(
     
     return {"translated": True, "title": title, "content": content}
 
-
-@router.get("/stories/list-translated")
-async def list_stories_translated(
-    category: str = "all",
-    page: int = 1,
-    limit: int = 20,
-    language: str = Query("ar"),
-    user: dict = Depends(get_user)
-):
-    """List stories with translated content for the requested language."""
-    query = {"is_story": True}
-    if category != "all":
-        query["category"] = category
-    skip = (page - 1) * limit
-    cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
-    stories = await cursor.to_list(length=limit)
-    total = await db.posts.count_documents(query)
-    
-    # Enrich with likes/saves/comments
-    post_ids = [s["id"] for s in stories]
-    user_id = user["id"] if user else None
-    likes_set, saves_set = set(), set()
-    if user_id and post_ids:
-        ul = await db.likes.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
-        likes_set = {d["post_id"] for d in ul}
-        us = await db.saves.find({"post_id": {"$in": post_ids}, "user_id": user_id}, {"_id": 0, "post_id": 1}).to_list(None)
-        saves_set = {d["post_id"] for d in us}
-    likes_counts, comments_counts = {}, {}
-    if post_ids:
-        async for doc in db.likes.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
-            likes_counts[doc["_id"]] = doc["c"]
-        async for doc in db.comments.aggregate([{"$match": {"post_id": {"$in": post_ids}}}, {"$group": {"_id": "$post_id", "c": {"$sum": 1}}}]):
-            comments_counts[doc["_id"]] = doc["c"]
-    
-    for s in stories:
-        pid = s["id"]
-        s["liked"] = pid in likes_set
-        s["saved"] = pid in saves_set
-        s["likes_count"] = likes_counts.get(pid, 0)
-        s["comments_count"] = comments_counts.get(pid, 0)
-        # Apply translation if available and language is not source
-        if language != "ar" and language in s.get("translations", {}):
-            trans = s["translations"][language]
-            s["title"] = trans.get("title", s.get("title", ""))
-            s["content"] = trans.get("content", s.get("content", ""))
-        s.pop("translations", None)  # Don't send all translations to client
-    
-    return {"stories": stories, "total": total, "page": page, "has_more": skip + limit < total}
 
 
 @router.post("/stories/batch-translate")

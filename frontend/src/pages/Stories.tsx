@@ -70,6 +70,29 @@ function avatar(name: string, img?: string) {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(name || '?')}&background=047857&color=fff&size=80&bold=true&font-size=0.4`;
 }
 
+/** Get the actual video source URL for a story */
+function getVideoSrc(s: { video_url?: string; image_url?: string; media_type?: string; content_type?: string }) {
+  const vUrl = getMediaUrl(s.video_url);
+  if (vUrl) return vUrl;
+  // Fallback: if media_type is video but URL is in image_url
+  if (s.media_type === 'video' || s.content_type?.includes('video')) {
+    const iUrl = getMediaUrl(s.image_url);
+    if (iUrl && /\.(mp4|webm|mov|m4v)/i.test(iUrl)) return iUrl;
+  }
+  return null;
+}
+
+/** Check if a story is a video type */
+function isVideoStory(s: { is_embed?: boolean; media_type?: string; content_type?: string; embed_url?: string; video_url?: string; image_url?: string }) {
+  if (s.is_embed || s.media_type === 'embed') return true;
+  if (s.media_type === 'video') return true;
+  if (s.content_type?.includes('video')) return true;
+  if (s.video_url) return true;
+  const iUrl = s.image_url || '';
+  if (/\.(mp4|webm|mov|m4v)/i.test(iUrl)) return true;
+  return false;
+}
+
 /* ==================== COMMENTS SHEET ==================== */
 function CommentsSheet({ storyId, onClose, onCountChange }: {
   storyId: string; onClose: () => void; onCountChange: (delta: number) => void;
@@ -207,8 +230,9 @@ function CreateSheet({ categories, onClose, onCreated }: {
   };
 
   const submit = async () => {
-    if (!content.trim() && !embedUrl.trim()) { toast.error(t('writeFirst')); return; }
     if (!user) { toast.error(t('loginFirst')); return; }
+    // Allow video/image-only posts (no text required)
+    if (!content.trim() && !embedUrl.trim() && !file) { toast.error(t('writeFirst')); return; }
     setSubmitting(true);
     try {
       let imageUrl: string | null = null;
@@ -225,32 +249,36 @@ function CreateSheet({ categories, onClose, onCreated }: {
         } else { toast.error(t('uploadFailed')); setSubmitting(false); return; }
       }
 
-      // Handle embed (YouTube etc) - admin only
+      // Build the body
+      const storyBody: Record<string, string | undefined> = {
+        content: content.trim() || title.trim() || (file ? file.name : '') || 'محتوى جديد',
+        category,
+        title: title.trim() || undefined,
+      };
+
       if (contentType === 'embed' && embedUrl.trim()) {
-        const body: any = {
-          content: content.trim() || embedUrl,
-          category,
-          embed_url: embedUrl.trim(),
-          media_type: 'embed',
-          title: title.trim() || '',
-        };
-        const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) });
-        const d = await r.json();
-        if (d.story) { onCreated(d.story); onClose(); toast.success(t('publishSuccess')); }
-        else toast.error(d.detail || t('publishFailed'));
+        storyBody.embed_url = embedUrl.trim();
+        storyBody.media_type = 'embed';
+      } else if (videoUrl) {
+        storyBody.video_url = videoUrl;
+        storyBody.media_type = 'video';
+      } else if (imageUrl) {
+        storyBody.image_url = imageUrl;
+        storyBody.media_type = 'image';
       } else {
-        // Create story via correct endpoint
-        const storyBody: any = {
-          content: content.trim(),
-          category,
-          title: title.trim() || '',
-          image_url: imageUrl || (videoUrl ? videoUrl : undefined),
-          media_type: videoUrl ? 'video' : imageUrl ? 'image' : 'text',
-        };
-        const r = await fetch(`${BACKEND_URL}/api/stories/create`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(storyBody) });
-        const d = await r.json();
-        if (d.story) { onCreated(d.story); onClose(); toast.success(t('publishSuccess')); }
-        else toast.error(d.detail || t('publishFailed'));
+        storyBody.media_type = 'text';
+      }
+
+      const r = await fetch(`${BACKEND_URL}/api/stories/create`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify(storyBody)
+      });
+      const d = await r.json();
+      if (d.story) {
+        onCreated(d.story);
+        onClose();
+        toast.success(t('publishSuccess'));
+      } else {
+        toast.error(d.detail || t('publishFailed'));
       }
     } catch (err) { toast.error(t('errorOccurred')); console.error(err); }
     setSubmitting(false);
@@ -394,8 +422,9 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
-  const mediaUrl = getMediaUrl(story.image_url);
-  const isVideo = story.media_type === 'video' || story.content_type?.includes('video') || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
+  const videoSrc = getVideoSrc(story);
+  const imgUrl = getMediaUrl(story.image_url);
+  const isVideo = !!videoSrc;
 
   const toggleLike = async () => {
     if (!user) { toast.error(t('loginRequired')); return; }
@@ -465,10 +494,10 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
         </div>
       ) : isEmbed && story.embed_url ? (
         <div className="w-full aspect-video bg-black"><iframe src={story.embed_url} className="w-full h-full" frameBorder={0} allowFullScreen /></div>
-      ) : isVideo && mediaUrl ? (
-        <div className="w-full aspect-video bg-black"><video src={mediaUrl} className="w-full h-full object-contain" controls autoPlay playsInline /></div>
-      ) : mediaUrl ? (
-        <div className="w-full max-h-80 overflow-hidden"><img src={mediaUrl} alt="" className="w-full object-cover" /></div>
+      ) : isVideo && videoSrc ? (
+        <div className="w-full aspect-video bg-black"><video src={videoSrc} className="w-full h-full object-contain" controls autoPlay playsInline /></div>
+      ) : imgUrl ? (
+        <div className="w-full max-h-80 overflow-hidden"><img src={imgUrl} alt="" className="w-full object-cover" /></div>
       ) : null}
 
       {/* Author */}
@@ -630,8 +659,9 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
-  const mediaUrl = getMediaUrl(story.image_url || story.video_url);
-  const isVideo = story.media_type === 'video' || story.content_type?.includes('video') || (mediaUrl && /\.(mp4|webm|mov)/i.test(mediaUrl));
+  const videoSrc = getVideoSrc(story);
+  const imgUrl = getMediaUrl(story.image_url);
+  const isVideo = !!videoSrc;
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -648,26 +678,39 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
     } catch {}
   };
 
+  const handleShare = async () => {
+    try {
+      await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/share`, { method: 'POST', headers: authHeaders() });
+    } catch {}
+    if (navigator.share) {
+      navigator.share({ title: story.title || '', text: story.content }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(story.content);
+      toast.success(t('contentCopied'));
+    }
+  };
+
   return (
-    <div className="h-screen w-full snap-start relative flex items-center justify-center bg-black">
+    <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
       {ytId ? (
-        <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0`}
+        <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0&playsinline=1`}
           className="absolute inset-0 w-full h-full" frameBorder={0} allow="autoplay; encrypted-media" />
-      ) : isVideo && mediaUrl ? (
-        <video ref={videoRef} src={mediaUrl} className="absolute inset-0 w-full h-full object-contain" loop muted={muted} playsInline />
-      ) : mediaUrl ? (
-        <div className="absolute inset-0"><img src={mediaUrl} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/30" /></div>
+      ) : isVideo && videoSrc ? (
+        <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-contain" loop muted={muted} playsInline />
+      ) : imgUrl ? (
+        <div className="absolute inset-0"><img src={imgUrl} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/30" /></div>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black" />
       )}
 
       {story.content && (
-        <div className="absolute inset-x-0 bottom-32 px-6 z-10 pointer-events-none" dir={dir}>
+        <div className="absolute inset-x-0 bottom-28 px-6 z-10 pointer-events-none" dir={dir}>
           <p className="text-white text-lg font-bold leading-relaxed drop-shadow-lg text-center">{story.content}</p>
         </div>
       )}
 
-      <div className="absolute start-2.5 bottom-24 flex flex-col items-center gap-4 z-20">
+      {/* Action buttons - vertical stack, end-aligned for RTL support */}
+      <div className="absolute end-2.5 bottom-24 flex flex-col items-center gap-3.5 z-20">
         <Link to={`/social-profile/${story.author_id}`}>
           <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-lg" />
         </Link>
@@ -679,15 +722,16 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
           <MessageCircle className="w-6 h-6 text-white drop-shadow-lg" />
           <span className="text-white text-[10px] mt-0.5 font-bold">{story.comments_count}</span>
         </button>
-        <button className="flex flex-col items-center active:scale-90 transition-transform">
+        <button onClick={handleShare} className="flex flex-col items-center active:scale-90 transition-transform">
           <Share2 className="w-5 h-5 text-white drop-shadow-lg" />
         </button>
-        {isVideo && <button onClick={() => setMuted(!muted)} className="active:scale-90 transition-transform">
+        {(isVideo || ytId) && <button onClick={() => setMuted(!muted)} className="active:scale-90 transition-transform">
           {muted ? <VolumeX className="w-4 h-4 text-white/50" /> : <Volume2 className="w-4 h-4 text-white/50" />}
         </button>}
       </div>
 
-      <div className="absolute bottom-4 end-3 start-14 z-20" dir={dir}>
+      {/* Author info - start-aligned for RTL support */}
+      <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
           <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
@@ -871,7 +915,7 @@ export default function Stories() {
       // Fetch story if not in current list
       return <StoryReaderFetch storyId={selectedStoryId} onBack={handleBackFromStory} stories={stories} />;
     }
-    const videoStories = stories.filter(s => s.is_embed || s.media_type === 'embed' || s.media_type === 'video' || s.content_type?.includes('video'));
+    const videoStories = stories.filter(s => isVideoStory(s));
     const vidIdx = videoStories.findIndex(v => v.id === story.id);
     return (
       <>
@@ -890,8 +934,8 @@ export default function Stories() {
     return 0;
   });
 
-  const videoStories = stories.filter(s => s.is_embed || s.media_type === 'embed' || s.media_type === 'video' || s.content_type?.includes('video'));
-  const textStories = stories.filter(s => !s.is_embed && s.media_type !== 'embed' && s.media_type !== 'video' && !s.content_type?.includes('video'));
+  const videoStories = stories.filter(s => isVideoStory(s));
+  const textStories = stories.filter(s => !isVideoStory(s));
 
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir} data-testid="stories-page">
