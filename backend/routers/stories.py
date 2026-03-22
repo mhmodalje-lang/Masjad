@@ -16,6 +16,19 @@ import json as json_module
 
 router = APIRouter(tags=["Stories"])
 
+STORY_CATEGORIES = [
+    {"key": "general", "label": "عام", "labelKey": "storyCatGeneral", "emoji": "📝", "icon": "file-text", "color": "#64748b"},
+    {"key": "istighfar", "label": "قصص الاستغفار", "labelKey": "storyCatIstighfar", "emoji": "🤲", "icon": "sparkles", "color": "#10b981"},
+    {"key": "sahaba", "label": "قصص الصحابة", "labelKey": "storyCatSahaba", "emoji": "📖", "icon": "book", "color": "#f59e0b"},
+    {"key": "quran", "label": "قصص القرآن", "labelKey": "storyCatQuran", "emoji": "📗", "icon": "book-open", "color": "#059669"},
+    {"key": "prophets", "label": "قصص الأنبياء", "labelKey": "storyCatProphets", "emoji": "🌟", "icon": "star", "color": "#8b5cf6"},
+    {"key": "ruqyah", "label": "قصص الرقية", "labelKey": "storyCatRuqyah", "emoji": "🛡️", "icon": "shield", "color": "#3b82f6"},
+    {"key": "rizq", "label": "قصص الرزق", "labelKey": "storyCatRizq", "emoji": "✨", "icon": "coins", "color": "#eab308"},
+    {"key": "tawba", "label": "قصص التوبة", "labelKey": "storyCatTawba", "emoji": "💚", "icon": "heart", "color": "#22c55e"},
+    {"key": "miracles", "label": "معجزات وعبر", "labelKey": "storyCatMiracles", "emoji": "🌙", "icon": "moon", "color": "#6366f1"},
+    {"key": "embed", "label": "فيديوهات", "labelKey": "storyCatEmbed", "emoji": "🎬", "icon": "film", "color": "#ef4444"},
+]
+
 @router.get("/stories/categories")
 async def get_story_categories():
     return {"categories": STORY_CATEGORIES}

@@ -207,7 +207,7 @@ async def get_daily_dua():
     """Get AI-generated daily dua"""
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"daily-dua-{date.today().isoformat()}", system_message="أنت عالم إسلامي. أعط أدعية صحيحة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
         prompt = """اختر دعاء إسلامي صحيح من القرآن أو السنة. أعطني:
 1. نص الدعاء بالعربية فقط
 2. المصدر (القرآن أو الحديث)
@@ -229,7 +229,7 @@ async def get_verse_of_day(language: str = Query("ar")):
     """Get AI-selected verse of the day with translation"""
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"verse-of-day-{language}-{date.today().isoformat()}", system_message="أنت عالم قرآن. أعط آيات ملهمة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
         
         lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
         
@@ -282,7 +282,7 @@ async def get_hadith_of_day(language: str = Query("ar")):
     """Get AI-selected hadith of the day with translation"""
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY).with_model("gemini", "gemini-2.0-flash")
+        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"hadith-of-day-{language}-{date.today().isoformat()}", system_message="أنت عالم حديث. أعط أحاديث صحيحة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
         
         lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
         

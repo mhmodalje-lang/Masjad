@@ -16,6 +16,27 @@ import json as json_module
 
 router = APIRouter(tags=["Kids Zone"])
 
+# ═══ Constants ═══
+MOSQUE_STAGES = [
+    {"stage": "foundation", "bricks_needed": 0, "emoji": "🧱", "name_key": "mosque_foundation"},
+    {"stage": "walls", "bricks_needed": 50, "emoji": "🏗️", "name_key": "mosque_walls"},
+    {"stage": "pillars", "bricks_needed": 120, "emoji": "🏛️", "name_key": "mosque_pillars"},
+    {"stage": "dome_base", "bricks_needed": 200, "emoji": "⛪", "name_key": "mosque_dome_base"},
+    {"stage": "dome", "bricks_needed": 300, "emoji": "🕌", "name_key": "mosque_dome"},
+    {"stage": "minaret", "bricks_needed": 450, "emoji": "🗼", "name_key": "mosque_minaret"},
+    {"stage": "garden", "bricks_needed": 600, "emoji": "🌳", "name_key": "mosque_garden"},
+    {"stage": "golden_dome", "bricks_needed": 800, "emoji": "✨", "name_key": "mosque_golden_dome"},
+    {"stage": "complete", "bricks_needed": 1000, "emoji": "🕋", "name_key": "mosque_complete"},
+]
+
+DIFFICULTY_TIERS = [
+    {"name": "beginner", "min_xp": 0, "emoji": "🌱"},
+    {"name": "intermediate", "min_xp": 100, "emoji": "📖"},
+    {"name": "advanced", "min_xp": 300, "emoji": "⭐"},
+    {"name": "expert", "min_xp": 600, "emoji": "🌟"},
+    {"name": "master", "min_xp": 1000, "emoji": "💎"},
+]
+
 def get_difficulty_tier(total_xp: int) -> dict:
     tier = DIFFICULTY_TIERS[0]
     for t in DIFFICULTY_TIERS:

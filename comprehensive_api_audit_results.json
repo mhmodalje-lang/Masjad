@@ -1,0 +1,174 @@
+{
+  "timestamp": "2026-03-22 05:28:08",
+  "summary": {
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "success_rate": 100.0,
+    "failed_tests": []
+  },
+  "detailed_results": [
+    {
+      "test": "Core API Root",
+      "status": "PASSED",
+      "response_time": "0.099s",
+      "details": "Message: أذان وحكاية API, Version: 3.0"
+    },
+    {
+      "test": "Health Check",
+      "status": "PASSED",
+      "response_time": "0.100s",
+      "details": "Status: healthy"
+    },
+    {
+      "test": "Stories Categories",
+      "status": "PASSED",
+      "response_time": "0.095s",
+      "details": "Found 10 categories"
+    },
+    {
+      "test": "Stories List",
+      "status": "PASSED",
+      "response_time": "0.095s",
+      "details": "Found 0 stories, total: 0"
+    },
+    {
+      "test": "AI Verse of Day (AR)",
+      "status": "PASSED",
+      "response_time": "0.104s",
+      "details": "Verse from الطلاق"
+    },
+    {
+      "test": "AI Hadith of Day (AR)",
+      "status": "PASSED",
+      "response_time": "0.113s",
+      "details": "Hadith from صحيح البخاري"
+    },
+    {
+      "test": "AI Daily Dua",
+      "status": "PASSED",
+      "response_time": "0.103s",
+      "details": "Dua from سورة البقرة 201"
+    },
+    {
+      "test": "Prayer Times",
+      "status": "PASSED",
+      "response_time": "0.382s",
+      "details": "Found 5 prayer times"
+    },
+    {
+      "test": "Quran Chapters",
+      "status": "PASSED",
+      "response_time": "0.256s",
+      "details": "Found 114 chapters"
+    },
+    {
+      "test": "Quran Verses by Chapter",
+      "status": "PASSED",
+      "response_time": "0.175s",
+      "details": "Found 7 verses in chapter 1"
+    },
+    {
+      "test": "Quran Surah",
+      "status": "PASSED",
+      "response_time": "0.367s",
+      "details": "Surah: سُورَةُ ٱلْفَاتِحَةِ"
+    },
+    {
+      "test": "Daily Hadith (AR)",
+      "status": "PASSED",
+      "response_time": "0.219s",
+      "details": "Hadith from سنن النسائي"
+    },
+    {
+      "test": "Daily Hadith (EN)",
+      "status": "PASSED",
+      "response_time": "0.117s",
+      "details": "Hadith from Sunan An-Nasa'i"
+    },
+    {
+      "test": "Kids Zone Journey",
+      "status": "PASSED",
+      "response_time": "0.106s",
+      "details": "Found 5 worlds"
+    },
+    {
+      "test": "Kids Zone Mosque",
+      "status": "PASSED",
+      "response_time": "0.105s",
+      "details": "Mosque stage: foundation"
+    },
+    {
+      "test": "Kids Learn Curriculum",
+      "status": "PASSED",
+      "response_time": "0.102s",
+      "details": "Found 15 curriculum stages"
+    },
+    {
+      "test": "Kids Learn Alphabet",
+      "status": "PASSED",
+      "response_time": "0.095s",
+      "details": "Found 28 alphabet letters"
+    },
+    {
+      "test": "Baraka Wallet",
+      "status": "PASSED",
+      "response_time": "0.099s",
+      "details": "Coins: 0, Bricks: 0"
+    },
+    {
+      "test": "Baraka Leaderboard",
+      "status": "PASSED",
+      "response_time": "0.100s",
+      "details": "Found 2 users"
+    },
+    {
+      "test": "Baraka Transactions",
+      "status": "PASSED",
+      "response_time": "0.098s",
+      "details": "Found 0 transactions"
+    },
+    {
+      "test": "Sohba Feed Videos",
+      "status": "PASSED",
+      "response_time": "0.102s",
+      "details": "Found 0 videos/posts"
+    },
+    {
+      "test": "Sohba Posts",
+      "status": "PASSED",
+      "response_time": "0.097s",
+      "details": "Found 0 posts"
+    },
+    {
+      "test": "Ads Content",
+      "status": "PASSED",
+      "response_time": "0.106s",
+      "details": "Ads content retrieved successfully"
+    },
+    {
+      "test": "Ad Config",
+      "status": "PASSED",
+      "response_time": "0.102s",
+      "details": "Config retrieved with ads_enabled: True"
+    },
+    {
+      "test": "Store Items",
+      "status": "PASSED",
+      "response_time": "0.123s",
+      "details": "Found 6 store items"
+    },
+    {
+      "test": "Marketplace Products",
+      "status": "PASSED",
+      "response_time": "0.121s",
+      "details": "Found 0 products"
+    },
+    {
+      "test": "99 Names (Asma Al-Husna)",
+      "status": "PASSED",
+      "response_time": "0.096s",
+      "details": "Found 99 names"
+    }
+  ]
+}
