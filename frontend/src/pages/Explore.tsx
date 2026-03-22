@@ -33,7 +33,7 @@ const avatarColors = ['bg-emerald-600', 'bg-blue-600', 'bg-amber-600', 'bg-purpl
 function timeAgo(iso: string): string {
   const d = Date.now() - new Date(iso).getTime();
   const m = Math.floor(d / 60000);
-  if (m < 1) return t('nowLabel');
+  if (m < 1) return 'now';
   if (m < 60) return `${m}m`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}h`;
@@ -46,6 +46,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t, dir } = useLocale();
 
   useEffect(() => {
     setLoading(true);
@@ -118,6 +119,7 @@ function CommentsSheet({ storyId, onClose }: { storyId: string; onClose: () => v
 /* ========== STORY DETAIL VIEW (inline) ========== */
 function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => void }) {
   const { user } = useAuth();
+  const { t, dir } = useLocale();
   const [story, setStory] = useState<Story | null>(null);
   const [loading, setLoading] = useState(true);
   const [showComments, setShowComments] = useState(false);
@@ -206,6 +208,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
 
 /* ========== HORIZONTAL STORY CARD ========== */
 function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; rank?: number; onOpen: () => void; onLike: () => void }) {
+  const { dir } = useLocale();
   const ci = (story.author_name || '').charCodeAt(0) % avatarColors.length;
   const rawUrl = story.image_url;
   const mediaUrl = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `${BACKEND_URL}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`) : null;

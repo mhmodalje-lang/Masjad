@@ -460,6 +460,11 @@
   padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
 }
 
+/* Enhanced bottom nav safe area - ensures content never hides behind nav */
+.pb-safe-nav {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 12px));
+}
+
 html {
   scroll-behavior: auto;
   font-size: 16px;

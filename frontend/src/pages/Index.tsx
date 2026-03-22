@@ -337,16 +337,16 @@ export default function Index() {
               <p className="text-xl font-light tabular-nums text-primary mt-0.5">
                 {nextPrayer?.time || '—'}
               </p>
-              <div className="flex items-center gap-2 mt-3">
+              <div className="flex flex-wrap items-center gap-2 mt-3">
                 <Link
                   to="/tracker"
-                  className="text-[11px] text-primary font-bold bg-primary/8 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/12 truncate max-w-[45%] border border-primary/10"
+                  className="text-[11px] text-primary font-bold bg-primary/8 px-3 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/12 border border-primary/10 whitespace-nowrap"
                 >
                   {t('prayerTracking')}
                 </Link>
                 <Link
                   to="/notifications"
-                  className="text-[11px] text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted/30 truncate max-w-[45%]"
+                  className="text-[11px] text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted/30 whitespace-nowrap"
                 >
                   <Volume2 className="h-3 w-3 inline me-1" />
                   {t('athanLabel')}
