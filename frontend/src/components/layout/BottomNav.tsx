@@ -1,5 +1,5 @@
 import { useLocation, Link } from 'react-router-dom';
-import { Home, BookOpen, Plus, MessageSquare, User } from 'lucide-react';
+import { Home, BookOpen, Plus, GraduationCap, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -17,7 +17,7 @@ export function BottomNav() {
     { path: '/', icon: Home, label: t('navHome'), exact: true },
     { path: '/stories', icon: BookOpen, label: t('navStories') },
     { path: '/create', icon: Plus, label: '', isCreate: true },
-    { path: '/messages', icon: MessageSquare, label: t('navMessages') },
+    { path: '/kids-zone', icon: GraduationCap, label: t('navAcademy') },
     { path: '/more', icon: User, label: t('navMore') },
   ];
 

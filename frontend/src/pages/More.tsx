@@ -31,6 +31,7 @@ const tools = [
   { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/10', emoji: '✨' },
   { icon: BookOpen, labelKey: 'kidsZone', path: '/kids-zone', color: 'text-emerald-400', bg: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/10', emoji: '🌟' },
   { icon: Eye, labelKey: 'liveStreams', path: '/live-streams', color: 'text-red-400', bg: 'bg-gradient-to-br from-red-500/20 to-red-600/10', emoji: '📺' },
+  { icon: MessageSquare, labelKey: 'navMessages', path: '/messages', color: 'text-blue-400', bg: 'bg-gradient-to-br from-blue-500/20 to-blue-600/10', emoji: '💬' },
 ];
 
 export default function More() {
