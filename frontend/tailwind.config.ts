@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        arabic: ["Noto Naskh Arabic", "serif"],
-        sans: ["IBM Plex Sans Arabic", "sans-serif"],
-        display: ["Playfair Display", "serif"],
+        arabic: ["Amiri", "Noto Naskh Arabic", "serif"],
+        sans: ["Inter", "Lexend", "IBM Plex Sans Arabic", "sans-serif"],
+        display: ["Lexend", "Inter", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

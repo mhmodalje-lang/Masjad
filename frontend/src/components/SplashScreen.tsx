@@ -20,8 +20,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         <motion.div
           className="fixed inset-0 z-[9999] flex flex-col items-center justify-center"
           style={{ background: isDark
-            ? 'linear-gradient(135deg, #101720 0%, #182030 40%, #0d1822 100%)'
-            : 'linear-gradient(135deg, #f0ead8 0%, #e5dcc8 40%, #ece4d0 100%)'
+            ? 'linear-gradient(135deg, #0c1a2e 0%, #132240 40%, #0a1525 100%)'
+            : 'linear-gradient(135deg, #F9FAFB 0%, #F0F5F0 40%, #F9FAFB 100%)'
           }}
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -44,9 +44,9 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
               <path
                 d="M40 4C22.3 4 8 18.3 8 36s14.3 32 32 32c6.2 0 12-1.8 16.9-4.8C50.4 67 42 72 32.5 72 16.2 72 3 58.8 3 42.5S16.2 13 32.5 13c3.5 0 6.8.5 10 1.5C39.8 8.5 35.5 4 40 4z"
-                fill="#10b981"
+                fill="#064E3B"
               />
-              <circle cx="58" cy="18" r="4" fill="#eab308" />
+              <circle cx="58" cy="18" r="4" fill="#D4AF37" />
             </svg>
           </div>
 

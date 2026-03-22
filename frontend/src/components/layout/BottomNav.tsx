@@ -31,10 +31,10 @@ export function BottomNav() {
     >
       {/* Glass background - theme-aware */}
       <div className={cn(
-        'backdrop-blur-xl border-t transition-colors duration-300',
+        'glass-nav border-t transition-colors duration-300',
         isDark
-          ? 'bg-[#0f1a24]/95 border-emerald-800/25 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
-          : 'bg-white/95 border-border/40 shadow-[0_-4px_30px_rgba(0,0,0,0.06)]'
+          ? 'bg-[#0c1a2e]/92 border-white/[0.06] shadow-[0_-4px_30px_rgba(0,0,0,0.4)]'
+          : 'bg-white/85 border-[#064E3B]/[0.08] shadow-[0_-4px_30px_rgba(6,78,59,0.06)]'
       )}>
         <div
           className="flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom,4px)] pt-1.5"
@@ -54,8 +54,8 @@ export function BottomNav() {
                   className="relative flex flex-col items-center -mt-5"
                 >
                   <div className={cn(
-                    'h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/40 active:scale-90 transition-transform border-2 border-emerald-300/40 ring-4',
-                    isDark ? 'ring-[#0f1a24]/90' : 'ring-white/90'
+                    'h-14 w-14 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#0A6B52] flex items-center justify-center shadow-lg shadow-[#064E3B]/30 active:scale-90 transition-transform border-2 border-[#0A6B52]/40 ring-4',
+                    isDark ? 'ring-[#0c1a2e]/90' : 'ring-white/90'
                   )}>
                     <Plus className="h-7 w-7 text-white stroke-[3px]" />
                   </div>
@@ -71,8 +71,8 @@ export function BottomNav() {
                 className={cn(
                   'relative flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 min-w-[56px]',
                   isActive
-                    ? isDark ? 'text-emerald-300' : 'text-primary'
-                    : isDark ? 'text-emerald-200/50 active:text-emerald-200' : 'text-muted-foreground active:text-foreground'
+                    ? isDark ? 'text-[#D4AF37]' : 'text-[#064E3B]'
+                    : isDark ? 'text-[#94A3B8] active:text-white/80' : 'text-muted-foreground active:text-foreground'
                 )}
               >
                 {/* Active indicator dot */}
@@ -81,7 +81,7 @@ export function BottomNav() {
                     layoutId="nav-dot"
                     className={cn(
                       'absolute -top-0.5 h-1 w-1 rounded-full',
-                      isDark ? 'bg-emerald-400' : 'bg-primary'
+                      isDark ? 'bg-[#D4AF37]' : 'bg-[#064E3B]'
                     )}
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
@@ -90,7 +90,7 @@ export function BottomNav() {
                 <div className={cn(
                   'h-8 w-8 rounded-xl flex items-center justify-center transition-all duration-200',
                   isActive
-                    ? isDark ? 'bg-emerald-500/20 scale-110' : 'bg-primary/10 scale-110'
+                    ? isDark ? 'bg-[#D4AF37]/15 scale-110' : 'bg-[#064E3B]/10 scale-110'
                     : 'bg-transparent'
                 )}>
                   <item.icon className={cn(
