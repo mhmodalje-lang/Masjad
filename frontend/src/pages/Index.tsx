@@ -9,7 +9,7 @@ import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
 import DailyGoals from '@/components/DailyGoals';
 import NotificationCard from '@/components/NotificationCard';
-import NativeAdContainer from '@/components/NativeAdContainer';
+import IslamicAd from '@/components/IslamicAd';
 import { Link } from 'react-router-dom';
 import { Compass, BookOpen, Heart, Calculator, Moon, Bell, BellOff, ChevronLeft, MessageSquare, Zap, Building2, Unlink, MapPin, MapPinOff, User, Volume2, Megaphone, X, Search, Settings as SettingsIcon } from 'lucide-react';
 import { AdBanner } from '@/components/AdBanner';
@@ -525,9 +525,9 @@ export default function Index() {
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />
 
-      {/* ===== NATIVE AD (after 3 content items) ===== */}
+      {/* ===== ISLAMIC SPONSORED CONTENT ===== */}
       <div className="px-4 mb-4">
-        <NativeAdContainer variant="card" />
+        <IslamicAd placement="main" variant="card" />
       </div>
 
       {/* ===== QURAN PLAYER ===== */}

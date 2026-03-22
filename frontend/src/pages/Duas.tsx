@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
+import IslamicAd from '@/components/IslamicAd';
 import {
   Search, Bookmark, ChevronRight, ArrowRight, X,
   Bed, Droplets, Home, Shirt, Plane, UtensilsCrossed,
@@ -402,6 +403,10 @@ export default function Duas() {
         </motion.div>
       </AnimatePresence>
 
+      {/* Islamic Sponsored Content */}
+      <div className="px-5 mt-4">
+        <IslamicAd placement="duas" variant="banner" />
+      </div>
       
     </div>
   );

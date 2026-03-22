@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AthanSelector from '@/components/AthanSelector';
+import IslamicAd from '@/components/IslamicAd';
 import { useFontSize } from '@/components/Features2026';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
@@ -352,6 +353,11 @@ export default function More() {
       )}
 
       <p className="text-center text-[10px] text-muted-foreground/30 pb-4">{t('appName')} v2.0.0</p>
+
+      {/* Islamic Sponsored Content */}
+      <div className="px-4 pb-4">
+        <IslamicAd placement="main" variant="card" />
+      </div>
     </div>
   );
 }

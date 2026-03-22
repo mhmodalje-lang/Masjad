@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import IslamicAd from '@/components/IslamicAd';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -1008,6 +1009,12 @@ export default function Stories() {
                 <div className="space-y-3">
                   {textStories.map((s, idx) => (
                     <div key={s.id}>
+                      {/* Islamic Sponsored Content - after every 3 posts */}
+                      {idx > 0 && idx % 3 === 0 && (
+                        <div className="mb-3">
+                          <IslamicAd placement="stories" variant="banner" />
+                        </div>
+                      )}
                       <div className="bg-muted/20 border border-border/20 rounded-2xl overflow-hidden hover:border-primary/30 transition-all">
                         {/* Media */}
                         {getMediaUrl(s.image_url) && (

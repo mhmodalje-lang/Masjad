@@ -24,8 +24,8 @@ const BARAKA_TRANSLATIONS: Record<string, Record<string, string>> = {
   "transferred": { ar: "محوّل", en: "Transferred", de: "Übertragen", "de-AT": "Übertragen", fr: "Transféré", tr: "Aktarılan", ru: "Переведено", sv: "Överfört", nl: "Overgedragen", el: "Μεταφέρθηκαν" },
   "transaction_history": { ar: "سجل المعاملات", en: "Transaction History", de: "Transaktionsverlauf", "de-AT": "Transaktionsverlauf", fr: "Historique des transactions", tr: "İşlem Geçmişi", ru: "История транзакций", sv: "Transaktionshistorik", nl: "Transactiegeschiedenis", el: "Ιστορικό συναλλαγών" },
   "coppa_notice": { ar: "منطقة الأطفال خالية تماماً من الإعلانات", en: "Kids Zone is 100% ad-free", de: "Kinderzone ist 100% werbefrei", "de-AT": "Kinderzone ist 100% werbefrei", fr: "La zone enfants est 100% sans pub", tr: "Çocuk Bölgesi %100 reklamsız", ru: "Детская зона на 100% без рекламы", sv: "Barnzonen är 100% reklamfri", nl: "Kinderzone is 100% advertentievrij", el: "Η παιδική ζώνη είναι 100% χωρίς διαφημίσεις" },
-  "ad_simulation": { ar: "محاكاة إعلان (وضع التطوير)", en: "Ad Simulation (Dev Mode)", de: "Werbungssimulation (Dev-Modus)", "de-AT": "Werbungssimulation (Dev-Modus)", fr: "Simulation de pub (Mode dev)", tr: "Reklam Simülasyonu (Geliştirme)", ru: "Симуляция рекламы (Режим разработки)", sv: "Annonssimulering (Dev-läge)", nl: "Advertentiesimulatie (Dev-modus)", el: "Προσομοίωση διαφήμισης (Dev mode)" },
-  "watching_ad": { ar: "جاري مشاهدة الإعلان...", en: "Watching ad...", de: "Werbung wird angesehen...", "de-AT": "Werbung wird angesehen...", fr: "Visionnage de la pub...", tr: "Reklam izleniyor...", ru: "Просмотр рекламы...", sv: "Ser på annons...", nl: "Advertentie bekijken...", el: "Παρακολούθηση διαφήμισης..." },
+  "ad_simulation": { ar: "جاري تحميل المحتوى", en: "Loading content", de: "Inhalt wird geladen", "de-AT": "Inhalt wird geladen", fr: "Chargement du contenu", tr: "İçerik yükleniyor", ru: "Загрузка контента", sv: "Laddar innehåll", nl: "Inhoud laden", el: "Φόρτωση περιεχομένου" },
+  "watching_ad": { ar: "جاري تحميل المكافأة...", en: "Loading reward...", de: "Belohnung wird geladen...", "de-AT": "Belohnung wird geladen...", fr: "Chargement de la récompense...", tr: "Ödül yükleniyor...", ru: "Загрузка награды...", sv: "Laddar belöning...", nl: "Beloning laden...", el: "Φόρτωση ανταμοιβής..." },
   "reward_claimed": { ar: "تم الحصول على المكافأة!", en: "Reward claimed!", de: "Belohnung erhalten!", "de-AT": "Belohnung erhalten!", fr: "Récompense obtenue!", tr: "Ödül alındı!", ru: "Награда получена!", sv: "Belöning mottagen!", nl: "Beloning ontvangen!", el: "Ανταμοιβή παραλήφθηκε!" },
   "leaderboard": { ar: "لوحة المتصدرين", en: "Leaderboard", de: "Bestenliste", "de-AT": "Bestenliste", fr: "Classement", tr: "Liderlik Tablosu", ru: "Таблица лидеров", sv: "Topplista", nl: "Ranglijst", el: "Πίνακας κατάταξης" },
   "total_earned": { ar: "إجمالي المكتسبات", en: "Total Earned", de: "Insgesamt verdient", "de-AT": "Insgesamt verdient", fr: "Total gagné", tr: "Toplam Kazanılan", ru: "Всего заработано", sv: "Totalt tjänat", nl: "Totaal verdiend", el: "Σύνολο κερδισμένων" },
@@ -277,7 +277,6 @@ export default function BarakaMarket() {
           <div className="w-full max-w-sm text-center space-y-6">
             <div className="text-6xl animate-pulse">{adType === 'earn' ? '🌙' : '👨‍👧‍👦'}</div>
             <h2 className="text-xl font-bold text-white">{t('watching_ad')}</h2>
-            <p className="text-sm text-white/60">{t('ad_simulation')}</p>
             {/* Progress bar */}
             <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-100" style={{width: `${adProgress}%`}}/>

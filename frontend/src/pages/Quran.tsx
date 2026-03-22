@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import PageHeader from '@/components/PageHeader';
+import IslamicAd from '@/components/IslamicAd';
 import { normalizeArabicForSearch } from '@/lib/arabicNormalize';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -241,6 +242,11 @@ export default function Quran() {
             ))
           )
         )}
+      </div>
+
+      {/* Islamic Sponsored Content */}
+      <div className="px-5 mt-4">
+        <IslamicAd placement="quran" variant="card" />
       </div>
     </div>
   );
