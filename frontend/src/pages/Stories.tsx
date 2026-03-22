@@ -2,7 +2,7 @@ import { useLocale } from "@/hooks/useLocale";
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Heart, MessageCircle, Send, X, Loader2, Image, Video,
-  BookOpen, Plus, Eye, ArrowRight, Share2, Bookmark, Film,
+  BookOpen, Plus, Eye, ArrowRight, ArrowLeft, Share2, Bookmark, Film,
   Play, Volume2, VolumeX, Trash2, Reply, Search, Users,
   ChevronDown, TrendingUp, Flame, Star, Clock, Hash, Lock
 } from 'lucide-react';
@@ -130,7 +130,7 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
            : comments.map(c => {
             const canDel = user && (c.author_id === user.id || user.email === 'mohammadalrejab@gmail.com');
             return (
-              <div key={c.id} className={cn("flex gap-2.5", c.reply_to && "mr-8 border-r-2 border-emerald-900/50 pr-3")}>
+              <div key={c.id} className={cn("flex gap-2.5", c.reply_to && "ms-8 border-s-2 border-emerald-900/50 ps-3")}>
                 <img src={avatar(c.author_name, c.author_avatar)} alt="" className="w-8 h-8 rounded-full shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -259,7 +259,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
   const isAdmin = user?.email === 'mohammadalrejab@gmail.com';
 
   const typeBtns = [
-    { key: 'text', label: 'نص', icon: '📝' },
+    { key: 'text', label: t('textType'), icon: '📝' },
     { key: 'image', label: t('imageType'), icon: '🖼️' },
     { key: 'video_short', label: t('videosTab'), icon: '🎬' },
     ...(isAdmin ? [{ key: 'embed', label: t('embedType'), icon: '🔗' }] : []),
@@ -318,7 +318,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
             placeholder={t("shareIdea")}
             className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm min-h-[140px] resize-none border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60 leading-relaxed"
             maxLength={5000} />
-          <p className="text-left text-muted-foreground text-[10px]">{content.length}/5000</p>
+          <p className="text-start text-muted-foreground text-[10px]">{content.length}/5000</p>
 
           {/* Embed URL */}
           {contentType === 'embed' && (
@@ -339,7 +339,7 @@ function CreateSheet({ categories, onClose, onCreated }: {
                     <img src={preview} alt="" className="w-full max-h-52 object-cover rounded-2xl" />
                   )}
                   <button onClick={() => { setFile(null); setPreview(''); }}
-                    className="absolute top-2 left-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center"><X className="w-3.5 h-3.5 text-white" /></button>
+                    className="absolute top-2 start-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center"><X className="w-3.5 h-3.5 text-white" /></button>
                 </div>
               ) : (
                 <button onClick={() => fileRef.current?.click()}
@@ -440,7 +440,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
       <div className="sticky top-0 z-40 glass-nav bg-background/80 border-b border-border/10">
         <div className="flex items-center justify-between px-4 h-14">
           <button onClick={onBack} className="p-2 rounded-xl bg-muted/30 active:scale-95">
-            <ArrowRight className="h-5 w-5 text-foreground" />
+            {dir === 'rtl' ? <ArrowRight className="h-5 w-5 text-foreground" /> : <ArrowLeft className="h-5 w-5 text-foreground" />}
           </button>
           <h2 className="text-sm font-bold text-foreground/80 truncate flex-1 mx-3 text-center">
             {story.title || t('thePost')}
@@ -516,7 +516,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
         <button onClick={handleShare} className="active:scale-90 transition-transform">
           <Share2 className="h-6 w-6 text-muted-foreground" />
         </button>
-        <button onClick={toggleSave} className="active:scale-90 transition-transform mr-auto">
+        <button onClick={toggleSave} className="active:scale-90 transition-transform ms-auto">
           <Bookmark className={cn("h-6 w-6", saved ? "text-emerald-500 fill-emerald-500" : "text-muted-foreground")} />
         </button>
         <span className="flex items-center gap-1 text-[11px] text-muted-foreground"><Eye className="h-3.5 w-3.5" />{story.views_count || 0}</span>
@@ -587,7 +587,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
       {idx > 0 && (
         <button
           onClick={goPrev}
-          className="absolute top-1/2 -translate-y-1/2 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
+          className="absolute top-1/2 -translate-y-1/2 end-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
           aria-label={t('previous') || 'Previous'}
         >
           <ChevronDown className="w-5 h-5 rotate-180" />
@@ -598,7 +598,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
       {idx < stories.length - 1 && (
         <button
           onClick={goNext}
-          className="absolute bottom-24 right-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
+          className="absolute bottom-24 end-3 z-30 w-10 h-10 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/80 hover:bg-black/60 active:scale-90 transition-all"
           aria-label={t('next') || 'Next'}
         >
           <ChevronDown className="w-5 h-5" />
@@ -664,7 +664,7 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         </div>
       )}
 
-      <div className="absolute left-3 bottom-36 flex flex-col items-center gap-5 z-20">
+      <div className="absolute start-3 bottom-36 flex flex-col items-center gap-5 z-20">
         <Link to={`/social-profile/${story.author_id}`}>
           <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-11 h-11 rounded-full border-2 border-white shadow-lg" />
         </Link>
@@ -684,7 +684,7 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         </button>}
       </div>
 
-      <div className="absolute bottom-5 right-4 left-16 z-20" dir={dir}>
+      <div className="absolute bottom-5 end-4 start-16 z-20" dir={dir}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
           <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
@@ -1075,7 +1075,7 @@ export default function Stories() {
                           <div className="flex items-center gap-2.5 mb-2.5">
                             <img src={avatar(s.author_name, s.author_avatar)} alt="" className="h-8 w-8 rounded-full" />
                             <span className="text-[13px] font-bold text-foreground">{s.author_name}</span>
-                            <span className="text-[10px] text-muted-foreground mr-auto">{timeAgo(s.created_at)}</span>
+                            <span className="text-[10px] text-muted-foreground ms-auto">{timeAgo(s.created_at)}</span>
                             {isPremiumStory(s) && (
                               <span className={cn(
                                 "px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1",

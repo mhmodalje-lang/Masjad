@@ -1117,7 +1117,7 @@
   "mustLogin": "Anmeldung erforderlich",
   "myPosts": "Meine Beiträge",
   "myStories": "Meine Geschichten",
-  "myStoriesTab": "Meine Geschichten",
+  "myStoriesTab": "Geschichten",
   "name": "Name",
   "nameCount": "Name(n)",
   "nameLabel": "Name",
@@ -1132,7 +1132,7 @@
   "navMessages": "Nachrichten",
   "navMore": "Mehr",
   "navAcademy": "Akademie",
-  "navStories": "Geschichten",
+  "navStories": "Stories",
   "nearbyMosques": "Moscheen in der Nähe",
   "necessaryCookies": "Notwendige Cookies",
   "new": "Neu",
@@ -2216,5 +2216,6 @@
   "nawawiH37Title": "Gute und schlechte Taten",
   "nawawiH38Title": "Nähe zu Allah",
   "nawawiH39Title": "Vergebung von Fehlern",
-  "nawawiH40Title": "Sei in dieser Welt wie ein Fremder"
+  "nawawiH40Title": "Sei in dieser Welt wie ein Fremder",
+  "textType": "Text"
 }

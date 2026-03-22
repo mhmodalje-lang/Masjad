@@ -146,7 +146,28 @@ Comprehensive frontend testing of Islamic app across all 9 languages: splash scr
 - **Secondary Issue:** Test selectors need improvement for chevron detection
 - **Tertiary Issue:** Calendar right arrow may have event handling issue
 
-## RECOMMENDATIONS FOR MAIN AGENT:
+## STORIES PAGE TEST RESULTS (March 22, 2026)
+
+### Languages Tested (9 total):
+- ✅ Arabic (ar) - RTL correct, all text translated
+- ✅ English (en) - LTR correct, all text translated
+- ✅ German (de) - LTR correct, header/nav labels shortened
+- ✅ Russian (ru) - LTR correct, bottom nav no truncation
+- ✅ French (fr) - LTR correct, all text translated
+- ✅ Turkish (tr) - LTR correct, all text translated
+- ✅ Swedish (sv) - LTR correct, all text translated
+- ✅ Dutch (nl) - LTR correct, all text translated
+- ✅ Greek (el) - LTR correct, all text translated
+
+### Fixes Applied:
+- ✅ Direction-aware back arrow (ArrowRight for RTL, ArrowLeft for LTR)
+- ✅ Hardcoded Arabic "نص" → translated t('textType') in all 9 locales
+- ✅ Comment reply padding: mr-8/border-r → ms-8/border-s (logical properties)
+- ✅ Character count: text-left → text-start
+- ✅ Reel positions: left/right → start/end (logical properties)
+- ✅ File remove button: left-2 → start-2
+- ✅ Time ago/Bookmark: mr-auto → ms-auto
+- ✅ German: shortened header/nav labels to avoid wrapping
 All critical issues have been verified and resolved:
 1. ✅ All 9 languages have correct dir attribute (rtl for Arabic, ltr for rest) - verified individually with 6s wait
 2. ✅ Calendar arrows work correctly in both directions - Shawwal → Dhul Qi'dah verified
