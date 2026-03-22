@@ -69,6 +69,9 @@ export default function KidsZone() {
   const [mainTab, setMainTab] = useState<MainTab>('quran');
   const [userId] = useState(() => localStorage.getItem('kids_user_id') || `kid_${Date.now()}`);
   const [confetti, setConfetti] = useState(false);
+  const [showConsent, setShowConsent] = useState(false);
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [lessonsToday, setLessonsToday] = useState(0);
 
   // Curriculum state
   const [stages, setStages] = useState<CurrStage[]>([]);
@@ -104,6 +107,58 @@ export default function KidsZone() {
   const [badges, setBadges] = useState<any[]>([]);
 
   useEffect(() => { localStorage.setItem('kids_user_id', userId); }, [userId]);
+
+  // ═══ PARENTAL CONSENT CHECK ═══
+  useEffect(() => {
+    const checkConsent = async () => {
+      try {
+        const r = await fetch(`${API}/api/parental-consent/check?user_id=${userId}`);
+        const d = await r.json();
+        if (d.success && d.has_consent) {
+          setConsentChecked(true);
+        } else {
+          setShowConsent(true);
+        }
+      } catch {
+        setConsentChecked(true);
+      }
+    };
+    checkConsent();
+  }, [userId]);
+
+  const giveConsent = async () => {
+    try {
+      await fetch(`${API}/api/parental-consent/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, consent: true }),
+      });
+      setShowConsent(false);
+      setConsentChecked(true);
+      toast.success(locale === 'ar' ? 'تم قبول الموافقة ✅' : 'Consent accepted ✅');
+    } catch {
+      toast.error(locale === 'ar' ? 'حدث خطأ' : 'Error');
+    }
+  };
+
+  // ═══ LESSON POINTS (MAX 5/DAY) ═══
+  const awardLessonPoint = async () => {
+    try {
+      const r = await fetch(`${API}/api/points/lesson-complete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, mode: 'kids', lesson_id: `day_${lessonDay}` }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        setLessonsToday(d.lessons_today);
+        toast.success(locale === 'ar' ? `+1 نقطة لمشاهدة الدرس (${d.lessons_today}/5)` : `+1 point for lesson (${d.lessons_today}/5)`);
+      } else if (d.message === 'daily_lesson_limit_reached') {
+        setLessonsToday(5);
+        toast.info(locale === 'ar' ? 'لقد حصلت على الحد الأقصى للنقاط اليوم (5 نقاط)' : 'Daily lesson points limit reached (5/5)');
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     loadCurrProgress();
@@ -166,6 +221,8 @@ export default function KidsZone() {
       setConfetti(true); setTimeout(()=>setConfetti(false),3000);
       toast.success(t('lessonCompleteCongrats'));
       loadCurrProgress(); loadBadges();
+      // Award lesson point (max 5/day as in Flutter code)
+      await awardLessonPoint();
     }catch{}
   };
 
@@ -697,6 +754,53 @@ export default function KidsZone() {
   // ═══════ MAIN RENDER ═══════
   return(<div dir={dir} className="min-h-screen bg-background pb-24">
     <Confetti on={confetti}/>
+
+    {/* ═══ PARENTAL CONSENT DIALOG ═══ */}
+    {showConsent && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="w-full max-w-sm rounded-3xl bg-card border border-border p-6 space-y-5 shadow-2xl">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-3">
+              <Lock className="h-8 w-8 text-amber-500" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground">
+              {locale === 'ar' ? 'موافقة ولي الأمر' : 'Parental Consent'}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+              {locale === 'ar'
+                ? 'يحتوي هذا القسم على محتوى تعليمي للأطفال. يتضمن إعلانات تتوافق مع سياسات حماية الطفل. هل توافق على استخدام طفلك لهذا القسم؟'
+                : 'This section contains educational content for children. It includes ads that comply with child protection policies. Do you approve your child using this section?'}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <button
+              onClick={giveConsent}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2"
+            >
+              <Check className="h-4 w-4" />
+              {locale === 'ar' ? 'أوافق' : 'I Approve'}
+            </button>
+            <button
+              onClick={() => { setShowConsent(false); nav(-1); }}
+              className="w-full py-3 rounded-2xl bg-muted/50 text-muted-foreground font-medium text-sm hover:bg-muted/70 transition-all"
+            >
+              {locale === 'ar' ? 'رجوع' : 'Go Back'}
+            </button>
+          </div>
+          <p className="text-center text-xs text-muted-foreground/60">
+            {locale === 'ar' ? '🛡️ نحرص على سلامة أطفالكم' : '🛡️ We care about your children\'s safety'}
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* Daily Lesson Points Counter */}
+    {lessonsToday > 0 && (
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-amber-500/90 text-white text-xs font-bold shadow-lg flex items-center gap-2 animate-in slide-in-from-top">
+        <Star className="h-3.5 w-3.5" />
+        <span>{locale === 'ar' ? `نقاط اليوم: ${lessonsToday}/5` : `Today: ${lessonsToday}/5 points`}</span>
+      </div>
+    )}
     {/* Header - Luxury Glass */}
     <div className="sticky top-0 z-30 glass-nav border-b border-border/20 px-4 py-3" style={{background:'hsl(var(--card) / 0.8)'}}>
       <div className="flex items-center justify-between max-w-lg mx-auto">

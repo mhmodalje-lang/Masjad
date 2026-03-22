@@ -35,6 +35,13 @@ const TX: Record<string, Record<string, string>> = {
   "leaderboard": { ar: "لوحة المتصدرين", en: "Leaderboard", de: "Bestenliste", fr: "Classement", tr: "Sıralama" },
   "transaction_history": { ar: "سجل المعاملات", en: "Transaction History", de: "Transaktionsverlauf", fr: "Historique", tr: "İşlem Geçmişi" },
   "tasks_completed": { ar: "مهام مكتملة اليوم", en: "Tasks completed today", de: "Heute erledigte Aufgaben", fr: "Tâches terminées aujourd'hui", tr: "Bugün tamamlanan görevler" },
+  "rewards_store": { ar: "متجر المكافآت", en: "Rewards Store", de: "Belohnungsshop", fr: "Boutique de récompenses", tr: "Ödül Mağazası" },
+  "redeem_now": { ar: "استبدل الآن", en: "Redeem", de: "Einlösen", fr: "Échanger", tr: "Kullan" },
+  "already_redeemed": { ar: "تم الاستبدال ✓", en: "Redeemed ✓", de: "Eingelöst ✓", fr: "Échangé ✓", tr: "Kullanıldı ✓" },
+  "insufficient_points": { ar: "نقاط غير كافية", en: "Insufficient points", de: "Unzureichende Punkte", fr: "Points insuffisants", tr: "Yetersiz puan" },
+  "redeemed_success": { ar: "تم الاستبدال بنجاح! 🎉", en: "Redeemed successfully! 🎉", de: "Erfolgreich eingelöst! 🎉", fr: "Échangé avec succès! 🎉", tr: "Başarıyla kullanıldı! 🎉" },
+  "watch_ad_earn": { ar: "شاهد إعلان واحصل على نقاط", en: "Watch Ad & Earn Points", de: "Werbung ansehen & Punkte verdienen", fr: "Regarder une pub & gagner des points", tr: "Reklam izle & Puan kazan" },
+  "points_cost": { ar: "نقطة", en: "pts", de: "Pkt", fr: "pts", tr: "puan" },
 };
 
 interface DailyTask {
@@ -80,6 +87,8 @@ export default function BarakaMarket() {
     const saved = localStorage.getItem(`baraka_tasks_${today}`);
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
+  const [redeemItems, setRedeemItems] = useState<any[]>([]);
+  const [redeeming, setRedeeming] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -95,6 +104,37 @@ export default function BarakaMarket() {
   }, [userId]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // Load redeem catalog
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/api/store/redeem-catalog?user_id=${userId}&locale=${lang}`)
+      .then(r => r.json())
+      .then(d => { if (d.success) setRedeemItems(d.items || []); })
+      .catch(() => {});
+  }, [userId, lang]);
+
+  const redeemReward = async (item: any) => {
+    setRedeeming(item.id);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/store/redeem`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, mode: 'adults', reward_id: item.id, cost: item.cost }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        setRedeemItems(prev => prev.map(i => i.id === item.id ? { ...i, redeemed: true } : i));
+        loadData(); // Refresh wallet
+        // Show success animation
+        if (navigator.vibrate) navigator.vibrate([30, 15, 50]);
+      } else if (d.message === 'insufficient_points') {
+        // No toast needed, we'll show inline
+      } else if (d.message === 'already_redeemed') {
+        setRedeemItems(prev => prev.map(i => i.id === item.id ? { ...i, redeemed: true } : i));
+      }
+    } catch {}
+    setRedeeming(null);
+  };
 
   const markTaskDone = (taskId: string, reward: number) => {
     const newCompleted = new Set(completedTasks);
@@ -248,6 +288,66 @@ export default function BarakaMarket() {
             <Gift className="h-4 w-4"/> {t('send_bricks')} ({completedTasks.size}/3 {t('daily_tasks')})
           </button>
         </div>
+
+        {/* ═══ REWARDS STORE — Redeem Points for Rewards ═══ */}
+        {redeemItems.length > 0 && (
+          <div>
+            <h2 className="text-base font-bold mb-3 flex items-center gap-2">
+              <Gift className="h-5 w-5 text-amber-500 dark:text-amber-400"/>
+              {t('rewards_store')} ⭐
+            </h2>
+            <div className="space-y-3">
+              {redeemItems.map((item: any) => (
+                <div key={item.id} className={cn(
+                  "p-4 rounded-2xl border transition-all overflow-hidden",
+                  item.redeemed
+                    ? "bg-emerald-500/10 border-emerald-500/30"
+                    : "bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-amber-400/20 hover:border-amber-400/40"
+                )}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-14 h-14 rounded-xl bg-card/50 flex items-center justify-center shrink-0 border border-border/20 overflow-hidden">
+                      {item.image ? (
+                        <img src={item.image} alt="" className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <span className="text-2xl">{item.emoji}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-sm text-foreground">{item.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-bold text-amber-600 dark:text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-lg">
+                          {item.cost} {t('points_cost')}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground capitalize">{item.type}</span>
+                      </div>
+                    </div>
+                    <div className="shrink-0">
+                      {item.redeemed ? (
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-2 rounded-xl whitespace-nowrap">
+                          {t('already_redeemed')}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => redeemReward(item)}
+                          disabled={redeeming === item.id || (wallet?.blessing_coins || 0) < item.cost}
+                          className={cn(
+                            "text-xs font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap",
+                            (wallet?.blessing_coins || 0) >= item.cost
+                              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg active:scale-95"
+                              : "bg-muted/30 text-muted-foreground cursor-not-allowed"
+                          )}
+                        >
+                          {redeeming === item.id ? '...' : (wallet?.blessing_coins || 0) >= item.cost ? t('redeem_now') : t('insufficient_points')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* COPPA Notice */}
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-400/20">

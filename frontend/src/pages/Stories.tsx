@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, X, Loader2, Image, Video,
   BookOpen, Plus, Eye, ArrowRight, Share2, Bookmark, Film,
   Play, Volume2, VolumeX, Trash2, Reply, Search, Users,
-  ChevronDown, TrendingUp, Flame, Star, Clock, Hash
+  ChevronDown, TrendingUp, Flame, Star, Clock, Hash, Lock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +35,7 @@ interface Story {
   comments_count: number; shares_count?: number; views_count?: number;
   liked: boolean; saved: boolean;
   embed_url?: string; platform?: string; is_embed?: boolean;
+  is_premium?: boolean; points_cost?: number;
 }
 interface Comment {
   id: string; author_id: string; author_name: string; author_avatar?: string;
@@ -713,16 +714,29 @@ export default function Stories() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [recommended, setRecommended] = useState<any[]>([]);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
+  const [unlockedStoryIds, setUnlockedStoryIds] = useState<Set<string>>(new Set());
 
   const selectedStoryId = searchParams.get('story');
 
-  // Load categories + recommended users
+  // Premium categories (cost 2 points to read full content)
+  const PREMIUM_CATS = new Set(['prophets', 'miracles', 'ruqyah']);
+  const isPremiumStory = (s: Story) => s.is_premium || PREMIUM_CATS.has(s.category);
+  const isStoryUnlocked = (s: Story) => !isPremiumStory(s) || unlockedStoryIds.has(s.id) || s.author_id === user?.id;
+
+  // Load categories + recommended users + unlocked stories
   useEffect(() => {
     fetch(`${BACKEND_URL}/api/stories/categories`).then(r => r.json())
       .then(d => setCategories(d.categories || [])).catch(() => {});
     const h: Record<string, string> = {}; const tk = getToken(); if (tk) h.Authorization = `Bearer ${tk}`;
     fetch(`${BACKEND_URL}/api/sohba/recommended-users?limit=8`, { headers: h })
       .then(r => r.json()).then(d => setRecommended(d.users || [])).catch(() => {});
+    // Load unlocked premium stories
+    if (user) {
+      fetch(`${BACKEND_URL}/api/stories/check-unlocked?user_id=${user.id}`)
+        .then(r => r.json()).then(d => {
+          if (d.success) setUnlockedStoryIds(new Set(d.unlocked_story_ids || []));
+        }).catch(() => {});
+    }
     // Open create sheet from URL
     if (searchParams.get('create') === 'true' && user) {
       setShowCreate(true);
@@ -747,10 +761,45 @@ export default function Stories() {
   }, [searchParams, setSearchParams]);
 
   const handleOpenStory = useCallback((storyId: string) => {
+    const s = stories.find(x => x.id === storyId);
+    if (s && isPremiumStory(s) && !isStoryUnlocked(s)) {
+      // Show unlock prompt
+      const cost = s.points_cost || 2;
+      const msg = locale === 'ar'
+        ? `هذه القصة مميزة ⭐ تكلف ${cost} نقاط. هل تريد فتحها؟`
+        : `This is a premium story ⭐ It costs ${cost} points. Unlock it?`;
+      if (confirm(msg)) {
+        unlockPremiumStory(storyId, cost);
+      }
+      return;
+    }
     const params = new URLSearchParams(searchParams);
     params.set('story', storyId);
     setSearchParams(params);
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, stories, unlockedStoryIds, locale]);
+
+  const unlockPremiumStory = async (storyId: string, cost: number = 2) => {
+    if (!user) { toast.error(t('loginRequired')); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/stories/unlock-premium`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, story_id: storyId, points_cost: cost, mode: 'adults' }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        setUnlockedStoryIds(prev => new Set([...prev, storyId]));
+        toast.success(locale === 'ar' ? `تم فتح القصة! -${cost} نقاط` : `Story unlocked! -${cost} points`);
+        const params = new URLSearchParams(searchParams);
+        params.set('story', storyId);
+        setSearchParams(params);
+      } else if (d.message === 'insufficient_points') {
+        toast.error(locale === 'ar' ? 'نقاطك غير كافية لفتح هذه القصة' : 'Insufficient points to unlock this story');
+      }
+    } catch {
+      toast.error(locale === 'ar' ? 'حدث خطأ' : 'Error');
+    }
+  };
 
   const handleBackFromStory = useCallback(() => {
     const idx = (window.history.state as any)?.idx;
@@ -1029,9 +1078,28 @@ export default function Stories() {
                             <img src={avatar(s.author_name, s.author_avatar)} alt="" className="h-8 w-8 rounded-full" />
                             <span className="text-[13px] font-bold text-foreground">{s.author_name}</span>
                             <span className="text-[10px] text-muted-foreground mr-auto">{timeAgo(s.created_at)}</span>
+                            {isPremiumStory(s) && (
+                              <span className={cn(
+                                "px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1",
+                                isStoryUnlocked(s)
+                                  ? "bg-emerald-500/15 text-emerald-500"
+                                  : "bg-amber-500/15 text-amber-500"
+                              )}>
+                                {isStoryUnlocked(s) ? <Star className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
+                                {isStoryUnlocked(s) ? (locale === 'ar' ? 'مميز' : 'Premium') : `${s.points_cost || 2} ${locale === 'ar' ? 'نقاط' : 'pts'}`}
+                              </span>
+                            )}
                           </div>
                           {s.title && <h3 className="text-[15px] font-bold text-foreground mb-1.5 line-clamp-2">{s.title}</h3>}
-                          <p className="text-[13px] text-muted-foreground leading-relaxed line-clamp-3">{s.content}</p>
+                          <p className={cn("text-[13px] text-muted-foreground leading-relaxed line-clamp-3",
+                            isPremiumStory(s) && !isStoryUnlocked(s) && "blur-[3px] select-none"
+                          )}>{s.content}</p>
+                          {isPremiumStory(s) && !isStoryUnlocked(s) && (
+                            <div className="mt-2 flex items-center gap-2 text-amber-500 text-xs font-bold">
+                              <Lock className="h-3 w-3" />
+                              <span>{locale === 'ar' ? `افتح بـ ${s.points_cost || 2} نقاط` : `Unlock for ${s.points_cost || 2} points`}</span>
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center justify-between px-4 pb-3 border-t border-border/20 mx-4 pt-2.5">
                           <div className="flex items-center gap-5">

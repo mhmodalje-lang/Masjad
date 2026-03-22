@@ -110,6 +110,21 @@ class UnlockContentRequest(BaseModel):
     content_id: str
     cost_bricks: int = 0
 
+class ParentalConsentRequest(BaseModel):
+    user_id: str
+    consent: bool = True
+
+class LessonPointsRequest(BaseModel):
+    user_id: str
+    mode: str = "kids"
+    lesson_id: Optional[str] = None
+
+class RedeemRewardRequest(BaseModel):
+    user_id: str
+    mode: str = "adults"
+    reward_id: str
+    cost: int
+
 
 # ======================== HELPERS ========================
 
@@ -647,3 +662,313 @@ async def get_premium_catalog(mode: str = "kids", locale: str = "en"):
         "mode": mode,
         "catalog": catalog,
     }
+
+
+# ======================== PARENTAL CONSENT ========================
+
+@router.post("/parental-consent/save")
+async def save_parental_consent(data: ParentalConsentRequest):
+    """Save parental consent for kids section access."""
+    await db.parental_consents.update_one(
+        {"user_id": data.user_id},
+        {
+            "$set": {
+                "user_id": data.user_id,
+                "consent": data.consent,
+                "consented_at": datetime.utcnow().isoformat(),
+            }
+        },
+        upsert=True,
+    )
+    return {"success": True, "consent": data.consent}
+
+
+@router.get("/parental-consent/check")
+async def check_parental_consent(user_id: str):
+    """Check if parental consent has been given for kids section."""
+    doc = await db.parental_consents.find_one({"user_id": user_id}, {"_id": 0})
+    if doc and doc.get("consent"):
+        return {"success": True, "has_consent": True, "consented_at": doc.get("consented_at")}
+    return {"success": True, "has_consent": False}
+
+
+# ======================== DAILY LESSON POINTS (MAX 5/DAY) ========================
+
+@router.post("/points/lesson-complete")
+async def earn_lesson_points(data: LessonPointsRequest):
+    """Award 1 point for lesson completion. Max 5 lessons per day."""
+    today = date.today().isoformat()
+    
+    # Check daily lesson count
+    daily_count = await db.lesson_points_log.count_documents({
+        "user_id": data.user_id,
+        "date": today,
+    })
+    
+    if daily_count >= 5:
+        return {
+            "success": False,
+            "message": "daily_lesson_limit_reached",
+            "points_earned": 0,
+            "lessons_today": daily_count,
+            "max_daily": 5,
+        }
+    
+    # Log the lesson completion
+    await db.lesson_points_log.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": data.user_id,
+        "lesson_id": data.lesson_id or str(uuid.uuid4())[:8],
+        "date": today,
+        "timestamp": datetime.utcnow().isoformat(),
+    })
+    
+    # Award 1 point
+    collection = "kids_points" if data.mode == "kids" else "adult_points"
+    await db[collection].update_one(
+        {"user_id": data.user_id},
+        {
+            "$inc": {"points": 1, "total_earned": 1},
+            "$set": {"last_active": today},
+        },
+        upsert=True,
+    )
+    
+    # Log transaction
+    await db.points_transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": data.user_id,
+        "mode": data.mode,
+        "type": "lesson_complete",
+        "points": 1,
+        "metadata": {"lesson_id": data.lesson_id, "daily_count": daily_count + 1},
+        "created_at": datetime.utcnow().isoformat(),
+    })
+    
+    profile = await db[collection].find_one({"user_id": data.user_id}, {"_id": 0})
+    new_total = profile.get("points", 0) if profile else 1
+    
+    return {
+        "success": True,
+        "points_earned": 1,
+        "new_total": new_total,
+        "lessons_today": daily_count + 1,
+        "max_daily": 5,
+        "remaining_today": 4 - daily_count,
+    }
+
+
+# ======================== STORE REDEMPTION ITEMS ========================
+
+REDEEM_CATALOG = [
+    {
+        "id": "ebook_quran_stories",
+        "title_ar": "كتاب إلكتروني - قصص القرآن",
+        "title_en": "E-Book - Quran Stories",
+        "description_ar": "كتاب إلكتروني يحتوي على قصص القرآن الكريم مصورة",
+        "description_en": "Illustrated Quran stories e-book",
+        "cost": 50,
+        "type": "ebook",
+        "emoji": "📚",
+        "image": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200",
+    },
+    {
+        "id": "ebook_prophets",
+        "title_ar": "كتاب إلكتروني - قصص الأنبياء",
+        "title_en": "E-Book - Prophet Stories",
+        "description_ar": "قصص الأنبياء للأطفال مع صور جميلة",
+        "description_en": "Prophet stories for children with illustrations",
+        "cost": 50,
+        "type": "ebook",
+        "emoji": "📖",
+        "image": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=200",
+    },
+    {
+        "id": "coupon_10_discount",
+        "title_ar": "قسيمة خصم 10%",
+        "title_en": "10% Discount Coupon",
+        "description_ar": "قسيمة خصم على المنتجات الإسلامية",
+        "description_en": "Discount coupon for Islamic products",
+        "cost": 100,
+        "type": "coupon",
+        "emoji": "🎫",
+        "image": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=200",
+    },
+    {
+        "id": "premium_dua_collection",
+        "title_ar": "مجموعة أدعية مميزة",
+        "title_en": "Premium Dua Collection",
+        "description_ar": "مجموعة شاملة من الأدعية المأثورة مع الترجمة",
+        "description_en": "Comprehensive collection of authentic duas with translation",
+        "cost": 30,
+        "type": "content",
+        "emoji": "🤲",
+        "image": "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=200",
+    },
+    {
+        "id": "premium_ringtones",
+        "title_ar": "نغمات إسلامية مميزة",
+        "title_en": "Premium Islamic Ringtones",
+        "description_ar": "مجموعة نغمات إسلامية جميلة",
+        "description_en": "Beautiful Islamic ringtones collection",
+        "cost": 75,
+        "type": "digital",
+        "emoji": "🔔",
+        "image": "https://images.unsplash.com/photo-1614680376573-df3480f0c6ff?w=200",
+    },
+]
+
+
+@router.get("/store/redeem-catalog")
+async def get_redeem_catalog(user_id: str = "", locale: str = "ar"):
+    """Get catalog of items that can be redeemed with points."""
+    redeemed = []
+    if user_id:
+        docs = await db.redeemed_items.find({"user_id": user_id}, {"_id": 0, "reward_id": 1}).to_list(100)
+        redeemed = [d["reward_id"] for d in docs]
+    
+    items = []
+    for item in REDEEM_CATALOG:
+        items.append({
+            **item,
+            "title": item["title_ar"] if locale == "ar" else item["title_en"],
+            "description": item["description_ar"] if locale == "ar" else item["description_en"],
+            "redeemed": item["id"] in redeemed,
+        })
+    
+    return {"success": True, "items": items}
+
+
+@router.post("/store/redeem")
+async def redeem_reward(data: RedeemRewardRequest):
+    """Redeem points for a store reward."""
+    # Find the item
+    item = next((i for i in REDEEM_CATALOG if i["id"] == data.reward_id), None)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Check if already redeemed
+    existing = await db.redeemed_items.find_one({
+        "user_id": data.user_id,
+        "reward_id": data.reward_id,
+    })
+    if existing:
+        return {"success": False, "message": "already_redeemed"}
+    
+    # Check points
+    collection = "kids_points" if data.mode == "kids" else "adult_points"
+    profile = await db[collection].find_one({"user_id": data.user_id}, {"_id": 0})
+    
+    if not profile:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    
+    current_points = profile.get("points", 0)
+    cost = item["cost"]
+    
+    if current_points < cost:
+        return {
+            "success": False,
+            "message": "insufficient_points",
+            "current_points": current_points,
+            "cost": cost,
+        }
+    
+    # Deduct points
+    await db[collection].update_one(
+        {"user_id": data.user_id},
+        {"$inc": {"points": -cost}},
+    )
+    
+    # Record redemption
+    await db.redeemed_items.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": data.user_id,
+        "reward_id": data.reward_id,
+        "cost": cost,
+        "mode": data.mode,
+        "redeemed_at": datetime.utcnow().isoformat(),
+    })
+    
+    # Log transaction
+    await db.points_transactions.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": data.user_id,
+        "mode": data.mode,
+        "type": "redeem",
+        "points": -cost,
+        "metadata": {"reward_id": data.reward_id, "reward_title": item.get("title_en", "")},
+        "created_at": datetime.utcnow().isoformat(),
+    })
+    
+    return {
+        "success": True,
+        "reward_id": data.reward_id,
+        "points_spent": cost,
+        "remaining_points": current_points - cost,
+    }
+
+
+# ======================== PREMIUM STORIES ========================
+
+@router.post("/stories/unlock-premium")
+async def unlock_premium_story(data: dict):
+    """Unlock a premium story by spending points."""
+    user_id = data.get("user_id", "")
+    story_id = data.get("story_id", "")
+    points_cost = data.get("points_cost", 2)
+    mode = data.get("mode", "adults")
+    
+    if not user_id or not story_id:
+        raise HTTPException(status_code=400, detail="user_id and story_id required")
+    
+    # Check if already unlocked
+    existing = await db.unlocked_stories.find_one({
+        "user_id": user_id,
+        "story_id": story_id,
+    })
+    if existing:
+        return {"success": True, "already_unlocked": True}
+    
+    # Check points
+    collection = "kids_points" if mode == "kids" else "adult_points"
+    profile = await db[collection].find_one({"user_id": user_id}, {"_id": 0})
+    current_points = profile.get("points", 0) if profile else 0
+    
+    if current_points < points_cost:
+        return {
+            "success": False,
+            "message": "insufficient_points",
+            "current_points": current_points,
+            "cost": points_cost,
+        }
+    
+    # Deduct points
+    await db[collection].update_one(
+        {"user_id": user_id},
+        {"$inc": {"points": -points_cost}},
+    )
+    
+    # Record unlock
+    await db.unlocked_stories.insert_one({
+        "user_id": user_id,
+        "story_id": story_id,
+        "cost": points_cost,
+        "unlocked_at": datetime.utcnow().isoformat(),
+    })
+    
+    return {
+        "success": True,
+        "story_unlocked": story_id,
+        "points_spent": points_cost,
+        "remaining_points": current_points - points_cost,
+    }
+
+
+@router.get("/stories/check-unlocked")
+async def check_unlocked_stories(user_id: str):
+    """Check which premium stories user has unlocked."""
+    docs = await db.unlocked_stories.find(
+        {"user_id": user_id}, {"_id": 0, "story_id": 1}
+    ).to_list(500)
+    unlocked_ids = [d["story_id"] for d in docs]
+    return {"success": True, "unlocked_story_ids": unlocked_ids}

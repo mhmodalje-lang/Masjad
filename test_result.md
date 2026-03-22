@@ -1,45 +1,30 @@
-# Test Results - Islamic Woodcraft Theme + UI Fixes
+# Test Results
+
+## User Problem Statement
+Islamic app update based on Flutter code specification - adding parental consent, daily lesson points limit (5/day), premium stories, rewards store with redemption items, and emerald green + gold + tahini night theme.
 
 ## Testing Protocol
-- Run backend tests first using `deep_testing_backend_v2`
-- Ask user before testing frontend
-- Never fix what testing agents already fixed
+- Backend APIs should be tested with curl or deep_testing_backend_v2
+- Frontend should be tested with auto_frontend_testing_agent
+- Always read this file before invoking any testing agent
 
-## Changes Made
+## Backend Test Results
+- ✅ `POST /api/parental-consent/save` - Saves consent successfully
+- ✅ `GET /api/parental-consent/check` - Returns consent status
+- ✅ `POST /api/points/lesson-complete` - Awards 1 point per lesson, max 5/day
+- ✅ `GET /api/store/redeem-catalog` - Returns 5 redemption items
+- ✅ `POST /api/store/redeem` - Deducts points and records redemption
+- ✅ `POST /api/stories/unlock-premium` - Unlocks premium stories for points
+- ✅ `GET /api/stories/check-unlocked` - Returns list of unlocked story IDs
+- ✅ Daily limit enforced: 6th lesson attempt returns "daily_lesson_limit_reached"
 
-### Phase 1: Bottom Navigation Fix
-- Fixed bottom padding (4px → 12px) preventing label clipping
-- Better vertical alignment and icon sizing
-- Updated AppLayout padding class (pb-safe → pb-safe-nav)
+## Frontend Test Results
+- ✅ Emerald green + gold + tahini dark theme applied across all pages
+- ✅ KidsZone shows parental consent dialog on first visit
+- ✅ BarakaMarket shows Rewards Store with 5 items (ebooks, coupons, etc.)
+- ✅ Stories page has premium story badges and locked content indicator
+- ✅ Light mode unchanged and working
 
-### Phase 2: Bug Fixes
-- ZakatCalculator: Fixed "t is not defined" error (module-level t() calls)
-- Explore: Fixed scope issues in CommentsSheet, StoryDetailView, HorizontalStoryCard
-- Index: Fixed truncated Prayer Tracking and Athan buttons
-
-### Phase 3: Islamic Woodcraft Theme (BOTH MODES)
-
-#### Light Mode — "Honey Oak / Warm Parchment"
-- Background: warm honey oak (HSL 30 35% 82%)
-- Cards: light warm wood (HSL 32 30% 86%)
-- Text: dark leather brown (HSL 22 35% 15%)
-- Borders: warm wood grain (HSL 28 18% 72%)
-- Wood texture overlay (6% opacity, multiply blend)
-
-#### Dark Mode — "Dark Walnut / Leather"
-- Background: deep walnut brown (HSL 22 30% 8%)
-- Cards: dark mahogany (HSL 22 25% 12%)
-- Text: warm parchment (HSL 32 25% 88%)
-- Borders: subtle wood lines (HSL 22 18% 18%)
-- Wood texture overlay (8% opacity, soft-light blend)
-
-### Files Modified
-1. `/app/frontend/src/index.css` - Full color palette + textures
-2. `/app/frontend/src/components/layout/BottomNav.tsx` - Nav styling
-3. `/app/frontend/src/components/layout/AppLayout.tsx` - Padding
-4. `/app/frontend/src/pages/Index.tsx` - Button truncation
-5. `/app/frontend/src/pages/ZakatCalculator.tsx` - t() error
-6. `/app/frontend/src/pages/Explore.tsx` - Scope fixes
-
-## Pages Verified
-All 20+ pages working correctly in both light and dark modes
+## Incorporate User Feedback
+- Listen to user requirements carefully
+- Don't make changes user didn't ask for
