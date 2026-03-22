@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://content-verify-81.preview.emergentagent.com/api"
+BACKEND_URL = "https://video-hub-pro-4.preview.emergentagent.com/api"
 
 async def test_endpoint(client, url, description, expected_criteria):
     """Test a single endpoint and return results"""
