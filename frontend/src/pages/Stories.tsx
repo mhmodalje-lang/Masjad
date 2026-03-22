@@ -765,9 +765,7 @@ export default function Stories() {
     if (s && isPremiumStory(s) && !isStoryUnlocked(s)) {
       // Show unlock prompt
       const cost = s.points_cost || 2;
-      const msg = locale === 'ar'
-        ? `هذه القصة مميزة ⭐ تكلف ${cost} نقاط. هل تريد فتحها؟`
-        : `This is a premium story ⭐ It costs ${cost} points. Unlock it?`;
+      const msg = t('storyPremiumUnlock').replace('{cost}', String(cost));
       if (confirm(msg)) {
         unlockPremiumStory(storyId, cost);
       }
@@ -789,15 +787,15 @@ export default function Stories() {
       const d = await r.json();
       if (d.success) {
         setUnlockedStoryIds(prev => new Set([...prev, storyId]));
-        toast.success(locale === 'ar' ? `تم فتح القصة! -${cost} نقاط` : `Story unlocked! -${cost} points`);
+        toast.success(`${t('storyUnlocked')} -${cost} ${t('storyPoints')}`);
         const params = new URLSearchParams(searchParams);
         params.set('story', storyId);
         setSearchParams(params);
       } else if (d.message === 'insufficient_points') {
-        toast.error(locale === 'ar' ? 'نقاطك غير كافية لفتح هذه القصة' : 'Insufficient points to unlock this story');
+        toast.error(t('insufficientPointsStory'));
       }
     } catch {
-      toast.error(locale === 'ar' ? 'حدث خطأ' : 'Error');
+      toast.error(t('genericError'));
     }
   };
 
@@ -1086,7 +1084,7 @@ export default function Stories() {
                                   : "bg-amber-500/15 text-amber-500"
                               )}>
                                 {isStoryUnlocked(s) ? <Star className="h-2.5 w-2.5" /> : <Lock className="h-2.5 w-2.5" />}
-                                {isStoryUnlocked(s) ? (locale === 'ar' ? 'مميز' : 'Premium') : `${s.points_cost || 2} ${locale === 'ar' ? 'نقاط' : 'pts'}`}
+                                {isStoryUnlocked(s) ? t('premiumStory') : `${s.points_cost || 2} ${t('storyPoints')}`}
                               </span>
                             )}
                           </div>
@@ -1097,7 +1095,7 @@ export default function Stories() {
                           {isPremiumStory(s) && !isStoryUnlocked(s) && (
                             <div className="mt-2 flex items-center gap-2 text-amber-500 text-xs font-bold">
                               <Lock className="h-3 w-3" />
-                              <span>{locale === 'ar' ? `افتح بـ ${s.points_cost || 2} نقاط` : `Unlock for ${s.points_cost || 2} points`}</span>
+                              <span>{t('storyUnlockFor')} {s.points_cost || 2} {t('storyPoints')}</span>
                             </div>
                           )}
                         </div>

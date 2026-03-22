@@ -236,9 +236,9 @@ export default function AsmaAlHusna() {
       <div className="px-5 mt-6 mb-4">
         <div className="rounded-2xl bg-muted/50 border border-border/30 p-4 text-center">
           <p className="text-sm text-foreground leading-relaxed">
-            {isAr ? 'قال رسول الله صلى الله عليه وسلم: "إنّ لله تسعة وتسعين اسماً مائة إلا واحداً من أحصاها دخل الجنة"' : 'The Prophet ﷺ said: "Allah has ninety-nine names, one hundred minus one, whoever memorizes them will enter Paradise"'}
+            {t('asmaHadith')}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-2">{isAr ? 'رواه البخاري ومسلم' : 'Bukhari & Muslim'}</p>
+          <p className="text-[10px] text-muted-foreground mt-2">{t('asmaHadithSource')}</p>
         </div>
       </div>
     </div>

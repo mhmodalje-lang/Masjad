@@ -20,7 +20,7 @@ interface IslamicAdProps {
  * NO 3rd party ad networks. NO policy violations.
  */
 export default function IslamicAd({ placement = 'main', variant = 'card', className }: IslamicAdProps) {
-  const { locale, dir } = useLocale();
+  const { locale, dir, t } = useLocale();
   const navigate = useNavigate();
   const [ad, setAd] = useState<any>(null);
   const [clicked, setClicked] = useState(false);
@@ -125,7 +125,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
           <div className="text-center">
             <span className="text-3xl">🪙</span>
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-300 mt-1">+{coinsEarned}</p>
-            {ad.target_route && <p className="text-xs text-emerald-600/70 dark:text-emerald-300/70 mt-0.5">{locale === 'ar' ? 'جاري الفتح...' : 'Opening...'}</p>}
+            {ad.target_route && <p className="text-xs text-emerald-600/70 dark:text-emerald-300/70 mt-0.5">{t('adOpening')}</p>}
           </div>
         </div>
       )}

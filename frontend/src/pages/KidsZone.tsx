@@ -135,9 +135,9 @@ export default function KidsZone() {
       });
       setShowConsent(false);
       setConsentChecked(true);
-      toast.success(locale === 'ar' ? 'تم قبول الموافقة ✅' : 'Consent accepted ✅');
+      toast.success(t('parentalConsentAccepted'));
     } catch {
-      toast.error(locale === 'ar' ? 'حدث خطأ' : 'Error');
+      toast.error(t('genericError'));
     }
   };
 
@@ -152,10 +152,10 @@ export default function KidsZone() {
       const d = await r.json();
       if (d.success) {
         setLessonsToday(d.lessons_today);
-        toast.success(locale === 'ar' ? `+1 نقطة لمشاهدة الدرس (${d.lessons_today}/5)` : `+1 point for lesson (${d.lessons_today}/5)`);
+        toast.success(`${t('lessonPointEarned')} (${d.lessons_today}/5)`);
       } else if (d.message === 'daily_lesson_limit_reached') {
         setLessonsToday(5);
-        toast.info(locale === 'ar' ? 'لقد حصلت على الحد الأقصى للنقاط اليوم (5 نقاط)' : 'Daily lesson points limit reached (5/5)');
+        toast.info(t('dailyLessonLimitReached'));
       }
     } catch {}
   };
@@ -764,12 +764,10 @@ export default function KidsZone() {
               <Lock className="h-8 w-8 text-amber-500" />
             </div>
             <h2 className="text-lg font-bold text-foreground">
-              {locale === 'ar' ? 'موافقة ولي الأمر' : 'Parental Consent'}
+              {t('parentalConsentTitle')}
             </h2>
             <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-              {locale === 'ar'
-                ? 'يحتوي هذا القسم على محتوى تعليمي للأطفال. يتضمن إعلانات تتوافق مع سياسات حماية الطفل. هل توافق على استخدام طفلك لهذا القسم؟'
-                : 'This section contains educational content for children. It includes ads that comply with child protection policies. Do you approve your child using this section?'}
+              {t('parentalConsentDesc')}
             </p>
           </div>
           <div className="space-y-2">
@@ -778,17 +776,17 @@ export default function KidsZone() {
               className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2"
             >
               <Check className="h-4 w-4" />
-              {locale === 'ar' ? 'أوافق' : 'I Approve'}
+              {t('parentalConsentApprove')}
             </button>
             <button
               onClick={() => { setShowConsent(false); nav(-1); }}
               className="w-full py-3 rounded-2xl bg-muted/50 text-muted-foreground font-medium text-sm hover:bg-muted/70 transition-all"
             >
-              {locale === 'ar' ? 'رجوع' : 'Go Back'}
+              {t('parentalConsentBack')}
             </button>
           </div>
           <p className="text-center text-xs text-muted-foreground/60">
-            {locale === 'ar' ? '🛡️ نحرص على سلامة أطفالكم' : '🛡️ We care about your children\'s safety'}
+            {t('parentalConsentSafety')}
           </p>
         </div>
       </div>
@@ -798,7 +796,7 @@ export default function KidsZone() {
     {lessonsToday > 0 && (
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-amber-500/90 text-white text-xs font-bold shadow-lg flex items-center gap-2 animate-in slide-in-from-top">
         <Star className="h-3.5 w-3.5" />
-        <span>{locale === 'ar' ? `نقاط اليوم: ${lessonsToday}/5` : `Today: ${lessonsToday}/5 points`}</span>
+        <span>{t('dailyLessonPoints')} {lessonsToday}/5 {t('dailyLessonPointsFormat')}</span>
       </div>
     )}
     {/* Header - Luxury Glass */}

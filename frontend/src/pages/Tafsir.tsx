@@ -47,12 +47,10 @@ const SURAHS = [
   {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},{n:114,ar:"الناس",en:"An-Nas",v:6},
 ];
 
-// Tafsir resource IDs on quran.com API
-// Ibn Kathir Arabic = 169, Muyassar (simplified Arabic) = 16
 const TAFSIR_IDS = { kathir_ar: 169, muyassar: 16 };
 
 export default function Tafsir() {
-  const { locale, dir } = useLocale();
+  const { locale, dir, t } = useLocale();
   const isAr = locale === 'ar';
 
   const [surahNum, setSurahNum] = useState(1);
@@ -73,24 +71,20 @@ export default function Tafsir() {
     setLoading(true);
     setShowSurahList(false);
     try {
-      // Fetch Arabic ayah text
       const ayahRes = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sNum}&verse_key=${sNum}:${aNum}`);
       const ayahData = await ayahRes.json();
       if (ayahData.verses && ayahData.verses.length > 0) {
         setAyahText(ayahData.verses[0].text_uthmani || '');
       }
 
-      // Fetch tafsir (Ibn Kathir simplified = resource 169)
       const tafsirRes = await fetch(`${API}/tafsirs/${TAFSIR_IDS.kathir_ar}/by_ayah/${sNum}:${aNum}`);
       const tafsirData = await tafsirRes.json();
       if (tafsirData.tafsir) {
-        // Clean HTML tags from tafsir text
         const raw = tafsirData.tafsir.text || '';
         const clean = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
         setTafsirText(clean);
       }
 
-      // Fetch English translation (resource 131 = Sahih International)
       if (!isAr) {
         const trRes = await fetch(`${API}/quran/translations/131?verse_key=${sNum}:${aNum}`);
         const trData = await trRes.json();
@@ -101,10 +95,10 @@ export default function Tafsir() {
       }
     } catch (e) {
       console.error('Tafsir fetch error:', e);
-      setTafsirText(isAr ? 'حدث خطأ في تحميل التفسير' : 'Error loading tafsir');
+      setTafsirText(t('tafsirError'));
     }
     setLoading(false);
-  }, [isAr]);
+  }, [isAr, t]);
 
   useEffect(() => {
     if (!showSurahList) {
@@ -143,16 +137,12 @@ export default function Tafsir() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-emerald-500" />
-            <h1 className="text-lg font-bold text-foreground">
-              {isAr ? 'تفسير ابن كثير الميسر' : 'Ibn Kathir Tafsir'}
-            </h1>
+            <h1 className="text-lg font-bold text-foreground">{t('tafsirTitle')}</h1>
           </div>
           {!showSurahList && (
-            <button
-              onClick={() => setShowSurahList(true)}
-              className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
-            >
-              {isAr ? 'السور' : 'Surahs'}
+            <button onClick={() => setShowSurahList(true)}
+              className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">
+              {t('tafsirSurahs')}
             </button>
           )}
         </div>
@@ -161,41 +151,23 @@ export default function Tafsir() {
       {/* Surah List */}
       {showSurahList && (
         <div className="px-4 py-3 space-y-3">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder={isAr ? 'ابحث عن سورة...' : 'Search surah...'}
-              className="w-full py-3 pr-10 pl-4 rounded-2xl bg-card border border-border/30 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
-            />
+            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder={t('tafsirSearchSurah')}
+              className="w-full py-3 pr-10 pl-4 rounded-2xl bg-card border border-border/30 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30" />
           </div>
-
-          {/* Description */}
           <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20">
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              {isAr
-                ? '📖 تفسير ابن كثير الميسر — فهم القرآن بأسلوب سهل ومبسط. اختر سورة وآية لقراءة التفسير.'
-                : '📖 Ibn Kathir Tafsir — Understand the Quran in a simple way. Select a surah and verse to read the explanation.'}
-            </p>
+            <p className="text-sm text-foreground/80 leading-relaxed">{t('tafsirDescription')}</p>
           </div>
-
-          {/* Surah Grid */}
           <div className="grid grid-cols-2 gap-2">
             {filteredSurahs.map(s => (
-              <button
-                key={s.n}
-                onClick={() => { setSurahNum(s.n); setAyahNum(1); setShowSurahList(false); }}
-                className="p-3 rounded-xl bg-card border border-border/20 hover:border-emerald-500/30 transition-all text-right flex items-center gap-2.5 active:scale-[0.98]"
-              >
-                <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">
-                  {s.n}
-                </span>
+              <button key={s.n} onClick={() => { setSurahNum(s.n); setAyahNum(1); setShowSurahList(false); }}
+                className="p-3 rounded-xl bg-card border border-border/20 hover:border-emerald-500/30 transition-all text-right flex items-center gap-2.5 active:scale-[0.98]">
+                <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">{s.n}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground truncate">{s.ar}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{s.en} • {s.v} {isAr ? 'آية' : 'verses'}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">{s.en} • {s.v} {t('tafsirVerses')}</p>
                 </div>
               </button>
             ))}
@@ -206,43 +178,30 @@ export default function Tafsir() {
       {/* Tafsir Reading */}
       {!showSurahList && (
         <div className="px-4 py-3 space-y-4">
-          {/* Surah/Ayah Navigation */}
           <div className="flex items-center justify-between gap-2">
             <button onClick={prevAyah} className="p-2.5 rounded-xl bg-card border border-border/20 hover:bg-muted/50 transition-all active:scale-95">
               <ChevronRight className="h-5 w-5 text-foreground" />
             </button>
             <div className="text-center flex-1">
               <p className="text-base font-bold text-foreground">{surah?.ar} ({surah?.en})</p>
-              <p className="text-xs text-muted-foreground">{isAr ? 'الآية' : 'Verse'} {ayahNum} / {surah?.v}</p>
+              <p className="text-xs text-muted-foreground">{t('tafsirVerse')} {ayahNum} / {surah?.v}</p>
             </div>
             <button onClick={nextAyah} className="p-2.5 rounded-xl bg-card border border-border/20 hover:bg-muted/50 transition-all active:scale-95">
               <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
           </div>
 
-          {/* Ayah Number Selector */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {surah && Array.from({ length: Math.min(surah.v, 30) }, (_, i) => i + 1).map(num => (
-              <button
-                key={num}
-                onClick={() => setAyahNum(num)}
-                className={cn(
-                  "w-9 h-9 rounded-lg text-xs font-bold shrink-0 transition-all",
-                  num === ayahNum
-                    ? "bg-emerald-600 text-white shadow-lg"
-                    : "bg-card border border-border/20 text-foreground hover:bg-muted/50"
-                )}
-              >
-                {num}
-              </button>
+              <button key={num} onClick={() => setAyahNum(num)}
+                className={cn("w-9 h-9 rounded-lg text-xs font-bold shrink-0 transition-all",
+                  num === ayahNum ? "bg-emerald-600 text-white shadow-lg" : "bg-card border border-border/20 text-foreground hover:bg-muted/50"
+                )}>{num}</button>
             ))}
             {surah && surah.v > 30 && (
-              <select
-                value={ayahNum > 30 ? ayahNum : ''}
-                onChange={e => setAyahNum(Number(e.target.value))}
-                className="h-9 px-2 rounded-lg text-xs bg-card border border-border/20 text-foreground"
-              >
-                <option value="" disabled>{isAr ? 'المزيد' : 'More'}</option>
+              <select value={ayahNum > 30 ? ayahNum : ''} onChange={e => setAyahNum(Number(e.target.value))}
+                className="h-9 px-2 rounded-lg text-xs bg-card border border-border/20 text-foreground">
+                <option value="" disabled>{t('tafsirMore')}</option>
                 {Array.from({ length: surah.v - 30 }, (_, i) => i + 31).map(n => (
                   <option key={n} value={n}>{n}</option>
                 ))}
@@ -253,27 +212,21 @@ export default function Tafsir() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-              <p className="text-sm text-muted-foreground">{isAr ? 'جاري تحميل التفسير...' : 'Loading tafsir...'}</p>
+              <p className="text-sm text-muted-foreground">{t('tafsirLoading')}</p>
             </div>
           ) : (
             <>
-              {/* Arabic Ayah */}
               <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 text-center">
-                <p className="text-2xl leading-[2.2] font-arabic text-foreground" dir="rtl">
-                  {ayahText || '...'}
-                </p>
+                <p className="text-2xl leading-[2.2] font-arabic text-foreground" dir="rtl">{ayahText || '...'}</p>
                 <div className="flex items-center justify-center gap-3 mt-3">
-                  <span className="text-xs text-muted-foreground">{surah?.ar} - {isAr ? 'آية' : 'Verse'} {ayahNum}</span>
-                  <button onClick={toggleFav} className={cn(
-                    "p-1.5 rounded-full transition-all",
-                    favorites.includes(`${surahNum}:${ayahNum}`) ? "text-amber-500" : "text-muted-foreground/40"
-                  )}>
+                  <span className="text-xs text-muted-foreground">{surah?.ar} - {t('tafsirVerse')} {ayahNum}</span>
+                  <button onClick={toggleFav} className={cn("p-1.5 rounded-full transition-all",
+                    favorites.includes(`${surahNum}:${ayahNum}`) ? "text-amber-500" : "text-muted-foreground/40")}>
                     <Star className="h-4 w-4" fill={favorites.includes(`${surahNum}:${ayahNum}`) ? 'currentColor' : 'none'} />
                   </button>
                 </div>
               </div>
 
-              {/* Translation (for non-Arabic) */}
               {!isAr && translationText && (
                 <div className="p-4 rounded-2xl bg-card border border-border/20">
                   <p className="text-xs font-bold text-muted-foreground mb-2 uppercase">Translation</p>
@@ -281,14 +234,13 @@ export default function Tafsir() {
                 </div>
               )}
 
-              {/* Tafsir Content */}
               <div className="p-5 rounded-2xl bg-card border border-border/20">
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen className="h-4 w-4 text-amber-500" />
-                  <p className="text-sm font-bold text-foreground">{isAr ? 'تفسير ابن كثير' : 'Ibn Kathir Tafsir'}</p>
+                  <p className="text-sm font-bold text-foreground">{t('tafsirIbnKathir')}</p>
                 </div>
                 <p className="text-sm text-foreground/80 leading-[2] whitespace-pre-wrap" dir="rtl">
-                  {tafsirText || (isAr ? 'اضغط على آية لعرض التفسير' : 'Select a verse to view tafsir')}
+                  {tafsirText || t('tafsirSelectVerse')}
                 </p>
               </div>
             </>
