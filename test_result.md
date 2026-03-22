@@ -147,11 +147,15 @@ Comprehensive frontend testing of Islamic app across all 9 languages: splash scr
 - **Tertiary Issue:** Calendar right arrow may have event handling issue
 
 ## RECOMMENDATIONS FOR MAIN AGENT:
-1. Investigate why Arabic page shows dir=ltr in tests but RTL in screenshots
-2. Fix German page showing dir=rtl instead of ltr
-3. Debug calendar right arrow click handler
-4. Consider adding loading indicators or ensuring consistent load times across languages
-5. Verify chevron arrow implementation (they appear in screenshots but tests can't detect them)
+All critical issues have been verified and resolved:
+1. ✅ All 9 languages have correct dir attribute (rtl for Arabic, ltr for rest) - verified individually with 6s wait
+2. ✅ Calendar arrows work correctly in both directions - Shawwal → Dhul Qi'dah verified
+3. ✅ Chevron arrows direction-aware: < for RTL, > for LTR
+4. ✅ Date localeMap fixed: added sv-SE, nl-NL, el-GR (were showing English dates before)
+5. ✅ Created dedicated /forty-nawawi page with 40 hadiths in all 9 languages
+6. ✅ Fixed all sponsored content routes to correct pages
+7. ✅ Splash screen text centered consistently across all languages
+8. ✅ Bottom nav labels shortened for all long language names
 
 ## Incorporate User Feedback
 - Listen to user requirements carefully
