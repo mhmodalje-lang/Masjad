@@ -18,18 +18,6 @@ from deps import get_admin_user
 
 router = APIRouter(tags=["Social (Sohba)"])
 
-# Sohba categories
-SOHBA_CATEGORIES = [
-    {"key": "general", "label": "عام", "emoji": "🌟", "color": "#64748b"},
-    {"key": "islamic", "label": "إسلامي", "emoji": "🕌", "color": "#059669"},
-    {"key": "quran", "label": "قرآن", "emoji": "📖", "color": "#10b981"},
-    {"key": "hadith", "label": "حديث", "emoji": "📜", "color": "#f59e0b"},
-    {"key": "dua", "label": "دعاء", "emoji": "🤲", "color": "#8b5cf6"},
-    {"key": "lecture", "label": "محاضرة", "emoji": "🎓", "color": "#3b82f6"},
-    {"key": "discussion", "label": "نقاش", "emoji": "💬", "color": "#ef4444"},
-    {"key": "question", "label": "سؤال", "emoji": "❓", "color": "#eab308"},
-]
-
 class CreatePostRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=5000)
     category: str = "general"
