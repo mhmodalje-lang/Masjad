@@ -71,6 +71,32 @@ export default function BarakaMarket() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // Auto-sync wallet when app becomes visible (tab switch, phone unlock)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    // Also try Capacitor App plugin for native resume
+    let appListener: any = null;
+    (async () => {
+      try {
+        const { App } = await import('@capacitor/app');
+        appListener = await App.addListener('appStateChange', (state: { isActive: boolean }) => {
+          if (state.isActive) loadData();
+        });
+      } catch {
+        // Not in native context — that's fine
+      }
+    })();
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      if (appListener) appListener.remove();
+    };
+  }, [loadData]);
+
   // Simulated ad watching (since this is a web app, not native)
   const watchAd = (type: 'earn' | 'transfer') => {
     setAdType(type);
@@ -98,6 +124,8 @@ export default function BarakaMarket() {
           body: JSON.stringify({ ad_type: 'rewarded_video', placement: 'baraka_market' }),
         }).then(r => r.json());
         if (res.success) {
+          // Haptic feedback — makes the reward feel "real"
+          if (navigator.vibrate) navigator.vibrate([50, 30, 80]);
           setSuccessMsg(`+${res.earned} ${t('blessing_coins')} 🎉`);
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 3000);
@@ -109,6 +137,8 @@ export default function BarakaMarket() {
           body: JSON.stringify({ kid_id: `kid_${userId}`, amount: 50 }),
         }).then(r => r.json());
         if (res.success) {
+          // Haptic feedback — makes the reward feel "real"
+          if (navigator.vibrate) navigator.vibrate([40, 20, 60, 20, 40]);
           setSuccessMsg(`+${res.transferred} ${t('golden_bricks')} 🧱`);
           setShowSuccess(true);
           setTimeout(() => setShowSuccess(false), 3000);

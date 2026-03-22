@@ -22,6 +22,7 @@ import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/l
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 const FeaturedVideos = lazy(() => import('@/components/FeaturedVideos'));
+const NativeAdCard = lazy(() => import('@/components/NativeAdCard'));
 
 // Lazy load below-the-fold components
 const DailyHadith = lazy(() => import('@/components/DailyHadith'));
@@ -509,6 +510,11 @@ export default function Index() {
       {/* ===== DAILY HADITH ===== */}
       <Suspense fallback={<div className="h-40" />}>
         <DailyHadith />
+      </Suspense>
+
+      {/* ===== NATIVE SPONSORED CARD (blends with Hadith design) ===== */}
+      <Suspense fallback={null}>
+        <NativeAdCard placement="hadith_feed" />
       </Suspense>
 
       {/* ===== FEATURED VIDEO CONTENT ===== */}

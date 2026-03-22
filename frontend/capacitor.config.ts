@@ -5,8 +5,7 @@ const config: CapacitorConfig = {
   appName: 'أذان وحكاية',
   webDir: 'dist',
   server: {
-    // For production: comment out url to use local assets
-    // url: 'https://your-production-url.com',
+    androidScheme: 'https',
     cleartext: false,
   },
   android: {
@@ -18,7 +17,7 @@ const config: CapacitorConfig = {
     //            android:value="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY"/>
   },
   ios: {
-    // AdMob Configuration
+    // AdMob Configuration  
     // Add GADApplicationIdentifier in Info.plist
     // with your AdMob App ID
     scheme: 'أذان وحكاية',
@@ -26,18 +25,20 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 2500,
       launchAutoHide: true,
-      backgroundColor: '#0c1a14',
+      backgroundColor: '#064e3b',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
-      showSpinner: false,
+      showSpinner: true,
+      spinnerColor: '#d4a843',
       splashFullScreen: true,
       splashImmersive: true,
     },
     StatusBar: {
       style: 'DARK',
       backgroundColor: '#064e3b',
+      overlaysWebView: false,
     },
     PushNotifications: {
       presentationOptions: ['badge', 'sound', 'alert'],
