@@ -213,7 +213,7 @@ export default function KidsZone() {
             <span>{Math.round((completedDays.length/1000)*100)}%</span>
           </div>
           <div className="h-3 bg-muted/40 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 transition-all" style={{width:`${(completedDays.length/1000)*100}%`}}/>
+            <div className="h-full rounded-full bg-gradient-to-r from-[#064E3B] via-[#0A6B52] to-[#D4AF37] transition-all" style={{width:`${(completedDays.length/1000)*100}%`}}/>
           </div>
         </div>
       </div>
@@ -229,7 +229,7 @@ export default function KidsZone() {
       </div>)}
 
       {/* Quick Start */}
-      <button onClick={()=>{setMainTab('lesson');loadLesson(currentDay);}} className="w-full p-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-500 text-white font-bold text-base shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-3 hover:scale-[1.02] transition-all">
+      <button onClick={()=>{setMainTab('lesson');loadLesson(currentDay);}} className="w-full p-4 rounded-[1.5rem] btn-islamic text-white font-bold text-base flex items-center justify-center gap-3">
         <Play className="h-5 w-5 fill-white"/>
         {t('startLessonN').replace('{n}', String(currentDay))}
       </button>
@@ -241,10 +241,10 @@ export default function KidsZone() {
         const pct = Math.round((completed/s.total_lessons)*100);
         const isCurrent = currentDay>=s.day_start && currentDay<=s.day_end;
         const isLocked = currentDay < s.day_start && completed===0;
-        return(<div key={s.id} className={cn("rounded-2xl overflow-hidden border transition-all",isLocked?"opacity-50 border-white/5":"border-border/30")} style={{borderColor:!isLocked?s.color+'30':undefined}}>
+        return(<div key={s.id} className={cn("rounded-[1.5rem] overflow-hidden border transition-all",isLocked?"opacity-50 border-border/10":"border-border/30")} style={{borderColor:!isLocked?s.color+'30':undefined}}>
           <button onClick={()=>!isLocked&&setExpandedStage(isOpen?null:s.id)} disabled={isLocked}
-            className="w-full p-4 flex items-center gap-3" style={{background:`linear-gradient(135deg,${s.color}12,${s.color}06)`}}>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-lg" style={{background:`linear-gradient(135deg,${s.color}30,${s.color}15)`}}>
+            className="w-full p-4 flex items-center gap-3" style={{background:`linear-gradient(135deg,${s.color}10,${s.color}05)`}}>
+            <div className="w-12 h-12 rounded-[1rem] flex items-center justify-center text-2xl shadow-lg" style={{background:`linear-gradient(135deg,${s.color}25,${s.color}12)`}}>
               {isLocked?<Lock className="h-5 w-5 text-muted-foreground"/>:<span>{s.emoji}</span>}
             </div>
             <div className="flex-1 text-start">
@@ -298,14 +298,14 @@ export default function KidsZone() {
             <span className="text-xl">{L.stage.emoji}</span>
             <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{background:L.stage.color+'20',color:L.stage.color}}>{L.stage.title}</span>
           </div>
-          <p className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent mt-1">{t('dayN').replace('{n}', String(L.day))}</p>
+          <p className="text-2xl font-bold text-gradient-islamic mt-1">{t('dayN').replace('{n}', String(L.day))}</p>
           <p className="text-[10px] text-muted-foreground">{L.lesson_number_in_stage} / {L.total_in_stage}</p>
         </div>
         <button onClick={()=>loadLesson(Math.min(1000,L.day+1))} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-lg font-bold">→</button>
       </div>
 
       {/* Lesson Title */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 text-center">
+      <div className="p-4 rounded-[1.5rem] bg-gradient-to-r from-[#064E3B]/10 to-[#D4AF37]/10 border border-[#064E3B]/20 text-center">
         <span className="text-3xl">📚</span>
         <h2 className="text-lg font-bold mt-2">{L.title[locale] || L.title.ar || L.title.en}</h2>
         <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} {t('xpLabel') || 'XP'}</p>
@@ -578,8 +578,8 @@ export default function KidsZone() {
 
     return(<div className="space-y-4 pb-8">
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
-        {subs.map(st=>(<button key={st.id} onClick={()=>setIslamSub(st.id)} className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap border transition-all shrink-0",
-          islamSub===st.id?"bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border-emerald-400/40 text-emerald-300":"bg-white/5 border-border/30 text-muted-foreground")}>
+        {subs.map(st=>(<button key={st.id} onClick={()=>setIslamSub(st.id)} className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-[1rem] text-[11px] font-bold whitespace-nowrap border transition-all shrink-0",
+          islamSub===st.id?"bg-gradient-to-r from-[#064E3B]/15 to-[#0A6B52]/10 border-[#064E3B]/30 text-[#064E3B] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/10 dark:border-[#D4AF37]/30 dark:text-[#D4AF37]":"bg-muted/20 border-border/30 text-muted-foreground")}>
           <span>{st.emoji}</span>{st.label}<span className="text-[9px] opacity-60">({st.count})</span>
         </button>))}
       </div>
@@ -697,18 +697,18 @@ export default function KidsZone() {
   // ═══════ MAIN RENDER ═══════
   return(<div dir={dir} className="min-h-screen bg-background pb-24">
     <Confetti on={confetti}/>
-    {/* Header */}
-    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-white/5 px-4 py-3">
+    {/* Header - Luxury Glass */}
+    <div className="sticky top-0 z-30 glass-nav border-b border-border/20 px-4 py-3" style={{background:'hsl(var(--card) / 0.8)'}}>
       <div className="flex items-center justify-between max-w-lg mx-auto">
         <button onClick={()=>{
           if(selectedSurah){setSelectedSurah(null);return;}
           if(selectedProphet){setSelectedProphet(null);return;}
           if(selItem){setSelItem(null);return;}
           nav(-1);
-        }} className="p-2 rounded-full hover:bg-white/10"><ArrowLeft className="h-5 w-5"/></button>
+        }} className="p-2 rounded-full hover:bg-muted/40"><ArrowLeft className="h-5 w-5"/></button>
         <h1 className="text-lg font-bold flex items-center gap-2">
           <span className="text-xl">{TABS.find(t=>t.id===mainTab)?.emoji}</span>
-          <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="text-gradient-islamic">
             {t(TABS.find(tb=>tb.id===mainTab)?.key || mainTab)}
           </span>
         </h1>
@@ -717,12 +717,14 @@ export default function KidsZone() {
     </div>
 
     <div className="max-w-lg mx-auto px-4 pt-2">
-      {/* Tab bar */}
+      {/* Tab bar - Islamic Luxury */}
       {!selectedSurah && !selectedProphet && !selItem && (
-        <div className="flex gap-1 overflow-x-auto pb-3 scrollbar-hide mb-1">
+        <div className="flex gap-1.5 overflow-x-auto pb-3 scrollbar-hide mb-1">
           {TABS.map(tab=>(<button key={tab.id} onClick={()=>setMainTab(tab.id)}
-            className={cn("flex items-center gap-1.5 px-3 py-3 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0 min-h-[44px]",
-              mainTab===tab.id?"bg-gradient-to-r from-violet-500/20 to-pink-500/20 border-violet-400/40 text-violet-300 shadow-lg shadow-violet-500/10":"bg-white/5 border-border/30 text-muted-foreground hover:bg-white/10"
+            className={cn("flex items-center gap-1.5 px-3.5 py-3 rounded-[1.25rem] text-xs font-bold whitespace-nowrap border transition-all shrink-0 min-h-[44px]",
+              mainTab===tab.id
+                ? "bg-gradient-to-r from-[#064E3B]/15 to-[#0A6B52]/10 border-[#064E3B]/30 text-[#064E3B] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5 dark:border-[#D4AF37]/30 dark:text-[#D4AF37] shadow-lg"
+                : "bg-muted/20 border-border/30 text-muted-foreground hover:bg-muted/40"
             )}>
             <span>{tab.emoji}</span><span>{t(tab.key)}</span>
           </button>))}
