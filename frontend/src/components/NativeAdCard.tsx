@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { BookOpen, ExternalLink, Sparkles } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -73,6 +74,7 @@ interface NativeAdCardProps {
  */
 export default function NativeAdCard({ className, placement = 'hadith_feed' }: NativeAdCardProps) {
   const { locale, dir } = useLocale();
+  const navigate = useNavigate();
   const lang = locale || 'ar';
   const [ad, setAd] = useState<any>(null);
   const [clicked, setClicked] = useState(false);
@@ -114,15 +116,26 @@ export default function NativeAdCard({ className, placement = 'hadith_feed' }: N
       const data = await res.json();
       if (data.success) {
         setCoinsEarned(data.coins_awarded || 1);
-        setTimeout(() => {
-          setCoinsEarned(0);
-          setClicked(false);
-        }, 3000);
       }
     } catch {
-      setClicked(false);
+      // silent
     }
-  }, [ad, clicked]);
+
+    // Navigate to content after brief coin animation
+    const route = ad.target_route;
+    if (route) {
+      setTimeout(() => {
+        navigate(route);
+        setClicked(false);
+        setCoinsEarned(0);
+      }, 800);
+    } else {
+      setTimeout(() => {
+        setCoinsEarned(0);
+        setClicked(false);
+      }, 2500);
+    }
+  }, [ad, clicked, navigate]);
 
   // Don't show if loading or no ad
   if (loading || !ad) return null;

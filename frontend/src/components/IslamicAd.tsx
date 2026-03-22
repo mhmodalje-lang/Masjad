@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocale } from '@/hooks/useLocale';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -15,11 +16,12 @@ interface IslamicAdProps {
  * ====================================
  * Self-hosted halal content system. Fetches real Islamic sponsored 
  * content from backend (books, courses, charities, products).
- * Awards blessing coins when users interact.
+ * Awards blessing coins AND navigates to real content when clicked.
  * NO 3rd party ad networks. NO policy violations.
  */
 export default function IslamicAd({ placement = 'main', variant = 'card', className }: IslamicAdProps) {
   const { locale, dir } = useLocale();
+  const navigate = useNavigate();
   const [ad, setAd] = useState<any>(null);
   const [clicked, setClicked] = useState(false);
   const [coinsEarned, setCoinsEarned] = useState(0);
@@ -40,15 +42,28 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
   const handleClick = useCallback(async () => {
     if (!ad || clicked) return;
     setClicked(true);
+
+    // Award coins silently
     try {
       const res = await fetch(`${BACKEND_URL}/api/ads/click/${ad.id}?user_id=guest`, { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setCoinsEarned(data.coins_awarded);
-        setTimeout(() => { setCoinsEarned(0); setClicked(false); }, 3000);
       }
-    } catch (e) { setClicked(false); }
-  }, [ad, clicked]);
+    } catch (e) { /* silent */ }
+
+    // Navigate to content after brief coin animation
+    const route = ad.target_route;
+    if (route) {
+      setTimeout(() => {
+        navigate(route);
+        setClicked(false);
+        setCoinsEarned(0);
+      }, 800);
+    } else {
+      setTimeout(() => { setCoinsEarned(0); setClicked(false); }, 2500);
+    }
+  }, [ad, clicked, navigate]);
 
   if (!ad) return null;
 
@@ -62,7 +77,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
       )} style={{ background: `linear-gradient(135deg, ${ad.color}12, ${ad.color}06)`, borderColor: `${ad.color}25` }}>
         {coinsEarned > 0 && (
           <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-center z-10 animate-in fade-in">
-            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">+{coinsEarned} 🪙</span>
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">+{coinsEarned} 🪙 {ad.target_route ? '→' : ''}</span>
           </div>
         )}
         <div className="flex items-center gap-3">
@@ -110,6 +125,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
           <div className="text-center">
             <span className="text-3xl">🪙</span>
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-300 mt-1">+{coinsEarned}</p>
+            {ad.target_route && <p className="text-xs text-emerald-600/70 dark:text-emerald-300/70 mt-0.5">{locale === 'ar' ? 'جاري الفتح...' : 'Opening...'}</p>}
           </div>
         </div>
       )}

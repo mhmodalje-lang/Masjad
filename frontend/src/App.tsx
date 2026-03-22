@@ -69,6 +69,7 @@ const CreatePost = lazy(() => import("./pages/CreatePost"));
 const KidsZone = lazy(() => import("./pages/KidsZone"));
 const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const BarakaMarket = lazy(() => import("./pages/BarakaMarket"));
+const Tafsir = lazy(() => import("./pages/Tafsir"));
 
 const queryClient = new QueryClient();
 
@@ -160,6 +161,7 @@ const App = () => {
                           <Route path="/arabic-academy" element={<Navigate to="/kids-zone" replace />} />
                           <Route path="/kids-zone" element={<KidsZone />} />
                           <Route path="/baraka-market" element={<BarakaMarket />} />
+                          <Route path="/tafsir" element={<Tafsir />} />
                           <Route path="/live-streams" element={<LiveStreams />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
