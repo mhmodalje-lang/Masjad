@@ -266,12 +266,15 @@ function CreateSheet({ categories, onClose, onCreated }: {
   ];
 
   const catBtns = [
-    { key: 'general', label: t('generalCategory'), e: '🌍' },
-    { key: 'quran', label: t('quranCategory'), e: '📖' },
-    { key: 'hadith', label: t('hadithCategory'), e: '📜' },
-    { key: 'dua', label: t('duaCategory'), e: '🤲' },
-    { key: 'stories', label: t('storiesCategory'), e: '✍️' },
-    { key: 'family', label: t('familyCategory'), e: '👨‍👩‍👧' },
+    { key: 'general', label: t('storyCatGeneral'), e: '🌟' },
+    { key: 'istighfar', label: t('storyCatIstighfar'), e: '🤲' },
+    { key: 'sahaba', label: t('storyCatSahaba'), e: '⚔️' },
+    { key: 'quran', label: t('storyCatQuran'), e: '📖' },
+    { key: 'prophets', label: t('storyCatProphets'), e: '🕌' },
+    { key: 'ruqyah', label: t('storyCatRuqyah'), e: '🛡️' },
+    { key: 'rizq', label: t('storyCatRizq'), e: '💎' },
+    { key: 'tawba', label: t('storyCatTawba'), e: '💧' },
+    { key: 'miracles', label: t('storyCatMiracles'), e: '✨' },
   ];
 
   return (
@@ -317,8 +320,8 @@ function CreateSheet({ categories, onClose, onCreated }: {
           <textarea data-testid="create-post-content" value={content} onChange={e => setContent(e.target.value)}
             placeholder={t("shareIdea")}
             className="w-full bg-muted/30 text-foreground rounded-2xl px-4 py-3 text-sm min-h-[140px] resize-none border border-border/20 outline-none focus:border-emerald-600/50 placeholder:text-muted-foreground/60 leading-relaxed"
-            maxLength={5000} />
-          <p className="text-start text-muted-foreground text-[10px]">{content.length}/5000</p>
+            maxLength={10000} />
+          <p className={cn("text-start text-[10px]", content.length > 9500 ? "text-red-400" : content.length > 5000 ? "text-amber-400" : "text-muted-foreground")}>{content.length}/10000</p>
 
           {/* Embed URL */}
           {contentType === 'embed' && (
