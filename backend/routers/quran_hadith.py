@@ -14,6 +14,8 @@ import httpx
 import os
 import json as json_module
 
+from routers.prayer import STATIC_HADITHS, HADITH_TRANSLATIONS
+
 router = APIRouter(tags=["Quran & Hadith"])
 
 @router.get("/daily-hadith")

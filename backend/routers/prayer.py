@@ -463,21 +463,4 @@ HADITH_TRANSLATIONS = {
     "3104": {"en": {"text": "Paradise lies beneath the feet of mothers.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nasa'i"}, "sv": {"text": "Paradiset ligger under mödrarnas fötter.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nasa'i"}, "nl": {"text": "Het Paradijs ligt onder de voeten van moeders.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nasa'i"}, "el": {"text": "Ο Παράδεισος βρίσκεται κάτω από τα πόδια των μητέρων.", "narrator": "Άνας ιμπν Μάλικ", "source": "Σουνάν Αν-Νασά'ι"}, "de": {"text": "Das Paradies liegt unter den Füßen der Mütter.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nasa'i"}, "fr": {"text": "Le Paradis se trouve sous les pieds des mères.", "narrator": "Anas ibn Malik", "source": "Sunan An-Nassaï"}, "tr": {"text": "Cennet annelerin ayakları altındadır.", "narrator": "Enes bin Malik", "source": "Sünen Nesâî"}, "ru": {"text": "Рай находится под ногами матерей.", "narrator": "Анас ибн Малик", "source": "Сунан ан-Насаи"}},
 }
 
-@router.get("/daily-hadith")
-async def daily_hadith_endpoint(locale: str = "ar"):
-    """Get daily hadith with multi-language support"""
-    today = date.today()
-    idx = today.toordinal() % len(STATIC_HADITHS)
-    h = STATIC_HADITHS[idx]
-    hadith_key = h.get("number", str(idx))
-    tr = HADITH_TRANSLATIONS.get(hadith_key, {}).get(locale, {})
-    return {
-        "arabic": h["text"],
-        "narrator_ar": h["narrator"],
-        "source": h["source"],
-        "number": h.get("number", ""),
-        "translation": tr.get("text", ""),
-        "narrator_locale": tr.get("narrator", ""),
-        "source_locale": tr.get("source", ""),
-        "locale": locale,
-    }
+# daily-hadith endpoint moved to quran_hadith.py router
