@@ -131,7 +131,7 @@ export default function LiveStreams() {
   return (
     <div className="min-h-screen pb-28 bg-background" dir={dir}>
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center justify-between">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-muted/50">
           {dir === 'rtl' ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
         </button>
@@ -232,7 +232,7 @@ export default function LiveStreams() {
               'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all shrink-0',
               activeCategory === cat.key
                 ? 'bg-primary text-primary-foreground'
-                : 'bg-card border border-border/30 text-muted-foreground hover:text-foreground'
+                : 'neu-card text-muted-foreground hover:text-foreground'
             )}
           >
             <span>{cat.emoji}</span>

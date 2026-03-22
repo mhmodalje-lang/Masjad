@@ -249,7 +249,7 @@ export default function SocialProfile() {
         </div>
       ) : (
         <div className="p-5" dir={dir}>
-          <div className="bg-card border border-border/30 rounded-2xl p-5 space-y-4">
+          <div className="neu-card rounded-2xl p-5 space-y-4">
             <div>
               <span className="text-muted-foreground text-xs">{t('nameLabel')}</span>
               <p className="text-foreground font-bold mt-0.5">{profile.name}</p>

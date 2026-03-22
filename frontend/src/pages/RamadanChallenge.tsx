@@ -49,7 +49,7 @@ export default function RamadanChallenge() {
 
       <div className="px-4 pt-4">
         {/* Progress card */}
-        <div className="rounded-2xl bg-card border border-border/50 p-4 mb-4">
+        <div className="rounded-2xl neu-card p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-bold text-foreground">{totalDone}/60 {t('completed')}</span>
             <span className="text-xs text-muted-foreground">{Math.round((totalDone / 60) * 100)}%</span>
@@ -85,7 +85,7 @@ export default function RamadanChallenge() {
                     transition={{ delay: day * 0.02 }}
                     onClick={() => toggle(day, 'fasting')}
                     className={cn(
-                      'w-full rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 text-right',
+                      'w-full rounded-2xl neu-card p-4 flex items-center gap-3 text-right',
                       done && 'border-primary/30 bg-primary/5'
                     )}
                   >
@@ -120,7 +120,7 @@ export default function RamadanChallenge() {
                     transition={{ delay: day * 0.02 }}
                     onClick={() => toggle(day, 'deed')}
                     className={cn(
-                      'w-full rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 text-right',
+                      'w-full rounded-2xl neu-card p-4 flex items-center gap-3 text-right',
                       done && 'border-accent/30 bg-accent/5'
                     )}
                   >

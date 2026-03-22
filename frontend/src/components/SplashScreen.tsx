@@ -44,7 +44,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
               <path
                 d="M40 4C22.3 4 8 18.3 8 36s14.3 32 32 32c6.2 0 12-1.8 16.9-4.8C50.4 67 42 72 32.5 72 16.2 72 3 58.8 3 42.5S16.2 13 32.5 13c3.5 0 6.8.5 10 1.5C39.8 8.5 35.5 4 40 4z"
-                fill="#064E3B"
+                fill="hsl(var(--mystic-moss))"
               />
               <circle cx="58" cy="18" r="4" fill="#D4AF37" />
             </svg>

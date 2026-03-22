@@ -346,7 +346,7 @@ export default function Index() {
                 </Link>
                 <Link
                   to="/notifications"
-                  className="text-[11px] text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted/60 truncate max-w-[45%]"
+                  className="text-[11px] text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted/30 truncate max-w-[45%]"
                 >
                   <Volume2 className="h-3 w-3 inline me-1" />
                   {t('athanLabel')}
@@ -571,7 +571,7 @@ export default function Index() {
               <Link
                 key={idx}
                 to="/ruqyah"
-                className="bg-card border border-border/40 rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:border-primary/30 hover:shadow-sm"
+                className="neu-card rounded-2xl p-3.5 active:scale-[0.97] transition-all hover:border-primary/30 hover:shadow-elevated"
               >
                 <div className="flex items-start gap-2.5">
                   <span className="text-2xl">{item.icon}</span>
@@ -590,7 +590,7 @@ export default function Index() {
       <div className="px-4 mb-5">
         <div
           onClick={() => setDuaDrawerOpen(true)}
-          className="rounded-3xl bg-card border border-border/40 p-6 shadow-card relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+          className="rounded-3xl neu-card p-6 shadow-card relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
           <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-3">
@@ -627,7 +627,7 @@ export default function Index() {
             <Link 
               key={item.path} 
               to={item.path} 
-              className="flex flex-col items-center gap-2 p-3 rounded-2xl bg-card border border-border/40 transition-all active:scale-95 hover:border-primary/30 hover:shadow-sm group"
+              className="flex flex-col items-center gap-2 p-3 rounded-2xl neu-card transition-all active:scale-95 hover:border-primary/30 hover:shadow-elevated group"
             >
               <div className={cn(
                 "h-12 w-12 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br transition-all",
@@ -645,7 +645,7 @@ export default function Index() {
 
       {/* ===== QURAN GOAL ===== */}
       <div className="px-4 mb-5">
-        <div className="rounded-3xl bg-card border border-border/40 p-6 shadow-card relative overflow-hidden">
+        <div className="rounded-3xl neu-card p-6 shadow-card relative overflow-hidden">
           <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-accent/5 to-transparent rounded-tr-full" />
           <span className="inline-block rounded-full bg-accent/10 border border-accent/20 px-3 py-1 text-[11px] font-bold text-accent mb-2">
             {t('quranCompletion')}

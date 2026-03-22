@@ -8,7 +8,7 @@ export default function AboutUs() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="about-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center gap-3">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center gap-3">
         <Link to="/more" className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></Link>
         <h1 className="text-lg font-bold text-foreground">{t('aboutUs')}</h1>
       </div>
@@ -23,7 +23,7 @@ export default function AboutUs() {
         </div>
 
         {/* Mission */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Heart className="h-4 w-4 text-red-400" />
             {t('ourMission')}
@@ -34,7 +34,7 @@ export default function AboutUs() {
         </div>
 
         {/* Features */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Star className="h-4 w-4 text-primary" />
             {t('ourFeatures')}
@@ -50,7 +50,7 @@ export default function AboutUs() {
         </div>
 
         {/* Team */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Users className="h-4 w-4 text-blue-400" />
             {t('ourTeam')}
@@ -64,7 +64,7 @@ export default function AboutUs() {
         </div>
 
         {/* Legal / Impressum */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Globe className="h-4 w-4 text-teal-400" />
             {t('legalInfo')}
@@ -83,7 +83,7 @@ export default function AboutUs() {
         </div>
 
         {/* Links */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{t('legalLinks')}</h3>
           <div className="space-y-2">
             <Link to="/privacy" className="block text-sm text-primary hover:underline">{t('privacyPolicy')} →</Link>

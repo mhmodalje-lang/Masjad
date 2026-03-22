@@ -213,7 +213,7 @@ function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; ra
 
   return (
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-      className="flex gap-3 p-3 rounded-2xl bg-card border border-border/30 w-full text-right active:scale-[0.98] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
+      className="flex gap-3 p-3 rounded-2xl neu-card w-full text-right active:scale-[0.98] transition-all hover:border-primary/30 hover:shadow-md cursor-pointer"
       dir={dir} onClick={onOpen}>
       {mediaUrl ? (
         <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 relative">
@@ -408,7 +408,7 @@ export default function Explore() {
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="explore-page">
       {/* HEADER */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10">
         <div className="px-4 pt-3 pb-3">
           <div className="flex items-center gap-2">
             {!isSearchActive && (

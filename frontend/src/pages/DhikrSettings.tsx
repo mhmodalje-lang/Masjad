@@ -39,7 +39,7 @@ export default function DhikrSettings() {
             <div
               key={d.key}
               className={cn(
-                'rounded-2xl bg-card border border-border/50 p-4',
+                'rounded-2xl neu-card p-4',
                 !s.enabled && 'opacity-50'
               )}
             >

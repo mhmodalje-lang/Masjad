@@ -213,7 +213,7 @@ export default function KidsZone() {
             <span className="font-bold">{Math.round((completedDays.length/1000)*100)}%</span>
           </div>
           <div className="h-3 bg-muted/40 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-[#064E3B] via-[#0A6B52] to-[#D4AF37] transition-all" style={{width:`${(completedDays.length/1000)*100}%`}}/>
+            <div className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--mystic-moss))] via-[hsl(var(--islamic-emerald))] to-[#D4AF37] transition-all" style={{width:`${(completedDays.length/1000)*100}%`}}/>
           </div>
         </div>
       </div>
@@ -305,7 +305,7 @@ export default function KidsZone() {
       </div>
 
       {/* Lesson Title */}
-      <div className="p-4 rounded-[1.5rem] bg-gradient-to-r from-[#064E3B]/10 to-[#D4AF37]/10 border border-[#064E3B]/20 text-center">
+      <div className="p-4 rounded-[1.5rem] bg-gradient-to-r from-[hsl(var(--mystic-moss))]/10 to-[#D4AF37]/10 border border-[hsl(var(--mystic-moss))]/20 text-center">
         <span className="text-3xl">📚</span>
         <h2 className="text-lg font-bold mt-2">{L.title[locale] || L.title.ar || L.title.en}</h2>
         <p className="text-xs text-muted-foreground mt-1">⭐ {L.xp_reward} {t('xpLabel') || 'XP'}</p>
@@ -579,7 +579,7 @@ export default function KidsZone() {
     return(<div className="space-y-4 pb-8">
       <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
         {subs.map(st=>(<button key={st.id} onClick={()=>setIslamSub(st.id)} className={cn("flex items-center gap-1 px-2.5 py-1.5 rounded-[1rem] text-xs font-bold whitespace-nowrap border transition-all shrink-0",
-          islamSub===st.id?"bg-gradient-to-r from-[#064E3B]/15 to-[#0A6B52]/10 border-[#064E3B]/30 text-[#064E3B] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/10 dark:border-[#D4AF37]/30 dark:text-[#D4AF37]":"bg-muted/20 border-border/30 text-muted-foreground")}>
+          islamSub===st.id?"bg-gradient-to-r from-[hsl(var(--mystic-moss))]/15 to-[hsl(var(--islamic-emerald))]/10 border-[hsl(var(--mystic-moss))]/30 text-[hsl(var(--mystic-moss))] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/10 dark:border-[#D4AF37]/30 dark:text-[#D4AF37]":"bg-muted/20 border-border/30 text-muted-foreground")}>
           <span>{st.emoji}</span>{st.label}<span className="text-xs opacity-60">({st.count})</span>
         </button>))}
       </div>
@@ -723,7 +723,7 @@ export default function KidsZone() {
           {TABS.map(tab=>(<button key={tab.id} onClick={()=>setMainTab(tab.id)}
             className={cn("flex items-center gap-1.5 px-3.5 py-3 rounded-[1.25rem] text-xs font-bold whitespace-nowrap border transition-all shrink-0 min-h-[44px]",
               mainTab===tab.id
-                ? "bg-gradient-to-r from-[#064E3B]/15 to-[#0A6B52]/10 border-[#064E3B]/30 text-[#064E3B] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5 dark:border-[#D4AF37]/30 dark:text-[#D4AF37] shadow-lg"
+                ? "bg-gradient-to-r from-[hsl(var(--mystic-moss))]/15 to-[hsl(var(--islamic-emerald))]/10 border-[hsl(var(--mystic-moss))]/30 text-[hsl(var(--mystic-moss))] dark:from-[#D4AF37]/15 dark:to-[#D4AF37]/5 dark:border-[#D4AF37]/30 dark:text-[#D4AF37] shadow-lg"
                 : "bg-muted/20 border-border/30 text-muted-foreground hover:bg-muted/40"
             )}>
             <span>{tab.emoji}</span><span>{t(tab.key)}</span>

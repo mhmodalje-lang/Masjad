@@ -165,7 +165,7 @@ export default function RamadanCards() {
         </button>
         <button
           onClick={handleDownload}
-          className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-card border border-border/50 text-foreground py-3.5 font-bold text-sm transition-all active:scale-95"
+          className="flex-1 flex items-center justify-center gap-2 rounded-2xl neu-card text-foreground py-3.5 font-bold text-sm transition-all active:scale-95"
         >
           <Download className="h-5 w-5" />
           تحميل
@@ -187,7 +187,7 @@ export default function RamadanCards() {
                 'aspect-square rounded-xl flex items-center justify-center text-2xl transition-all',
                 i === selectedCard
                   ? 'ring-2 ring-primary bg-primary/10 scale-105'
-                  : 'bg-card border border-border/50'
+                  : 'neu-card'
               )}
             >
               {card.emoji}
@@ -198,7 +198,7 @@ export default function RamadanCards() {
 
       {/* Tips */}
       <div className="px-4">
-        <div className="rounded-2xl bg-card border border-border/50 p-4">
+        <div className="rounded-2xl neu-card p-4">
           <div className="flex items-center gap-2 mb-2">
             <Heart className="h-4 w-4 text-islamic-rose" />
             <h4 className="text-sm font-bold text-foreground">{t('shareBlessing')}</h4>

@@ -111,7 +111,7 @@ export default function Rewards() {
         <h2 className="text-sm font-bold text-foreground mb-3">{t('collectRewards')}</h2>
         <div className="space-y-3">
           {REWARD_TYPES.map(reward => (
-            <motion.div key={reward.type} className="rounded-2xl border border-border/40 bg-card p-4 flex items-center gap-4"
+            <motion.div key={reward.type} className="rounded-2xl border border-border/10 bg-card p-4 flex items-center gap-4"
               initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
               <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center shrink-0">
                 <reward.icon className="h-5 w-5 text-amber-500" />

@@ -50,7 +50,7 @@ function NotificationItem({ n, onDismiss, t, index }: { n: Notification; onDismi
         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{t(n.bodyKey)}</p>
         <p className="text-[10px] text-muted-foreground/40 mt-1.5 font-medium">{t(n.timeKey)}</p>
       </div>
-      <button onClick={onDismiss} className="shrink-0 mt-1 p-1.5 rounded-lg hover:bg-muted/30 transition-colors active:scale-90">
+      <button onClick={onDismiss} className="shrink-0 mt-1 p-1.5 rounded-lg hover:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors active:scale-90">
         <X className="h-3.5 w-3.5 text-muted-foreground/30" />
       </button>
     </motion.div>

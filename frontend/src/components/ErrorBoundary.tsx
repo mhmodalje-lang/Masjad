@@ -55,7 +55,7 @@ class ErrorBoundary extends Component<Props, State> {
               An unexpected error occurred. Please try again.
             </p>
             {this.state.error && (
-              <div className="mb-6 p-3 rounded-xl bg-muted/50 border border-border/40">
+              <div className="mb-6 p-3 rounded-xl bg-muted/50 border border-border/10">
                 <p className="text-xs text-muted-foreground font-mono break-all">
                   {this.state.error.message}
                 </p>

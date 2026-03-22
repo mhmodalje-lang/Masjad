@@ -347,7 +347,7 @@ export default function QuranPlayer() {
         >
           <button
             onClick={() => setIsOpen(true)}
-            className="w-full rounded-3xl bg-card border border-border/50 p-5 text-right shadow-elevated"
+            className="w-full glass-mystic rounded-3xl p-5 text-right shadow-elevated"
           >
             <div className="flex items-center justify-between mb-2">
               <Moon className="h-5 w-5 text-primary" />
@@ -371,7 +371,7 @@ export default function QuranPlayer() {
             exit={{ opacity: 0, y: 20 }}
             className="px-4 mb-4"
           >
-            <div className="rounded-3xl bg-card border border-border/50 overflow-hidden shadow-elevated">
+            <div className="glass-mystic rounded-3xl overflow-hidden shadow-elevated">
               <div className="gradient-islamic p-4 flex items-center justify-between relative overflow-hidden">
                 <div className="absolute inset-0 islamic-pattern opacity-20" />
                 <button onClick={closePlayer} aria-label={t('closePlayer')} className="p-1.5 rounded-full bg-white/10 relative z-10">
@@ -387,7 +387,7 @@ export default function QuranPlayer() {
                 </div>
               </div>
 
-              <div className="p-4 border-b border-border/50">
+              <div className="p-4 border-b border-border/10">
                 <label className="text-xs text-muted-foreground mb-1.5 block">
                   {t('reciterLabel')} ({RECITERS.length} {t('reciterCount')})
                 </label>
@@ -405,7 +405,7 @@ export default function QuranPlayer() {
                 </select>
               </div>
 
-              <div className="p-4 border-b border-border/50">
+              <div className="p-4 border-b border-border/10">
                 <button
                   onClick={() => setShowSurahList(!showSurahList)}
                   className="w-full flex items-center justify-between rounded-2xl bg-muted p-3"
@@ -436,7 +436,7 @@ export default function QuranPlayer() {
                             value={search}
                             onChange={e => setSearch(e.target.value)}
                             placeholder={t('searchSurah')}
-                            className="pe-8 rounded-2xl text-start text-xs h-9 border-border/50"
+                            className="pe-8 rounded-2xl text-start text-xs h-9 border-border/10"
                           />
                         </div>
                         <div className="max-h-48 overflow-y-auto space-y-0.5">

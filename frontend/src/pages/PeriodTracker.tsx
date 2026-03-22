@@ -179,7 +179,7 @@ export default function PeriodTracker() {
         )}
         <button
           onClick={() => setShowSettings(!showSettings)}
-          className="rounded-2xl bg-card border border-border/50 text-foreground px-4 py-3 text-sm font-bold transition-all active:scale-95"
+          className="rounded-2xl neu-card text-foreground px-4 py-3 text-sm font-bold transition-all active:scale-95"
         >
           ⚙️
         </button>
@@ -194,7 +194,7 @@ export default function PeriodTracker() {
             exit={{ height: 0, opacity: 0 }}
             className="px-4 mb-4 overflow-hidden"
           >
-            <div className="rounded-2xl bg-card border border-border/50 p-4 space-y-4">
+            <div className="rounded-2xl neu-card p-4 space-y-4">
               <h4 className="text-sm font-bold text-foreground">{t('cycleSettingsTitle')}</h4>
               <div>
                 <label className="text-xs text-muted-foreground mb-1 block">{t('periodDurationLabel')}</label>
@@ -230,7 +230,7 @@ export default function PeriodTracker() {
               onClick={() => setActiveTab(tab.key)}
               className={cn(
                 'flex-1 py-2 rounded-lg text-xs font-semibold transition-all',
-                activeTab === tab.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'
+                activeTab === tab.key ? 'bg-card text-foreground shadow-elevated' : 'text-muted-foreground'
               )}
             >
               {tab.label}
@@ -245,7 +245,7 @@ export default function PeriodTracker() {
           {activeTab === 'tracker' && (
             <motion.div key="tracker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               {/* Calendar visual - simple cycle view */}
-              <div className="rounded-2xl bg-card border border-border/50 p-4">
+              <div className="rounded-2xl neu-card p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
                   {t('currentCycleTitle')}
@@ -286,7 +286,7 @@ export default function PeriodTracker() {
 
               {/* History */}
               {data.history.length > 0 && (
-                <div className="rounded-2xl bg-card border border-border/50 p-4">
+                <div className="rounded-2xl neu-card p-4">
                   <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />
                     {t('historyTitle')}
@@ -309,7 +309,7 @@ export default function PeriodTracker() {
           {activeTab === 'guide' && (
             <motion.div key="guide" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
               {/* Allowed */}
-              <div className="rounded-2xl bg-card border border-border/50 p-4">
+              <div className="rounded-2xl neu-card p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <Heart className="h-4 w-4 text-primary" />
                   {t('allowedWorshipTitle')}
@@ -325,7 +325,7 @@ export default function PeriodTracker() {
               </div>
 
               {/* Exempted */}
-              <div className="rounded-2xl bg-card border border-border/50 p-4">
+              <div className="rounded-2xl neu-card p-4">
                 <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-islamic-rose" />
                   {t('exemptedWorshipTitle')}
@@ -368,7 +368,7 @@ export default function PeriodTracker() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="rounded-2xl bg-card border border-border/50 p-4"
+                  className="rounded-2xl neu-card p-4"
                 >
                   <p className="text-base font-amiri leading-loose text-foreground text-center mb-2">
                     {dua.text}

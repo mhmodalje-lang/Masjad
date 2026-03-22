@@ -398,7 +398,7 @@ export default function Qibla() {
                 </div>
 
                 {/* Inner decorative circle */}
-                <div className="absolute inset-[35%] rounded-full border border-border/50" />
+                <div className="absolute inset-[35%] rounded-full border border-border/10" />
 
                 {/* Qibla line */}
                 <div

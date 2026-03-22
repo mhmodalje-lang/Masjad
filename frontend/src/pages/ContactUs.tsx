@@ -33,12 +33,12 @@ export default function ContactUs() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="contact-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center gap-3">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center gap-3">
         <Link to="/more" className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></Link>
         <h1 className="text-lg font-bold text-foreground">{t('contactUsTitle')}</h1>
       </div>
       <div className="px-5 py-6 space-y-4">
-        <a href="mailto:mohammadalrejab@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+        <a href="mailto:mohammadalrejab@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
             <Mail className="h-5 w-5 text-red-400" />
           </div>
@@ -47,7 +47,7 @@ export default function ContactUs() {
             <p className="text-xs text-primary" dir="ltr">mohammadalrejab@gmail.com</p>
           </div>
         </a>
-        <a href="tel:+4917684034961" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+        <a href="tel:+4917684034961" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
             <Phone className="h-5 w-5 text-green-400" />
           </div>
@@ -56,7 +56,7 @@ export default function ContactUs() {
             <p className="text-xs text-primary" dir="ltr">+4917684034961</p>
           </div>
         </a>
-        <a href="https://wa.me/4917684034961" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+        <a href="https://wa.me/4917684034961" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
             <MessageSquare className="h-5 w-5 text-emerald-400" />
           </div>
@@ -66,7 +66,7 @@ export default function ContactUs() {
           </div>
         </a>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-4">{t('sendMessage')}</h3>
           <div className="space-y-3">
             <input value={name} onChange={e => setName(e.target.value)} placeholder={t('namePlaceholder')} dir="auto"

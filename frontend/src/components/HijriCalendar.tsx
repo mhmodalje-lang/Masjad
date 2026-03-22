@@ -175,7 +175,7 @@ export default function HijriCalendar({ hijriDay, hijriMonth, hijriYear }: Hijri
   return (
     <div className="space-y-4">
       {/* Calendar Type Toggle */}
-      <div className="flex rounded-2xl border border-border/50 overflow-hidden bg-card">
+      <div className="flex rounded-2xl border border-border/10 overflow-hidden bg-card">
         <button
           onClick={() => setCalendarType('hijri')}
           className={cn(

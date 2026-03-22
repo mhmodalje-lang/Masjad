@@ -92,7 +92,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen pb-28 bg-background" dir={dir} data-testid="account-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-12 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <button onClick={goBack} className="p-2 rounded-xl hover:bg-muted/50"><BackArrow className="h-5 w-5 text-foreground" /></button>
           <span className="text-base font-bold">{t('editProfileTitle')}</span>
@@ -121,7 +121,7 @@ export default function Account() {
         <div>
           <label className="text-xs font-bold text-muted-foreground mb-1.5 block">{t('fullName')}</label>
           <input type="text" dir="auto" value={name} onChange={e => setName(e.target.value)} placeholder={t('enterFullName')} data-testid="name-input"
-            className="w-full h-12 rounded-2xl bg-card border border-border/30 px-4 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all" />
+            className="w-full h-12 rounded-2xl neu-card px-4 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all" />
         </div>
         <div>
           <label className="text-xs font-bold text-muted-foreground mb-1.5 block">{t('email')}</label>
@@ -132,7 +132,7 @@ export default function Account() {
           <label className="text-xs font-bold text-muted-foreground mb-1.5 block">{t('newPasswordOptional')}</label>
           <div className="relative">
             <input type={showPassword ? 'text' : 'password'} dir="auto" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t('leaveEmptyNoChange')} data-testid="password-input"
-              className="w-full h-12 rounded-2xl bg-card border border-border/30 px-4 pl-12 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all" />
+              className="w-full h-12 rounded-2xl neu-card px-4 pl-12 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all" />
             <button onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-muted">
               {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
             </button>

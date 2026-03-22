@@ -8,7 +8,7 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="terms-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center gap-3">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center gap-3">
         <Link to="/more" className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></Link>
         <h1 className="text-lg font-bold text-foreground">{t('termsOfService')}</h1>
       </div>
@@ -16,7 +16,7 @@ export default function TermsOfService() {
 
         <p className="text-xs text-muted-foreground text-center">{t('termsLastUpdated')}</p>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <FileText className="h-4 w-4 text-primary" />
             {t('termsIntroTitle')}
@@ -24,7 +24,7 @@ export default function TermsOfService() {
           <p className="text-sm text-muted-foreground leading-relaxed">{t('termsIntroText')}</p>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Globe className="h-4 w-4 text-blue-400" />
             {t('termsServiceTitle')}
@@ -32,7 +32,7 @@ export default function TermsOfService() {
           <p className="text-sm text-muted-foreground leading-relaxed">{t('termsServiceText')}</p>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-green-400" />
             {t('termsAccountsTitle')}
@@ -45,7 +45,7 @@ export default function TermsOfService() {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <FileText className="h-4 w-4 text-purple-400" />
             {t('termsUGCTitle')}
@@ -58,7 +58,7 @@ export default function TermsOfService() {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Scale className="h-4 w-4 text-yellow-500" />
             {t('termsEmbedTitle')}
@@ -71,7 +71,7 @@ export default function TermsOfService() {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Ban className="h-4 w-4 text-red-400" />
             {t('termsProhibitedTitle')}
@@ -85,7 +85,7 @@ export default function TermsOfService() {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-orange-400" />
             {t('termsDisclaimerTitle')}
@@ -98,17 +98,17 @@ export default function TermsOfService() {
           </ul>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{t('termsGovLawTitle')}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{t('termsGovLawText')}</p>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{t('termsChangesTitle')}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{t('termsChangesText')}</p>
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{t('termsContactTitle')}</h3>
           <p className="text-sm text-muted-foreground">{t('termsContactText')}</p>
           <p className="text-sm text-primary mt-1"><a href="mailto:mohammedalrejab@gmail.com">mohammedalrejab@gmail.com</a></p>

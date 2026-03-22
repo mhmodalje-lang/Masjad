@@ -149,7 +149,7 @@ export default function RamadanBook() {
                 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap',
                 section.id === activeSection
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-card border border-border/50 text-foreground'
+                  : 'neu-card text-foreground'
               )}
             >
               <span>{section.emoji}</span>
@@ -167,7 +167,7 @@ export default function RamadanBook() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="rounded-2xl bg-card border border-border/50 p-4"
+            className="rounded-2xl neu-card p-4"
           >
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">{currentSection.emoji}</span>

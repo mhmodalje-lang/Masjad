@@ -684,7 +684,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="privacy-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center gap-3">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center gap-3">
         <Link to="/more" className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></Link>
         <h1 className="text-lg font-bold text-foreground">{t('privacyPolicy')}</h1>
       </div>
@@ -692,7 +692,7 @@ export default function PrivacyPolicy() {
         <p className="text-xs text-muted-foreground text-center">{c.lastUpdated}</p>
 
         {/* Introduction */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" />{c.intro_title}
           </h3>
@@ -700,7 +700,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Data Controller */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <UserCheck className="h-4 w-4 text-blue-400" />{c.dataController_title}
           </h3>
@@ -713,7 +713,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Data We Collect */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Database className="h-4 w-4 text-green-400" />{c.dataCollect_title}
           </h3>
@@ -746,7 +746,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Legal Basis */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Lock className="h-4 w-4 text-yellow-500" />{c.legal_title}
           </h3>
@@ -758,7 +758,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* How We Use Data */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Eye className="h-4 w-4 text-purple-400" />{c.howUse_title}
           </h3>
@@ -769,7 +769,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Third Party */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Globe className="h-4 w-4 text-teal-400" />{c.thirdParty_title}
           </h3>
@@ -782,7 +782,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Advertisements */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Eye className="h-4 w-4 text-amber-400" />{c.ads_title}
           </h3>
@@ -790,7 +790,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Cookies */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{c.cookies_title}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed mb-2">{c.cookies_text}</p>
           <ul className="space-y-1 text-sm text-muted-foreground">
@@ -800,7 +800,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Retention */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{c.retention_title}</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>• {c.retention_1}</li><li>• {c.retention_2}</li><li>• {c.retention_3}</li>
@@ -827,7 +827,7 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Security */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Lock className="h-4 w-4 text-green-500" />{c.security_title}
           </h3>
@@ -837,19 +837,19 @@ export default function PrivacyPolicy() {
         </div>
 
         {/* Children */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{c.children_title}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{c.children_text}</p>
         </div>
 
         {/* Authority */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3">{c.authority_title}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{c.authority_text}</p>
         </div>
 
         {/* Contact */}
-        <div className="rounded-2xl bg-card border border-border/30 p-5">
+        <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <Mail className="h-4 w-4 text-primary" />{c.contact_title}
           </h3>

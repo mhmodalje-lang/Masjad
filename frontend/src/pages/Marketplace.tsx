@@ -198,7 +198,7 @@ export default function Marketplace() {
         <div className="px-4 grid grid-cols-2 gap-3">
           {filtered.map((p, i) => (
             <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
-              className="rounded-2xl bg-card border border-border/40 overflow-hidden" data-testid={`product-${p.id}`}>
+              className="rounded-2xl neu-card overflow-hidden" data-testid={`product-${p.id}`}>
               <div className="h-28 bg-muted/50 flex items-center justify-center">
                 {p.image_url ? <img src={p.image_url.startsWith('/api') ? `${BACKEND_URL}${p.image_url}` : p.image_url} alt="" className="h-full w-full object-cover" /> :
                   <Tag className="h-8 w-8 text-muted-foreground/20" />}

@@ -96,7 +96,7 @@ function SettingsSection({ title, settings }: { title: string; settings: NotifSe
   return (
     <div className="px-4 mt-5">
       <p className="text-xs font-bold text-muted-foreground mb-2 me-1">{title}</p>
-      <div className="rounded-2xl bg-card border border-border/40 px-4">
+      <div className="rounded-2xl neu-card px-4">
         {settings.map(s => <SettingRow key={s.key} setting={s} />)}
       </div>
     </div>
@@ -233,7 +233,7 @@ export default function NotificationSettings() {
       <div className="px-4 mt-3">
         <button
           onClick={() => setShowAthanSelector(!showAthanSelector)}
-          className="w-full flex items-center justify-between rounded-2xl bg-card border border-border/40 p-4 transition-all active:scale-[0.98]"
+          className="w-full flex items-center justify-between rounded-2xl neu-card p-4 transition-all active:scale-[0.98]"
         >
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center">
@@ -262,7 +262,7 @@ export default function NotificationSettings() {
             exit={{ opacity: 0, height: 0 }}
             className="px-4 mt-2 overflow-hidden"
           >
-            <div className="rounded-2xl bg-card border border-border/40 p-4">
+            <div className="rounded-2xl neu-card p-4">
               <AthanSelector />
             </div>
           </motion.div>

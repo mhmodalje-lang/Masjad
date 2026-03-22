@@ -135,7 +135,7 @@ export default function Ruqyah() {
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/30">
+      <div className="sticky top-0 z-40 glass-nav bg-background/80 border-b border-border/10">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3 flex-1">
             <button onClick={goBack} className="p-1.5 rounded-xl hover:bg-muted/50">
@@ -160,8 +160,8 @@ export default function Ruqyah() {
                 onClick={() => setActiveCategory(cat.key)}
                 className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all shrink-0 ${
                   activeCategory === cat.key
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'bg-muted/60 text-foreground/70 hover:bg-muted'
+                    ? 'bg-primary text-primary-foreground shadow-elevated'
+                    : 'bg-muted/30 text-foreground/70 hover:bg-muted'
                 }`}
               >
                 <span className="text-xs leading-none">{cat.emoji}</span>
@@ -177,12 +177,12 @@ export default function Ruqyah() {
         {filteredContent.map((item) => (
           <div
             key={item.id}
-            className="bg-card rounded-xl border border-border/30 overflow-hidden shadow-sm"
+            className="bg-card rounded-xl border border-border/30 overflow-hidden shadow-elevated"
           >
             {/* Card Header */}
             <button
               onClick={() => setSelectedId(selectedId === item.id ? null : item.id)}
-              className={`w-full p-3.5 flex items-center gap-3 ${dir === 'rtl' ? 'text-right' : 'text-left'} active:bg-muted/30 transition-colors`}
+              className={`w-full p-3.5 flex items-center gap-3 ${dir === 'rtl' ? 'text-right' : 'text-left'} active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors`}
             >
               <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary/12 to-primary/5 flex items-center justify-center shrink-0 border border-primary/10">
                 <span className="text-xl leading-none">{item.icon}</span>
@@ -262,7 +262,7 @@ export default function Ruqyah() {
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); setSelectedId(null); }}
-                      className={`flex items-center gap-1 text-[11px] text-muted-foreground font-bold bg-muted/60 px-2.5 py-1 rounded-lg hover:bg-muted ${dir === 'rtl' ? 'mr-auto' : 'ml-auto'}`}
+                      className={`flex items-center gap-1 text-[11px] text-muted-foreground font-bold bg-muted/30 px-2.5 py-1 rounded-lg hover:bg-muted ${dir === 'rtl' ? 'mr-auto' : 'ml-auto'}`}
                     >
                       <X className="h-3 w-3" />
                       {t('closeBtn')}

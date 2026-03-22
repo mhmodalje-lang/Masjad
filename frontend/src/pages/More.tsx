@@ -202,7 +202,7 @@ export default function More() {
           </button>
           {/* Reminders */}
           <button onClick={handleToggleReminders}
-            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-muted/30 transition-colors">
+            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-red-500/15 flex items-center justify-center">
                 {remindersEnabled ? <Bell className="h-4 w-4 text-red-400" /> : <BellOff className="h-4 w-4 text-red-400" />}
@@ -215,7 +215,7 @@ export default function More() {
             </span>
           </button>
           {/* Notifications Settings */}
-          <Link to="/notifications" className="flex items-center justify-between px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <Link to="/notifications" className="flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
                 <Bell className="h-4 w-4 text-blue-400" />
@@ -284,7 +284,7 @@ export default function More() {
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
           <Sparkles className="h-3.5 w-3.5 text-primary" />{t('athanSound')}
         </h3>
-        <div className="rounded-2xl bg-card border border-border/30 p-4">
+        <div className="rounded-2xl neu-card p-4">
           <AthanSelector />
         </div>
       </div>
@@ -294,35 +294,35 @@ export default function More() {
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
           <HelpCircle className="h-3.5 w-3.5 text-green-400" />{t('helpSupport')}
         </h3>
-        <div className="rounded-2xl bg-card border border-border/30 divide-y divide-border/15">
-          <Link to="/contact" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+        <div className="rounded-2xl neu-card divide-y divide-border/15">
+          <Link to="/contact" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-400" /></div>
             <span className="text-sm text-foreground">{t('contactUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
-          <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-400" /></div>
             <span className="text-sm text-foreground">{t('aboutUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
-          <Link to="/privacy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <Link to="/privacy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-blue-400" /></div>
             <span className="text-sm text-foreground">{t('privacyPolicy')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
-          <Link to="/terms" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <Link to="/terms" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-indigo-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-indigo-400" /></div>
             <span className="text-sm text-foreground">{t('termsOfService')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
-          <button onClick={() => toast.info(`⭐ ${t('rateAppThanks')}`)} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          <button onClick={() => toast.info(`⭐ ${t('rateAppThanks')}`)} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-yellow-500/15 flex items-center justify-center"><Star className="h-4 w-4 text-yellow-400" /></div>
             <span className="text-sm text-foreground">{t('rateApp')}</span>
           </button>
           <button onClick={() => {
             if (navigator.share) navigator.share({ title: t('appName'), url: window.location.origin });
             else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
-          }} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-muted/30 transition-colors">
+          }} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Share2 className="h-4 w-4 text-blue-400" /></div>
             <span className="text-sm text-foreground">{t('inviteFriend')}</span>
           </button>

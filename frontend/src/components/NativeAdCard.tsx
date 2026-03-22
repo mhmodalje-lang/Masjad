@@ -131,7 +131,7 @@ export default function NativeAdCard({ className, placement = 'hadith_feed' }: N
     <div className={cn("px-4 mb-4", className)} dir={dir}>
       <div
         onClick={handleClick}
-        className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden cursor-pointer transition-all hover:scale-[1.005] active:scale-[0.995]"
+        className="glass-mystic rounded-3xl p-5 shadow-elevated relative overflow-hidden cursor-pointer transition-all hover:scale-[1.005] active:scale-[0.995]"
       >
         {/* Decorative corner gradient — same as DailyHadith */}
         <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-amber-500/5 to-transparent rounded-br-full" />

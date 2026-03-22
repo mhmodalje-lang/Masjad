@@ -44,7 +44,7 @@ export default function QuranGoal() {
               key={d.value}
               onClick={() => setSelected(d.value)}
               className={cn(
-                'w-full rounded-2xl bg-card border border-border/50 p-4 flex items-center justify-between',
+                'w-full rounded-2xl neu-card p-4 flex items-center justify-between',
                 selected === d.value && 'border-primary bg-primary/5'
               )}
             >
@@ -60,7 +60,7 @@ export default function QuranGoal() {
           ))}
         </div>
 
-        <div className="rounded-2xl bg-card border border-border/50 p-4">
+        <div className="rounded-2xl neu-card p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4 text-accent" />

@@ -242,7 +242,7 @@ export default function Profile() {
 
           return (
             <Link to={`/stories?story=${p.id}`} key={p.id}
-              className="group rounded-2xl overflow-hidden border border-border/20 bg-card shadow-sm hover:shadow-lg hover:border-primary/30 transition-all duration-300">
+              className="group rounded-2xl overflow-hidden border border-border/20 bg-card shadow-elevated hover:shadow-lg hover:border-primary/30 transition-all duration-300">
               {/* Image/Gradient Top */}
               <div className="relative aspect-[4/3] overflow-hidden">
                 {url ? (
@@ -256,7 +256,7 @@ export default function Profile() {
                 ) : (
                   <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center p-4`}>
                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
-                    <p className="text-white text-[11px] font-bold text-center line-clamp-3 leading-relaxed drop-shadow-sm relative z-10">
+                    <p className="text-white text-[11px] font-bold text-center line-clamp-3 leading-relaxed drop-shadow-elevated relative z-10">
                       {p.title || p.content?.slice(0, 60)}
                     </p>
                   </div>
@@ -418,19 +418,19 @@ export default function Profile() {
       {isOwnProfile && (
         <div className="px-4 mb-4">
           <div className="grid grid-cols-4 gap-2">
-            <Link to="/stories" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+            <Link to="/stories" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
               <BookOpen className="h-5 w-5 text-primary" />
               <span className="text-[9px] font-bold text-foreground">{t('myStories')}</span>
             </Link>
-            <Link to="/explore" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+            <Link to="/explore" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
               <Compass className="h-5 w-5 text-blue-400" />
               <span className="text-[9px] font-bold text-foreground">{t('explore')}</span>
             </Link>
-            <Link to="/ai-assistant" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+            <Link to="/ai-assistant" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
               <Bot className="h-5 w-5 text-purple-400" />
               <span className="text-[9px] font-bold text-foreground">{t('assistant')}</span>
             </Link>
-            <Link to="/more" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-card border border-border/20 active:scale-95 transition-transform">
+            <Link to="/more" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
               <Sparkles className="h-5 w-5 text-amber-400" />
               <span className="text-[9px] font-bold text-foreground">{t('more')}</span>
             </Link>

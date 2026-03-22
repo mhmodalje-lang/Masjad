@@ -127,7 +127,7 @@ export default function AiAssistant() {
                 {msg.role === 'user' ? <User className="h-3.5 w-3.5 text-primary" /> : <Bot className="h-3.5 w-3.5 text-accent" />}
               </div>
               <div className={cn('rounded-2xl px-4 py-3 text-sm leading-relaxed',
-                msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'bg-card border border-border/30 text-foreground rounded-tl-sm')}>
+                msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-tr-sm' : 'neu-card text-foreground rounded-tl-sm')}>
                 <p className="whitespace-pre-wrap">{msg.content}</p>
               </div>
             </motion.div>
@@ -139,7 +139,7 @@ export default function AiAssistant() {
             <div className="h-7 w-7 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
               <Bot className="h-3.5 w-3.5 text-accent" />
             </div>
-            <div className="bg-card border border-border/30 rounded-2xl rounded-tl-sm px-4 py-3">
+            <div className="neu-card rounded-2xl rounded-tl-sm px-4 py-3">
               <div className="flex gap-1">
                 <span className="h-2 w-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{animationDelay:'0ms'}} />
                 <span className="h-2 w-2 bg-muted-foreground/30 rounded-full animate-bounce" style={{animationDelay:'150ms'}} />

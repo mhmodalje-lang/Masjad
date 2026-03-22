@@ -215,7 +215,7 @@ export function PermissionManager() {
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
       dir={dir}
     >
-      <div className="w-full max-w-md mx-4 mb-4 sm:mb-0 rounded-3xl bg-card border border-border/50 shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+      <div className="w-full max-w-md mx-4 mb-4 sm:mb-0 glass-mystic rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
         {/* Header with gradient */}
         <div className={cn('relative p-8 pb-12 bg-gradient-to-br', config.gradient)}>
           <button
@@ -246,7 +246,7 @@ export function PermissionManager() {
 
         {/* Benefits list */}
         <div className="px-6 -mt-6">
-          <div className="rounded-2xl bg-card border border-border/50 p-5 shadow-lg">
+          <div className="rounded-2xl neu-card p-5 shadow-lg">
             <p className="text-xs font-bold text-muted-foreground mb-3">
               {config.subtitle}
             </p>

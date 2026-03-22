@@ -194,7 +194,7 @@ export default function SurahView() {
               key={ayah.number}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="rounded-2xl border border-border/50 bg-card p-5 shadow-elevated"
+              className="rounded-2xl border border-border/10 bg-card p-5 shadow-elevated"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary text-xs font-bold">

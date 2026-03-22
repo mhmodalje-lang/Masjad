@@ -159,7 +159,7 @@ export default function PointsBalance() {
     <div className="min-h-screen bg-background pb-24 pt-2 px-4" dir={dir}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-card border border-border/30">
+        <button onClick={() => navigate(-1)} className="p-2 rounded-xl neu-card">
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <h1 className="text-lg font-bold text-foreground">
@@ -248,7 +248,7 @@ export default function PointsBalance() {
         {activeTab === 'balance' && (
           <motion.div key="balance" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-3">
             {mode === 'kids' && balance?.mosque && (
-              <div className="rounded-2xl bg-card border border-border/30 p-4">
+              <div className="rounded-2xl neu-card p-4">
                 <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><Building2 className="h-4 w-4 text-amber-500"/>{t('mosqueProgress')}</h3>
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-4xl">{STAGE_EMOJI[balance.mosque.current?.stage] || '🧱'}</span>
@@ -262,7 +262,7 @@ export default function PointsBalance() {
               </div>
             )}
             {mode === 'adults' && balance?.rank && (
-              <div className="rounded-2xl bg-card border border-border/30 p-4">
+              <div className="rounded-2xl neu-card p-4">
                 <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><Crown className="h-4 w-4 text-emerald-500"/>{t('spiritualRank')}</h3>
                 <div className="flex items-center gap-3">
                   <span className="text-4xl">{RANK_EMOJI[balance.rank.current?.rank] || '🌱'}</span>
@@ -276,12 +276,12 @@ export default function PointsBalance() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-card border border-border/30 p-4 text-center">
+              <div className="rounded-2xl neu-card p-4 text-center">
                 <Zap className="h-6 w-6 text-amber-500 mx-auto mb-1" />
                 <p className="text-xl font-bold text-foreground">{balance?.total_earned || 0}</p>
                 <p className="text-xs text-muted-foreground">{t('totalEarned')}</p>
               </div>
-              <div className="rounded-2xl bg-card border border-border/30 p-4 text-center">
+              <div className="rounded-2xl neu-card p-4 text-center">
                 <Eye className="h-6 w-6 text-purple-500 mx-auto mb-1" />
                 <p className="text-xl font-bold text-foreground">{balance?.ads_watched || 0}</p>
                 <p className="text-xs text-muted-foreground">{t('adsWatched')}</p>
@@ -318,7 +318,7 @@ export default function PointsBalance() {
           <motion.div key="history" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-2">
             {history.length === 0 && <p className="text-center text-sm text-muted-foreground py-8">{t('noActivityYet')}</p>}
             {history.map((tx: any, i: number) => (
-              <div key={i} className="rounded-2xl bg-card border border-border/30 p-3 flex items-center gap-3">
+              <div key={i} className="rounded-2xl neu-card p-3 flex items-center gap-3">
                 <div className={cn("p-2 rounded-xl", tx.points > 0 ? "bg-green-500/20" : "bg-red-500/20")}>
                   {tx.points > 0 ? <TrendingUp className="h-4 w-4 text-green-500" /> : <Award className="h-4 w-4 text-red-500" />}
                 </div>

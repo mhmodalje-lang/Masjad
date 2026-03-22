@@ -147,7 +147,7 @@ export default function Auth() {
         <div className="flex bg-muted rounded-2xl p-1 mb-6" data-testid="auth-tabs">
           {(['login', 'signup'] as const).map(tab => (
             <button key={tab} onClick={() => setIsLogin(tab === 'login')} data-testid={`auth-tab-${tab}`}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${isLogin === (tab === 'login') ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`}>
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${isLogin === (tab === 'login') ? 'bg-background shadow-elevated text-foreground' : 'text-muted-foreground'}`}>
               {tab === 'login' ? t('login') : t('newAccount')}
             </button>
           ))}

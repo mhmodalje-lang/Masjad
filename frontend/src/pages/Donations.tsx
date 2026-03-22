@@ -44,7 +44,7 @@ export default function Donations() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="donations-page">
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-14 flex items-center justify-between">
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={goBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></button>
           <h1 className="text-lg font-bold text-foreground flex items-center gap-2"><Heart className="h-5 w-5 text-red-400" />{t('donationsTitle')}</h1>
@@ -76,7 +76,7 @@ export default function Donations() {
         ) : (
           <div className="space-y-3">
             {requests.map(r => (
-              <div key={r.id} className="rounded-2xl bg-card border border-border/30 p-4">
+              <div key={r.id} className="rounded-2xl neu-card p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center"><User className="h-4 w-4 text-primary" /></div>
                   <span className="text-sm font-bold text-foreground">{r.user_name || r.author_name || t('anonymous')}</span>

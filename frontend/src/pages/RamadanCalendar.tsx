@@ -144,7 +144,7 @@ export default function RamadanCalendar() {
                         ? "bg-accent/20 text-accent-foreground ring-1 ring-accent"
                         : currentRamadanDay && day < currentRamadanDay
                           ? "bg-muted/50 text-muted-foreground"
-                          : "bg-card text-foreground border border-border/50",
+                          : "bg-card text-foreground border border-border/10",
                     day >= 21 && day % 2 === 1 && "ring-1 ring-accent/50"
                   )}
                 >
@@ -170,7 +170,7 @@ export default function RamadanCalendar() {
                   "rounded-xl p-4",
                   isPotentialLaylatAlQadr
                     ? "bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/30"
-                    : "bg-card border border-border/50"
+                    : "neu-card"
                 )}>
                   <div className="flex items-center gap-2 mb-2">
                     {isPotentialLaylatAlQadr && <Sparkles className="h-5 w-5 text-accent" />}
@@ -192,7 +192,7 @@ export default function RamadanCalendar() {
 
                 {/* Daily dua */}
                 {todayDua && (
-                  <div className="bg-card rounded-xl p-4 border border-border/50">
+                  <div className="bg-card rounded-xl p-4 border border-border/10">
                     <div className="flex items-center gap-2 mb-3">
                       <BookOpen className="h-4 w-4 text-primary" />
                       <h4 className="text-sm font-semibold text-foreground">{todayDua.reference}</h4>
@@ -204,7 +204,7 @@ export default function RamadanCalendar() {
                 )}
 
                 {/* Prayer times for today */}
-                <div className="bg-card rounded-xl p-4 border border-border/50">
+                <div className="bg-card rounded-xl p-4 border border-border/10">
                   <div className="flex items-center gap-2 mb-3">
                     <Clock className="h-4 w-4 text-primary" />
                     <h4 className="text-sm font-semibold text-foreground">{t('todayPrayerTimes')}</h4>
@@ -251,7 +251,7 @@ export default function RamadanCalendar() {
             </div>
 
             {/* Dua of Laylat al-Qadr */}
-            <div className="bg-card rounded-xl p-5 border border-border/50">
+            <div className="bg-card rounded-xl p-5 border border-border/10">
               <h4 className="font-bold text-foreground mb-1">الدعاء الأعظم ل{t('laylatAlQadr')}</h4>
               <p className="text-xs text-muted-foreground mb-3">{t('aishaHadith')}</p>
               <div className="bg-primary/5 rounded-xl p-4 text-center">
@@ -270,7 +270,7 @@ export default function RamadanCalendar() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="bg-card rounded-xl p-4 border border-border/50"
+                  className="bg-card rounded-xl p-4 border border-border/10"
                 >
                   <p className="text-base font-amiri leading-loose text-foreground text-center">
                     {dua}
@@ -280,7 +280,7 @@ export default function RamadanCalendar() {
             </div>
 
             {/* What to do */}
-            <div className="bg-card rounded-xl p-4 border border-border/50">
+            <div className="bg-card rounded-xl p-4 border border-border/10">
               <h4 className="font-bold text-foreground mb-3">ماذا تفعل في {t('laylatAlQadr')}؟</h4>
               <div className="space-y-2">
                 {[
@@ -318,7 +318,7 @@ export default function RamadanCalendar() {
                     "rounded-xl p-4 border transition-all",
                     isToday
                       ? "bg-primary/10 border-primary/30 ring-2 ring-primary/20"
-                      : "bg-card border-border/50",
+                      : "bg-card border-border/10",
                     isPassed && !isToday && "opacity-60"
                   )}
                 >
@@ -349,7 +349,7 @@ export default function RamadanCalendar() {
 
       {/* Links to other Ramadan features */}
       <div className="px-4 mb-4 space-y-2">
-        <Link to="/ramadan-book" className="flex items-center justify-between rounded-2xl bg-card border border-border/50 p-3.5 active:scale-[0.98] transition-transform">
+        <Link to="/ramadan-book" className="flex items-center justify-between rounded-2xl neu-card p-3.5 active:scale-[0.98] transition-transform">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center text-lg">📖</div>
             <div>
@@ -359,7 +359,7 @@ export default function RamadanCalendar() {
           </div>
           <ChevronLeft className="h-4 w-4 text-muted-foreground" />
         </Link>
-        <Link to="/ramadan-cards" className="flex items-center justify-between rounded-2xl bg-card border border-border/50 p-3.5 active:scale-[0.98] transition-transform">
+        <Link to="/ramadan-cards" className="flex items-center justify-between rounded-2xl neu-card p-3.5 active:scale-[0.98] transition-transform">
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-xl bg-accent/10 flex items-center justify-center text-lg">🎨</div>
             <div>

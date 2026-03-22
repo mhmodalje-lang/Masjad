@@ -147,7 +147,7 @@ export default function Quran() {
                 placeholder={t('search')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="pe-9 rounded-2xl bg-card border-border/50"
+                className="pe-9 rounded-2xl bg-card border-border/10"
                 autoFocus
               />
             </div>
@@ -157,12 +157,12 @@ export default function Quran() {
 
       {/* Tabs */}
       <div className="px-5 mb-5 mt-2">
-        <div className="flex rounded-2xl border border-border/50 overflow-hidden bg-card">
+        <div className="flex rounded-2xl border border-border/10 overflow-hidden bg-card">
           <button
             onClick={() => setTab('juz')}
             className={cn(
               'flex-1 py-3 text-sm font-bold transition-all',
-              tab === 'juz' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
+              tab === 'juz' ? 'bg-primary text-primary-foreground shadow-elevated' : 'text-muted-foreground'
             )}
           >
             {t('juz')}
@@ -171,7 +171,7 @@ export default function Quran() {
             onClick={() => setTab('surah')}
             className={cn(
               'flex-1 py-3 text-sm font-bold transition-all',
-              tab === 'surah' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground'
+              tab === 'surah' ? 'bg-primary text-primary-foreground shadow-elevated' : 'text-muted-foreground'
             )}
           >
             {t('surah')}
@@ -203,7 +203,7 @@ export default function Quran() {
               <Link
                 key={juz.number}
                 to={`/quran/${juz.startSurah}`}
-                className="flex items-center gap-3 py-4 border-b border-border/50 active:bg-muted/50 transition-colors"
+                className="flex items-center gap-3 py-4 border-b border-border/10 active:bg-muted/50 transition-colors"
               >
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-bold text-foreground">{juz.name}</p>
@@ -266,7 +266,7 @@ const SurahRow = forwardRef<HTMLDivElement, {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: Math.min(index * 0.015, 0.4) }}
-      className="border-b border-border/50 last:border-b-0"
+      className="border-b border-border/10 last:border-b-0"
     >
       <div
         onClick={() => navigate(`/quran/${surah.number}`)}

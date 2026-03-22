@@ -863,7 +863,7 @@ export default function MosquePrayerTimesPage() {
                   "px-3 py-1.5 rounded-full text-xs font-medium border transition-all whitespace-nowrap",
                   mosqueFilter === tab.key
                     ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border/50 hover:border-primary/30"
+                    : "bg-card text-muted-foreground border-border/10 hover:border-primary/30"
                 )}
               >
                 {tab.label} ({tab.count})
@@ -874,7 +874,7 @@ export default function MosquePrayerTimesPage() {
 
         {/* No mosque selected info */}
         {!selectedMosque && !loading && mosques.length > 0 && (
-          <div className="rounded-2xl border border-border/50 bg-card p-4 mb-5 text-center">
+          <div className="rounded-2xl border border-border/10 bg-card p-4 mb-5 text-center">
             <p className="text-sm text-muted-foreground">
               {t('chooseMosque')}
             </p>
@@ -921,7 +921,7 @@ export default function MosquePrayerTimesPage() {
                       "w-full text-right p-4 rounded-2xl border transition-all cursor-pointer",
                       isSelected
                         ? "bg-primary/10 border-primary/30"
-                        : "bg-card border-border/50 hover:border-primary/20"
+                        : "bg-card border-border/10 hover:border-primary/20"
                     )}
                   >
                     <div className="flex items-start justify-between gap-3">

@@ -228,7 +228,7 @@ export default function CreatePost() {
           ) : (
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-12 border-2 border-dashed border-border/50 rounded-xl text-muted-foreground hover:border-emerald-600 hover:text-emerald-500 transition-colors flex flex-col items-center gap-2"
+              className="w-full py-12 border-2 border-dashed border-border/10 rounded-xl text-muted-foreground hover:border-emerald-600 hover:text-emerald-500 transition-colors flex flex-col items-center gap-2"
             >
               <Image className="w-8 h-8" />
               <span className="text-sm">إضافة صورة أو فيديو</span>

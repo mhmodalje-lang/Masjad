@@ -220,7 +220,7 @@ export default function ZakatCalculator() {
 
       <div className="px-5 -mt-2 relative z-10 space-y-4 max-w-md mx-auto">
         {/* Currency selector */}
-        <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated">
+        <div className="rounded-3xl border border-border/10 bg-card p-5 shadow-elevated">
           <SectionHeader icon={Coins} title={t("zakatCurrencySection")} subtitle={t("zakatCurrencySubtitle")} className="mb-3" />
           
           <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
@@ -259,7 +259,7 @@ export default function ZakatCalculator() {
         </div>
 
         {/* Asset fields */}
-        <div className="rounded-3xl border border-border/50 bg-card p-5 space-y-4 shadow-elevated">
+        <div className="rounded-3xl border border-border/10 bg-card p-5 space-y-4 shadow-elevated">
           <SectionHeader icon={ClipboardList} title={t("zakatAssetsSection")} subtitle={t("zakatAssetsSubtitle")} />
           {fields.map(({ labelKey, label, value, set, icon }, i) => (
             <motion.div
@@ -296,7 +296,7 @@ export default function ZakatCalculator() {
             <Calculator className="h-4 w-4" />
             {t('calculateZakat')}
           </Button>
-          <Button variant="outline" onClick={resetAll} className="rounded-2xl h-12 px-4 border-border/50">
+          <Button variant="outline" onClick={resetAll} className="rounded-2xl h-12 px-4 border-border/10">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -376,7 +376,7 @@ export default function ZakatCalculator() {
         </AnimatePresence>
 
         {/* Islamic note */}
-        <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/50">
+        <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/10">
           <p className="font-bold text-foreground mb-2 text-sm">{`📌 ${t('zakatLegalNote')}`}</p>
           <p>
             تعتمد هذه الحاسبة على نصاب الفضة (595 {t('gram')}) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.

@@ -208,12 +208,12 @@ export default function DailyDuas() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: i * 0.08 }}
-                    className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated"
+                    className="rounded-3xl border border-border/10 bg-card p-5 shadow-elevated"
                   >
                     <p className="text-lg leading-[2.2] text-foreground font-arabic text-center mb-3" dir="rtl">
                       {dua.arabic}
                     </p>
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                    <div className="flex items-center justify-between pt-3 border-t border-border/10">
                       <span className="text-xs text-muted-foreground flex-1">{dua.reference}</span>
                       <div className="flex items-center gap-2">
                         {dua.count > 1 && (

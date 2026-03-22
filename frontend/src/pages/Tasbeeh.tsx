@@ -121,7 +121,7 @@ export default function Tasbeeh() {
                   'flex flex-col items-center justify-center gap-2',
                   selected === i
                     ? 'border-primary bg-primary text-primary-foreground shadow-lg glow-emerald'
-                    : 'border-border/50 bg-card text-foreground hover:border-primary/30'
+                    : 'border-border/10 bg-card text-foreground hover:border-primary/30'
                 )}
               >
                 <span className="shrink-0 text-xl" aria-hidden="true">{opt.emoji}</span>
@@ -140,7 +140,7 @@ export default function Tasbeeh() {
             key={selected}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-5 w-full max-w-md rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated"
+            className="mb-5 w-full max-w-md rounded-3xl border border-border/10 bg-card p-5 text-center shadow-elevated"
           >
             <p className="text-3xl font-arabic text-foreground leading-[2] break-words sm:text-4xl">
               {dhikr.arabic}
@@ -225,11 +225,11 @@ export default function Tasbeeh() {
 
           {/* Stats row */}
           <div className="grid w-full max-w-sm grid-cols-2 gap-3 mb-6">
-            <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <div className="rounded-3xl border border-border/10 bg-card p-5 text-center shadow-elevated">
               <p className="mb-1 text-xs text-muted-foreground">{t('today')}</p>
               <p className="tabular-nums text-2xl font-bold text-foreground">{count}</p>
             </div>
-            <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+            <div className="rounded-3xl border border-border/10 bg-card p-5 text-center shadow-elevated">
               <p className="mb-1 text-xs text-muted-foreground">{t('total')}</p>
               <p className="tabular-nums text-2xl font-bold text-foreground">{total.toLocaleString()}</p>
             </div>

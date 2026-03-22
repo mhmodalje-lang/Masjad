@@ -436,7 +436,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/20">
+      <div className="sticky top-0 z-40 glass-nav bg-background/80 border-b border-border/10">
         <div className="flex items-center justify-between px-4 h-14">
           <button onClick={onBack} className="p-2 rounded-xl bg-muted/30 active:scale-95">
             <ArrowRight className="h-5 w-5 text-foreground" />

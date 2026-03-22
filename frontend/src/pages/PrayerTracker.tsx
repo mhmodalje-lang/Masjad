@@ -78,11 +78,11 @@ export default function PrayerTracker() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+          <div className="rounded-3xl border border-border/10 bg-card p-5 text-center shadow-elevated">
             <p className="text-xs text-muted-foreground mb-2">{t('completed')}</p>
             <p className="text-3xl font-bold text-primary">{todayPrayers.length}/5</p>
           </div>
-          <div className="rounded-3xl border border-border/50 bg-card p-5 text-center shadow-elevated">
+          <div className="rounded-3xl border border-border/10 bg-card p-5 text-center shadow-elevated">
             <div className="flex items-center justify-center gap-1.5 mb-2">
               <Flame className="h-3.5 w-3.5 text-accent" />
               <p className="text-xs text-muted-foreground">{t('streak')}</p>
@@ -92,7 +92,7 @@ export default function PrayerTracker() {
         </div>
 
         {/* Progress bar */}
-        <div className="rounded-3xl border border-border/50 bg-card p-5 shadow-elevated mb-5">
+        <div className="rounded-3xl border border-border/10 bg-card p-5 shadow-elevated mb-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-muted-foreground">{Math.round(progress)}%</span>
             <p className="text-sm font-bold text-foreground">{t('todayProgress')}</p>
@@ -110,7 +110,7 @@ export default function PrayerTracker() {
 
         {/* Prayer checklist */}
         <SectionHeader icon={ListChecks} title={t('todayPrayers')} />
-        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
+        <div className="rounded-3xl border border-border/10 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
           {prayerKeys.map((key, i) => {
             const done = todayPrayers.includes(key);
             return (

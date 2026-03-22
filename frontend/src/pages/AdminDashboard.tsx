@@ -323,10 +323,10 @@ export default function AdminDashboard() {
         <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
         {multiline ? (
           <textarea {...sharedProps} rows={3}
-            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground resize-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
+            className="w-full rounded-xl bg-muted border border-border/10 px-3 py-2 text-sm text-foreground resize-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
         ) : (
           <input type="text" {...sharedProps}
-            className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
+            className="w-full rounded-xl bg-muted border border-border/10 px-3 py-2 text-sm text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/30 outline-none transition-all" />
         )}
       </div>
     );
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
   const SelectField = ({ label, value, onChange, options }: any) => (
     <div>
       <label className="text-xs font-medium text-foreground mb-1 block">{label}</label>
-      <select dir="auto" value={value} onChange={e=>onChange(e.target.value)} className="w-full rounded-xl bg-muted border border-border/50 px-3 py-2 text-sm text-foreground text-right" style={{ unicodeBidi: 'plaintext' }}>
+      <select dir="auto" value={value} onChange={e=>onChange(e.target.value)} className="w-full rounded-xl bg-muted border border-border/10 px-3 py-2 text-sm text-foreground text-right" style={{ unicodeBidi: 'plaintext' }}>
         {options.map((o:string)=><option key={o} value={o}>{o}</option>)}
       </select>
     </div>
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
             {tabs.map(t=>(
               <button key={t.key} onClick={()=>setTab(t.key)} data-testid={`admin-tab-${t.key}`}
                 className={cn('inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0',
-                  tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-card border border-border/50 text-muted-foreground hover:bg-muted')}
+                  tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'neu-card text-muted-foreground hover:bg-muted')}
                 style={{ whiteSpace: 'nowrap' }}>
                 <t.icon className="h-4 w-4 shrink-0" /><span style={{ whiteSpace: 'nowrap' }}>{t.label}</span>
               </button>
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-3 gap-3">
               {[{l:t('totalUsers'),v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},{l:t('scheduledNotifications'),v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},{l:t('totalAds'),v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'}]
               .map(s=>(
-                <div key={s.l} className="rounded-2xl bg-card border border-border/50 p-4 text-center">
+                <div key={s.l} className="rounded-2xl neu-card p-4 text-center">
                   <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center mx-auto mb-2",s.c)}><s.i className="h-5 w-5"/></div>
                   <p className="text-2xl font-bold text-foreground">{s.v}</p>
                   <p className="text-xs text-muted-foreground mt-1">{s.l}</p>
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Category Stats */}
-            <div className="rounded-2xl bg-card border border-border/50 p-4">
+            <div className="rounded-2xl neu-card p-4">
               <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" />{t('overview')} {t('categoryField')}</h3>
               <div className="space-y-2">
                 {stats?.categories?.length > 0 ? stats.categories.map((cat: any) => (
@@ -514,14 +514,14 @@ export default function AdminDashboard() {
               {[{k:'',l:t('overview')},{k:'pending',l:t('pending')},{k:'approved',l:t('approved')},{k:'rejected',l:t('rejected')}].map(f=>(
                 <button key={f.k} onClick={()=>setStoriesFilter(f.k)}
                   className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
-                    storiesFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
+                    storiesFilter===f.k ? 'bg-primary text-primary-foreground' : 'neu-card text-muted-foreground')}>
                   {f.l}
                 </button>
               ))}
             </div>
             {adminStories.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             adminStories.map(s => (
-              <div key={s.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+              <div key={s.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-foreground truncate">{s.title || t('noData')}</p>
@@ -589,7 +589,7 @@ export default function AdminDashboard() {
 
             {ruqyahItems.length === 0 && !showRuqyahForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             ruqyahItems.map(item => (
-              <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4">
+              <div key={item.id} className="rounded-xl neu-card p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -636,7 +636,7 @@ export default function AdminDashboard() {
               {[{k:'',l:t('overview')},{k:'pending',l:t('pending')},{k:'approved',l:t('approved')},{k:'rejected',l:t('rejected')}].map(f=>(
                 <button key={f.k} onClick={()=>setDonationsFilter(f.k)}
                   className={cn('px-3 py-1.5 rounded-lg text-xs font-bold shrink-0 transition-all',
-                    donationsFilter===f.k ? 'bg-primary text-primary-foreground' : 'bg-card border border-border/50 text-muted-foreground')}>
+                    donationsFilter===f.k ? 'bg-primary text-primary-foreground' : 'neu-card text-muted-foreground')}>
                   {f.l}
                 </button>
               ))}
@@ -644,7 +644,7 @@ export default function AdminDashboard() {
 
             {adminDonations.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             adminDonations.map(d => (
-              <div key={d.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+              <div key={d.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-foreground">{d.title || t('donationsManagement')}</p>
@@ -693,7 +693,7 @@ export default function AdminDashboard() {
             
             <h3 className="text-sm font-bold text-foreground mt-4">{t('adsManagement')}  ({broadcastList.length})</h3>
             {broadcastList.map(a => (
-              <div key={a.id} className="rounded-xl bg-card border border-border/50 p-4 flex items-start justify-between gap-3">
+              <div key={a.id} className="rounded-xl neu-card p-4 flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{a.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">{a.body}</p>
@@ -737,7 +737,7 @@ export default function AdminDashboard() {
               <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')} مضمن بعد</p>
             ) : (
               embedContent.map(item => (
-                <div key={item.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+                <div key={item.id} className="rounded-xl neu-card p-4 space-y-2">
                   {item.thumbnail_url && (
                     <div className="rounded-lg overflow-hidden h-36 w-full mb-2">
                       <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
@@ -770,7 +770,7 @@ export default function AdminDashboard() {
             <h2 className="text-base font-bold text-foreground">{t('usersManagement')} ({usersTotal})</h2>
             {users.length===0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             users.map(u=>(
-              <div key={u.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
+              <div key={u.id} className="rounded-xl neu-card p-3 flex items-center justify-between">
                 <div className="min-w-0 flex-1"><p className="text-sm font-bold text-foreground truncate">{u.name||t('noData')}</p><p className="text-xs text-muted-foreground truncate">{u.email}</p></div>
                 <button onClick={()=>deleteUser(u.id)} className="p-1.5 rounded-lg bg-destructive/10 text-destructive mr-2"><Trash2 className="h-3.5 w-3.5"/></button>
               </div>
@@ -805,7 +805,7 @@ export default function AdminDashboard() {
 
             {ads.length===0 && !showAdForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             ads.map(ad=>(
-              <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-3">
+              <div key={ad.id} className="rounded-xl neu-card p-3">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className={cn("h-2 w-2 rounded-full", ad.enabled?'bg-green-500':'bg-red-500')}/>
@@ -834,7 +834,7 @@ export default function AdminDashboard() {
             <h2 className="text-base font-bold text-foreground">{t('scheduledNotifications')}</h2>
             
             {/* Send instant */}
-            <div className="rounded-xl bg-card border border-border/50 p-3 space-y-2">
+            <div className="rounded-xl neu-card p-3 space-y-2">
               <p className="text-xs font-bold text-foreground">{t('send')}</p>
               <InputField label={t('notifTitle')} value={nTitle} onChange={setNTitle} placeholder={t('notifTitle')} />
               <InputField label={t('notifBody')} value={nBody} onChange={setNBody} placeholder={t('notifBody')} multiline />
@@ -864,7 +864,7 @@ export default function AdminDashboard() {
             )}
 
             {scheduledNotifs.map(n=>(
-              <div key={n.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
+              <div key={n.id} className="rounded-xl neu-card p-3 flex items-center justify-between">
                 <div><p className="text-sm font-bold text-foreground">{n.title}</p><p className="text-[10px] text-muted-foreground">{n.schedule_time||t('send')} • {n.repeat}</p></div>
                 <button onClick={()=>deleteSchedNotif(n.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
               </div>
@@ -895,7 +895,7 @@ export default function AdminDashboard() {
 
             {pages.length===0 && !showPageForm ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')}</p> :
             pages.map(p=>(
-              <div key={p.id} className="rounded-xl bg-card border border-border/50 p-3 flex items-center justify-between">
+              <div key={p.id} className="rounded-xl neu-card p-3 flex items-center justify-between">
                 <div><p className="text-sm font-bold text-foreground">{p.title}</p><p className="text-[10px] text-muted-foreground">{p.category} • {p.enabled?t('adActive'):t('disabled')}</p></div>
                 <button onClick={()=>deletePage(p.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
               </div>
@@ -907,7 +907,7 @@ export default function AdminDashboard() {
         {tab==='settings' && (
           <div className="space-y-4">
             <h2 className="text-base font-bold text-foreground">إعدادات التطبيق</h2>
-            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
+            <div className="rounded-xl neu-card p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">{t('maintenanceMode')}</p><p className="text-[10px] text-muted-foreground">إيقاف مؤقت</p></div></div>
                 <Switch checked={maintenance} onCheckedChange={setMaintenance} />
@@ -928,7 +928,7 @@ export default function AdminDashboard() {
 
             {/* Marketplace Commission */}
             <h2 className="text-base font-bold text-foreground">عمولة السوق</h2>
-            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
+            <div className="rounded-xl neu-card p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <InputField label="{t('commissionRate')} %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
                 <Button onClick={saveCommission} size="sm" className="rounded-xl mt-5">{t('save')}</Button>
@@ -987,7 +987,7 @@ export default function AdminDashboard() {
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-primary"/>التحليلات (آخر 7 أيام)
             </h2>
-            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-3">
+            <div className="rounded-xl neu-card p-4 space-y-3">
               <Button onClick={fetchAnalytics} size="sm" variant="outline" className="w-full rounded-xl gap-1"><RefreshCw className="h-3 w-3"/>تحديث التحليلات</Button>
               {analyticsData && (
                 <div className="space-y-3">
@@ -1016,7 +1016,7 @@ export default function AdminDashboard() {
               )}
             </div>
 
-            <div className="rounded-xl bg-card border border-border/50 p-4 space-y-1 text-xs text-muted-foreground">
+            <div className="rounded-xl neu-card p-4 space-y-1 text-xs text-muted-foreground">
               <p className="font-bold text-foreground text-sm">معلومات</p>
               <p>أذان وحكاية v3.0</p>
               <p>المسؤول: {user?.email}</p>
@@ -1032,7 +1032,7 @@ export default function AdminDashboard() {
             <p className="text-xs text-muted-foreground">{t('adsManagement')} المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
             {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد إعلانات بعد</p> :
             userAds.map(ad => (
-              <div key={ad.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+              <div key={ad.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-foreground truncate">{ad.title}</p>
@@ -1070,7 +1070,7 @@ export default function AdminDashboard() {
             <p className="text-xs text-muted-foreground">لا يُنشر أي منتج إلا بعد موافقتك على البائع</p>
             {vendors.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد طلبات</p> :
             vendors.map(v => (
-              <div key={v.id} className="rounded-xl bg-card border border-border/50 p-4 space-y-2">
+              <div key={v.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-foreground truncate">{v.shop_name || v.user_name}</p>
@@ -1147,13 +1147,13 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div>
                         <label className="text-muted-foreground block mb-1">{t('countriesEnabled')}</label>
-                        <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="DE, US, SA, TR"
+                        <input className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-xs text-foreground" placeholder="DE, US, SA, TR"
                           value={(rule.countries_enabled||[]).join(', ')}
                           onChange={e => toggleAdRule(rule.page, 'countries_enabled', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
                       </div>
                       <div>
                         <label className="text-muted-foreground block mb-1">{t('countriesBlocked')}</label>
-                        <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-xs text-foreground" placeholder="CN, KP"
+                        <input className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-xs text-foreground" placeholder="CN, KP"
                           value={(rule.countries_blocked||[]).join(', ')}
                           onChange={e => toggleAdRule(rule.page, 'countries_blocked', e.target.value.split(',').map((s:string) => s.trim()).filter(Boolean))} />
                       </div>
@@ -1165,7 +1165,7 @@ export default function AdminDashboard() {
                               const current = rule.ad_types_allowed || [];
                               const next = current.includes(at) ? current.filter((x:string)=>x!==at) : [...current, at];
                               toggleAdRule(rule.page, 'ad_types_allowed', next);
-                            }} className={cn("px-2 py-1 rounded-lg text-xs font-bold border", (rule.ad_types_allowed||[]).includes(at) ? "bg-primary/20 border-primary text-primary" : "bg-muted border-border/50 text-muted-foreground")}>
+                            }} className={cn("px-2 py-1 rounded-lg text-xs font-bold border", (rule.ad_types_allowed||[]).includes(at) ? "bg-primary/20 border-primary text-primary" : "bg-muted border-border/10 text-muted-foreground")}>
                               {at}
                             </button>
                           ))}
@@ -1190,14 +1190,14 @@ export default function AdminDashboard() {
             {showDailyForm && (
               <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
                 <div className="flex gap-2 items-center">
-                  <select className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={dailyForm.content_type} onChange={e => setDailyForm({...dailyForm, content_type: e.target.value})}>
+                  <select className="rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground" value={dailyForm.content_type} onChange={e => setDailyForm({...dailyForm, content_type: e.target.value})}>
                     <option value="hadith">{t('hadithType')}</option>
                     <option value="story">{t('storyType')}</option>
                     <option value="dua">{t('duaType')}</option>
                     <option value="tip">{t('tipType')}</option>
                     <option value="verse">{t('verseType')}</option>
                   </select>
-                  <input type="date" className="rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder="Schedule Date" value={dailyForm.schedule_date} onChange={e => setDailyForm({...dailyForm, schedule_date: e.target.value})} />
+                  <input type="date" className="rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground" placeholder="Schedule Date" value={dailyForm.schedule_date} onChange={e => setDailyForm({...dailyForm, schedule_date: e.target.value})} />
                   <div className="flex items-center gap-1">
                     <span className="text-xs text-muted-foreground">{t('activeLabel')}</span>
                     <Switch checked={dailyForm.active} onCheckedChange={v => setDailyForm({...dailyForm, active: v})} />
@@ -1205,24 +1205,24 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">{t('arabicTextOriginal')}</label>
-                  <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder="النص العربي الأصلي..." />
+                  <textarea className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder="النص العربي الأصلي..." />
                 </div>
                 <div>
                   <div className="flex gap-1 flex-wrap mb-2">
                     {SUPPORTED_LOCALES.map(loc => (
-                      <button key={loc} onClick={() => setDailyEditLang(loc)} className={cn("px-2 py-1 rounded text-xs font-bold border", dailyEditLang === loc ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border/50 text-muted-foreground")}>
+                      <button key={loc} onClick={() => setDailyEditLang(loc)} className={cn("px-2 py-1 rounded text-xs font-bold border", dailyEditLang === loc ? "bg-primary text-primary-foreground border-primary" : "bg-muted border-border/10 text-muted-foreground")}>
                         {loc}
                       </button>
                     ))}
                   </div>
                   <div className="space-y-2">
-                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder={`Title (${dailyEditLang})`}
+                    <input className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground" placeholder={`Title (${dailyEditLang})`}
                       dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
                       value={dailyForm.title[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, title: {...dailyForm.title, [dailyEditLang]: e.target.value}})} />
-                    <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-16" placeholder={`Body (${dailyEditLang})`}
+                    <textarea className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground h-16" placeholder={`Body (${dailyEditLang})`}
                       dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
                       value={dailyForm.body[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, body: {...dailyForm.body, [dailyEditLang]: e.target.value}})} />
-                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" placeholder={`Source (${dailyEditLang})`}
+                    <input className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground" placeholder={`Source (${dailyEditLang})`}
                       dir={dailyEditLang === 'ar' ? 'rtl' : 'ltr'}
                       value={dailyForm.source[dailyEditLang] || ''} onChange={e => setDailyForm({...dailyForm, source: {...dailyForm.source, [dailyEditLang]: e.target.value}})} />
                   </div>
@@ -1237,7 +1237,7 @@ export default function AdminDashboard() {
             <div className="space-y-2">
               {dailyContentItems.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">{t('noContentYet')}</p>}
               {dailyContentItems.map((item: any) => (
-                <div key={item.id} className="rounded-2xl bg-card border border-border/30 p-3 space-y-1">
+                <div key={item.id} className="rounded-2xl neu-card p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className={cn("px-2 py-0.5 rounded-full text-xs font-bold", item.content_type === 'hadith' ? "bg-emerald-500/20 text-emerald-400" : item.content_type === 'story' ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400")}>
@@ -1268,7 +1268,7 @@ export default function AdminDashboard() {
             <div className="rounded-2xl border border-primary/30 bg-card p-4 space-y-3">
               <div>
                 <label className="text-xs font-bold text-foreground block mb-1">{t('target')}</label>
-                <select className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground" value={mlNotifTarget} onChange={e => setMlNotifTarget(e.target.value)}>
+                <select className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground" value={mlNotifTarget} onChange={e => setMlNotifTarget(e.target.value)}>
                   <option value="all">{t('allUsers')}</option>
                   {SUPPORTED_LOCALES.map(loc => <option key={loc} value={`locale:${loc}`}>Locale: {loc}</option>)}
                   {['DE','TR','SA','US','GB','FR','RU','SE','NL','GR','AT'].map(c => <option key={c} value={`country:${c}`}>Country: {c}</option>)}
@@ -1279,10 +1279,10 @@ export default function AdminDashboard() {
                 {SUPPORTED_LOCALES.map(loc => (
                   <div key={loc} className="rounded-xl bg-muted/30 border border-border/30 p-3 space-y-2">
                     <span className="text-xs font-bold text-primary">{loc.toUpperCase()}</span>
-                    <input className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground"
+                    <input className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground"
                       dir={loc === 'ar' ? 'rtl' : 'ltr'} placeholder={`Title (${loc})`}
                       value={mlNotifTitle[loc] || ''} onChange={e => setMlNotifTitle({...mlNotifTitle, [loc]: e.target.value})} />
-                    <textarea className="w-full rounded-lg bg-background border border-border/50 px-3 py-2 text-sm text-foreground h-12"
+                    <textarea className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground h-12"
                       dir={loc === 'ar' ? 'rtl' : 'ltr'} placeholder={`Body (${loc})`}
                       value={mlNotifBody[loc] || ''} onChange={e => setMlNotifBody({...mlNotifBody, [loc]: e.target.value})} />
                   </div>
@@ -1296,7 +1296,7 @@ export default function AdminDashboard() {
               <div className="space-y-2">
                 <h3 className="text-sm font-bold text-foreground">{t('historyLabel')}</h3>
                 {mlNotifHistory.map((n: any, i: number) => (
-                  <div key={i} className="rounded-xl bg-card border border-border/30 p-3 text-xs space-y-1">
+                  <div key={i} className="rounded-xl neu-card p-3 text-xs space-y-1">
                     <div className="flex justify-between"><span className="font-bold text-foreground">{n.title?.ar || n.title?.en || 'Notification'}</span><span className="text-muted-foreground">{n.created_at?.substring(0,10)}</span></div>
                     <p className="text-muted-foreground">{t('target')}: {n.target} | {t('sentTo')} {n.total_sent}</p>
                     <p className="text-muted-foreground">{t('localesLabel')} {JSON.stringify(n.locale_breakdown)}</p>

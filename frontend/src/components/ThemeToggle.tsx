@@ -18,7 +18,7 @@ export function ThemeToggle() {
         'relative inline-flex h-8 w-14 items-center rounded-full transition-all duration-500 shrink-0',
         theme === 'dark'
           ? 'bg-[#0c1a2e] border border-[#D4AF37]/30'
-          : 'bg-[#064E3B]/10 border border-[#064E3B]/20'
+          : 'bg-[hsl(var(--mystic-moss))]/10 border border-[hsl(var(--mystic-moss))]/20'
       )}
     >
       <span
@@ -26,7 +26,7 @@ export function ThemeToggle() {
           'inline-flex h-6 w-6 rounded-full transition-all duration-500 items-center justify-center',
           theme === 'dark'
             ? 'translate-x-[4px] bg-[#D4AF37]'
-            : 'translate-x-[30px] bg-[#064E3B]'
+            : 'translate-x-[30px] bg-[hsl(var(--mystic-moss))]'
         )}
       >
         <Icon className={cn('h-3.5 w-3.5', theme === 'dark' ? 'text-[#0c1a2e]' : 'text-white')} />

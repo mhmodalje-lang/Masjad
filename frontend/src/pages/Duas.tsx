@@ -180,7 +180,7 @@ export default function Duas() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: j * 0.05 }}
-      className="rounded-2xl bg-card border border-border/50 p-4 shadow-elevated"
+      className="rounded-2xl neu-card p-4 shadow-elevated"
     >
       <div className="flex items-center justify-between mb-3">
         <button onClick={() => toggleFavorite(dua.duaId)} className="p-1.5 rounded-xl hover:bg-muted transition-colors">
@@ -219,7 +219,7 @@ export default function Duas() {
             <button
               key={cat.dataKey}
               onClick={() => openCategory(cat.dataKey)}
-              className="w-full flex items-center justify-between py-5 border-b border-border/50"
+              className="w-full flex items-center justify-between py-5 border-b border-border/10"
             >
               <div className="flex items-center gap-2">
                 <ChevronRight className="h-4 w-4 text-muted-foreground rtl:rotate-180" />
@@ -285,7 +285,7 @@ export default function Duas() {
                 placeholder={t('searchDua')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pe-9 rounded-2xl bg-card border-border/50"
+                className="pe-9 rounded-2xl bg-card border-border/10"
                 autoFocus
               />
             </div>
@@ -339,7 +339,7 @@ export default function Duas() {
                   <button
                     key={i}
                     onClick={() => openSubCategory(i)}
-                    className="w-full flex items-center justify-between p-5 rounded-2xl bg-card border border-border/50 hover:border-primary/30 transition-colors shadow-elevated"
+                    className="w-full flex items-center justify-between p-5 rounded-2xl neu-card hover:border-primary/30 transition-colors shadow-elevated"
                   >
                     <div className="flex items-center gap-2">
                       <ChevronRight className="h-4 w-4 text-muted-foreground rtl:rotate-180" />
@@ -373,7 +373,7 @@ export default function Duas() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: j * 0.05 }}
-                      className="rounded-2xl bg-card border border-border/50 p-4 shadow-elevated"
+                      className="rounded-2xl neu-card p-4 shadow-elevated"
                     >
                       <div className="flex items-center justify-end mb-3">
                         <button onClick={() => toggleFavorite(duaId)} className="p-1">

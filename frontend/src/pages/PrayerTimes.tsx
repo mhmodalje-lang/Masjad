@@ -61,9 +61,9 @@ export default function PrayerTimes() {
 
       {/* Source indicator */}
       <div className="px-5 -mt-8 relative z-10 mb-5">
-        <div className="rounded-3xl bg-card border border-border/50 p-4 shadow-elevated">
+        <div className="glass-mystic rounded-3xl p-4 shadow-float">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-xl bg-primary/8 flex items-center justify-center shrink-0 border border-primary/10">
               {source === 'mosque' ? (
                 <Building2 className="h-5 w-5 text-primary" />
               ) : (
@@ -95,7 +95,7 @@ export default function PrayerTimes() {
       {/* Prayer List */}
       <div className="px-5 mb-5">
         <SectionHeader icon={Clock} title={t('todayPrayerTimes')} />
-        <div className="rounded-3xl border border-border/50 bg-card shadow-elevated overflow-hidden divide-y divide-border/50">
+        <div className="glass-mystic rounded-3xl shadow-elevated overflow-hidden divide-y divide-border/10">
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Clock className="h-6 w-6 animate-spin text-primary" />
@@ -110,8 +110,8 @@ export default function PrayerTimes() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.05 }}
                   className={cn(
-                    'flex items-center justify-between px-5 py-4',
-                    isNext && 'bg-primary/5'
+                    'flex items-center justify-between px-5 py-4 transition-all',
+                    isNext && 'bg-primary/5 glass-mystic'
                   )}
                   data-testid={`prayer-row-${prayer.key}`}
                 >
@@ -146,7 +146,7 @@ export default function PrayerTimes() {
       {/* Next prayer indicator */}
       {nextPrayer && (
         <div className="px-5 mb-5">
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
+          <div className="glass-mystic rounded-2xl border border-primary/15 p-4 text-center animate-pulse-glow">
             <p className="text-xs text-muted-foreground mb-1">{t('nextPrayerIs')}</p>
             <p className="text-lg font-bold text-primary">{t(nextPrayer.key)} — {nextPrayer.time}</p>
             {remaining && <p className="text-sm text-muted-foreground mt-1">{t('remainingLabel')} {remaining}</p>}
@@ -158,7 +158,7 @@ export default function PrayerTimes() {
       <div className="px-5 mb-5">
         <button
           onClick={() => navigate('/mosque-times')}
-          className="w-full rounded-2xl border border-border/50 bg-card p-4 shadow-elevated flex items-center gap-3 transition-all active:scale-[0.98] hover:border-primary/30"
+          className="w-full glass-mystic rounded-2xl p-4 shadow-elevated flex items-center gap-3 transition-all active:scale-[0.98] hover:shadow-float"
           data-testid="mosque-times-link"
         >
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
