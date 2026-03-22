@@ -218,12 +218,12 @@ export default function Index() {
         />
       )}
 
-      {/* ===== HERO ===== */}
+      {/* ===== HERO — Mystic Minimalism ===== */}
       <div className="relative overflow-hidden h-[280px]">
         <img
           src={meccaImage}
           alt={t('holyMosqueAlt')}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover animate-heroZoom"
           loading="eager"
           // @ts-ignore
           fetchpriority="high"
@@ -231,54 +231,54 @@ export default function Index() {
           height="280"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[hsl(var(--background))]" />
         
         {/* Top bar - notifications & profile */}
         <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
           <button
             onClick={toggleNotifications}
             aria-label={notificationsEnabled ? t('disableNotifications') : t('enableNotificationsLabel')}
-            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-sm transition-all active:scale-95"
+            className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95 hover:bg-white/15"
           >
             {notificationsEnabled ? (
               <Bell className="h-5 w-5 text-white fill-current" />
             ) : (
-              <BellOff className="h-5 w-5 text-white/70" />
+              <BellOff className="h-5 w-5 text-white/60" />
             )}
           </button>
           <div className="flex-1" />
           <Link
             to="/account"
-            className="p-2.5 rounded-2xl bg-black/30 backdrop-blur-sm transition-all active:scale-95"
+            className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95 hover:bg-white/15"
           >
             <User className="h-5 w-5 text-white/90" />
           </Link>
         </div>
 
-        {/* Center content - Date + Location */}
+        {/* Center content - Floating Date + Location with Mist Effect */}
         <div className="absolute bottom-12 left-0 right-0 px-5">
-          {/* Date with toggle */}
+          {/* Date with toggle — larger & elegant */}
           <div className="flex items-center justify-center gap-2 mb-3">
             <button
               onClick={toggleDateMode}
-              className="group flex items-center gap-2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 transition-all active:scale-95 hover:bg-black/40"
+              className="group flex items-center gap-2.5 bg-white/10 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2 transition-all active:scale-95 hover:bg-white/15"
             >
-              <span className="text-white/90 text-xs font-bold tracking-wide drop-shadow-lg">
+              <span className="text-white text-sm font-bold tracking-wide drop-shadow-lg">
                 {showHijri && hijriDate ? hijriDate : gregorianDate}
               </span>
-              <span className="text-[9px] text-emerald-300/80 font-bold bg-emerald-500/20 px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] text-amber-200/90 font-bold bg-amber-500/20 px-2 py-0.5 rounded-full">
                 {showHijri && hijriDate ? t('hijriDate') : t('gregorianDate')}
               </span>
             </button>
           </div>
 
-          {/* Location */}
+          {/* Location — floating glass pill */}
           <div className="flex items-center justify-center">
             <button
               onClick={() => detectLocation()}
-              className="flex items-center gap-2 bg-black/25 backdrop-blur-sm rounded-full px-4 py-2 transition-all active:scale-95 hover:bg-black/35"
+              className="flex items-center gap-2.5 bg-white/10 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 transition-all active:scale-95 hover:bg-white/15"
             >
-              <MapPin className="h-4 w-4 text-emerald-400" />
+              <MapPin className="h-4 w-4 text-emerald-300" />
               <span className="text-white font-bold text-sm drop-shadow-lg">
                 {locationLoading ? '...' : city || t('detectLocation')}
               </span>
@@ -287,34 +287,42 @@ export default function Index() {
         </div>
       </div>
 
-      {/* ===== NEXT PRAYER CARD ===== */}
+      {/* ===== NEXT PRAYER CARD — Glassmorphism 2.0 ===== */}
       <div className="px-4 -mt-10 relative z-10 mb-5">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl bg-card border border-border/50 p-5 shadow-card animate-fade-in"
+          className="glass-mystic rounded-3xl p-5 shadow-float animate-fade-in"
         >
-          <div className="flex items-center gap-4">
-            {/* Countdown circle */}
-            <div className="relative shrink-0">
-              <svg width="100" height="100" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r={circleR} fill="none" stroke="hsl(var(--border))" strokeWidth="3.5" opacity="0.4" />
+          <div className="flex items-center gap-5">
+            {/* Countdown ring — large, smooth, with pulse */}
+            <div className="relative shrink-0 animate-pulse-glow rounded-full">
+              <svg width="110" height="110" viewBox="0 0 110 110">
+                {/* Background track */}
+                <circle cx="55" cy="55" r={circleR} fill="none" stroke="hsl(var(--border))" strokeWidth="4" opacity="0.2" />
+                {/* Progress ring */}
                 <circle
-                  cx="50" cy="50" r={circleR}
+                  cx="55" cy="55" r={circleR}
                   fill="none"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="3.5"
+                  stroke="url(#prayer-gradient)"
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeDasharray={circleC}
                   strokeDashoffset={strokeDashoffset}
-                  transform="rotate(-90 50 50)"
+                  transform="rotate(-90 55 55)"
                   className="transition-all duration-1000"
-                  style={{ filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.3))' }}
                 />
+                {/* Gradient definition */}
+                <defs>
+                  <linearGradient id="prayer-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="hsl(var(--islamic-green))" />
+                    <stop offset="100%" stopColor="hsl(var(--islamic-gold))" />
+                  </linearGradient>
+                </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[9px] text-muted-foreground mb-0.5 font-medium">{t('remaining')}</span>
-                <span className="text-base font-bold tabular-nums text-foreground leading-none">
+                <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">{t('remaining')}</span>
+                <span className="text-lg font-extrabold tabular-nums text-foreground leading-none mt-0.5">
                   {remaining || '00:00'}
                 </span>
               </div>
@@ -322,7 +330,7 @@ export default function Index() {
 
             {/* Next prayer info */}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1 font-medium">{t('nextPrayerLabel')}</p>
+              <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-wide uppercase">{t('nextPrayerLabel')}</p>
               <p className="text-2xl font-extrabold text-foreground leading-tight tracking-tight">
                 {nextPrayer ? prayerNames[nextPrayer.key] || t(nextPrayer.key) : '—'}
               </p>
@@ -332,13 +340,13 @@ export default function Index() {
               <div className="flex items-center gap-2 mt-3">
                 <Link
                   to="/tracker"
-                  className="text-xs text-primary font-bold bg-primary/10 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/15 truncate max-w-[45%]"
+                  className="text-[11px] text-primary font-bold bg-primary/8 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-primary/12 truncate max-w-[45%] border border-primary/10"
                 >
                   {t('prayerTracking')}
                 </Link>
                 <Link
                   to="/notifications"
-                  className="text-xs text-muted-foreground bg-muted/60 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted truncate max-w-[45%]"
+                  className="text-[11px] text-muted-foreground bg-muted/40 px-3.5 py-1.5 rounded-xl transition-all active:scale-95 hover:bg-muted/60 truncate max-w-[45%]"
                 >
                   <Volume2 className="h-3 w-3 inline me-1" />
                   {t('athanLabel')}
@@ -436,10 +444,10 @@ export default function Index() {
                 key={prayer.key}
                 whileTap={{ scale: 0.97 }}
                 className={cn(
-                  'rounded-2xl border p-3.5 text-center transition-all',
+                  'rounded-2xl border p-3.5 text-center transition-all duration-300',
                   isNext
-                    ? 'border-primary/50 bg-primary/8 shadow-sm'
-                    : 'border-border/40 bg-card'
+                    ? 'glass-mystic border-primary/20 shadow-float animate-pulse-glow'
+                    : 'neu-card hover:shadow-elevated'
                 )}
               >
                 <span className="text-lg mb-1 block">{prayerIcons[prayer.key] || '🕐'}</span>
@@ -454,10 +462,10 @@ export default function Index() {
           })}
         </div>
 
-        {/* Mosque link */}
+        {/* Mosque link — glass card */}
         <Link
           to="/mosque-times"
-          className="mt-3 flex items-center justify-between rounded-2xl border border-border/40 bg-card p-3.5 transition-all active:scale-[0.98] hover:border-primary/30"
+          className="mt-3 flex items-center justify-between glass-mystic rounded-2xl p-3.5 transition-all active:scale-[0.98] hover:shadow-float"
         >
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">

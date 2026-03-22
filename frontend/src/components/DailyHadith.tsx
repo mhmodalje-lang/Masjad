@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BookOpen, Share2 } from 'lucide-react';
+import { BookOpen, Share2, Sparkles } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -61,10 +61,10 @@ export default function DailyHadith() {
   if (loading || !hadith) {
     return (
       <div className="px-4 mb-4">
-        <div className="rounded-3xl bg-card border border-border/40 p-5 animate-pulse">
-          <div className="h-4 bg-muted rounded w-24 mb-4" />
-          <div className="h-6 bg-muted rounded w-full mb-2" />
-          <div className="h-6 bg-muted rounded w-3/4" />
+        <div className="glass-mystic rounded-3xl p-6 shimmer-mystic">
+          <div className="h-4 bg-muted/40 rounded-full w-28 mb-5" />
+          <div className="h-5 bg-muted/30 rounded-full w-full mb-3" />
+          <div className="h-5 bg-muted/30 rounded-full w-3/4 mx-auto" />
         </div>
       </div>
     );
@@ -72,44 +72,56 @@ export default function DailyHadith() {
 
   return (
     <div className="px-4 mb-4" data-testid="daily-hadith">
-      <div className="rounded-3xl bg-card border border-border/40 p-5 shadow-elevated relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-amber-500/5 to-transparent rounded-br-full" />
+      {/* ═══ Glassmorphism 2.0 Card ═══ */}
+      <div className="glass-mystic rounded-3xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
+        {/* Decorative glow orbs */}
+        <div className="absolute -top-8 -left-8 w-32 h-32 bg-[hsl(var(--islamic-green)/0.06)] rounded-full blur-2xl group-hover:bg-[hsl(var(--islamic-green)/0.1)] transition-all duration-700" />
+        <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-[hsl(var(--islamic-gold)/0.05)] rounded-full blur-2xl" />
         
-        <div className="flex items-center justify-between mb-4 relative">
-          <span className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
-            <BookOpen className="h-3 w-3" />
+        {/* Top bar: badge + share */}
+        <div className="flex items-center justify-between mb-5 relative">
+          <span className="inline-flex items-center gap-2 neu-pill px-4 py-1.5 text-[11px] font-bold text-[hsl(var(--mystic-amber))]">
+            <Sparkles className="h-3.5 w-3.5" />
             {t('hadithOfDay')}
           </span>
           <button
             onClick={handleShare}
-            className="p-2 rounded-xl hover:bg-muted transition-colors"
+            className="p-2.5 rounded-xl glass-card hover:shadow-float transition-all duration-300 active:scale-90"
             data-testid="share-hadith-btn"
           >
             <Share2 className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-2">{t('prophetSaid')}</p>
+        {/* Prophet said label */}
+        <p className="text-xs text-muted-foreground mb-3 tracking-wide font-medium uppercase">
+          {t('prophetSaid')}
+        </p>
         
-        {/* Arabic text always shown */}
+        {/* Hadith text — elegant centered typography */}
         {hadith.arabic_text ? (
           <>
-            <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-3" dir="rtl">
+            <p className="text-lg font-arabic text-foreground leading-[2.4] text-center mb-4 px-2" dir="rtl">
               «{hadith.arabic_text}»
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed text-center mb-4 border-t border-border/20 pt-3" dir="auto">
+            <div className="w-16 h-[1px] mx-auto bg-gradient-to-r from-transparent via-[hsl(var(--islamic-gold)/0.3)] to-transparent mb-4" />
+            <p className="text-sm text-muted-foreground leading-relaxed text-center mb-4 px-2" dir="auto">
               «{hadith.text}»
             </p>
           </>
         ) : (
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-4" dir="auto">
+          <p className="text-lg font-arabic text-foreground leading-[2.4] text-center mb-5 px-2" dir="auto">
             «{hadith.text}»
           </p>
         )}
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-3">
-          <span>{t('narratorLabel')} {hadith.narrator}</span>
-          <span>{hadith.source}</span>
+        {/* Footer — source info */}
+        <div className="flex items-center justify-between text-[11px] text-muted-foreground/70 pt-4 border-t border-[hsl(var(--border)/0.2)]">
+          <span className="flex items-center gap-1.5">
+            <BookOpen className="h-3 w-3" />
+            {t('narratorLabel')} {hadith.narrator}
+          </span>
+          <span className="font-medium">{hadith.source}</span>
         </div>
       </div>
     </div>

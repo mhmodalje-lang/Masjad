@@ -1,5 +1,5 @@
-/* Fonts: Amiri for Quranic + Inter/Lexend for UI */
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@300;400;500;600;700;800&display=swap');
+/* Fonts: Amiri for Quranic + Inter/Lexend for UI + IBM Plex Sans Arabic for UI Arabic */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800;900&family=Lexend:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,122 +7,138 @@
 
 @layer base {
   :root {
-    /* ☀️ LIGHT: Modern Islamic Luxury 2026
-     * Deep Spiritual Green + Royal Gold on clean Off-White
-     * Glassmorphism + premium card elevation */
-    --background: 210 20% 98%;
-    --foreground: 162 30% 12%;
+    /* ☀️ LIGHT: "Mystic Minimalism" 2026
+     * Pearlescent off-white (polished marble in moonlight)
+     * Deep Moss Green + Burnt Amber Gold + Misty Mint */
+    --background: 30 20% 96%;
+    --foreground: 152 30% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 162 30% 12%;
+    --card: 30 15% 99%;
+    --card-foreground: 152 30% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 162 30% 12%;
+    --popover: 30 15% 99%;
+    --popover-foreground: 152 30% 12%;
 
-    --primary: 162 84% 16%;
+    --primary: 152 55% 22%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 18% 93%;
-    --secondary-foreground: 162 30% 18%;
+    --secondary: 150 12% 92%;
+    --secondary-foreground: 152 30% 18%;
 
-    --muted: 210 12% 90%;
-    --muted-foreground: 162 10% 40%;
+    --muted: 150 8% 90%;
+    --muted-foreground: 152 10% 45%;
 
-    --accent: 43 65% 52%;
+    --accent: 38 65% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 14% 89%;
-    --input: 210 12% 86%;
-    --ring: 162 84% 16%;
-    --radius: 1rem;
+    --border: 150 10% 88%;
+    --input: 150 8% 85%;
+    --ring: 152 55% 22%;
+    --radius: 1.25rem;
 
-    /* Extended Islamic palette — V2026 Luxury */
-    --islamic-green: 162 84% 16%;
-    --islamic-gold: 43 65% 52%;
-    --islamic-emerald: 162 70% 22%;
-    --islamic-emerald-glow: 162 75% 38%;
+    /* V2026 Mystic Minimalism palette */
+    --islamic-green: 152 55% 22%;
+    --islamic-gold: 38 70% 52%;
+    --islamic-emerald: 152 50% 28%;
+    --islamic-emerald-glow: 160 60% 42%;
     --islamic-navy: 222 35% 12%;
-    --islamic-teal: 174 55% 24%;
+    --islamic-teal: 168 45% 30%;
     --islamic-rose: 345 55% 55%;
     --islamic-copper: 22 65% 50%;
     --islamic-purple: 265 42% 52%;
     --islamic-purple-light: 265 35% 68%;
-    --islamic-teal-light: 174 32% 48%;
+    --islamic-teal-light: 168 28% 50%;
     --islamic-silver: 210 12% 72%;
     --islamic-green-foreground: 0 0% 100%;
-    --islamic-gold-foreground: 162 30% 10%;
+    --islamic-gold-foreground: 152 30% 10%;
     --islamic-navy-foreground: 0 0% 100%;
 
-    --sidebar-background: 210 16% 96%;
-    --sidebar-foreground: 162 30% 14%;
-    --sidebar-primary: 162 84% 16%;
+    /* Mystic Minimalism extras */
+    --mystic-pearl: 30 25% 97%;
+    --mystic-mint: 155 30% 94%;
+    --mystic-moss: 152 45% 24%;
+    --mystic-amber: 38 75% 52%;
+    --mystic-mist: 155 20% 96%;
+    --mystic-glow: 152 50% 38%;
+
+    --sidebar-background: 30 16% 96%;
+    --sidebar-foreground: 152 30% 14%;
+    --sidebar-primary: 152 55% 22%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 12% 92%;
-    --sidebar-accent-foreground: 162 20% 25%;
-    --sidebar-border: 210 14% 88%;
-    --sidebar-ring: 162 84% 16%;
+    --sidebar-accent: 150 10% 92%;
+    --sidebar-accent-foreground: 152 20% 25%;
+    --sidebar-border: 150 10% 88%;
+    --sidebar-ring: 152 55% 22%;
   }
 
   .dark {
-    /* 🌙 DARK: Deep Navy + Silver — Isha Auto-Night
-     * Deep navy sky with luminous emerald & warm gold crescents
-     * Silver accents on premium dark glass */
-    --background: 222 35% 7%;
-    --foreground: 210 15% 90%;
+    /* 🌙 DARK: "Mystic Minimalism" Night Mode
+     * Deep cosmic navy with luminous emerald & warm gold crescents
+     * Frosted glass surfaces on deep space */
+    --background: 220 30% 6%;
+    --foreground: 210 15% 92%;
 
-    --card: 222 30% 11%;
-    --card-foreground: 210 15% 90%;
+    --card: 220 25% 10%;
+    --card-foreground: 210 15% 92%;
 
-    --popover: 222 30% 11%;
-    --popover-foreground: 210 15% 90%;
+    --popover: 220 25% 10%;
+    --popover-foreground: 210 15% 92%;
 
-    --primary: 162 65% 40%;
-    --primary-foreground: 222 35% 5%;
+    --primary: 155 55% 42%;
+    --primary-foreground: 220 30% 5%;
 
-    --secondary: 222 20% 15%;
+    --secondary: 220 18% 14%;
     --secondary-foreground: 210 12% 72%;
 
-    --muted: 222 18% 16%;
-    --muted-foreground: 210 10% 50%;
+    --muted: 220 15% 14%;
+    --muted-foreground: 210 10% 55%;
 
-    --accent: 43 70% 54%;
-    --accent-foreground: 222 35% 5%;
+    --accent: 38 72% 54%;
+    --accent-foreground: 220 30% 5%;
 
     --destructive: 0 62% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 222 18% 16%;
-    --input: 222 18% 13%;
-    --ring: 162 65% 40%;
+    --border: 220 15% 15%;
+    --input: 220 15% 12%;
+    --ring: 155 55% 42%;
 
-    /* Extended Islamic palette — V2026 Night */
-    --islamic-green: 162 65% 40%;
-    --islamic-gold: 43 70% 54%;
-    --islamic-emerald: 162 50% 32%;
-    --islamic-emerald-glow: 162 60% 46%;
-    --islamic-navy: 222 35% 9%;
-    --islamic-teal: 174 40% 36%;
+    /* V2026 Mystic Night palette */
+    --islamic-green: 155 55% 42%;
+    --islamic-gold: 38 72% 54%;
+    --islamic-emerald: 155 45% 34%;
+    --islamic-emerald-glow: 155 55% 48%;
+    --islamic-navy: 220 30% 8%;
+    --islamic-teal: 168 38% 38%;
     --islamic-rose: 345 50% 56%;
     --islamic-copper: 22 70% 54%;
     --islamic-purple: 265 38% 58%;
     --islamic-purple-light: 265 30% 70%;
-    --islamic-teal-light: 174 28% 50%;
+    --islamic-teal-light: 168 28% 50%;
     --islamic-silver: 210 12% 65%;
-    --islamic-green-foreground: 222 35% 5%;
-    --islamic-gold-foreground: 222 35% 5%;
-    --islamic-navy-foreground: 210 15% 90%;
+    --islamic-green-foreground: 220 30% 5%;
+    --islamic-gold-foreground: 220 30% 5%;
+    --islamic-navy-foreground: 210 15% 92%;
 
-    --sidebar-background: 222 30% 9%;
+    /* Mystic Night extras */
+    --mystic-pearl: 220 20% 10%;
+    --mystic-mint: 155 20% 12%;
+    --mystic-moss: 155 40% 28%;
+    --mystic-amber: 38 72% 54%;
+    --mystic-mist: 220 15% 9%;
+    --mystic-glow: 155 50% 44%;
+
+    --sidebar-background: 220 25% 8%;
     --sidebar-foreground: 210 10% 85%;
-    --sidebar-primary: 162 65% 40%;
-    --sidebar-primary-foreground: 222 35% 5%;
-    --sidebar-accent: 222 20% 15%;
+    --sidebar-primary: 155 55% 42%;
+    --sidebar-primary-foreground: 220 30% 5%;
+    --sidebar-accent: 220 18% 14%;
     --sidebar-accent-foreground: 210 8% 70%;
-    --sidebar-border: 222 18% 14%;
-    --sidebar-ring: 162 65% 40%;
+    --sidebar-border: 220 15% 13%;
+    --sidebar-ring: 155 55% 42%;
   }
 }
 
@@ -278,25 +294,72 @@
     background-clip: text;
   }
 
-  /* GLASSMORPHISM */
+  /* GLASSMORPHISM 2.0 — Mystic Minimalism */
   .glass-card {
-    background: hsl(var(--card) / 0.6);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid hsl(var(--border) / 0.35);
-    box-shadow: 0 8px 32px -8px hsl(var(--foreground) / 0.06);
+    background: hsl(var(--card) / 0.55);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid hsl(var(--border) / 0.25);
+    box-shadow: 
+      0 8px 32px -8px hsl(var(--foreground) / 0.05),
+      inset 0 1px 0 hsl(0 0% 100% / 0.08);
+  }
+
+  .glass-mystic {
+    background: hsl(var(--mystic-mint) / 0.4);
+    backdrop-filter: blur(48px) saturate(220%);
+    -webkit-backdrop-filter: blur(48px) saturate(220%);
+    border: 1px solid hsl(var(--islamic-green) / 0.08);
+    box-shadow: 
+      0 12px 48px -12px hsl(var(--islamic-green) / 0.06),
+      inset 0 1px 0 hsl(0 0% 100% / 0.1);
   }
 
   .glass-dark {
-    background: rgba(6, 78, 59, 0.12);
-    backdrop-filter: blur(28px) saturate(180%);
-    -webkit-backdrop-filter: blur(28px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(6, 78, 59, 0.08);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   .glass-nav {
-    backdrop-filter: blur(32px) saturate(200%);
-    -webkit-backdrop-filter: blur(32px) saturate(200%);
+    backdrop-filter: blur(48px) saturate(220%);
+    -webkit-backdrop-filter: blur(48px) saturate(220%);
+  }
+
+  /* NEUMORPHISM 2.0 — Soft depth */
+  .neu-card {
+    background: hsl(var(--card));
+    box-shadow: 
+      6px 6px 16px hsl(var(--foreground) / 0.04),
+      -4px -4px 12px hsl(0 0% 100% / 0.7);
+    border: 1px solid hsl(var(--border) / 0.3);
+  }
+  .dark .neu-card {
+    box-shadow: 
+      6px 6px 16px hsl(var(--background) / 0.8),
+      -4px -4px 12px hsl(var(--border) / 0.08);
+  }
+
+  .neu-pill {
+    background: hsl(var(--background));
+    box-shadow: 
+      3px 3px 8px hsl(var(--foreground) / 0.04),
+      -2px -2px 6px hsl(0 0% 100% / 0.6);
+    border: 1px solid hsl(var(--border) / 0.2);
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+  }
+  .neu-pill:hover, .neu-pill.active {
+    box-shadow: 
+      inset 3px 3px 6px hsl(var(--foreground) / 0.04),
+      inset -2px -2px 4px hsl(0 0% 100% / 0.5);
+  }
+  .dark .neu-pill {
+    box-shadow: 
+      3px 3px 8px hsl(var(--background) / 0.6),
+      -2px -2px 6px hsl(var(--border) / 0.06);
   }
 
   /* 3D ISLAMIC BUTTONS */
@@ -339,21 +402,30 @@
   }
 
   .glow-emerald {
-    box-shadow: 0 0 28px -4px rgba(6,78,59,0.3), 0 0 56px -8px rgba(6,78,59,0.1);
+    box-shadow: 0 0 32px -6px hsl(var(--islamic-green) / 0.25), 0 0 64px -12px hsl(var(--islamic-green) / 0.08);
   }
 
   .glow-gold {
-    box-shadow: 0 0 28px -5px rgba(212,175,55,0.3);
+    box-shadow: 0 0 32px -6px hsl(var(--islamic-gold) / 0.25), 0 0 64px -12px hsl(var(--islamic-gold) / 0.08);
+  }
+
+  .glow-mystic {
+    box-shadow: 0 0 40px -8px hsl(var(--mystic-glow) / 0.2), 0 0 80px -16px hsl(var(--mystic-glow) / 0.06);
   }
 
   .shadow-elevated {
-    box-shadow: 0 4px 28px -6px hsl(var(--foreground) / 0.06),
-                0 2px 10px -2px hsl(var(--foreground) / 0.04);
+    box-shadow: 0 4px 32px -8px hsl(var(--foreground) / 0.05),
+                0 2px 12px -2px hsl(var(--foreground) / 0.03);
   }
 
   .shadow-card {
-    box-shadow: 0 1px 4px hsl(var(--foreground) / 0.03),
-                0 6px 24px -4px hsl(var(--foreground) / 0.06);
+    box-shadow: 0 2px 8px hsl(var(--foreground) / 0.03),
+                0 8px 32px -6px hsl(var(--foreground) / 0.05);
+  }
+
+  .shadow-float {
+    box-shadow: 0 12px 40px -10px hsl(var(--foreground) / 0.08),
+                0 4px 16px -4px hsl(var(--foreground) / 0.04);
   }
 
   .pt-safe-header {
@@ -396,7 +468,7 @@ html {
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ===== ANIMATIONS ===== */
+/* ===== MYSTIC MINIMALISM ANIMATIONS ===== */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -419,6 +491,47 @@ html {
 }
 .animate-slide-in {
   animation: slide-in-right 0.4s ease-out;
+}
+
+@keyframes mystic-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: mystic-float 4s ease-in-out infinite;
+}
+
+@keyframes mystic-pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px -4px hsl(var(--islamic-green) / 0.15);
+    opacity: 1;
+  }
+  50% { 
+    box-shadow: 0 0 40px -4px hsl(var(--islamic-green) / 0.3);
+    opacity: 0.92;
+  }
+}
+.animate-pulse-glow {
+  animation: mystic-pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes golden-float-up {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  60% { transform: translateY(-40px) scale(1.1); opacity: 0.8; }
+  100% { transform: translateY(-80px) scale(0.8); opacity: 0; }
+}
+.animate-golden-float {
+  animation: golden-float-up 1.5s ease-out forwards;
+}
+
+@keyframes mystic-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer-mystic {
+  background: linear-gradient(90deg, transparent 0%, hsl(var(--islamic-gold) / 0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: mystic-shimmer 3s ease-in-out infinite;
 }
 
 /* Ken Burns slow zoom animation for icon backgrounds */

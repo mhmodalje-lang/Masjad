@@ -64,9 +64,9 @@ export default function More() {
 
   return (
     <div className="min-h-screen pb-24 bg-background" dir={dir} data-testid="more-page">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 h-12 flex items-center justify-between">
-        <h1 className="text-lg font-black text-foreground">{t('more')}</h1>
+      {/* Header — Glass */}
+      <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-12 flex items-center justify-between">
+        <h1 className="text-lg font-black text-foreground tracking-tight">{t('more')}</h1>
         <div className="flex items-center gap-1">
           {isAdmin && (
             <Link to="/admin" className="p-2.5 rounded-xl hover:bg-muted/50" data-testid="admin-link">
@@ -76,10 +76,10 @@ export default function More() {
         </div>
       </div>
 
-      {/* User Card */}
+      {/* User Card — Glassmorphism */}
       <div className="px-4 pt-4 pb-3">
         {user ? (
-          <Link to="/profile" className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30 active:scale-[0.98] transition-transform">
+          <Link to="/profile" className="flex items-center gap-4 p-4 glass-mystic rounded-2xl active:scale-[0.98] transition-all hover:shadow-float">
             <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shrink-0 ring-2 ring-primary/20">
               {user.avatar ? (
                 <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
@@ -92,13 +92,13 @@ export default function More() {
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
               <p className="text-[10px] text-primary font-semibold mt-0.5">{t('viewProfile')} ←</p>
             </div>
-            <Link to="/account" onClick={(e) => e.stopPropagation()} className="p-2 rounded-xl bg-muted/50 hover:bg-muted">
+            <Link to="/account" onClick={(e) => e.stopPropagation()} className="p-2 rounded-xl glass-card hover:shadow-elevated">
               <Settings className="h-4 w-4 text-muted-foreground" />
             </Link>
           </Link>
         ) : (
-          <Link to="/auth" className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-primary/20 active:scale-[0.98] transition-transform">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+          <Link to="/auth" className="flex items-center gap-4 p-5 glass-mystic rounded-2xl active:scale-[0.98] transition-all hover:shadow-float border border-primary/10">
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center animate-pulse-glow">
               <LogIn className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -109,65 +109,69 @@ export default function More() {
         )}
       </div>
 
-      {/* Quick Features */}
-      <div className="px-4 mb-4 grid grid-cols-2 gap-2.5">
-        <Link to="/rewards" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Coins className="h-5 w-5 text-primary" />
+      {/* ═══ REWARDS HUB — Merged Glowing Card ═══ */}
+      <div className="px-4 mb-5">
+        <div className="glass-mystic rounded-3xl p-5 relative overflow-hidden">
+          {/* Background glow */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 bg-[hsl(var(--islamic-gold)/0.06)] rounded-full blur-3xl" />
+          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-[hsl(var(--islamic-green)/0.06)] rounded-full blur-3xl" />
+          
+          <h3 className="text-[13px] font-black text-foreground mb-4 flex items-center gap-2 relative">
+            <span className="text-lg animate-mystic-float">✨</span>
+            <span className="bg-gradient-to-r from-[hsl(var(--mystic-amber))] to-[hsl(var(--islamic-gold))] bg-clip-text text-transparent">
+              BARAKA
+            </span>
+            <span>{t('rewards')}</span>
+          </h3>
+
+          <div className="grid grid-cols-3 gap-2.5 relative">
+            <Link to="/rewards" className="flex flex-col items-center gap-2 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                <Coins className="h-6 w-6 text-primary" />
+              </div>
+              <span className="text-[10px] font-bold text-foreground text-center">{t('rewards')}</span>
+            </Link>
+            <Link to="/baraka-market" className="flex flex-col items-center gap-2 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float border border-[hsl(var(--islamic-gold)/0.15)]">
+              <div className="h-12 w-12 rounded-2xl bg-[hsl(var(--islamic-gold)/0.12)] flex items-center justify-center animate-mystic-float">
+                <span className="text-2xl">☪️</span>
+              </div>
+              <span className="text-[10px] font-bold text-[hsl(var(--mystic-amber))] text-center">{dir==='rtl'?'سوق البركة':'Baraka'}</span>
+            </Link>
+            <Link to="/store" className="flex flex-col items-center gap-2 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
+              <div className="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center">
+                <Crown className="h-6 w-6 text-purple-400" />
+              </div>
+              <span className="text-[10px] font-bold text-foreground text-center">{t('shop')}</span>
+            </Link>
           </div>
-          <div>
-            <p className="text-[13px] font-bold text-foreground">{t('rewards')}</p>
-            <p className="text-[10px] text-muted-foreground">{t('collectPoints')}</p>
+
+          <div className="grid grid-cols-2 gap-2.5 mt-2.5">
+            <Link to="/ai-assistant" className="flex items-center gap-2.5 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Bot className="h-5 w-5 text-blue-400" />
+              </div>
+              <span className="text-[11px] font-bold text-foreground">{t('aiAssistant')}</span>
+            </Link>
+            <Link to="/marketplace" className="flex items-center gap-2.5 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
+              <div className="h-9 w-9 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-5 w-5 text-teal-400" />
+              </div>
+              <span className="text-[11px] font-bold text-foreground">{t('marketplace')}</span>
+            </Link>
           </div>
-        </Link>
-        <Link to="/ai-assistant" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
-          <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-            <Bot className="h-5 w-5 text-blue-400" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-foreground">{t('aiAssistant')}</p>
-            <p className="text-[10px] text-muted-foreground">{t('askAboutReligion')}</p>
-          </div>
-        </Link>
-        <Link to="/store" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
-          <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
-            <Crown className="h-5 w-5 text-purple-400" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-foreground">{t('shop')}</p>
-            <p className="text-[10px] text-muted-foreground">{t('featuredItems')}</p>
-          </div>
-        </Link>
-        <Link to="/baraka-market" className="rounded-2xl bg-gradient-to-br from-amber-500/10 to-yellow-500/5 border border-amber-400/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
-          <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
-            <span className="text-xl">☪️</span>
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-amber-300">{dir==='rtl'?'سوق البركة':'Baraka Market'}</p>
-            <p className="text-[10px] text-foreground/50">{dir==='rtl'?'مركز المكافآت':'Reward Center'}</p>
-          </div>
-        </Link>
-        <Link to="/marketplace" className="rounded-2xl bg-card border border-border/30 p-3.5 flex items-center gap-3 active:scale-[0.97] transition-transform">
-          <div className="h-10 w-10 rounded-xl bg-teal-500/10 flex items-center justify-center shrink-0">
-            <ShoppingBag className="h-5 w-5 text-teal-400" />
-          </div>
-          <div>
-            <p className="text-[13px] font-bold text-foreground">{t('marketplace')}</p>
-            <p className="text-[10px] text-muted-foreground">{t('islamicProducts')}</p>
-          </div>
-        </Link>
+        </div>
       </div>
 
-      {/* Islamic Tools */}
-      <div className="px-4 mb-4">
+      {/* ═══ ISLAMIC TOOLS — Floating Glass Grid ═══ */}
+      <div className="px-4 mb-5">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />{t('islamicTools')}
+          <Sparkles className="h-3.5 w-3.5 text-[hsl(var(--mystic-amber))]" />{t('islamicTools')}
         </h3>
-        <div className="rounded-2xl bg-card border border-border/30 p-3">
+        <div className="glass-mystic rounded-3xl p-4">
           <div className="grid grid-cols-3 gap-3">
             {tools.map((item, i) => (
-              <Link key={i} to={item.path} className="flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform rounded-xl hover:bg-muted/30">
-                <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border border-border/20", item.bg)}>
+              <Link key={i} to={item.path} className="flex flex-col items-center gap-2 py-3 active:scale-90 transition-all rounded-2xl hover:bg-[hsl(var(--mystic-mint)/0.5)]">
+                <div className="h-14 w-14 rounded-2xl glass-card flex items-center justify-center border border-[hsl(var(--islamic-gold)/0.12)] shadow-elevated hover:shadow-float transition-all">
                   <span className="text-2xl">{(item as any).emoji}</span>
                 </div>
                 <span className="text-[11px] font-bold text-foreground text-center leading-tight">{t(item.labelKey)}</span>
@@ -177,22 +181,22 @@ export default function More() {
         </div>
       </div>
 
-      {/* Settings */}
+      {/* ═══ SETTINGS — Glass Surface ═══ */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
           <Settings className="h-3.5 w-3.5 text-muted-foreground" />{t('settings')}
         </h3>
-        <div className="rounded-2xl bg-card border border-border/30 divide-y divide-border/15">
+        <div className="glass-mystic rounded-3xl divide-y divide-border/10">
           {/* Theme */}
           <button onClick={() => setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto')}
-            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-muted/30 transition-colors">
+            className="w-full flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.3)] transition-colors first:rounded-t-3xl">
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-amber-500/12 flex items-center justify-center">
                 {theme === 'dark' ? <Moon className="h-4 w-4 text-amber-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
               </div>
               <span className="text-sm text-foreground">{t('theme')}</span>
             </div>
-            <span className="text-xs font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10">
+            <span className="text-xs font-bold text-primary px-2.5 py-1 rounded-full neu-pill">
               {mode === 'auto' ? t('auto') : mode === 'dark' ? t('dark') : t('light')}
             </span>
           </button>

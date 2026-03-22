@@ -845,27 +845,25 @@ export default function Stories() {
 
   return (
     <div className="min-h-screen bg-background pb-24" dir={dir} data-testid="stories-page">
-      {/* === MODERN 2026 HEADER === */}
+      {/* === MYSTIC MINIMALISM HEADER === */}
       <div className="sticky top-0 z-50">
-        <div className="relative bg-gradient-to-b from-[#064E3B] via-[#0A6B52] to-[#064E3B]/95 backdrop-blur-xl overflow-hidden">
-          {/* Geometric pattern */}
-          <div className="absolute inset-0 opacity-[0.06]" style={{
+        <div className="relative bg-gradient-to-b from-[hsl(var(--mystic-moss))] via-[hsl(var(--islamic-emerald))] to-[hsl(var(--mystic-moss))]/95 backdrop-blur-xl overflow-hidden">
+          {/* Subtle geometric pattern */}
+          <div className="absolute inset-0 opacity-[0.04]" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.3'%3E%3Cpath d='M40 10L50 30H30z M40 70L30 50H50z M10 40L30 30V50z M70 40L50 50V30z'/%3E%3C/g%3E%3C/svg%3E")`,
           }} />
-          <div className="absolute top-0 left-2 text-base opacity-40 animate-pulse">🏮</div>
-          <div className="absolute top-0 right-2 text-base opacity-40 animate-pulse" style={{ animationDelay: '0.7s' }}>🏮</div>
 
           <div className="relative flex items-center justify-between px-4 pt-3 pb-2">
-            <Link to="/explore" className="p-2.5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 transition-all text-white">
+            <Link to="/explore" className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition-all text-white">
               <Search className="w-[18px] h-[18px]" />
             </Link>
             <div className="flex items-center gap-5 text-white">
               <button onClick={() => setActiveTab('video')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'video' ? 'text-white border-b-2 border-emerald-300' : 'text-white/50')}>
+                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'video' ? 'text-white border-b-2 border-[hsl(var(--mystic-amber))]' : 'text-white/40')}>
                 {t('videoTab')}
               </button>
               <button onClick={() => setActiveTab('trending')}
-                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'trending' ? 'text-white border-b-2 border-emerald-300' : 'text-white/50')}>
+                className={cn("text-[15px] font-bold transition-all pb-1", activeTab === 'trending' ? 'text-white border-b-2 border-[hsl(var(--mystic-amber))]' : 'text-white/40')}>
                 {t('trendsTab')}
               </button>
               <h1 className="text-[17px] font-black flex items-center gap-1.5 text-white">
@@ -873,24 +871,28 @@ export default function Stories() {
               </h1>
             </div>
             {user ? (
-              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/15 backdrop-blur-sm hover:bg-white/25 text-white">
+              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/15 text-white">
                 <Plus className="w-[18px] h-[18px]" />
               </button>
             ) : <div className="w-10" />}
           </div>
 
-          {/* Category pills */}
+          {/* Category pills — Neumorphic pill-shaped buttons */}
           {activeTab === 'trending' && (
-            <div className="relative flex gap-1.5 px-3 pb-3 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+            <div className="relative flex gap-2 px-3 pb-3 overflow-x-auto no-scrollbar" style={{ scrollbarWidth: 'none' }}>
               <button onClick={() => handleSelectCategory(null)}
-                className={cn('shrink-0 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all',
-                  !selectedCategory ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/15 text-white/80 hover:bg-white/25')}>
+                className={cn('shrink-0 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all border',
+                  !selectedCategory 
+                    ? 'bg-white/95 text-[hsl(var(--mystic-moss))] shadow-lg border-white/50' 
+                    : 'bg-white/8 text-[hsl(var(--mystic-amber))] border-white/10 hover:bg-white/12')}>
                 <Flame className="w-3 h-3 inline mr-1" />{t('allLabel')}
               </button>
               {sortedCats.map(cat => (
                 <button key={cat.key} onClick={() => handleSelectCategory(cat.key)}
-                  className={cn('shrink-0 flex items-center gap-1 px-3.5 py-[7px] rounded-full text-[12px] font-bold transition-all',
-                    selectedCategory === cat.key ? 'bg-white text-emerald-800 shadow-md' : 'bg-white/15 text-white/80 hover:bg-white/25')}>
+                  className={cn('shrink-0 flex items-center gap-1.5 px-4 py-[7px] rounded-full text-[12px] font-bold transition-all border',
+                    selectedCategory === cat.key 
+                      ? 'bg-white/95 text-[hsl(var(--mystic-moss))] shadow-lg border-white/50' 
+                      : 'bg-white/8 text-[hsl(var(--mystic-amber))] border-white/10 hover:bg-white/12')}>
                   <span className="text-sm">{cat.emoji}</span>{cat.labelKey ? t(cat.labelKey) : cat.label}
                 </button>
               ))}

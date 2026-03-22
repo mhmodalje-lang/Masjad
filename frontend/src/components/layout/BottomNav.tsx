@@ -29,12 +29,12 @@ export function BottomNav() {
       data-testid="bottom-nav"
       className="fixed bottom-0 left-0 right-0 z-50"
     >
-      {/* Glass background - theme-aware */}
+      {/* Mystic Glass Bar */}
       <div className={cn(
-        'glass-nav border-t transition-colors duration-300',
+        'glass-nav border-t transition-all duration-500',
         isDark
-          ? 'bg-[#0c1a2e]/92 border-white/[0.06] shadow-[0_-4px_30px_rgba(0,0,0,0.4)]'
-          : 'bg-white/85 border-[#064E3B]/[0.08] shadow-[0_-4px_30px_rgba(6,78,59,0.06)]'
+          ? 'bg-[hsl(220,25%,8%)]/92 border-white/[0.04] shadow-[0_-8px_40px_rgba(0,0,0,0.5)]'
+          : 'bg-[hsl(30,20%,97%)]/88 border-[hsl(152,55%,22%)]/[0.06] shadow-[0_-8px_40px_rgba(0,0,0,0.03)]'
       )}>
         <div
           className="flex items-end justify-around px-2 pb-[env(safe-area-inset-bottom,4px)] pt-1.5"
@@ -45,20 +45,29 @@ export function BottomNav() {
               ? location.pathname === item.path
               : location.pathname.startsWith(item.path);
 
+            {/* ═══ Floating + Button ═══ */}
             if (item.isCreate) {
               return (
                 <Link
                   key="create"
                   to={user ? '/stories?create=true' : '/auth'}
                   data-testid="nav-create"
-                  className="relative flex flex-col items-center -mt-5"
+                  className="relative flex flex-col items-center -mt-7"
                 >
-                  <div className={cn(
-                    'h-14 w-14 rounded-2xl bg-gradient-to-br from-[#064E3B] to-[#0A6B52] flex items-center justify-center shadow-lg shadow-[#064E3B]/30 active:scale-90 transition-transform border-2 border-[#0A6B52]/40 ring-4',
-                    isDark ? 'ring-[#0c1a2e]/90' : 'ring-white/90'
-                  )}>
-                    <Plus className="h-7 w-7 text-white stroke-[3px]" />
-                  </div>
+                  <motion.div
+                    whileTap={{ scale: 0.88 }}
+                    className={cn(
+                      'h-[60px] w-[60px] rounded-full flex items-center justify-center',
+                      'bg-gradient-to-br from-[hsl(152,55%,22%)] to-[hsl(155,50%,30%)]',
+                      'shadow-[0_6px_24px_-4px_hsl(152,55%,22%,0.5)]',
+                      'border-[3px] animate-glow-ring',
+                      isDark 
+                        ? 'border-[hsl(220,25%,10%)] ring-2 ring-[hsl(155,55%,42%)]/20' 
+                        : 'border-[hsl(30,20%,97%)] ring-2 ring-[hsl(152,55%,22%)]/10'
+                    )}
+                  >
+                    <Plus className="h-7 w-7 text-white stroke-[2.5px]" />
+                  </motion.div>
                 </Link>
               );
             }
@@ -69,39 +78,43 @@ export function BottomNav() {
                 to={item.path}
                 data-testid={`nav-${item.path.replace('/', '') || 'home'}`}
                 className={cn(
-                  'relative flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all duration-200 min-w-[56px]',
+                  'relative flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all duration-300 min-w-[56px]',
                   isActive
-                    ? isDark ? 'text-[#D4AF37]' : 'text-[#064E3B]'
-                    : isDark ? 'text-[#94A3B8] active:text-white/80' : 'text-muted-foreground active:text-foreground'
+                    ? isDark ? 'text-[hsl(38,72%,54%)]' : 'text-[hsl(152,55%,22%)]'
+                    : isDark ? 'text-[hsl(210,10%,45%)] active:text-white/80' : 'text-muted-foreground active:text-foreground'
                 )}
               >
-                {/* Active indicator dot */}
+                {/* Active glow indicator */}
                 {isActive && (
                   <motion.div
-                    layoutId="nav-dot"
+                    layoutId="nav-glow"
                     className={cn(
-                      'absolute -top-0.5 h-1 w-1 rounded-full',
-                      isDark ? 'bg-[#D4AF37]' : 'bg-[#064E3B]'
+                      'absolute -top-0.5 h-[3px] w-5 rounded-full',
+                      isDark 
+                        ? 'bg-gradient-to-r from-transparent via-[hsl(38,72%,54%)] to-transparent shadow-[0_0_12px_hsl(38,72%,54%,0.4)]' 
+                        : 'bg-gradient-to-r from-transparent via-[hsl(152,55%,22%)] to-transparent shadow-[0_0_12px_hsl(152,55%,22%,0.3)]'
                     )}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                   />
                 )}
-                {/* Icon container */}
+                {/* Icon — Frosted Glass Container */}
                 <div className={cn(
-                  'h-8 w-8 rounded-xl flex items-center justify-center transition-all duration-200',
+                  'h-9 w-9 rounded-xl flex items-center justify-center transition-all duration-300',
                   isActive
-                    ? isDark ? 'bg-[#D4AF37]/15 scale-110' : 'bg-[#064E3B]/10 scale-110'
-                    : 'bg-transparent'
+                    ? isDark 
+                      ? 'bg-[hsl(38,72%,54%)]/12 scale-110 shadow-[0_0_16px_-4px_hsl(38,72%,54%,0.2)]' 
+                      : 'bg-[hsl(152,55%,22%)]/8 scale-110 shadow-[0_0_16px_-4px_hsl(152,55%,22%,0.15)]'
+                    : 'bg-transparent scale-100'
                 )}>
                   <item.icon className={cn(
-                    'h-[20px] w-[20px] transition-all duration-200',
-                    isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'
+                    'h-[20px] w-[20px] transition-all duration-300',
+                    isActive ? 'stroke-[2.5px]' : 'stroke-[1.6px]'
                   )} />
                 </div>
-                {/* Label */}
+                {/* Label — Larger + Elegant */}
                 <span className={cn(
-                  "text-[10px] leading-none text-center truncate max-w-[60px]",
-                  isActive ? 'font-bold' : 'font-medium opacity-70'
+                  "text-[11px] leading-none text-center truncate max-w-[64px] transition-all duration-300",
+                  isActive ? 'font-bold opacity-100' : 'font-medium opacity-60'
                 )}>
                   {item.label}
                 </span>
