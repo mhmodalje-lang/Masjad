@@ -7,138 +7,138 @@
 
 @layer base {
   :root {
-    /* ☀️ LIGHT: "Islamic Parchment" — Warm & Eye-friendly
-     * Warm cream/beige like aged Islamic manuscript paper
-     * Deep Moss Green + Burnt Amber Gold + Sandy Warmth */
-    --background: 35 28% 88%;
-    --foreground: 152 30% 12%;
+    /* ☀️ LIGHT: "Islamic Woodcraft" — Warm Oak & Parchment
+     * Inspired by aged Islamic wooden book covers & manuscript paper
+     * Warm honey oak + Deep forest green + Burnished gold */
+    --background: 30 35% 82%;
+    --foreground: 22 35% 15%;
 
-    --card: 36 22% 92%;
-    --card-foreground: 152 30% 12%;
+    --card: 32 30% 86%;
+    --card-foreground: 22 35% 15%;
 
-    --popover: 36 22% 92%;
-    --popover-foreground: 152 30% 12%;
+    --popover: 32 30% 86%;
+    --popover-foreground: 22 35% 15%;
 
     --primary: 152 55% 22%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 40 30% 95%;
 
-    --secondary: 38 18% 85%;
-    --secondary-foreground: 152 30% 18%;
+    --secondary: 30 22% 76%;
+    --secondary-foreground: 22 30% 20%;
 
-    --muted: 35 15% 82%;
-    --muted-foreground: 152 12% 40%;
+    --muted: 28 18% 74%;
+    --muted-foreground: 22 15% 38%;
 
-    --accent: 38 65% 52%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 38 70% 48%;
+    --accent-foreground: 22 35% 12%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 65% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 14% 80%;
-    --input: 35 12% 78%;
+    --border: 28 18% 72%;
+    --input: 28 16% 70%;
     --ring: 152 55% 22%;
     --radius: 1.25rem;
 
-    /* V2026 Islamic Parchment palette */
+    /* Wood & Islamic palette */
     --islamic-green: 152 55% 22%;
-    --islamic-gold: 38 70% 52%;
+    --islamic-gold: 38 70% 48%;
     --islamic-emerald: 152 50% 28%;
-    --islamic-emerald-glow: 160 60% 42%;
-    --islamic-navy: 222 35% 12%;
-    --islamic-teal: 168 45% 30%;
-    --islamic-rose: 345 55% 55%;
-    --islamic-copper: 22 65% 50%;
-    --islamic-purple: 265 42% 52%;
-    --islamic-purple-light: 265 35% 68%;
-    --islamic-teal-light: 168 28% 50%;
-    --islamic-silver: 210 12% 72%;
-    --islamic-green-foreground: 0 0% 100%;
-    --islamic-gold-foreground: 152 30% 10%;
-    --islamic-navy-foreground: 0 0% 100%;
+    --islamic-emerald-glow: 160 55% 38%;
+    --islamic-navy: 22 35% 12%;
+    --islamic-teal: 168 40% 28%;
+    --islamic-rose: 345 50% 52%;
+    --islamic-copper: 22 60% 45%;
+    --islamic-purple: 265 38% 48%;
+    --islamic-purple-light: 265 30% 62%;
+    --islamic-teal-light: 168 25% 45%;
+    --islamic-silver: 28 12% 65%;
+    --islamic-green-foreground: 40 30% 95%;
+    --islamic-gold-foreground: 22 35% 12%;
+    --islamic-navy-foreground: 40 30% 95%;
 
-    /* Islamic Parchment extras */
-    --mystic-pearl: 36 25% 90%;
-    --mystic-mint: 155 18% 86%;
-    --mystic-moss: 152 45% 24%;
-    --mystic-amber: 38 75% 52%;
-    --mystic-mist: 38 15% 88%;
-    --mystic-glow: 152 50% 38%;
+    /* Woodcraft extras */
+    --mystic-pearl: 32 28% 84%;
+    --mystic-mint: 155 14% 78%;
+    --mystic-moss: 152 42% 24%;
+    --mystic-amber: 38 70% 48%;
+    --mystic-mist: 30 20% 80%;
+    --mystic-glow: 152 45% 35%;
 
-    --sidebar-background: 35 22% 88%;
-    --sidebar-foreground: 152 30% 14%;
+    --sidebar-background: 30 30% 82%;
+    --sidebar-foreground: 22 30% 16%;
     --sidebar-primary: 152 55% 22%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 38 14% 84%;
-    --sidebar-accent-foreground: 152 20% 25%;
-    --sidebar-border: 35 14% 80%;
+    --sidebar-primary-foreground: 40 30% 95%;
+    --sidebar-accent: 30 18% 76%;
+    --sidebar-accent-foreground: 22 25% 22%;
+    --sidebar-border: 28 18% 72%;
     --sidebar-ring: 152 55% 22%;
   }
 
   .dark {
-    /* 🌙 DARK: "Mystic Minimalism" Night Mode
-     * Deep cosmic navy with luminous emerald & warm gold crescents
-     * Frosted glass surfaces on deep space */
-    --background: 220 30% 6%;
-    --foreground: 210 15% 92%;
+    /* 🌙 DARK: "Islamic Dark Walnut" — Deep Leather & Mahogany
+     * Rich dark walnut wood with warm leather undertones
+     * Emerald glow on aged dark wood */
+    --background: 22 30% 8%;
+    --foreground: 32 25% 88%;
 
-    --card: 220 25% 10%;
-    --card-foreground: 210 15% 92%;
+    --card: 22 25% 12%;
+    --card-foreground: 32 25% 88%;
 
-    --popover: 220 25% 10%;
-    --popover-foreground: 210 15% 92%;
+    --popover: 22 25% 12%;
+    --popover-foreground: 32 25% 88%;
 
-    --primary: 155 55% 42%;
-    --primary-foreground: 220 30% 5%;
+    --primary: 152 50% 40%;
+    --primary-foreground: 22 30% 6%;
 
-    --secondary: 220 18% 14%;
-    --secondary-foreground: 210 12% 72%;
+    --secondary: 22 20% 16%;
+    --secondary-foreground: 32 18% 68%;
 
-    --muted: 220 15% 14%;
-    --muted-foreground: 210 10% 55%;
+    --muted: 22 18% 16%;
+    --muted-foreground: 30 12% 52%;
 
-    --accent: 38 72% 54%;
-    --accent-foreground: 220 30% 5%;
+    --accent: 38 68% 50%;
+    --accent-foreground: 22 30% 6%;
 
-    --destructive: 0 62% 42%;
+    --destructive: 0 58% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 15%;
-    --input: 220 15% 12%;
-    --ring: 155 55% 42%;
+    --border: 22 18% 18%;
+    --input: 22 18% 14%;
+    --ring: 152 50% 40%;
 
-    /* V2026 Mystic Night palette */
-    --islamic-green: 155 55% 42%;
-    --islamic-gold: 38 72% 54%;
-    --islamic-emerald: 155 45% 34%;
-    --islamic-emerald-glow: 155 55% 48%;
-    --islamic-navy: 220 30% 8%;
-    --islamic-teal: 168 38% 38%;
-    --islamic-rose: 345 50% 56%;
-    --islamic-copper: 22 70% 54%;
-    --islamic-purple: 265 38% 58%;
-    --islamic-purple-light: 265 30% 70%;
-    --islamic-teal-light: 168 28% 50%;
-    --islamic-silver: 210 12% 65%;
-    --islamic-green-foreground: 220 30% 5%;
-    --islamic-gold-foreground: 220 30% 5%;
-    --islamic-navy-foreground: 210 15% 92%;
+    /* Dark Walnut Night palette */
+    --islamic-green: 152 50% 40%;
+    --islamic-gold: 38 68% 50%;
+    --islamic-emerald: 152 42% 32%;
+    --islamic-emerald-glow: 152 50% 44%;
+    --islamic-navy: 22 30% 8%;
+    --islamic-teal: 168 35% 35%;
+    --islamic-rose: 345 45% 52%;
+    --islamic-copper: 22 65% 50%;
+    --islamic-purple: 265 35% 55%;
+    --islamic-purple-light: 265 28% 65%;
+    --islamic-teal-light: 168 25% 48%;
+    --islamic-silver: 28 10% 60%;
+    --islamic-green-foreground: 22 30% 6%;
+    --islamic-gold-foreground: 22 30% 6%;
+    --islamic-navy-foreground: 32 25% 88%;
 
-    /* Mystic Night extras */
-    --mystic-pearl: 220 20% 10%;
-    --mystic-mint: 155 20% 12%;
-    --mystic-moss: 155 40% 28%;
-    --mystic-amber: 38 72% 54%;
-    --mystic-mist: 220 15% 9%;
-    --mystic-glow: 155 50% 44%;
+    /* Dark Walnut extras */
+    --mystic-pearl: 22 22% 12%;
+    --mystic-mint: 152 15% 14%;
+    --mystic-moss: 152 38% 26%;
+    --mystic-amber: 38 68% 50%;
+    --mystic-mist: 22 18% 10%;
+    --mystic-glow: 152 45% 40%;
 
-    --sidebar-background: 220 25% 8%;
-    --sidebar-foreground: 210 10% 85%;
-    --sidebar-primary: 155 55% 42%;
-    --sidebar-primary-foreground: 220 30% 5%;
-    --sidebar-accent: 220 18% 14%;
-    --sidebar-accent-foreground: 210 8% 70%;
-    --sidebar-border: 220 15% 13%;
-    --sidebar-ring: 155 55% 42%;
+    --sidebar-background: 22 25% 9%;
+    --sidebar-foreground: 30 12% 82%;
+    --sidebar-primary: 152 50% 40%;
+    --sidebar-primary-foreground: 22 30% 6%;
+    --sidebar-accent: 22 20% 16%;
+    --sidebar-accent-foreground: 30 10% 68%;
+    --sidebar-border: 22 18% 16%;
+    --sidebar-ring: 152 50% 40%;
   }
 }
 
@@ -163,22 +163,27 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Islamic geometric pattern overlay for light mode */
+  /* Wood grain texture overlay — Light mode: subtle warm wood */
   :root body::before {
     content: '';
     position: fixed;
     inset: 0;
     z-index: -1;
-    opacity: 0.04;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23064E3B' fill-opacity='1'%3E%3Cpath d='M60 10L70 30H50z'/%3E%3Cpath d='M60 110L50 90H70z'/%3E%3Cpath d='M10 60L30 50V70z'/%3E%3Cpath d='M110 60L90 70V50z'/%3E%3Ccircle cx='60' cy='60' r='6' fill='none' stroke='%23064E3B' stroke-width='1'/%3E%3Ccircle cx='60' cy='60' r='12' fill='none' stroke='%23064E3B' stroke-width='0.5'/%3E%3Cpath d='M60 20L65 35H55z' opacity='0.4'/%3E%3Cpath d='M60 100L55 85H65z' opacity='0.4'/%3E%3Cpath d='M20 60L35 55V65z' opacity='0.4'/%3E%3Cpath d='M100 60L85 65V55z' opacity='0.4'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 80px 80px;
+    background-image: 
+      url("https://images.unsplash.com/photo-1736506159893-22cca29b8018?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwzfHxkYXJrJTIwd29vZCUyMHRleHR1cmV8ZW58MHx8fHwxNzc0MTYzOTAyfDA&ixlib=rb-4.1.0&q=30&w=400");
+    background-size: cover;
+    background-position: center;
+    opacity: 0.06;
+    mix-blend-mode: multiply;
   }
 
+  /* Wood grain texture overlay — Dark mode: dark walnut leather */
   .dark body::before {
-    opacity: 0.015;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23D4AF37' fill-opacity='1'%3E%3Cpath d='M60 10L70 30H50z'/%3E%3Cpath d='M60 110L50 90H70z'/%3E%3Cpath d='M10 60L30 50V70z'/%3E%3Cpath d='M110 60L90 70V50z'/%3E%3Ccircle cx='60' cy='60' r='6' fill='none' stroke='%23D4AF37' stroke-width='1'/%3E%3Ccircle cx='60' cy='60' r='12' fill='none' stroke='%23D4AF37' stroke-width='0.5'/%3E%3C/g%3E%3C/svg%3E");
-    background-size: 80px 80px;
+    background-image: 
+      url("https://images.unsplash.com/photo-1736506159893-22cca29b8018?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwzfHxkYXJrJTIwd29vZCUyMHRleHR1cmV8ZW58MHx8fHwxNzc0MTYzOTAyfDA&ixlib=rb-4.1.0&q=30&w=400");
+    opacity: 0.08;
+    mix-blend-mode: soft-light;
   }
 
   /* Ensure minimum readable text sizes across the app */
@@ -290,19 +295,19 @@
   }
 
   .gradient-islamic {
-    background: linear-gradient(145deg, #064E3B 0%, #053D2E 50%, #042E22 100%);
+    background: linear-gradient(145deg, #064E3B 0%, #053D2E 50%, #3D2B1E 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, #064E3B 0%, #053828 60%, rgba(212,175,55,0.15) 100%);
+    background: linear-gradient(135deg, #064E3B 0%, #053828 60%, rgba(180,140,60,0.2) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, #D4AF37 0%, #B8942D 100%);
+    background: linear-gradient(135deg, #C49B2C 0%, #A68524 100%);
   }
 
   .gradient-luxury {
-    background: linear-gradient(135deg, #064E3B 0%, #0A6B52 40%, #D4AF37 100%);
+    background: linear-gradient(135deg, #064E3B 0%, #0A6B52 30%, #8B6D4C 70%, #C49B2C 100%);
   }
 
   .text-gradient-islamic {
@@ -312,25 +317,25 @@
     background-clip: text;
   }
 
-  /* GLASSMORPHISM 2.0 — Islamic Parchment */
+  /* GLASSMORPHISM 2.0 — Islamic Woodcraft */
   .glass-card {
-    background: hsl(var(--card) / 0.7);
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid hsl(var(--border) / 0.3);
+    background: hsl(var(--card) / 0.75);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid hsl(var(--border) / 0.35);
     box-shadow: 
-      0 8px 32px -8px hsl(var(--foreground) / 0.06),
-      inset 0 1px 0 hsl(0 0% 100% / 0.1);
+      0 8px 32px -8px hsl(22 30% 10% / 0.1),
+      inset 0 1px 0 hsl(32 30% 90% / 0.12);
   }
 
   .glass-mystic {
-    background: hsl(var(--mystic-mint) / 0.4);
-    backdrop-filter: blur(48px) saturate(220%);
-    -webkit-backdrop-filter: blur(48px) saturate(220%);
-    border: 1px solid hsl(var(--islamic-green) / 0.08);
+    background: hsl(var(--mystic-mist) / 0.5);
+    backdrop-filter: blur(48px) saturate(200%);
+    -webkit-backdrop-filter: blur(48px) saturate(200%);
+    border: 1px solid hsl(var(--islamic-green) / 0.1);
     box-shadow: 
-      0 12px 48px -12px hsl(var(--islamic-green) / 0.06),
-      inset 0 1px 0 hsl(0 0% 100% / 0.1);
+      0 12px 48px -12px hsl(var(--islamic-green) / 0.08),
+      inset 0 1px 0 hsl(32 30% 90% / 0.12);
   }
 
   .glass-dark {
@@ -346,13 +351,13 @@
     -webkit-backdrop-filter: blur(48px) saturate(220%);
   }
 
-  /* NEUMORPHISM 2.0 — Warm Islamic depth */
+  /* NEUMORPHISM 2.0 — Carved Wood depth */
   .neu-card {
     background: hsl(var(--card));
     box-shadow: 
-      6px 6px 16px hsl(var(--foreground) / 0.06),
-      -4px -4px 12px hsl(36 25% 96% / 0.8);
-    border: 1px solid hsl(var(--border) / 0.35);
+      6px 6px 16px hsl(22 30% 10% / 0.08),
+      -4px -4px 12px hsl(32 30% 92% / 0.5);
+    border: 1px solid hsl(var(--border) / 0.4);
   }
   .dark .neu-card {
     box-shadow: 
