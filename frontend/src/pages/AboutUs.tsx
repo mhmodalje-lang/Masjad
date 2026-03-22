@@ -25,7 +25,7 @@ export default function AboutUs() {
         {/* Mission */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Heart className="h-4 w-4 text-red-400" />
+            <Heart className="h-4 w-4 text-red-500 dark:text-red-400" />
             {t('ourMission')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -40,19 +40,19 @@ export default function AboutUs() {
             {t('ourFeatures')}
           </h3>
           <ul className="space-y-3 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_prayer')}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_quran')}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_ai')}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_stories')}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_duas')}</li>
-            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-400 mt-0.5 shrink-0" />{t('feat_zakat')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_prayer')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_quran')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_ai')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_stories')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_duas')}</li>
+            <li className="flex items-start gap-2"><Shield className="h-4 w-4 text-green-500 dark:text-green-400 mt-0.5 shrink-0" />{t('feat_zakat')}</li>
           </ul>
         </div>
 
         {/* Team */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Users className="h-4 w-4 text-blue-400" />
+            <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             {t('ourTeam')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">

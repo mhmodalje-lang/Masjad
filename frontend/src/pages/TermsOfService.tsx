@@ -26,7 +26,7 @@ export default function TermsOfService() {
 
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Globe className="h-4 w-4 text-blue-400" />
+            <Globe className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             {t('termsServiceTitle')}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{t('termsServiceText')}</p>
@@ -34,7 +34,7 @@ export default function TermsOfService() {
 
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-green-400" />
+            <ShieldCheck className="h-4 w-4 text-green-500 dark:text-green-400" />
             {t('termsAccountsTitle')}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -47,7 +47,7 @@ export default function TermsOfService() {
 
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <FileText className="h-4 w-4 text-purple-400" />
+            <FileText className="h-4 w-4 text-purple-500 dark:text-purple-400" />
             {t('termsUGCTitle')}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -73,7 +73,7 @@ export default function TermsOfService() {
 
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Ban className="h-4 w-4 text-red-400" />
+            <Ban className="h-4 w-4 text-red-500 dark:text-red-400" />
             {t('termsProhibitedTitle')}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
@@ -87,7 +87,7 @@ export default function TermsOfService() {
 
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-orange-400" />
+            <AlertCircle className="h-4 w-4 text-orange-500 dark:text-orange-400" />
             {t('termsDisclaimerTitle')}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">

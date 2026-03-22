@@ -72,13 +72,13 @@ export default function Store() {
       <div className="bg-gradient-to-br from-amber-900 via-yellow-900 to-orange-900 px-5 pb-14 pt-safe-header overflow-hidden relative">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 40%, rgba(255,215,0,0.3), transparent 50%)' }} />
         <div className="relative pt-4 text-center">
-          <ShoppingBag className="h-10 w-10 mx-auto mb-2 text-amber-300" />
+          <ShoppingBag className="h-10 w-10 mx-auto mb-2 text-amber-600 dark:text-amber-300" />
           <h1 className="text-2xl font-bold text-white mb-1">{t('storeTitle')}</h1>
           <p className="text-white/60 text-sm mb-4">{t('storePremiumItems')}</p>
           <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-xl rounded-full px-5 py-2.5">
-            <Coins className="h-5 w-5 text-amber-400" />
-            <span className="text-xl font-bold text-amber-300 tabular-nums">{gold}</span>
-            <span className="text-amber-300/60 text-xs">{t('goldLabel')}</span>
+            <Coins className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+            <span className="text-xl font-bold text-amber-600 dark:text-amber-300 tabular-nums">{gold}</span>
+            <span className="text-amber-600 dark:text-amber-600/60 dark:text-amber-300/60 text-xs">{t('goldLabel')}</span>
           </div>
         </div>
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />

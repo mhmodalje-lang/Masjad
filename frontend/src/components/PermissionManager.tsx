@@ -38,7 +38,7 @@ const permissionConfigsBase = [
     subtitleKey: 'permLocationSubtitle',
     benefitKeys: ['permLocationBenefit1', 'permLocationBenefit2', 'permLocationBenefit3', 'permLocationBenefit4'],
     gradient: 'from-emerald-600 to-teal-700',
-    iconColor: 'text-emerald-400',
+    iconColor: 'text-emerald-500 dark:text-emerald-400',
   },
   {
     type: 'notifications' as PermissionType,
@@ -47,7 +47,7 @@ const permissionConfigsBase = [
     subtitleKey: 'permNotifSubtitle',
     benefitKeys: ['permNotifBenefit1', 'permNotifBenefit2', 'permNotifBenefit3', 'permNotifBenefit4'],
     gradient: 'from-amber-600 to-orange-700',
-    iconColor: 'text-amber-400',
+    iconColor: 'text-amber-500 dark:text-amber-400',
   },
 ];
 

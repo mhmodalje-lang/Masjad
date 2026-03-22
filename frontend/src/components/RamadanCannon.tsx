@@ -161,7 +161,7 @@ export default function RamadanCannon({ show, onComplete }: RamadanCannonProps) 
             transition={{ delay: 0.5, duration: 0.8 }}
             className="text-center mt-6"
           >
-            <p className="text-3xl font-bold text-amber-400 font-arabic" style={{ textShadow: '0 2px 10px rgba(245,158,11,0.5)' }}>
+            <p className="text-3xl font-bold text-amber-500 dark:text-amber-400 font-arabic" style={{ textShadow: '0 2px 10px rgba(245,158,11,0.5)' }}>
               🌙 {i18n.t('iftarCannon')} 🌙
             </p>
             <p className="text-white/70 text-sm mt-2 font-arabic">

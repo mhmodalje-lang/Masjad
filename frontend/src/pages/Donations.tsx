@@ -47,7 +47,7 @@ export default function Donations() {
       <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={goBack} className="p-2 rounded-xl bg-muted/50 active:scale-95"><BackArrow className="h-5 w-5 text-foreground" /></button>
-          <h1 className="text-lg font-bold text-foreground flex items-center gap-2"><Heart className="h-5 w-5 text-red-400" />{t('donationsTitle')}</h1>
+          <h1 className="text-lg font-bold text-foreground flex items-center gap-2"><Heart className="h-5 w-5 text-red-500 dark:text-red-400" />{t('donationsTitle')}</h1>
         </div>
         {user && <button onClick={() => setShowCreate(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold active:scale-95">
           <Plus className="h-3.5 w-3.5" />{t('requestHelp')}

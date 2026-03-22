@@ -331,19 +331,19 @@ export default function Profile() {
               <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`المظهر: ${themeLabel}`}
                 onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
                 color="text-amber-500" />
-              <MenuItem icon={Bell} label="الإشعارات" to="/notifications" color="text-red-400" />
+              <MenuItem icon={Bell} label="الإشعارات" to="/notifications" color="text-red-500 dark:text-red-400" />
               <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-muted-foreground" />
             </div>
             <div className="border-t border-border/20 py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('helpPage')}</p>
-              <MenuItem icon={HelpCircle} label={t('supportHelp')} onClick={() => { navigate('/contact'); setMenuOpen(false); }} color="text-green-400" />
+              <MenuItem icon={HelpCircle} label={t('supportHelp')} onClick={() => { navigate('/contact'); setMenuOpen(false); }} color="text-green-500 dark:text-green-400" />
               <MenuItem icon={Star} label={t('rateApp')} onClick={() => { toast.info(t('thankYouRating')); setMenuOpen(false); }} color="text-yellow-400" />
               <MenuItem icon={Share2} label={t('inviteFriend')} onClick={() => {
                 if (navigator.share) navigator.share({ title: displayName, url: window.location.origin });
                 else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
                 setMenuOpen(false);
-              }} color="text-blue-400" />
-              <MenuItem icon={Info} label={t('aboutApp')} onClick={() => { navigate('/about'); setMenuOpen(false); }} color="text-purple-400" />
+              }} color="text-blue-500 dark:text-blue-400" />
+              <MenuItem icon={Info} label={t('aboutApp')} onClick={() => { navigate('/about'); setMenuOpen(false); }} color="text-purple-500 dark:text-purple-400" />
             </div>
             <div className="border-t border-border/20 py-1">
               <MenuItem icon={LogOut} label={t('logout')} onClick={handleLogout} color="text-red-500" />
@@ -423,15 +423,15 @@ export default function Profile() {
               <span className="text-[9px] font-bold text-foreground">{t('myStories')}</span>
             </Link>
             <Link to="/explore" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
-              <Compass className="h-5 w-5 text-blue-400" />
+              <Compass className="h-5 w-5 text-blue-500 dark:text-blue-400" />
               <span className="text-[9px] font-bold text-foreground">{t('explore')}</span>
             </Link>
             <Link to="/ai-assistant" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
-              <Bot className="h-5 w-5 text-purple-400" />
+              <Bot className="h-5 w-5 text-purple-500 dark:text-purple-400" />
               <span className="text-[9px] font-bold text-foreground">{t('assistant')}</span>
             </Link>
             <Link to="/more" className="flex flex-col items-center gap-1.5 p-3 rounded-2xl neu-card active:scale-95 transition-transform">
-              <Sparkles className="h-5 w-5 text-amber-400" />
+              <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-400" />
               <span className="text-[9px] font-bold text-foreground">{t('more')}</span>
             </Link>
           </div>

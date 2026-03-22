@@ -1240,7 +1240,7 @@ export default function AdminDashboard() {
                 <div key={item.id} className="rounded-2xl neu-card p-3 space-y-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={cn("px-2 py-0.5 rounded-full text-xs font-bold", item.content_type === 'hadith' ? "bg-emerald-500/20 text-emerald-400" : item.content_type === 'story' ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-400")}>
+                      <span className={cn("px-2 py-0.5 rounded-full text-xs font-bold", item.content_type === 'hadith' ? "bg-emerald-500/20 text-emerald-400" : item.content_type === 'story' ? "bg-blue-500/20 text-blue-400" : "bg-amber-500/20 text-amber-500 dark:text-amber-400")}>
                         {item.content_type}
                       </span>
                       <span className={cn("w-2 h-2 rounded-full", item.active ? "bg-green-500" : "bg-red-500")} />

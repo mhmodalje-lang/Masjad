@@ -50,11 +50,11 @@ function SectionCard({emoji,title,children,color="blue",done=false,onDone}:{emoj
     <div className="flex items-center gap-2 mb-3">
       <span className="text-xl">{emoji}</span>
       <h3 className="font-bold text-base flex-1 text-foreground">{title}</h3>
-      {done && <span className="text-green-400 text-xs font-bold flex items-center gap-1"><Check className="h-3 w-3"/>✓</span>}
+      {done && <span className="text-green-500 dark:text-green-400 text-xs font-bold flex items-center gap-1"><Check className="h-3 w-3"/>✓</span>}
     </div>
     {children}
     {onDone && !done && <button onClick={onDone} className="w-full mt-3 py-2 rounded-xl bg-muted/30 text-muted-foreground text-sm flex items-center justify-center gap-1 border border-border/30 hover:bg-white/20 transition-all"><Check className="h-3.5 w-3.5"/>Done</button>}
-    {done && <div className="mt-2 text-center text-xs text-green-400 font-bold">✅ Completed!</div>}
+    {done && <div className="mt-2 text-center text-xs text-green-500 dark:text-green-400 font-bold">✅ Completed!</div>}
   </div>);
 }
 
@@ -186,22 +186,22 @@ export default function KidsZone() {
         </div>
         <div className="flex gap-3">
           <div className="flex-1 p-3 rounded-xl bg-muted/30 text-center">
-            <Calendar className="h-5 w-5 text-blue-400 mx-auto"/>
+            <Calendar className="h-5 w-5 text-blue-500 dark:text-blue-400 mx-auto"/>
             <p className="text-xl font-bold text-blue-200">{currentDay}</p>
             <p className="text-xs text-foreground/60">{t('currentLesson')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-muted/30 text-center">
-            <Check className="h-5 w-5 text-green-400 mx-auto"/>
+            <Check className="h-5 w-5 text-green-500 dark:text-green-400 mx-auto"/>
             <p className="text-xl font-bold text-green-200">{completedDays.length}</p>
             <p className="text-xs text-foreground/60">{t('completedLabel')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-muted/30 text-center">
-            <Flame className="h-5 w-5 text-orange-400 mx-auto"/>
+            <Flame className="h-5 w-5 text-orange-500 dark:text-orange-400 mx-auto"/>
             <p className="text-xl font-bold text-orange-200">{streak}</p>
             <p className="text-xs text-foreground/60">{t('streakSmall')}</p>
           </div>
           <div className="flex-1 p-3 rounded-xl bg-muted/30 text-center">
-            <Zap className="h-5 w-5 text-amber-400 mx-auto"/>
+            <Zap className="h-5 w-5 text-amber-500 dark:text-amber-400 mx-auto"/>
             <p className="text-xl font-bold text-amber-200">{totalXp}</p>
             <p className="text-xs text-foreground/60">{t('xpLabel') || 'XP'}</p>
           </div>
@@ -221,7 +221,7 @@ export default function KidsZone() {
       {/* Badges Preview */}
       {badges.length>0 && (<div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {badges.filter(b=>b.earned).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 shrink-0">
-          <span className="text-lg">{b.emoji}</span><span className="text-xs font-bold text-amber-300">{b[`title_${locale}`] || b.title_ar}</span>
+          <span className="text-lg">{b.emoji}</span><span className="text-xs font-bold text-amber-600 dark:text-amber-300">{b[`title_${locale}`] || b.title_ar}</span>
         </div>))}
         {badges.filter(b=>!b.earned).slice(0,3).map(b=>(<div key={b.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-border/30 shrink-0 opacity-60">
           <span className="text-lg grayscale">{b.emoji}</span><span className="text-xs text-foreground/50">{b[`title_${locale}`] || b.title_ar}</span>
@@ -255,8 +255,8 @@ export default function KidsZone() {
                 <span className="text-xs font-bold min-w-[32px] text-end" style={{color:s.color}}>{pct}%</span>
               </div>
             </div>
-            {isCurrent && <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 animate-pulse shrink-0">{t('nowLabel')}</span>}
-            {pct===100 && <span className="text-green-400"><Check className="h-6 w-6"/></span>}
+            {isCurrent && <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-600 dark:text-amber-300 animate-pulse shrink-0">{t('nowLabel')}</span>}
+            {pct===100 && <span className="text-green-500 dark:text-green-400"><Check className="h-6 w-6"/></span>}
             {!isLocked && <ChevronDown className={cn("h-5 w-5 text-foreground/50 transition-transform shrink-0",isOpen&&"rotate-180")}/>}
           </button>
           {isOpen && (<div className="px-4 pb-4 pt-1">
@@ -268,8 +268,8 @@ export default function KidsZone() {
                 const isCurr = dayNum===currentDay;
                 return(<button key={i} onClick={()=>{setLessonDay(dayNum);setMainTab('lesson');loadLesson(dayNum);}}
                   className={cn("aspect-square rounded-lg text-xs font-bold flex items-center justify-center transition-all border",
-                    isDone?"bg-green-500/20 border-green-500/30 text-green-300":
-                    isCurr?"bg-amber-500/20 border-amber-500/40 text-amber-300 animate-pulse":
+                    isDone?"bg-green-500/20 border-green-500/30 text-green-600 dark:text-green-300":
+                    isCurr?"bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300 animate-pulse":
                     dayNum<currentDay?"bg-white/10 border-border/30 text-foreground/60":
                     "bg-white/5 border-white/10 text-foreground/30"
                   )}>
@@ -314,7 +314,7 @@ export default function KidsZone() {
       {/* Progress */}
       <div className="flex items-center gap-2">
         <div className="flex-1 h-2 bg-muted/30 rounded-full"><div className="h-full rounded-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all" style={{width:`${(completedSections.size/L.total_sections)*100}%`}}/></div>
-        <span className="text-xs font-bold text-green-400">{completedSections.size}/{L.total_sections}</span>
+        <span className="text-xs font-bold text-green-500 dark:text-green-400">{completedSections.size}/{L.total_sections}</span>
       </div>
 
       {/* Sections */}
@@ -400,11 +400,11 @@ export default function KidsZone() {
       case 'listen':
         return(<div className="text-center space-y-3">
           <button onClick={()=>speak(c.text,'ar')} className="w-full p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-all flex items-center justify-center gap-2">
-            <Volume2 className="h-5 w-5 text-blue-400"/>
+            <Volume2 className="h-5 w-5 text-blue-500 dark:text-blue-400"/>
             <span className="text-2xl font-bold font-arabic" dir="rtl">{c.text}</span>
           </button>
           {c.word && <button onClick={()=>speak(c.word,'ar')} className="w-full p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:bg-purple-500/20 transition-all flex items-center justify-center gap-2">
-            <Volume2 className="h-4 w-4 text-purple-400"/>
+            <Volume2 className="h-4 w-4 text-purple-500 dark:text-purple-400"/>
             <span className="text-xl font-bold font-arabic" dir="rtl">{c.word}</span>
           </button>}
           {c.tip && <p className="text-xs text-muted-foreground">{c.tip}</p>}
@@ -451,7 +451,7 @@ export default function KidsZone() {
 
       case 'quran':
         return(<div className="text-center space-y-2">
-          <p className="text-xs text-emerald-400">{c.surah} - {t('ayahSingle')} {c.ayah_num}</p>
+          <p className="text-xs text-emerald-500 dark:text-emerald-400">{c.surah} - {t('ayahSingle')} {c.ayah_num}</p>
           <button onClick={()=>speak(c.arabic,'ar')}>
             <p className="text-2xl font-bold font-arabic leading-loose py-2" dir="rtl">{c.arabic}</p>
           </button>
@@ -463,7 +463,7 @@ export default function KidsZone() {
           <button onClick={()=>speak(c.arabic,'ar')} className="w-full text-start">
             <p className="text-xl font-bold font-arabic leading-relaxed" dir="rtl">{c.arabic}</p>
           </button>
-          {c.transliteration && <p className="text-xs italic text-blue-300/60">{c.transliteration}</p>}
+          {c.transliteration && <p className="text-xs italic text-blue-600 dark:text-blue-600/60 dark:text-blue-300/60">{c.transliteration}</p>}
           {c.meaning && <p className="text-sm text-muted-foreground">{c.meaning}</p>}
         </div>);
 
@@ -471,8 +471,8 @@ export default function KidsZone() {
         return(<div className="space-y-2">
           <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{c.arabic}</p>
           {c.translation && <p className="text-sm text-muted-foreground italic">{c.translation}</p>}
-          <p className="text-xs text-amber-400/70">📌 {c.source}</p>
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-300">💡 {c.lesson}</p></div>
+          <p className="text-xs text-amber-500 dark:text-amber-400/70">📌 {c.source}</p>
+          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-600 dark:text-amber-300">💡 {c.lesson}</p></div>
         </div>);
 
       case 'story':
@@ -480,7 +480,7 @@ export default function KidsZone() {
           <p className="text-lg font-bold">{c.name}</p>
           <p className="text-xs" style={{color:lesson?.stage.color}}>{c.title}</p>
           <p className="text-sm leading-relaxed">{c.summary}</p>
-          <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20"><p className="text-xs font-bold text-purple-300">💡 {c.lesson}</p></div>
+          <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20"><p className="text-xs font-bold text-purple-600 dark:text-purple-300">💡 {c.lesson}</p></div>
           <p className="text-xs text-muted-foreground">📖 {c.quran_ref}</p>
         </div>);
 
@@ -520,17 +520,17 @@ export default function KidsZone() {
       <button onClick={()=>setSelectedSurah(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
         <p className="text-3xl font-bold font-arabic">{selectedSurah.name_ar}</p>
-        <p className="text-sm text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {t('ayahPlural')}</p>
+        <p className="text-sm text-emerald-500 dark:text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {t('ayahPlural')}</p>
       </div>
       {selectedSurah.ayahs?.map((a:any,i:number)=>(
         <button key={i} onClick={()=>speak(a.arabic,'ar')} className="w-full p-4 rounded-2xl bg-card/60 border border-border/30 text-start hover:border-emerald-400/30 transition-all">
           <div className="flex items-start gap-3">
-            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400 shrink-0">{a.number}</span>
+            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400 shrink-0">{a.number}</span>
             <div className="flex-1">
               <p className="text-xl font-bold font-arabic leading-loose" dir="rtl">{a.arabic}</p>
               {a.translation && <p className="text-sm text-foreground/60 mt-2">{a.translation}</p>}
             </div>
-            <Volume2 className="h-4 w-4 text-emerald-400 shrink-0 mt-2"/>
+            <Volume2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-2"/>
           </div>
         </button>
       ))}
@@ -545,7 +545,7 @@ export default function KidsZone() {
       <div className="grid grid-cols-2 gap-3">
         {surahs.map(s=>(<button key={s.id} onClick={()=>setSelectedSurah(s)} className="p-4 rounded-2xl bg-card/60 border border-border/30 hover:border-emerald-400/30 transition-all text-start">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400">{s.number}</span>
+            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400">{s.number}</span>
             <div><p className="font-bold text-base font-arabic">{s.name_ar}</p><p className="text-xs text-foreground/60">{s.name_en}</p></div>
           </div>
           <p className="text-xs text-foreground/50 mt-2">{s.total_ayahs} {t('ayahPlural')}</p>
@@ -560,10 +560,10 @@ export default function KidsZone() {
       <button onClick={()=>setSelectedProphet(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/15 to-violet-500/10 border border-purple-400/30">
         <span className="text-5xl">{selectedProphet.emoji}</span><h2 className="text-xl font-bold mt-2">{selectedProphet.name}</h2>
-        <p className="text-sm text-purple-400">{selectedProphet.title}</p>
+        <p className="text-sm text-purple-500 dark:text-purple-400">{selectedProphet.title}</p>
       </div>
       <div className="p-4 rounded-2xl bg-card/60 border border-border/30"><p className="text-sm leading-relaxed">{selectedProphet.summary}</p></div>
-      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20"><p className="text-sm font-bold text-purple-300">💡 {selectedProphet.lesson}</p></div>
+      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20"><p className="text-sm font-bold text-purple-600 dark:text-purple-300">💡 {selectedProphet.lesson}</p></div>
       <p className="text-xs text-muted-foreground text-center">📖 {selectedProphet.quran_ref}</p>
     </div>);
 
@@ -591,9 +591,9 @@ export default function KidsZone() {
           <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ' : '"Call upon Me; I will respond to you" - Quran 40:60'}</p>
         </div>
         {duas.map(d=>(<button key={d.id} onClick={()=>speak(d.arabic,'ar')} className="w-full p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/5 border border-blue-500/20 text-start hover:border-blue-400/40 transition-all">
-          <div className="flex items-center gap-2 mb-2"><span>{d.emoji}</span><span className="text-xs font-bold text-blue-300">{d.title}</span><Volume2 className="h-3 w-3 text-blue-400 ms-auto"/></div>
+          <div className="flex items-center gap-2 mb-2"><span>{d.emoji}</span><span className="text-xs font-bold text-blue-600 dark:text-blue-300">{d.title}</span><Volume2 className="h-3 w-3 text-blue-400 ms-auto"/></div>
           <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{d.arabic}</p>
-          {d.transliteration && <p className="text-xs text-blue-300/70 mt-1 italic">{d.transliteration}</p>}
+          {d.transliteration && <p className="text-xs text-blue-600 dark:text-blue-600/70 dark:text-blue-300/70 mt-1 italic">{d.transliteration}</p>}
           {d.meaning && <p className="text-sm text-foreground/60 mt-1">{d.meaning}</p>}
         </button>))}
       </div>)}
@@ -605,11 +605,11 @@ export default function KidsZone() {
           <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'من كلام النبي محمد ﷺ' : 'From the words of Prophet Muhammad ﷺ'}</p>
         </div>
         {hadiths.map(h=>(<div key={h.id} className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20">
-          <div className="flex items-center gap-2 mb-2"><span className="text-xl">{h.emoji}</span><span className="text-xs font-bold text-amber-300 capitalize">{h.category}</span></div>
+          <div className="flex items-center gap-2 mb-2"><span className="text-xl">{h.emoji}</span><span className="text-xs font-bold text-amber-600 dark:text-amber-300 capitalize">{h.category}</span></div>
           <p className="text-lg font-bold font-arabic leading-relaxed" dir="rtl">{h.arabic}</p>
           {h.translation && lang!=='ar' && <p className="text-sm text-foreground/60 mt-2 italic">{h.translation}</p>}
           <p className="text-xs text-foreground/50 mt-2">📌 {h.source}</p>
-          <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-300">💡 {h.lesson}</p></div>
+          <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-xs font-bold text-amber-600 dark:text-amber-300">💡 {h.lesson}</p></div>
         </div>))}
       </div>)}
 
@@ -621,7 +621,7 @@ export default function KidsZone() {
         </div>
         {prophets.map(p=>(<button key={p.id} onClick={()=>setSelectedProphet(p)} className="w-full p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 to-violet-500/5 border border-purple-500/20 text-start hover:border-purple-400/40 transition-all">
           <div className="flex items-center gap-3"><span className="text-3xl">{p.emoji}</span>
-            <div className="flex-1"><p className="font-bold text-purple-300">{p.number}. {p.name}</p><p className="text-xs text-purple-400/70">{p.title}</p></div>
+            <div className="flex-1"><p className="font-bold text-purple-600 dark:text-purple-300">{p.number}. {p.name}</p><p className="text-xs text-purple-400/70">{p.title}</p></div>
             <ChevronRight className="h-5 w-5 text-muted-foreground"/>
           </div>
         </button>))}
@@ -636,7 +636,7 @@ export default function KidsZone() {
         {pillars.map(p=>(<div key={p.id} className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border border-emerald-500/20">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/20">{p.emoji}</div>
-          <div className="flex-1"><p className="font-bold text-emerald-300">{p.number}. {p.title}</p><p className="text-sm text-foreground/60 mt-1 leading-relaxed">{p.description}</p></div>
+          <div className="flex-1"><p className="font-bold text-emerald-600 dark:text-emerald-300">{p.number}. {p.title}</p><p className="text-sm text-foreground/60 mt-1 leading-relaxed">{p.description}</p></div>
         </div>
       </div>))}
       </div>)}
@@ -650,7 +650,7 @@ export default function KidsZone() {
         {wuduSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg shadow-blue-500/20">{s.step}</div>
           <div className="flex-1">
-            <p className="font-bold text-sm text-blue-300">{s.emoji} {s.title}</p>
+            <p className="font-bold text-sm text-blue-600 dark:text-blue-300">{s.emoji} {s.title}</p>
             <p className="text-xs text-foreground/50 mt-1 leading-relaxed">{s.description}</p>
           </div>
         </div>))}
@@ -672,7 +672,7 @@ export default function KidsZone() {
         <p className="text-sm text-foreground/60 mt-1">{selItem.age_range}</p>
       </div>
       <div className="p-4 rounded-2xl bg-card/60 border border-border/30"><p className="text-sm leading-relaxed whitespace-pre-line">{selItem.content}</p></div>
-      {selItem.lesson && <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-sm font-bold text-amber-300">💡 {selItem.lesson}</p></div>}
+      {selItem.lesson && <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"><p className="text-sm font-bold text-amber-600 dark:text-amber-300">💡 {selItem.lesson}</p></div>}
     </div>);
 
     return(<div className="space-y-4 pb-8">
@@ -680,8 +680,8 @@ export default function KidsZone() {
         <span className="text-4xl">📚</span><h2 className="text-lg font-bold mt-2">{t('learningLibraryTitle')}</h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-        <button onClick={()=>{setSelCat('all');loadLibItems('all');}} className={cn("px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat==='all'?"bg-indigo-500/20 border-indigo-400/40 text-indigo-300":"bg-white/5 border-border/30 text-muted-foreground")}>{t('allFilter')}</button>
-        {libCats.map(c=>(<button key={c.id} onClick={()=>{setSelCat(c.id);loadLibItems(c.id);}} className={cn("flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat===c.id?"bg-indigo-500/20 border-indigo-400/40 text-indigo-300":"bg-white/5 border-border/30 text-muted-foreground")}>
+        <button onClick={()=>{setSelCat('all');loadLibItems('all');}} className={cn("px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat==='all'?"bg-indigo-500/20 border-indigo-400/40 text-indigo-600 dark:text-indigo-300":"bg-white/5 border-border/30 text-muted-foreground")}>{t('allFilter')}</button>
+        {libCats.map(c=>(<button key={c.id} onClick={()=>{setSelCat(c.id);loadLibItems(c.id);}} className={cn("flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",selCat===c.id?"bg-indigo-500/20 border-indigo-400/40 text-indigo-600 dark:text-indigo-300":"bg-white/5 border-border/30 text-muted-foreground")}>
           <span>{c.emoji}</span>{c.title}
         </button>))}
       </div>

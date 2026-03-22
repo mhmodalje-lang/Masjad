@@ -278,7 +278,7 @@ export default function Index() {
               onClick={() => detectLocation()}
               className="flex items-center gap-2.5 bg-white/10 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 transition-all active:scale-95 hover:bg-white/15"
             >
-              <MapPin className="h-4 w-4 text-emerald-300" />
+              <MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-300" />
               <span className="text-white font-bold text-sm drop-shadow-lg">
                 {locationLoading ? '...' : city || t('detectLocation')}
               </span>

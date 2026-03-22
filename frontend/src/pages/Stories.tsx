@@ -139,12 +139,12 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
                   <p className="text-foreground/80 text-[13px] mt-0.5 leading-relaxed">{c.content}</p>
                   <div className="flex items-center gap-4 mt-1">
                     <button onClick={() => { setReplyTo(c); inputRef.current?.focus(); }}
-                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-emerald-400">
+                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-emerald-500 dark:text-emerald-400">
                       <Reply className="w-3 h-3" /> {t('replyLabel')}
                     </button>
                     {canDel && (
                       <button onClick={() => deleteComment(c.id)}
-                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-400">
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500 dark:text-red-400">
                         <Trash2 className="w-3 h-3" /> {t('deleteLabel')}
                       </button>
                     )}
@@ -156,7 +156,7 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
         </div>
         {replyTo && (
           <div className="px-4 py-2 bg-emerald-900/20 flex items-center justify-between border-t border-border/20" dir={dir}>
-            <span className="text-xs text-emerald-400">{t('replyTo')} {replyTo.author_name}</span>
+            <span className="text-xs text-emerald-500 dark:text-emerald-400">{t('replyTo')} {replyTo.author_name}</span>
             <button onClick={() => setReplyTo(null)}><X className="w-3.5 h-3.5 text-muted-foreground" /></button>
           </div>
         )}
@@ -172,7 +172,7 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
           </div>
         ) : (
           <div className="p-4 border-t border-border/20 text-center">
-            <Link to="/auth" className="text-emerald-400 text-sm font-bold hover:underline">{t('loginToComment')}</Link>
+            <Link to="/auth" className="text-emerald-500 dark:text-emerald-400 text-sm font-bold hover:underline">{t('loginToComment')}</Link>
           </div>
         )}
       </motion.div>
@@ -446,7 +446,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
           </h2>
           {(isVideo || isEmbed) && (
             <button onClick={() => onOpenViewer(videoIdx)} className="p-2 rounded-xl bg-muted/30">
-              <Play className="h-4 w-4 text-emerald-400" />
+              <Play className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
             </button>
           )}
         </div>
@@ -983,7 +983,7 @@ export default function Stories() {
                       <h2 className="text-[13px] font-bold text-white/80 flex items-center gap-1.5">
                         <Film className="h-3.5 w-3.5 text-emerald-500" /> {t('videosLabel')}
                       </h2>
-                      <button onClick={() => setActiveTab('video')} className="text-[11px] text-emerald-400 font-bold">{t('allLabel')}</button>
+                      <button onClick={() => setActiveTab('video')} className="text-[11px] text-emerald-500 dark:text-emerald-400 font-bold">{t('allLabel')}</button>
                     </div>
                     <div className="flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
                       {videoStories.slice(0, 4).map((s, idx) => (
@@ -1061,7 +1061,7 @@ export default function Stories() {
                   <div className="flex justify-center mt-6">
                     <button onClick={() => { const n = page + 1; setPage(n); loadStories(selectedCategory || undefined, n, true); }}
                       disabled={loadingMore}
-                      className="px-8 py-3 rounded-2xl bg-muted/30 border border-border/20 text-emerald-400 text-sm font-bold active:scale-95 disabled:opacity-50">
+                      className="px-8 py-3 rounded-2xl bg-muted/30 border border-border/20 text-emerald-500 dark:text-emerald-400 text-sm font-bold active:scale-95 disabled:opacity-50">
                       {loadingMore ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : t('loadMore')}
                     </button>
                   </div>

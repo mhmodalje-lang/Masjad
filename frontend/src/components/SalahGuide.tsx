@@ -11,17 +11,17 @@ import { cn } from '@/lib/utils';
 
 // Step color mapping
 const STEP_COLORS: Record<string, { bg: string; border: string; text: string; badge: string; glow: string }> = {
-  qiyam_niyyah: { bg: 'from-emerald-900/50 to-emerald-800/30', border: 'border-emerald-500/40', text: 'text-emerald-300', badge: 'bg-emerald-600', glow: 'shadow-emerald-500/20' },
-  takbir: { bg: 'from-amber-900/50 to-amber-800/30', border: 'border-amber-500/40', text: 'text-amber-300', badge: 'bg-amber-600', glow: 'shadow-amber-500/20' },
-  qiyam_qiraa: { bg: 'from-teal-900/50 to-teal-800/30', border: 'border-teal-500/40', text: 'text-teal-300', badge: 'bg-teal-600', glow: 'shadow-teal-500/20' },
-  qiyam_fatiha: { bg: 'from-yellow-900/50 to-yellow-800/30', border: 'border-yellow-500/40', text: 'text-yellow-300', badge: 'bg-yellow-600', glow: 'shadow-yellow-500/20' },
-  ruku: { bg: 'from-blue-900/50 to-blue-800/30', border: 'border-blue-500/40', text: 'text-blue-300', badge: 'bg-blue-600', glow: 'shadow-blue-500/20' },
-  itidal: { bg: 'from-cyan-900/50 to-cyan-800/30', border: 'border-cyan-500/40', text: 'text-cyan-300', badge: 'bg-cyan-600', glow: 'shadow-cyan-500/20' },
-  sujud_1: { bg: 'from-green-900/50 to-green-800/30', border: 'border-green-500/40', text: 'text-green-300', badge: 'bg-green-600', glow: 'shadow-green-500/20' },
-  juloos: { bg: 'from-purple-900/50 to-purple-800/30', border: 'border-purple-500/40', text: 'text-purple-300', badge: 'bg-purple-600', glow: 'shadow-purple-500/20' },
-  sujud_2: { bg: 'from-green-900/50 to-green-800/30', border: 'border-green-500/40', text: 'text-green-300', badge: 'bg-green-600', glow: 'shadow-green-500/20' },
-  tashahhud: { bg: 'from-indigo-900/50 to-indigo-800/30', border: 'border-indigo-500/40', text: 'text-indigo-300', badge: 'bg-indigo-600', glow: 'shadow-indigo-500/20' },
-  tasleem: { bg: 'from-rose-900/50 to-rose-800/30', border: 'border-rose-500/40', text: 'text-rose-300', badge: 'bg-rose-600', glow: 'shadow-rose-500/20' },
+  qiyam_niyyah: { bg: 'from-emerald-900/50 to-emerald-800/30', border: 'border-emerald-500/40', text: 'text-emerald-600 dark:text-emerald-300', badge: 'bg-emerald-600', glow: 'shadow-emerald-500/20' },
+  takbir: { bg: 'from-amber-900/50 to-amber-800/30', border: 'border-amber-500/40', text: 'text-amber-600 dark:text-amber-300', badge: 'bg-amber-600', glow: 'shadow-amber-500/20' },
+  qiyam_qiraa: { bg: 'from-teal-900/50 to-teal-800/30', border: 'border-teal-500/40', text: 'text-teal-600 dark:text-teal-300', badge: 'bg-teal-600', glow: 'shadow-teal-500/20' },
+  qiyam_fatiha: { bg: 'from-yellow-900/50 to-yellow-800/30', border: 'border-yellow-500/40', text: 'text-yellow-600 dark:text-yellow-300', badge: 'bg-yellow-600', glow: 'shadow-yellow-500/20' },
+  ruku: { bg: 'from-blue-900/50 to-blue-800/30', border: 'border-blue-500/40', text: 'text-blue-600 dark:text-blue-300', badge: 'bg-blue-600', glow: 'shadow-blue-500/20' },
+  itidal: { bg: 'from-cyan-900/50 to-cyan-800/30', border: 'border-cyan-500/40', text: 'text-cyan-600 dark:text-cyan-300', badge: 'bg-cyan-600', glow: 'shadow-cyan-500/20' },
+  sujud_1: { bg: 'from-green-900/50 to-green-800/30', border: 'border-green-500/40', text: 'text-green-600 dark:text-green-300', badge: 'bg-green-600', glow: 'shadow-green-500/20' },
+  juloos: { bg: 'from-purple-900/50 to-purple-800/30', border: 'border-purple-500/40', text: 'text-purple-600 dark:text-purple-300', badge: 'bg-purple-600', glow: 'shadow-purple-500/20' },
+  sujud_2: { bg: 'from-green-900/50 to-green-800/30', border: 'border-green-500/40', text: 'text-green-600 dark:text-green-300', badge: 'bg-green-600', glow: 'shadow-green-500/20' },
+  tashahhud: { bg: 'from-indigo-900/50 to-indigo-800/30', border: 'border-indigo-500/40', text: 'text-indigo-600 dark:text-indigo-300', badge: 'bg-indigo-600', glow: 'shadow-indigo-500/20' },
+  tasleem: { bg: 'from-rose-900/50 to-rose-800/30', border: 'border-rose-500/40', text: 'text-rose-600 dark:text-rose-300', badge: 'bg-rose-600', glow: 'shadow-rose-500/20' },
 };
 
 interface SalahStep {
@@ -212,14 +212,14 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
             {step.dhikr_ar && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 shadow-inner">
                 <div className="flex items-center gap-2 mb-2">
-                  <BookOpen className="h-4 w-4 text-amber-400" />
-                  <span className="text-xs font-bold text-amber-400">{isRtl ? 'الذكر' : 'Dhikr / Recitation'}</span>
+                  <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
+                  <span className="text-xs font-bold text-amber-500 dark:text-amber-400">{isRtl ? 'الذكر' : 'Dhikr / Recitation'}</span>
                 </div>
                 <p className="text-lg font-bold text-amber-200 text-center leading-loose" dir="rtl">
                   {step.dhikr_ar}
                 </p>
                 {step.dhikr_transliteration && (
-                  <p className="text-xs text-amber-400/60 text-center mt-1.5 italic" dir="ltr">
+                  <p className="text-xs text-amber-500 dark:text-amber-400/60 text-center mt-1.5 italic" dir="ltr">
                     {step.dhikr_transliteration}
                   </p>
                 )}
@@ -312,7 +312,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
                   <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
                     <p className="text-base font-bold text-amber-200 text-center leading-relaxed" dir="rtl">{s.dhikr_ar}</p>
                     {s.dhikr_transliteration && (
-                      <p className="text-[10px] text-amber-400/50 text-center mt-1 italic" dir="ltr">{s.dhikr_transliteration}</p>
+                      <p className="text-[10px] text-amber-500 dark:text-amber-400/50 text-center mt-1 italic" dir="ltr">{s.dhikr_transliteration}</p>
                     )}
                   </div>
                 )}

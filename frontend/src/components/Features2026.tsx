@@ -143,7 +143,7 @@ export function ReportButton({ contentId, contentType }: { contentId: string; co
 
   if (reported) return <span className="text-[10px] text-green-500">✓ {t('reported')}</span>;
   return (
-    <button onClick={handleReport} className="text-[10px] text-muted-foreground hover:text-red-400 transition-colors">
+    <button onClick={handleReport} className="text-[10px] text-muted-foreground hover:text-red-500 dark:text-red-400 transition-colors">
       {t('reportBtn')}
     </button>
   );

@@ -104,7 +104,7 @@ const OccasionBanner = forwardRef<HTMLDivElement, OccasionBannerProps>(
 
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
-              <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+              <Star className="h-4 w-4 text-amber-500 dark:text-amber-400 fill-amber-400" />
               <span className="text-white/60 text-xs font-medium">{t('islamicOccasion')}</span>
             </div>
 

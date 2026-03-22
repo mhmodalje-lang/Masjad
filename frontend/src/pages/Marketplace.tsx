@@ -104,7 +104,7 @@ export default function Marketplace() {
       <div className="relative bg-gradient-to-br from-teal-900 via-emerald-900 to-green-900 px-5 pb-16 pt-safe-header overflow-hidden">
         <AnimatedBackground variant="marketplace" />
         <div className="relative pt-4 text-center z-10">
-          <StoreIcon className="h-10 w-10 mx-auto mb-2 text-teal-300" />
+          <StoreIcon className="h-10 w-10 mx-auto mb-2 text-teal-600 dark:text-teal-300" />
           <h1 className="text-2xl font-bold text-white mb-1">{t('marketplaceTitle')}</h1>
           <p className="text-white/60 text-sm">{t('marketplaceSubtitle')}</p>
         </div>

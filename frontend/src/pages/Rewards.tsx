@@ -68,7 +68,7 @@ export default function Rewards() {
     return (
       <div className="min-h-screen flex items-center justify-center pb-24" dir={dir} data-testid="rewards-page">
         <div className="text-center">
-          <Coins className="h-12 w-12 mx-auto mb-3 text-amber-400" />
+          <Coins className="h-12 w-12 mx-auto mb-3 text-amber-500 dark:text-amber-400" />
           <h2 className="text-lg font-bold text-foreground mb-2">{t('rewardsTitle')}</h2>
           <p className="text-sm text-muted-foreground mb-4">{t('loginToCollect')}</p>
           <Link to="/auth"><Button data-testid="rewards-login-btn">{t('loginBtn')}</Button></Link>
@@ -82,25 +82,25 @@ export default function Rewards() {
       <div className="bg-gradient-to-br from-amber-900 via-yellow-900 to-orange-900 px-5 pb-14 pt-safe-header overflow-hidden relative">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 60% 30%, rgba(255,215,0,0.4), transparent 50%)' }} />
         <div className="relative pt-4 text-center">
-          <Coins className="h-10 w-10 mx-auto mb-2 text-amber-300" />
+          <Coins className="h-10 w-10 mx-auto mb-2 text-amber-600 dark:text-amber-300" />
           <h1 className="text-2xl font-bold text-foreground mb-3">{t('rewardsTitle')}</h1>
           <div className="flex items-center justify-center gap-6">
             <div className="text-center">
-              <span className="text-3xl font-bold text-amber-300 tabular-nums">{gold}</span>
-              <p className="text-amber-300/60 text-[10px]">{t('yourBalance')}</p>
+              <span className="text-3xl font-bold text-amber-600 dark:text-amber-300 tabular-nums">{gold}</span>
+              <p className="text-amber-600 dark:text-amber-600/60 dark:text-amber-300/60 text-[10px]">{t('yourBalance')}</p>
             </div>
             <div className="h-8 w-px bg-white/20" />
             <div className="text-center">
               <div className="flex items-center gap-1 justify-center">
-                <Flame className="h-4 w-4 text-orange-400" />
-                <span className="text-xl font-bold text-orange-300 tabular-nums">{streak}</span>
+                <Flame className="h-4 w-4 text-orange-500 dark:text-orange-400" />
+                <span className="text-xl font-bold text-orange-600 dark:text-orange-300 tabular-nums">{streak}</span>
               </div>
-              <p className="text-orange-300/60 text-[10px]">{t('streakDays')}</p>
+              <p className="text-orange-600 dark:text-orange-600/60 dark:text-orange-300/60 text-[10px]">{t('streakDays')}</p>
             </div>
             <div className="h-8 w-px bg-white/20" />
             <div className="text-center">
-              <span className="text-xl font-bold text-emerald-300 tabular-nums">{totalEarned}</span>
-              <p className="text-emerald-300/60 text-[10px]">{t('totalEarned')}</p>
+              <span className="text-xl font-bold text-emerald-600 dark:text-emerald-300 tabular-nums">{totalEarned}</span>
+              <p className="text-emerald-600 dark:text-emerald-600/60 dark:text-emerald-300/60 text-[10px]">{t('totalEarned')}</p>
             </div>
           </div>
         </div>

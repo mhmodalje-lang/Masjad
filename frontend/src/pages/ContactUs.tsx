@@ -40,7 +40,7 @@ export default function ContactUs() {
       <div className="px-5 py-6 space-y-4">
         <a href="mailto:mohammadalrejab@gmail.com" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
-            <Mail className="h-5 w-5 text-red-400" />
+            <Mail className="h-5 w-5 text-red-500 dark:text-red-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">{t('emailLabel')}</p>
@@ -49,7 +49,7 @@ export default function ContactUs() {
         </a>
         <a href="tel:+4917684034961" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-green-500/10 flex items-center justify-center shrink-0">
-            <Phone className="h-5 w-5 text-green-400" />
+            <Phone className="h-5 w-5 text-green-500 dark:text-green-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">{t('phoneWhatsapp')}</p>
@@ -58,7 +58,7 @@ export default function ContactUs() {
         </a>
         <a href="https://wa.me/4917684034961" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-2xl neu-card active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-            <MessageSquare className="h-5 w-5 text-emerald-400" />
+            <MessageSquare className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">{t('directWhatsapp')}</p>

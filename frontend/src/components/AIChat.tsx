@@ -145,8 +145,8 @@ const AIChat: React.FC<AIChatProps> = ({ mode }) => {
         <h3 className="font-bold mt-2 text-lg">{isRtl ? config.titleAr : config.titleEn}</h3>
         <p className="text-xs text-muted-foreground mt-1">{isRtl ? config.descAr : config.descEn}</p>
         <div className="flex items-center justify-center gap-1 mt-2">
-          <Sparkles className="h-3 w-3 text-amber-400" />
-          <span className="text-[10px] text-amber-400/70">{isRtl ? 'مدعوم بالذكاء الاصطناعي • مجاني' : 'AI-Powered • Free'}</span>
+          <Sparkles className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+          <span className="text-[10px] text-amber-500 dark:text-amber-400/70">{isRtl ? 'مدعوم بالذكاء الاصطناعي • مجاني' : 'AI-Powered • Free'}</span>
         </div>
       </div>
 
@@ -190,7 +190,7 @@ const AIChat: React.FC<AIChatProps> = ({ mode }) => {
                 <Bot className="h-3.5 w-3.5 text-white" />
               </div>
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin text-green-400" />
+                <Loader2 className="h-4 w-4 animate-spin text-green-500 dark:text-green-400" />
                 <span className="text-xs text-muted-foreground">{isRtl ? 'يفكّر...' : 'Thinking...'}</span>
               </div>
             </div>

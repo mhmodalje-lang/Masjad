@@ -62,7 +62,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
       )} style={{ background: `linear-gradient(135deg, ${ad.color}12, ${ad.color}06)`, borderColor: `${ad.color}25` }}>
         {coinsEarned > 0 && (
           <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-center z-10 animate-in fade-in">
-            <span className="text-sm font-bold text-emerald-300">+{coinsEarned} 🪙</span>
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">+{coinsEarned} 🪙</span>
           </div>
         )}
         <div className="flex items-center gap-3">
@@ -86,7 +86,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
       )} style={{ background: `linear-gradient(135deg, ${ad.color}10, transparent)` }}>
         {coinsEarned > 0 && (
           <div className="absolute inset-0 bg-emerald-500/10 flex items-center justify-center z-10">
-            <span className="text-sm font-bold text-emerald-300">+{coinsEarned} 🪙</span>
+            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">+{coinsEarned} 🪙</span>
           </div>
         )}
         <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export default function IslamicAd({ placement = 'main', variant = 'card', classN
         <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-sm flex items-center justify-center z-10 animate-in fade-in">
           <div className="text-center">
             <span className="text-3xl">🪙</span>
-            <p className="text-lg font-bold text-emerald-300 mt-1">+{coinsEarned}</p>
+            <p className="text-lg font-bold text-emerald-600 dark:text-emerald-300 mt-1">+{coinsEarned}</p>
           </div>
         </div>
       )}

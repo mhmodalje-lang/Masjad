@@ -141,8 +141,8 @@ export default function NativeAdCard({ className, placement = 'hadith_feed' }: N
           <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-[2px] flex items-center justify-center z-20 animate-in fade-in rounded-3xl">
             <div className="text-center">
               <span className="text-3xl">🪙</span>
-              <p className="text-lg font-bold text-emerald-400 mt-1">+{coinsEarned}</p>
-              <p className="text-xs text-emerald-300/70">{t('coins_earned')}</p>
+              <p className="text-lg font-bold text-emerald-500 dark:text-emerald-400 mt-1">+{coinsEarned}</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-600/70 dark:text-emerald-300/70">{t('coins_earned')}</p>
             </div>
           </div>
         )}

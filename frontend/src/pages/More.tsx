@@ -20,18 +20,18 @@ import { useState, useEffect } from 'react';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const tools = [
-  { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'text-amber-400', bg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10', emoji: '🧭' },
+  { icon: Compass, labelKey: 'qibla', path: '/qibla', color: 'text-amber-500 dark:text-amber-400', bg: 'bg-gradient-to-br from-amber-500/20 to-amber-600/10', emoji: '🧭' },
   { icon: Heart, labelKey: 'tasbih', path: '/tasbeeh', color: 'text-primary', bg: 'bg-gradient-to-br from-emerald-500/20 to-emerald-600/10', emoji: '📿' },
   { icon: Clock, labelKey: 'prayer', path: '/prayer-times', color: 'text-amber-500', bg: 'bg-gradient-to-br from-sky-500/20 to-sky-600/10', emoji: '🕌' },
   { icon: BookOpen, labelKey: 'quran', path: '/quran', color: 'text-primary', bg: 'bg-gradient-to-br from-green-500/20 to-green-600/10', emoji: '📖' },
-  { icon: Moon, labelKey: 'duas', path: '/duas', color: 'text-purple-400', bg: 'bg-gradient-to-br from-purple-500/20 to-purple-600/10', emoji: '🤲' },
-  { icon: ShieldCheck, labelKey: 'ruqyah', path: '/ruqyah', color: 'text-green-400', bg: 'bg-gradient-to-br from-teal-500/20 to-teal-600/10', emoji: '🛡️' },
-  { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-400', bg: 'bg-gradient-to-br from-orange-500/20 to-orange-600/10', emoji: '💰' },
+  { icon: Moon, labelKey: 'duas', path: '/duas', color: 'text-purple-500 dark:text-purple-400', bg: 'bg-gradient-to-br from-purple-500/20 to-purple-600/10', emoji: '🤲' },
+  { icon: ShieldCheck, labelKey: 'ruqyah', path: '/ruqyah', color: 'text-green-500 dark:text-green-400', bg: 'bg-gradient-to-br from-teal-500/20 to-teal-600/10', emoji: '🛡️' },
+  { icon: Calculator, labelKey: 'zakat', path: '/zakat', color: 'text-orange-500 dark:text-orange-400', bg: 'bg-gradient-to-br from-orange-500/20 to-orange-600/10', emoji: '💰' },
   { icon: CheckCircle2, labelKey: 'followUp', path: '/tracker', color: 'text-cyan-400', bg: 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/10', emoji: '✅' },
   { icon: Star, labelKey: 'namesOfAllah', path: '/asma-al-husna', color: 'text-yellow-400', bg: 'bg-gradient-to-br from-yellow-500/20 to-yellow-600/10', emoji: '✨' },
-  { icon: BookOpen, labelKey: 'kidsZone', path: '/kids-zone', color: 'text-emerald-400', bg: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/10', emoji: '🌟' },
-  { icon: Eye, labelKey: 'liveStreams', path: '/live-streams', color: 'text-red-400', bg: 'bg-gradient-to-br from-red-500/20 to-red-600/10', emoji: '📺' },
-  { icon: MessageSquare, labelKey: 'navMessages', path: '/messages', color: 'text-blue-400', bg: 'bg-gradient-to-br from-blue-500/20 to-blue-600/10', emoji: '💬' },
+  { icon: BookOpen, labelKey: 'kidsZone', path: '/kids-zone', color: 'text-emerald-500 dark:text-emerald-400', bg: 'bg-gradient-to-br from-emerald-500/20 to-teal-600/10', emoji: '🌟' },
+  { icon: Eye, labelKey: 'liveStreams', path: '/live-streams', color: 'text-red-500 dark:text-red-400', bg: 'bg-gradient-to-br from-red-500/20 to-red-600/10', emoji: '📺' },
+  { icon: MessageSquare, labelKey: 'navMessages', path: '/messages', color: 'text-blue-500 dark:text-blue-400', bg: 'bg-gradient-to-br from-blue-500/20 to-blue-600/10', emoji: '💬' },
 ];
 
 export default function More() {
@@ -140,7 +140,7 @@ export default function More() {
             </Link>
             <Link to="/store" className="flex flex-col items-center gap-2 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
               <div className="h-12 w-12 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-                <Crown className="h-6 w-6 text-purple-400" />
+                <Crown className="h-6 w-6 text-purple-500 dark:text-purple-400" />
               </div>
               <span className="text-[10px] font-bold text-foreground text-center">{t('shop')}</span>
             </Link>
@@ -149,7 +149,7 @@ export default function More() {
           <div className="grid grid-cols-2 gap-2.5 mt-2.5">
             <Link to="/ai-assistant" className="flex items-center gap-2.5 p-3 rounded-2xl neu-card active:scale-95 transition-all hover:shadow-float">
               <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
-                <Bot className="h-5 w-5 text-blue-400" />
+                <Bot className="h-5 w-5 text-blue-500 dark:text-blue-400" />
               </div>
               <span className="text-[11px] font-bold text-foreground">{t('aiAssistant')}</span>
             </Link>
@@ -193,7 +193,7 @@ export default function More() {
             className="w-full flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.3)] transition-colors first:rounded-t-3xl">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-amber-500/12 flex items-center justify-center">
-                {theme === 'dark' ? <Moon className="h-4 w-4 text-amber-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
+                {theme === 'dark' ? <Moon className="h-4 w-4 text-amber-500 dark:text-amber-400" /> : <Sun className="h-4 w-4 text-amber-500" />}
               </div>
               <span className="text-sm text-foreground">{t('theme')}</span>
             </div>
@@ -206,7 +206,7 @@ export default function More() {
             className="w-full flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-red-500/15 flex items-center justify-center">
-                {remindersEnabled ? <Bell className="h-4 w-4 text-red-400" /> : <BellOff className="h-4 w-4 text-red-400" />}
+                {remindersEnabled ? <Bell className="h-4 w-4 text-red-500 dark:text-red-400" /> : <BellOff className="h-4 w-4 text-red-500 dark:text-red-400" />}
               </div>
               <span className="text-sm text-foreground">{t('reminders')}</span>
             </div>
@@ -219,7 +219,7 @@ export default function More() {
           <Link to="/notifications" className="flex items-center justify-between px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                <Bell className="h-4 w-4 text-blue-400" />
+                <Bell className="h-4 w-4 text-blue-500 dark:text-blue-400" />
               </div>
               <span className="text-sm text-foreground">{t('notificationSettings')}</span>
             </div>
@@ -244,7 +244,7 @@ export default function More() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center">
-                  <span className="text-blue-400 text-sm font-bold">🌍</span>
+                  <span className="text-blue-500 dark:text-blue-400 text-sm font-bold">🌍</span>
                 </div>
                 <span className="text-sm font-bold text-foreground">{t('language')}</span>
               </div>
@@ -293,21 +293,21 @@ export default function More() {
       {/* Help Section */}
       <div className="px-4 mb-4">
         <h3 className="text-[13px] font-bold text-foreground mb-3 flex items-center gap-2">
-          <HelpCircle className="h-3.5 w-3.5 text-green-400" />{t('helpSupport')}
+          <HelpCircle className="h-3.5 w-3.5 text-green-500 dark:text-green-400" />{t('helpSupport')}
         </h3>
         <div className="rounded-2xl neu-card divide-y divide-border/15">
           <Link to="/contact" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-400" /></div>
+            <div className="h-8 w-8 rounded-lg bg-green-500/15 flex items-center justify-center"><Mail className="h-4 w-4 text-green-500 dark:text-green-400" /></div>
             <span className="text-sm text-foreground">{t('contactUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
           <Link to="/about" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-400" /></div>
+            <div className="h-8 w-8 rounded-lg bg-purple-500/15 flex items-center justify-center"><Info className="h-4 w-4 text-purple-500 dark:text-purple-400" /></div>
             <span className="text-sm text-foreground">{t('aboutUs')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
           <Link to="/privacy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-blue-400" /></div>
+            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-blue-500 dark:text-blue-400" /></div>
             <span className="text-sm text-foreground">{t('privacyPolicy')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
@@ -324,7 +324,7 @@ export default function More() {
             if (navigator.share) navigator.share({ title: t('appName'), url: window.location.origin });
             else { navigator.clipboard.writeText(window.location.origin); toast.success(t('linkCopied')); }
           }} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
-            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Share2 className="h-4 w-4 text-blue-400" /></div>
+            <div className="h-8 w-8 rounded-lg bg-blue-500/15 flex items-center justify-center"><Share2 className="h-4 w-4 text-blue-500 dark:text-blue-400" /></div>
             <span className="text-sm text-foreground">{t('inviteFriend')}</span>
           </button>
         </div>
@@ -334,7 +334,7 @@ export default function More() {
       <div className="px-4 mb-4">
         <Link to="/donations" className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-rose-500/5 border border-red-500/20 active:scale-[0.98] transition-transform">
           <div className="h-12 w-12 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
-            <Heart className="h-6 w-6 text-red-400" />
+            <Heart className="h-6 w-6 text-red-500 dark:text-red-400" />
           </div>
           <div>
             <p className="text-sm font-bold text-foreground">{t('donations')}</p>

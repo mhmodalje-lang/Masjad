@@ -702,7 +702,7 @@ export default function PrivacyPolicy() {
         {/* Data Controller */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <UserCheck className="h-4 w-4 text-blue-400" />{c.dataController_title}
+            <UserCheck className="h-4 w-4 text-blue-500 dark:text-blue-400" />{c.dataController_title}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{c.dataController_text}</p>
           <div className="mt-2 bg-muted/30 rounded-xl p-3 text-sm text-foreground/80">
@@ -715,7 +715,7 @@ export default function PrivacyPolicy() {
         {/* Data We Collect */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Database className="h-4 w-4 text-green-400" />{c.dataCollect_title}
+            <Database className="h-4 w-4 text-green-500 dark:text-green-400" />{c.dataCollect_title}
           </h3>
           <div className="space-y-3">
             <div>
@@ -760,7 +760,7 @@ export default function PrivacyPolicy() {
         {/* How We Use Data */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Eye className="h-4 w-4 text-purple-400" />{c.howUse_title}
+            <Eye className="h-4 w-4 text-purple-500 dark:text-purple-400" />{c.howUse_title}
           </h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>• {c.howUse_1}</li><li>• {c.howUse_2}</li><li>• {c.howUse_3}</li>
@@ -784,7 +784,7 @@ export default function PrivacyPolicy() {
         {/* Advertisements */}
         <div className="rounded-2xl neu-card p-5">
           <h3 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-            <Eye className="h-4 w-4 text-amber-400" />{c.ads_title}
+            <Eye className="h-4 w-4 text-amber-500 dark:text-amber-400" />{c.ads_title}
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">{c.ads_text}</p>
         </div>

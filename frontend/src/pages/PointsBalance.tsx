@@ -183,7 +183,7 @@ export default function PointsBalance() {
           <p className="text-sm font-medium opacity-90 mb-4">{mode === 'kids' ? t('goldenBricksTitle') : t('blessingPointsTitle')}</p>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5">
-              <Flame className="h-4 w-4 text-yellow-300" />
+              <Flame className="h-4 w-4 text-yellow-600 dark:text-yellow-300" />
               <span className="text-sm font-bold">{t('dayStreak').replace('{n}', String(streak))}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -214,7 +214,7 @@ export default function PointsBalance() {
           mode === 'kids' ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30" : "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-500/30"
         )}>
         <div className={cn("p-2 rounded-xl", mode === 'kids' ? "bg-purple-500/20" : "bg-blue-500/20")}>
-          <Play className={cn("h-5 w-5", mode === 'kids' ? "text-purple-400" : "text-blue-400")} />
+          <Play className={cn("h-5 w-5", mode === 'kids' ? "text-purple-400" : "text-blue-500 dark:text-blue-400")} />
         </div>
         <div className="flex-1 text-start">
           <p className="text-sm font-bold text-foreground">{t('watchAdEarn')}</p>
