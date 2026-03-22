@@ -9,7 +9,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://day-night-design.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://islamic-academy-hub.preview.emergentagent.com')
 
 # Admin credentials for testing
 ADMIN_EMAIL = "mhmd321324t@gmail.com"

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Kids Zone Islamic Content Backend Testing - Updated
-Testing all Kids Zone Islamic content endpoints for proper content and emoji validation
+Noor Academy (Kids Learning) Backend API Testing
+Testing enriched content for stages 6-15 and expanded Quran surahs
 """
 
 import requests
@@ -10,25 +10,29 @@ import time
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://day-night-design.preview.emergentagent.com"
+BACKEND_URL = "https://islamic-academy-hub.preview.emergentagent.com"
 
-class KidsZoneIslamicContentTester:
+class NoorAcademyTester:
     def __init__(self):
         self.results = []
         self.total_tests = 0
         self.passed_tests = 0
+        self.failed_tests = []
         
     def log_result(self, test_name: str, status: str, response_time: float, details: str = ""):
         """Log test result"""
-        self.results.append({
+        result = {
             "test": test_name,
             "status": status,
             "response_time": f"{response_time:.3f}s",
             "details": details
-        })
+        }
+        self.results.append(result)
         self.total_tests += 1
         if status == "PASSED":
             self.passed_tests += 1
+        else:
+            self.failed_tests.append(result)
             
     def test_endpoint(self, endpoint: str, expected_status: int = 200) -> Dict[str, Any]:
         """Test a single endpoint"""
@@ -36,7 +40,7 @@ class KidsZoneIslamicContentTester:
         start_time = time.time()
         
         try:
-            response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=15)
             response_time = time.time() - start_time
             
             if response.status_code != expected_status:
@@ -44,7 +48,8 @@ class KidsZoneIslamicContentTester:
                     "success": False,
                     "status_code": response.status_code,
                     "response_time": response_time,
-                    "error": f"Expected {expected_status}, got {response.status_code}"
+                    "error": f"Expected {expected_status}, got {response.status_code}",
+                    "response_text": response.text[:500] if response.text else "No response text"
                 }
                 
             try:
@@ -60,7 +65,8 @@ class KidsZoneIslamicContentTester:
                     "success": False,
                     "status_code": response.status_code,
                     "response_time": response_time,
-                    "error": "Invalid JSON response"
+                    "error": "Invalid JSON response",
+                    "response_text": response.text[:500]
                 }
                 
         except requests.exceptions.RequestException as e:
@@ -69,316 +75,364 @@ class KidsZoneIslamicContentTester:
                 "success": False,
                 "status_code": 0,
                 "response_time": response_time,
-                "error": str(e)
+                "error": f"Request failed: {str(e)}"
             }
-    
-    def check_no_christian_prayer_emoji(self, data: Any, endpoint: str) -> List[str]:
-        """Check for 🙏 emoji (Christian prayer) in response data"""
-        issues = []
-        data_str = json.dumps(data, ensure_ascii=False)
-        if "🙏" in data_str:
-            issues.append(f"Found 🙏 (Christian prayer emoji) in {endpoint}")
-        return issues
-    
-    def test_health_endpoint(self):
-        """Test health check endpoint"""
-        print("Testing health endpoint...")
+
+    def test_curriculum_lessons(self):
+        """Test curriculum lessons for advanced stages (S06-S15)"""
+        print("🎓 Testing Curriculum Lessons for Advanced Stages...")
+        
+        # Test specific lesson IDs for each stage
+        test_lessons = [
+            {"day": 267, "stage": "S06", "name": "Reading Practice", "expected_sections": 4, "section_types": ["read", "listen", "quiz", "write"]},
+            {"day": 309, "stage": "S07", "name": "Islamic Foundations", "expected_sections": 3, "section_types": ["learn", "memorize", "quiz"]},
+            {"day": 385, "stage": "S08", "name": "Quran", "expected_sections": 4, "section_types": ["quran", "listen", "memorize", "quiz"]},
+            {"day": 500, "stage": "S09", "name": "Duas", "expected_sections": 4, "section_types": ["dua", "memorize", "listen", "quiz"]},
+            {"day": 570, "stage": "S10", "name": "Hadiths", "expected_sections": 3, "section_types": ["hadith", "reflect", "quiz"]},
+            {"day": 640, "stage": "S11", "name": "Prophet Stories", "expected_sections": 3, "section_types": ["story", "lesson", "quiz"]},
+            {"day": 725, "stage": "S12", "name": "Islamic Life", "expected_sections": 3, "section_types": ["learn", "practice", "quiz"]},
+            {"day": 815, "stage": "S13", "name": "Advanced Arabic", "expected_sections": 3, "section_types": ["grammar", "practice", "quiz"]},
+            {"day": 910, "stage": "S14", "name": "Advanced Quran", "expected_sections": 3, "section_types": ["quran", "tajweed", "memorize"]},
+            {"day": 965, "stage": "S15", "name": "Mastery", "expected_sections": 3, "section_types": ["review", "quiz", "memorize"]}
+        ]
+        
+        for lesson_info in test_lessons:
+            day = lesson_info["day"]
+            stage = lesson_info["stage"]
+            name = lesson_info["name"]
+            
+            # Test Arabic locale
+            result = self.test_endpoint(f"/api/kids-learn/curriculum/lesson/{day}?locale=ar")
+            
+            if result["success"]:
+                data = result["data"]
+                
+                # Check basic structure
+                if not data.get("success"):
+                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                                  result["response_time"], "Response success=false")
+                    continue
+                
+                lesson = data.get("lesson", {})
+                sections = lesson.get("sections", [])
+                
+                # Check if lesson has content
+                if not sections:
+                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                                  result["response_time"], "No sections found in lesson")
+                    continue
+                
+                # Check minimum sections (at least 2)
+                if len(sections) < 2:
+                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                                  result["response_time"], f"Only {len(sections)} sections, expected at least 2")
+                    continue
+                
+                # Check for meaningful content in sections
+                has_content = False
+                section_details = []
+                for section in sections:
+                    section_type = section.get("type", "unknown")
+                    section_title = section.get("title", "")
+                    section_content = section.get("content", {})
+                    
+                    section_details.append(f"{section_type}: {section_title}")
+                    
+                    # Check if section has meaningful content
+                    if section_content and (
+                        section_content.get("arabic") or 
+                        section_content.get("text") or 
+                        section_content.get("question") or
+                        section_content.get("tip") or
+                        section_content.get("surah") or
+                        section_content.get("story")
+                    ):
+                        has_content = True
+                
+                if not has_content:
+                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                                  result["response_time"], "No meaningful content found in sections")
+                    continue
+                
+                # Check for Arabic content
+                has_arabic = False
+                for section in sections:
+                    content = section.get("content", {})
+                    if content.get("arabic") or any("ا" in str(v) or "ب" in str(v) or "ت" in str(v) for v in content.values() if isinstance(v, str)):
+                        has_arabic = True
+                        break
+                
+                if not has_arabic:
+                    self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                                  result["response_time"], "No Arabic content found")
+                    continue
+                
+                self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "PASSED", 
+                              result["response_time"], 
+                              f"{len(sections)} sections: {', '.join(section_details)}")
+                
+            else:
+                self.log_result(f"Lesson {day} ({stage} - {name}) - Arabic", "FAILED", 
+                              result["response_time"], result.get("error", "Unknown error"))
+
+    def test_quran_surahs_list(self):
+        """Test Quran surahs list - should return 15 surahs total"""
+        print("📖 Testing Quran Surahs List...")
+        
+        result = self.test_endpoint("/api/kids-learn/quran/surahs?locale=ar")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("Quran Surahs List", "FAILED", result["response_time"], "Response success=false")
+                return
+            
+            surahs = data.get("surahs", [])
+            total = data.get("total", 0)
+            
+            if total != 15:
+                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
+                              f"Expected 15 surahs, got {total}")
+                return
+            
+            if len(surahs) != 15:
+                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
+                              f"Expected 15 surahs in list, got {len(surahs)}")
+                return
+            
+            # Check for required fields in each surah
+            missing_fields = []
+            surah_names = []
+            for surah in surahs:
+                surah_names.append(surah.get("name_ar", "Unknown"))
+                required_fields = ["id", "number", "name_ar", "name_en", "total_ayahs"]
+                for field in required_fields:
+                    if field not in surah:
+                        missing_fields.append(f"{surah.get('name_ar', 'Unknown')}: missing {field}")
+            
+            if missing_fields:
+                self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
+                              f"Missing fields: {', '.join(missing_fields[:3])}")
+                return
+            
+            self.log_result("Quran Surahs List", "PASSED", result["response_time"], 
+                          f"15 surahs found: {', '.join(surah_names[:5])}...")
+            
+        else:
+            self.log_result("Quran Surahs List", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+
+    def test_new_surah_details(self):
+        """Test new surah details (fil, kafiroon, zilzal)"""
+        print("🕌 Testing New Surah Details...")
+        
+        test_surahs = [
+            {"id": "fil", "name": "Al-Fil", "expected_ayahs": 5},
+            {"id": "kafiroon", "name": "Al-Kafiroon", "expected_ayahs": 6},
+            {"id": "zilzal", "name": "Az-Zilzal", "expected_ayahs": 8}
+        ]
+        
+        for surah_info in test_surahs:
+            surah_id = surah_info["id"]
+            name = surah_info["name"]
+            expected_ayahs = surah_info["expected_ayahs"]
+            
+            result = self.test_endpoint(f"/api/kids-learn/quran/surah/{surah_id}?locale=ar")
+            
+            if result["success"]:
+                data = result["data"]
+                
+                if not data.get("success"):
+                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
+                                  "Response success=false")
+                    continue
+                
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                if len(ayahs) != expected_ayahs:
+                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
+                                  f"Expected {expected_ayahs} ayahs, got {len(ayahs)}")
+                    continue
+                
+                # Check ayah structure
+                missing_fields = []
+                has_arabic = False
+                for i, ayah in enumerate(ayahs):
+                    if "arabic" not in ayah:
+                        missing_fields.append(f"ayah {i+1}: missing arabic")
+                    elif ayah["arabic"] and any(char in ayah["arabic"] for char in "ابتثجحخدذرزسشصضطظعغفقكلمنهوي"):
+                        has_arabic = True
+                    
+                    if "translation" not in ayah:
+                        missing_fields.append(f"ayah {i+1}: missing translation")
+                
+                if missing_fields:
+                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
+                                  f"Missing fields: {', '.join(missing_fields[:3])}")
+                    continue
+                
+                if not has_arabic:
+                    self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
+                                  "No Arabic text found in ayahs")
+                    continue
+                
+                self.log_result(f"Surah {name} ({surah_id})", "PASSED", result["response_time"], 
+                              f"{len(ayahs)} ayahs with Arabic and translations")
+                
+            else:
+                self.log_result(f"Surah {name} ({surah_id})", "FAILED", result["response_time"], 
+                              result.get("error", "Unknown error"))
+
+    def test_english_locale_support(self):
+        """Test English locale support"""
+        print("🌍 Testing English Locale Support...")
+        
+        # Test curriculum lesson in English
+        result = self.test_endpoint("/api/kids-learn/curriculum/lesson/310?locale=en")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
+                              "Response success=false")
+            else:
+                lesson = data.get("lesson", {})
+                sections = lesson.get("sections", [])
+                
+                if not sections:
+                    self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
+                                  "No sections found")
+                else:
+                    # Check for English content
+                    has_english = False
+                    for section in sections:
+                        content = section.get("content", {})
+                        title = section.get("title", "")
+                        
+                        # Look for English text (contains common English words)
+                        english_indicators = ["the", "and", "of", "to", "in", "is", "you", "that", "it", "with", "for", "as", "was", "on", "are", "this"]
+                        text_to_check = f"{title} {str(content)}".lower()
+                        
+                        if any(word in text_to_check for word in english_indicators):
+                            has_english = True
+                            break
+                    
+                    if has_english:
+                        self.log_result("English Curriculum Lesson", "PASSED", result["response_time"], 
+                                      f"{len(sections)} sections with English content")
+                    else:
+                        self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
+                                      "No English content found")
+        else:
+            self.log_result("English Curriculum Lesson", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+        
+        # Test surah in English
+        result = self.test_endpoint("/api/kids-learn/quran/surah/fil?locale=en")
+        
+        if result["success"]:
+            data = result["data"]
+            
+            if not data.get("success"):
+                self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
+                              "Response success=false")
+            else:
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                if not ayahs:
+                    self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
+                                  "No ayahs found")
+                else:
+                    # Check for English translations
+                    has_english_translation = False
+                    for ayah in ayahs:
+                        translation = ayah.get("translation", "")
+                        if translation and any(char.isalpha() and ord(char) < 128 for char in translation):
+                            has_english_translation = True
+                            break
+                    
+                    if has_english_translation:
+                        self.log_result("English Surah Al-Fil", "PASSED", result["response_time"], 
+                                      f"{len(ayahs)} ayahs with English translations")
+                    else:
+                        self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
+                                      "No English translations found")
+        else:
+            self.log_result("English Surah Al-Fil", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+
+    def test_api_health(self):
+        """Test basic API health"""
+        print("🏥 Testing API Health...")
+        
         result = self.test_endpoint("/api/health")
         
-        if not result["success"]:
-            self.log_result("Health Check", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        if data.get("status") == "healthy":
-            self.log_result("Health Check", "PASSED", result["response_time"], "Health check successful")
+        if result["success"]:
+            data = result["data"]
+            if data.get("status") == "healthy":
+                self.log_result("API Health Check", "PASSED", result["response_time"], 
+                              f"Status: {data.get('status')}")
+            else:
+                self.log_result("API Health Check", "FAILED", result["response_time"], 
+                              f"Unhealthy status: {data.get('status')}")
         else:
-            self.log_result("Health Check", "FAILED", result["response_time"], f"Unexpected health status: {data}")
-    
-    def test_salah_endpoint(self):
-        """Test Salah endpoint with Arabic locale"""
-        print("Testing Salah endpoint (Arabic)...")
-        result = self.test_endpoint("/api/kids-learn/salah?locale=ar")
-        
-        if not result["success"]:
-            self.log_result("Salah (Arabic)", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 11 steps
-        steps = data.get("steps", [])
-        if len(steps) != 11:
-            issues.append(f"Expected 11 steps, got {len(steps)}")
-        
-        # Check required fields for each step
-        required_fields = ["image_url", "position", "dhikr_ar", "dhikr_transliteration", "body_position"]
-        for i, step in enumerate(steps):
-            for field in required_fields:
-                if field not in step:
-                    issues.append(f"Step {i+1} missing field: {field}")
-        
-        # Check for Christian prayer emoji
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Salah Arabic")
-        issues.extend(emoji_issues)
-        
-        if issues:
-            self.log_result("Salah (Arabic)", "FAILED", result["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Salah (Arabic)", "PASSED", result["response_time"], f"11 steps with all required fields")
-    
-    def test_wudu_arabic_endpoint(self):
-        """Test Wudu endpoint with Arabic locale"""
-        print("Testing Wudu endpoint (Arabic)...")
-        result = self.test_endpoint("/api/kids-learn/wudu?locale=ar")
-        
-        if not result["success"]:
-            self.log_result("Wudu (Arabic)", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 12 steps
-        steps = data.get("steps", [])
-        if len(steps) != 12:
-            issues.append(f"Expected 12 steps, got {len(steps)}")
-        
-        # Check step 1 for Bismillah mention
-        if steps and len(steps) > 0:
-            step1_text = json.dumps(steps[0], ensure_ascii=False)
-            if "النية والتسمية" not in step1_text and "البسملة" not in step1_text:
-                issues.append("Step 1 should mention النية والتسمية (Bismillah)")
-        
-        # Check for Christian prayer emoji
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Wudu Arabic")
-        issues.extend(emoji_issues)
-        
-        if issues:
-            self.log_result("Wudu (Arabic)", "FAILED", result["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Wudu (Arabic)", "PASSED", result["response_time"], f"12 steps with Bismillah in step 1, no 🙏 emoji")
-    
-    def test_wudu_english_endpoint(self):
-        """Test Wudu endpoint with English locale"""
-        print("Testing Wudu endpoint (English)...")
-        result = self.test_endpoint("/api/kids-learn/wudu?locale=en")
-        
-        if not result["success"]:
-            self.log_result("Wudu (English)", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 12 steps
-        steps = data.get("steps", [])
-        if len(steps) != 12:
-            issues.append(f"Expected 12 steps, got {len(steps)}")
-        
-        # Check step 1 for Bismillah mention
-        if steps and len(steps) > 0:
-            step1_text = json.dumps(steps[0], ensure_ascii=False)
-            if "Intention & Bismillah" not in step1_text and "Bismillah" not in step1_text:
-                issues.append("Step 1 should be 'Intention & Bismillah'")
-        
-        # Check for Christian prayer emoji
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Wudu English")
-        issues.extend(emoji_issues)
-        
-        if issues:
-            self.log_result("Wudu (English)", "FAILED", result["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Wudu (English)", "PASSED", result["response_time"], f"12 steps with Bismillah in step 1, no 🙏 emoji")
-    
-    def test_islamic_pillars_arabic_endpoint(self):
-        """Test Islamic Pillars endpoint with Arabic locale"""
-        print("Testing Islamic Pillars endpoint (Arabic)...")
-        result = self.test_endpoint("/api/kids-learn/islamic-pillars?locale=ar")
-        
-        if not result["success"]:
-            self.log_result("Islamic Pillars (Arabic)", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 5 pillars
-        pillars = data.get("pillars", [])
-        if len(pillars) != 5:
-            issues.append(f"Expected 5 pillars, got {len(pillars)}")
-        
-        # Check Salah pillar has 🕌 emoji NOT 🙏
-        salah_pillar = None
-        for pillar in pillars:
-            pillar_text = json.dumps(pillar, ensure_ascii=False)
-            if "صلاة" in pillar_text or "الصلاة" in pillar_text:
-                salah_pillar = pillar
-                break
-        
-        if salah_pillar:
-            salah_text = json.dumps(salah_pillar, ensure_ascii=False)
-            if "🕌" not in salah_text:
-                issues.append("Salah pillar should have 🕌 emoji")
-            if "🙏" in salah_text:
-                issues.append("Salah pillar should NOT have 🙏 emoji (Christian prayer)")
-        
-        # Check for Christian prayer emoji in entire response
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Islamic Pillars Arabic")
-        issues.extend(emoji_issues)
-        
-        if issues:
-            self.log_result("Islamic Pillars (Arabic)", "FAILED", result["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Islamic Pillars (Arabic)", "PASSED", result["response_time"], f"5 pillars, Salah has 🕌 emoji, no 🙏 emoji")
-    
-    def test_islamic_pillars_english_endpoint(self):
-        """Test Islamic Pillars endpoint with English locale"""
-        print("Testing Islamic Pillars endpoint (English)...")
-        result = self.test_endpoint("/api/kids-learn/islamic-pillars?locale=en")
-        
-        if not result["success"]:
-            self.log_result("Islamic Pillars (English)", "FAILED", result["response_time"], result["error"])
-            return
-            
-        data = result["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 5 pillars
-        pillars = data.get("pillars", [])
-        if len(pillars) != 5:
-            issues.append(f"Expected 5 pillars, got {len(pillars)}")
-        
-        # Check for Christian prayer emoji
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Islamic Pillars English")
-        issues.extend(emoji_issues)
-        
-        if issues:
-            self.log_result("Islamic Pillars (English)", "FAILED", result["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Islamic Pillars (English)", "PASSED", result["response_time"], f"5 pillars, no 🙏 emoji")
-    
-    def test_prophets_arabic_endpoint(self):
-        """Test Prophets endpoint with Arabic locale - UPDATED to use correct endpoint"""
-        print("Testing Prophets endpoint (Arabic) - checking both endpoints...")
-        
-        # First test the original endpoint that returns 6 prophets
-        result_6 = self.test_endpoint("/api/kids-learn/prophets?locale=ar")
-        
-        # Then test the full endpoint that returns 25 prophets
-        result_25 = self.test_endpoint("/api/kids-learn/prophets-full?locale=ar")
-        
-        if not result_25["success"]:
-            self.log_result("Prophets (Arabic)", "FAILED", result_25["response_time"], result_25["error"])
-            return
-            
-        data = result_25["data"]
-        issues = []
-        
-        # Check for success field
-        if not data.get("success"):
-            issues.append("Response missing success=true")
-            
-        # Check for 25 prophets
-        prophets = data.get("prophets", [])
-        if len(prophets) != 25:
-            issues.append(f"Expected 25 prophets, got {len(prophets)}")
-        
-        # Check Zakariya has 🤲 emoji NOT 🙏
-        zakariya_prophet = None
-        for prophet in prophets:
-            prophet_text = json.dumps(prophet, ensure_ascii=False)
-            if "زكريا" in prophet_text or "Zakariya" in prophet_text:
-                zakariya_prophet = prophet
-                break
-        
-        if zakariya_prophet:
-            zakariya_text = json.dumps(zakariya_prophet, ensure_ascii=False)
-            if "🤲" not in zakariya_text:
-                issues.append("Zakariya should have 🤲 emoji")
-            if "🙏" in zakariya_text:
-                issues.append("Zakariya should NOT have 🙏 emoji (Christian prayer)")
-        
-        # Check for Christian prayer emoji in entire response
-        emoji_issues = self.check_no_christian_prayer_emoji(data, "Prophets Arabic")
-        issues.extend(emoji_issues)
-        
-        # Note about endpoint discrepancy
-        if result_6["success"]:
-            data_6 = result_6["data"]
-            prophets_6 = data_6.get("prophets", [])
-            issues.append(f"NOTE: /api/kids-learn/prophets returns {len(prophets_6)} prophets, but /api/kids-learn/prophets-full returns {len(prophets)} prophets")
-        
-        if issues:
-            self.log_result("Prophets (Arabic)", "FAILED", result_25["response_time"], "; ".join(issues))
-        else:
-            self.log_result("Prophets (Arabic)", "PASSED", result_25["response_time"], f"25 prophets, Zakariya has 🤲 emoji, no 🙏 emoji")
-    
+            self.log_result("API Health Check", "FAILED", result["response_time"], 
+                          result.get("error", "Unknown error"))
+
     def run_all_tests(self):
-        """Run all Kids Zone Islamic content tests"""
-        print("=" * 80)
-        print("KIDS ZONE ISLAMIC CONTENT BACKEND TESTING")
-        print("=" * 80)
+        """Run all tests"""
+        print("🚀 Starting Noor Academy Backend API Tests...")
         print(f"Backend URL: {BACKEND_URL}")
-        print()
+        print("=" * 60)
         
-        # Run all tests
-        self.test_health_endpoint()
-        self.test_salah_endpoint()
-        self.test_wudu_arabic_endpoint()
-        self.test_wudu_english_endpoint()
-        self.test_islamic_pillars_arabic_endpoint()
-        self.test_islamic_pillars_english_endpoint()
-        self.test_prophets_arabic_endpoint()
+        # Run all test suites
+        self.test_api_health()
+        self.test_curriculum_lessons()
+        self.test_quran_surahs_list()
+        self.test_new_surah_details()
+        self.test_english_locale_support()
         
-        # Print results
-        print("\n" + "=" * 80)
-        print("TEST RESULTS SUMMARY")
-        print("=" * 80)
-        
-        for result in self.results:
-            status_symbol = "✅" if result["status"] == "PASSED" else "❌"
-            print(f"{status_symbol} {result['test']} - {result['status']} ({result['response_time']})")
-            if result["details"]:
-                print(f"   Details: {result['details']}")
-        
-        print(f"\nTotal Tests: {self.total_tests}")
+        # Print summary
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
+        print(f"Total Tests: {self.total_tests}")
         print(f"Passed: {self.passed_tests}")
         print(f"Failed: {self.total_tests - self.passed_tests}")
-        print(f"Success Rate: {(self.passed_tests/self.total_tests)*100:.1f}%")
+        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%")
         
-        # Critical issues summary
-        failed_tests = [r for r in self.results if r["status"] == "FAILED"]
-        if failed_tests:
-            print("\n" + "=" * 80)
-            print("CRITICAL ISSUES FOUND:")
-            print("=" * 80)
-            for test in failed_tests:
-                print(f"❌ {test['test']}: {test['details']}")
-        else:
-            print("\n✅ ALL TESTS PASSED - No critical issues found")
+        if self.failed_tests:
+            print("\n❌ FAILED TESTS:")
+            for test in self.failed_tests:
+                print(f"  • {test['test']}: {test['details']}")
+        
+        print("\n✅ PASSED TESTS:")
+        for result in self.results:
+            if result["status"] == "PASSED":
+                print(f"  • {result['test']}: {result['details']}")
+        
+        return {
+            "total": self.total_tests,
+            "passed": self.passed_tests,
+            "failed": self.total_tests - self.passed_tests,
+            "success_rate": self.passed_tests/self.total_tests*100 if self.total_tests > 0 else 0,
+            "failed_tests": self.failed_tests
+        }
 
 if __name__ == "__main__":
-    tester = KidsZoneIslamicContentTester()
-    tester.run_all_tests()
+    tester = NoorAcademyTester()
+    results = tester.run_all_tests()
+    
+    # Save results to file
+    with open("/app/backend_test_results.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "summary": results,
+            "detailed_results": tester.results
+        }, f, indent=2, ensure_ascii=False)
+    
+    print(f"\n📄 Detailed results saved to: /app/backend_test_results.json")

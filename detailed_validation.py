@@ -6,7 +6,7 @@ Detailed Salah API Validation - Verify all requirements from review request
 import requests
 import json
 
-BACKEND_URL = "https://day-night-design.preview.emergentagent.com"
+BACKEND_URL = "https://islamic-academy-hub.preview.emergentagent.com"
 
 def detailed_validation():
     print("=" * 70)

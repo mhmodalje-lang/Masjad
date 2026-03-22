@@ -1,68 +1,186 @@
-# Test Results
+backend:
+  - task: "Stage 6 (Reading Practice) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 267 tested successfully - 4 sections with Arabic content: read, listen, quiz, write"
+  
+  - task: "Stage 7 (Islamic Foundations) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 309 tested successfully - 3 sections: learn (Shahada), memorize, quiz"
+  
+  - task: "Stage 8 (Quran) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 385 tested successfully - 4 sections: quran (Al-Fatiha), listen, memorize, write"
+  
+  - task: "Stage 9 (Duas) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 500 tested successfully - 4 sections: dua (rain dua), listen, memorize, quiz"
+  
+  - task: "Stage 10 (Hadiths) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 570 tested successfully - 3 sections: hadith, memorize, reflect"
+  
+  - task: "Stage 11 (Prophet Stories) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 640 tested successfully - 3 sections: story (Prophet Yaqub), memorize, quiz"
+  
+  - task: "Stage 12 (Islamic Life) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 725 tested successfully - 3 sections: learn (Friday), listen, memorize"
+  
+  - task: "Stage 13 (Advanced Arabic) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 815 tested successfully - 3 sections: learn (prepositions), practice, write"
+  
+  - task: "Stage 14 (Advanced Quran) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 910 tested successfully - 3 sections: quran (Al-Ikhlas), listen, memorize"
+  
+  - task: "Stage 15 (Mastery) Curriculum Lessons"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "Lesson 965 tested successfully - 3 sections: review (Prophets), quiz, comprehensive review"
+  
+  - task: "Expanded Quran Surahs List (15 total)"
+    implemented: true
+    working: true
+    file: "/app/backend/routers/kids_learn.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "API returns exactly 15 surahs as expected, including new additions"
+  
+  - task: "New Surah Details (Al-Fil, Al-Kafiroon, Az-Zilzal)"
+    implemented: true
+    working: true
+    file: "/app/backend/kids_curriculum_advanced.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "All 3 new surahs tested successfully with correct ayah counts and Arabic/English content"
+  
+  - task: "English Locale Support"
+    implemented: true
+    working: true
+    file: "/app/backend/localization_engine.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "English translations working for both curriculum lessons and Quran surahs"
 
-## User Problem Statement
-Comprehensive audit and fix of the day/night (light/dark) theme design across the entire Islamic app "أذان وحكاية". The user requested:
-- Full inspection of all pages and components
-- Fix icon placements/positions
-- Fix day/night theme across ALL pages
-- Clean up old/hardcoded code
-- Fix anything that doesn't work
-- Add any missing features for 2026 standards
-- Comprehensive update
+frontend:
+  - task: "Frontend Integration (Not Tested)"
+    implemented: "NA"
+    working: "NA"
+    file: "N/A"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Frontend testing not performed as per system limitations"
 
-## Changes Made
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
 
-### Phase 1: BottomNav Theme Fix (Most Visible)
-- **File**: `components/layout/BottomNav.tsx`
-- Replaced hardcoded `bg-[#0d1f17]/95` with theme-conditional styling
-- Light mode: white glass background with subtle border
-- Dark mode: original deep green glass background
-- Create button ring adapts to theme
-- Text colors adapt (primary in light, emerald in dark)
-- Active indicator dot adapts to theme
+test_plan:
+  current_focus:
+    - "All backend curriculum and Quran APIs tested successfully"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
 
-### Phase 2: Stories Page Theme Fix
-- **File**: `pages/Stories.tsx`
-- Replaced all `bg-[#0a0e13]` → `bg-background`
-- Replaced all `bg-[#0f1419]` → `bg-card`
-- Replaced all `border-white/5` → `border-border/20`
-- Replaced `text-gray-500/400/600` → `text-muted-foreground`
-- Replaced `bg-white/5` → `bg-muted/30` for inputs/buttons
-- Fixed post cards, comment sheet, create post modal
-- Stories header gradient stays branded (green) - correct for both themes
-
-### Phase 3: SocialProfile Page Theme Fix
-- **File**: `pages/SocialProfile.tsx`
-- Replaced `bg-[#0a0e13]` → `bg-background`
-- Fixed all hardcoded gray text colors
-- Fixed button backgrounds and borders
-
-### Phase 4: SplashScreen Theme Fix
-- **File**: `components/SplashScreen.tsx`
-- Added theme detection for light/dark splash
-- Light mode: warm cream gradient
-- Dark mode: original dark gradient
-
-### Phase 5: Other Pages
-- **File**: `pages/CreatePost.tsx` - Fixed `bg-gray-950` → `bg-background`
-- **File**: `pages/KidsZone.tsx` - Fixed `bg-black/20` → `bg-muted/30`, `text-white` → `text-foreground`
-- **File**: `pages/Rewards.tsx` - Fixed `text-white` → `text-foreground`
-- **File**: `pages/Profile.tsx` - Fixed `text-gray-400` → `text-muted-foreground`
-
-## Testing Protocol
-
-### Backend Testing
-- Backend health check: PASS (`/api/health` returns healthy)
-- All existing endpoints unchanged
-
-### Frontend Testing  
-- Home page: Light / Dark - PASS
-- Stories page: Light / Dark - PASS
-- More/Settings page: Light / Dark - PASS
-- Quran page: Light / Dark - PASS
-- Tasbeeh page: Light / Dark - PASS
-- Bottom Nav: Light / Dark - PASS
-- Theme toggle: Working
-
-## Status: COMPLETE
-All major pages and components now properly respond to light/dark theme switching.
+agent_communication:
+  - agent: "testing"
+    message: "Comprehensive backend testing completed successfully. All 17 tests passed with 100% success rate. All advanced stages (S06-S15) are working correctly with proper Arabic content, section structures, and English locale support. Quran surahs expanded to 15 total as expected. New surahs (Al-Fil, Al-Kafiroon, Az-Zilzal) are functioning properly with correct ayah counts and translations."

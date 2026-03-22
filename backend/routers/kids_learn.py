@@ -29,6 +29,7 @@ from kids_learning_extended import (
 from kids_curriculum import (
     get_curriculum_overview, generate_lesson, CURRICULUM_STAGES,
 )
+from kids_curriculum_advanced import ADDITIONAL_SURAHS
 
 router = APIRouter(tags=["Kids Learn"])
 
@@ -45,6 +46,16 @@ async def get_daily_lesson(day: int = 0, locale: str = "ar"):
 async def get_quran_surahs_for_kids(locale: str = "ar"):
     """Get all Quran surahs available for kids memorization."""
     plan = get_quran_memorization_plan(locale)
+    # Add additional surahs from advanced curriculum
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    for s in ADDITIONAL_SURAHS:
+        if not any(p.get("id") == s["id"] for p in plan):
+            plan.append({
+                "id": s["id"], "number": s["number"],
+                "name_ar": s["name_ar"], "name_en": s["name_en"],
+                "difficulty": s["difficulty"], "total_ayahs": s["total_ayahs"],
+            })
+    plan.sort(key=lambda x: x["number"])
     return {"success": True, "surahs": plan, "total": len(plan)}
 
 
@@ -53,6 +64,9 @@ async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
     """Get specific surah with ayahs for memorization."""
     lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
     surah = next((s for s in QURAN_SURAHS_FOR_KIDS if s["id"] == surah_id), None)
+    # Also check additional surahs
+    if not surah:
+        surah = next((s for s in ADDITIONAL_SURAHS if s["id"] == surah_id), None)
     if not surah:
         raise HTTPException(status_code=404, detail="Surah not found")
     return {

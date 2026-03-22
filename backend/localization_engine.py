@@ -250,6 +250,18 @@ L10N = {
         "nl": "Onthoud de dua",
         "el": "Απομνημόνευσε το ντουά",
     },
+    "quiz_complete_dua": {
+        "ar": "أكمل الدعاء التالي",
+        "en": "Complete the following dua",
+        "de": "Vervollständige das folgende Dua",
+        "de-AT": "Vervollständige das folgende Dua",
+        "fr": "Complète le dua suivant",
+        "tr": "Aşağıdaki duayı tamamla",
+        "ru": "Дополни следующую дуа",
+        "sv": "Komplettera följande dua",
+        "nl": "Vul de volgende dua aan",
+        "el": "Συμπλήρωσε το ακόλουθο ντουά",
+    },
     # Tips & Instructions
     "tip_tap_letter": {
         "ar": "اضغط على الحرف للاستماع، ثم رددّه بصوتك",

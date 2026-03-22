@@ -603,12 +603,33 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
              "content": {"tip": t("tip_write_sentence_3", lang), "sentence": sent["ar"]}},
         ]
     
-    # ═══ STAGES 6-15: Use content from kids_learning.py ═══
+    # ═══ STAGES 6-15: Rich comprehensive content ═══
     else:
-        # For stages 6+, create dynamic content based on the stage
-        lesson_prefix = t("lesson_prefix", lang, num=lesson_in_stage + 1)
-        lesson["title"] = {lang: lesson_prefix, "ar": f"درس {lesson_in_stage + 1}"}
-        lesson["sections"] = _build_advanced_sections(stage_id, lesson_in_stage, lang)
+        from kids_curriculum_advanced import build_rich_sections, READING_PASSAGES, ISLAMIC_FOUNDATIONS_DETAILED, ISLAMIC_LIFE_TOPICS, ARABIC_GRAMMAR_LESSONS, MASTERY_REVIEWS
+        
+        # Generate rich title based on stage
+        if stage_id == "S06":
+            passage = READING_PASSAGES[lesson_in_stage % len(READING_PASSAGES)]
+            level_names = {"ar": ["جمل بسيطة", "فقرات قصيرة", "نصوص متقدمة"], "en": ["Simple Sentences", "Short Paragraphs", "Advanced Texts"]}
+            lvl = min(passage.get("level", 1) - 1, 2)
+            lesson["title"] = {lang: level_names.get(lang, level_names["ar"])[lvl], "ar": level_names["ar"][lvl]}
+        elif stage_id == "S07":
+            topic = ISLAMIC_FOUNDATIONS_DETAILED[lesson_in_stage % len(ISLAMIC_FOUNDATIONS_DETAILED)]
+            lesson["title"] = {lang: topic["title"].get(lang, topic["title"]["ar"]), "ar": topic["title"]["ar"]}
+        elif stage_id == "S12":
+            topic = ISLAMIC_LIFE_TOPICS[lesson_in_stage % len(ISLAMIC_LIFE_TOPICS)]
+            lesson["title"] = {lang: topic["title"].get(lang, topic["title"]["ar"]), "ar": topic["title"]["ar"]}
+        elif stage_id == "S13":
+            grammar = ARABIC_GRAMMAR_LESSONS[lesson_in_stage % len(ARABIC_GRAMMAR_LESSONS)]
+            lesson["title"] = {lang: grammar["title"].get(lang, grammar["title"]["ar"]), "ar": grammar["title"]["ar"]}
+        elif stage_id == "S15":
+            review = MASTERY_REVIEWS[lesson_in_stage % len(MASTERY_REVIEWS)]
+            lesson["title"] = {lang: review["title"].get(lang, review["title"]["ar"]), "ar": review["title"]["ar"]}
+        else:
+            lesson_prefix = t("lesson_prefix", lang, num=lesson_in_stage + 1)
+            lesson["title"] = {lang: lesson_prefix, "ar": f"درس {lesson_in_stage + 1}"}
+        
+        lesson["sections"] = build_rich_sections(stage_id, lesson_in_stage, lang)
     
     # Add progress tracking fields
     lesson["total_sections"] = len(lesson["sections"])
