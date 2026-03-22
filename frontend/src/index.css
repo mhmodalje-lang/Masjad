@@ -75,70 +75,70 @@
   }
 
   .dark {
-    /* 🌙 DARK: "Islamic Dark Walnut" — Deep Leather & Mahogany
-     * Rich dark walnut wood with warm leather undertones
-     * Emerald glow on aged dark wood */
-    --background: 22 30% 8%;
-    --foreground: 32 25% 88%;
+    /* 🌙 DARK: "Emerald Mosque Night" — Rich Islamic Green & Gold
+     * Inspired by the interior of a majestic mosque at night
+     * Deep emerald green + Warm gold accents + Pearl white text */
+    --background: 160 25% 10%;
+    --foreground: 40 20% 92%;
 
-    --card: 22 25% 12%;
-    --card-foreground: 32 25% 88%;
+    --card: 158 22% 14%;
+    --card-foreground: 40 20% 92%;
 
-    --popover: 22 25% 12%;
-    --popover-foreground: 32 25% 88%;
+    --popover: 158 22% 14%;
+    --popover-foreground: 40 20% 92%;
 
-    --primary: 152 50% 40%;
-    --primary-foreground: 22 30% 6%;
+    --primary: 45 75% 55%;
+    --primary-foreground: 160 30% 8%;
 
-    --secondary: 22 20% 16%;
-    --secondary-foreground: 32 18% 68%;
+    --secondary: 158 18% 18%;
+    --secondary-foreground: 40 15% 75%;
 
-    --muted: 22 18% 16%;
-    --muted-foreground: 30 12% 52%;
+    --muted: 158 15% 18%;
+    --muted-foreground: 40 10% 60%;
 
-    --accent: 38 68% 50%;
-    --accent-foreground: 22 30% 6%;
+    --accent: 38 72% 54%;
+    --accent-foreground: 160 30% 8%;
 
-    --destructive: 0 58% 40%;
+    --destructive: 0 58% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 22 18% 18%;
-    --input: 22 18% 14%;
-    --ring: 152 50% 40%;
+    --border: 158 14% 20%;
+    --input: 158 14% 16%;
+    --ring: 45 75% 55%;
 
-    /* Dark Walnut Night palette */
-    --islamic-green: 152 50% 40%;
-    --islamic-gold: 38 68% 50%;
-    --islamic-emerald: 152 42% 32%;
-    --islamic-emerald-glow: 152 50% 44%;
-    --islamic-navy: 22 30% 8%;
-    --islamic-teal: 168 35% 35%;
-    --islamic-rose: 345 45% 52%;
-    --islamic-copper: 22 65% 50%;
-    --islamic-purple: 265 35% 55%;
-    --islamic-purple-light: 265 28% 65%;
-    --islamic-teal-light: 168 25% 48%;
-    --islamic-silver: 28 10% 60%;
-    --islamic-green-foreground: 22 30% 6%;
-    --islamic-gold-foreground: 22 30% 6%;
-    --islamic-navy-foreground: 32 25% 88%;
+    /* Emerald Mosque Night palette */
+    --islamic-green: 152 55% 42%;
+    --islamic-gold: 38 72% 54%;
+    --islamic-emerald: 155 45% 34%;
+    --islamic-emerald-glow: 155 55% 48%;
+    --islamic-navy: 160 25% 8%;
+    --islamic-teal: 168 38% 38%;
+    --islamic-rose: 345 50% 58%;
+    --islamic-copper: 22 70% 54%;
+    --islamic-purple: 265 38% 58%;
+    --islamic-purple-light: 265 30% 70%;
+    --islamic-teal-light: 168 28% 50%;
+    --islamic-silver: 40 10% 65%;
+    --islamic-green-foreground: 160 30% 8%;
+    --islamic-gold-foreground: 160 30% 8%;
+    --islamic-navy-foreground: 40 20% 92%;
 
-    /* Dark Walnut extras */
-    --mystic-pearl: 22 22% 12%;
-    --mystic-mint: 152 15% 14%;
-    --mystic-moss: 152 38% 26%;
-    --mystic-amber: 38 68% 50%;
-    --mystic-mist: 22 18% 10%;
-    --mystic-glow: 152 45% 40%;
+    /* Emerald Night extras */
+    --mystic-pearl: 158 18% 14%;
+    --mystic-mint: 155 22% 16%;
+    --mystic-moss: 155 40% 30%;
+    --mystic-amber: 38 72% 54%;
+    --mystic-mist: 158 15% 12%;
+    --mystic-glow: 152 50% 44%;
 
-    --sidebar-background: 22 25% 9%;
-    --sidebar-foreground: 30 12% 82%;
-    --sidebar-primary: 152 50% 40%;
-    --sidebar-primary-foreground: 22 30% 6%;
-    --sidebar-accent: 22 20% 16%;
-    --sidebar-accent-foreground: 30 10% 68%;
-    --sidebar-border: 22 18% 16%;
-    --sidebar-ring: 152 50% 40%;
+    --sidebar-background: 160 22% 10%;
+    --sidebar-foreground: 40 12% 85%;
+    --sidebar-primary: 45 75% 55%;
+    --sidebar-primary-foreground: 160 30% 8%;
+    --sidebar-accent: 158 18% 18%;
+    --sidebar-accent-foreground: 40 10% 70%;
+    --sidebar-border: 158 14% 18%;
+    --sidebar-ring: 45 75% 55%;
   }
 }
 

@@ -33,7 +33,7 @@ export function BottomNav() {
       <div className={cn(
         'glass-nav border-t transition-all duration-500',
         isDark
-          ? 'bg-[hsl(22,25%,10%)]/95 border-[hsl(38,50%,30%)]/[0.12] shadow-[0_-4px_30px_rgba(30,18,8,0.6)]'
+          ? 'bg-[hsl(158,22%,12%)]/95 border-[hsl(45,75%,55%)]/[0.08] shadow-[0_-4px_30px_rgba(0,30,20,0.5)]'
           : 'bg-[hsl(32,30%,84%)]/95 border-[hsl(28,30%,60%)]/[0.15] shadow-[0_-4px_30px_rgba(60,40,20,0.08)]'
       )} style={{ backdropFilter: 'blur(20px) saturate(1.5)', WebkitBackdropFilter: 'blur(20px) saturate(1.5)' }}>
         <div
@@ -63,7 +63,7 @@ export function BottomNav() {
                       'shadow-[0_4px_20px_-2px_hsl(152,55%,22%,0.5)]',
                       'border-[3px]',
                       isDark 
-                        ? 'border-[hsl(22,25%,10%)] ring-2 ring-[hsl(152,50%,40%)]/20' 
+                        ? 'border-[hsl(158,22%,12%)] ring-2 ring-[hsl(45,75%,55%)]/20' 
                         : 'border-[hsl(32,30%,84%)] ring-2 ring-[hsl(152,55%,22%)]/15'
                     )}
                   >
@@ -81,8 +81,8 @@ export function BottomNav() {
                 className={cn(
                   'relative flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all duration-300 min-w-[60px]',
                   isActive
-                    ? isDark ? 'text-[hsl(38,72%,54%)]' : 'text-[hsl(152,55%,22%)]'
-                    : isDark ? 'text-[hsl(210,10%,50%)] active:text-white/80' : 'text-muted-foreground active:text-foreground'
+                    ? isDark ? 'text-[hsl(45,75%,55%)]' : 'text-[hsl(152,55%,22%)]'
+                    : isDark ? 'text-[hsl(40,10%,55%)] active:text-white/80' : 'text-muted-foreground active:text-foreground'
                 )}
               >
                 {/* Active glow indicator */}
@@ -92,7 +92,7 @@ export function BottomNav() {
                     className={cn(
                       'absolute -top-1 h-[3px] w-6 rounded-full',
                       isDark 
-                        ? 'bg-gradient-to-r from-transparent via-[hsl(38,72%,54%)] to-transparent shadow-[0_0_12px_hsl(38,72%,54%,0.4)]' 
+                        ? 'bg-gradient-to-r from-transparent via-[hsl(45,75%,55%)] to-transparent shadow-[0_0_12px_hsl(45,75%,55%,0.4)]' 
                         : 'bg-gradient-to-r from-transparent via-[hsl(152,55%,22%)] to-transparent shadow-[0_0_12px_hsl(152,55%,22%,0.3)]'
                     )}
                     transition={{ type: 'spring', stiffness: 350, damping: 28 }}
@@ -103,7 +103,7 @@ export function BottomNav() {
                   'h-8 w-8 rounded-xl flex items-center justify-center transition-all duration-300',
                   isActive
                     ? isDark 
-                      ? 'bg-[hsl(38,72%,54%)]/12 scale-110' 
+                      ? 'bg-[hsl(45,75%,55%)]/12 scale-110' 
                       : 'bg-[hsl(152,55%,22%)]/8 scale-110'
                     : 'bg-transparent scale-100'
                 )}>
