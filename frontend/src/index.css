@@ -75,70 +75,70 @@
   }
 
   .dark {
-    /* 🌙 DARK: "Emerald Mosque Night" — Rich Islamic Green & Gold
-     * Inspired by the interior of a majestic mosque at night
-     * Deep emerald green + Warm gold accents + Pearl white text */
-    --background: 160 25% 10%;
-    --foreground: 40 20% 92%;
+    /* 🌙 DARK: "Emerald Jewel Night" — Emerald Green + Gold + Tahini
+     * Inspired by precious emerald gemstones, golden mosque domes & warm tahini
+     * Rich emerald green + Burnished gold accents + Warm tahini-cream text */
+    --background: 155 42% 6%;
+    --foreground: 37 52% 91%;
 
-    --card: 158 22% 14%;
-    --card-foreground: 40 20% 92%;
+    --card: 154 35% 10%;
+    --card-foreground: 37 48% 90%;
 
-    --popover: 158 22% 14%;
-    --popover-foreground: 40 20% 92%;
+    --popover: 154 35% 10%;
+    --popover-foreground: 37 48% 90%;
 
-    --primary: 45 75% 55%;
-    --primary-foreground: 160 30% 8%;
+    --primary: 43 82% 52%;
+    --primary-foreground: 155 50% 5%;
 
-    --secondary: 158 18% 18%;
-    --secondary-foreground: 40 15% 75%;
+    --secondary: 148 22% 14%;
+    --secondary-foreground: 37 38% 78%;
 
-    --muted: 158 15% 18%;
-    --muted-foreground: 40 10% 60%;
+    --muted: 150 20% 13%;
+    --muted-foreground: 37 28% 58%;
 
-    --accent: 38 72% 54%;
-    --accent-foreground: 160 30% 8%;
+    --accent: 40 78% 50%;
+    --accent-foreground: 155 50% 5%;
 
-    --destructive: 0 58% 45%;
+    --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 158 14% 20%;
-    --input: 158 14% 16%;
-    --ring: 45 75% 55%;
+    --border: 150 20% 16%;
+    --input: 150 20% 12%;
+    --ring: 43 82% 52%;
 
-    /* Emerald Mosque Night palette */
-    --islamic-green: 152 55% 42%;
-    --islamic-gold: 38 72% 54%;
-    --islamic-emerald: 155 45% 34%;
-    --islamic-emerald-glow: 155 55% 48%;
-    --islamic-navy: 160 25% 8%;
-    --islamic-teal: 168 38% 38%;
-    --islamic-rose: 345 50% 58%;
-    --islamic-copper: 22 70% 54%;
-    --islamic-purple: 265 38% 58%;
-    --islamic-purple-light: 265 30% 70%;
-    --islamic-teal-light: 168 28% 50%;
-    --islamic-silver: 40 10% 65%;
-    --islamic-green-foreground: 160 30% 8%;
-    --islamic-gold-foreground: 160 30% 8%;
-    --islamic-navy-foreground: 40 20% 92%;
+    /* Emerald & Gold & Tahini palette */
+    --islamic-green: 152 60% 38%;
+    --islamic-gold: 42 80% 52%;
+    --islamic-emerald: 150 50% 28%;
+    --islamic-emerald-glow: 148 58% 42%;
+    --islamic-navy: 155 42% 5%;
+    --islamic-teal: 165 42% 32%;
+    --islamic-rose: 345 52% 56%;
+    --islamic-copper: 25 68% 50%;
+    --islamic-purple: 265 40% 55%;
+    --islamic-purple-light: 265 32% 68%;
+    --islamic-teal-light: 165 30% 46%;
+    --islamic-silver: 37 22% 62%;
+    --islamic-green-foreground: 155 50% 5%;
+    --islamic-gold-foreground: 155 50% 5%;
+    --islamic-navy-foreground: 37 52% 91%;
 
-    /* Emerald Night extras */
-    --mystic-pearl: 158 18% 14%;
-    --mystic-mint: 155 22% 16%;
-    --mystic-moss: 155 40% 30%;
-    --mystic-amber: 38 72% 54%;
-    --mystic-mist: 158 15% 12%;
-    --mystic-glow: 152 50% 44%;
+    /* Emerald & Tahini extras */
+    --mystic-pearl: 37 20% 14%;
+    --mystic-mint: 150 25% 14%;
+    --mystic-moss: 152 45% 26%;
+    --mystic-amber: 42 80% 52%;
+    --mystic-mist: 152 22% 9%;
+    --mystic-glow: 148 55% 40%;
 
-    --sidebar-background: 160 22% 10%;
-    --sidebar-foreground: 40 12% 85%;
-    --sidebar-primary: 45 75% 55%;
-    --sidebar-primary-foreground: 160 30% 8%;
-    --sidebar-accent: 158 18% 18%;
-    --sidebar-accent-foreground: 40 10% 70%;
-    --sidebar-border: 158 14% 18%;
-    --sidebar-ring: 45 75% 55%;
+    --sidebar-background: 155 38% 6%;
+    --sidebar-foreground: 37 30% 85%;
+    --sidebar-primary: 43 82% 52%;
+    --sidebar-primary-foreground: 155 50% 5%;
+    --sidebar-accent: 150 22% 14%;
+    --sidebar-accent-foreground: 37 22% 72%;
+    --sidebar-border: 150 18% 15%;
+    --sidebar-ring: 43 82% 52%;
   }
 }
 
@@ -178,12 +178,13 @@
     mix-blend-mode: multiply;
   }
 
-  /* Wood grain texture overlay — Dark mode: dark walnut leather */
+  /* Emerald jewel texture overlay — Dark mode: subtle emerald gemstone */
   .dark body::before {
     background-image: 
-      url("https://images.unsplash.com/photo-1736506159893-22cca29b8018?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjV8MHwxfHNlYXJjaHwzfHxkYXJrJTIwd29vZCUyMHRleHR1cmV8ZW58MHx8fHwxNzc0MTYzOTAyfDA&ixlib=rb-4.1.0&q=30&w=400");
-    opacity: 0.08;
-    mix-blend-mode: soft-light;
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    background-size: 60px 60px;
+    opacity: 1;
+    mix-blend-mode: normal;
   }
 
   /* Ensure minimum readable text sizes across the app */
@@ -295,19 +296,19 @@
   }
 
   .gradient-islamic {
-    background: linear-gradient(145deg, #064E3B 0%, #053D2E 50%, #3D2B1E 100%);
+    background: linear-gradient(145deg, #064E3B 0%, #0d5e3f 50%, #0a4430 100%);
   }
 
   .gradient-prayer-bar {
-    background: linear-gradient(135deg, #064E3B 0%, #053828 60%, rgba(180,140,60,0.2) 100%);
+    background: linear-gradient(135deg, #064E3B 0%, #0d5e3f 60%, rgba(212,175,55,0.25) 100%);
   }
 
   .gradient-gold {
-    background: linear-gradient(135deg, #C49B2C 0%, #A68524 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #C49B2C 50%, #B8922A 100%);
   }
 
   .gradient-luxury {
-    background: linear-gradient(135deg, #064E3B 0%, #0A6B52 30%, #8B6D4C 70%, #C49B2C 100%);
+    background: linear-gradient(135deg, #064E3B 0%, #0d5e3f 25%, #D4AF37 75%, #E0C060 100%);
   }
 
   .text-gradient-islamic {
@@ -339,11 +340,11 @@
   }
 
   .glass-dark {
-    background: rgba(6, 78, 59, 0.08);
+    background: rgba(10, 68, 48, 0.12);
     backdrop-filter: blur(40px) saturate(200%);
     -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(212, 175, 55, 0.08);
+    box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.05);
   }
 
   .glass-nav {
@@ -361,8 +362,9 @@
   }
   .dark .neu-card {
     box-shadow: 
-      6px 6px 16px hsl(var(--background) / 0.8),
-      -4px -4px 12px hsl(var(--border) / 0.08);
+      6px 6px 16px hsl(155 42% 3% / 0.8),
+      -4px -4px 12px hsl(152 30% 14% / 0.1);
+    border: 1px solid hsl(43 82% 52% / 0.06);
   }
 
   .neu-pill {
@@ -381,8 +383,9 @@
   }
   .dark .neu-pill {
     box-shadow: 
-      3px 3px 8px hsl(var(--background) / 0.6),
-      -2px -2px 6px hsl(var(--border) / 0.06);
+      3px 3px 8px hsl(155 42% 3% / 0.6),
+      -2px -2px 6px hsl(152 30% 14% / 0.08);
+    border-color: hsl(43 82% 52% / 0.08);
   }
 
   /* 3D ISLAMIC BUTTONS */
