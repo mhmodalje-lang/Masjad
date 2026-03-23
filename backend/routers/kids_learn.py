@@ -30,8 +30,21 @@ from kids_curriculum import (
     get_curriculum_overview, generate_lesson, CURRICULUM_STAGES,
 )
 from kids_curriculum_advanced import ADDITIONAL_SURAHS
+from quran_api_service import (
+    get_kids_surahs_all, get_surah_arabic_and_translation,
+    QURAN_EDITIONS, KIDS_SURAH_NUMBERS, prefetch_kids_surahs
+)
 
 router = APIRouter(tags=["Kids Learn"])
+
+# Surah number to ID mapping
+SURAH_ID_MAP = {
+    1: "fatiha", 99: "zilzal", 101: "qariah", 102: "takathur",
+    103: "asr", 105: "fil", 106: "quraysh", 107: "maun",
+    108: "kawthar", 109: "kafiroon", 110: "nasr", 111: "masad",
+    112: "ikhlas", 113: "falaq", 114: "nas"
+}
+SURAH_NAME_MAP = {v: k for k, v in SURAH_ID_MAP.items()}
 
 @router.get("/kids-learn/daily-lesson")
 async def get_daily_lesson(day: int = 0, locale: str = "ar"):
@@ -43,29 +56,54 @@ async def get_daily_lesson(day: int = 0, locale: str = "ar"):
 
 
 @router.get("/kids-learn/quran/surahs")
-async def get_quran_surahs_for_kids(locale: str = "ar"):
-    """Get all Quran surahs available for kids memorization."""
+async def get_quran_surahs_for_kids(locale: str = "ar", background_tasks: BackgroundTasks = None):
+    """Get all Quran surahs for kids with OFFICIAL translations from api.alquran.cloud."""
+    lang = locale if locale in QURAN_EDITIONS else "en"
+    
+    try:
+        # Try to get from official API (cached in MongoDB)
+        api_surahs = await get_kids_surahs_all(lang)
+        if api_surahs and len(api_surahs) >= 10:
+            # Sort by surah number
+            api_surahs.sort(key=lambda x: x.get("number", 0))
+            return {"success": True, "surahs": api_surahs, "total": len(api_surahs)}
+    except Exception as e:
+        logger.warning(f"API fetch failed, falling back to local data: {e}")
+    
+    # Fallback to local data if API fails
     plan = get_quran_memorization_plan(locale)
-    # Add additional surahs from advanced curriculum
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
     for s in ADDITIONAL_SURAHS:
         if not any(p.get("id") == s["id"] for p in plan):
             plan.append({
                 "id": s["id"], "number": s["number"],
                 "name_ar": s["name_ar"], "name_en": s["name_en"],
-                "difficulty": s["difficulty"], "total_ayahs": s["total_ayahs"],
+                "difficulty": s.get("difficulty", 1), "total_ayahs": s["total_ayahs"],
                 "ayahs": [{"number": a["num"], "arabic": a["ar"], "translation": a.get(lang, a.get("en", ""))} for a in s["ayahs"]],
             })
-    plan.sort(key=lambda x: x["number"])
+    plan.sort(key=lambda x: x.get("number", 0))
     return {"success": True, "surahs": plan, "total": len(plan)}
 
 
 @router.get("/kids-learn/quran/surah/{surah_id}")
 async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
-    """Get specific surah with ayahs for memorization."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    """Get specific surah with ayahs - OFFICIAL translation from api.alquran.cloud."""
+    lang = locale if locale in QURAN_EDITIONS else "en"
+    
+    # Get surah number from ID
+    surah_number = SURAH_NAME_MAP.get(surah_id)
+    
+    if surah_number:
+        try:
+            # Try official API first
+            surah_data = await get_surah_arabic_and_translation(surah_number, lang)
+            if surah_data:
+                surah_data["id"] = surah_id
+                return {"success": True, "surah": surah_data}
+        except Exception as e:
+            logger.warning(f"API fetch failed for {surah_id}/{lang}: {e}")
+    
+    # Fallback to local data
     surah = next((s for s in QURAN_SURAHS_FOR_KIDS if s["id"] == surah_id), None)
-    # Also check additional surahs
     if not surah:
         surah = next((s for s in ADDITIONAL_SURAHS if s["id"] == surah_id), None)
     if not surah:
@@ -75,8 +113,8 @@ async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
         "surah": {
             "id": surah["id"], "number": surah["number"],
             "name_ar": surah["name_ar"], "name_en": surah["name_en"],
-            "difficulty": surah["difficulty"], "total_ayahs": surah["total_ayahs"],
-            "ayahs": [{"number": a["num"], "arabic": a["ar"], "translation": a.get(lang, a["en"])} for a in surah["ayahs"]],
+            "difficulty": surah.get("difficulty", 1), "total_ayahs": surah["total_ayahs"],
+            "ayahs": [{"number": a["num"], "arabic": a["ar"], "translation": a.get(lang, a.get("en", ""))} for a in surah["ayahs"]],
         }
     }
 

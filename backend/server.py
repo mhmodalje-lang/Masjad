@@ -164,6 +164,14 @@ async def create_indexes():
     except Exception as e:
         print(f"Content seed note: {e}")
 
+    # Pre-fetch Quran translations from official sources (background)
+    try:
+        import asyncio
+        from quran_api_service import prefetch_kids_surahs
+        asyncio.create_task(prefetch_kids_surahs())
+    except Exception as e:
+        print(f"Quran prefetch note: {e}")
+
 @app.on_event("shutdown")
 async def shutdown():
     client_db.close()

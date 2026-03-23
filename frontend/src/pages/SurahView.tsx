@@ -15,12 +15,17 @@ interface Ayah {
   translation?: string;
 }
 
-// Quran translation editions by language
+// Quran translation editions by language - Official, globally recognized scholarly translations
 const quranTranslationEditions: Record<string, string> = {
-  en: 'en.asad',
-  fr: 'fr.hamidullah',
-  de: 'de.aburida',
-  tr: 'tr.diyanet',
+  en: 'en.sahih',           // Saheeh International - most widely used
+  fr: 'fr.hamidullah',      // Muhammad Hamidullah
+  de: 'de.bubenheim',       // Bubenheim & Elyas - most popular German
+  'de-AT': 'de.bubenheim',  // Austrian German
+  tr: 'tr.diyanet',         // Diyanet İşleri - Turkish Religious Authority
+  ru: 'ru.kuliev',          // Elmir Kuliev - most popular Russian
+  sv: 'sv.bernstrom',       // Knut Bernström
+  nl: 'nl.siregar',         // Siregar
+  el: 'en.sahih',           // Greek fallback to English (no Greek translation)
   ur: 'ur.jalandhry',
   id: 'id.indonesian',
   es: 'es.cortes',
