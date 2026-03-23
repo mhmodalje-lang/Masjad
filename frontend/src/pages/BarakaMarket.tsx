@@ -1,405 +1,555 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Coins, Star, Clock, Gift, Shield, TrendingUp, Users, BookOpen, Heart, Target, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Coins, Star, ShoppingBag, Play, CheckCircle, Lock, ChevronRight, Sparkles, Trophy, TrendingUp, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+const API = import.meta.env.REACT_APP_BACKEND_URL || '';
 
-/* ═══ Translations ═══ */
-const TX: Record<string, Record<string, string>> = {
-  "baraka_market": { ar: "مركز البركة", en: "Baraka Center", de: "Baraka-Zentrum", fr: "Centre Baraka", tr: "Baraka Merkezi", ru: "Центр Барака", sv: "Baraka-center", nl: "Baraka-centrum", el: "Κέντρο Μπαράκα", ru: "Центр Барака", sv: "Baraka-center", nl: "Baraka-centrum", el: "Κέντρο Μπαράκα" },
-  "reward_center": { ar: "اكسب المكافآت من خلال العبادات", en: "Earn rewards through worship", de: "Belohnungen durch Anbetung", fr: "Gagnez des récompenses par l'adoration", tr: "İbadet ile ödüller kazanın", ru: "Получайте награды через поклонение", sv: "Tjäna belöningar genom dyrkan", nl: "Verdien beloningen door aanbidding", el: "Κερδίστε ανταμοιβές μέσω λατρείας", ru: "Получайте награды через поклонение", sv: "Tjäna belöningar genom dyrkan", nl: "Verdien beloningen door aanbidding", el: "Κερδίστε ανταμοιβές μέσω λατρείας" },
-  "blessing_coins": { ar: "عملات البركة", en: "Blessing Coins", de: "Segensmünzen", fr: "Pièces de bénédiction", tr: "Bereket Paraları", ru: "Монеты благословения", sv: "Välsignelsemynt", nl: "Zegeningsmunten", el: "Νομίσματα ευλογίας", ru: "Монеты благословения", sv: "Välsignelsemynt", nl: "Zegeningsmunten", el: "Νομίσματα ευλογίας" },
-  "golden_bricks": { ar: "الطوب الذهبي", en: "Golden Bricks", de: "Goldene Steine", fr: "Briques dorées", tr: "Altın Tuğlalar", ru: "Золотые кирпичи", sv: "Gyllene tegelstenar", nl: "Gouden stenen", el: "Χρυσά τούβλα", ru: "Золотые кирпичи", sv: "Gyllene tegelstenar", nl: "Gouden stenen", el: "Χρυσά τούβλα" },
-  "total_earned": { ar: "إجمالي المكسب", en: "Total earned", de: "Gesamt verdient", fr: "Total gagné", tr: "Toplam kazanılan", ru: "Всего заработано", sv: "Totalt intjänat", nl: "Totaal verdiend", el: "Σύνολο", ru: "Всего заработано", sv: "Totalt intjänat", nl: "Totaal verdiend", el: "Σύνολο" },
-  "transferred": { ar: "تم التحويل", en: "Transferred", de: "Überwiesen", fr: "Transféré", tr: "Transfer edildi", ru: "Переведено", sv: "Överfört", nl: "Overgemaakt", el: "Μεταφέρθηκε", ru: "Переведено", sv: "Överfört", nl: "Overgemaakt", el: "Μεταφέρθηκε" },
-  "daily_tasks": { ar: "المهام اليومية", en: "Daily Tasks", de: "Tägliche Aufgaben", fr: "Tâches quotidiennes", tr: "Günlük Görevler", ru: "Ежедневные задания", sv: "Dagliga uppgifter", nl: "Dagelijkse taken", el: "Καθημερινές εργασίες", ru: "Ежедневные задания", sv: "Dagliga uppgifter", nl: "Dagelijkse taken", el: "Καθημερινές εργασίες" },
-  "read_quran": { ar: "اقرأ القرآن", en: "Read Quran", de: "Quran lesen", fr: "Lire le Coran", tr: "Kuran Oku", ru: "Читать Коран", sv: "Läs Koranen", nl: "Lees de Koran", el: "Διάβασε Κοράνι", ru: "Читать Коран", sv: "Läs Koranen", nl: "Lees de Koran", el: "Διάβασε Κοράνι" },
-  "read_quran_desc": { ar: "اقرأ صفحة واحدة على الأقل", en: "Read at least one page", de: "Mindestens eine Seite lesen", fr: "Lire au moins une page", tr: "En az bir sayfa oku", ru: "Прочитайте хотя бы одну страницу", sv: "Läs minst en sida", nl: "Lees minstens één pagina", el: "Διάβασε τουλάχιστον μία σελίδα", ru: "Прочитайте хотя бы одну страницу", sv: "Läs minst en sida", nl: "Lees minstens één pagina", el: "Διάβασε τουλάχιστον μία σελίδα" },
-  "do_tasbeeh": { ar: "سبّح واذكر الله", en: "Do Tasbeeh & Dhikr", de: "Tasbeeh machen", fr: "Faire le Tasbeeh", tr: "Tesbihat Yap", ru: "Тасбих и зикр", sv: "Gör Tasbeeh", nl: "Doe Tasbeeh", el: "Κάνε Τασμπίχ", ru: "Тасбих и зикр", sv: "Gör Tasbeeh", nl: "Doe Tasbeeh", el: "Κάνε Τασμπίχ" },
-  "do_tasbeeh_desc": { ar: "أكمل ٣٣ تسبيحة", en: "Complete 33 counts", de: "33 Zählungen abschließen", fr: "Compléter 33 comptages", tr: "33 sayımı tamamla", ru: "Завершите 33 подсчёта", sv: "Slutför 33 räkningar", nl: "Voltooi 33 tellingen", el: "Ολοκλήρωσε 33 μετρήσεις", ru: "Завершите 33 подсчёта", sv: "Slutför 33 räkningar", nl: "Voltooi 33 tellingen", el: "Ολοκλήρωσε 33 μετρήσεις" },
-  "read_hadith": { ar: "اقرأ حديثاً", en: "Read a Hadith", de: "Hadith lesen", fr: "Lire un Hadith", tr: "Hadis Oku", ru: "Прочитать хадис", sv: "Läs en hadith", nl: "Lees een hadith", el: "Διάβασε χαντίθ", ru: "Прочитать хадис", sv: "Läs en hadith", nl: "Lees een hadith", el: "Διάβασε χαντίθ" },
-  "read_hadith_desc": { ar: "اقرأ حديث اليوم واستفد", en: "Read today's hadith and benefit", de: "Lies den heutigen Hadith", fr: "Lis le hadith du jour", tr: "Bugünün hadisini oku", ru: "Прочитайте сегодняшний хадис", sv: "Läs dagens hadith", nl: "Lees de hadith van vandaag", el: "Διάβασε το χαντίθ της ημέρας", ru: "Прочитайте сегодняшний хадис", sv: "Läs dagens hadith", nl: "Lees de hadith van vandaag", el: "Διάβασε το χαντίθ της ημέρας" },
-  "make_dua": { ar: "ادعُ الله", en: "Make Dua", de: "Dua machen", fr: "Faire une Dua", tr: "Dua Yap", ru: "Сделать дуа", sv: "Gör Dua", nl: "Maak een Dua", el: "Κάνε Ντουά", ru: "Сделать дуа", sv: "Gör Dua", nl: "Maak een Dua", el: "Κάνε Ντουά" },
-  "make_dua_desc": { ar: "اقرأ دعاء واحد على الأقل", en: "Read at least one dua", de: "Mindestens ein Dua lesen", fr: "Lire au moins un dua", tr: "En az bir dua oku", ru: "Прочитайте хотя бы одну дуа", sv: "Läs minst en dua", nl: "Lees minstens één dua", el: "Διάβασε τουλάχιστον μία ντουά", ru: "Прочитайте хотя бы одну дуа", sv: "Läs minst en dua", nl: "Lees minstens één dua", el: "Διάβασε τουλάχιστον μία ντουά" },
-  "complete_lesson": { ar: "أكمل درساً", en: "Complete a lesson", de: "Lektion abschließen", fr: "Terminer une leçon", tr: "Ders tamamla", ru: "Завершить урок", sv: "Slutför en lektion", nl: "Voltooi een les", el: "Ολοκλήρωσε μάθημα", ru: "Завершить урок", sv: "Slutför en lektion", nl: "Voltooi een les", el: "Ολοκλήρωσε μάθημα" },
-  "complete_lesson_desc": { ar: "أكمل درساً في أكاديمية نور", en: "Complete a Noor Academy lesson", de: "Noor Academy Lektion abschließen", fr: "Terminer une leçon Noor Academy", tr: "Noor Academy dersi tamamla", ru: "Завершите урок в Академии Нур", sv: "Slutför en Noor Academy-lektion", nl: "Voltooi een Noor Academy-les", el: "Ολοκλήρωσε μάθημα Noor Academy", ru: "Завершите урок в Академии Нур", sv: "Slutför en Noor Academy-lektion", nl: "Voltooi een Noor Academy-les", el: "Ολοκλήρωσε μάθημα Noor Academy" },
-  "go_now": { ar: "ابدأ الآن", en: "Go Now", de: "Jetzt starten", fr: "Commencer", tr: "Şimdi Git", ru: "Начать", sv: "Gå nu", nl: "Ga nu", el: "Ξεκίνα τώρα", ru: "Начать", sv: "Gå nu", nl: "Ga nu", el: "Ξεκίνα τώρα" },
-  "completed": { ar: "مكتمل ✓", en: "Completed ✓", de: "Abgeschlossen ✓", fr: "Terminé ✓", tr: "Tamamlandı ✓", ru: "Выполнено ✓", sv: "Slutfört ✓", nl: "Voltooid ✓", el: "Ολοκληρώθηκε ✓", ru: "Выполнено ✓", sv: "Slutfört ✓", nl: "Voltooid ✓", el: "Ολοκληρώθηκε ✓" },
-  "coins_reward": { ar: "عملة مكافأة", en: "reward coins", de: "Belohnungsmünzen", fr: "pièces de récompense", tr: "ödül paraları", ru: "наградные монеты", sv: "belöningsmynt", nl: "beloningsmunte", el: "νομίσματα ανταμοιβής", ru: "наградные монеты", sv: "belöningsmynt", nl: "beloningsmunte", el: "νομίσματα ανταμοιβής" },
-  "send_gold_kids": { ar: "أرسل ذهباً للأطفال", en: "Send Gold to Kids", de: "Gold an Kinder senden", fr: "Envoyer de l'or aux enfants", tr: "Çocuklara Altın Gönder", ru: "Отправить золото детям", sv: "Skicka guld till barn", nl: "Stuur goud naar kinderen", el: "Στείλε χρυσό στα παιδιά", ru: "Отправить золото детям", sv: "Skicka guld till barn", nl: "Stuur goud naar kinderen", el: "Στείλε χρυσό στα παιδιά" },
-  "send_gold_desc": { ar: "أكمل مهامك اليومية لإرسال طوب ذهبي لطفلك", en: "Complete daily tasks to send golden bricks to your child", de: "Tägliche Aufgaben erledigen um goldene Steine zu senden", fr: "Complétez les tâches pour envoyer des briques à votre enfant", tr: "Günlük görevleri tamamlayarak çocuğunuza tuğla gönderin", ru: "Выполните задания чтобы отправить кирпичи ребёнку", sv: "Slutför uppgifter för att skicka stenar till ditt barn", nl: "Voltooi taken om stenen naar uw kind te sturen", el: "Ολοκλήρωσε εργασίες για να στείλεις τούβλα στο παιδί σου", ru: "Выполните задания чтобы отправить кирпичи ребёнку", sv: "Slutför uppgifter för att skicka stenar till ditt barn", nl: "Voltooi taken om stenen naar uw kind te sturen", el: "Ολοκλήρωσε εργασίες για να στείλεις τούβλα στο παιδί σου" },
-  "send_bricks": { ar: "أرسل طوباً ذهبياً", en: "Send Golden Bricks", de: "Goldene Steine senden", fr: "Envoyer des briques", tr: "Tuğla Gönder", ru: "Отправить кирпичи", sv: "Skicka stenar", nl: "Stuur stenen", el: "Στείλε τούβλα", ru: "Отправить кирпичи", sv: "Skicka stenar", nl: "Stuur stenen", el: "Στείλε τούβλα" },
-  "coppa_notice": { ar: "منطقة الأطفال خالية تماماً من الإعلانات ومحمية بمعايير COPPA", en: "Kids zone is 100% ad-free and protected by COPPA standards", de: "Kinderzone ist 100% werbefrei und COPPA-geschützt", fr: "Zone enfants 100% sans pub et protégée par COPPA", tr: "Çocuk bölgesi %100 reklamsız ve COPPA korumalı", ru: "Детская зона без рекламы и защищена стандартами COPPA", sv: "Barnzon 100% reklamfri och COPPA-skyddad", nl: "Kinderzone 100% reclamevrij en COPPA-beschermd", el: "Παιδική ζώνη 100% χωρίς διαφημίσεις και προστατευμένη", ru: "Детская зона без рекламы и защищена стандартами COPPA", sv: "Barnzon 100% reklamfri och COPPA-skyddad", nl: "Kinderzone 100% reclamevrij en COPPA-beschermd", el: "Παιδική ζώνη 100% χωρίς διαφημίσεις και προστατευμένη" },
-  "leaderboard": { ar: "لوحة المتصدرين", en: "Leaderboard", de: "Bestenliste", fr: "Classement", tr: "Sıralama", ru: "Таблица лидеров", sv: "Topplista", nl: "Ranglijst", el: "Πίνακας κατάταξης", ru: "Таблица лидеров", sv: "Topplista", nl: "Ranglijst", el: "Πίνακας κατάταξης" },
-  "transaction_history": { ar: "سجل المعاملات", en: "Transaction History", de: "Transaktionsverlauf", fr: "Historique", tr: "İşlem Geçmişi", ru: "История транзакций", sv: "Transaktionshistorik", nl: "Transactiegeschiedenis", el: "Ιστορικό συναλλαγών", ru: "История транзакций", sv: "Transaktionshistorik", nl: "Transactiegeschiedenis", el: "Ιστορικό συναλλαγών" },
-  "tasks_completed": { ar: "مهام مكتملة اليوم", en: "Tasks completed today", de: "Heute erledigte Aufgaben", fr: "Tâches terminées aujourd'hui", tr: "Bugün tamamlanan görevler", ru: "Задания выполнены сегодня", sv: "Uppgifter slutförda idag", nl: "Taken voltooid vandaag", el: "Εργασίες σήμερα", ru: "Задания выполнены сегодня", sv: "Uppgifter slutförda idag", nl: "Taken voltooid vandaag", el: "Εργασίες σήμερα" },
-  "rewards_store": { ar: "متجر المكافآت", en: "Rewards Store", de: "Belohnungsshop", fr: "Boutique de récompenses", tr: "Ödül Mağazası", ru: "Магазин наград", sv: "Belöningsbutik", nl: "Beloningswinkel", el: "Κατάστημα ανταμοιβών", ru: "Магазин наград", sv: "Belöningsbutik", nl: "Beloningswinkel", el: "Κατάστημα ανταμοιβών" },
-  "redeem_now": { ar: "استبدل الآن", en: "Redeem", de: "Einlösen", fr: "Échanger", tr: "Kullan", ru: "Обменять", sv: "Lösa in", nl: "Inwisselen", el: "Εξαργύρωση", ru: "Обменять", sv: "Lösa in", nl: "Inwisselen", el: "Εξαργύρωση" },
-  "already_redeemed": { ar: "تم الاستبدال ✓", en: "Redeemed ✓", de: "Eingelöst ✓", fr: "Échangé ✓", tr: "Kullanıldı ✓", ru: "Обменяно ✓", sv: "Inlöst ✓", nl: "Ingewisseld ✓", el: "Εξαργυρώθηκε ✓", ru: "Обменяно ✓", sv: "Inlöst ✓", nl: "Ingewisseld ✓", el: "Εξαργυρώθηκε ✓" },
-  "insufficient_points": { ar: "نقاط غير كافية", en: "Insufficient points", de: "Unzureichende Punkte", fr: "Points insuffisants", tr: "Yetersiz puan", ru: "Недостаточно баллов", sv: "Otillräckliga poäng", nl: "Onvoldoende punten", el: "Ανεπαρκείς πόντοι", ru: "Недостаточно баллов", sv: "Otillräckliga poäng", nl: "Onvoldoende punten", el: "Ανεπαρκείς πόντοι" },
-  "redeemed_success": { ar: "تم الاستبدال بنجاح! 🎉", en: "Redeemed successfully! 🎉", de: "Erfolgreich eingelöst! 🎉", fr: "Échangé avec succès! 🎉", tr: "Başarıyla kullanıldı! 🎉", ru: "Успешно обменяно! 🎉", sv: "Framgångsrikt inlöst! 🎉", nl: "Succesvol ingewisseld! 🎉", el: "Επιτυχής εξαργύρωση! 🎉", ru: "Успешно обменяно! 🎉", sv: "Framgångsrikt inlöst! 🎉", nl: "Succesvol ingewisseld! 🎉", el: "Επιτυχής εξαργύρωση! 🎉" },
-  "watch_ad_earn": { ar: "شاهد إعلان واحصل على نقاط", en: "Watch Ad & Earn Points", de: "Werbung ansehen & Punkte verdienen", fr: "Regarder une pub & gagner des points", tr: "Reklam izle & Puan kazan", ru: "Смотри рекламу и получай баллы", sv: "Titta på annons och tjäna poäng", nl: "Bekijk advertentie en verdien punten", el: "Δες διαφήμιση και κέρδισε πόντους", ru: "Смотри рекламу и получай баллы", sv: "Titta på annons och tjäna poäng", nl: "Bekijk advertentie en verdien punten", el: "Δες διαφήμιση και κέρδισε πόντους" },
-  "points_cost": { ar: "نقطة", en: "pts", de: "Pkt", fr: "pts", tr: "puan", ru: "баллов", sv: "poäng", nl: "punten", el: "πόντοι", ru: "баллов", sv: "poäng", nl: "punten", el: "πόντοι" },
-};
-
-interface DailyTask {
-  id: string;
-  emoji: string;
-  titleKey: string;
-  descKey: string;
-  reward: number;
-  path: string;
-  color: string;
+/* ═══ Types ═══ */
+interface StoreItem {
+  id: string; category: string; name: string; name_ar: string; name_en: string;
+  emoji: string; price: number; level_required: number; rarity: string;
+  css_value: string; preview_color: string;
+}
+interface AdItem {
+  id: string; title: string; video_url: string; thumbnail_url: string;
+  points_reward: number; min_watch_seconds: number;
+}
+interface LevelInfo {
+  level: number; xp: number; next_level_xp: number; prev_level_xp: number;
+  progress: number; xp_needed: number;
+}
+interface RewardsProfile {
+  user_id: string; total_points: number; available_points: number;
+  spent_points: number; ads_watched: number;
+  level: LevelInfo; inventory: string[]; equipped: Record<string, string>;
 }
 
-const DAILY_TASKS: DailyTask[] = [
-  { id: 'quran', emoji: '📖', titleKey: 'read_quran', descKey: 'read_quran_desc', reward: 10, path: '/quran', color: 'emerald' },
-  { id: 'tasbeeh', emoji: '📿', titleKey: 'do_tasbeeh', descKey: 'do_tasbeeh_desc', reward: 5, path: '/tasbeeh', color: 'blue' },
-  { id: 'hadith', emoji: '📜', titleKey: 'read_hadith', descKey: 'read_hadith_desc', reward: 5, path: '/explore', color: 'amber' },
-  { id: 'dua', emoji: '🤲', titleKey: 'make_dua', descKey: 'make_dua_desc', reward: 5, path: '/duas', color: 'purple' },
-  { id: 'lesson', emoji: '🎓', titleKey: 'complete_lesson', descKey: 'complete_lesson_desc', reward: 15, path: '/kids-zone', color: 'pink' },
-];
-
-const TASK_COLORS: Record<string, string> = {
-  emerald: 'from-emerald-500/15 to-teal-500/10 border-emerald-400/30',
-  blue: 'from-blue-500/15 to-cyan-500/10 border-blue-400/30',
-  amber: 'from-amber-500/15 to-yellow-500/10 border-amber-400/30',
-  purple: 'from-violet-500/15 to-purple-500/10 border-violet-400/30',
-  pink: 'from-pink-500/15 to-rose-500/10 border-pink-400/30',
+const RARITY_COLORS: Record<string, string> = {
+  common: 'border-gray-400/30 bg-gray-500/5',
+  rare: 'border-blue-400/40 bg-blue-500/10',
+  epic: 'border-purple-400/40 bg-purple-500/10',
+  legendary: 'border-[#D4AF37]/50 bg-[#D4AF37]/10 animate-pulse-glow',
+};
+const RARITY_TEXT: Record<string, string> = {
+  common: 'text-gray-400', rare: 'text-blue-400', epic: 'text-purple-400', legendary: 'text-[#D4AF37]',
 };
 
+const CATEGORY_TABS = ['border', 'badge', 'shape', 'theme', 'font'] as const;
+type CategoryTab = typeof CATEGORY_TABS[number];
+
 export default function BarakaMarket() {
-  const { dir, locale } = useLocale();
+  const { t, locale, dir } = useLocale();
   const navigate = useNavigate();
-  const lang = locale || 'ar';
+  const userId = localStorage.getItem('noor_user_id') || 'guest_' + Math.random().toString(36).slice(2, 8);
+  const isRTL = dir === 'rtl';
 
-  const t = useCallback((key: string) => TX[key]?.[lang] || TX[key]?.['en'] || key, [lang]);
-
-  const [userId] = useState(() => localStorage.getItem('auth_user_id') || localStorage.getItem('anon_user_id') || `user_${Date.now()}`);
-  const [wallet, setWallet] = useState<any>(null);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
-  const [transactions, setTransactions] = useState<any[]>([]);
-  const [showTx, setShowTx] = useState(false);
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(() => {
-    const today = new Date().toDateString();
-    const saved = localStorage.getItem(`baraka_tasks_${today}`);
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
-  const [redeemItems, setRedeemItems] = useState<any[]>([]);
-  const [redeeming, setRedeeming] = useState<string | null>(null);
-
-  const loadData = useCallback(async () => {
-    try {
-      const [w, l, tx] = await Promise.all([
-        fetch(`${BACKEND_URL}/api/baraka/wallet?user_id=${userId}`).then(r => r.json()),
-        fetch(`${BACKEND_URL}/api/baraka/leaderboard`).then(r => r.json()),
-        fetch(`${BACKEND_URL}/api/baraka/transactions?user_id=${userId}`).then(r => r.json()),
-      ]);
-      if (w.success) setWallet(w.wallet);
-      if (l.success) setLeaderboard(l.leaderboard || []);
-      if (tx.success) setTransactions(tx.transactions || []);
-    } catch {}
+  // Store userId for persistence
+  useEffect(() => {
+    if (!localStorage.getItem('noor_user_id')) {
+      localStorage.setItem('noor_user_id', userId);
+    }
   }, [userId]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  const [activeTab, setActiveTab] = useState<'store' | 'inventory' | 'earn'>('store');
+  const [storeCategory, setStoreCategory] = useState<CategoryTab>('border');
+  const [profile, setProfile] = useState<RewardsProfile | null>(null);
+  const [storeItems, setStoreItems] = useState<StoreItem[]>([]);
+  const [ads, setAds] = useState<AdItem[]>([]);
+  const [canWatch, setCanWatch] = useState(true);
+  const [cooldown, setCooldown] = useState(0);
+  const [watchingAd, setWatchingAd] = useState<string | null>(null);
+  const [watchProgress, setWatchProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const cooldownRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Load redeem catalog
-  useEffect(() => {
-    fetch(`${BACKEND_URL}/api/store/redeem-catalog?user_id=${userId}&locale=${lang}`)
-      .then(r => r.json())
-      .then(d => { if (d.success) setRedeemItems(d.items || []); })
-      .catch(() => {});
-  }, [userId, lang]);
-
-  const redeemReward = async (item: any) => {
-    setRedeeming(item.id);
+  const loadProfile = useCallback(async () => {
     try {
-      const r = await fetch(`${BACKEND_URL}/api/store/redeem`, {
+      const r = await fetch(`${API}/api/rewards/profile/${userId}`);
+      const d = await r.json();
+      if (d.success) setProfile(d.profile);
+    } catch { }
+  }, [userId]);
+
+  const loadStore = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/api/rewards/store?locale=${locale}`);
+      const d = await r.json();
+      if (d.success) setStoreItems(d.items);
+    } catch { }
+  }, [locale]);
+
+  const loadAds = useCallback(async () => {
+    try {
+      const r = await fetch(`${API}/api/rewards/ads?user_id=${userId}`);
+      const d = await r.json();
+      if (d.success) {
+        setAds(d.ads);
+        setCanWatch(d.can_watch);
+        if (d.cooldown_remaining > 0) {
+          setCooldown(d.cooldown_remaining);
+        }
+      }
+    } catch { }
+  }, [userId]);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([loadProfile(), loadStore(), loadAds()]).finally(() => setLoading(false));
+  }, [loadProfile, loadStore, loadAds]);
+
+  // Cooldown countdown
+  useEffect(() => {
+    if (cooldown > 0) {
+      cooldownRef.current = setInterval(() => {
+        setCooldown(p => {
+          if (p <= 1) {
+            clearInterval(cooldownRef.current!);
+            setCanWatch(true);
+            return 0;
+          }
+          return p - 1;
+        });
+      }, 1000);
+      return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+    }
+  }, [cooldown]);
+
+  const handleWatchAd = async (ad: AdItem) => {
+    if (!canWatch || watchingAd) return;
+    setWatchingAd(ad.id);
+    setWatchProgress(0);
+
+    // Simulate watching ad (progress bar)
+    const totalMs = ad.min_watch_seconds * 1000;
+    const interval = 100;
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += interval;
+      setWatchProgress(Math.min(1, elapsed / totalMs));
+      if (elapsed >= totalMs) {
+        clearInterval(timer);
+        completeAdWatch(ad);
+      }
+    }, interval);
+  };
+
+  const completeAdWatch = async (ad: AdItem) => {
+    try {
+      const r = await fetch(`${API}/api/rewards/ads/watch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, mode: 'adults', reward_id: item.id, cost: item.cost }),
+        body: JSON.stringify({ user_id: userId, ad_id: ad.id, watch_duration: ad.min_watch_seconds + 1 }),
       });
       const d = await r.json();
       if (d.success) {
-        setRedeemItems(prev => prev.map(i => i.id === item.id ? { ...i, redeemed: true } : i));
-        loadData(); // Refresh wallet
-        // Show success animation
-        if (navigator.vibrate) navigator.vibrate([30, 15, 50]);
-      } else if (d.message === 'insufficient_points') {
-        // No toast needed, we'll show inline
-      } else if (d.message === 'already_redeemed') {
-        setRedeemItems(prev => prev.map(i => i.id === item.id ? { ...i, redeemed: true } : i));
+        toast.success(t('adComplete').replace('{n}', String(d.points_earned)));
+        if (d.level_up) {
+          toast.success(t('levelUp').replace('{n}', String(d.level.level)), { duration: 5000 });
+        }
+        setCanWatch(false);
+        setCooldown(30);
+        await loadProfile();
+      } else {
+        toast.error(d.message === 'cooldown_active' ? t('cooldownMsg').replace('{n}', '30') : t('dailyLimitMsg'));
       }
-    } catch {}
-    setRedeeming(null);
+    } catch {
+      toast.error(t('genericError'));
+    }
+    setWatchingAd(null);
+    setWatchProgress(0);
   };
 
-  const markTaskDone = (taskId: string, reward: number) => {
-    const newCompleted = new Set(completedTasks);
-    newCompleted.add(taskId);
-    setCompletedTasks(newCompleted);
-    const today = new Date().toDateString();
-    localStorage.setItem(`baraka_tasks_${today}`, JSON.stringify([...newCompleted]));
-
-    // Award coins via backend
-    fetch(`${BACKEND_URL}/api/baraka/earn?user_id=${userId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ad_type: 'task_reward', placement: taskId, coins: reward }),
-    }).then(() => loadData()).catch(() => {});
-  };
-
-  const handleTaskClick = (task: DailyTask) => {
-    if (completedTasks.has(task.id)) return;
-    // Navigate to the feature page, mark as started
-    navigate(task.path);
-  };
-
-  const transferToKids = async () => {
-    if (completedTasks.size < 3) return; // Need at least 3 tasks done
+  const handlePurchase = async (item: StoreItem) => {
+    if (!profile) return;
+    if (profile.available_points < item.price) {
+      toast.error(t('notEnoughPoints'));
+      return;
+    }
+    if (profile.level.level < item.level_required) {
+      toast.error(t('levelRequired').replace('{n}', String(item.level_required)));
+      return;
+    }
     try {
-      const res = await fetch(`${BACKEND_URL}/api/baraka/transfer?user_id=${userId}`, {
+      const r = await fetch(`${API}/api/rewards/store/purchase`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kid_id: `kid_${userId}`, amount: 20 }),
-      }).then(r => r.json());
-      if (res.success) {
-        if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
-        loadData();
+        body: JSON.stringify({ user_id: userId, item_id: item.id }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        toast.success(t('purchaseSuccess'));
+        await loadProfile();
+      } else if (d.message === 'already_owned') {
+        toast.info(t('ownedBtn'));
+      } else {
+        toast.error(d.message === 'insufficient_points' ? t('notEnoughPoints') : t('levelRequired').replace('{n}', String(item.level_required)));
       }
-    } catch {}
+    } catch { toast.error(t('genericError')); }
   };
 
+  const handleEquip = async (itemId: string, category: string) => {
+    try {
+      const r = await fetch(`${API}/api/rewards/store/equip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, item_id: itemId, slot: category }),
+      });
+      const d = await r.json();
+      if (d.success) {
+        toast.success(t('equipSuccess'));
+        await loadProfile();
+      }
+    } catch { toast.error(t('genericError')); }
+  };
+
+  const handleUnequip = async (slot: string) => {
+    try {
+      await fetch(`${API}/api/rewards/store/unequip`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, slot }),
+      });
+      await loadProfile();
+    } catch { }
+  };
+
+  const isOwned = (id: string) => profile?.inventory.includes(id) || false;
+  const isEquipped = (id: string) => Object.values(profile?.equipped || {}).includes(id);
+  const getItemsByCategory = (cat: string) => storeItems.filter(i => i.category === cat);
+
+  const getRarityLabel = (r: string) => {
+    const map: Record<string, string> = { common: t('rarityCommon'), rare: t('rarityRare'), epic: t('rarityEpic'), legendary: t('rarityLegendary') };
+    return map[r] || r;
+  };
+
+  const getCategoryLabel = (c: string) => {
+    const map: Record<string, string> = { border: t('storeBorders'), badge: t('storeBadges'), shape: t('storeShapes'), theme: t('storeThemes'), font: t('storeFonts') };
+    return map[c] || c;
+  };
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin w-10 h-10 border-3 border-[#D4AF37] border-t-transparent rounded-full" />
+    </div>
+  );
+
   return (
-    <div dir={dir} className="min-h-screen bg-background text-foreground pb-24">
+    <div className="min-h-screen bg-background pb-24" dir={dir}>
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-xl border-b border-border/30 px-4 py-3">
-        <div className="flex items-center gap-3 max-w-2xl mx-auto">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-muted/50 transition-colors">
-            <ArrowLeft className="h-5 w-5"/>
+      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/20">
+        <div className="flex items-center gap-3 px-4 pt-3 pb-2">
+          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted/30 hover:bg-muted/50 transition-all">
+            {isRTL ? <ChevronRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold">{t('baraka_market')} ☪️</h1>
-            <p className="text-xs text-muted-foreground">{t('reward_center')}</p>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-[#D4AF37] to-amber-500 bg-clip-text text-transparent">{t('storeTitle')}</h1>
+            <p className="text-[10px] text-muted-foreground">{t('storeSubtitle')}</p>
           </div>
-          <button onClick={() => setShowTx(!showTx)} className="p-2 rounded-xl hover:bg-muted/50 transition-colors">
-            <Clock className="h-5 w-5 text-muted-foreground"/>
-          </button>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+            <Coins className="w-4 h-4 text-[#D4AF37]" />
+            <span className="text-sm font-bold text-[#D4AF37]">{profile?.available_points || 0}</span>
+          </div>
+        </div>
+
+        {/* Level Bar */}
+        {profile && (
+          <div className="px-4 pb-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-amber-600 flex items-center justify-center">
+                  <span className="text-xs font-black text-white">{profile.level.level}</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground font-bold">{t('myLevel')}</span>
+              </div>
+              <div className="flex-1">
+                <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] to-amber-500 transition-all duration-500"
+                    style={{ width: `${(profile.level.progress * 100)}%` }} />
+                </div>
+                <p className="text-[9px] text-muted-foreground mt-0.5 text-end">
+                  {profile.level.xp} / {profile.level.next_level_xp} XP
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Bar */}
+        <div className="flex gap-1 px-4 pb-2">
+          {(['store', 'inventory', 'earn'] as const).map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)}
+              className={cn(
+                "flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1",
+                activeTab === tab
+                  ? 'bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30'
+                  : 'bg-muted/20 text-muted-foreground'
+              )}>
+              {tab === 'store' && <ShoppingBag className="w-3.5 h-3.5" />}
+              {tab === 'inventory' && <Star className="w-3.5 h-3.5" />}
+              {tab === 'earn' && <Play className="w-3.5 h-3.5" />}
+              {tab === 'store' ? t('storeTitle') : tab === 'inventory' ? t('profilePreview') : t('storeAds')}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 pt-4 space-y-5">
+      {/* Content */}
+      <div className="px-4 py-3 space-y-4">
 
-        {/* Wallet Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 to-yellow-500/10 border border-amber-400/30">
-            <div className="flex items-center gap-2 mb-2">
-              <Coins className="h-5 w-5 text-amber-500 dark:text-amber-400"/>
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-300">{t('blessing_coins')}</span>
+        {/* ═══ STORE TAB ═══ */}
+        {activeTab === 'store' && (
+          <>
+            {/* Category Selector */}
+            <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+              {CATEGORY_TABS.map(cat => (
+                <button key={cat} onClick={() => setStoreCategory(cat)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-[11px] font-bold whitespace-nowrap transition-all",
+                    storeCategory === cat
+                      ? 'bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30'
+                      : 'bg-muted/20 text-muted-foreground border border-transparent'
+                  )}>
+                  {getCategoryLabel(cat)}
+                </button>
+              ))}
             </div>
-            <p className="text-3xl font-black text-amber-600 dark:text-amber-300">{wallet?.blessing_coins || 0}</p>
-            <p className="text-xs text-foreground/60 mt-1">{t('total_earned')}: {wallet?.total_earned_coins || 0}</p>
-          </div>
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/15 to-red-500/10 border border-orange-400/30">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="h-5 w-5 text-orange-500 dark:text-orange-400"/>
-              <span className="text-xs font-bold text-orange-700 dark:text-orange-300">{t('golden_bricks')}</span>
-            </div>
-            <p className="text-3xl font-black text-orange-600 dark:text-orange-300">{wallet?.golden_bricks || 0}</p>
-            <p className="text-xs text-foreground/60 mt-1">{t('transferred')}: {wallet?.total_transferred_bricks || 0}</p>
-          </div>
-        </div>
 
-        {/* Tasks Progress */}
-        <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/10 border border-primary/20">
-          <div className="flex items-center gap-2">
-            <Target className="h-4 w-4 text-primary"/>
-            <span className="text-sm font-medium">{t('tasks_completed')}</span>
-          </div>
-          <span className="text-lg font-bold text-primary">{completedTasks.size}/{DAILY_TASKS.length}</span>
-        </div>
+            {/* Items Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {getItemsByCategory(storeCategory).map(item => {
+                const owned = isOwned(item.id) || item.price === 0;
+                const equipped = isEquipped(item.id);
+                const canBuy = profile && profile.available_points >= item.price && profile.level.level >= item.level_required;
+                const levelLocked = profile && profile.level.level < item.level_required;
 
-        {/* Daily Tasks — REAL activities, not fake ads */}
-        <div>
-          <h2 className="text-base font-bold mb-3 flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-primary"/>
-            {t('daily_tasks')}
-          </h2>
-          <div className="space-y-3">
-            {DAILY_TASKS.map((task) => {
-              const done = completedTasks.has(task.id);
-              return (
-                <div key={task.id} className={cn(
-                  "p-4 rounded-2xl bg-gradient-to-br border relative overflow-hidden transition-all",
-                  TASK_COLORS[task.color],
-                  done && "opacity-70"
-                )}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-card/50 flex items-center justify-center shrink-0">
-                      <span className="text-2xl">{task.emoji}</span>
+                return (
+                  <div key={item.id}
+                    className={cn(
+                      "rounded-2xl border-2 p-3 transition-all relative overflow-hidden",
+                      RARITY_COLORS[item.rarity] || RARITY_COLORS.common,
+                      equipped && "ring-2 ring-[#D4AF37]/60"
+                    )}>
+                    {/* Rarity badge */}
+                    <div className={cn("absolute top-1.5 end-1.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full", RARITY_TEXT[item.rarity])}>
+                      {getRarityLabel(item.rarity)}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-sm text-foreground">{t(task.titleKey)}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t(task.descKey)}</p>
-                      <p className="text-xs font-bold text-primary mt-1">+{task.reward} {t('coins_reward')}</p>
+
+                    {/* Preview */}
+                    <div className="flex flex-col items-center mb-2 pt-2">
+                      <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+                        style={{ background: item.preview_color + '20', border: `2px solid ${item.preview_color}40` }}>
+                        {item.emoji}
+                      </div>
+                      <p className="text-xs font-bold mt-2 text-center line-clamp-1">{isRTL ? item.name_ar : item.name_en}</p>
                     </div>
-                    {done ? (
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-lg whitespace-nowrap">
-                        {t('completed')}
-                      </span>
+
+                    {/* Level requirement */}
+                    {levelLocked && (
+                      <div className="flex items-center justify-center gap-1 text-[9px] text-orange-400 mb-1">
+                        <Lock className="w-3 h-3" /> {t('levelRequired').replace('{n}', String(item.level_required))}
+                      </div>
+                    )}
+
+                    {/* Action Button */}
+                    {equipped ? (
+                      <button onClick={() => handleUnequip(item.category)}
+                        className="w-full py-1.5 rounded-xl bg-[#D4AF37]/20 text-[#D4AF37] text-[11px] font-bold border border-[#D4AF37]/30">
+                        {t('equippedBtn')} ✓
+                      </button>
+                    ) : owned ? (
+                      <button onClick={() => handleEquip(item.id, item.category)}
+                        className="w-full py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 text-[11px] font-bold border border-emerald-400/30">
+                        {t('equipBtn')}
+                      </button>
                     ) : (
-                      <button
-                        onClick={() => handleTaskClick(task)}
-                        className="text-xs font-bold text-white bg-primary px-3 py-1.5 rounded-lg hover:opacity-90 transition-all whitespace-nowrap"
-                      >
-                        {t('go_now')} →
+                      <button onClick={() => handlePurchase(item)} disabled={!canBuy || !!levelLocked}
+                        className={cn(
+                          "w-full py-1.5 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-all",
+                          canBuy && !levelLocked
+                            ? "bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30 active:scale-95"
+                            : "bg-muted/20 text-muted-foreground border border-border/20 opacity-60"
+                        )}>
+                        <Coins className="w-3 h-3" />
+                        {item.price} {t('buyBtn')}
                       </button>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Send Gold to Kids — requires completing tasks */}
-        <div className="p-5 rounded-2xl bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-pink-500/10 border border-violet-400/30">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center">
-              <span className="text-2xl">👨‍👧‍👦</span>
+                );
+              })}
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-sm text-foreground">{t('send_gold_kids')}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('send_gold_desc')}</p>
-            </div>
-          </div>
-          <button
-            onClick={transferToKids}
-            disabled={completedTasks.size < 3}
-            className={cn(
-              "w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all",
-              completedTasks.size >= 3
-                ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-500 hover:to-purple-500 shadow-lg"
-                : "bg-muted/30 text-muted-foreground cursor-not-allowed"
-            )}
-          >
-            <Gift className="h-4 w-4"/> {t('send_bricks')} ({completedTasks.size}/3 {t('daily_tasks')})
-          </button>
-        </div>
+          </>
+        )}
 
-        {/* ═══ REWARDS STORE — Redeem Points for Rewards ═══ */}
-        {redeemItems.length > 0 && (
-          <div>
-            <h2 className="text-base font-bold mb-3 flex items-center gap-2">
-              <Gift className="h-5 w-5 text-amber-500 dark:text-amber-400"/>
-              {t('rewards_store')} ⭐
-            </h2>
-            <div className="space-y-3">
-              {redeemItems.map((item: any) => (
-                <div key={item.id} className={cn(
-                  "p-4 rounded-2xl border transition-all overflow-hidden",
-                  item.redeemed
-                    ? "bg-emerald-500/10 border-emerald-500/30"
-                    : "bg-gradient-to-br from-amber-500/10 to-orange-500/5 border-amber-400/20 hover:border-amber-400/40"
-                )}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-14 h-14 rounded-xl bg-card/50 flex items-center justify-center shrink-0 border border-border/20 overflow-hidden">
-                      {item.image ? (
-                        <img src={item.image} alt="" className="w-full h-full object-cover rounded-xl" />
-                      ) : (
-                        <span className="text-2xl">{item.emoji}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-sm text-foreground">{item.title}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.description}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-xs font-bold text-amber-600 dark:text-amber-300 bg-amber-500/15 px-2.5 py-1 rounded-lg">
-                          {item.cost} {t('points_cost')}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground capitalize">{item.type}</span>
+        {/* ═══ INVENTORY TAB ═══ */}
+        {activeTab === 'inventory' && profile && (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-[#D4AF37]/10 border border-[#D4AF37]/20 p-3 text-center">
+                <Trophy className="w-5 h-5 mx-auto text-[#D4AF37] mb-1" />
+                <p className="text-lg font-black text-[#D4AF37]">{profile.level.level}</p>
+                <p className="text-[9px] text-muted-foreground">{t('myLevel')}</p>
+              </div>
+              <div className="rounded-xl bg-emerald-500/10 border border-emerald-400/20 p-3 text-center">
+                <Coins className="w-5 h-5 mx-auto text-emerald-400 mb-1" />
+                <p className="text-lg font-black text-emerald-400">{profile.available_points}</p>
+                <p className="text-[9px] text-muted-foreground">{t('availablePoints')}</p>
+              </div>
+              <div className="rounded-xl bg-blue-500/10 border border-blue-400/20 p-3 text-center">
+                <Eye className="w-5 h-5 mx-auto text-blue-400 mb-1" />
+                <p className="text-lg font-black text-blue-400">{profile.ads_watched}</p>
+                <p className="text-[9px] text-muted-foreground">{t('adsWatched')}</p>
+              </div>
+            </div>
+
+            {/* Equipped Items */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold">{t('profilePreview')}</h3>
+              <div className="rounded-2xl bg-card/40 border border-border/20 p-4 space-y-3">
+                {CATEGORY_TABS.map(slot => {
+                  const equippedId = profile.equipped[slot];
+                  const item = storeItems.find(i => i.id === equippedId);
+                  return (
+                    <div key={slot} className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center text-lg"
+                        style={{ background: item ? item.preview_color + '15' : '#6B728015' }}>
+                        {item ? item.emoji : '—'}
                       </div>
-                    </div>
-                    <div className="shrink-0">
-                      {item.redeemed ? (
-                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-2 rounded-xl whitespace-nowrap">
-                          {t('already_redeemed')}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => redeemReward(item)}
-                          disabled={redeeming === item.id || (wallet?.blessing_coins || 0) < item.cost}
-                          className={cn(
-                            "text-xs font-bold px-3 py-2 rounded-xl transition-all whitespace-nowrap",
-                            (wallet?.blessing_coins || 0) >= item.cost
-                              ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:shadow-lg active:scale-95"
-                              : "bg-muted/30 text-muted-foreground cursor-not-allowed"
-                          )}
-                        >
-                          {redeeming === item.id ? '...' : (wallet?.blessing_coins || 0) >= item.cost ? t('redeem_now') : t('insufficient_points')}
+                      <div className="flex-1">
+                        <p className="text-xs font-bold">{getCategoryLabel(slot)}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {item ? (isRTL ? item.name_ar : item.name_en) : '—'}
+                        </p>
+                      </div>
+                      {item && (
+                        <button onClick={() => handleUnequip(slot)}
+                          className="text-[10px] text-red-400 px-2 py-1 rounded-lg bg-red-500/10 border border-red-400/20">
+                          {t('unequipBtn')}
                         </button>
                       )}
                     </div>
-                  </div>
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
-          </div>
+
+            {/* Owned Items */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold">{t('ownedBtn')} ({profile.inventory.length})</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {profile.inventory.map(itemId => {
+                  const item = storeItems.find(i => i.id === itemId);
+                  if (!item) return null;
+                  const equipped = isEquipped(itemId);
+                  return (
+                    <button key={itemId} onClick={() => equipped ? handleUnequip(item.category) : handleEquip(itemId, item.category)}
+                      className={cn(
+                        "rounded-xl p-2 text-center border transition-all",
+                        equipped ? "border-[#D4AF37]/40 bg-[#D4AF37]/10" : "border-border/20 bg-muted/10"
+                      )}>
+                      <span className="text-2xl block">{item.emoji}</span>
+                      <p className="text-[8px] text-muted-foreground mt-1 line-clamp-1">{isRTL ? item.name_ar : item.name_en}</p>
+                      {equipped && <CheckCircle className="w-3 h-3 text-[#D4AF37] mx-auto mt-0.5" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
         )}
 
-        {/* COPPA Notice */}
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-400/20">
-          <Shield className="h-5 w-5 text-blue-500 dark:text-blue-400 shrink-0"/>
-          <p className="text-sm text-blue-700 dark:text-blue-300">{t('coppa_notice')} 🛡️</p>
-        </div>
-
-        {/* Leaderboard */}
-        {leaderboard.length > 0 && (
-          <div className="p-4 rounded-2xl bg-card/50 border border-border/30">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="h-5 w-5 text-amber-500 dark:text-amber-400"/>
-              <h3 className="font-bold">{t('leaderboard')}</h3>
+        {/* ═══ EARN POINTS TAB ═══ */}
+        {activeTab === 'earn' && (
+          <>
+            <div className="rounded-2xl bg-gradient-to-br from-[#D4AF37]/10 to-amber-600/5 border border-[#D4AF37]/20 p-4 text-center">
+              <Sparkles className="w-8 h-8 mx-auto text-[#D4AF37] mb-2" />
+              <h3 className="text-base font-bold">{t('earnPointsTitle')}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{t('earnPointsDesc')}</p>
             </div>
-            <div className="space-y-2">
-              {leaderboard.map((entry: any, i: number) => (
-                <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/20">
-                  <span className={cn("w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold",
-                    i === 0 ? "bg-amber-500/20 text-amber-600 dark:text-amber-300" : i === 1 ? "bg-gray-400/20 text-gray-600 dark:text-gray-300" : i === 2 ? "bg-orange-500/20 text-orange-600 dark:text-orange-300" : "bg-muted/30 text-foreground/60")}>
-                    {i + 1}
-                  </span>
-                  <span className="flex-1 text-sm font-medium truncate">{entry.user_id}</span>
-                  <span className="text-sm font-bold text-amber-600 dark:text-amber-300">{entry.total_earned_coins} 🪙</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Transaction History */}
-        {showTx && transactions.length > 0 && (
-          <div className="p-4 rounded-2xl bg-card/50 border border-border/30">
-            <h3 className="font-bold mb-3 flex items-center gap-2">
-              <Clock className="h-4 w-4"/> {t('transaction_history')}
-            </h3>
-            <div className="space-y-2">
-              {transactions.map((tx: any, i: number) => (
-                <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/15">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{tx.type === 'earn' ? '🪙' : tx.type === 'transfer_out' ? '🧱' : '📥'}</span>
-                    <div>
-                      <p className="text-sm font-medium capitalize">{tx.type.replace('_', ' ')}</p>
-                      <p className="text-xs text-foreground/60">{new Date(tx.created_at).toLocaleDateString()}</p>
+            {/* Ad Cards */}
+            {ads.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">{t('noAdsAvailable')}</div>
+            ) : (
+              <div className="space-y-3">
+                {ads.map(ad => {
+                  const isWatching = watchingAd === ad.id;
+                  return (
+                    <div key={ad.id}
+                      className="rounded-2xl bg-card/40 border border-border/20 p-4 transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center">
+                          <Play className="w-6 h-6 text-emerald-400" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-bold">{ad.title}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {ad.min_watch_seconds}s • {t('pointsPerAd').replace('{n}', String(ad.points_reward))}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20">
+                          <Coins className="w-3.5 h-3.5 text-[#D4AF37]" />
+                          <span className="text-xs font-bold text-[#D4AF37]">+{ad.points_reward}</span>
+                        </div>
+                      </div>
+
+                      {/* Progress bar while watching */}
+                      {isWatching && (
+                        <div className="mt-3">
+                          <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-[#D4AF37] transition-all"
+                              style={{ width: `${watchProgress * 100}%` }} />
+                          </div>
+                          <p className="text-[10px] text-center text-muted-foreground mt-1">{t('watchingAd')} {Math.round(watchProgress * 100)}%</p>
+                        </div>
+                      )}
+
+                      {/* Watch button */}
+                      {!isWatching && (
+                        <button onClick={() => handleWatchAd(ad)}
+                          disabled={!canWatch || !!watchingAd}
+                          className={cn(
+                            "w-full mt-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95",
+                            canWatch && !watchingAd
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-400/30"
+                              : "bg-muted/20 text-muted-foreground border border-border/20 opacity-50"
+                          )}>
+                          {canWatch ? (
+                            <><Play className="w-4 h-4" /> {t('watchAdBtn')}</>
+                          ) : cooldown > 0 ? (
+                            <>{t('cooldownMsg').replace('{n}', String(cooldown))}</>
+                          ) : (
+                            <>{t('dailyLimitMsg')}</>
+                          )}
+                        </button>
+                      )}
                     </div>
-                  </div>
-                  <span className={cn("text-sm font-bold", tx.type === 'earn' || tx.type === 'transfer_in' ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-300")}>
-                    +{tx.amount}
-                  </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Level Progress */}
+            {profile && (
+              <div className="rounded-2xl bg-card/40 border border-border/20 p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <TrendingUp className="w-5 h-5 text-[#D4AF37]" />
+                  <h3 className="text-sm font-bold">{t('myLevel')}: {profile.level.level}</h3>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className="h-3 bg-muted/40 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-[#D4AF37] to-amber-500 transition-all duration-500"
+                    style={{ width: `${profile.level.progress * 100}%` }} />
+                </div>
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  <span>{profile.level.xp} XP</span>
+                  <span>{profile.level.xp_needed} XP {t('levelRequired').replace(t('levelRequired').split('{n}')[0], '').replace('{n}', String(profile.level.level + 1))}</span>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

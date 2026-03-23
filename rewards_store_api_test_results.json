@@ -1,0 +1,83 @@
+{
+  "test_date": "2026-03-23T12:19:34.339268",
+  "backend_url": "https://agent-audit-build.preview.emergentagent.com",
+  "test_user_id": "test_bot",
+  "kids_test_user_id": "kid_test",
+  "total_tests": 18,
+  "passed_tests": 18,
+  "success_rate": "100.0%",
+  "results": [
+    {
+      "test": "Initial Profile Check",
+      "passed": true
+    },
+    {
+      "test": "Store All Items",
+      "passed": true
+    },
+    {
+      "test": "Store Border Items",
+      "passed": true
+    },
+    {
+      "test": "Store Badge Items",
+      "passed": true
+    },
+    {
+      "test": "Store Shape Items",
+      "passed": true
+    },
+    {
+      "test": "Store Theme Items",
+      "passed": true
+    },
+    {
+      "test": "Store Font Items",
+      "passed": true
+    },
+    {
+      "test": "Rewards Ads",
+      "passed": true
+    },
+    {
+      "test": "Watch Ad",
+      "passed": true
+    },
+    {
+      "test": "Profile After Ad",
+      "passed": true
+    },
+    {
+      "test": "Purchase Item",
+      "passed": true
+    },
+    {
+      "test": "Equip Item",
+      "passed": true
+    },
+    {
+      "test": "User Decorations",
+      "passed": true
+    },
+    {
+      "test": "Kids Level",
+      "passed": true
+    },
+    {
+      "test": "Admin Stats",
+      "passed": true
+    },
+    {
+      "test": "Admin Ads",
+      "passed": true
+    },
+    {
+      "test": "Leaderboard",
+      "passed": true
+    },
+    {
+      "test": "Unequip Item",
+      "passed": true
+    }
+  ]
+}
