@@ -15,9 +15,25 @@ import os
 import json as json_module
 from deps import get_admin_user
 from starlette.requests import Request
+from starlette.responses import PlainTextResponse
 from emergentintegrations.payments.stripe.checkout import StripeCheckout
 
 router = APIRouter(tags=["Miscellaneous"])
+
+@router.get("/app-ads-txt")
+async def get_app_ads_txt():
+    """Serve app-ads.txt content dynamically from admin settings"""
+    settings = await db.app_settings.find_one({}, {"_id": 0})
+    publisher_id = ""
+    if settings and settings.get("adsense_publisher_id"):
+        publisher_id = settings["adsense_publisher_id"]
+    
+    if publisher_id:
+        content = f"google.com, {publisher_id}, DIRECT, f08c47fec0942fa0\n"
+    else:
+        content = "# app-ads.txt - Azan & Hikaya\n# Publisher ID not configured yet. Set it in Admin Dashboard > Ad Settings.\n"
+    
+    return PlainTextResponse(content=content, media_type="text/plain")
 
 @router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
@@ -397,6 +413,44 @@ async def submit_contact(data: dict):
     }
     await db.contact_messages.insert_one(doc)
     return {"success": True, "message": "تم إرسال رسالتك"}
+
+@router.post("/data-deletion-request")
+async def data_deletion_request(data: dict):
+    """Submit a data deletion request - accessible without login (required by Google Play)"""
+    email = data.get("email", "").strip()
+    if not email:
+        raise HTTPException(400, "Email is required")
+    doc = {
+        "id": str(uuid.uuid4())[:8],
+        "email": email,
+        "reason": data.get("reason", ""),
+        "status": "pending",
+        "created_at": datetime.utcnow().isoformat(),
+        "processed_at": None,
+        "processed_by": None
+    }
+    await db.data_deletion_requests.insert_one(doc)
+    return {"success": True, "message": "Data deletion request submitted successfully. We will process it within 30 days."}
+
+@router.get("/admin/data-deletion-requests")
+async def admin_data_deletion_requests(user: dict = Depends(get_user), limit: int = 50):
+    """Get data deletion requests for admin"""
+    if not user or user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(403, "Admin only")
+    docs = await db.data_deletion_requests.find({}, {"_id": 0}).sort("created_at", -1).to_list(limit)
+    return {"requests": docs}
+
+@router.post("/admin/data-deletion-requests/{request_id}/process")
+async def process_deletion_request(request_id: str, data: dict, user: dict = Depends(get_user)):
+    """Process a data deletion request - admin only"""
+    if not user or user.get("email") not in ADMIN_EMAILS:
+        raise HTTPException(403, "Admin only")
+    action = data.get("action", "completed")
+    await db.data_deletion_requests.update_one(
+        {"id": request_id},
+        {"$set": {"status": action, "processed_at": datetime.utcnow().isoformat(), "processed_by": user.get("email", "")}}
+    )
+    return {"success": True}
 
 @router.post("/report")
 async def report_content(data: dict, user: dict = Depends(get_user)):

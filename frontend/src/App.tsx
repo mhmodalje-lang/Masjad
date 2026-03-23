@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, useCallback } from "react";
+import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import CookieConsent from "@/components/CookieConsent";
 import GDPRAdConsent from "@/components/GDPRAdConsent";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import AgeGate, { hasPassedAgeGate } from "@/components/AgeGate";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -71,6 +73,8 @@ const LiveStreams = lazy(() => import("./pages/LiveStreams"));
 const BarakaMarket = lazy(() => import("./pages/BarakaMarket"));
 const Tafsir = lazy(() => import("./pages/Tafsir"));
 const FortyNawawi = lazy(() => import("./pages/FortyNawawi"));
+const DataDeletion = lazy(() => import("./pages/DataDeletion"));
+const ContentPolicy = lazy(() => import("./pages/ContentPolicy"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +88,7 @@ const App = () => {
   const [splashDone, setSplashDone] = useState(() => {
     return sessionStorage.getItem('splash_shown') === '1';
   });
+  const [ageGatePassed, setAgeGatePassed] = useState(() => hasPassedAgeGate());
 
   const handleSplashComplete = useCallback(() => {
     sessionStorage.setItem('splash_shown', '1');
@@ -92,6 +97,16 @@ const App = () => {
 
   if (!splashDone) {
     return <SplashScreen onComplete={handleSplashComplete} />;
+  }
+
+  if (!ageGatePassed) {
+    return (
+      <ThemeProvider>
+        <LocaleProvider>
+          <AgeGate onPass={() => setAgeGatePassed(true)} />
+        </LocaleProvider>
+      </ThemeProvider>
+    );
   }
 
   return (
@@ -164,6 +179,8 @@ const App = () => {
                           <Route path="/baraka-market" element={<BarakaMarket />} />
                           <Route path="/tafsir" element={<Tafsir />} />
                           <Route path="/forty-nawawi" element={<FortyNawawi />} />
+                          <Route path="/delete-data" element={<DataDeletion />} />
+                          <Route path="/content-policy" element={<ContentPolicy />} />
                           <Route path="/live-streams" element={<LiveStreams />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>

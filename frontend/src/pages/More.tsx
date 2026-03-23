@@ -316,6 +316,16 @@ export default function More() {
             <span className="text-sm text-foreground">{t('termsOfService')}</span>
             <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
           </Link>
+          <Link to="/content-policy" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-amber-500" /></div>
+            <span className="text-sm text-foreground">{t('contentPolicyLink')}</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
+          <Link to="/delete-data" className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
+            <div className="h-8 w-8 rounded-lg bg-red-500/15 flex items-center justify-center"><Shield className="h-4 w-4 text-red-500" /></div>
+            <span className="text-sm text-foreground">{t('dataDeletionTitle')}</span>
+            <ChevronLeft className="h-4 w-4 text-muted-foreground/40 mr-auto" />
+          </Link>
           <button onClick={() => toast.info(`⭐ ${t('rateAppThanks')}`)} className="w-full flex items-center gap-3 px-4 py-3.5 active:bg-[hsl(var(--mystic-mint)/0.4)] transition-colors">
             <div className="h-8 w-8 rounded-lg bg-yellow-500/15 flex items-center justify-center"><Star className="h-4 w-4 text-yellow-400" /></div>
             <span className="text-sm text-foreground">{t('rateApp')}</span>

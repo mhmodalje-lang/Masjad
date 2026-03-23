@@ -24,6 +24,7 @@ export default function Auth() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -67,6 +68,7 @@ export default function Auth() {
     e.preventDefault();
     if (!email.trim() || !password.trim()) { toast.error(t('fillAllFields')); return; }
     if (password.length < 6) { toast.error(t('passwordMinLength')); return; }
+    if (!isLogin && !termsAgreed) { toast.error(t('mustAgreeTerms')); return; }
     setLoading(true);
     try {
       if (isLogin) {
@@ -187,17 +189,28 @@ export default function Auth() {
             <Lock className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input type="password" placeholder={t('passwordHint')} value={password} onChange={e => setPassword(e.target.value)} className="pe-9 rounded-2xl h-12 bg-card" required minLength={6} data-testid="auth-password-input" />
           </div>
-          <Button type="submit" className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base" disabled={loading} data-testid="auth-submit-btn">
+          {!isLogin && (
+            <label className="flex items-start gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={termsAgreed}
+                onChange={e => setTermsAgreed(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-2 border-emerald-500 text-emerald-600 focus:ring-emerald-500 accent-emerald-600 shrink-0"
+                data-testid="terms-checkbox"
+              />
+              <span className="text-[11px] text-muted-foreground leading-relaxed">
+                {t('agreeToTerms')}{' '}
+                <Link to="/terms" className="text-emerald-500 underline font-medium">{t('termsOfService')}</Link>
+                {' '}{t('and')}{' '}
+                <Link to="/privacy" className="text-emerald-500 underline font-medium">{t('privacyPolicy')}</Link>
+                {' '}{t('and')}{' '}
+                <Link to="/content-policy" className="text-emerald-500 underline font-medium">{t('contentPolicyLink')}</Link>
+              </span>
+            </label>
+          )}
+          <Button type="submit" className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base disabled:opacity-40" disabled={loading || (!isLogin && !termsAgreed)} data-testid="auth-submit-btn">
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : isLogin ? t('enter') : t('createAccount')}
           </Button>
-          {!isLogin && (
-            <p className="text-[10px] text-muted-foreground text-center mt-2 leading-relaxed">
-              {t('agreeToTerms')}{' '}
-              <Link to="/terms" className="text-emerald-500 underline">{t('termsOfService')}</Link>
-              {' '}{t('and')}{' '}
-              <Link to="/privacy" className="text-emerald-500 underline">{t('privacyPolicy')}</Link>
-            </p>
-          )}
         </motion.form>
 
         {isLogin && (
