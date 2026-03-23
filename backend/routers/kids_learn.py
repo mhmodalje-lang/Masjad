@@ -54,6 +54,7 @@ async def get_quran_surahs_for_kids(locale: str = "ar"):
                 "id": s["id"], "number": s["number"],
                 "name_ar": s["name_ar"], "name_en": s["name_en"],
                 "difficulty": s["difficulty"], "total_ayahs": s["total_ayahs"],
+                "ayahs": [{"number": a["num"], "arabic": a["ar"], "translation": a.get(lang, a.get("en", ""))} for a in s["ayahs"]],
             })
     plan.sort(key=lambda x: x["number"])
     return {"success": True, "surahs": plan, "total": len(plan)}

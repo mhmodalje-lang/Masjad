@@ -6,14 +6,16 @@ Fix Stories page UI: compact category icons (pills instead of big squares), smal
 ### Current Task (July 2025 - Backend Content Translation Fix):
 **Comprehensive multi-language content fix for 8 non-Arabic languages:**
 
-1. ✅ Added 7 language translations (de/fr/tr/ru/sv/nl/el) for 7 ADDITIONAL_SURAHS in kids_curriculum_advanced.py (49 Quran ayahs × 7 langs = 343 translations)
-2. ✅ Added 7 language translations for 5 TAJWEED_RULES (title + content)
-3. ✅ Added 7 language translations for 6 MASTERY_REVIEWS (title + quiz q/a/opts)
-4. ✅ Added 7 language translations for ISLAMIC_FOUNDATIONS_DETAILED (first 6 items fully translated, all 18 titles translated)
-5. ✅ Added 7 language translations for 18 ISLAMIC_LIFE_TOPICS titles
-6. ✅ Added 7 language translations for 10 ARABIC_GRAMMAR_LESSONS titles
-7. ✅ Added sv/nl/el translations for 25 ALL_PROPHETS (name, title, summary, lesson)
-8. ✅ Fixed all fallback logic in build_rich_sections to use English fallback instead of Arabic for non-Arabic users
+1. ✅ **ROOT FIX: Added ayahs to ADDITIONAL_SURAHS in surahs list endpoint** (was returning empty ayahs causing blank detail view)
+2. ✅ Added 7 language translations (de/fr/tr/ru/sv/nl/el) for 7 ADDITIONAL_SURAHS (49 Quran ayahs × 7 langs = 343 translations)
+3. ✅ Added 7 language translations for 5 TAJWEED_RULES (title + content)
+4. ✅ Added 7 language translations for 6 MASTERY_REVIEWS (title + quiz q/a/opts)
+5. ✅ Added 7 language translations for ISLAMIC_FOUNDATIONS_DETAILED (first 6 items fully translated, all 18 titles translated)
+6. ✅ Added 7 language translations for 18 ISLAMIC_LIFE_TOPICS titles
+7. ✅ Added 7 language translations for 10 ARABIC_GRAMMAR_LESSONS titles
+8. ✅ Added sv/nl/el translations for 25 ALL_PROPHETS (name, title, summary, lesson)
+9. ✅ Fixed all fallback logic in build_rich_sections to use English fallback instead of Arabic
+10. ✅ **Final test: 79/79 tests passed across all 9 languages**
 
 ### Previous Task (July 2025 - Store & Ads Policy Compliance + Bug Fixes):
 App was rejected from Play Store, App Store, and Google Ads. Comprehensive fixes applied:
