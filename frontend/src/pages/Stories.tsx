@@ -794,14 +794,8 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black" />
       )}
 
-      {story.content && (
-        <div className="absolute inset-x-0 bottom-28 px-6 z-10 pointer-events-none" dir={dir}>
-          <p className="text-white text-lg font-bold leading-relaxed drop-shadow-lg text-center">{story.content}</p>
-        </div>
-      )}
-
-      {/* Action buttons - vertical stack, end-aligned for RTL support */}
-      <div className="absolute end-2.5 bottom-32 flex flex-col items-center gap-3.5 z-20">
+      {/* Action buttons - vertical stack */}
+      <div className="absolute end-2.5 bottom-28 flex flex-col items-center gap-3.5 z-20">
         <Link to={`/social-profile/${story.author_id}`}>
           <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-lg" />
         </Link>
@@ -818,22 +812,25 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         </button>
       </div>
 
-      {/* Mute button - separated below actions to avoid overlap */}
+      {/* Mute button */}
       {(isVideo || ytId) && (
-        <div className="absolute end-3 bottom-16 z-20">
+        <div className="absolute end-3 bottom-14 z-20">
           <button onClick={() => setMuted(!muted)} className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
             {muted ? <VolumeX className="w-4 h-4 text-white/70" /> : <Volume2 className="w-4 h-4 text-white/70" />}
           </button>
         </div>
       )}
 
-      {/* Author info - start-aligned for RTL support */}
+      {/* Author info + Caption at bottom - like Instagram */}
       <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
           <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
         </div>
-        {story.title && <p className="text-white/80 text-xs drop-shadow line-clamp-1">{story.title}</p>}
+        {story.content && (
+          <p className="text-white text-[13px] leading-relaxed drop-shadow-lg line-clamp-2 mb-0.5">{story.content}</p>
+        )}
+        {story.title && <p className="text-white/60 text-[11px] drop-shadow line-clamp-1">{story.title}</p>}
       </div>
     </div>
   );
