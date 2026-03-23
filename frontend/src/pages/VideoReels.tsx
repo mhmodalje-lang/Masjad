@@ -461,6 +461,7 @@ export default function VideoReels() {
   );
 }
 
+
 /* ==================== REEL ITEM - INSTAGRAM STYLE ==================== */
 function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onComment, onSave, onDelete, onEdit, onReport, getMediaUrl, t, followed }: {
   post: VideoPost;
@@ -481,112 +482,119 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
   const { user } = useAuth();
   const { dir } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [descExpanded, setDescExpanded] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showMuteIcon, setShowMuteIcon] = useState(false);
   const hasVideo = post.video_url;
+  const isEmbed = post.embed_url;
+  const ytId = isEmbed ? (() => { try { const u = new URL(post.embed_url || ''); return u.searchParams.get('v') || u.pathname.split('/').pop(); } catch { return null; } })() : null;
 
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isActive) {
-      videoRef.current.play().catch(() => {});
-      setPaused(false);
-    } else {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
+    if (isActive) videoRef.current.play().catch(() => {});
+    else { videoRef.current.pause(); videoRef.current.currentTime = 0; }
   }, [isActive]);
 
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) { videoRef.current.play(); setPaused(false); }
-    else { videoRef.current.pause(); setPaused(true); }
+  /* Tap = mute/unmute, Double-tap = like */
+  const lastTap = useRef(0);
+  const onTap = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, a, iframe')) return;
+    const now = Date.now();
+    if (now - lastTap.current < 300) {
+      if (!post.liked) onLike();
+    } else {
+      setMuted(m => !m);
+      if (videoRef.current) videoRef.current.muted = !muted;
+      setShowMuteIcon(true);
+      setTimeout(() => setShowMuteIcon(false), 700);
+    }
+    lastTap.current = now;
   };
 
-  const desc = truncateWords(post.content || '', 4);
+  const desc = truncateWords(post.content || '', 8);
 
   return (
-    <div className="h-screen w-full snap-start relative flex items-center justify-center bg-black">
-      {/* Background Media */}
-      {hasVideo ? (
+    <div className="h-screen w-full snap-start relative bg-black overflow-hidden" onClick={onTap}>
+
+      {/* ===== FULL SCREEN MEDIA ===== */}
+      {ytId ? (
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&mute=${muted ? 1 : 0}&rel=0&loop=1&playlist=${ytId}&controls=0&playsinline=1&modestbranding=1&showinfo=0`}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen />
+      ) : hasVideo ? (
         <video ref={videoRef} src={getMediaUrl(post.video_url)}
-          className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline onClick={togglePlay} />
+          className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline />
       ) : post.image_url ? (
-        <div className="absolute inset-0">
-          <img src={getMediaUrl(post.image_url)} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
+        <img src={getMediaUrl(post.image_url)} alt="" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-8">
-          <p className="text-white text-lg font-bold text-center leading-[1.8] drop-shadow-lg" dir={dir}
-            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-10">
+          <p className="text-white text-xl font-bold text-center leading-[2]" dir={dir}
+            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 3px 20px rgba(0,0,0,0.8)' }}>
             {post.content}
           </p>
         </div>
       )}
 
-      {/* Pause Indicator */}
-      {paused && hasVideo && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white ml-1" />
-          </div>
-        </div>
-      )}
+      {/* Mute/Unmute indicator (brief, center, Instagram style) */}
+      <AnimatePresence>
+        {showMuteIcon && (
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+              {muted ? <VolumeX className="w-6 h-6 text-white" /> : <Volume2 className="w-6 h-6 text-white" />}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Top gradient */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
       {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/80 via-black/25 to-transparent z-10 pointer-events-none" />
 
-      {/* RIGHT SIDE ACTION BUTTONS - Instagram style - ALWAYS on right */}
-      <div className="absolute right-3 flex flex-col items-center gap-5 z-20"
-        style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-
-        {/* Author Avatar with gradient ring */}
-        <Link to={`/social-profile/${post.author_id}`} className="relative mb-1">
-          <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600">
-            <img
-              src={avatar(post.author_name, post.author_avatar)}
-              alt=""
-              className="w-11 h-11 rounded-full border-[2px] border-black"
-            />
-          </div>
+      {/* ===== RIGHT SIDE BUTTONS (Instagram Reels) - Always right ===== */}
+      <div className="absolute right-3 bottom-20 flex flex-col items-center gap-5 z-20">
+        {/* Avatar + follow badge */}
+        <div className="relative mb-2">
+          <Link to={`/social-profile/${post.author_id}`} onClick={e => e.stopPropagation()}>
+            <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+              <img src={avatar(post.author_name, post.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-black object-cover" />
+            </div>
+          </Link>
           {!followed && user && post.author_id !== user.id && (
-            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFollow(); }}
-              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-black">
-              <span className="text-white text-[11px] font-bold leading-none">+</span>
+            <button onClick={e => { e.stopPropagation(); onFollow(); }}
+              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border-2 border-black">
+              <span className="text-white text-[10px] font-bold leading-none">+</span>
             </button>
           )}
-        </Link>
+        </div>
 
         {/* Like */}
-        <button onClick={onLike} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Heart className={`w-7 h-7 ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'} drop-shadow-lg`} />
+        <button onClick={e => { e.stopPropagation(); onLike(); }} className="flex flex-col items-center">
+          <Heart className={`w-7 h-7 drop-shadow-lg ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'}`} />
           <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(post.likes_count)}</span>
         </button>
 
         {/* Comments */}
-        <button onClick={onComment} className="flex flex-col items-center active:scale-90 transition-transform">
+        <button onClick={e => { e.stopPropagation(); onComment(); }} className="flex flex-col items-center">
           <MessageCircle className="w-7 h-7 text-white drop-shadow-lg" />
           <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(post.comments_count)}</span>
         </button>
 
         {/* Share */}
-        <button onClick={onShare} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Send className="w-6 h-6 text-white drop-shadow-lg" style={{ transform: 'rotate(-30deg)' }} />
+        <button onClick={e => { e.stopPropagation(); onShare(); }} className="flex flex-col items-center">
+          <Send className="w-6 h-6 text-white drop-shadow-lg -rotate-[25deg]" />
           <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(post.shares_count || 0)}</span>
         </button>
 
         {/* Bookmark/Save */}
-        <button onClick={onSave} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Bookmark className={`w-7 h-7 ${post.saved ? 'fill-white text-white' : 'text-white'} drop-shadow-lg`} />
+        <button onClick={e => { e.stopPropagation(); onSave(); }} className="flex flex-col items-center">
+          <Bookmark className={`w-7 h-7 drop-shadow-lg ${post.saved ? 'fill-white text-white' : 'text-white'}`} />
         </button>
 
         {/* Three dots menu */}
         <div className="relative">
-          <button onClick={() => setShowMenu(!showMenu)} className="flex flex-col items-center active:scale-90 transition-transform">
+          <button onClick={e => { e.stopPropagation(); setShowMenu(!showMenu); }} className="flex flex-col items-center">
             <MoreVertical className="w-6 h-6 text-white drop-shadow-lg" />
           </button>
           {showMenu && (
@@ -597,21 +605,18 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
                   <>
                     <button onClick={() => { onEdit(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-white hover:bg-white/10">
-                      <Pencil className="h-4 w-4 text-white/60" />
-                      {t('editDescription') || 'تعديل الوصف'}
+                      <Pencil className="h-4 w-4 text-white/60" />{t('editDescription') || 'تعديل الوصف'}
                     </button>
-                    <button onClick={() => { if (confirm(t('confirmDelete') || 'Delete?')) { onDelete(); } setShowMenu(false); }}
+                    <button onClick={() => { if (confirm(t('confirmDelete') || 'Delete?')) onDelete(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-red-400 hover:bg-white/10">
-                      <Trash2 className="h-4 w-4" />
-                      {t('deleteLabel')}
+                      <Trash2 className="h-4 w-4" />{t('deleteLabel')}
                     </button>
                     <div className="border-t border-white/10 my-0.5" />
                   </>
                 )}
                 <button onClick={() => { onReport(post.id, post.author_id); setShowMenu(false); }}
                   className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-red-400 hover:bg-white/10">
-                  <Flag className="h-4 w-4" />
-                  {t('reportContent')}
+                  <Flag className="h-4 w-4" />{t('reportContent')}
                 </button>
               </div>
             </>
@@ -619,62 +624,31 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
         </div>
       </div>
 
-      {/* Mute toggle - ALWAYS on left */}
-      {hasVideo && (
-        <div className="absolute left-3 z-20" style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          <button onClick={() => setMuted(!muted)} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform border border-white/10">
-            {muted ? <VolumeX className="w-5 h-5 text-white/80" /> : <Volume2 className="w-5 h-5 text-white/80" />}
-          </button>
-        </div>
-      )}
-
-      {/* BOTTOM SECTION - Instagram style */}
-      <div className="absolute bottom-0 left-0 right-0 z-20" dir={dir}
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-
-        {/* Author + Follow + Description */}
-        <div className="px-4 pb-2 pr-16">
-          {/* Author row */}
-          <div className="flex items-center gap-2 mb-1.5">
-            <Link to={`/social-profile/${post.author_id}`}
-              className="text-white font-bold text-[14px] drop-shadow-lg">
-              {post.author_name}
-            </Link>
-            {user && post.author_id !== user.id && (
-              <button onClick={onFollow}
-                className={`px-3 py-1 text-[11px] font-bold rounded-md active:scale-95 transition-all ${followed ? 'bg-white/20 text-white/70 border border-white/20' : 'bg-white text-black border border-white'}`}>
-                {followed ? t('following') || t('unfollow') : t('follow')}
-              </button>
-            )}
-          </div>
-
-          {/* Description - truncated to 4 words like Instagram */}
-          <div>
-            {descExpanded ? (
-              <>
-                <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">{post.content}</p>
-                <button onClick={() => setDescExpanded(false)} className="text-white/50 text-[12px] font-medium mt-0.5">{t('showLess')}</button>
-              </>
-            ) : (
-              <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">
-                {desc.truncated}
-                {desc.isTruncated && (
-                  <button onClick={() => setDescExpanded(true)} className="text-white/50 text-[12px] font-medium ms-1">{t('showMore')}</button>
-                )}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Comment input bar - Instagram style */}
-        <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-black/30 backdrop-blur-sm border-t border-white/5">
-          {user && (
-            <img src={avatar(user.name || '', user.avatar)} alt="" className="w-7 h-7 rounded-full shrink-0 border border-white/20" />
+      {/* ===== BOTTOM - Author + Description ===== */}
+      <div className="absolute bottom-5 left-4 right-16 z-20" dir="rtl">
+        <div className="flex items-center gap-2.5 mb-1.5">
+          <Link to={`/social-profile/${post.author_id}`} onClick={e => e.stopPropagation()}
+            className="text-white font-extrabold text-[14px] drop-shadow-lg">{post.author_name}</Link>
+          {user && post.author_id !== user.id && (
+            <button onClick={e => { e.stopPropagation(); onFollow(); }}
+              className={`px-3 py-[3px] text-[12px] font-bold rounded-lg border ${followed ? 'border-white/30 text-white/70' : 'border-white text-white'}`}>
+              {followed ? t('following') || t('unfollow') : t('follow')}
+            </button>
           )}
-          <button onClick={onComment} className="flex-1 bg-white/10 rounded-full px-4 py-2 text-start">
-            <span className="text-white/30 text-[13px]">{t('addComment') || t('writeComment')}...</span>
-          </button>
         </div>
+
+        {/* Description */}
+        {descExpanded ? (
+          <div>
+            <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">{post.content}</p>
+            <button onClick={e => { e.stopPropagation(); setDescExpanded(false); }} className="text-white/50 text-[12px] mt-0.5">{t('showLess')}</button>
+          </div>
+        ) : (
+          <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">
+            {desc.truncated}
+            {desc.isTruncated && <button onClick={e => { e.stopPropagation(); setDescExpanded(true); }} className="text-white/50 text-[12px] mr-1"> ...{t('showMore')}</button>}
+          </p>
+        )}
       </div>
     </div>
   );

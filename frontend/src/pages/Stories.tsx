@@ -743,16 +743,16 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
 
 function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive: boolean; onOpenComments: () => void }) {
   const { user } = useAuth();
-  const { t, dir } = useLocale();
+  const { t } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(false);
-  const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [liked, setLiked] = useState(story.liked);
   const [likesCount, setLikesCount] = useState(story.likes_count);
   const [saved, setSaved] = useState(story.saved);
   const [descExpanded, setDescExpanded] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [showMuteIcon, setShowMuteIcon] = useState(false);
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
@@ -763,209 +763,151 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isActive) { videoRef.current.play().catch(() => {}); setPaused(false); }
+    if (isActive) { videoRef.current.play().catch(() => {}); }
     else { videoRef.current.pause(); videoRef.current.currentTime = 0; }
   }, [isActive]);
 
-  const togglePlay = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) { videoRef.current.play(); setPaused(false); }
-    else { videoRef.current.pause(); setPaused(true); }
+  const handleScreenTap = () => {
+    setMuted(m => !m);
+    if (videoRef.current) videoRef.current.muted = !muted;
+    setShowMuteIcon(true);
+    setTimeout(() => setShowMuteIcon(false), 700);
+  };
+
+  const lastTap = useRef(0);
+  const onTap = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button, a')) return;
+    const now = Date.now();
+    if (now - lastTap.current < 300) { if (!liked) toggleLike(); }
+    else handleScreenTap();
+    lastTap.current = now;
   };
 
   const toggleLike = async () => {
-    if (!user) { toast.error(t('loginRequired')); return; }
+    if (!user) return;
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
-      if (r.ok) { const d = await r.json(); setLiked(d.liked); setLikesCount(prev => d.liked ? prev + 1 : prev - 1); }
-    } catch { toast.error(t('error')); }
+      if (r.ok) { const d = await r.json(); setLiked(d.liked); setLikesCount(p => d.liked ? p + 1 : p - 1); }
+    } catch {}
   };
-
   const toggleSave = async () => {
-    if (!user) { toast.error(t('loginRequired')); return; }
+    if (!user) return;
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
-      if (r.ok) { const d = await r.json(); setSaved(d.saved); toast.success(d.saved ? t('saved') : t('unsaved')); }
-    } catch { toast.error(t('error')); }
+      if (r.ok) { const d = await r.json(); setSaved(d.saved); }
+    } catch {}
   };
-
   const handleFollow = async () => {
-    if (!user) { toast.error(t('loginRequired')); return; }
-    if (followLoading) return;
+    if (!user || followLoading) return;
     setFollowLoading(true);
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/follow/${story.author_id}`, { method: 'POST', headers: authHeaders() });
-      if (r.ok) { const d = await r.json(); setIsFollowing(d.following); toast.success(d.following ? t('followed') : t('unfollowed')); }
-    } catch { toast.error(t('error')); }
+      if (r.ok) { const d = await r.json(); setIsFollowing(d.following); }
+    } catch {}
     setFollowLoading(false);
   };
-
   const handleShare = async () => {
-    try {
-      await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/share`, { method: 'POST', headers: authHeaders() });
-    } catch {}
-    if (navigator.share) {
-      navigator.share({ title: story.title || '', text: story.content }).catch(() => {});
-    } else {
-      navigator.clipboard?.writeText(story.content || '');
-      toast.success(t('contentCopied'));
-    }
+    try { await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/share`, { method: 'POST', headers: authHeaders() }); } catch {}
+    if (navigator.share) navigator.share({ title: story.title || '', text: story.content }).catch(() => {});
+    else { navigator.clipboard?.writeText(story.content || ''); toast.success(t('contentCopied')); }
   };
 
-  // Truncate description
-  const descWords = (story.content || '').split(/\s+/);
-  const shortDesc = descWords.length > 6 ? descWords.slice(0, 6).join(' ') + '...' : story.content;
-  const hasLongDesc = descWords.length > 6;
-
-  const formatCount = (n: number): string => {
-    if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K';
-    return String(n || 0);
-  };
+  const words = (story.content || '').split(/\s+/);
+  const shortDesc = words.length > 8 ? words.slice(0, 8).join(' ') : story.content;
+  const hasLongDesc = words.length > 8;
+  const fmt = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1).replace('.0', '') + 'K' : String(n || 0);
 
   return (
-    <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
-      {/* === MEDIA BACKGROUND - Video displays as uploaded === */}
+    <div className="h-[100dvh] w-full snap-start relative bg-black overflow-hidden" onClick={onTap}>
+
+      {/* ===== FULL SCREEN MEDIA ===== */}
       {ytId ? (
-        <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0&playsinline=1&mute=${muted ? 1 : 0}`}
-          className="absolute inset-0 w-full h-full" frameBorder={0} allow="autoplay; encrypted-media" />
+        <iframe
+          src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&mute=${muted ? 1 : 0}&rel=0&loop=1&playlist=${ytId}&controls=0&playsinline=1&modestbranding=1&showinfo=0`}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          frameBorder={0} allow="autoplay; encrypted-media" allowFullScreen />
       ) : isVideo && videoSrc ? (
-        <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline onClick={togglePlay} />
+        <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline />
       ) : imgUrl ? (
-        <div className="absolute inset-0">
-          <img src={imgUrl} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
+        <img src={imgUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-10">
-          <p className="text-white text-xl font-bold text-center leading-[2] drop-shadow-lg"
-            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
-            {story.content}
-          </p>
+          <p className="text-white text-xl font-bold text-center leading-[2]"
+            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 3px 20px rgba(0,0,0,0.8)' }}>{story.content}</p>
         </div>
       )}
 
-      {/* Pause indicator */}
-      {paused && (isVideo || ytId) && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white ml-1" />
-          </div>
+      {/* Mute/Unmute indicator (brief, center) */}
+      <AnimatePresence>
+        {showMuteIcon && (
+          <motion.div initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
+            <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+              {muted ? <VolumeX className="w-6 h-6 text-white" /> : <Volume2 className="w-6 h-6 text-white" />}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/80 via-black/25 to-transparent z-10 pointer-events-none" />
+
+      {/* ===== RIGHT SIDE BUTTONS (Instagram Reels) ===== */}
+      <div className="absolute right-3 bottom-20 flex flex-col items-center gap-5 z-20">
+        <div className="relative mb-2">
+          <Link to={`/social-profile/${story.author_id}`} onClick={e => e.stopPropagation()}>
+            <div className="p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600">
+              <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-black object-cover" />
+            </div>
+          </Link>
+          {!isFollowing && user && story.author_id !== user?.id && (
+            <button onClick={e => { e.stopPropagation(); handleFollow(); }}
+              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center border-2 border-black">
+              <span className="text-white text-[10px] font-bold leading-none">+</span>
+            </button>
+          )}
         </div>
-      )}
-
-      {/* Top gradient */}
-      <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/50 to-transparent z-10 pointer-events-none" />
-      {/* Bottom gradient - stronger for text readability */}
-      <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
-
-      {/* === ACTION BUTTONS - ALWAYS on RIGHT side (like Instagram) === */}
-      <div className="absolute right-3 bottom-[140px] flex flex-col items-center gap-5 z-20">
-        {/* Author Avatar */}
-        <Link to={`/social-profile/${story.author_id}`} className="relative mb-2">
-          <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600">
-            <img src={avatar(story.author_name, story.author_avatar)} alt=""
-              className="w-10 h-10 rounded-full border-2 border-black object-cover" />
-          </div>
-        </Link>
-
-        {/* Like */}
-        <button onClick={toggleLike} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Heart className={cn("w-7 h-7 drop-shadow-lg transition-colors", liked ? "fill-red-500 text-red-500" : "text-white")} />
-          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(likesCount)}</span>
+        <button onClick={e => { e.stopPropagation(); toggleLike(); }} className="flex flex-col items-center">
+          <Heart className={cn("w-7 h-7 drop-shadow-lg", liked ? "fill-red-500 text-red-500" : "text-white")} />
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{fmt(likesCount)}</span>
         </button>
-
-        {/* Comments */}
-        <button onClick={onOpenComments} className="flex flex-col items-center active:scale-90 transition-transform">
+        <button onClick={e => { e.stopPropagation(); onOpenComments(); }} className="flex flex-col items-center">
           <MessageCircle className="w-7 h-7 text-white drop-shadow-lg" />
-          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(story.comments_count)}</span>
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{fmt(story.comments_count)}</span>
         </button>
-
-        {/* Share */}
-        <button onClick={handleShare} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Send className="w-6 h-6 text-white drop-shadow-lg" style={{ transform: 'rotate(-30deg)' }} />
-          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(story.shares_count || 0)}</span>
+        <button onClick={e => { e.stopPropagation(); handleShare(); }} className="flex flex-col items-center">
+          <Send className="w-6 h-6 text-white drop-shadow-lg -rotate-[25deg]" />
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{fmt(story.shares_count || 0)}</span>
         </button>
-
-        {/* Save/Bookmark */}
-        <button onClick={toggleSave} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Bookmark className={cn("w-7 h-7 drop-shadow-lg transition-colors", saved ? "fill-white text-white" : "text-white")} />
+        <button onClick={e => { e.stopPropagation(); toggleSave(); }} className="flex flex-col items-center">
+          <Bookmark className={cn("w-7 h-7 drop-shadow-lg", saved ? "fill-white text-white" : "text-white")} />
         </button>
       </div>
 
-      {/* === MUTE BUTTON - ALWAYS on LEFT side === */}
-      {(isVideo || isEmbed) && (
-        <div className="absolute left-3 bottom-[140px] z-20">
-          <button onClick={() => setMuted(!muted)}
-            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform border border-white/10">
-            {muted ? <VolumeX className="w-5 h-5 text-white/80" /> : <Volume2 className="w-5 h-5 text-white/80" />}
-          </button>
-        </div>
-      )}
-
-      {/* === BOTTOM SECTION - Author + Description + Comment bar === */}
-      <div className="absolute bottom-0 left-0 right-0 z-20"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-
-        {/* Author + Follow + Description - always LTR-independent layout */}
-        <div className="px-4 pb-2 pr-16" dir={dir}>
-          {/* Author row */}
-          <div className="flex items-center gap-2.5 mb-1.5">
-            <Link to={`/social-profile/${story.author_id}`}
-              className="text-white font-bold text-[14px] drop-shadow-lg">
-              {story.author_name}
-            </Link>
-            {user && story.author_id !== user.id && (
-              <button onClick={handleFollow} disabled={followLoading}
-                className={cn(
-                  "px-3 py-1 text-[11px] font-bold rounded-md transition-all active:scale-95",
-                  isFollowing
-                    ? "bg-white/20 text-white/70 border border-white/20"
-                    : "bg-white text-black border border-white"
-                )}>
-                {followLoading ? '...' : isFollowing ? t('following') : t('follow')}
-              </button>
-            )}
-          </div>
-
-          {/* Title */}
-          {story.title && (
-            <p className="text-white/95 text-[13px] font-bold drop-shadow mb-0.5 line-clamp-1">{story.title}</p>
-          )}
-
-          {/* Description - only for media posts, text-only shows content in the center */}
-          {story.content && hasMedia && (
-            <div>
-              {descExpanded ? (
-                <>
-                  <p className="text-white/85 text-[13px] leading-relaxed drop-shadow">{story.content}</p>
-                  <button onClick={() => setDescExpanded(false)} className="text-white/50 text-[12px] font-medium mt-0.5">{t('showLess')}</button>
-                </>
-              ) : (
-                <p className="text-white/85 text-[13px] leading-relaxed drop-shadow">
-                  {shortDesc}
-                  {hasLongDesc && (
-                    <button onClick={() => setDescExpanded(true)} className="text-white/50 text-[12px] font-medium mr-1 ml-1">{t('showMore')}</button>
-                  )}
-                </p>
-              )}
-            </div>
+      {/* ===== BOTTOM - Author + Description ===== */}
+      <div className="absolute bottom-5 left-4 right-16 z-20" dir="rtl">
+        <div className="flex items-center gap-2.5 mb-1.5">
+          <Link to={`/social-profile/${story.author_id}`} onClick={e => e.stopPropagation()}
+            className="text-white font-extrabold text-[14px] drop-shadow-lg">{story.author_name}</Link>
+          {user && story.author_id !== user.id && (
+            <button onClick={e => { e.stopPropagation(); handleFollow(); }} disabled={followLoading}
+              className={cn("px-3 py-[3px] text-[12px] font-bold rounded-lg border",
+                isFollowing ? "border-white/30 text-white/70" : "border-white text-white")}>
+              {followLoading ? '...' : isFollowing ? t('following') : t('follow')}
+            </button>
           )}
         </div>
-
-        {/* Comment input bar */}
-        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-black/40 backdrop-blur-sm border-t border-white/10">
-          {user ? (
-            <img src={avatar(user.name || '', user.avatar)} alt="" className="w-8 h-8 rounded-full shrink-0 border border-white/20 object-cover" />
+        {story.title && <p className="text-white text-[13px] font-bold drop-shadow mb-0.5">{story.title}</p>}
+        {story.content && hasMedia && (
+          descExpanded ? (
+            <div><p className="text-white/90 text-[13px] leading-relaxed drop-shadow">{story.content}</p>
+              <button onClick={e => { e.stopPropagation(); setDescExpanded(false); }} className="text-white/50 text-[12px] mt-0.5">{t('showLess')}</button></div>
           ) : (
-            <div className="w-8 h-8 rounded-full bg-white/10 shrink-0 flex items-center justify-center">
-              <MessageCircle className="w-4 h-4 text-white/30" />
-            </div>
-          )}
-          <button onClick={onOpenComments} className="flex-1 bg-white/10 rounded-full px-4 py-2 text-start border border-white/5">
-            <span className="text-white/40 text-[13px]">{t('addComment') || t('writeComment')}...</span>
-          </button>
-        </div>
+            <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">
+              {shortDesc}{hasLongDesc && <button onClick={e => { e.stopPropagation(); setDescExpanded(true); }} className="text-white/50 text-[12px] mr-1"> ...{t('showMore')}</button>}
+            </p>
+          )
+        )}
       </div>
     </div>
   );
