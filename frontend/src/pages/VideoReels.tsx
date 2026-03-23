@@ -54,8 +54,8 @@ function formatCount(n: number, t: (k: string) => string): string {
   return String(n);
 }
 
-/* ==================== COMMENTS SHEET ==================== */
-function ReelCommentsSheet({ postId, onClose, commentsCount }: { postId: string; onClose: () => void; commentsCount: number }) {
+/* ==================== COMMENTS SHEET (Instagram Style) ==================== */
+function ReelCommentsSheet({ postId, post, onClose }: { postId: string; post?: VideoPost; onClose: () => void }) {
   const { user } = useAuth();
   const { t, dir } = useLocale();
   interface Comment { id: string; author_id: string; author_name: string; author_avatar?: string; content: string; created_at: string; reply_to?: string; }
@@ -91,20 +91,61 @@ function ReelCommentsSheet({ postId, onClose, commentsCount }: { postId: string;
     } catch {}
   };
 
+  const getMediaUrl = (url?: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `${BACKEND_URL}${url}`;
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      className="fixed inset-0 z-[70] bg-[#1a1a1a]" onClick={onClose}>
       <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-        className="absolute bottom-0 left-0 right-0 max-h-[75vh] bg-[#262626] rounded-t-[20px] overflow-hidden flex flex-col"
+        className="absolute inset-0 bg-[#1a1a1a] flex flex-col"
         onClick={e => e.stopPropagation()}>
+
+        {/* Video preview at top */}
+        {post && (
+          <div className="relative w-full bg-black" style={{ maxHeight: '45vh' }}>
+            {post.video_url ? (
+              <video src={getMediaUrl(post.video_url)} className="w-full h-full max-h-[45vh] object-contain bg-black" muted playsInline autoPlay loop />
+            ) : post.thumbnail_url || post.image_url ? (
+              <img src={getMediaUrl(post.thumbnail_url || post.image_url)} className="w-full h-full max-h-[45vh] object-contain bg-black" alt="" />
+            ) : (
+              <div className="w-full h-48 bg-gradient-to-b from-[#1a1a2e] to-[#0f3460]" />
+            )}
+            {/* Volume button */}
+            <button className="absolute start-3 bottom-3 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center">
+              <Volume2 className="w-3.5 h-3.5 text-white/70" />
+            </button>
+          </div>
+        )}
+
         {/* Handle bar */}
         <div className="flex justify-center pt-2 pb-1">
           <div className="w-10 h-1 rounded-full bg-gray-500" />
         </div>
-        <div className="flex items-center justify-center px-5 py-2 border-b border-white/10">
-          <h3 className="text-white font-bold text-[15px]">{t('commentsTitle')} ({commentsCount})</h3>
-        </div>
+
+        {/* Post info: author + full description + date */}
+        {post && (
+          <div className="px-4 py-3 border-b border-white/10" dir={dir}>
+            {/* Author row */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full p-[2px] bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888]">
+                <img src={avatar(post.author_name, post.author_avatar)} className="w-full h-full rounded-full border-[2px] border-[#1a1a1a] object-cover" alt="" />
+              </div>
+              <span className="text-white font-bold text-[14px]">{post.author_name}</span>
+              <button className="px-3 py-0.5 border border-white/30 rounded-lg text-white text-[12px] font-bold">{t('follow')}</button>
+            </div>
+            {/* Full description */}
+            <p className="text-white text-[14px] leading-relaxed mb-1" style={{ textShadow: 'none' }}>{post.content}</p>
+            {/* Date */}
+            <span className="text-gray-500 text-[12px]">{timeAgo(post.created_at)}</span>
+          </div>
+        )}
+
+        {/* Comments list */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={dir}>
           {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>
            : comments.length === 0 ? <p className="text-center text-gray-500 py-8 text-sm">{t('beFirstToComment') || 'Be the first to comment'}</p>
@@ -136,25 +177,32 @@ function ReelCommentsSheet({ postId, onClose, commentsCount }: { postId: string;
             );
           })}
         </div>
+
+        {/* Reply indicator */}
         {replyTo && (
           <div className="px-4 py-2 bg-white/5 flex items-center justify-between border-t border-white/10" dir={dir}>
             <span className="text-xs text-blue-400">{t('replyTo') || 'Reply to'} {replyTo.author_name}</span>
             <button onClick={() => setReplyTo(null)}><X className="w-3.5 h-3.5 text-gray-500" /></button>
           </div>
         )}
+
+        {/* Comment input */}
         {user ? (
-          <div className="flex items-center gap-2 p-3 border-t border-white/10 bg-[#262626]" dir={dir}>
+          <div className="flex items-center gap-2 p-3 border-t border-white/10 bg-[#1a1a1a]" dir={dir}
+            style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}>
             <img src={avatar(user.name || '', user.avatar)} alt="" className="w-8 h-8 rounded-full shrink-0" />
-            <input ref={inputRef} value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()}
-              placeholder={replyTo ? `${t('replyToPlaceholder') || 'Reply to'} ${replyTo.author_name}...` : (t('writeComment') || 'Add a comment...')}
-              className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-500 outline-none" />
+            <div className="flex-1 flex items-center bg-[#2a2a2a] rounded-full px-4 py-2.5">
+              <input ref={inputRef} value={text} onChange={e => setText(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()}
+                placeholder={replyTo ? `${t('replyTo') || 'Reply to'} ${replyTo.author_name}...` : `${t('addComment') || 'Add a comment'}...`}
+                className="flex-1 bg-transparent text-white text-[13px] placeholder:text-gray-500 outline-none" />
+            </div>
             <button onClick={submit} disabled={!text.trim()}
-              className="text-blue-500 font-bold text-sm disabled:opacity-30">
+              className="text-blue-500 font-bold text-[13px] disabled:opacity-30 px-1">
               {t('sendDM') || 'Post'}
             </button>
           </div>
         ) : (
-          <div className="p-4 border-t border-white/10 text-center">
+          <div className="p-3 border-t border-white/10 text-center" style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}>
             <Link to="/auth" className="text-blue-500 text-sm font-bold">{t('loginToComment') || 'Log in to comment'}</Link>
           </div>
         )}
@@ -817,11 +865,11 @@ export default function VideoReels() {
 
       {/* Comments Sheet */}
       <AnimatePresence>
-        {showCommentsFor && (
+        {showCommentsFor && currentPost && (
           <ReelCommentsSheet
             postId={showCommentsFor}
+            post={currentPost}
             onClose={() => setShowCommentsFor(null)}
-            commentsCount={currentPost?.comments_count || 0}
           />
         )}
       </AnimatePresence>
@@ -1114,62 +1162,59 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
         </button>
       </div>
 
-      {/* ===== BOTTOM INFO (Username + Follow + Caption) - Instagram exact layout ===== */}
+      {/* ===== BOTTOM INFO (Username + 1-line caption + comment bar) ===== */}
       <div className="absolute bottom-0 start-0 end-14 z-20" dir={dir}
-        style={{ paddingBottom: 'max(14px, env(safe-area-inset-bottom, 14px))' }}>
+        style={{ paddingBottom: 'max(10px, env(safe-area-inset-bottom, 10px))' }}>
 
         {/* Username row with follow button */}
-        <div className="flex items-center gap-2 px-4 mb-2">
-          <Link to={`/social-profile/${post.author_id}`}
-            className="flex items-center gap-2">
-            <span className="text-white font-extrabold text-[15px] drop-shadow-lg">{post.author_name}</span>
+        <div className="flex items-center gap-2 px-4 mb-1">
+          <Link to={`/social-profile/${post.author_id}`}>
+            <span className="text-white font-extrabold text-[14px] drop-shadow-lg">{post.author_name}</span>
           </Link>
           <span className="text-white/30 text-[12px]">•</span>
           <button onClick={onFollow}
-            className={`px-3 py-0.5 rounded-md text-[13px] font-bold transition-all active:scale-95 ${
-              followed
-                ? 'text-white/60'
-                : 'text-white'
+            className={`text-[12px] font-bold transition-all active:scale-95 ${
+              followed ? 'text-white/60' : 'text-white'
             }`}>
             {followed ? t('following') : t('follow')}
           </button>
         </div>
 
-        {/* Expandable Caption / Content */}
-        <ExpandableCaption content={post.content} t={t} dir={dir} />
-
-        {/* Audio/Music bar - like Instagram */}
-        <div className="px-4">
-          <div className="flex items-center gap-1.5">
-            <svg className="w-3 h-3 text-white shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-            </svg>
-            <span className="text-white/80 text-[12px] truncate drop-shadow">{post.author_name} · {t('originalAudio')}</span>
+        {/* Caption: 1 line only + "المزيد" opens comments */}
+        {post.content && (
+          <div className="flex items-baseline gap-1 px-4 mb-1.5">
+            <p className="text-white text-[13px] leading-snug drop-shadow-lg line-clamp-1 flex-1"
+              dir={dir} style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+              {post.content}
+            </p>
+            {post.content.length > 25 && (
+              <button onClick={(e) => { e.stopPropagation(); onComment(); }}
+                className="text-white/50 text-[13px] font-bold shrink-0 active:text-white/80 whitespace-nowrap">
+                {t('showMore')}
+              </button>
+            )}
           </div>
+        )}
+
+        {/* Audio/Music bar */}
+        <div className="flex items-center gap-1.5 px-4 mb-2">
+          <svg className="w-3 h-3 text-white shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+          <span className="text-white/70 text-[11px] truncate drop-shadow">{post.author_name} · {t('originalAudio')}</span>
+        </div>
+
+        {/* Comment input bar - always visible like Instagram */}
+        <div className="flex items-center gap-2 px-4">
+          <button onClick={onComment}
+            className="flex-1 flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 active:bg-white/15 transition-colors">
+            <MessageCircle className="w-4 h-4 text-white/40 shrink-0" />
+            <span className="text-white/40 text-[12px]">{t('addComment') || 'Add a comment'}...</span>
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-/* ==================== EXPANDABLE CAPTION ==================== */
-function ExpandableCaption({ content, t, dir }: { content: string; t: (k: string) => string; dir: string }) {
-  const [expanded, setExpanded] = useState(false);
-  if (!content) return null;
-  const isLong = content.length > 40;
-  return (
-    <div className="px-4 mb-1.5">
-      <p className={`text-white text-[14px] leading-[1.6] drop-shadow-lg ${expanded ? '' : 'line-clamp-2'}`}
-        dir={dir}
-        style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-        {content}
-      </p>
-      {isLong && (
-        <button onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className="text-white/50 text-[13px] font-bold mt-0.5 active:text-white/80">
-          {expanded ? t('showLess') : `... ${t('showMore')}`}
-        </button>
-      )}
-    </div>
-  );
-}
+/* (ExpandableCaption no longer needed - removed) */

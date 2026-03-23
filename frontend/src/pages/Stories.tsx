@@ -884,28 +884,34 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 
       {/* Author info + Caption at bottom */}
       <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-white font-bold text-[14px] drop-shadow-lg">{story.author_name}</span>
           {!isOwner && (
             <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
           )}
         </div>
-        {/* Expandable caption */}
+        {/* Caption: 1 line only + "المزيد" opens comments */}
         {storyContent && (
-          <div className="mb-0.5">
-            <p className={`text-white text-[13px] leading-relaxed drop-shadow-lg ${expanded ? '' : 'line-clamp-2'}`}
+          <div className="flex items-baseline gap-1 mb-1">
+            <p className="text-white text-[13px] leading-snug drop-shadow-lg line-clamp-1 flex-1"
               style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
               {storyContent}
             </p>
-            {isLongText && (
-              <button onClick={() => setExpanded(!expanded)}
-                className="text-white/60 text-[12px] font-bold mt-0.5 active:text-white">
-                {expanded ? t('showLess') : `... ${t('showMore')}`}
+            {storyContent.length > 25 && (
+              <button onClick={(e) => { e.stopPropagation(); onOpenComments(); }}
+                className="text-white/50 text-[12px] font-bold shrink-0 active:text-white/80 whitespace-nowrap">
+                {t('showMore')}
               </button>
             )}
           </div>
         )}
-        {storyTitle && <p className="text-white/50 text-[11px] drop-shadow line-clamp-1">{storyTitle}</p>}
+        {storyTitle && <p className="text-white/40 text-[11px] drop-shadow line-clamp-1 mb-1.5">{storyTitle}</p>}
+        {/* Comment input bar */}
+        <button onClick={onOpenComments}
+          className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 active:bg-white/15 transition-colors w-full">
+          <MessageCircle className="w-4 h-4 text-white/40 shrink-0" />
+          <span className="text-white/40 text-[12px]">{t('addComment') || 'Add a comment'}...</span>
+        </button>
       </div>
 
       {/* ===== Owner Menu Bottom Sheet ===== */}
