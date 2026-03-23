@@ -9,7 +9,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://agent-audit-build.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://store-ready-app-8.preview.emergentagent.com')
 
 # Admin credentials for testing
 ADMIN_EMAIL = "mhmd321324t@gmail.com"

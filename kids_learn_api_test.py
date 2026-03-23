@@ -19,7 +19,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://agent-audit-build.preview.emergentagent.com"
+BACKEND_URL = "https://store-ready-app-8.preview.emergentagent.com"
 
 # Test languages
 LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]
