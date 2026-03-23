@@ -467,6 +467,64 @@ async def share_post(post_id: str, user: dict = Depends(get_user)):
         raise HTTPException(404, "المنشور غير موجود")
     return {"shared": True}
 
+
+class ReportRequest(BaseModel):
+    reason: str = "inappropriate"  # inappropriate, spam, harassment, violence, misinformation, other
+    details: Optional[str] = None
+
+
+@router.post("/sohba/posts/{post_id}/report")
+async def report_post(post_id: str, data: ReportRequest, user: dict = Depends(get_user)):
+    """Report a post"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    post = await db.posts.find_one({"id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(404, "المنشور غير موجود")
+    existing = await db.reports.find_one({"post_id": post_id, "reporter_id": user["id"]})
+    if existing:
+        return {"reported": True, "message": "تم الإبلاغ مسبقاً"}
+    report = {
+        "id": str(uuid.uuid4()),
+        "post_id": post_id,
+        "reporter_id": user["id"],
+        "reporter_name": user.get("name", "مستخدم"),
+        "reason": data.reason,
+        "details": data.details,
+        "status": "pending",
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await db.reports.insert_one(report)
+    report_count = await db.reports.count_documents({"post_id": post_id})
+    if report_count >= 5:
+        await db.posts.update_one({"id": post_id}, {"$set": {"hidden": True}})
+    return {"reported": True, "message": "تم الإبلاغ بنجاح"}
+
+
+@router.post("/sohba/posts/{post_id}/not-interested")
+async def mark_not_interested(post_id: str, user: dict = Depends(get_user)):
+    """Mark a post as not interested"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    existing = await db.not_interested.find_one({"post_id": post_id, "user_id": user["id"]})
+    if existing:
+        await db.not_interested.delete_one({"post_id": post_id, "user_id": user["id"]})
+        return {"not_interested": False}
+    await db.not_interested.insert_one({
+        "post_id": post_id,
+        "user_id": user["id"],
+        "created_at": datetime.utcnow().isoformat(),
+    })
+    return {"not_interested": True}
+
+
+@router.post("/sohba/posts/{post_id}/view")
+async def track_view(post_id: str, user: dict = Depends(get_user)):
+    """Track view count for a post"""
+    await db.posts.update_one({"id": post_id}, {"$inc": {"views_count": 1}})
+    return {"viewed": True}
+
+
 @router.get("/sohba/user/{user_id}/posts")
 async def get_user_posts(user_id: str, page: int = 1, limit: int = 20, content_type: str = "all", user: dict = Depends(get_user)):
     """Get posts by specific user"""
@@ -612,14 +670,17 @@ async def explore_feed(page: int = 1, limit: int = 30, user: dict = Depends(get_
     
     # Get all posts with engagement data
     pipeline = [
+        {"$match": {"hidden": {"$ne": True}}},
         {"$lookup": {"from": "likes", "localField": "id", "foreignField": "post_id", "as": "likes_data"}},
         {"$lookup": {"from": "comments", "localField": "id", "foreignField": "post_id", "as": "comments_data"}},
+        {"$lookup": {"from": "saves", "localField": "id", "foreignField": "post_id", "as": "saves_data"}},
         {"$addFields": {
             "likes_count": {"$size": "$likes_data"},
             "comments_count": {"$size": "$comments_data"},
+            "saves_count": {"$size": "$saves_data"},
             "engagement_score": {"$add": [{"$multiply": [{"$size": "$likes_data"}, 2]}, {"$size": "$comments_data"}]}
         }},
-        {"$project": {"_id": 0, "likes_data": 0, "comments_data": 0}},
+        {"$project": {"_id": 0, "likes_data": 0, "comments_data": 0, "saves_data": 0}},
         {"$sort": {"engagement_score": -1, "created_at": -1}},
         {"$skip": skip},
         {"$limit": limit}
