@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { Input } from '@/components/ui/input';
@@ -190,6 +190,14 @@ export default function Auth() {
           <Button type="submit" className="w-full rounded-2xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base" disabled={loading} data-testid="auth-submit-btn">
             {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : isLogin ? t('enter') : t('createAccount')}
           </Button>
+          {!isLogin && (
+            <p className="text-[10px] text-muted-foreground text-center mt-2 leading-relaxed">
+              {t('agreeToTerms')}{' '}
+              <Link to="/terms" className="text-emerald-500 underline">{t('termsOfService')}</Link>
+              {' '}{t('and')}{' '}
+              <Link to="/privacy" className="text-emerald-500 underline">{t('privacyPolicy')}</Link>
+            </p>
+          )}
         </motion.form>
 
         {isLogin && (

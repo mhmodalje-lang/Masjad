@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, X, Loader2, Image, Video,
   BookOpen, Plus, Eye, ArrowRight, ArrowLeft, Share2, Bookmark, Film,
   Play, Volume2, VolumeX, Trash2, Reply, Search, Users,
-  TrendingUp, Flame, Star, Clock, Hash, Lock
+  TrendingUp, Flame, Star, Clock, Hash, Lock, Flag, MoreHorizontal, ShieldOff
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +13,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { AdBanner } from '@/components/AdBanner';
+import ReportSheet from '@/components/ReportSheet';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 function getToken() { return localStorage.getItem('auth_token') || ''; }
@@ -860,6 +861,8 @@ export default function Stories() {
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [unlockedStoryIds, setUnlockedStoryIds] = useState<Set<string>>(new Set());
   const [expandedDescIds, setExpandedDescIds] = useState<Set<string>>(new Set());
+  const [reportTarget, setReportTarget] = useState<{ id: string; type: 'post' | 'story'; userId: string } | null>(null);
+  const [showOptionsFor, setShowOptionsFor] = useState<string | null>(null);
 
   const selectedStoryId = searchParams.get('story');
 
@@ -1004,6 +1007,23 @@ export default function Stories() {
       const d = await r.json();
       setFollowedIds(prev => { const n = new Set(prev); d.following ? n.add(uid) : n.delete(uid); return n; });
     } catch {}
+  };
+
+  const handleBlockUser = async (uid: string) => {
+    if (!user) { toast.error(t('loginRequired')); return; }
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/block-user`, {
+        method: 'POST', headers: authHeaders(), body: JSON.stringify({ user_id: uid }),
+      });
+      const d = await r.json();
+      if (d.blocked) {
+        toast.success(t('blockSuccess'));
+        setStories(prev => prev.filter(s => s.author_id !== uid));
+      } else {
+        toast.success(t('unblockSuccess'));
+      }
+    } catch {}
+    setShowOptionsFor(null);
   };
 
   // === STORY READER VIEW ===
@@ -1277,6 +1297,35 @@ export default function Stories() {
                                 {isStoryUnlocked(s) ? t('premiumStory') : `${s.points_cost || 2} ${t('storyPoints')}`}
                               </span>
                             )}
+                            {/* More options (report/block) */}
+                            {user && s.author_id !== user.id && (
+                              <div className="relative">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setShowOptionsFor(showOptionsFor === s.id ? null : s.id); }}
+                                  className="p-1.5 rounded-full hover:bg-muted/30 active:scale-90 transition-transform"
+                                >
+                                  <MoreHorizontal className="h-4 w-4 text-muted-foreground/50" />
+                                </button>
+                                {showOptionsFor === s.id && (
+                                  <div className="absolute end-0 top-8 z-50 bg-card border border-border/30 rounded-xl shadow-xl py-1 min-w-[140px]" onClick={e => e.stopPropagation()}>
+                                    <button
+                                      onClick={() => { setReportTarget({ id: s.id, type: 'post', userId: s.author_id }); setShowOptionsFor(null); }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:bg-muted/30"
+                                    >
+                                      <Flag className="h-3 w-3 text-red-500" />
+                                      {t('reportContent')}
+                                    </button>
+                                    <button
+                                      onClick={() => handleBlockUser(s.author_id)}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-xs text-red-500 hover:bg-muted/30"
+                                    >
+                                      <ShieldOff className="h-3 w-3" />
+                                      {t('blockUser')}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                           {s.title && <h3 className="text-[14px] font-bold text-foreground mb-1 leading-snug">{s.title}</h3>}
                           <p className={cn("text-[12px] text-muted-foreground leading-[1.6]",
@@ -1352,7 +1401,11 @@ export default function Stories() {
         {showCommentsFor && <CommentsSheet storyId={showCommentsFor} onClose={() => setShowCommentsFor(null)}
           onCountChange={d => setStories(p => p.map(x => x.id === showCommentsFor ? { ...x, comments_count: x.comments_count + d } : x))} />}
         {showViewer !== null && <FullscreenViewer stories={videoStories} initialIndex={showViewer} onClose={() => setShowViewer(null)} />}
+        {reportTarget && <ReportSheet contentId={reportTarget.id} contentType={reportTarget.type} reportedUserId={reportTarget.userId} onClose={() => setReportTarget(null)} />}
       </AnimatePresence>
+
+      {/* Close options menu when clicking outside */}
+      {showOptionsFor && <div className="fixed inset-0 z-40" onClick={() => setShowOptionsFor(null)} />}
     </div>
   );
 }

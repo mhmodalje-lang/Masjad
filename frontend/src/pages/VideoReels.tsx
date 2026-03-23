@@ -2,10 +2,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Heart, MessageCircle, Gift, Share2, ArrowRight, Play, Pause, Volume2, VolumeX, X, Send, Reply, Trash2, Loader2 } from 'lucide-react';
+import { Heart, MessageCircle, Gift, Share2, ArrowRight, Play, Pause, Volume2, VolumeX, X, Send, Reply, Trash2, Loader2, Flag, MoreVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReportSheet from '@/components/ReportSheet';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -164,6 +165,7 @@ export default function VideoReels() {
   const [loading, setLoading] = useState(true);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [showCommentsFor, setShowCommentsFor] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<{ id: string; userId: string } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -294,6 +296,7 @@ export default function VideoReels() {
             onShare={() => handleShare(post.id)}
             onFollow={() => handleFollow(post.author_id)}
             onComment={() => setShowCommentsFor(post.id)}
+            onReport={(id: string, userId: string) => setReportTarget({ id, userId })}
             getMediaUrl={getMediaUrl}
             t={t}
             followed={followedIds.has(post.author_id)}
@@ -306,18 +309,22 @@ export default function VideoReels() {
         {showCommentsFor && (
           <ReelCommentsSheet postId={showCommentsFor} onClose={() => setShowCommentsFor(null)} />
         )}
+        {reportTarget && (
+          <ReportSheet contentId={reportTarget.id} contentType="post" reportedUserId={reportTarget.userId} onClose={() => setReportTarget(null)} />
+        )}
       </AnimatePresence>
     </div>
   );
 }
 
-function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, getMediaUrl, t, followed }: {
+function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, onReport, getMediaUrl, t, followed }: {
   post: VideoPost;
   isActive: boolean;
   onLike: () => void;
   onShare: () => void;
   onFollow: () => void;
   onComment: () => void;
+  onReport: (id: string, userId: string) => void;
   getMediaUrl: (url?: string) => string;
   t: (key: string) => string;
   followed: boolean;
@@ -431,6 +438,11 @@ function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, getMed
         <button onClick={onShare} className="flex flex-col items-center active:scale-90 transition-transform">
           <Share2 className="w-6 h-6 text-white drop-shadow-lg" />
           <span className="text-white text-[10px] mt-0.5 font-bold drop-shadow">{post.shares_count || 0}</span>
+        </button>
+
+        {/* Report */}
+        <button onClick={() => onReport(post.id, post.author_id)} className="flex flex-col items-center active:scale-90 transition-transform">
+          <Flag className="w-5 h-5 text-white/50 drop-shadow-lg" />
         </button>
       </div>
 

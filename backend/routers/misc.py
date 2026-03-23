@@ -400,20 +400,59 @@ async def submit_contact(data: dict):
 
 @router.post("/report")
 async def report_content(data: dict, user: dict = Depends(get_user)):
-    """Report inappropriate content"""
+    """Report inappropriate content - required by App Store for user-generated content"""
     if not user:
         raise HTTPException(401, "يجب تسجيل الدخول")
     doc = {
         "id": str(uuid.uuid4())[:8],
         "reporter_id": user["id"],
+        "reporter_name": user.get("name", ""),
         "content_id": data.get("content_id", ""),
-        "content_type": data.get("content_type", ""),
+        "content_type": data.get("content_type", ""),  # post, comment, user, story
+        "reported_user_id": data.get("reported_user_id", ""),
         "reason": data.get("reason", ""),
+        "reason_category": data.get("reason_category", "other"),  # spam, harassment, hate_speech, inappropriate, violence, other
+        "details": data.get("details", ""),
         "created_at": datetime.utcnow().isoformat(),
+        "status": "pending",  # pending, reviewed, resolved, dismissed
         "resolved": False
     }
     await db.reports.insert_one(doc)
-    return {"success": True}
+    return {"success": True, "message": "تم الإبلاغ بنجاح وسيتم مراجعته"}
+
+@router.post("/block-user")
+async def block_user(data: dict, user: dict = Depends(get_user)):
+    """Block a user - hides their content from the blocker"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    blocked_id = data.get("user_id", "")
+    if not blocked_id or blocked_id == user["id"]:
+        raise HTTPException(400, "لا يمكن حظر نفسك")
+    existing = await db.blocks.find_one({"blocker_id": user["id"], "blocked_id": blocked_id})
+    if existing:
+        # Unblock
+        await db.blocks.delete_one({"blocker_id": user["id"], "blocked_id": blocked_id})
+        return {"success": True, "blocked": False, "message": "تم إلغاء الحظر"}
+    else:
+        doc = {
+            "id": str(uuid.uuid4())[:8],
+            "blocker_id": user["id"],
+            "blocked_id": blocked_id,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        await db.blocks.insert_one(doc)
+        # Also unfollow
+        await db.follows.delete_one({"follower_id": user["id"], "following_id": blocked_id})
+        await db.follows.delete_one({"follower_id": blocked_id, "following_id": user["id"]})
+        return {"success": True, "blocked": True, "message": "تم حظر المستخدم"}
+
+@router.get("/blocked-users")
+async def get_blocked_users(user: dict = Depends(get_user)):
+    """Get list of blocked user IDs"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    blocks = await db.blocks.find({"blocker_id": user["id"]}).to_list(500)
+    return {"blocked_ids": [b["blocked_id"] for b in blocks]}
 
 
 @router.get("/admin/stats")
