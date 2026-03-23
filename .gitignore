@@ -249,3 +249,9 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+
+# Uploaded media files
+backend/uploads/
+# Test files
+*.pyc
+__pycache__/
