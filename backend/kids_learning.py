@@ -781,76 +781,79 @@ def get_quran_memorization_plan(locale: str = "ar") -> list:
 
 def get_all_duas(locale: str = "ar") -> list:
     """Get all kids duas with translations."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     result = []
     for dua in KIDS_DUAS:
         result.append({
             "id": dua["id"],
             "category": dua["category"],
             "emoji": dua["emoji"],
-            "title": dua["title"].get(lang, dua["title"]["en"]),
+            "title": dua["title"].get(lang, dua["title"].get("ar", "")),
             "arabic": dua["ar"],
             "transliteration": dua["transliteration"],
-            "meaning": dua.get(lang, dua["en"]) if lang != "ar" else "",
+            "meaning": dua.get(lang, dua.get("ar", "")) if lang != "ar" else "",
         })
     return result
 
 
 def get_all_hadiths(locale: str = "ar") -> list:
-    """Get all kids hadiths with translations."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    """Get all kids hadiths with translations. NO English fallback - uses Arabic."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     result = []
     for h in KIDS_HADITHS:
+        translation = h.get(lang, "")
+        translation_pending = (lang != "ar" and not translation)
         result.append({
             "id": h["id"],
             "category": h["category"],
             "emoji": h["emoji"],
             "arabic": h["ar"],
-            "translation": h.get(lang, h["en"]),
+            "translation": translation if not translation_pending else "",
+            "translation_pending": translation_pending,
             "source": h["source"],
             "narrator": h["narrator"],
-            "lesson": h["lesson"].get(lang, h["lesson"]["en"]),
+            "lesson": h["lesson"].get(lang, h["lesson"].get("ar", "")),
         })
     return result
 
 
 def get_prophet_stories(locale: str = "ar") -> list:
-    """Get all prophet stories with translations."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    """Get all prophet stories with translations. NO English fallback - uses Arabic."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     result = []
     for p in PROPHET_STORIES:
         result.append({
             "id": p["id"],
             "number": p["number"],
             "emoji": p["emoji"],
-            "name": p["name"].get(lang, p["name"]["en"]),
-            "title": p["title"].get(lang, p["title"]["en"]),
-            "summary": p["summary"].get(lang, p["summary"]["en"]),
-            "lesson": p["lesson"].get(lang, p["lesson"]["en"]),
+            "name": p["name"].get(lang, p["name"].get("ar", "")),
+            "title": p["title"].get(lang, p["title"].get("ar", "")),
+            "summary": p["summary"].get(lang, p["summary"].get("ar", "")),
+            "lesson": p["lesson"].get(lang, p["lesson"].get("ar", "")),
             "quran_ref": p["quran_ref"],
         })
     return result
 
 
 def get_islamic_pillars(locale: str = "ar") -> list:
-    """Get 5 pillars of Islam with translations."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    """Get 5 pillars of Islam with translations. NO English fallback - uses Arabic."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     result = []
     for p in ISLAMIC_PILLARS:
         result.append({
             "id": p["id"],
             "number": p["number"],
             "emoji": p["emoji"],
-            "title": p["title"].get(lang, p["title"]["en"]),
-            "description": p["desc"].get(lang, p["desc"]["en"]),
+            "title": p["title"].get(lang, p["title"].get("ar", "")),
+            "description": p["desc"].get(lang, p["desc"].get("ar", "")),
         })
     return result
 
 
 def get_library_categories(locale: str = "ar") -> list:
-    """Get library categories with accurate counts."""
+    """Get library categories with accurate counts. NO English fallback."""
     from kids_library_content import EXPANDED_LIBRARY_ITEMS
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     # Merge items, expanded takes priority (has better translations)
     seen_ids = set()
     all_items = []
@@ -869,16 +872,16 @@ def get_library_categories(locale: str = "ar") -> list:
             "id": c["id"],
             "emoji": c["emoji"],
             "color": c["color"],
-            "title": c["title"].get(lang, c["title"]["en"]),
+            "title": c["title"].get(lang, c["title"].get("ar", "")),
             "count": real_count,
         })
     return result
 
 
 def get_library_items(category: str = "all", locale: str = "ar") -> list:
-    """Get library items, optionally filtered by category."""
+    """Get library items, optionally filtered by category. NO English fallback."""
     from kids_library_content import EXPANDED_LIBRARY_ITEMS
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     # Merge items, expanded takes priority
     seen_ids = set()
     all_items = []
@@ -899,9 +902,9 @@ def get_library_items(category: str = "all", locale: str = "ar") -> list:
             "emoji": item["emoji"],
             "difficulty": item.get("difficulty", 1),
             "age_range": item.get("age_range", "3-10"),
-            "title": item["title"].get(lang, item["title"]["en"]),
-            "content": item["content"].get(lang, item["content"]["en"]),
-            "lesson": item.get("lesson", {}).get(lang, item.get("lesson", {}).get("en", "")) if "lesson" in item else "",
+            "title": item["title"].get(lang, item["title"].get("ar", "")),
+            "content": item["content"].get(lang, item["content"].get("ar", "")),
+            "lesson": item.get("lesson", {}).get(lang, item.get("lesson", {}).get("ar", "")) if "lesson" in item else "",
             "quran_ref": item.get("quran_ref", ""),
         })
     return result

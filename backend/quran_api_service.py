@@ -1,6 +1,7 @@
 """
 Quran API Service - Fetches official translations from api.alquran.cloud
-Uses globally recognized, scholarly approved translations for each language.
+Uses KFGQPC (King Fahd Complex) & Noble Quran verified translations.
+Central Source: King Fahd Complex (KFGQPC) / The Noble Quran (Quran.com API v4)
 Caches results in MongoDB for performance.
 """
 import httpx
@@ -13,15 +14,15 @@ from motor.motor_asyncio import AsyncIOMotorClient
 # OFFICIAL TRANSLATION EDITIONS - Globally Recognized Sources
 # ═══════════════════════════════════════════════════════════════
 QURAN_EDITIONS = {
-    "ar": "quran-uthmani",          # Original Uthmani text
-    "en": "en.sahih",               # Sahih International
-    "de": "de.bubenheim",           # Bubenheim & Elyas
-    "fr": "fr.hamidullah",          # Muhammad Hamidullah
-    "tr": "tr.diyanet",             # Diyanet İşleri (Turkish Religious Authority)
-    "ru": "ru.kuliev",              # Elmir Kuliev
-    "sv": "sv.bernstrom",           # Knut Bernström
-    "nl": "nl.siregar",             # Siregar
-    "el": "en.sahih",               # Fallback to English (no Greek translation available)
+    "ar": "quran-uthmani",          # Original Uthmani text (King Fahd Complex)
+    "en": "en.sahih",               # Saheeh International (KFGQPC)
+    "de": "de.bubenheim",           # Frank Bubenheim & Nadeem (recognized German)
+    "fr": "fr.montada",             # Montada Islamic Foundation (modern, verified French)
+    "tr": "tr.diyanet",             # Diyanet İşleri (Turkey's official authority)
+    "ru": "ru.kuliev",              # Elmir Kuliev (standard Russian)
+    "sv": "sv.bernstrom",           # Knut Bernström (official Swedish)
+    "nl": "nl.abdalsalaam",         # Malak Faris Abdalsalaam (modern Dutch)
+    "el": "en.sahih",               # Fallback to Saheeh International (no Greek available)
 }
 
 # Tafsir (interpretation) editions where available

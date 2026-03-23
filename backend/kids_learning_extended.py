@@ -678,39 +678,74 @@ EXTENDED_DUAS = [
 
 EXTENDED_HADITHS = [
     {"id": 11, "category": "respect", "emoji": "🧓",
-     "ar": "ليس منا من لم يرحم صغيرنا ويوقر كبيرنا",
-     "en": "He is not one of us who does not show mercy to our young and respect to our elders",
-     "source": "الترمذي", "narrator": "عبد الله بن عمرو",
-     "lesson": {"ar": "احترم الكبير وارحم الصغير", "en": "Respect elders and be kind to children"}},
+     "ar": "مَنْ لَا يَرْحَمْ لَا يُرْحَمْ",
+     "en": "Whoever does not show mercy will not be shown mercy",
+     "de": "Wer keine Barmherzigkeit zeigt, dem wird keine Barmherzigkeit gezeigt",
+     "fr": "Celui qui ne fait pas preuve de miséricorde ne recevra pas de miséricorde",
+     "tr": "Merhamet etmeyene merhamet edilmez",
+     "ru": "Кто не проявляет милосердия, к тому не проявят милосердия",
+     "sv": "Den som inte visar barmhärtighet visas ingen barmhärtighet",
+     "nl": "Wie geen genade toont, wordt geen genade getoond",
+     "el": "Όποιος δεν δείχνει έλεος δεν θα του δειχθεί έλεος",
+     "source": "البخاري ومسلم", "narrator": "جرير بن عبد الله",
+     "lesson": {"ar": "احترم الكبير وارحم الصغير", "en": "Respect elders and be kind to children", "de": "Respektiere Ältere und sei freundlich zu Kindern", "fr": "Respecte les aînés et sois gentil avec les enfants", "tr": "Büyüklere saygı göster, küçüklere merhamet et", "ru": "Уважай старших и будь добр к детям", "sv": "Respektera äldre och var snäll mot barn", "nl": "Respecteer ouderen en wees vriendelijk voor kinderen", "el": "Σεβάσου τους ηλικιωμένους και να είσαι καλός με τα παιδιά"}},
     {"id": 12, "category": "strength", "emoji": "💪",
-     "ar": "المؤمن القوي خير وأحب إلى الله من المؤمن الضعيف",
-     "en": "The strong believer is better and more beloved to Allah than the weak believer",
+     "ar": "الْمُؤْمِنُ الْقَوِيُّ خَيْرٌ وَأَحَبُّ إِلَى اللهِ مِنَ الْمُؤْمِنِ الضَّعِيفِ وَفِي كُلٍّ خَيْرٌ",
+     "en": "The strong believer is better and more beloved to Allah than the weak believer, and in each there is good",
+     "de": "Der starke Gläubige ist besser und Allah lieber als der schwache Gläubige, und in jedem ist Gutes",
+     "fr": "Le croyant fort est meilleur et plus aimé d'Allah que le croyant faible, et en chacun il y a du bien",
+     "tr": "Kuvvetli mümin Allah'a zayıf müminden daha hayırlı ve daha sevimlidir, her ikisinde de hayır vardır",
+     "ru": "Сильный верующий лучше и любимее Аллахом, чем слабый, и в каждом есть благо",
+     "sv": "Den starke troende är bättre och mer älskad av Allah än den svage troende, och i vardera finns gott",
+     "nl": "De sterke gelovige is beter en meer geliefd bij Allah dan de zwakke gelovige, en in elk van beiden is goed",
+     "el": "Ο δυνατός πιστός είναι καλύτερος και πιο αγαπητός στον Αλλάχ από τον αδύναμο πιστό, και σε καθέναν υπάρχει καλό",
      "source": "مسلم", "narrator": "أبو هريرة",
-     "lesson": {"ar": "كن قوياً في إيمانك وجسمك", "en": "Be strong in faith and body"}},
+     "lesson": {"ar": "كن قوياً في إيمانك وجسمك", "en": "Be strong in faith and body", "de": "Sei stark im Glauben und Körper", "fr": "Sois fort dans la foi et le corps", "tr": "İmanda ve bedende güçlü ol", "ru": "Будь сильным в вере и теле", "sv": "Var stark i tro och kropp", "nl": "Wees sterk in geloof en lichaam", "el": "Να είσαι δυνατός στην πίστη και το σώμα"}},
     {"id": 13, "category": "gratitude", "emoji": "🙏",
-     "ar": "من لا يشكر الناس لا يشكر الله",
-     "en": "Whoever does not thank people has not thanked Allah",
-     "source": "الترمذي", "narrator": "أبو هريرة",
-     "lesson": {"ar": "اشكر الناس واشكر الله", "en": "Thank people and thank Allah"}},
+     "ar": "انْظُرُوا إِلَى مَنْ أَسْفَلَ مِنْكُمْ وَلَا تَنْظُرُوا إِلَى مَنْ هُوَ فَوْقَكُمْ فَهُوَ أَجْدَرُ أَنْ لَا تَزْدَرُوا نِعْمَةَ اللهِ",
+     "en": "Look at those below you and do not look at those above you, for it is better that you do not belittle the blessings of Allah",
+     "de": "Schaut auf diejenigen unter euch und nicht auf die über euch, denn so verachtet ihr Allahs Segen nicht",
+     "fr": "Regardez ceux qui sont en dessous de vous et ne regardez pas ceux qui sont au-dessus, c'est mieux pour ne pas mépriser les bienfaits d'Allah",
+     "tr": "Sizden aşağıda olanlara bakın, yukarıda olanlara bakmayın, böylece Allah'ın nimetlerini küçümsemezsiniz",
+     "ru": "Смотрите на тех, кто ниже вас, и не смотрите на тех, кто выше, чтобы не умалять блага Аллаха",
+     "sv": "Se på dem under er och inte på dem över er, så att ni inte förringar Allahs välsignelser",
+     "nl": "Kijk naar wie onder jullie staat en niet naar wie boven jullie staat, zodat je de zegeningen van Allah niet minacht",
+     "el": "Κοιτάξτε αυτούς που είναι κάτω από εσάς και μην κοιτάτε αυτούς που είναι πάνω, για να μην υποτιμήσετε τις ευλογίες του Αλλάχ",
+     "source": "البخاري ومسلم", "narrator": "أبو هريرة",
+     "lesson": {"ar": "اشكر نعم الله عليك", "en": "Be grateful for Allah's blessings", "de": "Sei dankbar für Allahs Segen", "fr": "Sois reconnaissant pour les bienfaits d'Allah", "tr": "Allah'ın nimetlerine şükret", "ru": "Будь благодарен за блага Аллаха", "sv": "Var tacksam för Allahs välsignelser", "nl": "Wees dankbaar voor de zegeningen van Allah", "el": "Να είσαι ευγνώμων για τις ευλογίες του Αλλάχ"}},
     {"id": 14, "category": "brotherhood", "emoji": "🤝",
-     "ar": "المسلم أخو المسلم لا يظلمه ولا يخذله",
-     "en": "A Muslim is a brother to another Muslim. He does not wrong him nor forsake him",
+     "ar": "الْمُسْلِمُ أَخُو الْمُسْلِمِ لَا يَظْلِمُهُ وَلَا يَخْذُلُهُ وَلَا يَحْقِرُهُ",
+     "en": "A Muslim is a brother to another Muslim. He does not wrong him, nor forsake him, nor despise him",
+     "de": "Ein Muslim ist der Bruder eines anderen Muslims. Er tut ihm kein Unrecht, lässt ihn nicht im Stich und verachtet ihn nicht",
+     "fr": "Le musulman est le frère du musulman. Il ne lui fait pas d'injustice, ne l'abandonne pas et ne le méprise pas",
+     "tr": "Müslüman Müslümanın kardeşidir. Ona zulmetmez, onu yüzüstü bırakmaz ve onu küçük görmez",
+     "ru": "Мусульманин — брат мусульманина. Он не притесняет его, не оставляет его и не презирает его",
+     "sv": "En muslim är en broders muslim. Han gör honom ingen orätt, överger honom inte och föraktar honom inte",
+     "nl": "Een moslim is een broeder van een andere moslim. Hij doet hem geen onrecht, laat hem niet in de steek en veracht hem niet",
+     "el": "Ο μουσουλμάνος είναι αδελφός του μουσουλμάνου. Δεν τον αδικεί, δεν τον εγκαταλείπει και δεν τον περιφρονεί",
      "source": "مسلم", "narrator": "أبو هريرة",
-     "lesson": {"ar": "ساعد أخاك المسلم", "en": "Help your Muslim brother"}},
+     "lesson": {"ar": "ساعد أخاك المسلم", "en": "Help your Muslim brother", "de": "Hilf deinem muslimischen Bruder", "fr": "Aide ton frère musulman", "tr": "Müslüman kardeşine yardım et", "ru": "Помоги своему брату-мусульманину", "sv": "Hjälp din muslimska broder", "nl": "Help je moslimbroeder", "el": "Βοήθησε τον μουσουλμάνο αδελφό σου"}},
     {"id": 15, "category": "character", "emoji": "🌹",
-     "ar": "إن من أحبكم إلي وأقربكم مني مجلساً يوم القيامة أحاسنكم أخلاقاً",
-     "en": "The most beloved and nearest to me on the Day of Judgment will be those with the best character",
-     "source": "الترمذي", "narrator": "جابر بن عبد الله",
-     "lesson": {"ar": "حسّن أخلاقك", "en": "Improve your character"}},
+     "ar": "إِنَّ مِنْ خِيَارِكُمْ أَحْسَنَكُمْ أَخْلَاقًا",
+     "en": "Indeed, the best among you are those with the best character",
+     "de": "Die Besten unter euch sind diejenigen mit dem besten Charakter",
+     "fr": "Les meilleurs d'entre vous sont ceux qui ont le meilleur caractère",
+     "tr": "Sizin en hayırlınız ahlakı en güzel olanınızdır",
+     "ru": "Лучшие среди вас — те, у кого лучший нрав",
+     "sv": "De bästa bland er är de med bäst karaktär",
+     "nl": "De besten onder jullie zijn degenen met het beste karakter",
+     "el": "Οι καλύτεροι μεταξύ σας είναι αυτοί με τον καλύτερο χαρακτήρα",
+     "source": "البخاري ومسلم", "narrator": "عبد الله بن عمرو",
+     "lesson": {"ar": "حسّن أخلاقك", "en": "Improve your character", "de": "Verbessere deinen Charakter", "fr": "Améliore ton caractère", "tr": "Ahlakını güzelleştir", "ru": "Улучшай свой характер", "sv": "Förbättra din karaktär", "nl": "Verbeter je karakter", "el": "Βελτίωσε τον χαρακτήρα σου"}},
 ]
 
 
 def get_wudu_steps(locale="ar"):
-    lang = "ar" if locale == "ar" else "en"
+    lang = locale if locale in ["ar", "en"] else "ar"
     return [{"step": s["step"], "emoji": s["emoji"], "title": s[lang], "description": s[f"desc_{lang}"]} for s in WUDU_STEPS]
 
 def get_salah_steps(locale="ar"):
-    lang = "ar" if locale == "ar" else "en"
+    lang = locale if locale in ["ar", "en"] else "ar"
     result = []
     for s in SALAH_STEPS:
         step_data = {
@@ -752,12 +787,12 @@ def get_achievements(progress):
     return earned
 
 def get_all_prophets(locale="ar"):
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru"] else "en"
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru"] else "ar"
     return [{
         "id": p["id"], "number": p["number"], "emoji": p["emoji"],
-        "name": p["name"].get(lang, p["name"]["en"]),
-        "title": p["title"].get(lang, p["title"]["en"]),
-        "summary": p["summary"].get(lang, p["summary"]["en"]),
-        "lesson": p["lesson"].get(lang, p["lesson"]["en"]),
+        "name": p["name"].get(lang, p["name"].get("ar", "")),
+        "title": p["title"].get(lang, p["title"].get("ar", "")),
+        "summary": p["summary"].get(lang, p["summary"].get("ar", "")),
+        "lesson": p["lesson"].get(lang, p["lesson"].get("ar", "")),
         "quran_ref": p["quran_ref"],
     } for p in ALL_PROPHETS]

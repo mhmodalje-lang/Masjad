@@ -31,13 +31,13 @@ interface TafsirData {
 // Quran translation editions by language - KFGQPC / Official verified translations
 const quranTranslationEditions: Record<string, string> = {
   en: 'en.sahih',          // Saheeh International (KFGQPC)
-  fr: 'fr.hamidullah',     // Muhammad Hamidullah (Classic French)
+  fr: 'fr.montada',        // Montada Islamic Foundation (Modern French)
   de: 'de.bubenheim',      // Frank Bubenheim & Nadeem
   'de-AT': 'de.bubenheim', // Frank Bubenheim & Nadeem
   tr: 'tr.diyanet',        // Diyanet Isleri (Turkish official)
   ru: 'ru.kuliev',         // Elmir Kuliev (Standard Russian)
   sv: 'sv.bernstrom',      // Knut Bernström (Official Swedish)
-  nl: 'nl.keyzer',         // Keyzer (Best available on AlQuran Cloud for Dutch)
+  nl: 'nl.abdalsalaam',    // Malak Faris Abdalsalaam (Modern Dutch)
   el: 'en.sahih',          // Fallback: English Saheeh International
 };
 

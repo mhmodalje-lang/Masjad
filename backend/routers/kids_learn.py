@@ -57,8 +57,8 @@ async def get_daily_lesson(day: int = 0, locale: str = "ar"):
 
 @router.get("/kids-learn/quran/surahs")
 async def get_quran_surahs_for_kids(locale: str = "ar", background_tasks: BackgroundTasks = None):
-    """Get all Quran surahs for kids with OFFICIAL translations from api.alquran.cloud."""
-    lang = locale if locale in QURAN_EDITIONS else "en"
+    """Get all Quran surahs for kids with OFFICIAL translations from KFGQPC sources."""
+    lang = locale if locale in QURAN_EDITIONS else "ar"
     
     try:
         # Try to get from official API (cached in MongoDB)
@@ -86,8 +86,8 @@ async def get_quran_surahs_for_kids(locale: str = "ar", background_tasks: Backgr
 
 @router.get("/kids-learn/quran/surah/{surah_id}")
 async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
-    """Get specific surah with ayahs - OFFICIAL translation from api.alquran.cloud."""
-    lang = locale if locale in QURAN_EDITIONS else "en"
+    """Get specific surah with ayahs - OFFICIAL translation from KFGQPC sources."""
+    lang = locale if locale in QURAN_EDITIONS else "ar"
     
     # Get surah number from ID
     surah_number = SURAH_NAME_MAP.get(surah_id)
@@ -148,8 +148,8 @@ async def get_kids_prophets(locale: str = "ar"):
 
 @router.get("/kids-learn/prophets/{prophet_id}")
 async def get_prophet_detail(prophet_id: str, locale: str = "ar"):
-    """Get specific prophet story detail."""
-    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    """Get specific prophet story detail. NO English fallback - uses Arabic."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
     prophet = next((p for p in PROPHET_STORIES if p["id"] == prophet_id), None)
     if not prophet:
         raise HTTPException(status_code=404, detail="Prophet story not found")
@@ -157,10 +157,10 @@ async def get_prophet_detail(prophet_id: str, locale: str = "ar"):
         "success": True,
         "prophet": {
             "id": prophet["id"], "number": prophet["number"], "emoji": prophet["emoji"],
-            "name": prophet["name"].get(lang, prophet["name"]["en"]),
-            "title": prophet["title"].get(lang, prophet["title"]["en"]),
-            "summary": prophet["summary"].get(lang, prophet["summary"]["en"]),
-            "lesson": prophet["lesson"].get(lang, prophet["lesson"]["en"]),
+            "name": prophet["name"].get(lang, prophet["name"].get("ar", "")),
+            "title": prophet["title"].get(lang, prophet["title"].get("ar", "")),
+            "summary": prophet["summary"].get(lang, prophet["summary"].get("ar", "")),
+            "lesson": prophet["lesson"].get(lang, prophet["lesson"].get("ar", "")),
             "quran_ref": prophet["quran_ref"],
         }
     }
