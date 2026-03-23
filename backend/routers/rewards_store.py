@@ -18,48 +18,52 @@ import math
 router = APIRouter(tags=["Rewards Store"])
 
 # ═══════════════════════════════════════════
-# LEVEL SYSTEM - Exponential progression
+# LEVEL SYSTEM - 100 levels, exponential progression
+# First levels easy, then gets harder and harder
 # ═══════════════════════════════════════════
-LEVEL_THRESHOLDS = [
-    0,       # Level 1 (free)
-    50,      # Level 2
-    120,     # Level 3
-    250,     # Level 4
-    500,     # Level 5
-    1000,    # Level 6
-    2000,    # Level 7
-    4000,    # Level 8
-    8000,    # Level 9
-    15000,   # Level 10
-    25000,   # Level 11
-    40000,   # Level 12
-    60000,   # Level 13
-    85000,   # Level 14
-    120000,  # Level 15
-    170000,  # Level 16
-    240000,  # Level 17
-    330000,  # Level 18
-    450000,  # Level 19
-    600000,  # Level 20
-]
+def generate_level_thresholds(max_level=100):
+    """Generate XP thresholds for 100 levels with exponential growth."""
+    thresholds = [0]  # Level 1 = 0 XP
+    for i in range(1, max_level):
+        if i <= 5:
+            # Easy start: 50, 120, 200, 300, 420
+            xp = int(50 * i + 10 * i * i)
+        elif i <= 15:
+            # Medium: grows faster
+            xp = int(thresholds[-1] * 1.35 + 100 * i)
+        elif i <= 30:
+            # Hard: grows much faster
+            xp = int(thresholds[-1] * 1.28 + 200 * i)
+        elif i <= 50:
+            # Very hard
+            xp = int(thresholds[-1] * 1.22 + 500 * i)
+        elif i <= 75:
+            # Extreme
+            xp = int(thresholds[-1] * 1.18 + 1000 * i)
+        else:
+            # Legendary (75-100)
+            xp = int(thresholds[-1] * 1.15 + 2000 * i)
+        thresholds.append(xp)
+    return thresholds
 
-KIDS_LEVEL_THRESHOLDS = [
-    0,     # Level 1
-    30,    # Level 2
-    80,    # Level 3
-    150,   # Level 4
-    250,   # Level 5
-    400,   # Level 6
-    600,   # Level 7
-    850,   # Level 8
-    1200,  # Level 9
-    1600,  # Level 10
-    2200,  # Level 11
-    3000,  # Level 12
-    4000,  # Level 13
-    5500,  # Level 14
-    7500,  # Level 15
-]
+LEVEL_THRESHOLDS = generate_level_thresholds(100)
+
+def generate_kids_thresholds(max_level=50):
+    """Generate kids XP thresholds - 50 levels, gentler curve."""
+    thresholds = [0]
+    for i in range(1, max_level):
+        if i <= 5:
+            xp = int(30 * i + 5 * i * i)
+        elif i <= 15:
+            xp = int(thresholds[-1] * 1.25 + 50 * i)
+        elif i <= 30:
+            xp = int(thresholds[-1] * 1.2 + 100 * i)
+        else:
+            xp = int(thresholds[-1] * 1.18 + 200 * i)
+        thresholds.append(xp)
+    return thresholds
+
+KIDS_LEVEL_THRESHOLDS = generate_kids_thresholds(50)
 
 def calc_level(xp: int, thresholds=None) -> dict:
     thresholds = thresholds or LEVEL_THRESHOLDS

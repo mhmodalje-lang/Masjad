@@ -62,8 +62,13 @@ export default function BarakaMarket() {
   const [cooldown, setCooldown] = useState(0);
   const [watchingAd, setWatchingAd] = useState<string | null>(null);
   const [watchProgress, setWatchProgress] = useState(0);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [videoEnded, setVideoEnded] = useState(false);
+  const [currentAd, setCurrentAd] = useState<AdItem | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(true);
   const cooldownRef = useRef<NodeJS.Timeout | null>(null);
+  const progressRef = useRef<NodeJS.Timeout | null>(null);
 
   const loadProfile = useCallback(async () => {
     try {
@@ -120,28 +125,49 @@ export default function BarakaMarket() {
   const handleWatchAd = async (ad: AdItem) => {
     if (!canWatch || watchingAd) return;
     setWatchingAd(ad.id);
+    setCurrentAd(ad);
     setWatchProgress(0);
+    setVideoPlaying(true);
+    setVideoEnded(false);
+  };
 
-    // Simulate watching ad (progress bar)
-    const totalMs = ad.min_watch_seconds * 1000;
-    const interval = 100;
-    let elapsed = 0;
-    const timer = setInterval(() => {
-      elapsed += interval;
-      setWatchProgress(Math.min(1, elapsed / totalMs));
-      if (elapsed >= totalMs) {
-        clearInterval(timer);
-        completeAdWatch(ad);
-      }
-    }, interval);
+  // Track video progress via timeupdate
+  const onVideoTimeUpdate = () => {
+    if (!videoRef.current || !currentAd) return;
+    const progress = videoRef.current.currentTime / Math.max(1, currentAd.min_watch_seconds);
+    setWatchProgress(Math.min(1, progress));
+    if (videoRef.current.currentTime >= currentAd.min_watch_seconds && !videoEnded) {
+      setVideoEnded(true);
+      completeAdWatch(currentAd);
+    }
+  };
+
+  const onVideoEnded = () => {
+    if (currentAd && !videoEnded) {
+      setVideoEnded(true);
+      completeAdWatch(currentAd);
+    }
+  };
+
+  const closeVideoPlayer = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.src = '';
+    }
+    setVideoPlaying(false);
+    setWatchingAd(null);
+    setCurrentAd(null);
+    setWatchProgress(0);
+    setVideoEnded(false);
   };
 
   const completeAdWatch = async (ad: AdItem) => {
     try {
+      const duration = videoRef.current ? Math.floor(videoRef.current.currentTime) : ad.min_watch_seconds + 1;
       const r = await fetch(`${API}/api/rewards/ads/watch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, ad_id: ad.id, watch_duration: ad.min_watch_seconds + 1 }),
+        body: JSON.stringify({ user_id: userId, ad_id: ad.id, watch_duration: duration }),
       });
       const d = await r.json();
       if (d.success) {
@@ -151,15 +177,19 @@ export default function BarakaMarket() {
         }
         setCanWatch(false);
         setCooldown(30);
-        await loadProfile();
+        // Close video after short delay to show completion
+        setTimeout(() => {
+          closeVideoPlayer();
+          loadProfile();
+        }, 1500);
       } else {
         toast.error(d.message === 'cooldown_active' ? t('cooldownMsg').replace('{n}', '30') : t('dailyLimitMsg'));
+        closeVideoPlayer();
       }
     } catch {
       toast.error(t('genericError'));
+      closeVideoPlayer();
     }
-    setWatchingAd(null);
-    setWatchProgress(0);
   };
 
   const handlePurchase = async (item: StoreItem) => {
@@ -464,6 +494,51 @@ export default function BarakaMarket() {
         {/* ═══ EARN POINTS TAB ═══ */}
         {activeTab === 'earn' && (
           <>
+            {/* FULL SCREEN VIDEO PLAYER OVERLAY */}
+            {videoPlaying && currentAd && (
+              <div className="fixed inset-0 z-[100] bg-black flex flex-col">
+                {/* Video */}
+                <div className="flex-1 relative flex items-center justify-center">
+                  <video
+                    ref={videoRef}
+                    src={currentAd.video_url}
+                    autoPlay
+                    playsInline
+                    onTimeUpdate={onVideoTimeUpdate}
+                    onEnded={onVideoEnded}
+                    className="w-full h-full object-contain"
+                    controlsList="nodownload nofullscreen noremoteplayback"
+                  />
+                  {/* Close button - only after min watch time */}
+                  {videoEnded && (
+                    <button onClick={closeVideoPlayer}
+                      className="absolute top-4 end-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl z-10">
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Progress bar at bottom */}
+                <div className="px-4 py-3 bg-black/90">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-white/60">
+                      {videoEnded ? t('adComplete').replace('{n}', String(currentAd.points_reward)) : t('watchingAd')}
+                    </span>
+                    <span className="text-xs text-[#D4AF37] font-bold">+{currentAd.points_reward} {t('pointsPerAd').replace('{n} ', '')}</span>
+                  </div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div className={cn("h-full rounded-full transition-all", videoEnded ? "bg-emerald-500" : "bg-[#D4AF37]")}
+                      style={{ width: `${watchProgress * 100}%` }} />
+                  </div>
+                  {!videoEnded && (
+                    <p className="text-[10px] text-white/40 text-center mt-1">
+                      {Math.round(watchProgress * 100)}% — {t('watchingAd')}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="rounded-2xl bg-gradient-to-br from-[#D4AF37]/10 to-amber-600/5 border border-[#D4AF37]/20 p-4 text-center">
               <Sparkles className="w-8 h-8 mx-auto text-[#D4AF37] mb-2" />
               <h3 className="text-base font-bold">{t('earnPointsTitle')}</h3>
@@ -472,50 +547,60 @@ export default function BarakaMarket() {
 
             {/* Ad Cards */}
             {ads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">{t('noAdsAvailable')}</div>
+              <div className="text-center py-8">
+                <Play className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+                <p className="text-muted-foreground text-sm">{t('noAdsAvailable')}</p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  {isRTL ? 'سيتم إضافة إعلانات قريباً من المسؤول' : 'Ads will be added soon by the admin'}
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
                 {ads.map(ad => {
                   const isWatching = watchingAd === ad.id;
                   return (
                     <div key={ad.id}
-                      className="rounded-2xl bg-card/40 border border-border/20 p-4 transition-all">
-                      <div className="flex items-center gap-3">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center">
-                          <Play className="w-6 h-6 text-emerald-400" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-bold">{ad.title}</p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {ad.min_watch_seconds}s • {t('pointsPerAd').replace('{n}', String(ad.points_reward))}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20">
-                          <Coins className="w-3.5 h-3.5 text-[#D4AF37]" />
-                          <span className="text-xs font-bold text-[#D4AF37]">+{ad.points_reward}</span>
-                        </div>
-                      </div>
-
-                      {/* Progress bar while watching */}
-                      {isWatching && (
-                        <div className="mt-3">
-                          <div className="h-2 bg-muted/30 rounded-full overflow-hidden">
-                            <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-[#D4AF37] transition-all"
-                              style={{ width: `${watchProgress * 100}%` }} />
+                      className={cn(
+                        "rounded-2xl border overflow-hidden transition-all",
+                        isWatching ? "border-[#D4AF37]/40 bg-[#D4AF37]/5" : "border-border/20 bg-card/40"
+                      )}>
+                      {/* Ad thumbnail / video preview */}
+                      {ad.thumbnail_url && (
+                        <div className="relative h-32 bg-black/20 overflow-hidden">
+                          <img src={ad.thumbnail_url} alt={ad.title} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                              <Play className="w-6 h-6 text-white" fill="white" />
+                            </div>
                           </div>
-                          <p className="text-[10px] text-center text-muted-foreground mt-1">{t('watchingAd')} {Math.round(watchProgress * 100)}%</p>
                         </div>
                       )}
 
-                      {/* Watch button */}
-                      {!isWatching && (
+                      <div className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <Play className="w-5 h-5 text-emerald-400" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold truncate">{ad.title}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              ⏱ {ad.min_watch_seconds}s
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 flex-shrink-0">
+                            <Coins className="w-3.5 h-3.5 text-[#D4AF37]" />
+                            <span className="text-xs font-bold text-[#D4AF37]">+{ad.points_reward}</span>
+                          </div>
+                        </div>
+
+                        {/* Watch button */}
                         <button onClick={() => handleWatchAd(ad)}
                           disabled={!canWatch || !!watchingAd}
                           className={cn(
                             "w-full mt-3 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95",
                             canWatch && !watchingAd
-                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-400/30"
-                              : "bg-muted/20 text-muted-foreground border border-border/20 opacity-50"
+                              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-400/30 hover:bg-emerald-500/25"
+                              : "bg-muted/20 text-muted-foreground border border-border/20 opacity-50 cursor-not-allowed"
                           )}>
                           {canWatch ? (
                             <><Play className="w-4 h-4" /> {t('watchAdBtn')}</>
@@ -525,7 +610,7 @@ export default function BarakaMarket() {
                             <>{t('dailyLimitMsg')}</>
                           )}
                         </button>
-                      )}
+                      </div>
                     </div>
                   );
                 })}
