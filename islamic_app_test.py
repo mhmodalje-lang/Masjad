@@ -23,7 +23,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://expand-desc-fix.preview.emergentagent.com/api"
+BACKEND_URL = "https://media-layout-update.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'

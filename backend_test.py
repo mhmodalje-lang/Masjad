@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://expand-desc-fix.preview.emergentagent.com"
+BACKEND_URL = "https://media-layout-update.preview.emergentagent.com"
 
 def test_stories_create_with_thumbnail():
     """Test POST /api/stories/create - Test that it accepts thumbnail_url field"""

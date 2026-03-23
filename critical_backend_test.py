@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://expand-desc-fix.preview.emergentagent.com/api"
+BACKEND_URL = "https://media-layout-update.preview.emergentagent.com/api"
 
 async def test_endpoint(client, url, description, expected_criteria):
     """Test a single endpoint and return results"""
