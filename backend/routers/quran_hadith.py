@@ -117,25 +117,128 @@ TAFSIR_RESOURCE_IDS = {
 
 TAFSIR_CACHE_TTL_DAYS = 30
 
+# German surah name translations (KFGQPC-aligned)
+GERMAN_SURAH_NAMES = {
+    1: "Die Eröffnende", 2: "Die Kuh", 3: "Die Sippe Imrans", 4: "Die Frauen",
+    5: "Der Tisch", 6: "Das Vieh", 7: "Die Höhen", 8: "Die Beute",
+    9: "Die Reue", 10: "Yunus", 11: "Hud", 12: "Yusuf", 13: "Der Donner",
+    14: "Ibrahim", 15: "Al-Hidschr", 16: "Die Biene", 17: "Die Nachtreise",
+    18: "Die Höhle", 19: "Maryam", 20: "Ta Ha", 21: "Die Propheten",
+    22: "Die Pilgerfahrt", 23: "Die Gläubigen", 24: "Das Licht", 25: "Das Kriterium",
+    26: "Die Dichter", 27: "Die Ameisen", 28: "Die Geschichte", 29: "Die Spinne",
+    30: "Die Römer", 31: "Luqman", 32: "Die Niederwerfung", 33: "Die Verbündeten",
+    34: "Saba", 35: "Der Schöpfer", 36: "Ya Sin", 37: "Die Reihen",
+    38: "Sad", 39: "Die Scharen", 40: "Der Vergebende", 41: "Ausführlich dargelegt",
+    42: "Die Beratung", 43: "Der Goldschmuck", 44: "Der Rauch", 45: "Die Kniende",
+    46: "Die Dünen", 47: "Muhammad", 48: "Der Sieg", 49: "Die Gemächer",
+    50: "Qaf", 51: "Die Winde", 52: "Der Berg", 53: "Der Stern",
+    54: "Der Mond", 55: "Der Allerbarmer", 56: "Das Ereignis", 57: "Das Eisen",
+    58: "Die Debatte", 59: "Die Versammlung", 60: "Die Geprüfte", 61: "Die Reihe",
+    62: "Der Freitag", 63: "Die Heuchler", 64: "Die Übervorteilung", 65: "Die Scheidung",
+    66: "Das Verbot", 67: "Die Herrschaft", 68: "Die Schreibfeder", 69: "Die Wahrheit",
+    70: "Die Aufstiegswege", 71: "Nuh", 72: "Die Dschinn", 73: "Der Eingehüllte",
+    74: "Der Zugedeckte", 75: "Die Auferstehung", 76: "Der Mensch", 77: "Die Entsandten",
+    78: "Die Nachricht", 79: "Die Entreißenden", 80: "Er blickte finster", 81: "Das Einhüllen",
+    82: "Das Spalten", 83: "Die Betrüger", 84: "Das Bersten", 85: "Die Sternbilder",
+    86: "Der Nachtstern", 87: "Der Höchste", 88: "Die Überdeckende", 89: "Die Morgendämmerung",
+    90: "Die Stadt", 91: "Die Sonne", 92: "Die Nacht", 93: "Der Vormittag",
+    94: "Das Weiten", 95: "Die Feige", 96: "Das Anhaftende", 97: "Die Bestimmung",
+    98: "Der klare Beweis", 99: "Das Beben", 100: "Die Rennenden", 101: "Die Pochende",
+    102: "Die Vermehrung", 103: "Die Zeit", 104: "Der Stichler", 105: "Der Elefant",
+    106: "Die Quraisch", 107: "Die Hilfeleistung", 108: "Die Fülle", 109: "Die Ungläubigen",
+    110: "Die Hilfe", 111: "Die Palmfasern", 112: "Die aufrichtige Ergebenheit",
+    113: "Das Frühlicht", 114: "Die Menschen",
+}
+
+# Greek surah name translations
+GREEK_SURAH_NAMES = {
+    1: "Η Εναρκτήρια", 2: "Η Αγελάδα", 3: "Η Οικογένεια του Ιμράν", 4: "Οι Γυναίκες",
+    5: "Το Τραπέζι", 6: "Τα Ζώα", 7: "Τα Υψώματα", 8: "Τα Λάφυρα",
+    9: "Η Μετάνοια", 10: "Γιούνους", 11: "Χουντ", 12: "Γιούσουφ", 13: "Η Βροντή",
+    14: "Ιμπραχίμ", 15: "Αλ-Χίτζρ", 16: "Η Μέλισσα", 17: "Το Νυχτερινό Ταξίδι",
+    18: "Η Σπηλιά", 19: "Μαριάμ", 20: "Τα Χα", 21: "Οι Προφήτες",
+    22: "Το Προσκύνημα", 23: "Οι Πιστοί", 24: "Το Φως", 25: "Το Κριτήριο",
+    26: "Οι Ποιητές", 27: "Τα Μυρμήγκια", 28: "Η Αφήγηση", 29: "Η Αράχνη",
+    30: "Οι Ρωμαίοι", 31: "Λουκμάν", 32: "Η Προσκύνηση", 33: "Οι Σύμμαχοι",
+    34: "Σαμπά", 35: "Ο Δημιουργός", 36: "Γιά Σιν", 37: "Οι Παρατάξεις",
+    38: "Σαντ", 39: "Τα Πλήθη", 40: "Ο Συγχωρητικός", 41: "Εξηγημένες λεπτομερώς",
+    42: "Η Συμβουλή", 43: "Τα Χρυσά Στολίδια", 44: "Ο Καπνός", 45: "Η Γονυκλισία",
+    46: "Οι Αμμόλοφοι", 47: "Μουχάμαντ", 48: "Η Νίκη", 49: "Τα Δωμάτια",
+    50: "Κάφ", 51: "Οι Άνεμοι", 52: "Το Βουνό", 53: "Το Αστέρι",
+    54: "Το Φεγγάρι", 55: "Ο Ελεήμων", 56: "Το Γεγονός", 57: "Ο Σίδηρος",
+    58: "Η Συζήτηση", 59: "Η Συγκέντρωση", 60: "Η Εξεταζόμενη", 61: "Η Παράταξη",
+    62: "Η Παρασκευή", 63: "Οι Υποκριτές", 64: "Η Αμοιβαία Απώλεια", 65: "Το Διαζύγιο",
+    66: "Η Απαγόρευση", 67: "Η Κυριαρχία", 68: "Η Γραφίδα", 69: "Η Αλήθεια",
+    70: "Οι Δρόμοι Ανόδου", 71: "Νούχ", 72: "Τα Τζιν", 73: "Ο Τυλιγμένος",
+    74: "Ο Σκεπασμένος", 75: "Η Ανάσταση", 76: "Ο Άνθρωπος", 77: "Οι Απεσταλμένοι",
+    78: "Η Είδηση", 79: "Αυτοί που Αποσπούν", 80: "Σκυθρώπιασε", 81: "Η Περιτύλιξη",
+    82: "Η Ρωγμή", 83: "Οι Απατεώνες", 84: "Η Σχίση", 85: "Οι Αστερισμοί",
+    86: "Ο Νυχτερινός Αστέρας", 87: "Ο Ύψιστος", 88: "Η Κατακλυστική", 89: "Η Αυγή",
+    90: "Η Πόλη", 91: "Ο Ήλιος", 92: "Η Νύχτα", 93: "Το Πρωί",
+    94: "Η Ανακούφιση", 95: "Η Συκιά", 96: "Η Πήξη", 97: "Η Νύχτα του Πεπρωμένου",
+    98: "Η Σαφής Απόδειξη", 99: "Ο Σεισμός", 100: "Οι Καλπάζοντες", 101: "Η Χτυπητή",
+    102: "Η Αύξηση", 103: "Ο Χρόνος", 104: "Ο Συκοφάντης", 105: "Ο Ελέφαντας",
+    106: "Οι Κουράις", 107: "Η Βοήθεια", 108: "Η Αφθονία", 109: "Οι Άπιστοι",
+    110: "Η Βοήθεια", 111: "Οι Ίνες Φοίνικα", 112: "Η Αφοσίωση",
+    113: "Η Αυγή", 114: "Οι Άνθρωποι",
+}
+
 @router.get("/quran/v4/chapters")
 async def get_chapters_v4(language: str = Query("ar")):
-    """Fetch all Surahs from Quran.com API v4"""
+    """Fetch all Surahs from Quran.com API v4 with localized names for ALL languages."""
     try:
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/chapters", params={"language": language})
             r.raise_for_status()
-            return r.json()
+            data = r.json()
+            
+            # Override chapter names for languages missing from Quran.com API
+            base_lang = language.split('-')[0]
+            override_map = None
+            if base_lang == "de":
+                override_map = GERMAN_SURAH_NAMES
+            elif base_lang == "el":
+                override_map = GREEK_SURAH_NAMES
+            
+            if override_map and "chapters" in data:
+                for ch in data["chapters"]:
+                    ch_id = ch.get("id")
+                    if ch_id in override_map:
+                        ch["translated_name"] = {
+                            "language_name": base_lang,
+                            "name": override_map[ch_id],
+                        }
+            
+            return data
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
 
 @router.get("/quran/v4/chapters/{chapter_number}")
 async def get_chapter_v4(chapter_number: int, language: str = Query("ar")):
-    """Fetch specific Surah info from Quran.com API v4"""
+    """Fetch specific Surah info from Quran.com API v4 with localized name."""
     try:
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/chapters/{chapter_number}", params={"language": language})
             r.raise_for_status()
-            return r.json()
+            data = r.json()
+            
+            # Override for German/Greek
+            base_lang = language.split('-')[0]
+            override_map = None
+            if base_lang == "de":
+                override_map = GERMAN_SURAH_NAMES
+            elif base_lang == "el":
+                override_map = GREEK_SURAH_NAMES
+            
+            if override_map and "chapter" in data:
+                ch_id = data["chapter"].get("id")
+                if ch_id in override_map:
+                    data["chapter"]["translated_name"] = {
+                        "language_name": base_lang,
+                        "name": override_map[ch_id],
+                    }
+            
+            return data
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
 
@@ -283,20 +386,87 @@ async def get_tafsir_for_verse(
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     has_native_tafsir = base_lang in NATIVE_TAFSIR_LANGS
     
-    # If language has no native tafsir, return translation_pending
+    # If language has no native tafsir, use English Ibn Kathir as last resort
     if not has_native_tafsir:
-        return {
-            "success": True,
-            "verse_key": verse_key,
-            "language": base_lang,
-            "tafsir_id": None,
-            "tafsir_name": "",
-            "text": "",
-            "is_fallback_language": False,
-            "translation_pending": True,
-            "pending_language": base_lang,
-            "cached": False,
-        }
+        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir as fallback
+        is_fallback = True
+        
+        # Check cache first
+        cache_key = f"tafsir_{tafsir_id}_{verse_key}_fallback_{base_lang}"
+        try:
+            cached = await db.tafsir_cache.find_one({
+                "cache_key": cache_key,
+                "expires_at": {"$gt": datetime.utcnow()}
+            })
+            if cached:
+                return {
+                    "success": True,
+                    "verse_key": verse_key,
+                    "language": base_lang,
+                    "tafsir_id": tafsir_id,
+                    "tafsir_name": cached.get("tafsir_name", "Ibn Kathir (Abridged)"),
+                    "text": cached.get("text", ""),
+                    "is_fallback_language": True,
+                    "translation_pending": False,
+                    "cached": True,
+                }
+        except Exception:
+            pass
+        
+        # Fetch English tafsir as last resort
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
+                r.raise_for_status()
+                data = r.json()
+                tafsir_data = data.get("tafsir", {})
+                raw_text = tafsir_data.get("text", "")
+                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+                tafsir_name = tafsir_data.get("resource_name", "Ibn Kathir (Abridged)")
+                
+                # Cache result
+                try:
+                    await db.tafsir_cache.update_one(
+                        {"cache_key": cache_key},
+                        {"$set": {
+                            "cache_key": cache_key,
+                            "verse_key": verse_key,
+                            "tafsir_id": tafsir_id,
+                            "tafsir_name": tafsir_name,
+                            "text": clean_text,
+                            "is_fallback": True,
+                            "cached_at": datetime.utcnow(),
+                            "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                        }},
+                        upsert=True,
+                    )
+                except Exception:
+                    pass
+                
+                return {
+                    "success": True,
+                    "verse_key": verse_key,
+                    "language": base_lang,
+                    "tafsir_id": tafsir_id,
+                    "tafsir_name": tafsir_name,
+                    "text": clean_text,
+                    "is_fallback_language": True,
+                    "translation_pending": False,
+                    "cached": False,
+                }
+        except Exception:
+            return {
+                "success": True,
+                "verse_key": verse_key,
+                "language": base_lang,
+                "tafsir_id": None,
+                "tafsir_name": "",
+                "text": "",
+                "is_fallback_language": False,
+                "translation_pending": True,
+                "pending_language": base_lang,
+                "cached": False,
+            }
     
     tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
     # Languages with native tafsir: ar (16), en (169), ru (170)
@@ -391,22 +561,13 @@ async def get_bulk_tafsir_for_chapter(
     
     base_lang = language.split('-')[0]
     
-    # LANGUAGE INTEGRITY: Only serve native tafsir languages
+    # LANGUAGE INTEGRITY: For non-native languages, use English Ibn Kathir as fallback
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
-    if base_lang not in NATIVE_TAFSIR_LANGS:
-        return {
-            "success": True,
-            "chapter": chapter_number,
-            "language": base_lang,
-            "tafsir_id": None,
-            "tafsirs": [],
-            "translation_pending": True,
-            "pending_language": base_lang,
-            "cached": False,
-        }
-    
-    tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
-    is_fallback = False
+    is_fallback = base_lang not in NATIVE_TAFSIR_LANGS
+    if is_fallback:
+        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir as last resort
+    else:
+        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
     
     # Check bulk cache
     bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"

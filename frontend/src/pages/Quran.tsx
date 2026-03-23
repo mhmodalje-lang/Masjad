@@ -11,50 +11,58 @@ import { normalizeArabicForSearch } from '@/lib/arabicNormalize';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
+
 interface Surah {
+  id: number;
+  name_arabic: string;
+  name_simple: string;
+  translated_name: { name: string; language_name: string };
+  verses_count: number;
+  revelation_place: string;
+  // Legacy compat fields
   number: number;
   name: string;
   englishName: string;
   englishNameTranslation: string;
   numberOfAyahs: number;
-  revelationType: string;
 }
 
 const JUZ_DATA = [
-  { number: 1, name: 'الم', startSurah: 1, startAyah: 1, endSurah: 2, endAyah: 141 },
-  { number: 2, name: 'سيقول', startSurah: 2, startAyah: 142, endSurah: 2, endAyah: 252 },
-  { number: 3, name: 'تلك الرسل', startSurah: 2, startAyah: 253, endSurah: 3, endAyah: 92 },
-  { number: 4, name: 'لن تنالوا', startSurah: 3, startAyah: 93, endSurah: 4, endAyah: 23 },
-  { number: 5, name: 'والمحصنات', startSurah: 4, startAyah: 24, endSurah: 4, endAyah: 147 },
-  { number: 6, name: 'لا يحب الله', startSurah: 4, startAyah: 148, endSurah: 5, endAyah: 81 },
-  { number: 7, name: 'وإذا سمعوا', startSurah: 5, startAyah: 82, endSurah: 6, endAyah: 110 },
-  { number: 8, name: 'ولو أننا', startSurah: 6, startAyah: 111, endSurah: 7, endAyah: 87 },
-  { number: 9, name: 'قال الملأ', startSurah: 7, startAyah: 88, endSurah: 8, endAyah: 40 },
-  { number: 10, name: 'واعلموا', startSurah: 8, startAyah: 41, endSurah: 9, endAyah: 92 },
-  { number: 11, name: 'يعتذرون', startSurah: 9, startAyah: 93, endSurah: 11, endAyah: 5 },
-  { number: 12, name: 'وما من دابة', startSurah: 11, startAyah: 6, endSurah: 12, endAyah: 52 },
-  { number: 13, name: 'وما أبرئ', startSurah: 12, startAyah: 53, endSurah: 14, endAyah: 52 },
-  { number: 14, name: 'ربما', startSurah: 15, startAyah: 1, endSurah: 16, endAyah: 128 },
-  { number: 15, name: 'سبحان', startSurah: 17, startAyah: 1, endSurah: 18, endAyah: 74 },
-  { number: 16, name: 'قال ألم', startSurah: 18, startAyah: 75, endSurah: 20, endAyah: 135 },
-  { number: 17, name: 'اقترب', startSurah: 21, startAyah: 1, endSurah: 22, endAyah: 78 },
-  { number: 18, name: 'قد أفلح', startSurah: 23, startAyah: 1, endSurah: 25, endAyah: 20 },
-  { number: 19, name: 'وقال الذين', startSurah: 25, startAyah: 21, endSurah: 27, endAyah: 55 },
-  { number: 20, name: 'أمن خلق', startSurah: 27, startAyah: 56, endSurah: 29, endAyah: 45 },
-  { number: 21, name: 'اتل ما أوحي', startSurah: 29, startAyah: 46, endSurah: 33, endAyah: 30 },
-  { number: 22, name: 'ومن يقنت', startSurah: 33, startAyah: 31, endSurah: 36, endAyah: 27 },
-  { number: 23, name: 'وما لي', startSurah: 36, startAyah: 28, endSurah: 39, endAyah: 31 },
-  { number: 24, name: 'فمن أظلم', startSurah: 39, startAyah: 32, endSurah: 41, endAyah: 46 },
-  { number: 25, name: 'إليه يرد', startSurah: 41, startAyah: 47, endSurah: 45, endAyah: 37 },
-  { number: 26, name: 'حم', startSurah: 46, startAyah: 1, endSurah: 51, endAyah: 30 },
-  { number: 27, name: 'قال فما خطبكم', startSurah: 51, startAyah: 31, endSurah: 57, endAyah: 29 },
-  { number: 28, name: 'قد سمع', startSurah: 58, startAyah: 1, endSurah: 66, endAyah: 12 },
-  { number: 29, name: 'تبارك', startSurah: 67, startAyah: 1, endSurah: 77, endAyah: 50 },
-  { number: 30, name: 'عم', startSurah: 78, startAyah: 1, endSurah: 114, endAyah: 6 },
+  { number: 1, name: '\u0627\u0644\u0645', startSurah: 1, startAyah: 1, endSurah: 2, endAyah: 141 },
+  { number: 2, name: '\u0633\u064a\u0642\u0648\u0644', startSurah: 2, startAyah: 142, endSurah: 2, endAyah: 252 },
+  { number: 3, name: '\u062a\u0644\u0643 \u0627\u0644\u0631\u0633\u0644', startSurah: 2, startAyah: 253, endSurah: 3, endAyah: 92 },
+  { number: 4, name: '\u0644\u0646 \u062a\u0646\u0627\u0644\u0648\u0627', startSurah: 3, startAyah: 93, endSurah: 4, endAyah: 23 },
+  { number: 5, name: '\u0648\u0627\u0644\u0645\u062d\u0635\u0646\u0627\u062a', startSurah: 4, startAyah: 24, endSurah: 4, endAyah: 147 },
+  { number: 6, name: '\u0644\u0627 \u064a\u062d\u0628 \u0627\u0644\u0644\u0647', startSurah: 4, startAyah: 148, endSurah: 5, endAyah: 81 },
+  { number: 7, name: '\u0648\u0625\u0630\u0627 \u0633\u0645\u0639\u0648\u0627', startSurah: 5, startAyah: 82, endSurah: 6, endAyah: 110 },
+  { number: 8, name: '\u0648\u0644\u0648 \u0623\u0646\u0646\u0627', startSurah: 6, startAyah: 111, endSurah: 7, endAyah: 87 },
+  { number: 9, name: '\u0642\u0627\u0644 \u0627\u0644\u0645\u0644\u0623', startSurah: 7, startAyah: 88, endSurah: 8, endAyah: 40 },
+  { number: 10, name: '\u0648\u0627\u0639\u0644\u0645\u0648\u0627', startSurah: 8, startAyah: 41, endSurah: 9, endAyah: 92 },
+  { number: 11, name: '\u064a\u0639\u062a\u0630\u0631\u0648\u0646', startSurah: 9, startAyah: 93, endSurah: 11, endAyah: 5 },
+  { number: 12, name: '\u0648\u0645\u0627 \u0645\u0646 \u062f\u0627\u0628\u0629', startSurah: 11, startAyah: 6, endSurah: 12, endAyah: 52 },
+  { number: 13, name: '\u0648\u0645\u0627 \u0623\u0628\u0631\u0626', startSurah: 12, startAyah: 53, endSurah: 14, endAyah: 52 },
+  { number: 14, name: '\u0631\u0628\u0645\u0627', startSurah: 15, startAyah: 1, endSurah: 16, endAyah: 128 },
+  { number: 15, name: '\u0633\u0628\u062d\u0627\u0646', startSurah: 17, startAyah: 1, endSurah: 18, endAyah: 74 },
+  { number: 16, name: '\u0642\u0627\u0644 \u0623\u0644\u0645', startSurah: 18, startAyah: 75, endSurah: 20, endAyah: 135 },
+  { number: 17, name: '\u0627\u0642\u062a\u0631\u0628', startSurah: 21, startAyah: 1, endSurah: 22, endAyah: 78 },
+  { number: 18, name: '\u0642\u062f \u0623\u0641\u0644\u062d', startSurah: 23, startAyah: 1, endSurah: 25, endAyah: 20 },
+  { number: 19, name: '\u0648\u0642\u0627\u0644 \u0627\u0644\u0630\u064a\u0646', startSurah: 25, startAyah: 21, endSurah: 27, endAyah: 55 },
+  { number: 20, name: '\u0623\u0645\u0646 \u062e\u0644\u0642', startSurah: 27, startAyah: 56, endSurah: 29, endAyah: 45 },
+  { number: 21, name: '\u0627\u062a\u0644 \u0645\u0627 \u0623\u0648\u062d\u064a', startSurah: 29, startAyah: 46, endSurah: 33, endAyah: 30 },
+  { number: 22, name: '\u0648\u0645\u0646 \u064a\u0642\u0646\u062a', startSurah: 33, startAyah: 31, endSurah: 36, endAyah: 27 },
+  { number: 23, name: '\u0648\u0645\u0627 \u0644\u064a', startSurah: 36, startAyah: 28, endSurah: 39, endAyah: 31 },
+  { number: 24, name: '\u0641\u0645\u0646 \u0623\u0638\u0644\u0645', startSurah: 39, startAyah: 32, endSurah: 41, endAyah: 46 },
+  { number: 25, name: '\u0625\u0644\u064a\u0647 \u064a\u0631\u062f', startSurah: 41, startAyah: 47, endSurah: 45, endAyah: 37 },
+  { number: 26, name: '\u062d\u0645', startSurah: 46, startAyah: 1, endSurah: 51, endAyah: 30 },
+  { number: 27, name: '\u0642\u0627\u0644 \u0641\u0645\u0627 \u062e\u0637\u0628\u0643\u0645', startSurah: 51, startAyah: 31, endSurah: 57, endAyah: 29 },
+  { number: 28, name: '\u0642\u062f \u0633\u0645\u0639', startSurah: 58, startAyah: 1, endSurah: 66, endAyah: 12 },
+  { number: 29, name: '\u062a\u0628\u0627\u0631\u0643', startSurah: 67, startAyah: 1, endSurah: 77, endAyah: 50 },
+  { number: 30, name: '\u0639\u0645', startSurah: 78, startAyah: 1, endSurah: 114, endAyah: 6 },
 ];
 
 export default function Quran() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { user } = useAuth();
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [search, setSearch] = useState('');
@@ -64,14 +72,38 @@ export default function Quran() {
   const [bookmarks, setBookmarks] = useState<number[]>([]);
 
   useEffect(() => {
-    fetch('https://api.alquran.cloud/v1/surah')
+    const langMap: Record<string, string> = {
+      'ar': 'ar', 'en': 'en', 'fr': 'fr', 'de': 'de', 'de-AT': 'de',
+      'tr': 'tr', 'ru': 'ru', 'sv': 'sv', 'nl': 'nl', 'el': 'el',
+    };
+    const apiLang = langMap[locale] || locale.split('-')[0] || 'ar';
+
+    fetch(`${BACKEND_URL}/api/quran/v4/chapters?language=${apiLang}`)
       .then(r => r.json())
-      .then(d => { setSurahs(d.data); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
+      .then(d => {
+        const chapters = (d.chapters || []).map((ch: any) => ({
+          ...ch,
+          // Populate compat fields for search/display
+          number: ch.id,
+          name: ch.name_arabic,
+          englishName: ch.name_simple,
+          englishNameTranslation: ch.translated_name?.name || ch.name_simple,
+          numberOfAyahs: ch.verses_count,
+          revelationType: ch.revelation_place,
+        }));
+        setSurahs(chapters);
+        setLoading(false);
+      })
+      .catch(() => {
+        // Fallback to legacy API if backend fails
+        fetch('https://api.alquran.cloud/v1/surah')
+          .then(r => r.json())
+          .then(d => { setSurahs(d.data); setLoading(false); })
+          .catch(() => setLoading(false));
+      });
+  }, [locale]);
 
   useEffect(() => {
-    // Load bookmarks from localStorage
     const savedBookmarks = JSON.parse(localStorage.getItem('quran_bookmarks') || '[]');
     setBookmarks(savedBookmarks);
   }, [user]);
@@ -193,6 +225,7 @@ export default function Quran() {
               index={i}
               isBookmarked={bookmarks.includes(surah.number)}
               onToggleBookmark={toggleBookmark}
+              locale={locale}
             />
           ))
         ) : tab === 'juz' ? (
@@ -208,7 +241,7 @@ export default function Quran() {
                 <div className="flex-1 min-w-0 text-right">
                   <p className="font-bold text-foreground">{juz.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {startSurah?.name} ({juz.startAyah}) → {endSurah?.name} ({juz.endAyah})
+                    {startSurah?.name} ({juz.startAyah}) - {endSurah?.name} ({juz.endAyah})
                   </p>
                 </div>
                 <div className="relative h-12 w-12 flex items-center justify-center flex-shrink-0">
@@ -238,6 +271,7 @@ export default function Quran() {
                 index={i}
                 isBookmarked={true}
                 onToggleBookmark={toggleBookmark}
+                locale={locale}
               />
             ))
           )
@@ -257,8 +291,12 @@ const SurahRow = forwardRef<HTMLDivElement, {
   index: number;
   isBookmarked: boolean;
   onToggleBookmark: (e: React.MouseEvent, num: number) => void;
-}>(function SurahRow({ surah, index, isBookmarked, onToggleBookmark }, ref) {
+  locale: string;
+}>(function SurahRow({ surah, index, isBookmarked, onToggleBookmark, locale }, ref) {
   const navigate = useNavigate();
+
+  // Use the translated name from Quran.com v4 API
+  const translatedName = surah.translated_name?.name || surah.englishNameTranslation || surah.englishName;
 
   return (
     <motion.div
@@ -288,7 +326,7 @@ const SurahRow = forwardRef<HTMLDivElement, {
         <div className="flex-1 min-w-0 text-right">
           <p className="font-bold text-foreground">{surah.name}</p>
           <p className="text-xs text-muted-foreground">
-            {surah.englishNameTranslation} ({surah.numberOfAyahs})
+            {translatedName} ({surah.numberOfAyahs || surah.verses_count})
           </p>
         </div>
 

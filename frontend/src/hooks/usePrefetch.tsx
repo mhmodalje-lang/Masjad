@@ -63,10 +63,18 @@ function prefetchMosques(lat: number, lon: number): Promise<any[]> {
 async function prefetchQuranIndex() {
   if (quranIndexCache) return;
   try {
-    const res = await fetch('https://api.alquran.cloud/v1/surah');
+    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || '';
+    const res = await fetch(`${backendUrl}/api/quran/v4/chapters?language=ar`);
     if (res.ok) {
       const json = await res.json();
-      quranIndexCache = json.data;
+      quranIndexCache = (json.chapters || []).map((ch: any) => ({
+        ...ch,
+        number: ch.id,
+        name: ch.name_arabic,
+        englishName: ch.name_simple,
+        englishNameTranslation: ch.translated_name?.name || ch.name_simple,
+        numberOfAyahs: ch.verses_count,
+      }));
     }
   } catch { /* silent */ }
 }

@@ -29,16 +29,17 @@ interface TafsirData {
 }
 
 // Quran translation editions by language - KFGQPC / Official verified translations
+// These are kept as fallback identifiers for the legacy alquran.cloud API (audio only)
 const quranTranslationEditions: Record<string, string> = {
-  en: 'en.sahih',          // Saheeh International (KFGQPC)
-  fr: 'fr.montada',        // Montada Islamic Foundation (Modern French)
-  de: 'de.bubenheim',      // Frank Bubenheim & Nadeem
-  'de-AT': 'de.bubenheim', // Frank Bubenheim & Nadeem
-  tr: 'tr.diyanet',        // Diyanet Isleri (Turkish official)
-  ru: 'ru.kuliev',         // Elmir Kuliev (Standard Russian)
-  sv: 'sv.bernstrom',      // Knut Bernström (Official Swedish)
-  nl: 'nl.abdalsalaam',    // Malak Faris Abdalsalaam (Modern Dutch)
-  el: 'en.sahih',          // Fallback: English Saheeh International
+  en: 'en.sahih',
+  fr: 'fr.montada',
+  de: 'de.bubenheim',
+  'de-AT': 'de.bubenheim',
+  tr: 'tr.diyanet',
+  ru: 'ru.kuliev',
+  sv: 'sv.bernstrom',
+  nl: 'nl.abdalsalaam',
+  el: 'en.sahih',
 };
 
 // === TAFSIR LOCAL CACHE HELPERS ===
@@ -311,7 +312,7 @@ function AyahCard({
   const tafsirSourceLabel = locale === 'ar'
     ? t('tafsirMuyassar')
     : tafsir?.is_fallback_language
-      ? t('tafsirFallbackNote')
+      ? `${tafsir?.tafsir_name || 'Ibn Kathir'} (${t('tafsirFallbackNote') || 'English'})`
       : tafsir?.tafsir_name || t('tafsirAbridged');
 
   return (
@@ -467,32 +468,64 @@ export default function SurahView() {
   useEffect(() => {
     const fetchAyahs = async () => {
       try {
-        const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${id}/ar.alafasy`);
-        const arabicData = await arabicRes.json();
-        let ayahsList: Ayah[] = arabicData.data.ayahs;
-        setSurahName(arabicData.data.name);
-
-        // Fetch translation if non-Arabic locale
         const baseLocale = locale.split('-')[0];
-        const edition = locale !== 'ar' ? (quranTranslationEditions[locale] || quranTranslationEditions[baseLocale]) : null;
-        if (edition) {
-          try {
-            const transRes = await fetch(`https://api.alquran.cloud/v1/surah/${id}/${edition}`);
-            const transData = await transRes.json();
-            if (transData.data?.ayahs) {
-              ayahsList = ayahsList.map((ayah, i) => ({
-                ...ayah,
-                translation: transData.data.ayahs[i]?.text || '',
-              }));
-            }
-          } catch {
-            // Translation not available, continue without
+        const apiLang = baseLocale || 'ar';
+
+        // Fetch chapter info (for localized name)
+        const chapterRes = await fetch(`${BACKEND_URL}/api/quran/v4/chapters/${id}?language=${apiLang}`);
+        const chapterData = await chapterRes.json();
+        const chapterInfo = chapterData.chapter || {};
+        setSurahName(chapterInfo.name_arabic || chapterInfo.name_simple || '');
+
+        // Fetch verses with translations from Quran.com v4 via our backend
+        // Use per_page=300 to get all verses at once (longest surah is 286 ayahs)
+        const versesRes = await fetch(
+          `${BACKEND_URL}/api/quran/v4/verses/by_chapter/${id}?language=${apiLang}&per_page=300`
+        );
+        const versesData = await versesRes.json();
+        const verses = versesData.verses || [];
+
+        // Build audio URL helper: uses EveryAyah CDN with Alafasy recitation
+        const padNum = (n: number, len: number = 3) => String(n).padStart(len, '0');
+
+        const ayahsList: Ayah[] = verses.map((v: any) => {
+          const surahNum = parseInt(id || '1');
+          const verseNum = v.verse_number || v.id;
+          const audioUrl = `https://everyayah.com/data/Alafasy_128kbps/${padNum(surahNum)}${padNum(verseNum)}.mp3`;
+
+          // Extract translation text (remove HTML tags like <sup> and footnotes)
+          let translationText = '';
+          if (v.translations && v.translations.length > 0) {
+            translationText = v.translations[0].text || '';
+            // Remove <sup> footnote tags and their content first
+            translationText = translationText.replace(/<sup[^>]*>[\s\S]*?<\/sup>/gi, '');
+            // Clean remaining HTML tags from translation
+            translationText = translationText.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
           }
-        }
+
+          return {
+            number: v.id || verseNum,
+            text: v.text_uthmani || v.text || '',
+            numberInSurah: v.verse_number || verseNum,
+            audio: audioUrl,
+            translation: (locale !== 'ar' && translationText) ? translationText : undefined,
+          };
+        });
 
         setAyahs(ayahsList);
         setLoading(false);
-      } catch {
+      } catch (err) {
+        console.error('Error fetching ayahs:', err);
+        // Fallback to legacy API if backend fails
+        try {
+          const arabicRes = await fetch(`https://api.alquran.cloud/v1/surah/${id}/ar.alafasy`);
+          const arabicData = await arabicRes.json();
+          let ayahsList: Ayah[] = arabicData.data.ayahs;
+          setSurahName(arabicData.data.name);
+          setAyahs(ayahsList);
+        } catch {
+          // Both failed
+        }
         setLoading(false);
       }
     };

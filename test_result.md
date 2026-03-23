@@ -1,4 +1,4 @@
-# Test Results - أذان وحكاية Global Audit
+# Test Results - أذان وحكاية Global Audit V2
 
 ## Testing Protocol
 - Backend tests should use `deep_testing_backend_v2`
@@ -9,88 +9,144 @@
 ## Incorporate User Feedback
 - Follow user feedback for fixes and improvements
 
-## Current Task: Global Application Audit - Religious Accuracy & Language Integrity
+## Current Task: Full Multi-Language Deployment V2026
 
-### Changes Made:
-1. **Backend - quran_api_service.py**: Updated QURAN_EDITIONS (fr.hamidullah → fr.montada, nl.siregar → nl.abdalsalaam)
-2. **Backend - kids_learning_extended.py**: Replaced 3 Tirmidhi hadiths (#11, #13, #15) with Bukhari/Muslim equivalents, added 9-language translations
-3. **Backend - kids_learning.py**: Removed English fallback in all functions - now falls back to Arabic
-4. **Backend - kids_learn.py router**: Fixed prophet detail, kids surahs locale fallbacks from English to Arabic
-5. **Backend - quran_hadith.py**: Removed legacy alquran.cloud search fallback, enhanced full audit report
-6. **Frontend - SurahView.tsx**: Updated quranTranslationEditions (fr.hamidullah → fr.montada, nl.keyzer → nl.abdalsalaam)
+### Changes Made (Phase 2 - Emergency):
+1. **Quran.tsx REWRITE**: Replaced alquran.cloud API with backend Quran.com v4 - surah names now show in user's language (L'ouverture, Die Eröffnende, etc.)
+2. **SurahView.tsx REWRITE**: Replaced alquran.cloud API with backend Quran.com v4 - ayah translations now show in user's language (French, German, Turkish etc.)
+3. **German/Greek chapter names**: Added 114 static surah name translations for de/el (not available from Quran.com v4 API)
+4. **Tafsir fallback**: Changed from "Translation Pending" to English Ibn Kathir as last resort for non-ar/en/ru languages
+5. **QuranPlayer.tsx**: Updated to use backend Quran.com v4 API
+6. **usePrefetch.tsx**: Updated to use backend Quran.com v4 API
+7. **Footnote cleanup**: <sup> HTML tags properly stripped from translations
 
 ### Endpoints to Test:
+- `GET /api/quran/v4/chapters?language=fr` - French chapter names (L'ouverture, La vache, etc.)
+- `GET /api/quran/v4/chapters?language=de` - German chapter names (Die Eröffnende, Die Kuh, etc.)
+- `GET /api/quran/v4/chapters?language=el` - Greek chapter names (Η Εναρκτήρια, Η Αγελάδα, etc.)
+- `GET /api/quran/v4/verses/by_chapter/1?language=fr` - French translations
+- `GET /api/quran/v4/tafsir/1:1?language=fr` - Tafsir with English fallback
 - `GET /api/audit/full-report` - Full audit report
-- `GET /api/hadith-verify-all` - Dorar.net hadith verification
-- `GET /api/daily-hadith?language=fr` - Daily hadith with language integrity
-- `GET /api/quran/v4/tafsir/1:1?language=fr` - Tafsir with translation_pending
-- `GET /api/kids-learn/hadiths?locale=fr` - Kids hadiths with no English fallback
 
 ---
 
-## BACKEND TESTING RESULTS (2026-03-23)
+backend:
+  - task: "Multi-Language Chapter Names (9 Languages)"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ CRITICAL SUCCESS: All 9 languages working correctly. Arabic: سورة الفاتحة, French: L'ouverture, German: Die Eröffnende, Turkish: Fâtiha, Russian: Открывающая Коран, Swedish: Öppningen, Dutch: De Opening, Greek: Η Εναρκτήρια. API correctly returns localized chapter names in translated_name.name field."
 
-### Islamic Content Audit & Language Integrity Tests - ALL PASSED ✅
+  - task: "French Verses with Translation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: French verses API working perfectly. Returns Arabic text_uthmani AND French translations array. First verse correctly shows 'Au nom d'Allah, le Tout Clément, le Tout Miséricordieux' as expected."
 
-**Testing Agent**: deep_testing_backend_v2  
-**Backend URL**: https://quran-integrity-1.preview.emergentagent.com/api  
-**Test Status**: 7/7 PASSED
+  - task: "German Verses with Translation"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: German verses API working correctly. Bubenheim translation found: 'Im Namen Allahs, des Allerbarmers, des Barmherzigen.' Translation quality confirmed."
 
-#### Critical Test Results:
+  - task: "Tafsir Fallback for French"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ FALLBACK WORKING: French tafsir correctly shows is_fallback_language=true, translation_pending=false, and returns English Ibn Kathir tafsir as fallback. Exactly as specified in requirements."
 
-1. **✅ Full Audit Report** (`/api/audit/full-report`)
-   - `success`: true
-   - `all_adult_bukhari_muslim`: true (21/21 hadiths)
-   - `all_kids_bukhari_muslim`: true (10/10 hadiths)
-   - `all_extended_bukhari_muslim`: true (5/5 hadiths)
-   - `adult_hadiths_fully_translated`: "21/21"
-   - `kids_hadiths_fully_translated`: "10/10"
-   - `extended_hadiths_fully_translated`: "5/5"
-   - `forbidden_sources_check.adult_clean`: true
-   - `forbidden_sources_check.kids_clean`: true
-   - `forbidden_sources_check.extended_clean`: true
-   - **All critical Islamic content verification points PASSED**
+  - task: "Tafsir for Arabic"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Arabic tafsir working normally. is_fallback_language=false, returns Arabic tafsir text with proper Arabic characters."
 
-2. **✅ Daily Hadith French** (`/api/daily-hadith?language=fr`)
-   - French translation properly returned
-   - `translation_language`: "fr"
-   - `translation_pending`: false (correct - translation available)
-   - Text contains proper French content with diacritics
+  - task: "Full Audit Report"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ AUDIT PASSED: all_adult_bukhari_muslim=true, all_kids_bukhari_muslim=true, all_extended_bukhari_muslim=true. All critical Islamic content integrity checks passed."
 
-3. **✅ Tafsir French** (`/api/quran/v4/tafsir/1:1?language=fr`)
-   - `translation_pending`: true (correct - French tafsir not natively available)
-   - No English fallback text returned
-   - Proper language integrity maintained
+  - task: "Daily Hadith French"
+    implemented: true
+    working: true
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ VERIFIED: Daily hadith French API working. French translation detected with proper French characters and language indicators."
 
-4. **✅ Tafsir Arabic** (`/api/quran/v4/tafsir/1:1?language=ar`)
-   - `translation_pending`: false
-   - Arabic tafsir text properly returned
-   - Contains Arabic Unicode characters
+frontend:
+  - task: "Frontend Multi-Language Integration"
+    implemented: true
+    working: "NA"
+    file: "frontend/src/components/Quran.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Frontend testing not performed as per system limitations. Backend APIs fully functional and ready for frontend integration."
 
-5. **✅ Kids Hadiths French** (`/api/kids-learn/hadiths?locale=fr`)
-   - All hadiths returned with French translations
-   - `translation_pending`: false for all hadiths
-   - Proper French content with diacritics (miséricorde, vérité, etc.)
-   - No English fallback detected
+metadata:
+  created_by: "main_agent"
+  version: "2.0"
+  test_sequence: 1
+  run_ui: false
 
-6. **✅ Tashkeel Audit** (`/api/audit/tashkeel`)
-   - All 21 adult hadiths passed tashkeel verification
-   - Proper Arabic diacritics maintained
-   - Status: complete/successful
+test_plan:
+  current_focus:
+    - "Multi-Language Chapter Names (9 Languages)"
+    - "French Verses with Translation"
+    - "German Verses with Translation"
+    - "Tafsir Fallback for French"
+    - "Tafsir for Arabic"
+    - "Full Audit Report"
+    - "Daily Hadith French"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
 
-7. **✅ Health Check** (`/api/health`)
-   - Service status: "healthy"
-   - All systems operational
-
-#### Backend Status Summary:
-- **Religious Accuracy**: ✅ VERIFIED - All hadiths from Bukhari/Muslim only
-- **Language Integrity**: ✅ VERIFIED - No English fallbacks, proper translation_pending flags
-- **Tashkeel Quality**: ✅ VERIFIED - All Arabic texts properly diacritized
-- **Translation Coverage**: ✅ VERIFIED - Full 8-language support for all content
-- **API Functionality**: ✅ VERIFIED - All endpoints responding correctly
-
-#### Agent Communication:
-- **Agent**: testing
-- **Message**: Islamic content audit and language integrity testing completed successfully. All 7 critical endpoints passed verification. The app maintains proper religious accuracy with all hadiths sourced from Sahih Al-Bukhari and Sahih Muslim only. Language integrity is maintained with proper translation_pending flags and no English fallbacks. Ready for production use.
-
----
+agent_communication:
+  - agent: "testing"
+    message: "🎉 MULTI-LANGUAGE DEPLOYMENT FULLY FUNCTIONAL! All 7 critical backend endpoints tested and working correctly. Chapter names properly localized in all 9 languages (ar, en, fr, de, tr, ru, sv, nl, el). French and German verse translations working. Tafsir fallback mechanism working as designed. Full audit report passing all Islamic content integrity checks. Ready for production deployment."
