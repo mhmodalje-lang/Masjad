@@ -386,13 +386,12 @@ async def get_tafsir_for_verse(
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     has_native_tafsir = base_lang in NATIVE_TAFSIR_LANGS
     
-    # If language has no native tafsir, show ARABIC Al-Muyassar (clean, KFGQPC verified)
-    # This avoids mixed Arabic+English text from Ibn Kathir which looks terrible
+    # For non-native languages: use CLEANED English Ibn Kathir (Arabic quotes stripped)
     if not has_native_tafsir:
-        tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # Arabic Al-Muyassar (clean, no mixing)
+        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir
         
         # Check cache first
-        cache_key = f"tafsir_{tafsir_id}_{verse_key}_arabic_fallback"
+        cache_key = f"tafsir_{tafsir_id}_{verse_key}_cleaned_en"
         try:
             cached = await db.tafsir_cache.find_one({
                 "cache_key": cache_key,
@@ -404,17 +403,17 @@ async def get_tafsir_for_verse(
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
+                    "tafsir_name": "Ibn Kathir",
                     "text": cached.get("text", ""),
                     "is_fallback_language": True,
-                    "fallback_to_arabic": True,
+                    "fallback_to_english": True,
                     "translation_pending": False,
                     "cached": True,
                 }
         except Exception:
             pass
         
-        # Fetch Arabic Al-Muyassar tafsir (clean Arabic, no mixing)
+        # Fetch English Ibn Kathir and CLEAN it (strip Arabic text)
         try:
             async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
@@ -422,9 +421,24 @@ async def get_tafsir_for_verse(
                 data = r.json()
                 tafsir_data = data.get("tafsir", {})
                 raw_text = tafsir_data.get("text", "")
-                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
                 
-                # Cache result
+                # Step 1: Remove HTML tags but preserve paragraph breaks
+                clean_text = re.sub(r'<br\s*/?\s*>', '\n', raw_text)
+                clean_text = re.sub(r'</p>', '\n\n', clean_text)
+                clean_text = re.sub(r'<[^>]*>', '', clean_text).replace('&nbsp;', ' ')
+                
+                # Step 2: Remove Arabic text blocks (keep only Latin/English text)
+                clean_text = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{2,}[\s\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u065F]*', ' ', clean_text)
+                
+                # Step 3: Clean up formatting
+                clean_text = re.sub(r'[`]{2,}', '', clean_text)  # Remove backticks
+                clean_text = re.sub(r'\(\s*\)', '', clean_text)  # Remove empty parens
+                clean_text = re.sub(r'\[\s*\]', '', clean_text)  # Remove empty brackets
+                clean_text = re.sub(r'[ \t]+', ' ', clean_text)  # Collapse spaces
+                clean_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', clean_text)  # Max 2 newlines
+                clean_text = clean_text.strip()
+                
+                # Cache cleaned result
                 try:
                     await db.tafsir_cache.update_one(
                         {"cache_key": cache_key},
@@ -432,7 +446,7 @@ async def get_tafsir_for_verse(
                             "cache_key": cache_key,
                             "verse_key": verse_key,
                             "tafsir_id": tafsir_id,
-                            "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
+                            "tafsir_name": "Ibn Kathir",
                             "text": clean_text,
                             "is_fallback": True,
                             "cached_at": datetime.utcnow(),
@@ -448,10 +462,10 @@ async def get_tafsir_for_verse(
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
+                    "tafsir_name": "Ibn Kathir",
                     "text": clean_text,
                     "is_fallback_language": True,
-                    "fallback_to_arabic": True,
+                    "fallback_to_english": True,
                     "translation_pending": False,
                     "cached": False,
                 }
@@ -464,7 +478,7 @@ async def get_tafsir_for_verse(
                 "tafsir_name": "",
                 "text": "",
                 "is_fallback_language": False,
-                "fallback_to_arabic": False,
+                "fallback_to_english": False,
                 "translation_pending": True,
                 "pending_language": base_lang,
                 "cached": False,
@@ -563,13 +577,13 @@ async def get_bulk_tafsir_for_chapter(
     
     base_lang = language.split('-')[0]
     
-    # LANGUAGE INTEGRITY: For non-native languages, use Arabic Al-Muyassar (clean, no mixing)
+    # LANGUAGE INTEGRITY: For non-native languages, use English Ibn Kathir (cleaned)
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     is_fallback = base_lang not in NATIVE_TAFSIR_LANGS
     if is_fallback:
-        tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # Arabic Al-Muyassar (clean KFGQPC)
+        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir (will be cleaned)
     else:
-        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["ar"])
+        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
     
     # Check bulk cache
     bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"
@@ -611,6 +625,12 @@ async def get_bulk_tafsir_for_chapter(
                         td = tr.json().get("tafsir", {})
                         raw = td.get("text", "")
                         clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').strip()
+                        # For fallback languages, strip Arabic from English text
+                        if is_fallback:
+                            clean = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{3,}[\s\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u065F]*', '', clean)
+                            clean = re.sub(r'\s{3,}', '\n\n', clean)
+                            clean = re.sub(r'[`\(\)\[\]]{2,}', '', clean)
+                            clean = re.sub(r'\n{3,}', '\n\n', clean).strip()
                         tafsirs_list.append({
                             "verse_key": vk,
                             "text": clean,

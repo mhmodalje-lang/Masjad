@@ -311,8 +311,8 @@ function AyahCard({
 
   const tafsirSourceLabel = locale === 'ar'
     ? t('tafsirMuyassar')
-    : tafsir?.is_fallback_language
-      ? `${tafsir?.tafsir_name || 'Ibn Kathir'} (${t('tafsirFallbackNote') || 'English'})`
+    : tafsir?.fallback_to_english
+      ? `Ibn Kathir — ${t('tafsirFallbackNote')}`
       : tafsir?.tafsir_name || t('tafsirAbridged');
 
   return (
