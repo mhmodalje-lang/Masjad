@@ -157,8 +157,8 @@ export function PermissionManager() {
       // Show UI only if there are permissions to request
       const hasPending = [loc, notif].some((s) => s === 'prompt');
       if (hasPending) {
-        // Wait for app to settle before showing
-        setTimeout(() => setVisible(true), 2000);
+        // Wait longer for app to settle and other banners to clear before showing
+        setTimeout(() => setVisible(true), 5000);
       }
 
       localStorage.setItem(PERMISSION_CHECK_KEY, String(Date.now()));
@@ -212,67 +212,39 @@ export function PermissionManager() {
   return (
     <div
       data-testid="permission-manager-overlay"
-      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
+      className="fixed bottom-20 left-3 right-3 z-[60] animate-in slide-in-from-bottom-4 duration-500"
       dir={dir}
     >
-      <div className="w-full max-w-md mx-4 mb-4 sm:mb-0 glass-mystic rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
-        {/* Header with gradient */}
-        <div className={cn('relative p-8 pb-12 bg-gradient-to-br', config.gradient)}>
+      <div className="w-full max-w-md mx-auto glass-mystic rounded-2xl shadow-2xl overflow-hidden border border-border/20">
+        {/* Compact Header */}
+        <div className={cn('relative p-4 bg-gradient-to-br', config.gradient)}>
           <button
             onClick={handleDismiss}
             data-testid="permission-dismiss-btn"
-            className="absolute top-4 left-4 p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors"
+            className="absolute top-3 start-3 p-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-3.5 w-3.5 text-white" />
           </button>
 
-          <div className="flex items-center gap-2 text-white/60 text-xs mb-4">
-            <Shield className="h-3.5 w-3.5" />
-            <span>
-              {t('permStep')} {currentStep + 1} {t('permOf')} {pendingPermissions.length}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center">
-              <Icon className={cn('h-8 w-8', config.iconColor)} />
+          <div className="flex items-center gap-3 ps-8">
+            <div className="h-10 w-10 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+              <Icon className={cn('h-5 w-5', config.iconColor)} />
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-white">{config.title}</h2>
-              <p className="text-white/70 text-sm mt-1">{config.subtitle}</p>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-sm font-bold text-white truncate">{config.title}</h2>
+              <p className="text-white/70 text-xs mt-0.5 truncate">{config.subtitle}</p>
             </div>
           </div>
         </div>
 
-        {/* Benefits list */}
-        <div className="px-6 -mt-6">
-          <div className="rounded-2xl neu-card p-5 shadow-lg">
-            <p className="text-xs font-bold text-muted-foreground mb-3">
-              {config.subtitle}
-            </p>
-            <ul className="space-y-3">
-              {config.benefits.map((benefit, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                    <ChevronLeft className="h-3 w-3 text-primary" />
-                  </div>
-                  <span className="text-sm text-foreground leading-relaxed">
-                    {benefit}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="p-6 space-y-3">
+        {/* Compact Actions */}
+        <div className="p-3 flex gap-2">
           <button
             onClick={handleRequest}
             disabled={requesting}
             data-testid={`permission-grant-${config.type}`}
             className={cn(
-              'w-full py-3.5 rounded-2xl font-bold text-sm text-white transition-all active:scale-[0.98]',
+              'flex-1 py-2.5 rounded-xl font-bold text-xs text-white transition-all active:scale-[0.98]',
               'bg-gradient-to-r',
               config.gradient,
               requesting && 'opacity-60'
@@ -283,17 +255,10 @@ export function PermissionManager() {
           <button
             onClick={handleSkip}
             data-testid={`permission-skip-${config.type}`}
-            className="w-full py-3 rounded-2xl text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="flex-1 py-2.5 rounded-xl text-xs text-muted-foreground hover:text-foreground transition-colors bg-muted/30"
           >
             {t('permLaterBtn')}
           </button>
-        </div>
-
-        {/* Privacy note */}
-        <div className="px-6 pb-6">
-          <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-            {t('permPrivacyNote')}
-          </p>
         </div>
       </div>
     </div>

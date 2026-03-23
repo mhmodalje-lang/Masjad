@@ -12,7 +12,10 @@ export default function GDPRAdConsent() {
     if (!adConfig.gdpr_consent_required) return;
     const consent = localStorage.getItem('gdpr-ad-consent');
     if (!consent) {
-      const timer = setTimeout(() => setShow(true), 2500);
+      // Only show AFTER cookie consent is handled (avoid stacking popups)
+      const cookieConsent = localStorage.getItem('cookie-consent');
+      const delay = cookieConsent ? 1500 : 6000;
+      const timer = setTimeout(() => setShow(true), delay);
       return () => clearTimeout(timer);
     }
   }, [adConfig.gdpr_consent_required]);
@@ -31,7 +34,7 @@ export default function GDPRAdConsent() {
   if (!show) return null;
 
   return (
-    <div data-testid="gdpr-consent-overlay" className="fixed inset-x-0 bottom-0 z-[9999] flex items-end justify-center p-4 animate-in fade-in duration-300" dir={dir}>
+    <div data-testid="gdpr-consent-overlay" className="fixed inset-x-0 bottom-20 z-[65] flex items-end justify-center p-3 animate-in fade-in duration-300" dir={dir}>
       <div className="w-full max-w-lg bg-card border border-border/60 rounded-2xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-500">
         <div className="flex items-start gap-3 mb-4">
           <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">

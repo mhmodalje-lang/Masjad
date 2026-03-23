@@ -20,7 +20,7 @@ export default function OfflineNotice() {
   if (!isOffline) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] bg-amber-600 text-white text-center py-2 px-4 flex items-center justify-center gap-2 text-xs font-bold shadow-lg" dir={dir}>
+    <div className="fixed top-0 left-0 right-0 z-[70] bg-amber-600 text-white text-center py-2 px-4 flex items-center justify-center gap-2 text-xs font-bold shadow-lg" dir={dir}>
       <WifiOff className="h-3.5 w-3.5 shrink-0" />
       <span>{t('offlineNotice')}</span>
     </div>

@@ -30,8 +30,8 @@ p, h1, h2, h3, h4, h5, h6, span, article, .selectable {
   user-select: text;
 }
 
-/* Smooth scrolling for all scrollable areas */
-* {
+/* Smooth scrolling for page navigation only */
+html {
   scroll-behavior: smooth;
 }
 

@@ -31,7 +31,7 @@ export default function CookieConsent() {
   if (!show) return null;
 
   return (
-    <div data-testid="cookie-consent-banner" className="fixed bottom-16 left-0 right-0 z-[999] px-3 pb-2 animate-in slide-in-from-bottom duration-500" dir={dir}>
+    <div data-testid="cookie-consent-banner" className="fixed bottom-16 left-0 right-0 z-[55] px-3 pb-2 animate-in slide-in-from-bottom duration-500" dir={dir}>
       <div className="max-w-lg mx-auto bg-card border border-border/60 rounded-2xl p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
         <div className="flex items-start gap-3">
           <div className="p-2 rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">

@@ -17,6 +17,12 @@ App was rejected from Play Store, App Store, and Google Ads. Fixes being applied
 10. ✅ Hidden BottomNav on policy pages (cleaner standalone look)
 11. ✅ Added policy pages to CUSTOM_HEADER_PAGES (no TopNav overlap)
 12. ✅ Created PageTransition component for native-like animations
+13. ✅ Fixed PermissionManager: converted from full-screen blocking overlay (z-9999) to compact non-blocking bottom banner (z-60)
+14. ✅ Fixed GDPRAdConsent: reduced z-index from 9999 to 65, delayed showing to avoid stacking with CookieConsent
+15. ✅ Fixed CookieConsent: reduced z-index from 999 to 55
+16. ✅ Fixed OfflineNotice: reduced z-index from 9999 to 70
+17. ✅ Fixed scroll-behavior CSS: moved from * (all elements) to html only
+18. ✅ Page now scrolls freely even with popups visible (confirmed: scroll 0→500 with popups)
 
 ### Previous Task (July 2025):
 1. ✅ Remove up/down arrows from FullscreenViewer in Stories
