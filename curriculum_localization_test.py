@@ -17,7 +17,7 @@ import re
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://multilang-app-fix.preview.emergentagent.com"
+BACKEND_URL = "https://quran-authentic-1.preview.emergentagent.com"
 
 class CurriculumLocalizationTester:
     def __init__(self):

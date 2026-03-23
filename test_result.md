@@ -295,7 +295,7 @@ All critical issues have been verified and resolved:
 ### STORIES API TESTING - Video Upload and Creation Flow
 **Status: ✅ PASSED (5/5 tests)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -353,7 +353,7 @@ All critical issues have been verified and resolved:
 ### DELETE /api/auth/delete-account Authentication Testing
 **Status: ✅ PASSED (4/4 tests)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -409,7 +409,7 @@ All critical issues have been verified and resolved:
 ### BACKEND API TESTING - Stories Platform Endpoints
 **Status: ✅ PASSED (6/6 tests)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -477,7 +477,7 @@ All critical issues have been verified and resolved:
 **Status: ⚠️ CRITICAL ISSUES FOUND**
 
 **Test Date:** March 23, 2026
-**App URL:** https://multilang-app-fix.preview.emergentagent.com
+**App URL:** https://quran-authentic-1.preview.emergentagent.com
 
 ---
 
@@ -666,7 +666,7 @@ All critical issues have been verified and resolved:
 ### BACKEND API TESTING - App Store Compliance Endpoints
 **Status: ✅ PASSED (7/7 tests)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test | Endpoint | Expected | Result | Status |
 ||------|----------|----------|---------|---------|
@@ -753,7 +753,7 @@ All required App Store and Play Store compliance endpoints are implemented and f
 ### BACKEND API TESTING - Stories Platform Core Endpoints
 **Status: ✅ PASSED (5/5 tests)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -904,7 +904,7 @@ All required App Store and Play Store compliance endpoints are implemented and f
 ### BACKEND API TESTING - Kids Learn Educational Platform
 **Status: ✅ PASSED (36/36 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test Category | Endpoint | Languages Tested | Expected | Result | Status |
 ||---------------|----------|------------------|----------|---------|---------|
@@ -1066,7 +1066,7 @@ All requested Kids Learn (Academy Noor) backend API endpoints are implemented an
 ### BACKEND API TESTING - Kids Learn (Academy Noor) - ALL 19 ENDPOINTS
 **Status: ✅ PASSED (46/46 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 ### Testing Agent (March 23, 2026 - Comprehensive Review Request)
 **Message:** Completed comprehensive backend API testing for ALL 19 Kids Learn (Academy Noor) endpoints as specifically requested in the review request. Every single endpoint is functioning perfectly:
@@ -1145,7 +1145,7 @@ All expected data counts verified and match requirements:
 ### BACKEND API TESTING - NEW Rewards Store System
 **Status: ✅ PASSED (18/18 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test | Endpoint | Expected | Result | Status |
 ||------|----------|----------|---------|---------|
@@ -1308,7 +1308,7 @@ All requested NEW Rewards Store backend API endpoints are implemented and functi
 ### BACKEND API TESTING - NEW Policy Compliance Endpoints
 **Status: ✅ PASSED (4/4 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test | Endpoint | Expected | Result | Status |
 ||------|----------|----------|---------|---------|
@@ -1392,7 +1392,7 @@ All 4 NEW policy compliance backend API endpoints are implemented and functionin
 ### BACKEND API TESTING - Policy Compliance After Frontend Changes
 **Status: ✅ PASSED (12/12 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test | Endpoint | Expected | Result | Status |
 ||------|----------|----------|---------|---------|
@@ -1515,7 +1515,7 @@ All requested policy compliance endpoints are functioning correctly after fronte
 ### BACKEND API TESTING - Islamic App Multilingual Endpoints
 **Status: ✅ PASSED (10/10 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 || Test | Endpoint | Expected | Result | Status |
 ||------|----------|----------|---------|---------|
@@ -1654,7 +1654,7 @@ Focus was on verifying multilingual endpoints work correctly across languages as
 ### BACKEND API TESTING - Multi-Language Content for Kids Curriculum Advanced
 **Status: ✅ PASSED (86/86 tests - 100% success rate)**
 
-**Backend URL:** https://multilang-app-fix.preview.emergentagent.com
+**Backend URL:** https://quran-authentic-1.preview.emergentagent.com
 
 **Review Request Focus:** Testing multi-language content delivery for kids_curriculum_advanced.py content that was previously only available in Arabic and English, now expanded to all 7 additional languages (de, fr, tr, ru, sv, nl, el).
 
