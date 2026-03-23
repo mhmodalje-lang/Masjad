@@ -641,16 +641,24 @@ export default function KidsZone() {
         <p className="text-sm text-emerald-500 dark:text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {t('ayahPlural')}</p>
       </div>
       {selectedSurah.ayahs?.map((a:any,i:number)=>(
-        <button key={i} onClick={()=>speak(a.arabic,'ar')} className="w-full p-4 rounded-2xl bg-card/60 border border-border/30 text-start hover:border-emerald-400/30 transition-all">
-          <div className="flex items-start gap-3">
-            <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400 shrink-0">{a.number}</span>
-            <div className="flex-1">
-              <p className="text-xl font-bold font-arabic leading-loose" dir="rtl">{a.arabic}</p>
-              {a.translation && <p className="text-sm text-foreground/60 mt-2">{a.translation}</p>}
+        <div key={i} className="w-full p-4 rounded-2xl bg-card/60 border border-border/30 hover:border-emerald-400/30 transition-all">
+          <button onClick={()=>speak(a.arabic,'ar')} className="w-full text-start">
+            <div className="flex items-start gap-3">
+              <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400 shrink-0">{a.number}</span>
+              <div className="flex-1">
+                <p className="text-xl font-bold font-arabic leading-loose" dir="rtl">{a.arabic}</p>
+                {a.translation && <p className="text-sm text-foreground/60 mt-2">{a.translation}</p>}
+              </div>
+              <Volume2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-2"/>
             </div>
-            <Volume2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-2"/>
-          </div>
-        </button>
+          </button>
+          {a.tafsir_kids && (
+            <div className="mt-3 ms-11 p-3 rounded-xl bg-amber-500/10 border border-amber-400/20">
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 mb-1">💡 {t('kidsTafsirLabel') || 'تفسير مبسّط للأطفال'}</p>
+              <p className="text-xs text-foreground/70 leading-relaxed">{a.tafsir_kids}</p>
+            </div>
+          )}
+        </div>
       ))}
     </div>);
 

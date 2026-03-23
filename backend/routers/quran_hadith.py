@@ -115,14 +115,15 @@ TAFSIR_RESOURCE_IDS = {
 # Languages that have NATIVE tafsir on Quran.com
 NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
 
-# For non-native tafsir languages, we use the official KFGQPC translation
-# as the verse explanation - these are from verified Islamic scholars
+# For non-native tafsir languages, use a DIFFERENT scholar's translation
+# as the verse explanation — distinct from the main translation to avoid duplication.
+# This provides a SECOND scholarly perspective on each verse.
 TAFSIR_TRANSLATION_FALLBACK_IDS = {
-    "de": 27,    # Bubenheim & Elyas (KFGQPC German)
-    "fr": 136,   # Montada Islamic Foundation (French)
-    "tr": 77,    # Diyanet İşleri (Turkish Official)
-    "sv": 48,    # Knut Bernström (Swedish)
-    "nl": 144,   # Sofian S. Siregar (Dutch)
+    "de": 208,   # Abu Reda (vs main Bubenheim 27) — 2nd German scholar
+    "fr": 31,    # Hamidullah (vs main Montada 136) — 2nd French scholar
+    "tr": 52,    # Elmalili Hamdi Yazir (vs main Diyanet 77) — classic Turkish tafsir
+    "sv": 0,     # Only 1 Swedish translation → use Arabic Al-Muyassar
+    "nl": 235,   # Abdalsalaam (vs main Siregar 144) — 2nd Dutch scholar
     "el": 0,     # No Greek - pending
 }
 
@@ -131,11 +132,11 @@ TAFSIR_LABEL_BY_LANG = {
     "ar": "التفسير الميسر — مجمع الملك فهد",
     "en": "Ibn Kathir (Abridged)",
     "ru": "Тафсир ас-Саади",
-    "de": "Bubenheim & Elyas — KFGQPC",
-    "fr": "Fondation Islamique Montada",
-    "tr": "Diyanet İşleri Başkanlığı",
-    "sv": "Knut Bernström",
-    "nl": "Sofian S. Siregar",
+    "de": "Abu Reda Muhammad ibn Ahmad",
+    "fr": "Muhammad Hamidullah",
+    "tr": "Elmalılı Hamdi Yazır",
+    "sv": "التفسير الميسر — مجمع الملك فهد",
+    "nl": "Malak Faris Abdalsalaam",
     "el": "Επίσημη μετάφραση σε εξέλιξη",
 }
 
@@ -495,12 +496,77 @@ async def get_tafsir_for_verse(
             raise HTTPException(500, f"Tafsir fetch error: {str(e)}")
 
     # ── NON-NATIVE TAFSIR LANGUAGES (de, fr, tr, sv, nl, el) ──
-    # Use the OFFICIAL KFGQPC Quran translation in the user's language
-    # as the verse explanation. NO English fallback.
+    # Use a DIFFERENT scholar's translation as explanation to avoid duplicate text.
     translation_id = TAFSIR_TRANSLATION_FALLBACK_IDS.get(base_lang, 0)
     label = TAFSIR_LABEL_BY_LANG.get(base_lang, "")
 
-    # Greek: no translation available at all
+    # Swedish: only 1 translation → use Arabic Al-Muyassar tafsir
+    if base_lang == "sv" and translation_id == 0:
+        tafsir_id_ar = TAFSIR_RESOURCE_IDS["ar"]  # 16 = Al-Muyassar
+        cache_key = f"tafsir_v3_{tafsir_id_ar}_{verse_key}_sv"
+        try:
+            cached = await db.tafsir_cache.find_one({
+                "cache_key": cache_key,
+                "expires_at": {"$gt": datetime.utcnow()}
+            })
+            if cached:
+                return {
+                    "success": True,
+                    "verse_key": verse_key,
+                    "language": base_lang,
+                    "tafsir_id": tafsir_id_ar,
+                    "tafsir_name": label,
+                    "text": cached.get("text", ""),
+                    "is_fallback_language": False,
+                    "fallback_to_english": False,
+                    "translation_pending": False,
+                    "is_arabic_tafsir": True,
+                    "cached": True,
+                }
+        except Exception:
+            pass
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id_ar}/by_ayah/{verse_key}")
+                r.raise_for_status()
+                data = r.json()
+                tafsir_data = data.get("tafsir", {})
+                raw_text = tafsir_data.get("text", "")
+                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+                try:
+                    await db.tafsir_cache.update_one(
+                        {"cache_key": cache_key},
+                        {"$set": {
+                            "cache_key": cache_key,
+                            "verse_key": verse_key,
+                            "tafsir_id": tafsir_id_ar,
+                            "tafsir_name": label,
+                            "text": clean_text,
+                            "is_fallback": False,
+                            "cached_at": datetime.utcnow(),
+                            "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                        }},
+                        upsert=True,
+                    )
+                except Exception:
+                    pass
+                return {
+                    "success": True,
+                    "verse_key": verse_key,
+                    "language": base_lang,
+                    "tafsir_id": tafsir_id_ar,
+                    "tafsir_name": label,
+                    "text": clean_text,
+                    "is_fallback_language": False,
+                    "fallback_to_english": False,
+                    "translation_pending": False,
+                    "is_arabic_tafsir": True,
+                    "cached": False,
+                }
+        except Exception:
+            pass
+
+    # Greek or unknown: no translation available
     if translation_id == 0:
         return {
             "success": True,
@@ -637,11 +703,15 @@ async def get_bulk_tafsir_for_chapter(
     if base_lang in NATIVE_TAFSIR_LANGS:
         tafsir_id = TAFSIR_RESOURCE_IDS[base_lang]
         use_translation_api = False
+    elif base_lang == "sv":
+        # Swedish: only 1 translation → use Arabic Al-Muyassar tafsir
+        tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # 16
+        use_translation_api = False
     else:
         tafsir_id = TAFSIR_TRANSLATION_FALLBACK_IDS.get(base_lang, 0)
         use_translation_api = True
 
-    # Greek: pending
+    # Greek or unknown: pending
     if tafsir_id == 0:
         return {
             "success": True,

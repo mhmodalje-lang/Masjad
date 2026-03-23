@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend Testing for أذان وحكاية - Islamic Content Audit & Language Integrity
-Tests all critical endpoints for religious accuracy and language integrity
+V2026 Global Islamic Localization Backend Test
+Tests the specific requirements for Quran/Hadith backend APIs
+Focus: Each language gets DIFFERENT text from its verse translation
 """
 
 import requests
@@ -9,22 +10,24 @@ import json
 import sys
 from typing import Dict, Any, List
 
-# Backend URL from environment
+# Backend URL from frontend environment
 BACKEND_URL = "https://quran-verify-4.preview.emergentagent.com/api"
 
-class IslamicContentTester:
+class V2026LocalizationTester:
     def __init__(self):
         self.results = []
         self.failed_tests = []
         self.passed_tests = []
+        self.critical_failures = []
         
-    def log_result(self, test_name: str, passed: bool, details: str, response_data: Any = None):
+    def log_result(self, test_name: str, passed: bool, details: str, response_data: Any = None, critical: bool = False):
         """Log test result with details"""
         result = {
             "test": test_name,
             "passed": passed,
             "details": details,
-            "response_data": response_data
+            "response_data": response_data,
+            "critical": critical
         }
         self.results.append(result)
         
@@ -33,9 +36,11 @@ class IslamicContentTester:
             print(f"✅ {test_name}: {details}")
         else:
             self.failed_tests.append(test_name)
+            if critical:
+                self.critical_failures.append(test_name)
             print(f"❌ {test_name}: {details}")
             
-    def make_request(self, endpoint: str, params: Dict = None) -> tuple:
+    def make_request(self, endpoint: str, params: Dict = None, method: str = "GET") -> tuple:
         """Make HTTP request and return response and success status"""
         try:
             url = f"{BACKEND_URL}{endpoint}"
@@ -43,7 +48,13 @@ class IslamicContentTester:
             if params:
                 print(f"   Parameters: {params}")
                 
-            response = requests.get(url, params=params, timeout=30)
+            if method == "GET":
+                response = requests.get(url, params=params, timeout=30)
+            elif method == "POST":
+                response = requests.post(url, json=params, timeout=30)
+            else:
+                response = requests.request(method, url, params=params, timeout=30)
+                
             print(f"   Status Code: {response.status_code}")
             
             if response.status_code == 200:
@@ -57,296 +68,610 @@ class IslamicContentTester:
                 
         except requests.exceptions.RequestException as e:
             return None, False, f"Request failed: {str(e)}"
-    
-    def test_full_audit_report(self):
-        """Test 1: Full Audit Report - Critical Islamic Content Verification"""
+
+    def test_tafsir_french_1_2(self):
+        """Test 1a: Tafsir API - French 1:2 (should contain Hamidullah, DIFFERENT from Montada translation)"""
         print("\n" + "="*60)
-        print("TEST 1: FULL AUDIT REPORT")
+        print("TEST 1a: TAFSIR FRENCH 1:2 - Should contain Hamidullah, DIFFERENT from Montada")
         print("="*60)
         
-        data, success, error = self.make_request("/audit/full-report")
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "fr"})
         
         if not success:
-            self.log_result("Full Audit Report", False, f"Request failed: {error}")
+            self.log_result("Tafsir French 1:2", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Full Audit Report", False, "No data returned")
+            self.log_result("Tafsir French 1:2", False, "No data returned", critical=True)
             return
             
-        # Verify success field
-        if not data.get('success'):
-            self.log_result("Full Audit Report", False, f"Audit success is false: {data.get('success')}")
-            return
+        # Check required fields
+        success_field = data.get('success', False)
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
+        
+        issues = []
+        
+        if not success_field:
+            issues.append(f"success should be true, got {success_field}")
             
-        summary = data.get('summary', {})
-        forbidden_check = data.get('forbidden_sources_check', {})
-        
-        # Critical verification points
-        checks = [
-            ("all_adult_bukhari_muslim", summary.get('all_adult_bukhari_muslim'), True),
-            ("all_kids_bukhari_muslim", summary.get('all_kids_bukhari_muslim'), True),
-            ("all_extended_bukhari_muslim", summary.get('all_extended_bukhari_muslim'), True),
-            ("adult_hadiths_fully_translated", summary.get('adult_hadiths_fully_translated'), "21/21"),
-            ("kids_hadiths_fully_translated", summary.get('kids_hadiths_fully_translated'), "10/10"),
-            ("extended_hadiths_fully_translated", summary.get('extended_hadiths_fully_translated'), "5/5"),
-            ("adult_clean", forbidden_check.get('adult_clean'), True),
-            ("kids_clean", forbidden_check.get('kids_clean'), True),
-            ("extended_clean", forbidden_check.get('extended_clean'), True),
-        ]
-        
-        all_passed = True
-        failed_checks = []
-        
-        for check_name, actual, expected in checks:
-            if actual != expected:
-                all_passed = False
-                failed_checks.append(f"{check_name}: expected {expected}, got {actual}")
-                
-        if all_passed:
-            self.log_result("Full Audit Report", True, "All audit checks passed successfully", summary)
+        if 'Hamidullah' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'Hamidullah', got '{tafsir_name}'")
+            
+        # Check that text is NOT the Montada translation
+        montada_text = "Louange à Allah, Seigneur des mondes"
+        if montada_text in text:
+            issues.append(f"text should be DIFFERENT from Montada translation, got Montada text: '{text[:100]}...'")
+            
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir French 1:2", False, "; ".join(issues), data, critical=True)
         else:
-            self.log_result("Full Audit Report", False, f"Failed checks: {'; '.join(failed_checks)}", data)
-    
-    def test_daily_hadith_french(self):
-        """Test 2: Daily Hadith French Language Integrity"""
+            self.log_result("Tafsir French 1:2", True, f"French tafsir correct: {tafsir_name}, text is different from Montada", data)
+
+    def test_tafsir_german_1_2(self):
+        """Test 1b: Tafsir API - German 1:2 (should contain Abu Reda)"""
         print("\n" + "="*60)
-        print("TEST 2: DAILY HADITH - FRENCH LANGUAGE INTEGRITY")
+        print("TEST 1b: TAFSIR GERMAN 1:2 - Should contain Abu Reda")
         print("="*60)
         
-        data, success, error = self.make_request("/daily-hadith", {"language": "fr"})
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "de"})
         
         if not success:
-            self.log_result("Daily Hadith French", False, f"Request failed: {error}")
+            self.log_result("Tafsir German 1:2", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Daily Hadith French", False, "No hadith data returned")
+            self.log_result("Tafsir German 1:2", False, "No data returned", critical=True)
             return
             
-        # Check if hadith has French translation OR translation_pending=true
-        has_french_translation = False
-        has_translation_pending = data.get('translation_pending', False)
+        # Check required fields
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
         
-        # Check hadith object if it exists
-        hadith = data.get('hadith', data)
+        issues = []
         
-        # Check translation_language field first
-        translation_language = hadith.get('translation_language', '')
-        if translation_language == 'fr':
-            has_french_translation = True
-        
-        # Also check for French text in various fields
-        if not has_french_translation:
-            text_fields = ['text', 'translation', 'french_translation', 'content']
-            for field in text_fields:
-                if field in hadith and hadith[field]:
-                    text = str(hadith[field]).lower()
-                    # Check for French characters and words
-                    french_indicators = ['à', 'è', 'é', 'ê', 'ç', 'bâti', 'témoigner', 'pèlerinage', 'jeûner']
-                    english_indicators = ['the prophet', 'said allah', 'narrated by']
-                    
-                    has_french_chars = any(indicator in text for indicator in french_indicators)
-                    has_english_phrases = any(indicator in text for indicator in english_indicators)
-                    
-                    if has_french_chars and not has_english_phrases:
-                        has_french_translation = True
-                        break
-        
-        if has_french_translation or has_translation_pending:
-            details = "French translation found" if has_french_translation else "Translation pending (acceptable)"
-            self.log_result("Daily Hadith French", True, details, data)
+        if 'Abu Reda' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'Abu Reda', got '{tafsir_name}'")
+            
+        # Check that text is in German
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir German 1:2", False, "; ".join(issues), data, critical=True)
         else:
-            self.log_result("Daily Hadith French", False, "No French translation and no translation_pending flag", data)
-    
-    def test_tafsir_french(self):
-        """Test 3: Tafsir French - Should have translation_pending=true"""
+            self.log_result("Tafsir German 1:2", True, f"German tafsir correct: {tafsir_name}", data)
+
+    def test_tafsir_turkish_1_2(self):
+        """Test 1c: Tafsir API - Turkish 1:2 (should contain Elmalılı)"""
         print("\n" + "="*60)
-        print("TEST 3: TAFSIR FRENCH - TRANSLATION PENDING CHECK")
+        print("TEST 1c: TAFSIR TURKISH 1:2 - Should contain Elmalılı")
         print("="*60)
         
-        data, success, error = self.make_request("/quran/v4/tafsir/1:1", {"language": "fr"})
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "tr"})
         
         if not success:
-            self.log_result("Tafsir French", False, f"Request failed: {error}")
+            self.log_result("Tafsir Turkish 1:2", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Tafsir French", False, "No tafsir data returned")
+            self.log_result("Tafsir Turkish 1:2", False, "No data returned", critical=True)
             return
             
-        # Should have translation_pending=true for French
+        # Check required fields
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
+        
+        issues = []
+        
+        if 'Elmalılı' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'Elmalılı', got '{tafsir_name}'")
+            
+        # Check that text is in Turkish
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Turkish 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir Turkish 1:2", True, f"Turkish tafsir correct: {tafsir_name}", data)
+
+    def test_tafsir_swedish_1_2(self):
+        """Test 1d: Tafsir API - Swedish 1:2 (should be Arabic Al-Muyassar)"""
+        print("\n" + "="*60)
+        print("TEST 1d: TAFSIR SWEDISH 1:2 - Should be Arabic Al-Muyassar")
+        print("="*60)
+        
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "sv"})
+        
+        if not success:
+            self.log_result("Tafsir Swedish 1:2", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Tafsir Swedish 1:2", False, "No data returned", critical=True)
+            return
+            
+        # Check required fields
+        is_arabic_tafsir = data.get('is_arabic_tafsir', False)
+        text = data.get('text', '')
+        
+        issues = []
+        
+        if not is_arabic_tafsir:
+            issues.append(f"is_arabic_tafsir should be true, got {is_arabic_tafsir}")
+            
+        # Check that text is in Arabic (Al-Muyassar)
+        has_arabic = any('\u0600' <= char <= '\u06FF' for char in text) if text else False
+        if not has_arabic:
+            issues.append(f"text should be in Arabic (Al-Muyassar), got '{text[:50]}...'")
+            
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Swedish 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir Swedish 1:2", True, f"Swedish tafsir correct: Arabic Al-Muyassar text", data)
+
+    def test_tafsir_dutch_1_2(self):
+        """Test 1e: Tafsir API - Dutch 1:2 (should contain Abdalsalaam)"""
+        print("\n" + "="*60)
+        print("TEST 1e: TAFSIR DUTCH 1:2 - Should contain Abdalsalaam")
+        print("="*60)
+        
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "nl"})
+        
+        if not success:
+            self.log_result("Tafsir Dutch 1:2", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Tafsir Dutch 1:2", False, "No data returned", critical=True)
+            return
+            
+        # Check required fields
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
+        
+        issues = []
+        
+        if 'Abdalsalaam' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'Abdalsalaam', got '{tafsir_name}'")
+            
+        # Check that text is in Dutch
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Dutch 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir Dutch 1:2", True, f"Dutch tafsir correct: {tafsir_name}", data)
+
+    def test_tafsir_greek_1_2(self):
+        """Test 1f: Tafsir API - Greek 1:2 (should have translation_pending=true, empty text)"""
+        print("\n" + "="*60)
+        print("TEST 1f: TAFSIR GREEK 1:2 - Should have translation_pending=true, empty text")
+        print("="*60)
+        
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "el"})
+        
+        if not success:
+            self.log_result("Tafsir Greek 1:2", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Tafsir Greek 1:2", False, "No data returned", critical=True)
+            return
+            
+        # Check required fields
         translation_pending = data.get('translation_pending', False)
+        text = data.get('text', '')
         
-        if translation_pending:
-            # Verify NO English text is returned as fallback
-            text_content = data.get('text', '')
-            if text_content and isinstance(text_content, str):
-                english_indicators = ['the', 'and', 'said', 'allah', 'prophet']
-                has_english = any(indicator.lower() in text_content.lower() for indicator in english_indicators)
-                
-                if has_english:
-                    self.log_result("Tafsir French", False, "English fallback text found when translation_pending=true", data)
-                else:
-                    self.log_result("Tafsir French", True, "Translation pending correctly set, no English fallback", data)
-            else:
-                self.log_result("Tafsir French", True, "Translation pending correctly set, no text content", data)
+        issues = []
+        
+        if not translation_pending:
+            issues.append(f"translation_pending should be true, got {translation_pending}")
+            
+        if text and len(text) > 0:
+            issues.append(f"text should be empty when translation_pending=true, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Greek 1:2", False, "; ".join(issues), data, critical=True)
         else:
-            self.log_result("Tafsir French", False, "translation_pending should be true for French tafsir", data)
-    
-    def test_tafsir_arabic(self):
-        """Test 4: Tafsir Arabic - Should work normally"""
+            self.log_result("Tafsir Greek 1:2", True, f"Greek tafsir correct: translation_pending=true, empty text", data)
+
+    def test_tafsir_arabic_1_2(self):
+        """Test 1g: Tafsir API - Arabic 1:2 (should contain الميسر)"""
         print("\n" + "="*60)
-        print("TEST 4: TAFSIR ARABIC - NORMAL OPERATION")
+        print("TEST 1g: TAFSIR ARABIC 1:2 - Should contain الميسر")
         print("="*60)
         
-        data, success, error = self.make_request("/quran/v4/tafsir/1:1", {"language": "ar"})
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "ar"})
         
         if not success:
-            self.log_result("Tafsir Arabic", False, f"Request failed: {error}")
+            self.log_result("Tafsir Arabic 1:2", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Tafsir Arabic", False, "No tafsir data returned")
+            self.log_result("Tafsir Arabic 1:2", False, "No data returned", critical=True)
             return
             
-        # Should NOT have translation_pending=true for Arabic
-        translation_pending = data.get('translation_pending', False)
-        text_content = data.get('text', '')
+        # Check required fields
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
         
-        if not translation_pending and text_content:
-            # Check if text contains Arabic characters
-            has_arabic = any('\u0600' <= char <= '\u06FF' for char in text_content)
+        issues = []
+        
+        if 'الميسر' not in tafsir_name and 'المیسر' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'الميسر' or 'المیسر', got '{tafsir_name}'")
+            
+        # Check that text is in Arabic
+        has_arabic = any('\u0600' <= char <= '\u06FF' for char in text) if text else False
+        if not has_arabic:
+            issues.append(f"text should be in Arabic, got '{text[:50]}...'")
+            
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Arabic 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir Arabic 1:2", True, f"Arabic tafsir correct: {tafsir_name}", data)
+
+    def test_tafsir_english_1_2(self):
+        """Test 1h: Tafsir API - English 1:2 (should contain Ibn Kathir)"""
+        print("\n" + "="*60)
+        print("TEST 1h: TAFSIR ENGLISH 1:2 - Should contain Ibn Kathir")
+        print("="*60)
+        
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "en"})
+        
+        if not success:
+            self.log_result("Tafsir English 1:2", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Tafsir English 1:2", False, "No data returned", critical=True)
+            return
+            
+        # Check required fields
+        tafsir_name = data.get('tafsir_name', '')
+        text = data.get('text', '')
+        
+        issues = []
+        
+        if 'Ibn Kathir' not in tafsir_name:
+            issues.append(f"tafsir_name should contain 'Ibn Kathir', got '{tafsir_name}'")
+            
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir English 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir English 1:2", True, f"English tafsir correct: {tafsir_name}", data)
+
+    def test_tafsir_russian_1_2(self):
+        """Test 1i: Tafsir API - Russian 1:2 (should be in Cyrillic)"""
+        print("\n" + "="*60)
+        print("TEST 1i: TAFSIR RUSSIAN 1:2 - Should be in Cyrillic")
+        print("="*60)
+        
+        data, success, error = self.make_request("/quran/v4/tafsir/1:2", {"language": "ru"})
+        
+        if not success:
+            self.log_result("Tafsir Russian 1:2", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Tafsir Russian 1:2", False, "No data returned", critical=True)
+            return
+            
+        # Check required fields
+        text = data.get('text', '')
+        
+        issues = []
+        
+        # Check for Cyrillic characters
+        has_cyrillic = any('\u0400' <= char <= '\u04FF' for char in text) if text else False
+        if not has_cyrillic:
+            issues.append(f"text should contain Cyrillic characters, got '{text[:50]}...'")
+            
+        if not text or len(text) < 10:
+            issues.append(f"text should not be empty, got '{text[:50]}...'")
+            
+        if issues:
+            self.log_result("Tafsir Russian 1:2", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Tafsir Russian 1:2", True, f"Russian tafsir correct with Cyrillic text", data)
+
+    def test_kids_quran_fatiha_french(self):
+        """Test 2a: Kids Quran Tafsir - Fatiha in French (should have tafsir_kids field)"""
+        print("\n" + "="*60)
+        print("TEST 2a: KIDS QURAN FATIHA FRENCH - Should have tafsir_kids field")
+        print("="*60)
+        
+        data, success, error = self.make_request("/kids-learn/quran/surah/fatiha", {"locale": "fr"})
+        
+        if not success:
+            self.log_result("Kids Quran Fatiha French", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Kids Quran Fatiha French", False, "No data returned", critical=True)
+            return
+            
+        # Check that each ayah has tafsir_kids field
+        surah = data.get('surah', {})
+        ayahs = surah.get('ayahs', [])
+        issues = []
+        
+        if not ayahs:
+            issues.append("No ayahs found in response")
+        else:
+            for i, ayah in enumerate(ayahs):
+                tafsir_kids = ayah.get('tafsir_kids', '')
+                if not tafsir_kids:
+                    issues.append(f"Ayah {i+1} missing tafsir_kids field")
+                elif len(tafsir_kids) < 10:
+                    issues.append(f"Ayah {i+1} tafsir_kids too short: '{tafsir_kids[:30]}...'")
+                    
+        if issues:
+            self.log_result("Kids Quran Fatiha French", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Kids Quran Fatiha French", True, f"French kids tafsir correct for {len(ayahs)} ayahs", data)
+
+    def test_kids_quran_ikhlas_turkish(self):
+        """Test 2b: Kids Quran Tafsir - Ikhlas in Turkish (should have tafsir_kids field)"""
+        print("\n" + "="*60)
+        print("TEST 2b: KIDS QURAN IKHLAS TURKISH - Should have tafsir_kids field")
+        print("="*60)
+        
+        data, success, error = self.make_request("/kids-learn/quran/surah/ikhlas", {"locale": "tr"})
+        
+        if not success:
+            self.log_result("Kids Quran Ikhlas Turkish", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Kids Quran Ikhlas Turkish", False, "No data returned", critical=True)
+            return
+            
+        # Check that each ayah has tafsir_kids field
+        surah = data.get('surah', {})
+        ayahs = surah.get('ayahs', [])
+        issues = []
+        
+        if not ayahs:
+            issues.append("No ayahs found in response")
+        else:
+            for i, ayah in enumerate(ayahs):
+                tafsir_kids = ayah.get('tafsir_kids', '')
+                if not tafsir_kids:
+                    issues.append(f"Ayah {i+1} missing tafsir_kids field")
+                elif len(tafsir_kids) < 10:
+                    issues.append(f"Ayah {i+1} tafsir_kids too short: '{tafsir_kids[:30]}...'")
+                    
+        if issues:
+            self.log_result("Kids Quran Ikhlas Turkish", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Kids Quran Ikhlas Turkish", True, f"Turkish kids tafsir correct for {len(ayahs)} ayahs", data)
+
+    def test_kids_quran_fatiha_arabic(self):
+        """Test 2c: Kids Quran Tafsir - Fatiha in Arabic (should have tafsir_kids field)"""
+        print("\n" + "="*60)
+        print("TEST 2c: KIDS QURAN FATIHA ARABIC - Should have tafsir_kids field")
+        print("="*60)
+        
+        data, success, error = self.make_request("/kids-learn/quran/surah/fatiha", {"locale": "ar"})
+        
+        if not success:
+            self.log_result("Kids Quran Fatiha Arabic", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Kids Quran Fatiha Arabic", False, "No data returned", critical=True)
+            return
+            
+        # Check that each ayah has tafsir_kids field
+        surah = data.get('surah', {})
+        ayahs = surah.get('ayahs', [])
+        issues = []
+        
+        if not ayahs:
+            issues.append("No ayahs found in response")
+        else:
+            for i, ayah in enumerate(ayahs):
+                tafsir_kids = ayah.get('tafsir_kids', '')
+                if not tafsir_kids:
+                    issues.append(f"Ayah {i+1} missing tafsir_kids field")
+                elif len(tafsir_kids) < 10:
+                    issues.append(f"Ayah {i+1} tafsir_kids too short: '{tafsir_kids[:30]}...'")
+                    
+        if issues:
+            self.log_result("Kids Quran Fatiha Arabic", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Kids Quran Fatiha Arabic", True, f"Arabic kids tafsir correct for {len(ayahs)} ayahs", data)
+
+    def test_kids_quran_nas_english(self):
+        """Test 2d: Kids Quran Tafsir - Nas in English (should have tafsir_kids field)"""
+        print("\n" + "="*60)
+        print("TEST 2d: KIDS QURAN NAS ENGLISH - Should have tafsir_kids field")
+        print("="*60)
+        
+        data, success, error = self.make_request("/kids-learn/quran/surah/nas", {"locale": "en"})
+        
+        if not success:
+            self.log_result("Kids Quran Nas English", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Kids Quran Nas English", False, "No data returned", critical=True)
+            return
+            
+        # Check that each ayah has tafsir_kids field
+        surah = data.get('surah', {})
+        ayahs = surah.get('ayahs', [])
+        issues = []
+        
+        if not ayahs:
+            issues.append("No ayahs found in response")
+        else:
+            for i, ayah in enumerate(ayahs):
+                tafsir_kids = ayah.get('tafsir_kids', '')
+                if not tafsir_kids:
+                    issues.append(f"Ayah {i+1} missing tafsir_kids field")
+                elif len(tafsir_kids) < 10:
+                    issues.append(f"Ayah {i+1} tafsir_kids too short: '{tafsir_kids[:30]}...'")
+                    
+        if issues:
+            self.log_result("Kids Quran Nas English", False, "; ".join(issues), data, critical=True)
+        else:
+            self.log_result("Kids Quran Nas English", True, f"English kids tafsir correct for {len(ayahs)} ayahs", data)
+
+    def test_daily_hadith_german(self):
+        """Test 3a: Daily Hadith - German (should have German narrator/source names)"""
+        print("\n" + "="*60)
+        print("TEST 3a: DAILY HADITH GERMAN - Should have German narrator/source names")
+        print("="*60)
+        
+        data, success, error = self.make_request("/daily-hadith", {"language": "de"})
+        
+        if not success:
+            self.log_result("Daily Hadith German", False, f"Request failed: {error}", critical=True)
+            return
+            
+        if not data:
+            self.log_result("Daily Hadith German", False, "No data returned", critical=True)
+            return
+            
+        hadith = data.get('hadith', {})
+        narrator = hadith.get('narrator', '')
+        source = hadith.get('source', '')
+        
+        issues = []
+        
+        # Check that narrator and source are NOT Arabic
+        if narrator:
+            has_arabic = any('\u0600' <= char <= '\u06FF' for char in narrator)
             if has_arabic:
-                self.log_result("Tafsir Arabic", True, "Arabic tafsir returned successfully", data)
-            else:
-                self.log_result("Tafsir Arabic", True, "Tafsir returned (may be transliterated)", data)
+                issues.append(f"narrator should be German, not Arabic: '{narrator}'")
+                
+        if source:
+            has_arabic = any('\u0600' <= char <= '\u06FF' for char in source)
+            if has_arabic:
+                issues.append(f"source should be German, not Arabic: '{source}'")
+                
+        if not narrator or not source:
+            issues.append(f"narrator and source should not be empty: narrator='{narrator}', source='{source}'")
+            
+        if issues:
+            self.log_result("Daily Hadith German", False, "; ".join(issues), data, critical=True)
         else:
-            details = "translation_pending is true" if translation_pending else "no text content"
-            self.log_result("Tafsir Arabic", False, f"Arabic tafsir failed: {details}", data)
-    
-    def test_kids_hadiths_french(self):
-        """Test 5: Kids Hadiths French Language Integrity"""
+            self.log_result("Daily Hadith German", True, f"German hadith correct: narrator='{narrator}', source='{source}'", data)
+
+    def test_daily_hadith_turkish(self):
+        """Test 3b: Daily Hadith - Turkish (should have Turkish narrator/source names)"""
         print("\n" + "="*60)
-        print("TEST 5: KIDS HADITHS - FRENCH LANGUAGE INTEGRITY")
+        print("TEST 3b: DAILY HADITH TURKISH - Should have Turkish narrator/source names")
         print("="*60)
         
-        data, success, error = self.make_request("/kids-learn/hadiths", {"locale": "fr"})
+        data, success, error = self.make_request("/daily-hadith", {"language": "tr"})
         
         if not success:
-            self.log_result("Kids Hadiths French", False, f"Request failed: {error}")
+            self.log_result("Daily Hadith Turkish", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Kids Hadiths French", False, "No kids hadiths data returned")
+            self.log_result("Daily Hadith Turkish", False, "No data returned", critical=True)
             return
             
-        # Check if hadiths are returned
-        hadiths = data if isinstance(data, list) else data.get('hadiths', [])
+        hadith = data.get('hadith', {})
+        narrator = hadith.get('narrator', '')
+        source = hadith.get('source', '')
         
-        if not hadiths:
-            self.log_result("Kids Hadiths French", False, "No hadiths in response", data)
-            return
+        issues = []
+        
+        # Check that narrator and source are NOT Arabic
+        if narrator:
+            has_arabic = any('\u0600' <= char <= '\u06FF' for char in narrator)
+            if has_arabic:
+                issues.append(f"narrator should be Turkish, not Arabic: '{narrator}'")
+                
+        if source:
+            has_arabic = any('\u0600' <= char <= '\u06FF' for char in source)
+            if has_arabic:
+                issues.append(f"source should be Turkish, not Arabic: '{source}'")
+                
+        if not narrator or not source:
+            issues.append(f"narrator and source should not be empty: narrator='{narrator}', source='{source}'")
             
-        # Check language integrity - should be French, not English
-        french_count = 0
-        english_count = 0
-        
-        for hadith in hadiths[:3]:  # Check first 3 hadiths
-            # Check translation_pending field first
-            if hadith.get('translation_pending') == False and hadith.get('translation'):
-                translation = str(hadith['translation']).lower()
-                
-                # Check for French characters and words
-                french_indicators = ['à', 'è', 'é', 'ê', 'ç', 'miséricorde', 'vérité', 'véracité', 'soyez', 'celui qui']
-                english_indicators = ['the prophet', 'said allah', 'narrated by', 'whoever believes']
-                
-                has_french_chars = any(indicator in translation for indicator in french_indicators)
-                has_english_phrases = any(indicator in translation for indicator in english_indicators)
-                
-                if has_french_chars and not has_english_phrases:
-                    french_count += 1
-                elif has_english_phrases:
-                    english_count += 1
-        
-        if french_count > 0 and english_count == 0:
-            self.log_result("Kids Hadiths French", True, f"French translations found ({french_count} hadiths)", data)
-        elif english_count > 0:
-            self.log_result("Kids Hadiths French", False, f"English text found in French locale ({english_count} hadiths)", data)
+        if issues:
+            self.log_result("Daily Hadith Turkish", False, "; ".join(issues), data, critical=True)
         else:
-            self.log_result("Kids Hadiths French", True, "Hadiths returned (language check inconclusive)", data)
-    
-    def test_tashkeel_audit(self):
-        """Test 6: Tashkeel Audit - Arabic Diacritics Check"""
+            self.log_result("Daily Hadith Turkish", True, f"Turkish hadith correct: narrator='{narrator}', source='{source}'", data)
+
+    def test_cache_clear(self):
+        """Test 4a: Cache Management - Clear cache (should return success=true)"""
         print("\n" + "="*60)
-        print("TEST 6: TASHKEEL AUDIT - ARABIC DIACRITICS")
+        print("TEST 4a: CACHE CLEAR - Should return success=true")
         print("="*60)
         
-        data, success, error = self.make_request("/audit/tashkeel")
+        data, success, error = self.make_request("/quran/v4/cache/clear", method="POST")
         
         if not success:
-            self.log_result("Tashkeel Audit", False, f"Request failed: {error}")
+            self.log_result("Cache Clear", False, f"Request failed: {error}", critical=True)
             return
             
         if not data:
-            self.log_result("Tashkeel Audit", False, "No tashkeel audit data returned")
+            self.log_result("Cache Clear", False, "No data returned", critical=True)
             return
             
-        # Check if audit was successful
-        if isinstance(data, dict):
-            if data.get('success') or data.get('status') == 'complete':
-                self.log_result("Tashkeel Audit", True, "Tashkeel audit completed successfully", data)
-            else:
-                self.log_result("Tashkeel Audit", False, "Tashkeel audit reported issues", data)
+        # Check success field
+        cache_success = data.get('success', False)
+        
+        if cache_success:
+            self.log_result("Cache Clear", True, f"Cache cleared successfully", data)
         else:
-            self.log_result("Tashkeel Audit", True, "Tashkeel audit response received", data)
-    
-    def test_health_check(self):
-        """Test 7: Health Check"""
-        print("\n" + "="*60)
-        print("TEST 7: HEALTH CHECK")
-        print("="*60)
-        
-        data, success, error = self.make_request("/health")
-        
-        if not success:
-            self.log_result("Health Check", False, f"Request failed: {error}")
-            return
-            
-        if not data:
-            self.log_result("Health Check", False, "No health data returned")
-            return
-            
-        # Check status
-        status = data.get('status', '').lower() if isinstance(data, dict) else str(data).lower()
-        
-        if 'healthy' in status or status == 'ok':
-            self.log_result("Health Check", True, f"Service is healthy: {status}", data)
-        else:
-            self.log_result("Health Check", False, f"Service health issue: {status}", data)
-    
+            self.log_result("Cache Clear", False, f"Cache clear failed: success={cache_success}", data, critical=True)
+
     def run_all_tests(self):
-        """Run all Islamic content audit tests"""
-        print("🕌 STARTING ISLAMIC CONTENT AUDIT & LANGUAGE INTEGRITY TESTS")
+        """Run all V2026 Global Islamic Localization tests"""
+        print("🕌 STARTING V2026 GLOBAL ISLAMIC LOCALIZATION TESTS")
         print("="*80)
         print(f"Backend URL: {BACKEND_URL}")
+        print("Focus: Each language gets DIFFERENT text from its verse translation")
         print("="*80)
         
-        # Run all tests
-        self.test_full_audit_report()
-        self.test_daily_hadith_french()
-        self.test_tafsir_french()
-        self.test_tafsir_arabic()
-        self.test_kids_hadiths_french()
-        self.test_tashkeel_audit()
-        self.test_health_check()
+        # Run all tests in order
+        self.test_tafsir_french_1_2()
+        self.test_tafsir_german_1_2()
+        self.test_tafsir_turkish_1_2()
+        self.test_tafsir_swedish_1_2()
+        self.test_tafsir_dutch_1_2()
+        self.test_tafsir_greek_1_2()
+        self.test_tafsir_arabic_1_2()
+        self.test_tafsir_english_1_2()
+        self.test_tafsir_russian_1_2()
+        self.test_kids_quran_fatiha_french()
+        self.test_kids_quran_ikhlas_turkish()
+        self.test_kids_quran_fatiha_arabic()
+        self.test_kids_quran_nas_english()
+        self.test_daily_hadith_german()
+        self.test_daily_hadith_turkish()
+        self.test_cache_clear()
         
         # Summary
         print("\n" + "="*80)
-        print("🏁 TEST SUMMARY")
+        print("🏁 V2026 LOCALIZATION TEST SUMMARY")
         print("="*80)
         print(f"✅ Passed: {len(self.passed_tests)}")
         print(f"❌ Failed: {len(self.failed_tests)}")
+        print(f"🚨 Critical Failures: {len(self.critical_failures)}")
         print(f"📊 Total: {len(self.results)}")
         
         if self.passed_tests:
@@ -357,6 +682,12 @@ class IslamicContentTester:
         if self.failed_tests:
             print(f"\n❌ FAILED TESTS:")
             for test in self.failed_tests:
+                critical_marker = " 🚨 CRITICAL" if test in self.critical_failures else ""
+                print(f"   • {test}{critical_marker}")
+                
+        if self.critical_failures:
+            print(f"\n🚨 CRITICAL FAILURES (Must be fixed):")
+            for test in self.critical_failures:
                 print(f"   • {test}")
                 
         print("\n" + "="*80)
@@ -364,12 +695,12 @@ class IslamicContentTester:
         return len(self.failed_tests) == 0
 
 if __name__ == "__main__":
-    tester = IslamicContentTester()
+    tester = V2026LocalizationTester()
     success = tester.run_all_tests()
     
     if success:
-        print("🎉 ALL TESTS PASSED - Islamic content integrity verified!")
+        print("🎉 ALL V2026 LOCALIZATION TESTS PASSED!")
         sys.exit(0)
     else:
-        print("⚠️  SOME TESTS FAILED - Review results above")
+        print("⚠️  SOME V2026 LOCALIZATION TESTS FAILED - Review results above")
         sys.exit(1)
