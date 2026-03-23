@@ -859,6 +859,7 @@ export default function Stories() {
   const [recommended, setRecommended] = useState<any[]>([]);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [unlockedStoryIds, setUnlockedStoryIds] = useState<Set<string>>(new Set());
+  const [expandedDescIds, setExpandedDescIds] = useState<Set<string>>(new Set());
 
   const selectedStoryId = searchParams.get('story');
 
@@ -1278,9 +1279,26 @@ export default function Stories() {
                             )}
                           </div>
                           {s.title && <h3 className="text-[14px] font-bold text-foreground mb-1 leading-snug">{s.title}</h3>}
-                          <p className={cn("text-[12px] text-muted-foreground leading-[1.6] line-clamp-3",
+                          <p className={cn("text-[12px] text-muted-foreground leading-[1.6]",
+                            !expandedDescIds.has(s.id) && "line-clamp-3",
                             isPremiumStory(s) && !isStoryUnlocked(s) && "blur-[3px] select-none"
                           )}>{s.content}</p>
+                          {s.content && s.content.length > 120 && !(isPremiumStory(s) && !isStoryUnlocked(s)) && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setExpandedDescIds(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(s.id)) next.delete(s.id);
+                                  else next.add(s.id);
+                                  return next;
+                                });
+                              }}
+                              className="text-[11px] font-bold text-emerald-500 mt-1 active:opacity-70"
+                            >
+                              {expandedDescIds.has(s.id) ? t('showLess') : t('showMore')}
+                            </button>
+                          )}
                           {isPremiumStory(s) && !isStoryUnlocked(s) && (
                             <div className="mt-2 flex items-center gap-1.5 text-amber-500 text-[10px] font-bold">
                               <Lock className="h-2.5 w-2.5" />

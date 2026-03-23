@@ -326,6 +326,7 @@ function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, getMed
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [descExpanded, setDescExpanded] = useState(false);
   const hasVideo = post.video_url;
 
   useEffect(() => {
@@ -459,9 +460,17 @@ function ReelItem({ post, isActive, onLike, onShare, onFollow, onComment, getMed
             {followed ? t('unfollow') : t('follow')}
           </button>
         </div>
-        <p className="text-white/85 text-[12px] line-clamp-2 leading-relaxed drop-shadow">
+        <p className={`text-white/85 text-[12px] ${descExpanded ? '' : 'line-clamp-2'} leading-relaxed drop-shadow`}>
           {post.content}
         </p>
+        {post.content && post.content.length > 80 && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setDescExpanded(!descExpanded); }}
+            className="text-[11px] font-bold text-white/60 mt-0.5 active:opacity-70"
+          >
+            {descExpanded ? t('showLess') : t('showMore')}
+          </button>
+        )}
       </div>
     </div>
   );

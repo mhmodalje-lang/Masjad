@@ -197,7 +197,7 @@ All critical issues have been verified and resolved:
 ### STORIES API TESTING - Video Upload and Creation Flow
 **Status: ✅ PASSED (5/5 tests)**
 
-**Backend URL:** https://story-central-9.preview.emergentagent.com
+**Backend URL:** https://expand-desc-fix.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -255,7 +255,7 @@ All critical issues have been verified and resolved:
 ### DELETE /api/auth/delete-account Authentication Testing
 **Status: ✅ PASSED (4/4 tests)**
 
-**Backend URL:** https://story-central-9.preview.emergentagent.com
+**Backend URL:** https://expand-desc-fix.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -311,7 +311,7 @@ All critical issues have been verified and resolved:
 ### BACKEND API TESTING - Stories Platform Endpoints
 **Status: ✅ PASSED (6/6 tests)**
 
-**Backend URL:** https://story-central-9.preview.emergentagent.com
+**Backend URL:** https://expand-desc-fix.preview.emergentagent.com
 
 | Test | Endpoint | Expected | Result | Status |
 |------|----------|----------|---------|---------|
@@ -379,7 +379,7 @@ All critical issues have been verified and resolved:
 **Status: ⚠️ CRITICAL ISSUES FOUND**
 
 **Test Date:** March 23, 2026
-**App URL:** https://story-central-9.preview.emergentagent.com
+**App URL:** https://expand-desc-fix.preview.emergentagent.com
 
 ---
 
