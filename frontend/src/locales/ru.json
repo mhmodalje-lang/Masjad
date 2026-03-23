@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "Мы обработаем ваш запрос.",
   "dataDeletionTimeframe": "Срок: До 30 дней по GDPR",
   "dataDeletionFooter": "Согласно ст. 17 GDPR, вы имеете право на удаление данных.",
-  "offlineNotice": "Нет подключения к интернету - некоторые функции недоступны"
+  "offlineNotice": "Нет подключения к интернету - некоторые функции недоступны",
+  "enableLocationForPrayer": "Включите геолокацию для времени молитв",
+  "tapToEnableLocation": "Нажмите здесь для включения"
 }

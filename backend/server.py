@@ -126,6 +126,44 @@ async def create_indexes():
     except Exception as e:
         print(f"Demo account seed note: {e}")
 
+    # Seed default Islamic content so stories feed is not empty for store reviewers
+    try:
+        post_count = await db.posts.count_documents({})
+        if post_count == 0:
+            seed_posts = [
+                {
+                    "id": f"seed-{i}",
+                    "author_id": "review-demo-001",
+                    "author_name": "أذان وحكاية",
+                    "author_avatar": None,
+                    "title": p["title"],
+                    "content": p["content"],
+                    "category": p["cat"],
+                    "media_type": "text",
+                    "media_url": None,
+                    "is_story": True,
+                    "likes_count": 0,
+                    "comments_count": 0,
+                    "shares_count": 0,
+                    "views_count": 0,
+                    "created_at": datetime.utcnow().isoformat(),
+                    "is_pinned": False,
+                    "status": "active",
+                }
+                for i, p in enumerate([
+                    {"title": "فضل الاستغفار", "content": "قال رسول الله ﷺ: «مَن لَزِمَ الاسْتِغْفَارَ جَعَلَ اللَّهُ لَهُ مِنْ كُلِّ ضِيقٍ مَخْرَجًا، وَمِنْ كُلِّ هَمٍّ فَرَجًا، وَرَزَقَهُ مِنْ حَيْثُ لا يَحْتَسِبُ»\n\nالاستغفار مفتاح الفرج وطريق الرزق. أكثروا من الاستغفار في كل حين.", "cat": "istighfar"},
+                    {"title": "قصة إسلام عمر بن الخطاب", "content": "كان عمر بن الخطاب رضي الله عنه من أشد أعداء الإسلام، خرج يوماً يريد قتل النبي ﷺ، فلما سمع آيات من سورة طه تحول قلبه وأسلم.\n\nفكان إسلامه فتحاً للمسلمين. قال النبي ﷺ: «اللَّهُمَّ أَعِزَّ الإسلام بأحب العمرين إليك».", "cat": "sahaba"},
+                    {"title": "آية الكرسي - أعظم آية", "content": "قال رسول الله ﷺ: «سيد آي القرآن آية الكرسي»\n\n﴿اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ﴾\n\nمن قرأها في ليلة لم يزل عليه من الله حافظ ولا يقربه شيطان حتى يصبح.", "cat": "quran"},
+                    {"title": "قصة نبي الله يوسف عليه السلام", "content": "يوسف عليه السلام صبر على الابتلاءات: الجب، والسجن، والغربة. لكن الله نجاه ورفع قدره حتى صار عزيز مصر.\n\n﴿إِنَّهُ مَن يَتَّقِ وَيَصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ﴾", "cat": "prophets"},
+                    {"title": "دعاء الهم والحزن", "content": "قال رسول الله ﷺ: «ما أصاب عبداً هم ولا حزن فقال:\n\nاللهم إني عبدك ابن عبدك ابن أمتك، ناصيتي بيدك، ماضٍ فيَّ حكمك، عدلٌ فيَّ قضاؤك\n\nإلا أذهب الله همه وأبدل حزنه فرحاً»", "cat": "general"},
+                    {"title": "فضل قراءة القرآن", "content": "قال رسول الله ﷺ: «اقرَؤوا القرآن فإنه يأتي يوم القيامة شفيعاً لأصحابه»\n\nوقال ﷺ: «مَن قرأ حرفاً من كتاب الله فله به حسنة، والحسنة بعشر أمثالها»\n\nاجعلوا القرآن رفيقكم اليومي.", "cat": "quran"},
+                ])
+            ]
+            await db.posts.insert_many(seed_posts)
+            print(f"Seeded {len(seed_posts)} Islamic content posts")
+    except Exception as e:
+        print(f"Content seed note: {e}")
+
 @app.on_event("shutdown")
 async def shutdown():
     client_db.close()

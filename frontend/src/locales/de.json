@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "Wir werden Ihren Antrag bearbeiten.",
   "dataDeletionTimeframe": "Bearbeitungszeit: Bis zu 30 Tage gemäß DSGVO",
   "dataDeletionFooter": "Gemäß Art. 17 DSGVO haben Sie das Recht auf Löschung Ihrer Daten.",
-  "offlineNotice": "Keine Internetverbindung - einige Funktionen sind eingeschränkt"
+  "offlineNotice": "Keine Internetverbindung - einige Funktionen sind eingeschränkt",
+  "enableLocationForPrayer": "Standort für Gebetszeiten aktivieren",
+  "tapToEnableLocation": "Tippen Sie hier, um den Standort zu aktivieren"
 }

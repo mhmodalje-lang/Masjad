@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "We verwerken uw verzoek.",
   "dataDeletionTimeframe": "Verwerkingstijd: Tot 30 dagen volgens AVG",
   "dataDeletionFooter": "Conform AVG Art. 17 heeft u recht op verwijdering.",
-  "offlineNotice": "Geen internetverbinding - sommige functies werken mogelijk niet"
+  "offlineNotice": "Geen internetverbinding - sommige functies werken mogelijk niet",
+  "enableLocationForPrayer": "Locatie inschakelen voor gebedsttijden",
+  "tapToEnableLocation": "Tik hier om locatiediensten in te schakelen"
 }

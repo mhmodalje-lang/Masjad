@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "Nous traiterons votre demande.",
   "dataDeletionTimeframe": "Délai: Jusqu'à 30 jours selon le RGPD",
   "dataDeletionFooter": "Conformément à l'article 17 du RGPD.",
-  "offlineNotice": "Pas de connexion Internet - certaines fonctions indisponibles"
+  "offlineNotice": "Pas de connexion Internet - certaines fonctions indisponibles",
+  "enableLocationForPrayer": "Activez la localisation pour les heures de prière",
+  "tapToEnableLocation": "Appuyez ici pour activer la localisation"
 }

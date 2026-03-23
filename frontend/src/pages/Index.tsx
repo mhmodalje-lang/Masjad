@@ -321,22 +321,39 @@ export default function Index() {
                 </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">{t('remaining')}</span>
-                <span className="text-lg font-extrabold tabular-nums text-foreground leading-none mt-0.5">
-                  {remaining || '00:00'}
-                </span>
+                {remaining ? (
+                  <>
+                    <span className="text-[10px] text-muted-foreground font-medium tracking-wider uppercase">{t('remaining')}</span>
+                    <span className="text-lg font-extrabold tabular-nums text-foreground leading-none mt-0.5">
+                      {remaining}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-2xl">🕌</span>
+                )}
               </div>
             </div>
 
             {/* Next prayer info */}
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-wide uppercase">{t('nextPrayerLabel')}</p>
-              <p className="text-2xl font-extrabold text-foreground leading-tight tracking-tight">
-                {nextPrayer ? prayerNames[nextPrayer.key] || t(nextPrayer.key) : '—'}
-              </p>
-              <p className="text-xl font-light tabular-nums text-primary mt-0.5">
-                {nextPrayer?.time || '—'}
-              </p>
+              {nextPrayer ? (
+                <>
+                  <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-wide uppercase">{t('nextPrayerLabel')}</p>
+                  <p className="text-2xl font-extrabold text-foreground leading-tight tracking-tight">
+                    {prayerNames[nextPrayer.key] || t(nextPrayer.key)}
+                  </p>
+                  <p className="text-xl font-light tabular-nums text-primary mt-0.5">
+                    {nextPrayer.time}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-[11px] text-muted-foreground mb-1 font-medium tracking-wide uppercase">{t('prayerTimes')}</p>
+                  <p className="text-base font-bold text-foreground leading-tight">
+                    {t('enableLocationForPrayer')}
+                  </p>
+                </>
+              )}
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 <Link
                   to="/tracker"
@@ -385,23 +402,34 @@ export default function Index() {
         ))}
       </AnimatePresence>
 
-      {/* ===== LOCATION ERROR ===== */}
+      {/* ===== LOCATION ERROR (compact) ===== */}
       {locationError && prayers.length === 0 && (
-        <div className="px-4 mb-4">
-          <div className="rounded-3xl bg-destructive/10 border border-destructive/30 p-6 flex flex-col items-center gap-3">
-            <MapPinOff className="h-8 w-8 text-destructive" />
-            <p className="text-sm font-bold text-foreground text-center">{locationError === '__LOCATION_ERROR__' ? t('locationErrorMsg') : locationError}</p>
-            <button
-              onClick={() => detectLocation()}
-              className="rounded-2xl bg-primary text-primary-foreground px-6 py-2.5 text-sm font-bold transition-all active:scale-95"
-            >
-              {t('enableLocation')}
-            </button>
-          </div>
+        <div className="px-4 mb-3">
+          <button
+            onClick={() => detectLocation()}
+            className="w-full rounded-2xl bg-primary/5 border border-primary/20 p-3 flex items-center gap-3 active:scale-[0.98] transition-all"
+          >
+            <MapPin className="h-5 w-5 text-primary shrink-0" />
+            <div className="flex-1 text-start">
+              <p className="text-xs font-bold text-foreground">{t('enableLocationForPrayer')}</p>
+              <p className="text-[10px] text-muted-foreground">{t('tapToEnableLocation')}</p>
+            </div>
+            {isRTL ? <ChevronLeft className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-primary" />}
+          </button>
         </div>
       )}
 
       <AdBanner position="home" />
+
+      {/* ===== DAILY HADITH (show BEFORE prayers when no location) ===== */}
+      {prayers.length === 0 && (
+        <>
+          <Suspense fallback={<div className="h-40" />}>
+            <DailyHadith />
+          </Suspense>
+          <VerseOfDay />
+        </>
+      )}
 
       {/* ===== PRAYER TIMES GRID ===== */}
       <div className="px-4 mb-5">
@@ -515,10 +543,12 @@ export default function Index() {
         </div>
       )}
 
-      {/* ===== DAILY HADITH ===== */}
-      <Suspense fallback={<div className="h-40" />}>
-        <DailyHadith />
-      </Suspense>
+      {/* ===== DAILY HADITH (shown when prayers loaded) ===== */}
+      {prayers.length > 0 && (
+        <Suspense fallback={<div className="h-40" />}>
+          <DailyHadith />
+        </Suspense>
+      )}
 
       {/* ===== NATIVE SPONSORED CARD (blends with Hadith design) ===== */}
       <Suspense fallback={null}>
@@ -533,8 +563,8 @@ export default function Index() {
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
 
-      {/* ===== AI DAILY WIDGETS ===== */}
-      <VerseOfDay />
+      {/* ===== AI DAILY WIDGETS (shown when prayers loaded) ===== */}
+      {prayers.length > 0 && <VerseOfDay />}
 
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />

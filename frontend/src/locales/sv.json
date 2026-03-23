@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "Vi behandlar din begäran.",
   "dataDeletionTimeframe": "Tid: Upp till 30 dagar enligt GDPR",
   "dataDeletionFooter": "Enligt GDPR Art. 17 har du rätt till radering.",
-  "offlineNotice": "Ingen internetanslutning - vissa funktioner kanske inte fungerar"
+  "offlineNotice": "Ingen internetanslutning - vissa funktioner kanske inte fungerar",
+  "enableLocationForPrayer": "Aktivera plats för bönetider",
+  "tapToEnableLocation": "Tryck här för att aktivera platstjänster"
 }

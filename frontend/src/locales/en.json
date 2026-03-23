@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "We will process your request and delete all your data. You will receive a confirmation email.",
   "dataDeletionTimeframe": "Processing time: Up to 30 days per GDPR requirements",
   "dataDeletionFooter": "Per GDPR Article 17, you have the right to request deletion of all your personal data.",
-  "offlineNotice": "No internet connection - some features may not work"
+  "offlineNotice": "No internet connection - some features may not work",
+  "enableLocationForPrayer": "Enable location for prayer times",
+  "tapToEnableLocation": "Tap here to enable location services"
 }

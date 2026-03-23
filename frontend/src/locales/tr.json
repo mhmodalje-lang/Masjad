@@ -2341,5 +2341,7 @@
   "dataDeletionSuccessMsg": "Talebinizi işleme alacağız.",
   "dataDeletionTimeframe": "Süre: GDPR uyarınca 30 güne kadar",
   "dataDeletionFooter": "GDPR Madde 17 uyarınca veri silme hakkınız vardır.",
-  "offlineNotice": "İnternet bağlantısı yok - bazı özellikler çalışmayabilir"
+  "offlineNotice": "İnternet bağlantısı yok - bazı özellikler çalışmayabilir",
+  "enableLocationForPrayer": "Namaz vakitleri için konum etkinleştirin",
+  "tapToEnableLocation": "Konum hizmetlerini etkinleştirmek için dokunun"
 }
