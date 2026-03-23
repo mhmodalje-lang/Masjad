@@ -703,28 +703,28 @@ export default function VideoReels() {
   return (
     <div className="h-screen bg-black relative overflow-hidden">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-2 bg-gradient-to-b from-black/70 via-black/30 to-transparent"
-        style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
-        <button onClick={() => navigate(-1)} className="text-white p-1.5 active:scale-90 transition-transform">
-          {dir === 'rtl' ? <ArrowRight className="w-6 h-6" /> : <ArrowLeft className="w-6 h-6" />}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 bg-gradient-to-b from-black/70 via-black/30 to-transparent"
+        style={{ paddingTop: 'max(10px, env(safe-area-inset-top, 10px))', paddingBottom: '8px' }}>
+        <button onClick={() => navigate(-1)} className="text-white p-1 active:scale-90 transition-transform">
+          {dir === 'rtl' ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
         </button>
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => setActiveTab('forYou')}
-            className={`text-[14px] font-bold pb-0.5 transition-colors ${
+            className={`text-[13px] font-bold pb-0.5 transition-colors ${
               activeTab === 'forYou' ? 'text-white border-b-2 border-white' : 'text-white/50'
             }`}>
             {t('reelForYou')}
           </button>
           <button
             onClick={() => setActiveTab('following')}
-            className={`text-[14px] font-bold pb-0.5 transition-colors ${
+            className={`text-[13px] font-bold pb-0.5 transition-colors ${
               activeTab === 'following' ? 'text-white border-b-2 border-white' : 'text-white/50'
             }`}>
             {t('reelFollowing')}
           </button>
         </div>
-        <div className="w-6" />
+        <div className="w-5" />
       </div>
 
       {/* Reels Container */}
@@ -818,7 +818,8 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
   const [paused, setPaused] = useState(false);
   const [liked, setLiked] = useState(post.liked);
   const [showHeart, setShowHeart] = useState(false);
-  const hasVideo = !!post.video_url;
+  const [videoError, setVideoError] = useState(false);
+  const hasVideo = !!post.video_url && !videoError;
   const lastTapRef = useRef(0);
 
   // Sync liked state
@@ -826,14 +827,17 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
 
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isActive) {
+    const handleError = () => { setVideoError(true); };
+    videoRef.current.addEventListener('error', handleError);
+    if (isActive && !videoError) {
       videoRef.current.play().catch(() => {});
       setPaused(false);
     } else {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
-  }, [isActive]);
+    return () => { videoRef.current?.removeEventListener('error', handleError); };
+  }, [isActive, videoError]);
 
   const togglePlay = () => {
     if (!videoRef.current && !hasVideo) return;
@@ -866,7 +870,7 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
   return (
     <div className="h-screen w-full snap-start relative flex items-center justify-center bg-black select-none">
       {/* Background Media */}
-      {hasVideo ? (
+      {post.video_url && !videoError ? (
         <video
           ref={videoRef}
           src={getMediaUrl(post.video_url)}
@@ -877,18 +881,25 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
           playsInline
           preload="metadata"
           onClick={handleTap}
+          onError={() => setVideoError(true)}
         />
-      ) : post.image_url ? (
+      ) : null}
+
+      {/* Fallback: Show thumbnail/image when video errors */}
+      {(videoError || !post.video_url) && (post.thumbnail_url || post.image_url) ? (
         <div className="absolute inset-0" onClick={handleTap}>
           <img
-            src={getMediaUrl(post.image_url)}
+            src={getMediaUrl(post.thumbnail_url || post.image_url)}
             alt=""
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" onClick={handleTap} />
+      ) : null}
+
+      {/* Fallback: gradient background when no media */}
+      {!post.video_url && !post.thumbnail_url && !post.image_url && (
+        <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a2e] via-[#16213e] to-[#0f3460]" onClick={handleTap} />
       )}
 
       {/* Double-tap heart animation */}
@@ -922,120 +933,107 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
         )}
       </AnimatePresence>
 
-      {/* Content text overlay (for text-only posts) */}
-      {!hasVideo && !post.image_url && (
-        <div className="absolute inset-0 flex items-center justify-center px-10 z-10 pointer-events-none">
-          <p className="text-white text-xl font-bold text-center leading-[2] drop-shadow-lg" dir={dir}
-            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}>
-            {post.content}
-          </p>
-        </div>
-      )}
-
       {/* Top gradient */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/50 to-transparent z-10 pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/60 to-transparent z-10 pointer-events-none" />
 
-      {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none" />
+      {/* Bottom gradient - taller for better text readability */}
+      <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
 
       {/* ===== RIGHT SIDE ACTION BUTTONS (Instagram Reels style) ===== */}
-      <div className="absolute end-3 bottom-20 flex flex-col items-center gap-5 z-20"
-        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+      <div className="absolute end-2 flex flex-col items-center gap-4 z-20"
+        style={{ bottom: '100px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
 
         {/* Author Avatar with gradient ring */}
-        <Link to={`/social-profile/${post.author_id}`} className="relative mb-1">
-          <div className="w-12 h-12 rounded-full p-[2.5px] bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]">
+        <Link to={`/social-profile/${post.author_id}`} className="relative mb-2">
+          <div className="w-11 h-11 rounded-full p-[2px] bg-gradient-to-br from-[#f09433] via-[#e6683c] via-[#dc2743] via-[#cc2366] to-[#bc1888]">
             <img
               src={avatar(post.author_name, post.author_avatar)}
               alt=""
               className="w-full h-full rounded-full border-[2px] border-black object-cover"
             />
           </div>
-          {/* Plus badge for follow */}
           {!followed && (
             <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); onFollow(); }}
-              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-black">
-              <span className="text-white text-[11px] font-bold leading-none">+</span>
+              className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-5 h-5 bg-[#0095f6] rounded-full flex items-center justify-center border-[1.5px] border-black">
+              <span className="text-white text-[12px] font-bold leading-none">+</span>
             </button>
           )}
         </Link>
 
         {/* Like / Heart */}
         <button onClick={onLike} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Heart className={`w-7 h-7 ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'} drop-shadow-lg`} />
-          <span className="text-white text-[11px] mt-1 font-semibold drop-shadow">{formatCount(post.likes_count, t)}</span>
+          <Heart className={`w-[26px] h-[26px] ${post.liked ? 'fill-red-500 text-red-500' : 'text-white'} drop-shadow-lg`} />
+          <span className="text-white text-[11px] mt-0.5 font-bold drop-shadow">{formatCount(post.likes_count, t)}</span>
         </button>
 
         {/* Comments */}
         <button onClick={onComment} className="flex flex-col items-center active:scale-90 transition-transform">
-          <MessageCircle className="w-7 h-7 text-white drop-shadow-lg" />
-          <span className="text-white text-[11px] mt-1 font-semibold drop-shadow">{formatCount(post.comments_count, t)}</span>
+          <MessageCircle className="w-[26px] h-[26px] text-white drop-shadow-lg" />
+          <span className="text-white text-[11px] mt-0.5 font-bold drop-shadow">{formatCount(post.comments_count, t)}</span>
         </button>
 
         {/* Repost / Share arrows */}
         <button onClick={onSendShare} className="flex flex-col items-center active:scale-90 transition-transform">
-          <svg className="w-7 h-7 text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-[26px] h-[26px] text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
             <path d="M7 17l-4-4 4-4" /><path d="M17 7l4 4-4 4" /><path d="M3 13h13a4 4 0 0 0 0-8h-1" /><path d="M21 11H8a4 4 0 0 0 0 8h1" />
           </svg>
-          <span className="text-white text-[11px] mt-1 font-semibold drop-shadow">{formatCount(post.shares_count || 0, t)}</span>
+          <span className="text-white text-[11px] mt-0.5 font-bold drop-shadow">{formatCount(post.shares_count || 0, t)}</span>
         </button>
 
         {/* Send / DM */}
         <button onClick={onShare} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Send className="w-6 h-6 text-white drop-shadow-lg" style={{ transform: dir === 'rtl' ? 'scaleX(-1)' : 'none' }} />
-          <span className="text-white text-[11px] mt-1 font-semibold drop-shadow">{formatCount(post.views_count || 0, t)}</span>
+          <Send className="w-[24px] h-[24px] text-white drop-shadow-lg" style={{ transform: dir === 'rtl' ? 'scaleX(-1)' : 'none' }} />
+          <span className="text-white text-[11px] mt-0.5 font-bold drop-shadow">{formatCount(post.views_count || 0, t)}</span>
         </button>
 
         {/* Bookmark / Save */}
         <button onClick={onSave} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Bookmark className={`w-7 h-7 ${post.saved ? 'fill-white text-white' : 'text-white'} drop-shadow-lg`} />
-          <span className="text-white text-[11px] mt-1 font-semibold drop-shadow">{formatCount(post.saves_count || 0, t)}</span>
+          <Bookmark className={`w-[26px] h-[26px] ${post.saved ? 'fill-white text-white' : 'text-white'} drop-shadow-lg`} />
+          <span className="text-white text-[11px] mt-0.5 font-bold drop-shadow">{formatCount(post.saves_count || 0, t)}</span>
         </button>
 
         {/* More options (three dots) */}
-        <button onClick={onOptions} className="flex flex-col items-center active:scale-90 transition-transform">
-          <MoreHorizontal className="w-6 h-6 text-white drop-shadow-lg" />
+        <button onClick={onOptions} className="active:scale-90 transition-transform mt-1">
+          <MoreHorizontal className="w-[22px] h-[22px] text-white drop-shadow-lg" />
         </button>
       </div>
 
-      {/* ===== Mute toggle ===== */}
-      {hasVideo && (
-        <button onClick={() => setMuted(!muted)}
-          className="absolute start-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
-          {muted ? <VolumeX className="w-4 h-4 text-white/80" /> : <Volume2 className="w-4 h-4 text-white/80" />}
-        </button>
-      )}
+      {/* ===== BOTTOM INFO (Username + Follow + Caption) - Instagram exact layout ===== */}
+      <div className="absolute bottom-0 start-0 end-14 z-20" dir={dir}
+        style={{ paddingBottom: 'max(14px, env(safe-area-inset-bottom, 14px))' }}>
 
-      {/* ===== BOTTOM INFO (Username + Follow + Caption) ===== */}
-      <div className="absolute bottom-4 start-0 end-16 px-4 z-20" dir={dir}
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        {/* Username + Follow button */}
-        <div className="flex items-center gap-2 mb-2">
-          <Link to={`/social-profile/${post.author_id}`} className="text-white font-bold text-[14px] drop-shadow-lg hover:underline">
-            {post.author_name}
+        {/* Username row with follow button */}
+        <div className="flex items-center gap-2 px-4 mb-2">
+          <Link to={`/social-profile/${post.author_id}`}
+            className="flex items-center gap-2">
+            <span className="text-white font-extrabold text-[15px] drop-shadow-lg">{post.author_name}</span>
           </Link>
+          <span className="text-white/30 text-[12px]">•</span>
           <button onClick={onFollow}
-            className={`px-3 py-1 rounded-lg text-[12px] font-bold transition-all active:scale-95 border ${
+            className={`px-3 py-0.5 rounded-md text-[13px] font-bold transition-all active:scale-95 ${
               followed
-                ? 'bg-transparent border-white/30 text-white/70'
-                : 'bg-transparent border-white text-white'
+                ? 'text-white/60'
+                : 'text-white'
             }`}>
             {followed ? t('following') : t('follow')}
           </button>
         </div>
 
-        {/* Caption / Content */}
-        <p className="text-white/90 text-[13px] line-clamp-2 leading-relaxed drop-shadow-md">
-          {post.content}
-        </p>
+        {/* Caption / Content - prominent text like Instagram */}
+        <div className="px-4 mb-1.5">
+          <p className="text-white text-[15px] leading-[1.6] drop-shadow-lg"
+            style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+            {post.content}
+          </p>
+        </div>
 
-        {/* Audio/Music bar */}
-        <div className="flex items-center gap-2 mt-2">
-          <div className="flex items-center gap-1.5 bg-black/30 rounded-full px-2.5 py-1 backdrop-blur-sm max-w-[200px]">
+        {/* Audio/Music bar - like Instagram */}
+        <div className="px-4">
+          <div className="flex items-center gap-1.5">
             <svg className="w-3 h-3 text-white shrink-0" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
             </svg>
-            <span className="text-white text-[11px] truncate">{post.author_name}</span>
+            <span className="text-white/80 text-[12px] truncate drop-shadow">{post.author_name} · {t('originalAudio')}</span>
           </div>
         </div>
       </div>
