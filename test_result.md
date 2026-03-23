@@ -370,3 +370,195 @@ All critical issues have been verified and resolved:
 - ✅ All HTTP status codes returned correctly
 
 **Success Rate: 100% (6/6 tests passed)**
+
+---
+
+## COMPREHENSIVE FRONTEND TEST RESULTS (March 23, 2026 - Review Request)
+
+### FRONTEND TESTING - Stories Platform (حكاياتي) - All 9 Languages
+**Status: ⚠️ CRITICAL ISSUES FOUND**
+
+**Test Date:** March 23, 2026
+**App URL:** https://story-central-9.preview.emergentagent.com
+
+---
+
+### TEST SUITE 1: Stories Page (/stories) - All 9 Languages
+**Status: ⚠️ PARTIAL (8/9 passed, 1 critical issue)**
+
+| Language | Code | Page Loaded | Video Tab | Trending Tab | Categories | Stories | RTL | Status |
+|----------|------|-------------|-----------|--------------|------------|---------|-----|--------|
+| Arabic | ar | ✓ | ✓ | ✓ | 3 | ✓ | ❌ | ⚠️ RTL BROKEN |
+| English | en | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| German | de | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| Russian | ru | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| French | fr | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| Turkish | tr | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| Swedish | sv | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| Dutch | nl | ✓ | ✓ | ✓ | 3 | ✓ | N/A | ✓ PASS |
+| Greek | el | ✗ | ✗ | ✗ | 0 | ✗ | N/A | ❌ FAIL |
+
+**Critical Issue Found:**
+- ❌ **Arabic RTL Direction BROKEN**: HTML dir attribute shows "ltr" instead of "rtl" for Arabic language
+  - Expected: `<html dir="rtl">`
+  - Actual: `<html dir="ltr">`
+  - This is a regression - previous tests showed RTL working correctly
+  - Impact: Arabic text and layout will not display correctly in RTL mode
+
+**Other Findings:**
+- ✓ All 8 languages (except Greek) load successfully
+- ✓ Video and Trending tabs are properly translated
+- ✓ Category pills display correctly with emojis
+- ✓ Stories/posts appear in the feed
+- ❌ Greek language fails to load completely (blank page)
+
+---
+
+### TEST SUITE 2: Video Display Check
+**Status: ✓ PASSED**
+
+- ✓ Video tab is clickable and functional
+- ✓ Video grid displays correctly (3 columns layout)
+- ✓ Video thumbnails appear (2 videos found in test)
+- ✓ No empty gradients (videos have proper thumbnails)
+- ✓ Play button overlay visible on video thumbnails
+
+**Screenshots:** Video tab shows proper grid layout with video thumbnails
+
+---
+
+### TEST SUITE 3: Create Post UI Check
+**Status: ❌ FAILED - User Not Logged In**
+
+- ❌ Create button (+ icon) not visible on /stories page
+- ❌ User is not logged in (redirected to /auth when accessing /account)
+- ⚠️ Cannot test create post UI without authentication
+- Note: Login attempt with test credentials did not succeed
+
+**Required for Testing:**
+- Valid user authentication needed to test create post functionality
+- Create button only appears for logged-in users
+
+---
+
+### TEST SUITE 4: Account Deletion UI (/account)
+**Status: ❌ FAILED - Authentication Required**
+
+- ❌ Redirected to /auth page when accessing /account
+- ❌ Cannot test account deletion UI without being logged in
+- Note: Account deletion feature exists in code (verified in Account.tsx)
+
+**Code Verification:**
+- ✓ Delete account button exists in code (line 178-182 in Account.tsx)
+- ✓ Confirmation dialog implemented with warning icon
+- ✓ Confirmation text input required ("DELETE" word)
+- ✓ Proper API endpoint: DELETE /api/auth/delete-account
+
+---
+
+### TEST SUITE 5: VideoReels Page (/reels)
+**Status: ✓ PASSED**
+
+- ✓ Page loads successfully with content (636 characters)
+- ✓ Action buttons present: Like (Heart), Comment (MessageCircle), Share, Gift
+- ✓ **NO up/down navigation arrows** (as required)
+- ✓ Sound/mute button exists
+- ✓ Sound button positioned below action buttons (no overlap)
+- ✓ Total 19 buttons found on page
+- ✓ 2 heart icons, 2 message icons, 2 share icons detected
+
+**Verified Requirements:**
+- ✓ No up/down arrows for navigation (swipe/scroll only)
+- ✓ Sound button does not overlap with action buttons
+- ✓ All action buttons (like, comment, share, gift) are visible
+
+---
+
+### TEST SUITE 6: Button Functionality Check
+**Status: ✓ PASSED (2/3 tests)**
+
+**Test 1: Follow Button Translation**
+- ✓ Follow button found on English page
+- ✓ Text shows "Follow" (not hardcoded Arabic "متابعة")
+- ✓ Properly translated based on language parameter
+
+**Test 2: Comments Button is Button (not Link)**
+- ✓ Comments button on /reels is a `<button>` element
+- ✓ Not a `<Link>` component
+- ✓ Properly implemented for click handling
+
+**Test 3: Submit Button Logic**
+- ✓ Code verified: Submit button enables when file is selected
+- ✓ Logic in CreateSheet component (line 298-303): `canSubmit` checks for content, title, file, or embedUrl
+- ⚠️ Could not test UI directly (requires login)
+
+---
+
+### CRITICAL ISSUES SUMMARY
+
+#### 🔴 HIGH PRIORITY - MUST FIX:
+
+1. **Arabic RTL Direction Broken**
+   - File: Likely in App.tsx or root component
+   - Issue: HTML dir attribute not set to "rtl" for Arabic language
+   - Impact: Arabic users will see incorrect text direction and layout
+   - Previous Status: Was working in earlier tests
+   - Action Required: Fix language direction detection and HTML dir attribute setting
+
+2. **Greek Language Not Loading**
+   - Issue: Greek (el) language page fails to load completely
+   - Impact: Greek users cannot access the app
+   - Action Required: Check Greek locale files and translations
+
+#### ⚠️ MEDIUM PRIORITY:
+
+3. **Authentication Required for Testing**
+   - Cannot test Create Post UI without login
+   - Cannot test Account Deletion UI without login
+   - Note: This is expected behavior, but limits testing scope
+
+#### ✅ WORKING CORRECTLY:
+
+- ✓ 8 out of 9 languages load successfully
+- ✓ Video tab and video display working correctly
+- ✓ VideoReels page functioning properly (no arrows, proper button positioning)
+- ✓ Follow button translation working
+- ✓ Comments button implemented correctly as button element
+- ✓ Category pills and stories feed displaying properly
+
+---
+
+### CONSOLE ERRORS DETECTED:
+
+**Resource Loading Issues (403 Errors):**
+- Multiple 403 errors for Vite HMR resources (development mode)
+- Failed to load: framer-motion.js, lucide-react.js, sonner.js
+- WebSocket connection failures for HMR
+- Note: These are development-mode errors and may not affect production build
+
+**Backend Errors:**
+- ERROR: 'LlmChat' object has no attribute 'chat' (in verse generation)
+- Multiple reloads detected in stories.py
+
+---
+
+### RECOMMENDATIONS FOR MAIN AGENT:
+
+1. **URGENT**: Fix Arabic RTL direction
+   - Check useLocale hook implementation
+   - Verify HTML dir attribute is set correctly based on language
+   - Test with ?lang=ar parameter
+
+2. **HIGH**: Fix Greek language loading
+   - Verify Greek locale file exists and is properly formatted
+   - Check for missing translations
+
+3. **MEDIUM**: Resolve 403 resource loading errors
+   - May be development-mode only, but should be investigated
+   - Check Vite configuration and HMR settings
+
+4. **LOW**: Create test user account for comprehensive testing
+   - Needed to test Create Post UI
+   - Needed to test Account Deletion UI
+
+---
