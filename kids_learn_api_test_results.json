@@ -1,0 +1,269 @@
+{
+  "summary": {
+    "total_tests": 36,
+    "passed_tests": 36,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_date": "2026-03-23T05:27:09.369969",
+    "backend_url": "https://agent-audit-build.preview.emergentagent.com",
+    "languages_tested": [
+      "ar",
+      "en",
+      "de"
+    ]
+  },
+  "results": [
+    {
+      "test": "Curriculum Overview (ar)",
+      "status": "PASS",
+      "details": "15 stages returned with proper structure",
+      "timestamp": "2026-03-23T05:27:05.316351",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Overview (en)",
+      "status": "PASS",
+      "details": "15 stages returned with proper structure",
+      "timestamp": "2026-03-23T05:27:05.425954",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Overview (de)",
+      "status": "PASS",
+      "details": "15 stages returned with proper structure",
+      "timestamp": "2026-03-23T05:27:05.523223",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (ar)",
+      "status": "PASS",
+      "details": "Lesson returned with 4 sections",
+      "timestamp": "2026-03-23T05:27:05.632037",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (en)",
+      "status": "PASS",
+      "details": "Lesson returned with 4 sections",
+      "timestamp": "2026-03-23T05:27:05.735577",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (de)",
+      "status": "PASS",
+      "details": "Lesson returned with 4 sections",
+      "timestamp": "2026-03-23T05:27:05.845282",
+      "response_data": null
+    },
+    {
+      "test": "Duas (ar)",
+      "status": "PASS",
+      "details": "15 duas returned with proper structure",
+      "timestamp": "2026-03-23T05:27:05.941601",
+      "response_data": null
+    },
+    {
+      "test": "Duas (en)",
+      "status": "PASS",
+      "details": "15 duas returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.050895",
+      "response_data": null
+    },
+    {
+      "test": "Duas (de)",
+      "status": "PASS",
+      "details": "15 duas returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.149723",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (ar)",
+      "status": "PASS",
+      "details": "10 hadiths returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.258320",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (en)",
+      "status": "PASS",
+      "details": "10 hadiths returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.364036",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (de)",
+      "status": "PASS",
+      "details": "10 hadiths returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.467192",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (ar)",
+      "status": "PASS",
+      "details": "25 prophets returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.564874",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (en)",
+      "status": "PASS",
+      "details": "25 prophets returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.666524",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (de)",
+      "status": "PASS",
+      "details": "25 prophets returned with proper structure",
+      "timestamp": "2026-03-23T05:27:06.983529",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (ar)",
+      "status": "PASS",
+      "details": "5 pillars returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.084211",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (en)",
+      "status": "PASS",
+      "details": "5 pillars returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.179406",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (de)",
+      "status": "PASS",
+      "details": "5 pillars returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.295277",
+      "response_data": null
+    },
+    {
+      "test": "Wudu Steps (ar)",
+      "status": "PASS",
+      "details": "12 wudu steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.390693",
+      "response_data": null
+    },
+    {
+      "test": "Wudu Steps (en)",
+      "status": "PASS",
+      "details": "12 wudu steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.489963",
+      "response_data": null
+    },
+    {
+      "test": "Wudu Steps (de)",
+      "status": "PASS",
+      "details": "12 wudu steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.585468",
+      "response_data": null
+    },
+    {
+      "test": "Salah Steps (ar)",
+      "status": "PASS",
+      "details": "11 salah steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.690651",
+      "response_data": null
+    },
+    {
+      "test": "Salah Steps (en)",
+      "status": "PASS",
+      "details": "11 salah steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.796275",
+      "response_data": null
+    },
+    {
+      "test": "Salah Steps (de)",
+      "status": "PASS",
+      "details": "11 salah steps returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.897591",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (ar)",
+      "status": "PASS",
+      "details": "8 categories returned with proper structure",
+      "timestamp": "2026-03-23T05:27:07.998090",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (en)",
+      "status": "PASS",
+      "details": "8 categories returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.097211",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (de)",
+      "status": "PASS",
+      "details": "8 categories returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.194335",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (ar)",
+      "status": "PASS",
+      "details": "28 library items returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.294069",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (en)",
+      "status": "PASS",
+      "details": "28 library items returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.405290",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (de)",
+      "status": "PASS",
+      "details": "28 library items returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.519982",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (ar)",
+      "status": "PASS",
+      "details": "15 surahs returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.620060",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (en)",
+      "status": "PASS",
+      "details": "15 surahs returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.722978",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (de)",
+      "status": "PASS",
+      "details": "15 surahs returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.820195",
+      "response_data": null
+    },
+    {
+      "test": "Achievements",
+      "status": "PASS",
+      "details": "12 achievement badges returned with proper structure",
+      "timestamp": "2026-03-23T05:27:08.919969",
+      "response_data": null
+    },
+    {
+      "test": "Parental Consent",
+      "status": "PASS",
+      "details": "Parental consent check returned success=true",
+      "timestamp": "2026-03-23T05:27:09.043605",
+      "response_data": null
+    },
+    {
+      "test": "Translation Verification",
+      "status": "PASS",
+      "details": "Translation structure varies by language",
+      "timestamp": "2026-03-23T05:27:09.369644",
+      "response_data": null
+    }
+  ]
+}

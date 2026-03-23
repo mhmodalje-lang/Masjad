@@ -16,7 +16,16 @@ Fix Stories page UI: compact category icons (pills instead of big squares), smal
    - Add Report/Block content/user features
    - Ensure GDPR consent handling
 
-### Current Task (March 2026 - Continuation):
+### Current Task (March 2026 - Academy Noor & Stories Fix):
+1. ✅ Fix i18n language detection from URL query parameter (?lang=xx)
+2. ✅ Fix Stories page Create button - centered, visible for all users
+3. ✅ Fix KidsZone (Academy Noor) - all hardcoded strings replaced with t() translations
+4. ✅ Fix SalahGuide - all hardcoded strings replaced with t() translations  
+5. ✅ Fix SalahGuide navigation buttons (were swapped Arabic/English)
+6. ✅ Add 23 new translation keys to all 9 languages
+7. ✅ All 9 languages verified working: ar, en, de, fr, ru, tr, sv, nl, el
+
+### Previous Tasks (March 2026 - Continuation):
 1. ✅ Fix video description text overlaying video - moved to bottom like Instagram Reels
 2. ✅ Add comments section below video (Instagram-style comment sheet)
 3. ✅ Make Trending tab work as real system (fetches from explore API sorted by engagement)
@@ -740,9 +749,50 @@ All required App Store and Play Store compliance endpoints are implemented and f
 
 ## Agent Communication
 
----
+### Testing Agent (March 23, 2026 - Kids Learn API Review Request)
+**Message:** Completed comprehensive backend API testing for the Kids Learn (Academy Noor) platform as requested in the review request. All 13 Kids Learn API endpoints are functioning perfectly:
 
-## Agent Communication
+**Core API Testing Results:**
+1. ✅ GET /api/kids-learn/curriculum?locale={lang} - Successfully returns 15 stages with proper structure across all languages
+2. ✅ GET /api/kids-learn/curriculum/lesson/1?locale={lang} - Successfully returns lesson with 4 sections across all languages
+3. ✅ GET /api/kids-learn/duas?locale={lang} - Successfully returns 15 duas with proper structure across all languages
+4. ✅ GET /api/kids-learn/hadiths?locale={lang} - Successfully returns 10 hadiths with proper structure across all languages
+5. ✅ GET /api/kids-learn/prophets-full?locale={lang} - Successfully returns 25 prophets with proper structure across all languages
+6. ✅ GET /api/kids-learn/islamic-pillars?locale={lang} - Successfully returns 5 pillars with proper structure across all languages
+7. ✅ GET /api/kids-learn/wudu?locale={lang} - Successfully returns 12 wudu steps with proper structure across all languages
+8. ✅ GET /api/kids-learn/salah?locale={lang} - Successfully returns 11 salah steps with proper structure across all languages
+9. ✅ GET /api/kids-learn/library/categories?locale={lang} - Successfully returns 8 categories with proper structure across all languages
+10. ✅ GET /api/kids-learn/library/items?category=all&locale={lang} - Successfully returns 28 library items with proper structure across all languages
+11. ✅ GET /api/kids-learn/quran/surahs?locale={lang} - Successfully returns 15 surahs with proper structure across all languages
+12. ✅ GET /api/kids-learn/achievements?user_id=test123 - Successfully returns 12 achievement badges with proper structure
+13. ✅ GET /api/parental-consent/check?user_id=test123 - Successfully returns success=true
+
+**Multi-Language Testing:** Tested all endpoints with Arabic (ar), English (en), and German (de) as requested. Extended testing confirmed all 9 supported languages (ar, en, de, fr, ru, tr, sv, nl, el) work correctly with proper translation.
+
+**Translation Verification:** Content properly changes across languages - verified with sample titles showing correct translations:
+- Curriculum: "الحروف العربية" (ar) → "Arabic Alphabet" (en) → "Arabisches Alphabet" (de)
+- Duas: "دعاء الاستيقاظ" (ar) → "Waking Up" (en) → "Beim Aufwachen" (de)
+- Prophets: "آدم" (ar) → "Adam" (en) → "Adam" (de)
+
+**Data Counts Verified:** All expected data counts match requirements:
+- 15 curriculum stages ✅
+- 25 prophets ✅
+- 5 Islamic pillars ✅
+- 12 wudu steps ✅
+- 11 salah steps ✅
+- 8+ library categories ✅
+- 28+ library items ✅
+- 15+ Quran surahs ✅
+- 12+ achievement badges ✅
+
+**API Structure Validation:** All endpoints return proper JSON structure with success=true and required fields. Response validation confirms all APIs follow consistent patterns and include necessary data fields.
+
+**Testing Coverage:** Created comprehensive test suites:
+- /app/kids_learn_api_test.py - Main test suite (36 tests, 100% pass rate)
+- /app/kids_learn_translation_test.py - Extended translation testing (27 tests, 100% pass rate)
+- Detailed results saved to JSON files for future regression testing
+
+**Recommendation:** All Kids Learn (Academy Noor) backend APIs are production-ready and fully compliant with the review requirements. No code modifications needed - all endpoints working as designed with full multi-language support.
 
 ### Testing Agent (March 23, 2026 - Review Request)
 **Message:** Completed comprehensive backend API testing for the specific endpoints requested in the review request. All 5 core Stories Platform APIs are functioning correctly:
@@ -779,5 +829,167 @@ All required App Store and Play Store compliance endpoints are implemented and f
 **App Store Readiness:** The backend API fully complies with App Store and Play Store requirements for user-generated content apps. Account deletion, content reporting, and user blocking features are all implemented as required by store policies.
 
 **Testing Coverage:** Created comprehensive test suite (/app/backend_app_store_compliance_test.py) that can be run for future regression testing.
+
+---
+
+## KIDS LEARN (ACADEMY NOOR) BACKEND API TEST RESULTS (March 23, 2026 - Testing Agent)
+
+### BACKEND API TESTING - Kids Learn Educational Platform
+**Status: ✅ PASSED (36/36 tests - 100% success rate)**
+
+**Backend URL:** https://agent-audit-build.preview.emergentagent.com
+
+|| Test Category | Endpoint | Languages Tested | Expected | Result | Status |
+||---------------|----------|------------------|----------|---------|---------|
+|| Curriculum Overview | GET /api/kids-learn/curriculum | ar, en, de | 15 stages with structure | 15 stages returned with proper structure | ✅ PASS |
+|| Curriculum Lesson | GET /api/kids-learn/curriculum/lesson/1 | ar, en, de | Lesson with sections | Lesson returned with 4 sections | ✅ PASS |
+|| Duas Collection | GET /api/kids-learn/duas | ar, en, de | 15+ duas array | 15 duas returned with proper structure | ✅ PASS |
+|| Hadiths Collection | GET /api/kids-learn/hadiths | ar, en, de | 10+ hadiths array | 10 hadiths returned with proper structure | ✅ PASS |
+|| Prophets Stories | GET /api/kids-learn/prophets-full | ar, en, de | 25 prophets array | 25 prophets returned with proper structure | ✅ PASS |
+|| Islamic Pillars | GET /api/kids-learn/islamic-pillars | ar, en, de | 5 pillars array | 5 pillars returned with proper structure | ✅ PASS |
+|| Wudu Steps | GET /api/kids-learn/wudu | ar, en, de | 12+ steps array | 12 wudu steps returned with proper structure | ✅ PASS |
+|| Salah Steps | GET /api/kids-learn/salah | ar, en, de | 11+ steps array | 11 salah steps returned with proper structure | ✅ PASS |
+|| Library Categories | GET /api/kids-learn/library/categories | ar, en, de | 8+ categories array | 8 categories returned with proper structure | ✅ PASS |
+|| Library Items | GET /api/kids-learn/library/items | ar, en, de | 28+ items array | 28 library items returned with proper structure | ✅ PASS |
+|| Quran Surahs | GET /api/kids-learn/quran/surahs | ar, en, de | 15+ surahs array | 15 surahs returned with proper structure | ✅ PASS |
+|| Achievement Badges | GET /api/kids-learn/achievements | N/A | 12+ badges array | 12 achievement badges returned with proper structure | ✅ PASS |
+|| Parental Consent | GET /api/parental-consent/check | N/A | success=true | Parental consent check returned success=true | ✅ PASS |
+|| Translation Verification | Multiple endpoints | ar, en, de | Content changes per language | Translation structure varies by language | ✅ PASS |
+
+**Test Details:**
+
+1. **✅ Curriculum Overview (3 languages)**
+   - Endpoint: `GET /api/kids-learn/curriculum?locale={lang}`
+   - Result: Successfully returned 15 curriculum stages with proper structure
+   - Validation: All required fields present (id, emoji, color, title, description, day_start, day_end, total_lessons)
+   - Languages: Arabic, English, German all working correctly
+
+2. **✅ Curriculum Lesson (3 languages)**
+   - Endpoint: `GET /api/kids-learn/curriculum/lesson/1?locale={lang}`
+   - Result: Successfully returned lesson with 4 sections
+   - Validation: All required fields present (day, stage, sections, total_sections)
+   - Languages: Arabic, English, German all working correctly
+
+3. **✅ Duas Collection (3 languages)**
+   - Endpoint: `GET /api/kids-learn/duas?locale={lang}`
+   - Result: Successfully returned 15 duas with proper structure
+   - Validation: All required fields present (id, category, arabic, title)
+   - Languages: Arabic, English, German all working correctly
+
+4. **✅ Hadiths Collection (3 languages)**
+   - Endpoint: `GET /api/kids-learn/hadiths?locale={lang}`
+   - Result: Successfully returned 10 hadiths with proper structure
+   - Validation: All required fields present (id, category, arabic, lesson)
+   - Languages: Arabic, English, German all working correctly
+
+5. **✅ Prophets Stories (3 languages)**
+   - Endpoint: `GET /api/kids-learn/prophets-full?locale={lang}`
+   - Result: Successfully returned 25 prophets with proper structure
+   - Validation: All required fields present (id, name, title, summary)
+   - Languages: Arabic, English, German all working correctly
+
+6. **✅ Islamic Pillars (3 languages)**
+   - Endpoint: `GET /api/kids-learn/islamic-pillars?locale={lang}`
+   - Result: Successfully returned 5 pillars with proper structure
+   - Validation: All required fields present (id, number, title, description)
+   - Languages: Arabic, English, German all working correctly
+
+7. **✅ Wudu Steps (3 languages)**
+   - Endpoint: `GET /api/kids-learn/wudu?locale={lang}`
+   - Result: Successfully returned 12 wudu steps with proper structure
+   - Validation: All required fields present (step, title, description)
+   - Languages: Arabic, English, German all working correctly
+
+8. **✅ Salah Steps (3 languages)**
+   - Endpoint: `GET /api/kids-learn/salah?locale={lang}`
+   - Result: Successfully returned 11 salah steps with proper structure
+   - Validation: All required fields present (step, title, description)
+   - Languages: Arabic, English, German all working correctly
+
+9. **✅ Library Categories (3 languages)**
+   - Endpoint: `GET /api/kids-learn/library/categories?locale={lang}`
+   - Result: Successfully returned 8 categories with proper structure
+   - Validation: All required fields present (id, title, emoji)
+   - Languages: Arabic, English, German all working correctly
+
+10. **✅ Library Items (3 languages)**
+    - Endpoint: `GET /api/kids-learn/library/items?category=all&locale={lang}`
+    - Result: Successfully returned 28 library items with proper structure
+    - Validation: All required fields present (id, category, title)
+    - Languages: Arabic, English, German all working correctly
+
+11. **✅ Quran Surahs (3 languages)**
+    - Endpoint: `GET /api/kids-learn/quran/surahs?locale={lang}`
+    - Result: Successfully returned 15 surahs with proper structure
+    - Validation: All required fields present (id, number, name_ar, name_en)
+    - Languages: Arabic, English, German all working correctly
+
+12. **✅ Achievement Badges**
+    - Endpoint: `GET /api/kids-learn/achievements?user_id=test123`
+    - Result: Successfully returned 12 achievement badges with proper structure
+    - Validation: All required fields present (id, emoji, title_ar, title_en, earned)
+
+13. **✅ Parental Consent Check**
+    - Endpoint: `GET /api/parental-consent/check?user_id=test123`
+    - Result: Successfully returned success=true
+    - Validation: Proper response structure
+
+**Extended Translation Testing (All 9 Languages):**
+
+Conducted comprehensive translation testing across all 9 supported languages (ar, en, de, fr, ru, tr, sv, nl, el):
+
+- **✅ Curriculum Overview**: All 9 languages return properly translated stage titles
+  - Arabic: "الحروف العربية"
+  - English: "Arabic Alphabet"  
+  - German: "Arabisches Alphabet"
+  - French: "Alphabet arabe"
+  - Russian: "Арабский алфавит"
+  - Turkish: "Arap Alfabesi"
+  - Swedish: "Arabiskt alfabet"
+  - Dutch: "Arabisch alfabet"
+  - Greek: "Αραβικό αλφάβητο"
+
+- **✅ Duas Collection**: All 9 languages return properly translated dua titles
+  - Arabic: "دعاء الاستيقاظ"
+  - English: "Waking Up"
+  - German: "Beim Aufwachen"
+  - French: "Au réveil"
+  - Russian: "При пробуждении"
+  - Turkish: "Uyanınca"
+  - Swedish: "Vid uppvaknande"
+  - Dutch: "Bij het wakker worden"
+  - Greek: "Κατά το ξύπνημα"
+
+- **✅ Prophets Stories**: All 9 languages return properly translated prophet names
+  - Arabic: "آدم"
+  - English: "Adam"
+  - German: "Adam"
+  - French: "Adam"
+  - Russian: "Адам"
+  - Turkish: "Adem"
+  - Swedish: "Adam"
+  - Dutch: "Adam"
+  - Greek: "Adam"
+
+**API Functionality Verified:**
+- ✅ All 13 requested endpoints exist and are functional
+- ✅ Proper response structure with success=true for all endpoints
+- ✅ Correct data counts: 15 stages, 25 prophets, 5 pillars, 12 wudu steps, 11 salah steps, etc.
+- ✅ Multi-language support working correctly across all 9 languages
+- ✅ Translation content properly changes per language
+- ✅ All HTTP status codes returned correctly (200 OK)
+- ✅ Response formats match expected API contracts
+- ✅ Field validation passes for all response structures
+
+**Testing Coverage:**
+- ✅ Created comprehensive test suite (/app/kids_learn_api_test.py) covering all 13 endpoints
+- ✅ Created extended translation test (/app/kids_learn_translation_test.py) for all 9 languages
+- ✅ Detailed results saved to /app/kids_learn_api_test_results.json
+- ✅ Translation results saved to /app/kids_learn_translation_test_results.json
+
+**Success Rate: 100% (36/36 tests passed)**
+
+**Compliance Verdict: ✅ ALL KIDS LEARN API ENDPOINTS WORKING PERFECTLY**
+All requested Kids Learn (Academy Noor) backend API endpoints are implemented and functioning correctly with full multi-language support.
 
 ---

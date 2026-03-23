@@ -88,12 +88,10 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
         </div>
         <span className="text-4xl">🕌</span>
         <h3 className="font-bold mt-2 text-xl bg-gradient-to-r from-green-300 to-emerald-200 bg-clip-text text-transparent">
-          {isRtl ? 'تعليم الصلاة خطوة بخطوة' : 'Learn Prayer Step by Step'}
+          {t('salahGuideTitle')}
         </h3>
         <p className="text-[11px] text-muted-foreground mt-1">
-          {isRtl
-            ? 'مع نور • رسومات ثلاثية الأبعاد عالية الجودة • مبني على الفقه الإسلامي الصحيح'
-            : 'With Noor • High-Quality 3D Illustrations • Based on Authentic Islamic Jurisprudence'}
+          {t('salahGuideSubtitle')}
         </p>
         {/* View mode toggle */}
         <div className="flex items-center justify-center gap-2 mt-3 relative z-10">
@@ -106,7 +104,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
                 : 'bg-white/10 text-muted-foreground hover:bg-white/15'
             )}
           >
-            {isRtl ? '🎴 بطاقات' : '🎴 Cards'}
+            {t('cardsView')}
           </button>
           <button
             onClick={() => setViewMode('list')}
@@ -117,7 +115,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
                 : 'bg-white/10 text-muted-foreground hover:bg-white/15'
             )}
           >
-            {isRtl ? '📋 قائمة' : '📋 List'}
+            {t('listView')}
           </button>
         </div>
       </div>
@@ -150,7 +148,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
               "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-lg",
               colors.badge, colors.glow
             )}>
-              {isRtl ? `الخطوة ${step.step} من ${steps.length}` : `Step ${step.step} of ${steps.length}`}
+              {t('stepXofY').replace('{x}', String(step.step)).replace('{y}', String(steps.length))}
             </span>
           </div>
 
@@ -195,7 +193,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
             {step.body_position && (
               <div className="text-center mb-3 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                 <span className="text-xs text-muted-foreground">
-                  {isRtl ? '🦴 وضع الجسم: ' : '🦴 Body Position: '}
+                  {t('bodyPositionLabel')}{' '}
                 </span>
                 <span className="text-xs font-semibold">{step.body_position}</span>
               </div>
@@ -213,7 +211,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 shadow-inner">
                 <div className="flex items-center gap-2 mb-2">
                   <BookOpen className="h-4 w-4 text-amber-500 dark:text-amber-400" />
-                  <span className="text-xs font-bold text-amber-500 dark:text-amber-400">{isRtl ? 'الذكر' : 'Dhikr / Recitation'}</span>
+                  <span className="text-xs font-bold text-amber-500 dark:text-amber-400">{t('dhikrLabel')}</span>
                 </div>
                 <p className="text-lg font-bold text-amber-200 text-center leading-loose" dir="rtl">
                   {step.dhikr_ar}
@@ -235,7 +233,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all text-sm font-semibold"
             >
               <ChevronRight className="h-4 w-4" />
-              {isRtl ? 'التالي' : 'Previous'}
+              {isRtl ? t('nextBtn') : t('prevBtn')}
             </button>
             <div className="flex items-center gap-1">
               {steps.map((_, i) => (
@@ -253,7 +251,7 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
               disabled={isRtl ? currentStep <= 0 : currentStep >= steps.length - 1}
               className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-green-600 hover:bg-green-500 disabled:opacity-20 disabled:cursor-not-allowed transition-all text-sm font-semibold text-white shadow-lg shadow-green-600/30"
             >
-              {isRtl ? 'السابق' : 'Next'}
+              {isRtl ? t('prevBtn') : t('nextBtn')}
               <ChevronLeft className="h-4 w-4" />
             </button>
           </div>
@@ -324,10 +322,8 @@ const SalahGuide: React.FC<SalahGuideProps> = ({ steps }) => {
 
       {/* Islamic Reference Footer */}
       <div className="text-center p-4 rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10">
-        <p className="text-[10px] text-muted-foreground leading-relaxed">
-          {isRtl
-            ? '📚 المرجع: صفة صلاة النبي ﷺ — الشيخ محمد ناصر الدين الألباني\n🎨 الرسومات: رسومات ثلاثية الأبعاد بأسلوب بيكسار/UE5 عبر OpenAI'
-            : '📚 Reference: The Prophet\'s Prayer Described ﷺ — Shaykh al-Albani\n🎨 Illustrations: 3D renders in Pixar/UE5 style via OpenAI'}
+        <p className="text-[10px] text-muted-foreground leading-relaxed whitespace-pre-line">
+          {t('salahReference')}
         </p>
       </div>
     </div>

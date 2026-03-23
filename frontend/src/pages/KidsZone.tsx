@@ -35,7 +35,7 @@ function Confetti({on}:{on:boolean}){
 }
 
 /* ═══════ SECTION CARD ═══════ */
-function SectionCard({emoji,title,children,color="blue",done=false,onDone}:{emoji:string;title:string;children:React.ReactNode;color?:string;done?:boolean;onDone?:()=>void}){
+function SectionCard({emoji,title,children,color="blue",done=false,onDone,doneLabel,completedLabel}:{emoji:string;title:string;children:React.ReactNode;color?:string;done?:boolean;onDone?:()=>void;doneLabel?:string;completedLabel?:string}){
   const colors:Record<string,string>={
     blue:"from-blue-500/15 to-cyan-500/10 border-blue-400/30",
     green:"from-emerald-500/15 to-teal-500/10 border-emerald-400/30",
@@ -53,8 +53,8 @@ function SectionCard({emoji,title,children,color="blue",done=false,onDone}:{emoj
       {done && <span className="text-green-500 dark:text-green-400 text-xs font-bold flex items-center gap-1"><Check className="h-3 w-3"/>✓</span>}
     </div>
     {children}
-    {onDone && !done && <button onClick={onDone} className="w-full mt-3 py-2 rounded-xl bg-muted/30 text-muted-foreground text-sm flex items-center justify-center gap-1 border border-border/30 hover:bg-white/20 transition-all"><Check className="h-3.5 w-3.5"/>Done</button>}
-    {done && <div className="mt-2 text-center text-xs text-green-500 dark:text-green-400 font-bold">✅ Completed!</div>}
+    {onDone && !done && <button onClick={onDone} className="w-full mt-3 py-2 rounded-xl bg-muted/30 text-muted-foreground text-sm flex items-center justify-center gap-1 border border-border/30 hover:bg-white/20 transition-all"><Check className="h-3.5 w-3.5"/>{doneLabel || 'Done'}</button>}
+    {done && <div className="mt-2 text-center text-xs text-green-500 dark:text-green-400 font-bold">{completedLabel || '✅ Completed!'}</div>}
   </div>);
 }
 
@@ -378,7 +378,7 @@ export default function KidsZone() {
       {L.sections.map((sec,idx)=>{
         const isDone = completedSections.has(idx);
         const color = sectionColors[idx%sectionColors.length];
-        return(<SectionCard key={idx} emoji={sec.emoji} title={sec.title} color={color} done={isDone} onDone={()=>markDone(idx)}>
+        return(<SectionCard key={idx} emoji={sec.emoji} title={sec.title} color={color} done={isDone} onDone={()=>markDone(idx)} doneLabel={t('doneBtn')} completedLabel={t('completedMsg')}>
           {renderSectionContent(sec)}
         </SectionCard>);
       })}
@@ -644,8 +644,8 @@ export default function KidsZone() {
       {islamSub==='duas' && (<div className="space-y-3">
         <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-blue-500/15 to-indigo-500/10 border border-blue-400/30">
           <span className="text-4xl">🤲</span>
-          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أدعية يومية للمسلم الصغير' : 'Daily Duas for Young Muslims'}</h3>
-          <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'وَقَالَ رَبُّكُمُ ادْعُونِي أَسْتَجِبْ لَكُمْ' : '"Call upon Me; I will respond to you" - Quran 40:60'}</p>
+          <h3 className="font-bold mt-2 text-lg">{t('dailyDuasTitle')}</h3>
+          <p className="text-sm text-foreground/60 mt-1">{t('dailyDuasVerse')}</p>
         </div>
         {duas.map(d=>(<button key={d.id} onClick={()=>speak(d.arabic,'ar')} className="w-full p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/5 border border-blue-500/20 text-start hover:border-blue-400/40 transition-all">
           <div className="flex items-center gap-2 mb-2"><span>{d.emoji}</span><span className="text-xs font-bold text-blue-600 dark:text-blue-300">{d.title}</span><Volume2 className="h-3 w-3 text-blue-400 ms-auto"/></div>
@@ -658,8 +658,8 @@ export default function KidsZone() {
       {islamSub==='hadiths' && (<div className="space-y-3">
         <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-amber-500/15 to-orange-500/10 border border-amber-400/30">
           <span className="text-4xl">📜</span>
-          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أحاديث نبوية للأطفال' : 'Prophetic Hadiths for Children'}</h3>
-          <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'من كلام النبي محمد ﷺ' : 'From the words of Prophet Muhammad ﷺ'}</p>
+          <h3 className="font-bold mt-2 text-lg">{t('propheticHadithsTitle')}</h3>
+          <p className="text-sm text-foreground/60 mt-1">{t('propheticHadithsSubtitle')}</p>
         </div>
         {hadiths.map(h=>(<div key={h.id} className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20">
           <div className="flex items-center gap-2 mb-2"><span className="text-xl">{h.emoji}</span><span className="text-xs font-bold text-amber-600 dark:text-amber-300 capitalize">{h.category}</span></div>
@@ -673,8 +673,8 @@ export default function KidsZone() {
       {islamSub==='prophets' && (<div className="space-y-3">
         <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-purple-500/15 to-violet-500/10 border border-purple-400/30">
           <span className="text-4xl">📿</span>
-          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'قصص الأنبياء عليهم السلام' : 'Stories of the Prophets (Peace be upon them)'}</h3>
-          <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'نَحْنُ نَقُصُّ عَلَيْكَ أَحْسَنَ الْقَصَصِ — يوسف:٣' : '"We relate to you the best of stories" — Yusuf:3'}</p>
+          <h3 className="font-bold mt-2 text-lg">{t('prophetsStoriesTitle')}</h3>
+          <p className="text-sm text-foreground/60 mt-1">{t('prophetsStoriesVerse')}</p>
         </div>
         {prophets.map(p=>(<button key={p.id} onClick={()=>setSelectedProphet(p)} className="w-full p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 to-violet-500/5 border border-purple-500/20 text-start hover:border-purple-400/40 transition-all">
           <div className="flex items-center gap-3"><span className="text-3xl">{p.emoji}</span>
@@ -687,8 +687,8 @@ export default function KidsZone() {
       {islamSub==='pillars' && (<div className="space-y-3">
         <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
           <span className="text-4xl">🕋</span>
-          <h3 className="font-bold mt-2 text-lg">{dir==='rtl' ? 'أركان الإسلام الخمسة' : 'The Five Pillars of Islam'}</h3>
-          <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'بُنِيَ الإسلامُ على خمس' : 'Islam is built upon five pillars'}</p>
+          <h3 className="font-bold mt-2 text-lg">{t('fivePillarsTitle')}</h3>
+          <p className="text-sm text-foreground/60 mt-1">{t('fivePillarsSubtitle')}</p>
         </div>
         {pillars.map(p=>(<div key={p.id} className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/5 border border-emerald-500/20">
         <div className="flex items-center gap-3">
@@ -702,7 +702,7 @@ export default function KidsZone() {
         <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-blue-500/15 to-cyan-500/10 border border-blue-400/30">
           <span className="text-4xl">💧</span>
           <h3 className="font-bold mt-2 text-lg">{t('wuduStepsTitle')}</h3>
-          <p className="text-sm text-foreground/60 mt-1">{dir==='rtl' ? 'تعلّم الوضوء خطوة بخطوة • الطهارة مفتاح الصلاة' : 'Learn Wudu Step by Step • Purity is the Key to Prayer'}</p>
+          <p className="text-sm text-foreground/60 mt-1">{t('wuduSubtitle')}</p>
         </div>
         {wuduSteps.map((s:any)=>(<div key={s.step} className="p-3 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/5 border border-blue-500/20 flex items-start gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-sm font-bold text-white shrink-0 shadow-lg shadow-blue-500/20">{s.step}</div>
@@ -712,7 +712,7 @@ export default function KidsZone() {
           </div>
         </div>))}
         <div className="text-center p-3 rounded-xl bg-white/5 border border-border/30">
-          <p className="text-xs text-foreground/50">{dir==='rtl' ? '📚 المرجع: صفة وضوء النبي ﷺ — البخاري ومسلم' : '📚 Reference: The Prophet\'s Wudu ﷺ — Bukhari & Muslim'}</p>
+          <p className="text-xs text-foreground/50">{t('wuduReference')}</p>
         </div>
       </div>)}
 

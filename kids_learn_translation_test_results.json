@@ -1,0 +1,157 @@
+{
+  "summary": {
+    "total_tests": 27,
+    "passed_tests": 27,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_date": "2026-03-23T05:27:45.959596",
+    "languages_tested": [
+      "ar",
+      "en",
+      "de",
+      "fr",
+      "ru",
+      "tr",
+      "sv",
+      "nl",
+      "el"
+    ]
+  },
+  "results": {
+    "curriculum_ar": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u0627\u0644\u062d\u0631\u0648\u0641 \u0627\u0644\u0639\u0631\u0628\u064a\u0629",
+      "stages_count": 15
+    },
+    "curriculum_en": {
+      "status": "\u2705 PASS",
+      "sample_title": "Arabic Alphabet",
+      "stages_count": 15
+    },
+    "curriculum_de": {
+      "status": "\u2705 PASS",
+      "sample_title": "Arabisches Alphabet",
+      "stages_count": 15
+    },
+    "curriculum_fr": {
+      "status": "\u2705 PASS",
+      "sample_title": "Alphabet arabe",
+      "stages_count": 15
+    },
+    "curriculum_ru": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u0410\u0440\u0430\u0431\u0441\u043a\u0438\u0439 \u0430\u043b\u0444\u0430\u0432\u0438\u0442",
+      "stages_count": 15
+    },
+    "curriculum_tr": {
+      "status": "\u2705 PASS",
+      "sample_title": "Arap Alfabesi",
+      "stages_count": 15
+    },
+    "curriculum_sv": {
+      "status": "\u2705 PASS",
+      "sample_title": "Arabiskt alfabet",
+      "stages_count": 15
+    },
+    "curriculum_nl": {
+      "status": "\u2705 PASS",
+      "sample_title": "Arabisch alfabet",
+      "stages_count": 15
+    },
+    "curriculum_el": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u0391\u03c1\u03b1\u03b2\u03b9\u03ba\u03cc \u03b1\u03bb\u03c6\u03ac\u03b2\u03b7\u03c4\u03bf",
+      "stages_count": 15
+    },
+    "duas_ar": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u062f\u0639\u0627\u0621 \u0627\u0644\u0627\u0633\u062a\u064a\u0642\u0627\u0638",
+      "duas_count": 15
+    },
+    "duas_en": {
+      "status": "\u2705 PASS",
+      "sample_title": "Waking Up",
+      "duas_count": 15
+    },
+    "duas_de": {
+      "status": "\u2705 PASS",
+      "sample_title": "Beim Aufwachen",
+      "duas_count": 15
+    },
+    "duas_fr": {
+      "status": "\u2705 PASS",
+      "sample_title": "Au r\u00e9veil",
+      "duas_count": 15
+    },
+    "duas_ru": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u041f\u0440\u0438 \u043f\u0440\u043e\u0431\u0443\u0436\u0434\u0435\u043d\u0438\u0438",
+      "duas_count": 15
+    },
+    "duas_tr": {
+      "status": "\u2705 PASS",
+      "sample_title": "Uyan\u0131nca",
+      "duas_count": 15
+    },
+    "duas_sv": {
+      "status": "\u2705 PASS",
+      "sample_title": "Vid uppvaknande",
+      "duas_count": 15
+    },
+    "duas_nl": {
+      "status": "\u2705 PASS",
+      "sample_title": "Bij het wakker worden",
+      "duas_count": 15
+    },
+    "duas_el": {
+      "status": "\u2705 PASS",
+      "sample_title": "\u039a\u03b1\u03c4\u03ac \u03c4\u03bf \u03be\u03cd\u03c0\u03bd\u03b7\u03bc\u03b1",
+      "duas_count": 15
+    },
+    "prophets_ar": {
+      "status": "\u2705 PASS",
+      "sample_name": "\u0622\u062f\u0645",
+      "prophets_count": 25
+    },
+    "prophets_en": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    },
+    "prophets_de": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    },
+    "prophets_fr": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    },
+    "prophets_ru": {
+      "status": "\u2705 PASS",
+      "sample_name": "\u0410\u0434\u0430\u043c",
+      "prophets_count": 25
+    },
+    "prophets_tr": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adem",
+      "prophets_count": 25
+    },
+    "prophets_sv": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    },
+    "prophets_nl": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    },
+    "prophets_el": {
+      "status": "\u2705 PASS",
+      "sample_name": "Adam",
+      "prophets_count": 25
+    }
+  }
+}

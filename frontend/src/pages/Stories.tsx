@@ -1198,12 +1198,24 @@ export default function Stories() {
               ))}
             </div>
 
+            <div className="w-8" />
+          </div>
+
+          {/* Centered Create Button */}
+          <div className="flex justify-center pb-2">
             {user ? (
               <button data-testid="create-post-btn" onClick={() => setShowCreate(true)}
-                className="h-8 w-8 rounded-full bg-emerald-600 flex items-center justify-center active:scale-90 transition-transform shadow-md shadow-emerald-600/20">
+                className="flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-600 active:scale-95 transition-transform shadow-lg shadow-emerald-600/25">
                 <Plus className="w-4 h-4 text-white" />
+                <span className="text-white text-[12px] font-bold">{t('createPostOrVideo')}</span>
               </button>
-            ) : <div className="w-8" />}
+            ) : (
+              <button onClick={() => navigate('/auth')}
+                className="flex items-center gap-2 px-5 py-2 rounded-full bg-muted/30 border border-border/20 active:scale-95 transition-transform">
+                <Plus className="w-4 h-4 text-muted-foreground" />
+                <span className="text-muted-foreground text-[12px] font-bold">{t('loginToCreate')}</span>
+              </button>
+            )}
           </div>
 
           {/* Category pills - compact horizontal scroll */}

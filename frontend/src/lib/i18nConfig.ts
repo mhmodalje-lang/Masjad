@@ -97,8 +97,9 @@ i18n
       escapeValue: false, // React already escapes
     },
     detection: {
-      // Detection order: check manual selection first, then browser
-      order: ['localStorage', 'navigator', 'htmlTag'],
+      // Detection order: check URL param first, then manual selection, then browser
+      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
+      lookupQuerystring: 'lang',
       lookupLocalStorage: 'user-selected-locale',
       caches: ['localStorage'],
       // Map browser languages to supported codes
