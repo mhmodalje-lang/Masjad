@@ -2268,5 +2268,15 @@
   "noReelsYet": "No videos yet",
   "swipeForMore": "Swipe for more",
   "loginToInteract": "Log in to interact",
-  "originalAudio": "Original audio"
+  "originalAudio": "Original audio",
+  "showMore": "more",
+  "showLess": "less",
+  "editPost": "Edit Post",
+  "deletePost": "Delete Post",
+  "confirmDelete": "Delete this post?",
+  "postDeleted": "Post deleted",
+  "postEdited": "Post updated",
+  "editDescription": "Edit description",
+  "save_changes": "Save changes",
+  "ownerOptions": "Post options"
 }

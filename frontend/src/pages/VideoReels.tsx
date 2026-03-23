@@ -164,19 +164,25 @@ function ReelCommentsSheet({ postId, onClose, commentsCount }: { postId: string;
 }
 
 /* ==================== OPTIONS BOTTOM SHEET ==================== */
-function OptionsSheet({ post, onClose, onSave, saved, t, dir }: {
+function OptionsSheet({ post, onClose, onSave, saved, t, dir, onDelete, onEdit }: {
   post: VideoPost;
   onClose: () => void;
   onSave: () => void;
   saved: boolean;
   t: (k: string) => string;
   dir: string;
+  onDelete?: () => void;
+  onEdit?: () => void;
 }) {
   const { user } = useAuth();
   const [autoScroll, setAutoScroll] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [showWhySee, setShowWhySee] = useState(false);
+
+  const isOwner = user && user.id === post.author_id;
+  const isAdmin = user && user.email === 'mohammadalrejab@gmail.com';
+  const canManage = isOwner || isAdmin;
 
   const reportReasons = [
     { key: 'inappropriate', label: t('inappropriate') },
@@ -319,6 +325,24 @@ function OptionsSheet({ post, onClose, onSave, saved, t, dir }: {
             <EyeOff className="w-6 h-6 text-white" />
             <span className="text-white text-[14px] flex-1 text-start">{t('notInterested')}</span>
           </button>
+
+          {/* Owner: Edit Post */}
+          {canManage && onEdit && (
+            <button onClick={() => { onClose(); onEdit(); }} className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors border-t border-white/10">
+              <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>
+              </svg>
+              <span className="text-blue-400 text-[14px] flex-1 text-start">{t('editPost')}</span>
+            </button>
+          )}
+
+          {/* Owner: Delete Post */}
+          {canManage && onDelete && (
+            <button onClick={() => { onClose(); onDelete(); }} className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors">
+              <Trash2 className="w-6 h-6 text-red-500" />
+              <span className="text-red-500 text-[14px] flex-1 text-start">{t('deletePost')}</span>
+            </button>
+          )}
 
           {/* Report */}
           <button onClick={() => setShowReport(true)} className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors">
@@ -581,6 +605,9 @@ export default function VideoReels() {
   const [showOptionsFor, setShowOptionsFor] = useState<string | null>(null);
   const [showShareFor, setShowShareFor] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'forYou' | 'following'>('forYou');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editText, setEditText] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -661,6 +688,38 @@ export default function VideoReels() {
     if (!url) return '';
     if (url.startsWith('http')) return url;
     return `${BACKEND_URL}${url}`;
+  };
+
+  const handleDeletePost = async () => {
+    if (!currentPost) return;
+    const token = getToken();
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${currentPost.id}`, {
+        method: 'DELETE', headers: { Authorization: `Bearer ${token}` },
+      });
+      if (r.ok) {
+        setPosts(prev => prev.filter(p => p.id !== currentPost.id));
+        toast.success(t('postDeleted'));
+        setShowDeleteConfirm(false);
+      }
+    } catch { toast.error('Error'); }
+  };
+
+  const handleEditPost = async () => {
+    if (!currentPost || !editText.trim()) return;
+    const token = getToken();
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${currentPost.id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: editText }),
+      });
+      if (r.ok) {
+        setPosts(prev => prev.map(p => p.id === currentPost.id ? { ...p, content: editText } : p));
+        toast.success(t('postEdited'));
+        setShowEditModal(false);
+      }
+    } catch { toast.error('Error'); }
   };
 
   const handleScroll = useCallback(() => {
@@ -777,6 +836,8 @@ export default function VideoReels() {
             saved={currentPost.saved || false}
             t={t}
             dir={dir}
+            onEdit={() => { setEditText(currentPost.content); setShowEditModal(true); }}
+            onDelete={() => setShowDeleteConfirm(true)}
           />
         )}
       </AnimatePresence>
@@ -790,6 +851,61 @@ export default function VideoReels() {
             t={t}
             dir={dir}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ===== Edit Modal ===== */}
+      <AnimatePresence>
+        {showEditModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowEditModal(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#262626] rounded-2xl p-5 w-full max-w-md"
+              onClick={e => e.stopPropagation()}>
+              <h3 className="text-white font-bold text-[16px] mb-4 text-center" dir={dir}>{t('editPost')}</h3>
+              <textarea value={editText} onChange={e => setEditText(e.target.value)}
+                className="w-full bg-[#3a3a3a] text-white rounded-xl p-3 text-[14px] outline-none resize-none min-h-[100px] mb-3"
+                dir={dir} placeholder={t('editDescription')} />
+              <div className="flex gap-3">
+                <button onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">
+                  {t('cancelReport')}
+                </button>
+                <button onClick={handleEditPost}
+                  className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white font-semibold text-sm">
+                  {t('save_changes')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== Delete Confirmation ===== */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowDeleteConfirm(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#262626] rounded-2xl p-5 w-full max-w-sm text-center"
+              onClick={e => e.stopPropagation()}>
+              <Trash2 className="w-10 h-10 text-red-500 mx-auto mb-3" />
+              <h3 className="text-white font-bold text-[16px] mb-2" dir={dir}>{t('deletePost')}</h3>
+              <p className="text-gray-400 text-[13px] mb-5" dir={dir}>{t('confirmDelete')}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">
+                  {t('cancelReport')}
+                </button>
+                <button onClick={handleDeletePost}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm">
+                  {t('deletePost')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
@@ -1019,13 +1135,8 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
           </button>
         </div>
 
-        {/* Caption / Content - prominent text like Instagram */}
-        <div className="px-4 mb-1.5">
-          <p className="text-white text-[15px] leading-[1.6] drop-shadow-lg"
-            style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
-            {post.content}
-          </p>
-        </div>
+        {/* Expandable Caption / Content */}
+        <ExpandableCaption content={post.content} t={t} dir={dir} />
 
         {/* Audio/Music bar - like Instagram */}
         <div className="px-4">
@@ -1037,6 +1148,28 @@ function ReelItem({ post, index, isActive, onLike, onSave, onShare, onFollow, on
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ==================== EXPANDABLE CAPTION ==================== */
+function ExpandableCaption({ content, t, dir }: { content: string; t: (k: string) => string; dir: string }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!content) return null;
+  const isLong = content.length > 40;
+  return (
+    <div className="px-4 mb-1.5">
+      <p className={`text-white text-[14px] leading-[1.6] drop-shadow-lg ${expanded ? '' : 'line-clamp-2'}`}
+        dir={dir}
+        style={{ textShadow: '0 1px 6px rgba(0,0,0,0.9)' }}>
+        {content}
+      </p>
+      {isLong && (
+        <button onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+          className="text-white/50 text-[13px] font-bold mt-0.5 active:text-white/80">
+          {expanded ? t('showLess') : `... ${t('showMore')}`}
+        </button>
+      )}
     </div>
   );
 }

@@ -2268,5 +2268,15 @@
   "noReelsYet": "لا توجد فيديوهات بعد",
   "swipeForMore": "اسحب للمزيد",
   "loginToInteract": "سجل الدخول للتفاعل",
-  "originalAudio": "صوت أصلي"
+  "originalAudio": "صوت أصلي",
+  "showMore": "المزيد",
+  "showLess": "أقل",
+  "editPost": "تعديل المنشور",
+  "deletePost": "حذف المنشور",
+  "confirmDelete": "هل تريد حذف هذا المنشور؟",
+  "postDeleted": "تم حذف المنشور",
+  "postEdited": "تم تعديل المنشور",
+  "editDescription": "تعديل الوصف",
+  "save_changes": "حفظ التغييرات",
+  "ownerOptions": "خيارات المنشور"
 }

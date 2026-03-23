@@ -256,6 +256,36 @@ async def delete_post(post_id: str, user: dict = Depends(get_user)):
     await db.saves.delete_many({"post_id": post_id})
     return {"deleted": True}
 
+
+class EditPostRequest(BaseModel):
+    content: Optional[str] = None
+    title: Optional[str] = None
+
+
+@router.put("/sohba/posts/{post_id}")
+async def edit_post(post_id: str, data: EditPostRequest, user: dict = Depends(get_user)):
+    """Edit a post (owner only)"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(404, "المنشور غير موجود")
+    is_admin = user.get("email") in ["mohammadalrejab@gmail.com"]
+    if post["author_id"] != user["id"] and not is_admin:
+        raise HTTPException(403, "غير مصرح بالتعديل")
+    update = {}
+    if data.content is not None:
+        update["content"] = data.content
+    if data.title is not None:
+        update["title"] = data.title
+    if update:
+        update["edited"] = True
+        update["edited_at"] = datetime.utcnow().isoformat()
+        await db.posts.update_one({"id": post_id}, {"$set": update})
+    updated = await db.posts.find_one({"id": post_id}, {"_id": 0})
+    return {"post": updated}
+
+
 # ==================== FOLLOW SYSTEM ====================
 @router.post("/sohba/follow/{target_id}")
 async def toggle_follow(target_id: str, user: dict = Depends(get_user)):

@@ -4,7 +4,7 @@ import {
   Heart, MessageCircle, Send, X, Loader2, Image, Video,
   BookOpen, Plus, Eye, ArrowRight, ArrowLeft, Share2, Bookmark, Film,
   Play, Volume2, VolumeX, Trash2, Reply, Search, Users,
-  TrendingUp, Flame, Star, Clock, Hash, Lock
+  TrendingUp, Flame, Star, Clock, Hash, Lock, MoreHorizontal, Pencil
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
@@ -743,10 +743,25 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
 function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive: boolean; onOpenComments: () => void }) {
   const { user } = useAuth();
   const { t, dir } = useLocale();
+  const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(false);
   const [liked, setLiked] = useState(story.liked);
   const [likesCount, setLikesCount] = useState(story.likes_count);
+  const [expanded, setExpanded] = useState(false);
+  const [showOwnerMenu, setShowOwnerMenu] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editText, setEditText] = useState(story.content || '');
+  const [editTitle, setEditTitle] = useState(story.title || '');
+  const [storyContent, setStoryContent] = useState(story.content || '');
+  const [storyTitle, setStoryTitle] = useState(story.title || '');
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  const isOwner = user && user.id === story.author_id;
+  const isAdmin = user && user.email === 'mohammadalrejab@gmail.com';
+  const canManage = isOwner || isAdmin;
+  const isLongText = (storyContent?.length || 0) > 40;
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
@@ -781,6 +796,43 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}`, { method: 'DELETE', headers: authHeaders() });
+      if (r.ok) {
+        toast.success(t('postDeleted'));
+        setIsDeleted(true);
+        setShowDeleteConfirm(false);
+        setShowOwnerMenu(false);
+      }
+    } catch { toast.error('Error'); }
+  };
+
+  const handleEdit = async () => {
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}`, {
+        method: 'PUT', headers: authHeaders(),
+        body: JSON.stringify({ content: editText, title: editTitle }),
+      });
+      if (r.ok) {
+        const d = await r.json();
+        setStoryContent(editText);
+        setStoryTitle(editTitle);
+        toast.success(t('postEdited'));
+        setShowEditModal(false);
+        setShowOwnerMenu(false);
+      }
+    } catch { toast.error('Error'); }
+  };
+
+  if (isDeleted) {
+    return (
+      <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black">
+        <p className="text-gray-500 text-sm">{t('postDeleted')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
       {ytId ? (
@@ -793,6 +845,9 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black" />
       )}
+
+      {/* Bottom gradient for text readability */}
+      <div className="absolute bottom-0 left-0 right-0 h-60 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10 pointer-events-none" />
 
       {/* Action buttons - vertical stack */}
       <div className="absolute end-2.5 bottom-28 flex flex-col items-center gap-3.5 z-20">
@@ -810,6 +865,12 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         <button onClick={handleShare} className="flex flex-col items-center active:scale-90 transition-transform">
           <Share2 className="w-5 h-5 text-white drop-shadow-lg" />
         </button>
+        {/* Three dots menu for owner */}
+        {canManage && (
+          <button onClick={() => setShowOwnerMenu(true)} className="active:scale-90 transition-transform">
+            <MoreHorizontal className="w-5 h-5 text-white drop-shadow-lg" />
+          </button>
+        )}
       </div>
 
       {/* Mute button */}
@@ -821,17 +882,117 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
         </div>
       )}
 
-      {/* Author info + Caption at bottom - like Instagram */}
+      {/* Author info + Caption at bottom */}
       <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1.5">
           <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
-          <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
+          {!isOwner && (
+            <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
+          )}
         </div>
-        {story.content && (
-          <p className="text-white text-[13px] leading-relaxed drop-shadow-lg line-clamp-2 mb-0.5">{story.content}</p>
+        {/* Expandable caption */}
+        {storyContent && (
+          <div className="mb-0.5">
+            <p className={`text-white text-[13px] leading-relaxed drop-shadow-lg ${expanded ? '' : 'line-clamp-2'}`}
+              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+              {storyContent}
+            </p>
+            {isLongText && (
+              <button onClick={() => setExpanded(!expanded)}
+                className="text-white/60 text-[12px] font-bold mt-0.5 active:text-white">
+                {expanded ? t('showLess') : `... ${t('showMore')}`}
+              </button>
+            )}
+          </div>
         )}
-        {story.title && <p className="text-white/60 text-[11px] drop-shadow line-clamp-1">{story.title}</p>}
+        {storyTitle && <p className="text-white/50 text-[11px] drop-shadow line-clamp-1">{storyTitle}</p>}
       </div>
+
+      {/* ===== Owner Menu Bottom Sheet ===== */}
+      <AnimatePresence>
+        {showOwnerMenu && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm" onClick={() => setShowOwnerMenu(false)}>
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+              className="absolute bottom-0 left-0 right-0 bg-[#262626] rounded-t-[20px] overflow-hidden"
+              onClick={e => e.stopPropagation()}>
+              <div className="flex justify-center pt-2 pb-1">
+                <div className="w-10 h-1 rounded-full bg-gray-500" />
+              </div>
+              <div className="py-2" dir={dir}>
+                {/* Edit */}
+                <button onClick={() => { setShowOwnerMenu(false); setShowEditModal(true); }}
+                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors">
+                  <Pencil className="w-5 h-5 text-white" />
+                  <span className="text-white text-[14px]">{t('editPost')}</span>
+                </button>
+                {/* Delete */}
+                <button onClick={() => { setShowOwnerMenu(false); setShowDeleteConfirm(true); }}
+                  className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-white/5 transition-colors">
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                  <span className="text-red-500 text-[14px]">{t('deletePost')}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== Edit Modal ===== */}
+      <AnimatePresence>
+        {showEditModal && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowEditModal(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#262626] rounded-2xl p-5 w-full max-w-md"
+              onClick={e => e.stopPropagation()}>
+              <h3 className="text-white font-bold text-[16px] mb-4 text-center" dir={dir}>{t('editPost')}</h3>
+              <textarea value={editText} onChange={e => setEditText(e.target.value)}
+                className="w-full bg-[#3a3a3a] text-white rounded-xl p-3 text-[14px] outline-none resize-none min-h-[100px] mb-3"
+                dir={dir} placeholder={t('editDescription')} />
+              <div className="flex gap-3">
+                <button onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">
+                  {t('cancelReport')}
+                </button>
+                <button onClick={handleEdit}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm">
+                  {t('save_changes')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== Delete Confirmation ===== */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowDeleteConfirm(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#262626] rounded-2xl p-5 w-full max-w-sm text-center"
+              onClick={e => e.stopPropagation()}>
+              <Trash2 className="w-10 h-10 text-red-500 mx-auto mb-3" />
+              <h3 className="text-white font-bold text-[16px] mb-2" dir={dir}>{t('deletePost')}</h3>
+              <p className="text-gray-400 text-[13px] mb-5" dir={dir}>{t('confirmDelete')}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 text-white font-semibold text-sm">
+                  {t('cancelReport')}
+                </button>
+                <button onClick={handleDelete}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-semibold text-sm">
+                  {t('deletePost')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
