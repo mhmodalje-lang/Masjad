@@ -746,8 +746,11 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
   const { t, dir } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [liked, setLiked] = useState(story.liked);
   const [likesCount, setLikesCount] = useState(story.likes_count);
+  const [saved, setSaved] = useState(story.saved);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
@@ -757,9 +760,15 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 
   useEffect(() => {
     if (!videoRef.current) return;
-    if (isActive) videoRef.current.play().catch(() => {});
+    if (isActive) { videoRef.current.play().catch(() => {}); setPaused(false); }
     else { videoRef.current.pause(); videoRef.current.currentTime = 0; }
   }, [isActive]);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) { videoRef.current.play(); setPaused(false); }
+    else { videoRef.current.pause(); setPaused(true); }
+  };
 
   const toggleLike = async () => {
     if (!user) return;
@@ -767,6 +776,15 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
       const d = await r.json();
       setLiked(d.liked); setLikesCount(prev => d.liked ? prev + 1 : prev - 1);
+    } catch {}
+  };
+
+  const toggleSave = async () => {
+    if (!user) return;
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
+      const d = await r.json();
+      setSaved(d.saved);
     } catch {}
   };
 
@@ -782,59 +800,147 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
     }
   };
 
+  // Truncate description to 4 words like Instagram
+  const descWords = (story.content || '').split(/\s+/);
+  const shortDesc = descWords.length > 4 ? descWords.slice(0, 4).join(' ') + ' ...' : story.content;
+  const hasLongDesc = descWords.length > 4;
+
+  // Format counts
+  const formatCount = (n: number): string => {
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K';
+    return String(n || 0);
+  };
+
   return (
     <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
+      {/* === BACKGROUND MEDIA - Video displays as uploaded, no text overlay === */}
       {ytId ? (
         <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0&playsinline=1`}
           className="absolute inset-0 w-full h-full" frameBorder={0} allow="autoplay; encrypted-media" />
       ) : isVideo && videoSrc ? (
-        <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-contain" loop muted={muted} playsInline />
+        <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline onClick={togglePlay} />
       ) : imgUrl ? (
-        <div className="absolute inset-0"><img src={imgUrl} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/30" /></div>
+        <div className="absolute inset-0"><img src={imgUrl} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/20" /></div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black" />
-      )}
-
-      {story.content && (
-        <div className="absolute inset-x-0 bottom-28 px-6 z-10 pointer-events-none" dir={dir}>
-          <p className="text-white text-lg font-bold leading-relaxed drop-shadow-lg text-center">{story.content}</p>
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-8">
+          <p className="text-white text-lg font-bold text-center leading-[1.8] drop-shadow-lg"
+            style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
+            {story.content}
+          </p>
         </div>
       )}
 
-      {/* Action buttons - vertical stack, end-aligned for RTL support */}
-      <div className="absolute end-2.5 bottom-32 flex flex-col items-center gap-3.5 z-20">
-        <Link to={`/social-profile/${story.author_id}`}>
-          <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-lg" />
+      {/* Pause indicator */}
+      {paused && (isVideo || ytId) && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
+            <Play className="w-8 h-8 text-white fill-white ms-1" />
+          </div>
+        </div>
+      )}
+
+      {/* Top gradient */}
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
+      {/* Bottom gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" />
+
+      {/* === RIGHT SIDE ACTION BUTTONS - Instagram style === */}
+      <div className="absolute end-3 flex flex-col items-center gap-5 z-20"
+        style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+
+        {/* Author Avatar with gradient ring */}
+        <Link to={`/social-profile/${story.author_id}`} className="relative mb-1">
+          <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600">
+            <img src={avatar(story.author_name, story.author_avatar)} alt=""
+              className="w-11 h-11 rounded-full border-[2px] border-black" />
+          </div>
         </Link>
+
+        {/* Like */}
         <button onClick={toggleLike} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Heart className={cn("w-6 h-6 drop-shadow-lg", liked ? "fill-red-500 text-red-500" : "text-white")} />
-          <span className="text-white text-[10px] mt-0.5 font-bold">{likesCount}</span>
+          <Heart className={cn("w-7 h-7 drop-shadow-lg", liked ? "fill-red-500 text-red-500" : "text-white")} />
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(likesCount)}</span>
         </button>
+
+        {/* Comments */}
         <button onClick={onOpenComments} className="flex flex-col items-center active:scale-90 transition-transform">
-          <MessageCircle className="w-6 h-6 text-white drop-shadow-lg" />
-          <span className="text-white text-[10px] mt-0.5 font-bold">{story.comments_count}</span>
+          <MessageCircle className="w-7 h-7 text-white drop-shadow-lg" />
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(story.comments_count)}</span>
         </button>
+
+        {/* Share */}
         <button onClick={handleShare} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Share2 className="w-5 h-5 text-white drop-shadow-lg" />
+          <Send className="w-6 h-6 text-white drop-shadow-lg" style={{ transform: 'rotate(-30deg)' }} />
+          <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(story.shares_count || 0)}</span>
+        </button>
+
+        {/* Bookmark/Save */}
+        <button onClick={toggleSave} className="flex flex-col items-center active:scale-90 transition-transform">
+          <Bookmark className={cn("w-7 h-7 drop-shadow-lg", saved ? "fill-white text-white" : "text-white")} />
         </button>
       </div>
 
-      {/* Mute button - separated below actions to avoid overlap */}
+      {/* Mute toggle */}
       {(isVideo || ytId) && (
-        <div className="absolute end-3 bottom-16 z-20">
+        <div className="absolute start-3 z-20" style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
           <button onClick={() => setMuted(!muted)} className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
             {muted ? <VolumeX className="w-4 h-4 text-white/70" /> : <Volume2 className="w-4 h-4 text-white/70" />}
           </button>
         </div>
       )}
 
-      {/* Author info - start-aligned for RTL support */}
-      <div className="absolute bottom-4 start-3 end-14 z-20" dir={dir}>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-white font-bold text-sm drop-shadow-lg">{story.author_name}</span>
-          <span className="px-2 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded-md">{t('follow')}</span>
+      {/* === BOTTOM SECTION - Instagram Reels style: Author + Description + Comment bar === */}
+      <div className="absolute bottom-0 left-0 right-0 z-20" dir={dir}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+
+        {/* Author + Follow + Description */}
+        <div className="px-3.5 pb-2 pe-16">
+          {/* Author row */}
+          <div className="flex items-center gap-2 mb-1.5">
+            <Link to={`/social-profile/${story.author_id}`}
+              className="text-white font-bold text-[14px] drop-shadow-lg">
+              {story.author_name}
+            </Link>
+            {user && story.author_id !== user.id && (
+              <span className="px-2.5 py-0.5 border border-white/40 text-white text-[11px] font-medium rounded-md">
+                {t('follow')}
+              </span>
+            )}
+          </div>
+
+          {/* Title if exists */}
+          {story.title && <p className="text-white/90 text-[13px] font-bold drop-shadow mb-0.5 line-clamp-1">{story.title}</p>}
+
+          {/* Description - truncated like Instagram, doesn't overlay video */}
+          {story.content && (isVideo || isEmbed || imgUrl) && (
+            <div>
+              {descExpanded ? (
+                <>
+                  <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">{story.content}</p>
+                  <button onClick={() => setDescExpanded(false)} className="text-white/50 text-[12px] font-medium mt-0.5">{t('showLess')}</button>
+                </>
+              ) : (
+                <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">
+                  {shortDesc}
+                  {hasLongDesc && (
+                    <button onClick={() => setDescExpanded(true)} className="text-white/50 text-[12px] font-medium ms-1">{t('showMore')}</button>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
         </div>
-        {story.title && <p className="text-white/80 text-xs drop-shadow line-clamp-1">{story.title}</p>}
+
+        {/* Comment input bar - Instagram style */}
+        <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-black/30 backdrop-blur-sm border-t border-white/5">
+          {user && (
+            <img src={avatar(user.name || '', user.avatar)} alt="" className="w-7 h-7 rounded-full shrink-0 border border-white/20" />
+          )}
+          <button onClick={onOpenComments} className="flex-1 bg-white/10 rounded-full px-4 py-2 text-start">
+            <span className="text-white/30 text-[13px]">{t('addComment') || t('writeComment')}...</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -863,6 +969,8 @@ export default function Stories() {
   const [expandedDescIds, setExpandedDescIds] = useState<Set<string>>(new Set());
   const [reportTarget, setReportTarget] = useState<{ id: string; type: 'post' | 'story'; userId: string } | null>(null);
   const [showOptionsFor, setShowOptionsFor] = useState<string | null>(null);
+  const [videoFeedPosts, setVideoFeedPosts] = useState<Story[]>([]);
+  const [videoFeedLoading, setVideoFeedLoading] = useState(false);
 
   const selectedStoryId = searchParams.get('story');
 
@@ -899,6 +1007,32 @@ export default function Stories() {
     window.addEventListener('open-create-story', handler);
     return () => window.removeEventListener('open-create-story', handler);
   }, [user]);
+
+  // Load video feed from real API when video tab is selected
+  useEffect(() => {
+    if (activeTab === 'video') {
+      setVideoFeedLoading(true);
+      fetch(`${BACKEND_URL}/api/sohba/explore?limit=30`, { headers: authHeaders() })
+        .then(r => r.json())
+        .then(d => {
+          const allPosts = d.posts || [];
+          // Filter for video content
+          const videos = allPosts.filter((p: any) =>
+            p.is_embed || p.media_type === 'embed' || p.media_type === 'video' ||
+            p.content_type?.includes('video') || p.video_url || p.embed_url
+          );
+          setVideoFeedPosts(videos.map((p: any) => ({
+            ...p,
+            liked: p.liked || false,
+            saved: p.saved || false,
+            likes_count: p.likes_count || 0,
+            comments_count: p.comments_count || 0,
+          })));
+          setVideoFeedLoading(false);
+        })
+        .catch(() => setVideoFeedLoading(false));
+    }
+  }, [activeTab]);
 
   const handleSelectCategory = useCallback((cat: string | null) => {
     setSelectedCategory(cat);
@@ -955,24 +1089,40 @@ export default function Stories() {
 
   const loadStories = useCallback(async (cat?: string, pageNum: number = 1, append: boolean = false) => {
     if (pageNum === 1) setLoading(true); else setLoadingMore(true);
-    const langParam = `&language=${locale}`;
-    const url = cat
-      ? `${BACKEND_URL}/api/stories/list-translated?category=${cat}&limit=20&page=${pageNum}${langParam}`
-      : `${BACKEND_URL}/api/stories/list-translated?limit=20&page=${pageNum}${langParam}`;
     try {
-      const r = await fetch(url, { headers: authHeaders() });
-      const d = await r.json();
-      const ns = d.stories || [];
+      let ns: Story[] = [];
+      if (activeTab === 'trending') {
+        // Trending: fetch from explore API (sorted by engagement score)
+        const url = `${BACKEND_URL}/api/sohba/explore?page=${pageNum}&limit=20`;
+        const r = await fetch(url, { headers: authHeaders() });
+        const d = await r.json();
+        ns = (d.posts || []).map((p: any) => ({
+          ...p,
+          liked: p.liked || false,
+          saved: p.saved || false,
+          likes_count: p.likes_count || 0,
+          comments_count: p.comments_count || 0,
+        }));
+      } else {
+        // Stories list (with category filter)
+        const langParam = `&language=${locale}`;
+        const url = cat
+          ? `${BACKEND_URL}/api/stories/list-translated?category=${cat}&limit=20&page=${pageNum}${langParam}`
+          : `${BACKEND_URL}/api/stories/list-translated?limit=20&page=${pageNum}${langParam}`;
+        const r = await fetch(url, { headers: authHeaders() });
+        const d = await r.json();
+        ns = d.stories || [];
+      }
       if (append) setStories(prev => [...prev, ...ns]); else setStories(ns);
       setHasMore(ns.length >= 20);
     } catch {}
     setLoading(false); setLoadingMore(false);
-  }, [locale]);
+  }, [locale, activeTab]);
 
   useEffect(() => {
     setPage(1); setHasMore(true);
     loadStories(selectedCategory || undefined, 1, false);
-  }, [selectedCategory, loadStories]);
+  }, [selectedCategory, loadStories, activeTab]);
 
   const toggleLike = async (id: string) => {
     if (!user) { toast.error(t('loginRequired')); return; }
@@ -1124,7 +1274,9 @@ export default function Stories() {
       {/* === CONTENT === */}
       <div className="px-4 py-3">
         {activeTab === 'video' ? (
-          videoStories.length === 0 ? (
+          videoFeedLoading ? (
+            <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : videoFeedPosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16">
               <div className="w-16 h-16 rounded-2xl bg-muted/10 flex items-center justify-center mb-4">
                 <Film className="w-8 h-8 text-muted-foreground/30" />
@@ -1136,7 +1288,7 @@ export default function Stories() {
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-1.5">
-              {videoStories.map((s, idx) => (
+              {videoFeedPosts.map((s, idx) => (
                 <div key={s.id} onClick={() => setShowViewer(idx)}
                   className="relative aspect-[9/14] rounded-xl overflow-hidden cursor-pointer group bg-muted/10 active:scale-[0.97] transition-transform">
                   {getMediaUrl(s.thumbnail_url) ? (
@@ -1400,7 +1552,7 @@ export default function Stories() {
         {showCreate && <CreateSheet categories={categories} onClose={() => setShowCreate(false)} onCreated={s => setStories(prev => [s, ...prev])} />}
         {showCommentsFor && <CommentsSheet storyId={showCommentsFor} onClose={() => setShowCommentsFor(null)}
           onCountChange={d => setStories(p => p.map(x => x.id === showCommentsFor ? { ...x, comments_count: x.comments_count + d } : x))} />}
-        {showViewer !== null && <FullscreenViewer stories={videoStories} initialIndex={showViewer} onClose={() => setShowViewer(null)} />}
+        {showViewer !== null && <FullscreenViewer stories={activeTab === 'video' ? videoFeedPosts : videoStories} initialIndex={showViewer} onClose={() => setShowViewer(null)} />}
         {reportTarget && <ReportSheet contentId={reportTarget.id} contentType={reportTarget.type} reportedUserId={reportTarget.userId} onClose={() => setReportTarget(null)} />}
       </AnimatePresence>
 
