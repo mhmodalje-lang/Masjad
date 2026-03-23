@@ -1110,15 +1110,15 @@ export default function AdminDashboard() {
               <div className="rounded-2xl bg-card border border-green-500/20 p-4 text-center">
                 <CreditCard className="h-8 w-8 text-green-500 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-foreground">-</p>
-                <p className="text-xs text-muted-foreground">Stripe (قريباً)</p>
+                <p className="text-xs text-muted-foreground">الدفع الإلكتروني</p>
               </div>
             </div>
             <div className="rounded-xl bg-muted/50 border border-border/30 p-4 text-sm text-muted-foreground">
               <p className="font-bold text-foreground mb-2">كيف يعمل نظام الإيرادات:</p>
               <ul className="space-y-1 text-xs list-disc list-inside">
-                <li>عند إرسال هدية: 50% لل{t('adminPanel')} و 50% لصانع </li>
-                <li>{t('usersManagement')} يشترون النقاط عبر Stripe</li>
-                <li>أصحاب القنوات يرفعون إعلانات وتحدد ال{t('adminPanel')} السعر</li>
+                <li>عند إرسال هدية: 50% للإدارة و 50% لصانع المحتوى</li>
+                <li>المستخدمون يكسبون النقاط من الإعلانات والأنشطة</li>
+                <li>أصحاب القنوات يرفعون إعلانات وتحدد الإدارة السعر</li>
                 <li>عمولة السوق تُخصم تلقائياً من كل عملية بيع</li>
               </ul>
             </div>

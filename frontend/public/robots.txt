@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://qibla-guidance-hub.lovable.app/sitemap.xml
+Sitemap: /sitemap.xml

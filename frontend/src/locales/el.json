@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Αίτημα υποβλήθηκε",
   "dataDeletionSuccessMsg": "Θα επεξεργαστούμε το αίτημά σας.",
   "dataDeletionTimeframe": "Χρόνος: Έως 30 ημέρες σύμφωνα με GDPR",
-  "dataDeletionFooter": "Σύμφωνα με το Άρθρο 17 GDPR, δικαιούστε τη διαγραφή."
+  "dataDeletionFooter": "Σύμφωνα με το Άρθρο 17 GDPR, δικαιούστε τη διαγραφή.",
+  "offlineNotice": "Χωρίς σύνδεση στο διαδίκτυο - ορισμένες λειτουργίες ενδέχεται να μην λειτουργούν"
 }

@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Begäran skickad",
   "dataDeletionSuccessMsg": "Vi behandlar din begäran.",
   "dataDeletionTimeframe": "Tid: Upp till 30 dagar enligt GDPR",
-  "dataDeletionFooter": "Enligt GDPR Art. 17 har du rätt till radering."
+  "dataDeletionFooter": "Enligt GDPR Art. 17 har du rätt till radering.",
+  "offlineNotice": "Ingen internetanslutning - vissa funktioner kanske inte fungerar"
 }

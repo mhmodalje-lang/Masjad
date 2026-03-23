@@ -21,6 +21,7 @@ import GDPRAdConsent from "@/components/GDPRAdConsent";
 import AnalyticsTracker from "@/components/AnalyticsTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AgeGate, { hasPassedAgeGate } from "@/components/AgeGate";
+import OfflineNotice from "@/components/OfflineNotice";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -189,6 +190,7 @@ const App = () => {
                   </AppLayout>
                   <CookieConsent />
                   <GDPRAdConsent />
+                  <OfflineNotice />
                 </SEOWrapper>
               </BrowserRouter>
             </TooltipProvider>

@@ -2305,7 +2305,7 @@
   "profilePreview": "Предпросмотр профиля",
   "earnPointsTitle": "Заработайте бесплатные очки",
   "earnPointsDesc": "Смотрите короткие видео и получайте очки на украшения",
-  "noAdsAvailable": "Нет доступных реклам",
+  "noAdsAvailable": "Рекламы пока нет",
   "kidsLevel": "Уровень обучения",
   "xpFromLessons": "XP из уроков",
   "mustAgreeTerms": "Необходимо согласиться с условиями и политикой конфиденциальности",
@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Запрос отправлен",
   "dataDeletionSuccessMsg": "Мы обработаем ваш запрос.",
   "dataDeletionTimeframe": "Срок: До 30 дней по GDPR",
-  "dataDeletionFooter": "Согласно ст. 17 GDPR, вы имеете право на удаление данных."
+  "dataDeletionFooter": "Согласно ст. 17 GDPR, вы имеете право на удаление данных.",
+  "offlineNotice": "Нет подключения к интернету - некоторые функции недоступны"
 }

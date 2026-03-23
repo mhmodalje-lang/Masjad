@@ -2305,7 +2305,7 @@
   "profilePreview": "Profilvorschau",
   "earnPointsTitle": "Kostenlos Punkte verdienen",
   "earnPointsDesc": "Kurze Videos ansehen und Punkte für Dekorationen verdienen",
-  "noAdsAvailable": "Keine Anzeigen verfügbar",
+  "noAdsAvailable": "Zurzeit keine Werbung verfügbar",
   "kidsLevel": "Lernstufe",
   "xpFromLessons": "XP aus Lektionen",
   "mustAgreeTerms": "Sie müssen den Nutzungsbedingungen und der Datenschutzrichtlinie zustimmen",
@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Antrag erfolgreich gesendet",
   "dataDeletionSuccessMsg": "Wir werden Ihren Antrag bearbeiten.",
   "dataDeletionTimeframe": "Bearbeitungszeit: Bis zu 30 Tage gemäß DSGVO",
-  "dataDeletionFooter": "Gemäß Art. 17 DSGVO haben Sie das Recht auf Löschung Ihrer Daten."
+  "dataDeletionFooter": "Gemäß Art. 17 DSGVO haben Sie das Recht auf Löschung Ihrer Daten.",
+  "offlineNotice": "Keine Internetverbindung - einige Funktionen sind eingeschränkt"
 }

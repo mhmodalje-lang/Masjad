@@ -551,7 +551,7 @@ export default function BarakaMarket() {
                 <Play className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
                 <p className="text-muted-foreground text-sm">{t('noAdsAvailable')}</p>
                 <p className="text-xs text-muted-foreground/60 mt-1">
-                  {isRTL ? 'سيتم إضافة إعلانات قريباً من المسؤول' : 'Ads will be added soon by the admin'}
+                  {t('noAdsAvailable')}
                 </p>
               </div>
             ) : (

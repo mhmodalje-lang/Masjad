@@ -100,8 +100,31 @@ async def create_indexes():
         await db.baraka_wallets.create_index("user_id", unique=True)
         await db.baraka_transactions.create_index([("user_id", 1), ("created_at", -1)])
         await db.ads_config.create_index("id", unique=True)
+        await db.data_deletion_requests.create_index([("created_at", -1)])
     except Exception as e:
         print(f"Index creation note: {e}")
+    
+    # Seed demo review account for App Store / Play Store review teams
+    try:
+        from deps import hash_password as _hash_pw
+        demo_email = "review@azanhikaya.app"
+        existing = await db.users.find_one({"email": demo_email})
+        if not existing:
+            demo_user = {
+                "id": "review-demo-001",
+                "email": demo_email,
+                "name": "App Reviewer",
+                "password_hash": _hash_pw("ReviewDemo2025!"),
+                "provider": "email",
+                "created_at": datetime.utcnow().isoformat(),
+                "avatar": None,
+            }
+            await db.users.insert_one(demo_user)
+            print("Demo review account created: review@azanhikaya.app / ReviewDemo2025!")
+        else:
+            print("Demo review account already exists")
+    except Exception as e:
+        print(f"Demo account seed note: {e}")
 
 @app.on_event("shutdown")
 async def shutdown():

@@ -2305,7 +2305,7 @@
   "profilePreview": "Aperçu du profil",
   "earnPointsTitle": "Gagnez des points gratuits",
   "earnPointsDesc": "Regardez des vidéos courtes et gagnez des points pour les décorations",
-  "noAdsAvailable": "Pas de publicités disponibles",
+  "noAdsAvailable": "Aucune publicité disponible",
   "kidsLevel": "Niveau d'apprentissage",
   "xpFromLessons": "XP des leçons",
   "mustAgreeTerms": "Vous devez accepter les conditions et la politique de confidentialité",
@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Demande envoyée",
   "dataDeletionSuccessMsg": "Nous traiterons votre demande.",
   "dataDeletionTimeframe": "Délai: Jusqu'à 30 jours selon le RGPD",
-  "dataDeletionFooter": "Conformément à l'article 17 du RGPD."
+  "dataDeletionFooter": "Conformément à l'article 17 du RGPD.",
+  "offlineNotice": "Pas de connexion Internet - certaines fonctions indisponibles"
 }

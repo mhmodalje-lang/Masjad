@@ -2305,7 +2305,7 @@
   "profilePreview": "Profile Preview",
   "earnPointsTitle": "Earn Free Points",
   "earnPointsDesc": "Watch short videos and earn points to buy decorations",
-  "noAdsAvailable": "No ads available right now",
+  "noAdsAvailable": "No ads available at this time",
   "kidsLevel": "Learning Level",
   "xpFromLessons": "XP from lessons",
   "mustAgreeTerms": "You must agree to the Terms and Privacy Policy",
@@ -2340,5 +2340,6 @@
   "dataDeletionSuccess": "Request Submitted Successfully",
   "dataDeletionSuccessMsg": "We will process your request and delete all your data. You will receive a confirmation email.",
   "dataDeletionTimeframe": "Processing time: Up to 30 days per GDPR requirements",
-  "dataDeletionFooter": "Per GDPR Article 17, you have the right to request deletion of all your personal data."
+  "dataDeletionFooter": "Per GDPR Article 17, you have the right to request deletion of all your personal data.",
+  "offlineNotice": "No internet connection - some features may not work"
 }

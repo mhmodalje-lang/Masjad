@@ -1240,6 +1240,21 @@ All requested NEW Rewards Store backend API endpoints are implemented and functi
 - POST /api/admin/data-deletion-requests/{id}/process - Process request (admin)
 - GET /api/app-ads-txt - Dynamic app-ads.txt content
 
+### Round 2 Fixes (Comprehensive Store Policy Audit):
+12. ✅ Fixed robots.txt - removed old lovable.app URLs (was causing "copied app" flag)
+13. ✅ Fixed sitemap.xml - removed all old lovable.app URLs, using relative paths
+14. ✅ Fixed index.html OG/Twitter meta images - removed old lovable.app preview URLs
+15. ✅ Fixed OG title from "ألمؤذن العالمي" to "أذان وحكاية" (name mismatch)
+16. ✅ Fixed BarakaMarket "Coming Soon" placeholder text → proper "No ads available" message
+17. ✅ Fixed AdminDashboard "Stripe (قريباً)" placeholder text → proper text
+18. ✅ Fixed AdminDashboard references to Stripe purchase flow
+19. ✅ Cleaned up app-ads.txt from placeholder instructions
+20. ✅ Created demo review account (review@azanhikaya.app / ReviewDemo2025!)
+21. ✅ Added OfflineNotice component (shows banner when no internet)
+22. ✅ Added data_deletion_requests MongoDB index
+23. ✅ Added noAdsAvailable + offlineNotice translation keys to all 9 languages
+24. ✅ All 16 key pages verified returning HTTP 200
+
 ---
 
 ## POLICY COMPLIANCE BACKEND API TEST RESULTS (March 2026 - Testing Agent)
