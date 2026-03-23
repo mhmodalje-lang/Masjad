@@ -92,27 +92,51 @@ QURAN_TRANSLATION_IDS = {
     "fr": 136,   # Montada Islamic Foundation (Modern French)
     "tr": 77,    # Diyanet Isleri (Turkey's official authority)
     "sv": 48,    # Knut Bernström (Official Swedish)
-    "nl": 235,   # Malak Faris Abdalsalaam (Modern Dutch)
-    "el": 20,    # Fallback to English Saheeh International
+    "nl": 144,   # Sofian S. Siregar (Verified Dutch)
+    "el": 0,     # No official Greek translation - show pending
 }
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
 
 # ==================== TAFSIR RESOURCE IDS ====================
-# Arabic: Tafsir Al-Muyassar (التفسير الميسر) - King Fahd Complex
-# English: Ibn Kathir Abridged - Best available scholarly English tafsir
-# Russian: Al-Sa'di - Best available Russian tafsir
-# Others: Fallback to English Ibn Kathir (Abridged)
+# For languages with native scholarly tafsir on Quran.com API:
+#   ar → Tafsir Al-Muyassar (King Fahd Complex)
+#   en → Ibn Kathir (Abridged)
+#   ru → Al-Sa'di (Russian)
+# For ALL OTHER languages: use official KFGQPC Quran translation as explanation
+# This provides the CORRECT Islamic scholarly translation in the user's language
+# instead of falling back to English Ibn Kathir text.
 TAFSIR_RESOURCE_IDS = {
     "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر)
     "en": 169,   # Ibn Kathir (Abridged)
     "ru": 170,   # Al-Sa'di (Russian)
-    "de": 169,   # Fallback → English Ibn Kathir
-    "fr": 169,   # Fallback → English Ibn Kathir
-    "tr": 169,   # Fallback → English Ibn Kathir
-    "sv": 169,   # Fallback → English Ibn Kathir
-    "nl": 169,   # Fallback → English Ibn Kathir
-    "el": 169,   # Fallback → English Ibn Kathir
+}
+
+# Languages that have NATIVE tafsir on Quran.com
+NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
+
+# For non-native tafsir languages, we use the official KFGQPC translation
+# as the verse explanation - these are from verified Islamic scholars
+TAFSIR_TRANSLATION_FALLBACK_IDS = {
+    "de": 27,    # Bubenheim & Elyas (KFGQPC German)
+    "fr": 136,   # Montada Islamic Foundation (French)
+    "tr": 77,    # Diyanet İşleri (Turkish Official)
+    "sv": 48,    # Knut Bernström (Swedish)
+    "nl": 144,   # Sofian S. Siregar (Dutch)
+    "el": 0,     # No Greek - pending
+}
+
+# Official scholar/source names per language for tafsir labels
+TAFSIR_LABEL_BY_LANG = {
+    "ar": "التفسير الميسر — مجمع الملك فهد",
+    "en": "Ibn Kathir (Abridged)",
+    "ru": "Тафсир ас-Саади",
+    "de": "Bubenheim & Elyas — KFGQPC",
+    "fr": "Fondation Islamique Montada",
+    "tr": "Diyanet İşleri Başkanlığı",
+    "sv": "Knut Bernström",
+    "nl": "Sofian S. Siregar",
+    "el": "Επίσημη μετάφραση σε εξέλιξη",
 }
 
 TAFSIR_CACHE_TTL_DAYS = 30
@@ -260,15 +284,24 @@ async def get_verses_v4(
             "fields": "text_uthmani",
         }
         # Auto-select translation if not specified
+        base_lang = language.split('-')[0]
         if translations:
             params["translations"] = translations
-        elif language != "ar" and language in QURAN_TRANSLATION_IDS:
-            params["translations"] = str(QURAN_TRANSLATION_IDS[language])
+        elif base_lang != "ar":
+            tid = QURAN_TRANSLATION_IDS.get(base_lang, 0)
+            if tid > 0:
+                params["translations"] = str(tid)
+            # el (Greek) = 0 → no translation param → Arabic only
 
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params=params)
             r.raise_for_status()
-            return r.json()
+            data = r.json()
+            # For Greek: mark translation_pending
+            if base_lang == "el":
+                data["translation_pending"] = True
+                data["pending_language"] = "el"
+            return data
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
 
@@ -282,6 +315,7 @@ async def get_juz_verses_v4(
 ):
     """Fetch verses by Juz number from Quran.com API v4"""
     try:
+        base_lang = language.split('-')[0]
         params = {
             "language": language,
             "page": page,
@@ -291,8 +325,10 @@ async def get_juz_verses_v4(
         }
         if translations:
             params["translations"] = translations
-        elif language != "ar" and language in QURAN_TRANSLATION_IDS:
-            params["translations"] = str(QURAN_TRANSLATION_IDS[language])
+        elif base_lang != "ar":
+            tid = QURAN_TRANSLATION_IDS.get(base_lang, 0)
+            if tid > 0:
+                params["translations"] = str(tid)
 
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/verses/by_juz/{juz_number}", params=params)
@@ -367,31 +403,32 @@ async def get_tafsir_for_verse(
     language: str = Query("ar"),
 ):
     """
-    Fetch Tafsir (Exegesis) for a specific verse.
+    Fetch Tafsir / Explanation for a specific verse.
+    V2026 GLOBAL DEPLOYMENT:
     - Arabic: Tafsir Al-Muyassar (التفسير الميسر) from King Fahd Complex
     - English: Ibn Kathir (Abridged)
     - Russian: Al-Sa'di
-    - Others: Returns translation_pending=true (NO English fallback)
-    
-    LANGUAGE INTEGRITY: Each language gets its own native tafsir only.
-    Implements MongoDB caching for 30 days for instant loading.
+    - German: Official KFGQPC translation (Bubenheim & Elyas)
+    - French: Montada Islamic Foundation
+    - Turkish: Diyanet İşleri Başkanlığı
+    - Swedish: Knut Bernström
+    - Dutch: Sofian S. Siregar
+    - Greek: Translation Pending (no official source)
+
+    NO English fallback. Each language gets content in ITS OWN language.
     """
-    # Validate verse_key format (e.g., "1:1", "2:255")
     if not re.match(r'^\d+:\d+$', verse_key):
         raise HTTPException(400, "Invalid verse key format. Use chapter:verse (e.g., 1:1)")
-    
-    base_lang = language.split('-')[0]  # Handle de-AT -> de
-    
-    # Languages with native tafsir available
-    NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
-    has_native_tafsir = base_lang in NATIVE_TAFSIR_LANGS
-    
-    # For non-native languages: use CLEANED English Ibn Kathir (Arabic quotes stripped)
-    if not has_native_tafsir:
-        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir
-        
-        # Check cache first
-        cache_key = f"tafsir_{tafsir_id}_{verse_key}_cleaned_en"
+
+    base_lang = language.split('-')[0]
+
+    # ── NATIVE TAFSIR: ar / en / ru ──
+    if base_lang in NATIVE_TAFSIR_LANGS:
+        tafsir_id = TAFSIR_RESOURCE_IDS[base_lang]
+        cache_key = f"tafsir_v3_{tafsir_id}_{verse_key}"
+        label = TAFSIR_LABEL_BY_LANG.get(base_lang, "")
+
+        # Check cache
         try:
             cached = await db.tafsir_cache.find_one({
                 "cache_key": cache_key,
@@ -403,17 +440,17 @@ async def get_tafsir_for_verse(
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": "Ibn Kathir",
+                    "tafsir_name": cached.get("tafsir_name", label),
                     "text": cached.get("text", ""),
-                    "is_fallback_language": True,
-                    "fallback_to_english": True,
+                    "is_fallback_language": False,
+                    "fallback_to_english": False,
                     "translation_pending": False,
                     "cached": True,
                 }
         except Exception:
             pass
-        
-        # Fetch English Ibn Kathir and CLEAN it (strip Arabic text)
+
+        # Fetch from Quran.com tafsir API
         try:
             async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
@@ -421,24 +458,9 @@ async def get_tafsir_for_verse(
                 data = r.json()
                 tafsir_data = data.get("tafsir", {})
                 raw_text = tafsir_data.get("text", "")
-                
-                # Step 1: Remove HTML tags but preserve paragraph breaks
-                clean_text = re.sub(r'<br\s*/?\s*>', '\n', raw_text)
-                clean_text = re.sub(r'</p>', '\n\n', clean_text)
-                clean_text = re.sub(r'<[^>]*>', '', clean_text).replace('&nbsp;', ' ')
-                
-                # Step 2: Remove Arabic text blocks (keep only Latin/English text)
-                clean_text = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{2,}[\s\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u065F]*', ' ', clean_text)
-                
-                # Step 3: Clean up formatting
-                clean_text = re.sub(r'[`]{2,}', '', clean_text)  # Remove backticks
-                clean_text = re.sub(r'\(\s*\)', '', clean_text)  # Remove empty parens
-                clean_text = re.sub(r'\[\s*\]', '', clean_text)  # Remove empty brackets
-                clean_text = re.sub(r'[ \t]+', ' ', clean_text)  # Collapse spaces
-                clean_text = re.sub(r'\n\s*\n\s*\n+', '\n\n', clean_text)  # Max 2 newlines
-                clean_text = clean_text.strip()
-                
-                # Cache cleaned result
+                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+                tafsir_name = tafsir_data.get("resource_name", label)
+
                 try:
                     await db.tafsir_cache.update_one(
                         {"cache_key": cache_key},
@@ -446,9 +468,9 @@ async def get_tafsir_for_verse(
                             "cache_key": cache_key,
                             "verse_key": verse_key,
                             "tafsir_id": tafsir_id,
-                            "tafsir_name": "Ibn Kathir",
+                            "tafsir_name": tafsir_name,
                             "text": clean_text,
-                            "is_fallback": True,
+                            "is_fallback": False,
                             "cached_at": datetime.utcnow(),
                             "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
                         }},
@@ -456,41 +478,47 @@ async def get_tafsir_for_verse(
                     )
                 except Exception:
                     pass
-                
+
                 return {
                     "success": True,
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": "Ibn Kathir",
+                    "tafsir_name": tafsir_name,
                     "text": clean_text,
-                    "is_fallback_language": True,
-                    "fallback_to_english": True,
+                    "is_fallback_language": False,
+                    "fallback_to_english": False,
                     "translation_pending": False,
                     "cached": False,
                 }
-        except Exception:
-            return {
-                "success": True,
-                "verse_key": verse_key,
-                "language": base_lang,
-                "tafsir_id": None,
-                "tafsir_name": "",
-                "text": "",
-                "is_fallback_language": False,
-                "fallback_to_english": False,
-                "translation_pending": True,
-                "pending_language": base_lang,
-                "cached": False,
-            }
-    
-    tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
-    # Languages with native tafsir: ar (16), en (169), ru (170)
-    # All others now return translation_pending=true (no fallback)
-    is_fallback = False  # No more fallbacks
-    
-    # Check MongoDB cache first
-    cache_key = f"tafsir_{tafsir_id}_{verse_key}"
+        except Exception as e:
+            raise HTTPException(500, f"Tafsir fetch error: {str(e)}")
+
+    # ── NON-NATIVE TAFSIR LANGUAGES (de, fr, tr, sv, nl, el) ──
+    # Use the OFFICIAL KFGQPC Quran translation in the user's language
+    # as the verse explanation. NO English fallback.
+    translation_id = TAFSIR_TRANSLATION_FALLBACK_IDS.get(base_lang, 0)
+    label = TAFSIR_LABEL_BY_LANG.get(base_lang, "")
+
+    # Greek: no translation available at all
+    if translation_id == 0:
+        return {
+            "success": True,
+            "verse_key": verse_key,
+            "language": base_lang,
+            "tafsir_id": None,
+            "tafsir_name": label,
+            "text": "",
+            "is_fallback_language": False,
+            "fallback_to_english": False,
+            "translation_pending": True,
+            "pending_language": base_lang,
+            "cached": False,
+        }
+
+    cache_key = f"tafsir_v3_trans_{translation_id}_{verse_key}"
+
+    # Check cache
     try:
         cached = await db.tafsir_cache.find_one({
             "cache_key": cache_key,
@@ -501,63 +529,91 @@ async def get_tafsir_for_verse(
                 "success": True,
                 "verse_key": verse_key,
                 "language": base_lang,
-                "tafsir_id": tafsir_id,
-                "tafsir_name": cached.get("tafsir_name", ""),
+                "tafsir_id": translation_id,
+                "tafsir_name": cached.get("tafsir_name", label),
                 "text": cached.get("text", ""),
                 "is_fallback_language": False,
+                "fallback_to_english": False,
                 "translation_pending": False,
                 "cached": True,
             }
     except Exception:
-        pass  # Cache miss, fetch from API
-    
-    # Fetch from Quran.com API v4
+        pass
+
+    # Fetch OFFICIAL translation from Quran.com v4 as explanation
     try:
+        ch_num, verse_num = verse_key.split(":")
         async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
+            params = {
+                "translations": str(translation_id),
+                "fields": "text_uthmani",
+                "words": "false",
+                "per_page": 1,
+                "page": 1,
+            }
+            # We need to fetch the specific verse
+            r = await c.get(
+                f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
+                params=params,
+            )
             r.raise_for_status()
             data = r.json()
-            
-            tafsir_data = data.get("tafsir", {})
-            raw_text = tafsir_data.get("text", "")
-            # Clean HTML tags from tafsir text
-            clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
-            tafsir_name = tafsir_data.get("resource_name", "")
-            
-            # Cache in MongoDB
+            verse_data = data.get("verse", {})
+            translations_list = verse_data.get("translations", [])
+
+            if translations_list:
+                raw_text = translations_list[0].get("text", "")
+                # Clean HTML
+                clean_text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', raw_text)
+                clean_text = re.sub(r'<[^>]*>', '', clean_text).replace('&nbsp;', ' ').strip()
+            else:
+                clean_text = ""
+
+            # Cache
             try:
                 await db.tafsir_cache.update_one(
                     {"cache_key": cache_key},
                     {"$set": {
                         "cache_key": cache_key,
                         "verse_key": verse_key,
-                        "tafsir_id": tafsir_id,
-                        "tafsir_name": tafsir_name,
+                        "tafsir_id": translation_id,
+                        "tafsir_name": label,
                         "text": clean_text,
-                        "is_fallback": is_fallback,
+                        "is_fallback": False,
                         "cached_at": datetime.utcnow(),
                         "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
                     }},
                     upsert=True,
                 )
             except Exception:
-                pass  # Non-critical: caching failure
-            
+                pass
+
             return {
                 "success": True,
                 "verse_key": verse_key,
                 "language": base_lang,
-                "tafsir_id": tafsir_id,
-                "tafsir_name": tafsir_name,
+                "tafsir_id": translation_id,
+                "tafsir_name": label,
                 "text": clean_text,
                 "is_fallback_language": False,
+                "fallback_to_english": False,
                 "translation_pending": False,
                 "cached": False,
             }
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(e.response.status_code, f"Tafsir API error: {str(e)}")
-    except Exception as e:
-        raise HTTPException(500, f"Tafsir fetch error: {str(e)}")
+    except Exception:
+        return {
+            "success": True,
+            "verse_key": verse_key,
+            "language": base_lang,
+            "tafsir_id": None,
+            "tafsir_name": label,
+            "text": "",
+            "is_fallback_language": False,
+            "fallback_to_english": False,
+            "translation_pending": True,
+            "pending_language": base_lang,
+            "cached": False,
+        }
 
 
 @router.get("/quran/v4/tafsir/bulk/{chapter_number}")
@@ -568,25 +624,39 @@ async def get_bulk_tafsir_for_chapter(
     per_page: int = Query(50),
 ):
     """
-    Fetch Tafsir for all verses of a chapter (bulk). 
-    More efficient than per-verse fetching.
-    Cached in MongoDB for 30 days.
+    V2026: Fetch Tafsir/Explanation for all verses of a chapter (bulk).
+    Uses native tafsir for ar/en/ru, official KFGQPC translations for others.
     """
     if chapter_number < 1 or chapter_number > 114:
         raise HTTPException(400, "Invalid chapter number (1-114)")
-    
+
     base_lang = language.split('-')[0]
-    
-    # LANGUAGE INTEGRITY: For non-native languages, use English Ibn Kathir (cleaned)
-    NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
-    is_fallback = base_lang not in NATIVE_TAFSIR_LANGS
-    if is_fallback:
-        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir (will be cleaned)
+    label = TAFSIR_LABEL_BY_LANG.get(base_lang, "")
+
+    # Determine source
+    if base_lang in NATIVE_TAFSIR_LANGS:
+        tafsir_id = TAFSIR_RESOURCE_IDS[base_lang]
+        use_translation_api = False
     else:
-        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
-    
-    # Check bulk cache
-    bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"
+        tafsir_id = TAFSIR_TRANSLATION_FALLBACK_IDS.get(base_lang, 0)
+        use_translation_api = True
+
+    # Greek: pending
+    if tafsir_id == 0:
+        return {
+            "success": True,
+            "chapter": chapter_number,
+            "language": base_lang,
+            "tafsir_id": None,
+            "tafsirs": [],
+            "is_fallback_language": False,
+            "translation_pending": True,
+            "cached": False,
+        }
+
+    bulk_cache_key = f"tafsir_bulk_v3_{tafsir_id}_{chapter_number}_p{page}_{base_lang}"
+
+    # Check cache
     try:
         cached = await db.tafsir_cache.find_one({
             "cache_key": bulk_cache_key,
@@ -599,47 +669,68 @@ async def get_bulk_tafsir_for_chapter(
                 "language": base_lang,
                 "tafsir_id": tafsir_id,
                 "tafsirs": cached.get("tafsirs", []),
-                "is_fallback_language": cached.get("is_fallback", False),
+                "is_fallback_language": False,
                 "cached": True,
             }
     except Exception:
         pass
-    
-    # Fetch from API - use the chapter tafsir endpoint 
+
     try:
         async with httpx.AsyncClient(timeout=60) as c:
-            # Quran.com v4 doesn't have a direct bulk tafsir endpoint per chapter
-            # We fetch verses first to know the count, then fetch tafsir per verse
-            verses_r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params={
-                "page": page, "per_page": per_page, "fields": "verse_key"
-            })
-            verses_r.raise_for_status()
-            verses_data = verses_r.json()
-            verse_keys = [v["verse_key"] for v in verses_data.get("verses", [])]
-            
-            tafsirs_list = []
-            for vk in verse_keys:
-                try:
-                    tr = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{vk}")
-                    if tr.status_code == 200:
-                        td = tr.json().get("tafsir", {})
-                        raw = td.get("text", "")
-                        clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').strip()
-                        # For fallback languages, strip Arabic from English text
-                        if is_fallback:
-                            clean = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{3,}[\s\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u064B-\u065F]*', '', clean)
-                            clean = re.sub(r'\s{3,}', '\n\n', clean)
-                            clean = re.sub(r'[`\(\)\[\]]{2,}', '', clean)
-                            clean = re.sub(r'\n{3,}', '\n\n', clean).strip()
-                        tafsirs_list.append({
-                            "verse_key": vk,
-                            "text": clean,
-                            "tafsir_name": td.get("resource_name", ""),
-                        })
-                except Exception:
-                    tafsirs_list.append({"verse_key": vk, "text": "", "tafsir_name": ""})
-            
-            # Cache bulk result
+            if use_translation_api:
+                # Fetch official translations as explanations
+                params = {
+                    "translations": str(tafsir_id),
+                    "fields": "text_uthmani",
+                    "words": "false",
+                    "page": page,
+                    "per_page": per_page,
+                }
+                r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params=params)
+                r.raise_for_status()
+                data = r.json()
+                tafsirs_list = []
+                for v in data.get("verses", []):
+                    vk = v.get("verse_key", "")
+                    trans = v.get("translations", [])
+                    text = ""
+                    if trans:
+                        raw = trans[0].get("text", "")
+                        text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', raw)
+                        text = re.sub(r'<[^>]*>', '', text).replace('&nbsp;', ' ').strip()
+                    tafsirs_list.append({
+                        "verse_key": vk,
+                        "text": text,
+                        "tafsir_name": label,
+                    })
+            else:
+                # Fetch native tafsir
+                verses_r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params={
+                    "page": page, "per_page": per_page, "fields": "verse_key"
+                })
+                verses_r.raise_for_status()
+                verses_data = verses_r.json()
+                verse_keys = [v["verse_key"] for v in verses_data.get("verses", [])]
+
+                tafsirs_list = []
+                for vk in verse_keys:
+                    try:
+                        tr = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{vk}")
+                        if tr.status_code == 200:
+                            td = tr.json().get("tafsir", {})
+                            raw = td.get("text", "")
+                            clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').strip()
+                            tafsirs_list.append({
+                                "verse_key": vk,
+                                "text": clean,
+                                "tafsir_name": td.get("resource_name", label),
+                            })
+                        else:
+                            tafsirs_list.append({"verse_key": vk, "text": "", "tafsir_name": ""})
+                    except Exception:
+                        tafsirs_list.append({"verse_key": vk, "text": "", "tafsir_name": ""})
+
+            # Cache
             try:
                 await db.tafsir_cache.update_one(
                     {"cache_key": bulk_cache_key},
@@ -648,7 +739,7 @@ async def get_bulk_tafsir_for_chapter(
                         "chapter": chapter_number,
                         "tafsir_id": tafsir_id,
                         "tafsirs": tafsirs_list,
-                        "is_fallback": is_fallback,
+                        "is_fallback": False,
                         "cached_at": datetime.utcnow(),
                         "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
                     }},
@@ -656,18 +747,34 @@ async def get_bulk_tafsir_for_chapter(
                 )
             except Exception:
                 pass
-            
+
             return {
                 "success": True,
                 "chapter": chapter_number,
                 "language": base_lang,
                 "tafsir_id": tafsir_id,
                 "tafsirs": tafsirs_list,
-                "is_fallback_language": is_fallback,
+                "is_fallback_language": False,
                 "cached": False,
             }
     except Exception as e:
         raise HTTPException(500, f"Bulk tafsir fetch error: {str(e)}")
+
+
+# ==================== CACHE MANAGEMENT ====================
+
+@router.post("/quran/v4/cache/clear")
+async def clear_tafsir_cache():
+    """Force clear ALL tafsir cache to sync with 2026 API data."""
+    try:
+        result = await db.tafsir_cache.delete_many({})
+        return {
+            "success": True,
+            "message": f"Cleared {result.deleted_count} cached tafsir entries",
+            "deleted_count": result.deleted_count,
+        }
+    except Exception as e:
+        raise HTTPException(500, f"Cache clear error: {str(e)}")
 
 
 # ==================== HADITH (Sunnah.com API) ====================
@@ -1042,7 +1149,6 @@ async def full_islamic_audit_report():
     }
     
     # 9. Tafsir Sources
-    NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     tafsir_sources = {}
     for lang, tid in TAFSIR_RESOURCE_IDS.items():
         if lang == "ar":

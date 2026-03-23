@@ -7,46 +7,46 @@ import { motion } from 'framer-motion';
 
 // The 40 Nawawi Hadiths - Arabic text is always shown, translations via i18n
 const HADITHS = [
-  { id: 1, arabic: 'إنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى', narrator: 'عمر بن الخطاب', source: 'البخاري ومسلم', key: 'nawawiH1' },
-  { id: 2, arabic: 'بَيْنَمَا نَحْنُ جُلُوسٌ عِنْدَ رَسُولِ اللَّهِ ﷺ ذَاتَ يَوْمٍ، إذْ طَلَعَ عَلَيْنَا رَجُلٌ شَدِيدُ بَيَاضِ الثِّيَابِ', narrator: 'عمر بن الخطاب', source: 'مسلم', key: 'nawawiH2' },
-  { id: 3, arabic: 'بُنِيَ الإِسْلامُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لا إلَهَ إلا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ', narrator: 'عبد الله بن عمر', source: 'البخاري ومسلم', key: 'nawawiH3' },
-  { id: 4, arabic: 'إنَّ أَحَدَكُمْ يُجْمَعُ خَلْقُهُ فِي بَطْنِ أُمِّهِ أَرْبَعِينَ يَوْمًا نُطْفَةً', narrator: 'عبد الله بن مسعود', source: 'البخاري ومسلم', key: 'nawawiH4' },
-  { id: 5, arabic: 'مَنْ أَحْدَثَ فِي أَمْرِنَا هَذَا مَا لَيْسَ مِنْهُ فَهُوَ رَدٌّ', narrator: 'عائشة أم المؤمنين', source: 'البخاري ومسلم', key: 'nawawiH5' },
-  { id: 6, arabic: 'إنَّ الْحَلالَ بَيِّنٌ، وَإِنَّ الْحَرَامَ بَيِّنٌ، وَبَيْنَهُمَا أُمُورٌ مُشْتَبِهَاتٌ', narrator: 'النعمان بن بشير', source: 'البخاري ومسلم', key: 'nawawiH6' },
-  { id: 7, arabic: 'الدِّينُ النَّصِيحَةُ. قُلْنَا: لِمَنْ؟ قَالَ: لِلَّهِ وَلِكِتَابِهِ وَلِرَسُولِهِ وَلأَئِمَّةِ الْمُسْلِمِينَ وَعَامَّتِهِمْ', narrator: 'تميم الداري', source: 'مسلم', key: 'nawawiH7' },
-  { id: 8, arabic: 'أُمِرْتُ أَنْ أُقَاتِلَ النَّاسَ حَتَّى يَشْهَدُوا أَنْ لا إلَهَ إلا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ', narrator: 'عبد الله بن عمر', source: 'البخاري ومسلم', key: 'nawawiH8' },
-  { id: 9, arabic: 'مَا نَهَيْتُكُمْ عَنْهُ فَاجْتَنِبُوهُ، وَمَا أَمَرْتُكُمْ بِهِ فَأْتُوا مِنْهُ مَا اسْتَطَعْتُمْ', narrator: 'أبو هريرة', source: 'البخاري ومسلم', key: 'nawawiH9' },
-  { id: 10, arabic: 'إنَّ اللَّهَ طَيِّبٌ لا يَقْبَلُ إلا طَيِّبًا', narrator: 'أبو هريرة', source: 'مسلم', key: 'nawawiH10' },
-  { id: 11, arabic: 'دَعْ مَا يَرِيبُك إلَى مَا لا يَرِيبُك', narrator: 'الحسن بن علي', source: 'الترمذي والنسائي', key: 'nawawiH11' },
-  { id: 12, arabic: 'مِنْ حُسْنِ إسْلامِ الْمَرْءِ تَرْكُهُ مَا لا يَعْنِيهِ', narrator: 'أبو هريرة', source: 'الترمذي', key: 'nawawiH12' },
-  { id: 13, arabic: 'لا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', narrator: 'أنس بن مالك', source: 'البخاري ومسلم', key: 'nawawiH13' },
-  { id: 14, arabic: 'لا يَحِلُّ دَمُ امْرِئٍ مُسْلِمٍ إلا بِإِحْدَى ثَلاثٍ', narrator: 'عبد الله بن مسعود', source: 'البخاري ومسلم', key: 'nawawiH14' },
-  { id: 15, arabic: 'مَنْ كَانَ يُؤْمِنُ بِاَللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', narrator: 'أبو هريرة', source: 'البخاري ومسلم', key: 'nawawiH15' },
-  { id: 16, arabic: 'لا تَغْضَبْ، فَرَدَّدَ مِرَارًا، قَالَ: لا تَغْضَبْ', narrator: 'أبو هريرة', source: 'البخاري', key: 'nawawiH16' },
-  { id: 17, arabic: 'إنَّ اللَّهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيْءٍ', narrator: 'شداد بن أوس', source: 'مسلم', key: 'nawawiH17' },
-  { id: 18, arabic: 'اتَّقِ اللَّهَ حَيْثُمَا كُنْت، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا، وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ', narrator: 'أبو ذر وَمعاذ', source: 'الترمذي', key: 'nawawiH18' },
-  { id: 19, arabic: 'يَا غُلامُ، إنِّي أُعَلِّمُك كَلِمَاتٍ: احْفَظِ اللَّهَ يَحْفَظْك', narrator: 'عبد الله بن عباس', source: 'الترمذي', key: 'nawawiH19' },
-  { id: 20, arabic: 'إنَّ مِمَّا أَدْرَكَ النَّاسُ مِنْ كَلامِ النُّبُوَّةِ الأُولَى: إذَا لَمْ تَسْتَحِ فَاصْنَعْ مَا شِئْت', narrator: 'أبو مسعود', source: 'البخاري', key: 'nawawiH20' },
-  { id: 21, arabic: 'قُلْ آمَنْت بِاَللَّهِ ثُمَّ اسْتَقِمْ', narrator: 'سفيان بن عبد الله', source: 'مسلم', key: 'nawawiH21' },
-  { id: 22, arabic: 'أَرَأَيْتَ إذَا صَلَّيْتُ الْمَكْتُوبَاتِ، وَصُمْتُ رَمَضَانَ، وَأَحْلَلْتُ الْحَلالَ، وَحَرَّمْت الْحَرَامَ، أَأَدْخُلُ الْجَنَّةَ؟ قَالَ: نَعَمْ', narrator: 'أبو عبد الله جابر', source: 'مسلم', key: 'nawawiH22' },
-  { id: 23, arabic: 'الطُّهُورُ شَطْرُ الإِيمَانِ، وَالْحَمْدُ لِلَّهِ تَمْلأُ الْمِيزَانَ', narrator: 'أبو مالك الأشعري', source: 'مسلم', key: 'nawawiH23' },
-  { id: 24, arabic: 'يَا عِبَادِي، إنِّي حَرَّمْت الظُّلْمَ عَلَى نَفْسِي وَجَعَلْتُهُ بَيْنَكُمْ مُحَرَّمًا فَلا تَظَالَمُوا', narrator: 'أبو ذر الغفاري', source: 'مسلم', key: 'nawawiH24' },
-  { id: 25, arabic: 'إنَّ بِكُلِّ تَسْبِيحَةٍ صَدَقَةً، وَكُلِّ تَكْبِيرَةٍ صَدَقَةً، وَكُلِّ تَحْمِيدَةٍ صَدَقَةً', narrator: 'أبو ذر', source: 'مسلم', key: 'nawawiH25' },
-  { id: 26, arabic: 'كُلُّ سُلامَى مِنَ النَّاسِ عَلَيْهِ صَدَقَةٌ، كُلَّ يَوْمٍ تَطْلُعُ فِيهِ الشَّمْسُ', narrator: 'أبو هريرة', source: 'البخاري ومسلم', key: 'nawawiH26' },
-  { id: 27, arabic: 'الْبِرُّ حُسْنُ الْخُلُقِ، وَالإِثْمُ مَا حَاكَ فِي صَدْرِك وَكَرِهْتَ أَنْ يَطَّلِعَ عَلَيْهِ النَّاسُ', narrator: 'النواس بن سمعان', source: 'مسلم', key: 'nawawiH27' },
-  { id: 28, arabic: 'أُوصِيكُمْ بِتَقْوَى اللَّهِ، وَالسَّمْعِ وَالطَّاعَةِ وَإِنْ تَأَمَّرَ عَلَيْكُمْ عَبْدٌ', narrator: 'أبو نجيح العرباض', source: 'أبو داود والترمذي', key: 'nawawiH28' },
-  { id: 29, arabic: 'يَا رَسُولَ اللَّهِ، أَخْبِرْنِي بِعَمَلٍ يُدْخِلُنِي الْجَنَّةَ وَيُبَاعِدُنِي عَنِ النَّارِ', narrator: 'معاذ بن جبل', source: 'الترمذي', key: 'nawawiH29' },
-  { id: 30, arabic: 'إنَّ اللَّهَ فَرَضَ فَرَائِضَ فَلا تُضَيِّعُوهَا، وَحَدَّ حُدُودًا فَلا تَعْتَدُوهَا', narrator: 'أبو ثعلبة الخشني', source: 'الدارقطني', key: 'nawawiH30' },
-  { id: 31, arabic: 'ازْهَدْ فِي الدُّنْيَا يُحِبَّك اللَّهُ، وَازْهَدْ فِيمَا عِنْدَ النَّاسِ يُحِبَّك النَّاسُ', narrator: 'سهل بن سعد', source: 'ابن ماجه', key: 'nawawiH31' },
-  { id: 32, arabic: 'لا ضَرَرَ وَلا ضِرَارَ', narrator: 'أبو سعيد الخدري', source: 'ابن ماجه والدارقطني', key: 'nawawiH32' },
-  { id: 33, arabic: 'لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ', narrator: 'عبد الله بن عباس', source: 'البيهقي', key: 'nawawiH33' },
-  { id: 34, arabic: 'مَنْ رَأَى مِنْكُمْ مُنْكَرًا فَلْيُغَيِّرْهُ بِيَدِهِ، فَإِنْ لَمْ يَسْتَطِعْ فَبِلِسَانِهِ', narrator: 'أبو سعيد الخدري', source: 'مسلم', key: 'nawawiH34' },
-  { id: 35, arabic: 'لا تَحَاسَدُوا، وَلا تَنَاجَشُوا، وَلا تَبَاغَضُوا، وَلا تَدَابَرُوا', narrator: 'أبو هريرة', source: 'مسلم', key: 'nawawiH35' },
-  { id: 36, arabic: 'مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً مِنْ كُرَبِ الدُّنْيَا نَفَّسَ اللَّهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ', narrator: 'أبو هريرة', source: 'مسلم', key: 'nawawiH36' },
-  { id: 37, arabic: 'إنَّ اللَّهَ كَتَبَ الْحَسَنَاتِ وَالسَّيِّئَاتِ ثُمَّ بَيَّنَ ذَلِكَ', narrator: 'عبد الله بن عباس', source: 'البخاري ومسلم', key: 'nawawiH37' },
-  { id: 38, arabic: 'مَنْ عَادَى لِي وَلِيًّا فَقَدْ آذَنْتُهُ بِالْحَرْبِ', narrator: 'أبو هريرة', source: 'البخاري', key: 'nawawiH38' },
-  { id: 39, arabic: 'إنَّ اللَّهَ تَجَاوَزَ لِي عَنْ أُمَّتِي الْخَطَأَ وَالنِّسْيَانَ وَمَا اسْتُكْرِهُوا عَلَيْهِ', narrator: 'عبد الله بن عباس', source: 'ابن ماجه والبيهقي', key: 'nawawiH39' },
-  { id: 40, arabic: 'كُنْ فِي الدُّنْيَا كَأَنَّك غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ', narrator: 'عبد الله بن عمر', source: 'البخاري', key: 'nawawiH40' },
+  { id: 1, arabic: 'إنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى', narratorKey: 'narratorUmarKhattab', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH1' },
+  { id: 2, arabic: 'بَيْنَمَا نَحْنُ جُلُوسٌ عِنْدَ رَسُولِ اللَّهِ ﷺ ذَاتَ يَوْمٍ، إذْ طَلَعَ عَلَيْنَا رَجُلٌ شَدِيدُ بَيَاضِ الثِّيَابِ', narratorKey: 'narratorUmarKhattab', sourceKey: 'sourceMuslim', key: 'nawawiH2' },
+  { id: 3, arabic: 'بُنِيَ الإِسْلامُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لا إلَهَ إلا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ', narratorKey: 'narratorAbdullahUmar', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH3' },
+  { id: 4, arabic: 'إنَّ أَحَدَكُمْ يُجْمَعُ خَلْقُهُ فِي بَطْنِ أُمِّهِ أَرْبَعِينَ يَوْمًا نُطْفَةً', narratorKey: 'narratorAbdullahMasud', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH4' },
+  { id: 5, arabic: 'مَنْ أَحْدَثَ فِي أَمْرِنَا هَذَا مَا لَيْسَ مِنْهُ فَهُوَ رَدٌّ', narratorKey: 'narratorAisha', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH5' },
+  { id: 6, arabic: 'إنَّ الْحَلالَ بَيِّنٌ، وَإِنَّ الْحَرَامَ بَيِّنٌ، وَبَيْنَهُمَا أُمُورٌ مُشْتَبِهَاتٌ', narratorKey: 'narratorNumanBashir', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH6' },
+  { id: 7, arabic: 'الدِّينُ النَّصِيحَةُ. قُلْنَا: لِمَنْ؟ قَالَ: لِلَّهِ وَلِكِتَابِهِ وَلِرَسُولِهِ وَلأَئِمَّةِ الْمُسْلِمِينَ وَعَامَّتِهِمْ', narratorKey: 'narratorTamimDari', sourceKey: 'sourceMuslim', key: 'nawawiH7' },
+  { id: 8, arabic: 'أُمِرْتُ أَنْ أُقَاتِلَ النَّاسَ حَتَّى يَشْهَدُوا أَنْ لا إلَهَ إلا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ', narratorKey: 'narratorAbdullahUmar', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH8' },
+  { id: 9, arabic: 'مَا نَهَيْتُكُمْ عَنْهُ فَاجْتَنِبُوهُ، وَمَا أَمَرْتُكُمْ بِهِ فَأْتُوا مِنْهُ مَا اسْتَطَعْتُمْ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH9' },
+  { id: 10, arabic: 'إنَّ اللَّهَ طَيِّبٌ لا يَقْبَلُ إلا طَيِّبًا', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceMuslim', key: 'nawawiH10' },
+  { id: 11, arabic: 'دَعْ مَا يَرِيبُك إلَى مَا لا يَرِيبُك', narratorKey: 'narratorHasanAli', sourceKey: 'sourceTirmidhiNasai', key: 'nawawiH11' },
+  { id: 12, arabic: 'مِنْ حُسْنِ إسْلامِ الْمَرْءِ تَرْكُهُ مَا لا يَعْنِيهِ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceTirmidhi', key: 'nawawiH12' },
+  { id: 13, arabic: 'لا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', narratorKey: 'narratorAnasMalik', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH13' },
+  { id: 14, arabic: 'لا يَحِلُّ دَمُ امْرِئٍ مُسْلِمٍ إلا بِإِحْدَى ثَلاثٍ', narratorKey: 'narratorAbdullahMasud', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH14' },
+  { id: 15, arabic: 'مَنْ كَانَ يُؤْمِنُ بِاَللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH15' },
+  { id: 16, arabic: 'لا تَغْضَبْ، فَرَدَّدَ مِرَارًا، قَالَ: لا تَغْضَبْ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceBukhari', key: 'nawawiH16' },
+  { id: 17, arabic: 'إنَّ اللَّهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيْءٍ', narratorKey: 'narratorShaddadAws', sourceKey: 'sourceMuslim', key: 'nawawiH17' },
+  { id: 18, arabic: 'اتَّقِ اللَّهَ حَيْثُمَا كُنْت، وَأَتْبِعِ السَّيِّئَةَ الْحَسَنَةَ تَمْحُهَا، وَخَالِقِ النَّاسَ بِخُلُقٍ حَسَنٍ', narratorKey: 'narratorAbuDharrMuadh', sourceKey: 'sourceTirmidhi', key: 'nawawiH18' },
+  { id: 19, arabic: 'يَا غُلامُ، إنِّي أُعَلِّمُك كَلِمَاتٍ: احْفَظِ اللَّهَ يَحْفَظْك', narratorKey: 'narratorIbnAbbas', sourceKey: 'sourceTirmidhi', key: 'nawawiH19' },
+  { id: 20, arabic: 'إنَّ مِمَّا أَدْرَكَ النَّاسُ مِنْ كَلامِ النُّبُوَّةِ الأُولَى: إذَا لَمْ تَسْتَحِ فَاصْنَعْ مَا شِئْت', narratorKey: 'narratorAbuMasud', sourceKey: 'sourceBukhari', key: 'nawawiH20' },
+  { id: 21, arabic: 'قُلْ آمَنْت بِاَللَّهِ ثُمَّ اسْتَقِمْ', narratorKey: 'narratorSufyanAbdullah', sourceKey: 'sourceMuslim', key: 'nawawiH21' },
+  { id: 22, arabic: 'أَرَأَيْتَ إذَا صَلَّيْتُ الْمَكْتُوبَاتِ، وَصُمْتُ رَمَضَانَ، وَأَحْلَلْتُ الْحَلالَ، وَحَرَّمْت الْحَرَامَ، أَأَدْخُلُ الْجَنَّةَ؟ قَالَ: نَعَمْ', narratorKey: 'narratorJabir', sourceKey: 'sourceMuslim', key: 'nawawiH22' },
+  { id: 23, arabic: 'الطُّهُورُ شَطْرُ الإِيمَانِ، وَالْحَمْدُ لِلَّهِ تَمْلأُ الْمِيزَانَ', narratorKey: 'narratorAbuMalikAshari', sourceKey: 'sourceMuslim', key: 'nawawiH23' },
+  { id: 24, arabic: 'يَا عِبَادِي، إنِّي حَرَّمْت الظُّلْمَ عَلَى نَفْسِي وَجَعَلْتُهُ بَيْنَكُمْ مُحَرَّمًا فَلا تَظَالَمُوا', narratorKey: 'narratorAbuDharrGhifari', sourceKey: 'sourceMuslim', key: 'nawawiH24' },
+  { id: 25, arabic: 'إنَّ بِكُلِّ تَسْبِيحَةٍ صَدَقَةً، وَكُلِّ تَكْبِيرَةٍ صَدَقَةً، وَكُلِّ تَحْمِيدَةٍ صَدَقَةً', narratorKey: 'narratorAbuDharr', sourceKey: 'sourceMuslim', key: 'nawawiH25' },
+  { id: 26, arabic: 'كُلُّ سُلامَى مِنَ النَّاسِ عَلَيْهِ صَدَقَةٌ، كُلَّ يَوْمٍ تَطْلُعُ فِيهِ الشَّمْسُ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH26' },
+  { id: 27, arabic: 'الْبِرُّ حُسْنُ الْخُلُقِ، وَالإِثْمُ مَا حَاكَ فِي صَدْرِك وَكَرِهْتَ أَنْ يَطَّلِعَ عَلَيْهِ النَّاسُ', narratorKey: 'narratorNawwas', sourceKey: 'sourceMuslim', key: 'nawawiH27' },
+  { id: 28, arabic: 'أُوصِيكُمْ بِتَقْوَى اللَّهِ، وَالسَّمْعِ وَالطَّاعَةِ وَإِنْ تَأَمَّرَ عَلَيْكُمْ عَبْدٌ', narratorKey: 'narratorIrbadSariyah', sourceKey: 'sourceAbuDawudTirmidhi', key: 'nawawiH28' },
+  { id: 29, arabic: 'يَا رَسُولَ اللَّهِ، أَخْبِرْنِي بِعَمَلٍ يُدْخِلُنِي الْجَنَّةَ وَيُبَاعِدُنِي عَنِ النَّارِ', narratorKey: 'narratorMuadhJabal', sourceKey: 'sourceTirmidhi', key: 'nawawiH29' },
+  { id: 30, arabic: 'إنَّ اللَّهَ فَرَضَ فَرَائِضَ فَلا تُضَيِّعُوهَا، وَحَدَّ حُدُودًا فَلا تَعْتَدُوهَا', narratorKey: 'narratorAbuThalaba', sourceKey: 'sourceDaraqutni', key: 'nawawiH30' },
+  { id: 31, arabic: 'ازْهَدْ فِي الدُّنْيَا يُحِبَّك اللَّهُ، وَازْهَدْ فِيمَا عِنْدَ النَّاسِ يُحِبَّك النَّاسُ', narratorKey: 'narratorSahlSaad', sourceKey: 'sourceIbnMajah', key: 'nawawiH31' },
+  { id: 32, arabic: 'لا ضَرَرَ وَلا ضِرَارَ', narratorKey: 'narratorAbuSaeedKhudri', sourceKey: 'sourceIbnMajahDaraqutni', key: 'nawawiH32' },
+  { id: 33, arabic: 'لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ', narratorKey: 'narratorIbnAbbas', sourceKey: 'sourceBayhaqi', key: 'nawawiH33' },
+  { id: 34, arabic: 'مَنْ رَأَى مِنْكُمْ مُنْكَرًا فَلْيُغَيِّرْهُ بِيَدِهِ، فَإِنْ لَمْ يَسْتَطِعْ فَبِلِسَانِهِ', narratorKey: 'narratorAbuSaeedKhudri', sourceKey: 'sourceMuslim', key: 'nawawiH34' },
+  { id: 35, arabic: 'لا تَحَاسَدُوا، وَلا تَنَاجَشُوا، وَلا تَبَاغَضُوا، وَلا تَدَابَرُوا', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceMuslim', key: 'nawawiH35' },
+  { id: 36, arabic: 'مَنْ نَفَّسَ عَنْ مُؤْمِنٍ كُرْبَةً مِنْ كُرَبِ الدُّنْيَا نَفَّسَ اللَّهُ عَنْهُ كُرْبَةً مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceMuslim', key: 'nawawiH36' },
+  { id: 37, arabic: 'إنَّ اللَّهَ كَتَبَ الْحَسَنَاتِ وَالسَّيِّئَاتِ ثُمَّ بَيَّنَ ذَلِكَ', narratorKey: 'narratorIbnAbbas', sourceKey: 'sourceBukhariMuslim', key: 'nawawiH37' },
+  { id: 38, arabic: 'مَنْ عَادَى لِي وَلِيًّا فَقَدْ آذَنْتُهُ بِالْحَرْبِ', narratorKey: 'narratorAbuHurairah', sourceKey: 'sourceBukhari', key: 'nawawiH38' },
+  { id: 39, arabic: 'إنَّ اللَّهَ تَجَاوَزَ لِي عَنْ أُمَّتِي الْخَطَأَ وَالنِّسْيَانَ وَمَا اسْتُكْرِهُوا عَلَيْهِ', narratorKey: 'narratorIbnAbbas', sourceKey: 'sourceIbnMajahBayhaqi', key: 'nawawiH39' },
+  { id: 40, arabic: 'كُنْ فِي الدُّنْيَا كَأَنَّك غَرِيبٌ أَوْ عَابِرُ سَبِيلٍ', narratorKey: 'narratorAbdullahUmar', sourceKey: 'sourceBukhari', key: 'nawawiH40' },
 ];
 
 export default function FortyNawawi() {
@@ -206,10 +206,10 @@ export default function FortyNawawi() {
               {/* Narrator and source */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  {t('fortyNawawiNarrator')}: {hadith.narrator}
+                  {t('fortyNawawiNarrator')}: {t(hadith.narratorKey)}
                 </span>
                 <span className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                  {hadith.source}
+                  {t(hadith.sourceKey)}
                 </span>
               </div>
             </motion.div>

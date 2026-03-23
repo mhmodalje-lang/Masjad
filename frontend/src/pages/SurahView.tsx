@@ -43,7 +43,7 @@ const quranTranslationEditions: Record<string, string> = {
 };
 
 // === TAFSIR LOCAL CACHE HELPERS ===
-const TAFSIR_CACHE_PREFIX = 'tafsir_v2_';
+const TAFSIR_CACHE_PREFIX = 'tafsir_v3_';
 const TAFSIR_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in ms
 
 function getCachedTafsir(verseKey: string, lang: string): TafsirData | null {
@@ -309,11 +309,7 @@ function AyahCard({
     }
   };
 
-  const tafsirSourceLabel = locale === 'ar'
-    ? t('tafsirMuyassar')
-    : tafsir?.fallback_to_english
-      ? `Ibn Kathir — ${t('tafsirFallbackNote')}`
-      : tafsir?.tafsir_name || t('tafsirAbridged');
+  const tafsirSourceLabel = tafsir?.tafsir_name || (locale === 'ar' ? t('tafsirMuyassar') : t('tafsirAbridged'));
 
   return (
     <motion.div
@@ -484,6 +480,7 @@ export default function SurahView() {
         );
         const versesData = await versesRes.json();
         const verses = versesData.verses || [];
+        const isTranslationPending = versesData.translation_pending === true;
 
         // Build audio URL helper: uses EveryAyah CDN with Alafasy recitation
         const padNum = (n: number, len: number = 3) => String(n).padStart(len, '0');
@@ -508,7 +505,9 @@ export default function SurahView() {
             text: v.text_uthmani || v.text || '',
             numberInSurah: v.verse_number || verseNum,
             audio: audioUrl,
-            translation: (locale !== 'ar' && translationText) ? translationText : undefined,
+            translation: (locale !== 'ar' && translationText) ? translationText
+              : (isTranslationPending && locale !== 'ar') ? t('translationPending') || 'Η επίσημη μετάφραση σε εξέλιξη'
+              : undefined,
           };
         });
 

@@ -18,11 +18,14 @@ const SUNNAH_API_BASE = 'https://api.sunnah.com/v1';
 
 // Official Quran.com translation resource IDs
 export const QURAN_TRANSLATION_IDS: Record<string, number> = {
-  en: 131,  // Sahih International
-  de: 27,   // Abu Rida Muhammad ibn Ahmad ibn Rassoul
-  ru: 45,   // Ministry of Awqaf, Egypt
-  fr: 31,   // Muhammad Hamidullah
-  tr: 77,   // Diyanet İşleri
+  en: 20,   // Saheeh International (KFGQPC)
+  de: 27,   // Bubenheim & Elyas (KFGQPC)
+  ru: 45,   // Elmir Kuliev (Standard Russian)
+  fr: 136,  // Montada Islamic Foundation (Modern French)
+  tr: 77,   // Diyanet İşleri Başkanlığı
+  sv: 48,   // Knut Bernström (Official Swedish)
+  nl: 144,  // Sofian S. Siregar (Verified Dutch)
+  el: 0,    // Greek: Official translation pending
   ar: 0,    // Arabic original - no translation needed
 };
 
