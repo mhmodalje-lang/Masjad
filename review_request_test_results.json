@@ -1,0 +1,107 @@
+[
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=tr",
+    "language": "tr",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Quran Plan (Alternative)",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 15 surahs, verified translations in fatiha"
+  },
+  {
+    "test": "Curriculum Lesson (Alternative)",
+    "endpoint": "/api/kids-learn/curriculum/lesson/900?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Day 900 has content: {'arabic': '\u0627\u0644\u0633\u0628\u062a\u060c \u0627\u0644\u0623\u062d\u062f\u060c \u0627\u0644\u0627\u062b\u0646\u064a\u0646\u060c \u0627\u0644\u062b\u0644\u0627\u062b\u0627\u0621\u060c \u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621\u060c \u0627\u0644\u062e\u0645\u064a\u0633\u060c \u0627\u0644\u062c\u0645\u0639\u0629. \u064a\u0648\u0645 \u0627\u0644\u062c\u0645\u0639\u0629 \u0647\u0648 \u0623\u0641\u0636\u0644 \u0627\u0644\u0623\u064a\u0627\u0645 \u0639\u0646\u062f \u0627\u0644\u0645\u0633\u0644\u0645\u064a\u0646. \u0646\u0635\u0644\u064a \u0641\u064a\u0647 \u0635\u0644\u0627\u0629 \u0627\u0644\u062c\u0645\u0639\u0629.', 'translated': \"Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday. Friday is the best day for Muslims. We pray Jumu'ah prayer on it.\"}"
+  },
+  {
+    "test": "Curriculum Lesson (Alternative)",
+    "endpoint": "/api/kids-learn/curriculum/lesson/900?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Day 900 has content: {'arabic': '\u0627\u0644\u0633\u0628\u062a\u060c \u0627\u0644\u0623\u062d\u062f\u060c \u0627\u0644\u0627\u062b\u0646\u064a\u0646\u060c \u0627\u0644\u062b\u0644\u0627\u062b\u0627\u0621\u060c \u0627\u0644\u0623\u0631\u0628\u0639\u0627\u0621\u060c \u0627\u0644\u062e\u0645\u064a\u0633\u060c \u0627\u0644\u062c\u0645\u0639\u0629. \u064a\u0648\u0645 \u0627\u0644\u062c\u0645\u0639\u0629 \u0647\u0648 \u0623\u0641\u0636\u0644 \u0627\u0644\u0623\u064a\u0627\u0645 \u0639\u0646\u062f \u0627\u0644\u0645\u0633\u0644\u0645\u064a\u0646. \u0646\u0635\u0644\u064a \u0641\u064a\u0647 \u0635\u0644\u0627\u0629 \u0627\u0644\u062c\u0645\u0639\u0629.', 'translated': \"Saturday, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday. Friday is the best day for Muslims. We pray Jumu'ah prayer on it.\"}"
+  },
+  {
+    "test": "Prophets (Requested)",
+    "endpoint": "/api/kids-learn/prophets?lang=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 6 prophets"
+  },
+  {
+    "test": "Prophets (Requested)",
+    "endpoint": "/api/kids-learn/prophets?lang=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 6 prophets"
+  },
+  {
+    "test": "Prophets (Requested)",
+    "endpoint": "/api/kids-learn/prophets?lang=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 6 prophets"
+  },
+  {
+    "test": "Translation Quality",
+    "endpoint": "Multiple languages",
+    "language": "ALL",
+    "status": "PASS",
+    "details": "Found 6 unique translations across 6 languages"
+  },
+  {
+    "test": "Additional Surahs",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 15 surahs (includes additional surahs)"
+  },
+  {
+    "test": "Additional Surahs",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 15 surahs (includes additional surahs)"
+  },
+  {
+    "test": "Additional Surahs",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 15 surahs (includes additional surahs)"
+  }
+]

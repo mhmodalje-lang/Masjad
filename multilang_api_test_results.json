@@ -1,0 +1,499 @@
+[
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=tr",
+    "language": "tr",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=ru",
+    "language": "ru",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Quran Surahs API",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 15 surahs"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Arabic version with 7 ayahs"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=tr",
+    "language": "tr",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=ru",
+    "language": "ru",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Surah Ayah Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 7 ayahs with translations"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=tr",
+    "language": "tr",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=ru",
+    "language": "ru",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Curriculum Lesson",
+    "endpoint": "/api/kids-learn/curriculum/lesson/800?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Day 800 with 3 sections"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=tr",
+    "language": "tr",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=ru",
+    "language": "ru",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Prophets Multi-Language",
+    "endpoint": "/api/kids-learn/prophets-full?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 25 prophets with translations"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Duas API",
+    "endpoint": "/api/kids-learn/duas?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 15 duas"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Hadiths API",
+    "endpoint": "/api/kids-learn/hadiths?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 10 hadiths"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Pillars API",
+    "endpoint": "/api/kids-learn/islamic-pillars?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 5 pillars"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/wudu?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 12 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=ar",
+    "language": "ar",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=en",
+    "language": "en",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=de",
+    "language": "de",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=fr",
+    "language": "fr",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=sv",
+    "language": "sv",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=nl",
+    "language": "nl",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  },
+  {
+    "test": "Steps API",
+    "endpoint": "/api/kids-learn/salah?locale=el",
+    "language": "el",
+    "status": "PASS",
+    "details": "Found 11 steps"
+  }
+]
