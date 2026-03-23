@@ -1,0 +1,62 @@
+[
+  {
+    "test": "Health Check API",
+    "endpoint": "/api/health",
+    "status": "PASS",
+    "details": "Health check successful: {'status': 'healthy', 'timestamp': '2026-03-23T15:17:47.075980', 'app': 'أذان وحكاية'}"
+  },
+  {
+    "test": "Quran Surahs Russian Locale",
+    "endpoint": "/api/kids-learn/quran/surahs?locale=ru",
+    "status": "PASS",
+    "details": "Returned 15 surahs with Russian locale support"
+  },
+  {
+    "test": "Surah Fatiha Russian Translations",
+    "endpoint": "/api/kids-learn/quran/surah/fatiha?locale=ru",
+    "status": "PASS",
+    "details": "Returned Fatiha with 7 ayahs and Russian translations"
+  },
+  {
+    "test": "Daily Lesson Arabic Locale",
+    "endpoint": "/api/kids-learn/daily-lesson?locale=ar",
+    "status": "PASS",
+    "details": "Returned Arabic daily lesson with 10 sections"
+  },
+  {
+    "test": "Daily Lesson Russian Locale",
+    "endpoint": "/api/kids-learn/daily-lesson?locale=ru",
+    "status": "PASS",
+    "details": "Returned Russian daily lesson with 10 sections"
+  },
+  {
+    "test": "Duas German Locale",
+    "endpoint": "/api/kids-learn/duas?locale=de",
+    "status": "PASS",
+    "details": "Returned 15 duas with German locale support"
+  },
+  {
+    "test": "Hadiths French Locale",
+    "endpoint": "/api/kids-learn/hadiths?locale=fr",
+    "status": "PASS",
+    "details": "Returned 10 hadiths with French locale support"
+  },
+  {
+    "test": "Prophets Turkish Locale",
+    "endpoint": "/api/kids-learn/prophets?locale=tr",
+    "status": "PASS",
+    "details": "Returned 6 prophets with Turkish locale support"
+  },
+  {
+    "test": "Data Deletion Request API",
+    "endpoint": "/api/data-deletion-request",
+    "status": "PASS",
+    "details": "Data deletion request submitted successfully: Data deletion request submitted successfully. We will process it within 30 days."
+  },
+  {
+    "test": "App Ads Txt API",
+    "endpoint": "/api/app-ads-txt",
+    "status": "PASS",
+    "details": "Returned text/plain content: # app-ads.txt - Azan & Hikaya\n# Publisher ID not configured yet. Set it in Admin Dashboard > Ad Sett..."
+  }
+]

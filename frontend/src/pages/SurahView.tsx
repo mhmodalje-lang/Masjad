@@ -54,6 +54,7 @@ const quranTranslationEditions: Record<string, string> = {
   pl: 'pl.bielawskiego',
   ro: 'ro.grigore',
   cs: 'cs.hrbek',
+  el: 'en.asad', // Greek fallback to English
 };
 
 export default function SurahView() {
@@ -76,7 +77,8 @@ export default function SurahView() {
         setSurahName(arabicData.data.name);
 
         // Fetch translation if non-Arabic locale
-        const edition = locale !== 'ar' ? quranTranslationEditions[locale] : null;
+        const baseLocale = locale.split('-')[0]; // Handle de-AT -> de, etc.
+        const edition = locale !== 'ar' ? (quranTranslationEditions[locale] || quranTranslationEditions[baseLocale]) : null;
         if (edition) {
           try {
             const transRes = await fetch(`https://api.alquran.cloud/v1/surah/${id}/${edition}`);

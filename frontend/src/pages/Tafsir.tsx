@@ -47,7 +47,29 @@ const SURAHS = [
   {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},{n:114,ar:"الناس",en:"An-Nas",v:6},
 ];
 
-const TAFSIR_IDS = { kathir_ar: 169, muyassar: 16 };
+const TAFSIR_IDS: Record<string, number> = {
+  ar: 14,    // Arabic Tafsir Ibn Kathir
+  en: 169,   // English Tafsir Ibn Kathir
+  de: 169,   // Fallback to English
+  fr: 169,   // Fallback to English
+  tr: 169,   // Fallback to English
+  ru: 169,   // Fallback to English
+  sv: 169,   // Fallback to English
+  nl: 169,   // Fallback to English
+  el: 169,   // Fallback to English
+};
+
+// Translation resource IDs per language (for non-Arabic Quran translations)
+const TRANSLATION_IDS: Record<string, number> = {
+  en: 131,   // Saheeh International
+  de: 27,    // Abu Rida Muhammad ibn Ahmad ibn Rassoul
+  fr: 136,   // Muhammad Hamidullah
+  tr: 77,    // Diyanet İşleri
+  ru: 45,    // Elmir Kuliev
+  sv: 48,    // Knut Bernström
+  nl: 144,   // Sofian Siregar
+  el: 131,   // Fallback to English
+};
 
 export default function Tafsir() {
   const { locale, dir, t } = useLocale();
@@ -77,7 +99,9 @@ export default function Tafsir() {
         setAyahText(ayahData.verses[0].text_uthmani || '');
       }
 
-      const tafsirRes = await fetch(`${API}/tafsirs/${TAFSIR_IDS.kathir_ar}/by_ayah/${sNum}:${aNum}`);
+      // Load tafsir in the correct language
+      const tafsirId = TAFSIR_IDS[locale] || TAFSIR_IDS.en;
+      const tafsirRes = await fetch(`${API}/tafsirs/${tafsirId}/by_ayah/${sNum}:${aNum}`);
       const tafsirData = await tafsirRes.json();
       if (tafsirData.tafsir) {
         const raw = tafsirData.tafsir.text || '';
@@ -85,8 +109,10 @@ export default function Tafsir() {
         setTafsirText(clean);
       }
 
+      // Load translation for non-Arabic users
       if (!isAr) {
-        const trRes = await fetch(`${API}/quran/translations/131?verse_key=${sNum}:${aNum}`);
+        const trId = TRANSLATION_IDS[locale] || TRANSLATION_IDS.en;
+        const trRes = await fetch(`${API}/quran/translations/${trId}?verse_key=${sNum}:${aNum}`);
         const trData = await trRes.json();
         if (trData.translations && trData.translations.length > 0) {
           const raw = trData.translations[0].text || '';
@@ -98,7 +124,7 @@ export default function Tafsir() {
       setTafsirText(t('tafsirError'));
     }
     setLoading(false);
-  }, [isAr, t]);
+  }, [isAr, locale, t]);
 
   useEffect(() => {
     if (!showSurahList) {
