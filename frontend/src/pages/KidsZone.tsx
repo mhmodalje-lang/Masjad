@@ -34,6 +34,57 @@ function Confetti({on}:{on:boolean}){
   </div>);
 }
 
+/* ═══════ LOADING SPINNER ═══════ */
+function LoadingSpinner({text}:{text?:string}){
+  return(<div className="flex flex-col items-center justify-center py-12 gap-3">
+    <div className="relative w-12 h-12">
+      <div className="absolute inset-0 rounded-full border-2 border-[#D4AF37]/20"/>
+      <div className="absolute inset-0 rounded-full border-2 border-t-[#D4AF37] animate-spin"/>
+      <div className="absolute inset-2 rounded-full border-2 border-t-emerald-500 animate-spin" style={{animationDirection:'reverse',animationDuration:'0.8s'}}/>
+    </div>
+    {text && <p className="text-xs text-muted-foreground">{text}</p>}
+  </div>);
+}
+
+/* ═══════ QUIZ SECTION WITH VISUAL FEEDBACK ═══════ */
+function QuizSection({content:c, t, locale, speak}:{content:any; t:(k:string)=>string; locale:string; speak:(text:string,lang:string)=>void}){
+  const [selected, setSelected] = React.useState<string|null>(null);
+  const [answered, setAnswered] = React.useState(false);
+  const handleAnswer = (opt:string) => {
+    if(answered) return;
+    setSelected(opt);
+    setAnswered(true);
+    if(opt===c.correct){
+      toast.success(t('correctAnswer'));
+      speak(getNoorMessage('correct',locale));
+    } else {
+      toast.error(t('tryAgain'));
+      // Allow retry after 1.5s
+      setTimeout(()=>{setSelected(null);setAnswered(false);},1500);
+    }
+  };
+  return(<div className="space-y-2">
+    <p className="text-sm font-bold text-center mb-3">{c.question}</p>
+    <div className="grid grid-cols-2 gap-2">
+      {c.options?.map((opt:string,i:number)=>{
+        const isCorrect = answered && opt===c.correct;
+        const isWrong = answered && opt===selected && opt!==c.correct;
+        return(
+        <button key={i} onClick={()=>handleAnswer(opt)} disabled={answered && opt===c.correct && selected===c.correct}
+          className={cn("p-3 rounded-xl border-2 transition-all text-center active:scale-95",
+            isCorrect ? "animate-quiz-correct bg-green-500/15 border-green-500/50" :
+            isWrong ? "animate-quiz-wrong bg-red-500/12 border-red-500/50" :
+            "bg-card/60 border-border/30 hover:border-amber-400/40"
+          )}>
+          <span className="text-2xl font-bold">{opt}</span>
+          {isCorrect && <span className="block text-xs text-green-500 dark:text-green-400 font-bold mt-1">✓</span>}
+          {isWrong && <span className="block text-xs text-red-500 font-bold mt-1">✗</span>}
+        </button>);
+      })}
+    </div>
+  </div>);
+}
+
 /* ═══════ SECTION CARD ═══════ */
 function SectionCard({emoji,title,children,color="blue",done=false,onDone,doneLabel,completedLabel}:{emoji:string;title:string;children:React.ReactNode;color?:string;done?:boolean;onDone?:()=>void;doneLabel?:string;completedLabel?:string}){
   const colors:Record<string,string>={
@@ -72,6 +123,7 @@ export default function KidsZone() {
   const [showConsent, setShowConsent] = useState(false);
   const [consentChecked, setConsentChecked] = useState(false);
   const [lessonsToday, setLessonsToday] = useState(0);
+  const [loading, setLoading] = useState<Record<string,boolean>>({});
 
   // Curriculum state
   const [stages, setStages] = useState<CurrStage[]>([]);
@@ -171,20 +223,28 @@ export default function KidsZone() {
   }, [mainTab, locale]);
 
   // ═══ LOADERS ═══
+  const setLoad = (key:string,v:boolean) => setLoading(p=>({...p,[key]:v}));
   const loadCurriculum = async () => {
-    try { const r = await fetch(`${API}/api/kids-learn/curriculum?locale=${lang}`); const d = await r.json(); if(d.success) setStages(d.stages); } catch{}
+    setLoad('curriculum',true);
+    try { const r = await fetch(`${API}/api/kids-learn/curriculum?locale=${lang}`); const d = await r.json(); if(d.success) setStages(d.stages); } catch{ toast.error(t('genericError')); }
+    setLoad('curriculum',false);
   };
   const loadCurrProgress = async () => {
     try { const r = await fetch(`${API}/api/kids-learn/curriculum/progress?user_id=${userId}`); const d = await r.json(); if(d.success){ setCurrProgress(d.progress); if(!lessonDay) setLessonDay(d.progress.current_day||1); }} catch{}
   };
   const loadLesson = async (day?:number) => {
     const d = day || lessonDay || 1;
-    try { const r = await fetch(`${API}/api/kids-learn/curriculum/lesson/${d}?locale=${lang}`); const data = await r.json(); if(data.success){setLesson(data.lesson);setLessonDay(d);setCompletedSections(new Set());}} catch{}
+    setLoad('lesson',true);
+    try { const r = await fetch(`${API}/api/kids-learn/curriculum/lesson/${d}?locale=${lang}`); const data = await r.json(); if(data.success){setLesson(data.lesson);setLessonDay(d);setCompletedSections(new Set());}} catch{ toast.error(t('genericError')); }
+    setLoad('lesson',false);
   };
   const loadSurahs = async () => {
-    try { const r = await fetch(`${API}/api/kids-learn/quran/surahs?locale=${lang}`); const d = await r.json(); if(d.success) setSurahs(d.surahs); } catch{}
+    setLoad('quran',true);
+    try { const r = await fetch(`${API}/api/kids-learn/quran/surahs?locale=${lang}`); const d = await r.json(); if(d.success) setSurahs(d.surahs); } catch{ toast.error(t('genericError')); }
+    setLoad('quran',false);
   };
   const loadIslamContent = async () => {
+    setLoad('islam',true);
     try{const[d1,d2,d3,d4,d5,d6]=await Promise.all([
       fetch(`${API}/api/kids-learn/duas?locale=${lang}`).then(r=>r.json()),
       fetch(`${API}/api/kids-learn/hadiths?locale=${lang}`).then(r=>r.json()),
@@ -196,16 +256,21 @@ export default function KidsZone() {
     if(d1.success)setDuas(d1.duas);if(d2.success)setHadiths(d2.hadiths);
     if(d3.success)setProphets(d3.prophets);if(d4.success)setPillars(d4.pillars);
     if(d5.success)setWuduSteps(d5.steps);if(d6.success)setSalahSteps(d6.steps);
-    }catch{}
+    }catch{ toast.error(t('genericError')); }
+    setLoad('islam',false);
   };
   const loadLibrary = async () => {
+    setLoad('library',true);
     try{const[c,i]=await Promise.all([
       fetch(`${API}/api/kids-learn/library/categories?locale=${lang}`).then(r=>r.json()),
       fetch(`${API}/api/kids-learn/library/items?category=all&locale=${lang}`).then(r=>r.json()),
-    ]);if(c.success)setLibCats(c.categories);if(i.success)setLibItems(i.items);}catch{}
+    ]);if(c.success)setLibCats(c.categories);if(i.success)setLibItems(i.items);}catch{ toast.error(t('genericError')); }
+    setLoad('library',false);
   };
   const loadLibItems = async(cat:string) => {
-    try{const r=await fetch(`${API}/api/kids-learn/library/items?category=${cat}&locale=${lang}`);const d=await r.json();if(d.success)setLibItems(d.items);}catch{}
+    setLoad('libItems',true);
+    try{const r=await fetch(`${API}/api/kids-learn/library/items?category=${cat}&locale=${lang}`);const d=await r.json();if(d.success)setLibItems(d.items);}catch{ toast.error(t('genericError')); }
+    setLoad('libItems',false);
   };
   const loadBadges = async () => {
     try{const r=await fetch(`${API}/api/kids-learn/achievements?user_id=${userId}`);const d=await r.json();if(d.success)setBadges(d.badges);}catch{}
@@ -234,6 +299,7 @@ export default function KidsZone() {
     const streak = currProgress?.streak || 0;
 
     return(<div className="space-y-4 pb-8">
+      {loading.curriculum && <LoadingSpinner/>}
       {/* Hero Stats */}
       <div className="p-5 rounded-3xl bg-gradient-to-br from-violet-600/20 via-purple-500/15 to-pink-500/10 border border-violet-400/20">
         <div className="text-center mb-4">
@@ -267,10 +333,10 @@ export default function KidsZone() {
         <div className="mt-4">
           <div className="flex justify-between text-sm text-foreground/70 mb-1">
             <span>{t('overallProgress')}</span>
-            <span className="font-bold">{Math.round((completedDays.length/1000)*100)}%</span>
+            <span className="font-bold">{stages.length > 0 ? Math.round((completedDays.length / stages.reduce((a:number, s:CurrStage) => a + s.total_lessons, 0)) * 100) : 0}%</span>
           </div>
           <div className="h-3 bg-muted/40 rounded-full overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--mystic-moss))] via-[hsl(var(--islamic-emerald))] to-[#D4AF37] transition-all" style={{width:`${(completedDays.length/1000)*100}%`}}/>
+            <div className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--mystic-moss))] via-[hsl(var(--islamic-emerald))] to-[#D4AF37] transition-all" style={{width:`${stages.length > 0 ? (completedDays.length / stages.reduce((a:number, s:CurrStage) => a + s.total_lessons, 0)) * 100 : 0}%`}}/>
           </div>
         </div>
       </div>
@@ -343,13 +409,15 @@ export default function KidsZone() {
 
   // ═══════ RENDER: STRUCTURED LESSON ═══════
   const renderLesson = () => {
-    if(!lesson) return <div className="flex items-center justify-center h-40"><div className="animate-spin w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full"/></div>;
+    if(!lesson || loading.lesson) return <LoadingSpinner text={t('todaysLesson')}/>;
     const L=lesson;
     const sectionColors = ['green','blue','amber','purple','pink','indigo','teal','red'];
     return(<div className="space-y-4 pb-8">
       {/* Day nav */}
       <div className="flex items-center justify-between">
-        <button onClick={()=>loadLesson(Math.max(1,L.day-1))} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-lg font-bold">←</button>
+        <button onClick={()=>loadLesson(Math.max(1,L.day-1))} className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all active:scale-90" aria-label={t('prevBtn')}>
+          {isRTL ? <ChevronRight className="h-5 w-5"/> : <ArrowLeft className="h-5 w-5"/>}
+        </button>
         <div className="text-center">
           <div className="flex items-center gap-2 justify-center">
             <span className="text-xl">{L.stage.emoji}</span>
@@ -358,7 +426,9 @@ export default function KidsZone() {
           <p className="text-2xl font-bold text-gradient-islamic mt-1">{t('dayN').replace('{n}', String(L.day))}</p>
           <p className="text-xs text-foreground/50">{L.lesson_number_in_stage} / {L.total_in_stage}</p>
         </div>
-        <button onClick={()=>loadLesson(Math.min(1000,L.day+1))} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-lg font-bold">→</button>
+        <button onClick={()=>loadLesson(Math.min(1000,L.day+1))} className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition-all active:scale-90" aria-label={t('nextBtn')}>
+          {isRTL ? <ArrowLeft className="h-5 w-5"/> : <ChevronRight className="h-5 w-5"/>}
+        </button>
       </div>
 
       {/* Lesson Title */}
@@ -393,13 +463,15 @@ export default function KidsZone() {
       {/* Next / Previous Lesson Navigation */}
       <div className="flex gap-3 pt-2">
         {L.day > 1 && (
-          <button onClick={()=>loadLesson(L.day-1)} className="flex-1 py-3 rounded-2xl bg-muted/30 hover:bg-muted/50 text-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all">
-            ← {t('prevLessonBtn')}
+          <button onClick={()=>loadLesson(L.day-1)} className="flex-1 py-3 rounded-2xl bg-muted/30 hover:bg-muted/50 text-foreground font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
+            {isRTL ? <ChevronRight className="h-4 w-4"/> : <ArrowLeft className="h-4 w-4"/>}
+            {t('prevLessonBtn')}
           </button>
         )}
         {L.day < 1000 && (
-          <button onClick={()=>loadLesson(L.day+1)} className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
-            {t('nextLessonBtn')} →
+          <button onClick={()=>loadLesson(L.day+1)} className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 hover:scale-[1.02] transition-all active:scale-95">
+            {t('nextLessonBtn')}
+            {isRTL ? <ArrowLeft className="h-4 w-4"/> : <ChevronRight className="h-4 w-4"/>}
           </button>
         )}
       </div>
@@ -468,19 +540,7 @@ export default function KidsZone() {
         </div>);
 
       case 'quiz':
-        return(<div className="space-y-2">
-          <p className="text-sm font-bold text-center mb-3">{c.question}</p>
-          <div className="grid grid-cols-2 gap-2">
-            {c.options?.map((opt:string,i:number)=>(
-              <button key={i} onClick={()=>{
-                if(opt===c.correct){toast.success(t('correctAnswer'));speak(getNoorMessage('correct',locale));}
-                else{toast.error(t('tryAgain'));}
-              }} className="p-3 rounded-xl bg-card/60 border-2 border-border/30 hover:border-amber-400/40 transition-all text-center">
-                <span className="text-2xl font-bold">{opt}</span>
-              </button>
-            ))}
-          </div>
-        </div>);
+        return(<QuizSection content={c} t={t} locale={locale} speak={speak}/>);
 
       case 'write':
       case 'connect':
@@ -573,6 +633,7 @@ export default function KidsZone() {
 
   // ═══════ RENDER: QURAN ═══════
   const renderQuran = () => {
+    if(loading.quran) return <LoadingSpinner/>;
     if(selectedSurah) return(<div className="space-y-4 pb-8">
       <button onClick={()=>setSelectedSurah(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-4 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 border border-emerald-400/30">
@@ -613,6 +674,7 @@ export default function KidsZone() {
 
   // ═══════ RENDER: ISLAM ═══════
   const renderIslam = () => {
+    if(loading.islam) return <LoadingSpinner/>;
     if(selectedProphet) return(<div className="space-y-4 pb-8">
       <button onClick={()=>setSelectedProphet(null)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/15 to-violet-500/10 border border-purple-400/30">
@@ -722,6 +784,7 @@ export default function KidsZone() {
 
   // ═══════ RENDER: LIBRARY ═══════
   const renderLibrary = () => {
+    if(loading.library) return <LoadingSpinner/>;
     if(selItem) return(<div className="space-y-4 pb-8">
       <button onClick={()=>setSelItem(null)} className="flex items-center gap-2 text-sm text-foreground/60 hover:text-foreground"><ArrowLeft className="h-4 w-4"/>{t('returnBack')}</button>
       <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-blue-500/10 border border-indigo-400/30">

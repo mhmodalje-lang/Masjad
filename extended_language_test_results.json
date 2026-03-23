@@ -1,0 +1,563 @@
+{
+  "summary": {
+    "total_tests": 90,
+    "passed_tests": 90,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_date": "2026-03-23T05:48:20.704457",
+    "backend_url": "https://agent-audit-build.preview.emergentagent.com",
+    "languages_tested": [
+      "ar",
+      "en",
+      "de",
+      "fr",
+      "ru",
+      "tr",
+      "sv",
+      "nl",
+      "el"
+    ]
+  },
+  "results": [
+    {
+      "test": "Curriculum (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.263555"
+    },
+    {
+      "test": "Curriculum (en)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.382134"
+    },
+    {
+      "test": "Curriculum (de)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.484540"
+    },
+    {
+      "test": "Curriculum (fr)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.586086"
+    },
+    {
+      "test": "Curriculum (ru)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.680977"
+    },
+    {
+      "test": "Curriculum (tr)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.782082"
+    },
+    {
+      "test": "Curriculum (sv)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.882082"
+    },
+    {
+      "test": "Curriculum (nl)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:35.980128"
+    },
+    {
+      "test": "Curriculum (el)",
+      "status": "PASS",
+      "details": "success=true, 15 stages",
+      "timestamp": "2026-03-23T05:47:36.158022"
+    },
+    {
+      "test": "Duas (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.259141"
+    },
+    {
+      "test": "Duas (en)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.354280"
+    },
+    {
+      "test": "Duas (de)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.482293"
+    },
+    {
+      "test": "Duas (fr)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.574882"
+    },
+    {
+      "test": "Duas (ru)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.674255"
+    },
+    {
+      "test": "Duas (tr)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.782662"
+    },
+    {
+      "test": "Duas (sv)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.895610"
+    },
+    {
+      "test": "Duas (nl)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:36.991591"
+    },
+    {
+      "test": "Duas (el)",
+      "status": "PASS",
+      "details": "success=true, 15 duas",
+      "timestamp": "2026-03-23T05:47:37.100148"
+    },
+    {
+      "test": "Hadiths (ar)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.201979"
+    },
+    {
+      "test": "Hadiths (en)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.308061"
+    },
+    {
+      "test": "Hadiths (de)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.423269"
+    },
+    {
+      "test": "Hadiths (fr)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.519535"
+    },
+    {
+      "test": "Hadiths (ru)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.612417"
+    },
+    {
+      "test": "Hadiths (tr)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.749431"
+    },
+    {
+      "test": "Hadiths (sv)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.844405"
+    },
+    {
+      "test": "Hadiths (nl)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:37.949623"
+    },
+    {
+      "test": "Hadiths (el)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths",
+      "timestamp": "2026-03-23T05:47:38.049294"
+    },
+    {
+      "test": "Prophets (ar)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.181522"
+    },
+    {
+      "test": "Prophets (en)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.288474"
+    },
+    {
+      "test": "Prophets (de)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.396549"
+    },
+    {
+      "test": "Prophets (fr)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.491659"
+    },
+    {
+      "test": "Prophets (ru)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.629028"
+    },
+    {
+      "test": "Prophets (tr)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.723037"
+    },
+    {
+      "test": "Prophets (sv)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.826609"
+    },
+    {
+      "test": "Prophets (nl)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:38.922659"
+    },
+    {
+      "test": "Prophets (el)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets",
+      "timestamp": "2026-03-23T05:47:39.040028"
+    },
+    {
+      "test": "Islamic Pillars (ar)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.133717"
+    },
+    {
+      "test": "Islamic Pillars (en)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.229513"
+    },
+    {
+      "test": "Islamic Pillars (de)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.332338"
+    },
+    {
+      "test": "Islamic Pillars (fr)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.428760"
+    },
+    {
+      "test": "Islamic Pillars (ru)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.521661"
+    },
+    {
+      "test": "Islamic Pillars (tr)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.621213"
+    },
+    {
+      "test": "Islamic Pillars (sv)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.718289"
+    },
+    {
+      "test": "Islamic Pillars (nl)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.811153"
+    },
+    {
+      "test": "Islamic Pillars (el)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars",
+      "timestamp": "2026-03-23T05:47:39.909692"
+    },
+    {
+      "test": "Wudu Steps (ar)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.004111"
+    },
+    {
+      "test": "Wudu Steps (en)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.110566"
+    },
+    {
+      "test": "Wudu Steps (de)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.220351"
+    },
+    {
+      "test": "Wudu Steps (fr)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.344698"
+    },
+    {
+      "test": "Wudu Steps (ru)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.440427"
+    },
+    {
+      "test": "Wudu Steps (tr)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.557708"
+    },
+    {
+      "test": "Wudu Steps (sv)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.667917"
+    },
+    {
+      "test": "Wudu Steps (nl)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.769879"
+    },
+    {
+      "test": "Wudu Steps (el)",
+      "status": "PASS",
+      "details": "success=true, 12 steps",
+      "timestamp": "2026-03-23T05:47:40.862203"
+    },
+    {
+      "test": "Salah Steps (ar)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:40.962885"
+    },
+    {
+      "test": "Salah Steps (en)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.061598"
+    },
+    {
+      "test": "Salah Steps (de)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.162066"
+    },
+    {
+      "test": "Salah Steps (fr)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.258430"
+    },
+    {
+      "test": "Salah Steps (ru)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.357992"
+    },
+    {
+      "test": "Salah Steps (tr)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.452665"
+    },
+    {
+      "test": "Salah Steps (sv)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.553381"
+    },
+    {
+      "test": "Salah Steps (nl)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.653387"
+    },
+    {
+      "test": "Salah Steps (el)",
+      "status": "PASS",
+      "details": "success=true, 11 steps",
+      "timestamp": "2026-03-23T05:47:41.749472"
+    },
+    {
+      "test": "Library Categories (ar)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:41.856855"
+    },
+    {
+      "test": "Library Categories (en)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:41.951932"
+    },
+    {
+      "test": "Library Categories (de)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:42.057747"
+    },
+    {
+      "test": "Library Categories (fr)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:42.162562"
+    },
+    {
+      "test": "Library Categories (ru)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:42.257218"
+    },
+    {
+      "test": "Library Categories (tr)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:42.371757"
+    },
+    {
+      "test": "Library Categories (sv)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:47:42.466881"
+    },
+    {
+      "test": "Library Categories (nl)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:48:02.279856"
+    },
+    {
+      "test": "Library Categories (el)",
+      "status": "PASS",
+      "details": "success=true, 8 categories",
+      "timestamp": "2026-03-23T05:48:03.453608"
+    },
+    {
+      "test": "Quran Surahs (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:03.548328"
+    },
+    {
+      "test": "Quran Surahs (en)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:08.746925"
+    },
+    {
+      "test": "Quran Surahs (de)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:08.883347"
+    },
+    {
+      "test": "Quran Surahs (fr)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:08.978704"
+    },
+    {
+      "test": "Quran Surahs (ru)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:09.081489"
+    },
+    {
+      "test": "Quran Surahs (tr)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:09.188707"
+    },
+    {
+      "test": "Quran Surahs (sv)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:12.417844"
+    },
+    {
+      "test": "Quran Surahs (nl)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:12.529776"
+    },
+    {
+      "test": "Quran Surahs (el)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs",
+      "timestamp": "2026-03-23T05:48:12.624566"
+    },
+    {
+      "test": "Library Items (ar)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:19.898821"
+    },
+    {
+      "test": "Library Items (en)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.004420"
+    },
+    {
+      "test": "Library Items (de)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.105840"
+    },
+    {
+      "test": "Library Items (fr)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.214699"
+    },
+    {
+      "test": "Library Items (ru)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.304260"
+    },
+    {
+      "test": "Library Items (tr)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.406678"
+    },
+    {
+      "test": "Library Items (sv)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.505387"
+    },
+    {
+      "test": "Library Items (nl)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.608548"
+    },
+    {
+      "test": "Library Items (el)",
+      "status": "PASS",
+      "details": "success=true, 28 items",
+      "timestamp": "2026-03-23T05:48:20.704158"
+    }
+  ]
+}

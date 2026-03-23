@@ -1,0 +1,340 @@
+{
+  "summary": {
+    "total_tests": 46,
+    "passed_tests": 46,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "test_date": "2026-03-23T05:47:06.953159",
+    "backend_url": "https://agent-audit-build.preview.emergentagent.com",
+    "languages_tested": [
+      "ar",
+      "en",
+      "de"
+    ],
+    "endpoints_tested": 19
+  },
+  "results": [
+    {
+      "test": "Curriculum Overview (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 stages returned",
+      "timestamp": "2026-03-23T05:47:01.989865",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Overview (en)",
+      "status": "PASS",
+      "details": "success=true, 15 stages returned",
+      "timestamp": "2026-03-23T05:47:02.101293",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Overview (de)",
+      "status": "PASS",
+      "details": "success=true, 15 stages returned",
+      "timestamp": "2026-03-23T05:47:02.203142",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (ar)",
+      "status": "PASS",
+      "details": "success=true, 4 sections, types: ['learn', 'listen', 'quiz', 'write']",
+      "timestamp": "2026-03-23T05:47:02.311731",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (en)",
+      "status": "PASS",
+      "details": "success=true, 4 sections, types: ['learn', 'listen', 'quiz', 'write']",
+      "timestamp": "2026-03-23T05:47:02.407991",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 1 (de)",
+      "status": "PASS",
+      "details": "success=true, 4 sections, types: ['learn', 'listen', 'quiz', 'write']",
+      "timestamp": "2026-03-23T05:47:02.506634",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 50 (ar)",
+      "status": "PASS",
+      "details": "success=true, 2 sections",
+      "timestamp": "2026-03-23T05:47:02.614765",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 50 (en)",
+      "status": "PASS",
+      "details": "success=true, 2 sections",
+      "timestamp": "2026-03-23T05:47:02.715363",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Lesson 50 (de)",
+      "status": "PASS",
+      "details": "success=true, 2 sections",
+      "timestamp": "2026-03-23T05:47:02.843628",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Progress POST",
+      "status": "PASS",
+      "details": "success=true, progress saved",
+      "timestamp": "2026-03-23T05:47:02.959616",
+      "response_data": null
+    },
+    {
+      "test": "Curriculum Progress GET",
+      "status": "PASS",
+      "details": "success=true, progress retrieved",
+      "timestamp": "2026-03-23T05:47:03.073587",
+      "response_data": null
+    },
+    {
+      "test": "Duas (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 duas returned",
+      "timestamp": "2026-03-23T05:47:03.187554",
+      "response_data": null
+    },
+    {
+      "test": "Duas (en)",
+      "status": "PASS",
+      "details": "success=true, 15 duas returned",
+      "timestamp": "2026-03-23T05:47:03.318036",
+      "response_data": null
+    },
+    {
+      "test": "Duas (de)",
+      "status": "PASS",
+      "details": "success=true, 15 duas returned",
+      "timestamp": "2026-03-23T05:47:03.409820",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (ar)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths returned",
+      "timestamp": "2026-03-23T05:47:03.509341",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (en)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths returned",
+      "timestamp": "2026-03-23T05:47:03.619534",
+      "response_data": null
+    },
+    {
+      "test": "Hadiths (de)",
+      "status": "PASS",
+      "details": "success=true, 10 hadiths returned",
+      "timestamp": "2026-03-23T05:47:03.707747",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (ar)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets returned",
+      "timestamp": "2026-03-23T05:47:03.809451",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (en)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets returned",
+      "timestamp": "2026-03-23T05:47:03.905373",
+      "response_data": null
+    },
+    {
+      "test": "Prophets Full (de)",
+      "status": "PASS",
+      "details": "success=true, 25 prophets returned",
+      "timestamp": "2026-03-23T05:47:04.032199",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (ar)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars returned",
+      "timestamp": "2026-03-23T05:47:04.128122",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (en)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars returned",
+      "timestamp": "2026-03-23T05:47:04.224742",
+      "response_data": null
+    },
+    {
+      "test": "Islamic Pillars (de)",
+      "status": "PASS",
+      "details": "success=true, 5 pillars returned",
+      "timestamp": "2026-03-23T05:47:04.352491",
+      "response_data": null
+    },
+    {
+      "test": "Wudu (ar)",
+      "status": "PASS",
+      "details": "success=true, 12 wudu steps returned",
+      "timestamp": "2026-03-23T05:47:04.456353",
+      "response_data": null
+    },
+    {
+      "test": "Wudu (en)",
+      "status": "PASS",
+      "details": "success=true, 12 wudu steps returned",
+      "timestamp": "2026-03-23T05:47:04.548315",
+      "response_data": null
+    },
+    {
+      "test": "Wudu (de)",
+      "status": "PASS",
+      "details": "success=true, 12 wudu steps returned",
+      "timestamp": "2026-03-23T05:47:04.655102",
+      "response_data": null
+    },
+    {
+      "test": "Salah (ar)",
+      "status": "PASS",
+      "details": "success=true, 11 salah steps returned",
+      "timestamp": "2026-03-23T05:47:04.752059",
+      "response_data": null
+    },
+    {
+      "test": "Salah (en)",
+      "status": "PASS",
+      "details": "success=true, 11 salah steps returned",
+      "timestamp": "2026-03-23T05:47:04.853565",
+      "response_data": null
+    },
+    {
+      "test": "Salah (de)",
+      "status": "PASS",
+      "details": "success=true, 11 salah steps returned",
+      "timestamp": "2026-03-23T05:47:04.946483",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (ar)",
+      "status": "PASS",
+      "details": "success=true, 8 categories returned",
+      "timestamp": "2026-03-23T05:47:05.050082",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (en)",
+      "status": "PASS",
+      "details": "success=true, 8 categories returned",
+      "timestamp": "2026-03-23T05:47:05.146376",
+      "response_data": null
+    },
+    {
+      "test": "Library Categories (de)",
+      "status": "PASS",
+      "details": "success=true, 8 categories returned",
+      "timestamp": "2026-03-23T05:47:05.245929",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (ar)",
+      "status": "PASS",
+      "details": "success=true, 28 library items returned",
+      "timestamp": "2026-03-23T05:47:05.358628",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (en)",
+      "status": "PASS",
+      "details": "success=true, 28 library items returned",
+      "timestamp": "2026-03-23T05:47:05.452434",
+      "response_data": null
+    },
+    {
+      "test": "Library Items (de)",
+      "status": "PASS",
+      "details": "success=true, 28 library items returned",
+      "timestamp": "2026-03-23T05:47:05.552176",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (ar)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs returned",
+      "timestamp": "2026-03-23T05:47:05.669380",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (en)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs returned",
+      "timestamp": "2026-03-23T05:47:05.770039",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surahs (de)",
+      "status": "PASS",
+      "details": "success=true, 15 surahs returned",
+      "timestamp": "2026-03-23T05:47:05.870041",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surah Fatiha (ar)",
+      "status": "PASS",
+      "details": "success=true, Fatiha surah returned",
+      "timestamp": "2026-03-23T05:47:06.003624",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surah Fatiha (en)",
+      "status": "PASS",
+      "details": "success=true, Fatiha surah returned",
+      "timestamp": "2026-03-23T05:47:06.097772",
+      "response_data": null
+    },
+    {
+      "test": "Quran Surah Fatiha (de)",
+      "status": "PASS",
+      "details": "success=true, Fatiha surah returned",
+      "timestamp": "2026-03-23T05:47:06.195504",
+      "response_data": null
+    },
+    {
+      "test": "Achievements",
+      "status": "PASS",
+      "details": "success=true, 12 achievement badges returned",
+      "timestamp": "2026-03-23T05:47:06.297649",
+      "response_data": null
+    },
+    {
+      "test": "Parental Consent Check",
+      "status": "PASS",
+      "details": "success=true, consent check completed",
+      "timestamp": "2026-03-23T05:47:06.398086",
+      "response_data": null
+    },
+    {
+      "test": "Parental Consent Save",
+      "status": "PASS",
+      "details": "success=true, consent saved",
+      "timestamp": "2026-03-23T05:47:06.517469",
+      "response_data": null
+    },
+    {
+      "test": "Points Lesson Complete",
+      "status": "PASS",
+      "details": "success=true, lesson completion recorded",
+      "timestamp": "2026-03-23T05:47:06.618602",
+      "response_data": null
+    },
+    {
+      "test": "Translation Verification",
+      "status": "PASS",
+      "details": "Content changes per language: ar='\u0627\u0644\u062d\u0631\u0648\u0641 \u0627\u0644\u0639\u0631\u0628\u064a\u0629', en='Arabic Alphabet', de='Arabisches Alphabet'",
+      "timestamp": "2026-03-23T05:47:06.952834",
+      "response_data": null
+    }
+  ]
+}
