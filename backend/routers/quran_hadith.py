@@ -386,13 +386,13 @@ async def get_tafsir_for_verse(
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     has_native_tafsir = base_lang in NATIVE_TAFSIR_LANGS
     
-    # If language has no native tafsir, use English Ibn Kathir as last resort
+    # If language has no native tafsir, show ARABIC Al-Muyassar (clean, KFGQPC verified)
+    # This avoids mixed Arabic+English text from Ibn Kathir which looks terrible
     if not has_native_tafsir:
-        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir as fallback
-        is_fallback = True
+        tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # Arabic Al-Muyassar (clean, no mixing)
         
         # Check cache first
-        cache_key = f"tafsir_{tafsir_id}_{verse_key}_fallback_{base_lang}"
+        cache_key = f"tafsir_{tafsir_id}_{verse_key}_arabic_fallback"
         try:
             cached = await db.tafsir_cache.find_one({
                 "cache_key": cache_key,
@@ -404,16 +404,17 @@ async def get_tafsir_for_verse(
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": cached.get("tafsir_name", "Ibn Kathir (Abridged)"),
+                    "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
                     "text": cached.get("text", ""),
                     "is_fallback_language": True,
+                    "fallback_to_arabic": True,
                     "translation_pending": False,
                     "cached": True,
                 }
         except Exception:
             pass
         
-        # Fetch English tafsir as last resort
+        # Fetch Arabic Al-Muyassar tafsir (clean Arabic, no mixing)
         try:
             async with httpx.AsyncClient(timeout=30) as c:
                 r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
@@ -422,7 +423,6 @@ async def get_tafsir_for_verse(
                 tafsir_data = data.get("tafsir", {})
                 raw_text = tafsir_data.get("text", "")
                 clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
-                tafsir_name = tafsir_data.get("resource_name", "Ibn Kathir (Abridged)")
                 
                 # Cache result
                 try:
@@ -432,7 +432,7 @@ async def get_tafsir_for_verse(
                             "cache_key": cache_key,
                             "verse_key": verse_key,
                             "tafsir_id": tafsir_id,
-                            "tafsir_name": tafsir_name,
+                            "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
                             "text": clean_text,
                             "is_fallback": True,
                             "cached_at": datetime.utcnow(),
@@ -448,9 +448,10 @@ async def get_tafsir_for_verse(
                     "verse_key": verse_key,
                     "language": base_lang,
                     "tafsir_id": tafsir_id,
-                    "tafsir_name": tafsir_name,
+                    "tafsir_name": "التفسير الميسر - مجمع الملك فهد",
                     "text": clean_text,
                     "is_fallback_language": True,
+                    "fallback_to_arabic": True,
                     "translation_pending": False,
                     "cached": False,
                 }
@@ -463,6 +464,7 @@ async def get_tafsir_for_verse(
                 "tafsir_name": "",
                 "text": "",
                 "is_fallback_language": False,
+                "fallback_to_arabic": False,
                 "translation_pending": True,
                 "pending_language": base_lang,
                 "cached": False,
@@ -561,13 +563,13 @@ async def get_bulk_tafsir_for_chapter(
     
     base_lang = language.split('-')[0]
     
-    # LANGUAGE INTEGRITY: For non-native languages, use English Ibn Kathir as fallback
+    # LANGUAGE INTEGRITY: For non-native languages, use Arabic Al-Muyassar (clean, no mixing)
     NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
     is_fallback = base_lang not in NATIVE_TAFSIR_LANGS
     if is_fallback:
-        tafsir_id = TAFSIR_RESOURCE_IDS["en"]  # English Ibn Kathir as last resort
+        tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # Arabic Al-Muyassar (clean KFGQPC)
     else:
-        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
+        tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["ar"])
     
     # Check bulk cache
     bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"

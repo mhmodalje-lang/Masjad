@@ -1,4 +1,4 @@
-# Test Results - أذان وحكاية Global Audit V2
+# Test Results - أذان وحكاية FULL Multi-Language Audit
 
 ## Testing Protocol
 - Backend tests should use `deep_testing_backend_v2`
@@ -9,144 +9,81 @@
 ## Incorporate User Feedback
 - Follow user feedback for fixes and improvements
 
-## Current Task: Full Multi-Language Deployment V2026
+## Current Task: COMPREHENSIVE 9-Language Frontend Audit
 
-### Changes Made (Phase 2 - Emergency):
-1. **Quran.tsx REWRITE**: Replaced alquran.cloud API with backend Quran.com v4 - surah names now show in user's language (L'ouverture, Die Eröffnende, etc.)
-2. **SurahView.tsx REWRITE**: Replaced alquran.cloud API with backend Quran.com v4 - ayah translations now show in user's language (French, German, Turkish etc.)
-3. **German/Greek chapter names**: Added 114 static surah name translations for de/el (not available from Quran.com v4 API)
-4. **Tafsir fallback**: Changed from "Translation Pending" to English Ibn Kathir as last resort for non-ar/en/ru languages
-5. **QuranPlayer.tsx**: Updated to use backend Quran.com v4 API
-6. **usePrefetch.tsx**: Updated to use backend Quran.com v4 API
-7. **Footnote cleanup**: <sup> HTML tags properly stripped from translations
+### What to Test (ALL 9 languages):
+Languages: ar, en, fr, de, tr, ru, sv, nl, el
 
-### Endpoints to Test:
-- `GET /api/quran/v4/chapters?language=fr` - French chapter names (L'ouverture, La vache, etc.)
-- `GET /api/quran/v4/chapters?language=de` - German chapter names (Die Eröffnende, Die Kuh, etc.)
-- `GET /api/quran/v4/chapters?language=el` - Greek chapter names (Η Εναρκτήρια, Η Αγελάδα, etc.)
-- `GET /api/quran/v4/verses/by_chapter/1?language=fr` - French translations
-- `GET /api/quran/v4/tafsir/1:1?language=fr` - Tafsir with English fallback
-- `GET /api/audit/full-report` - Full audit report
+### Pages to Test per Language:
+1. `/quran` - Surah list (names should be in selected language)
+2. `/quran/1` - Surah Al-Fatiha (translation + tafsir)  
+3. `/` - Home page (all UI elements)
+4. `/stories` - Stories page (categories, buttons)
+5. `/more` - More/Settings page
+
+### Critical Checks:
+- NO English text when non-English language is selected
+- Surah names appear in selected language
+- Translations appear in selected language
+- Tafsir shows Arabic Al-Muyassar (not mixed English+Arabic) for non-ar/en/ru
+- All buttons, labels, categories in selected language
+- Navigation menu in selected language
 
 ---
 
-backend:
-  - task: "Multi-Language Chapter Names (9 Languages)"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ CRITICAL SUCCESS: All 9 languages working correctly. Arabic: سورة الفاتحة, French: L'ouverture, German: Die Eröffnende, Turkish: Fâtiha, Russian: Открывающая Коран, Swedish: Öppningen, Dutch: De Opening, Greek: Η Εναρκτήρια. API correctly returns localized chapter names in translated_name.name field."
+## CRITICAL BLOCKER IDENTIFIED - Testing Cannot Proceed
 
-  - task: "French Verses with Translation"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ VERIFIED: French verses API working perfectly. Returns Arabic text_uthmani AND French translations array. First verse correctly shows 'Au nom d'Allah, le Tout Clément, le Tout Miséricordieux' as expected."
+**Date:** 2025-03-23  
+**Tested By:** Testing Agent (auto_frontend_testing_agent)  
+**Status:** ❌ BLOCKED - Cloudflare Protection Preventing Automated Testing
 
-  - task: "German Verses with Translation"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ VERIFIED: German verses API working correctly. Bubenheim translation found: 'Im Namen Allahs, des Allerbarmers, des Barmherzigen.' Translation quality confirmed."
+### Issue Description:
+The frontend application at `https://quran-integrity-1.preview.emergentagent.com` is protected by Cloudflare security measures that are blocking automated testing tools (Playwright). This prevents comprehensive multi-language testing from being executed.
 
-  - task: "Tafsir Fallback for French"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ FALLBACK WORKING: French tafsir correctly shows is_fallback_language=true, translation_pending=false, and returns English Ibn Kathir tafsir as fallback. Exactly as specified in requirements."
+### Technical Details:
+1. **403 Forbidden Errors:** Multiple JavaScript/TypeScript resources are being blocked with 403 status codes
+2. **Cloudflare Turnstile Challenge:** Bot detection is triggering security challenges
+3. **WebSocket Rate Limiting:** 429 errors on WebSocket connections preventing hot module reload
+4. **Partial Page Loading:** Pages load partially but critical components fail to render due to blocked resources
 
-  - task: "Tafsir for Arabic"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ VERIFIED: Arabic tafsir working normally. is_fallback_language=false, returns Arabic tafsir text with proper Arabic characters."
+### Evidence:
+- Console logs show hundreds of 403 errors on essential files:
+  - `/node_modules/.vite/deps/*.js` files
+  - `/src/components/**/*.tsx` files
+  - `/src/hooks/**/*.tsx` files
+  - `/src/lib/**/*.ts` files
+- Cloudflare Turnstile widget is being injected into pages
+- Screenshots show blank/incomplete pages instead of full app UI
 
-  - task: "Full Audit Report"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ AUDIT PASSED: all_adult_bukhari_muslim=true, all_kids_bukhari_muslim=true, all_extended_bukhari_muslim=true. All critical Islamic content integrity checks passed."
+### Impact:
+- ❌ Cannot verify surah names in different languages
+- ❌ Cannot verify translations are displayed correctly
+- ❌ Cannot verify UI elements are in selected language
+- ❌ Cannot test any of the 9 languages (ar, en, fr, de, tr, ru, sv, nl, el)
+- ❌ Cannot validate language switching functionality
 
-  - task: "Daily Hadith French"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ VERIFIED: Daily hadith French API working. French translation detected with proper French characters and language indicators."
+### Attempted Tests:
+- **Arabic (ar):** BLOCKED - Page resources not loading
+- **English (en):** BLOCKED - Page resources not loading  
+- **French (fr):** BLOCKED - Page resources not loading
+- **German (de):** NOT TESTED - Blocked by Cloudflare
+- **Turkish (tr):** NOT TESTED - Blocked by Cloudflare
+- **Russian (ru):** NOT TESTED - Blocked by Cloudflare
+- **Swedish (sv):** NOT TESTED - Blocked by Cloudflare
+- **Dutch (nl):** NOT TESTED - Blocked by Cloudflare
+- **Greek (el):** NOT TESTED - Blocked by Cloudflare
 
-frontend:
-  - task: "Frontend Multi-Language Integration"
-    implemented: true
-    working: "NA"
-    file: "frontend/src/components/Quran.tsx"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Frontend testing not performed as per system limitations. Backend APIs fully functional and ready for frontend integration."
+### Recommendations:
+1. **Temporarily disable Cloudflare bot protection** for the preview environment during testing
+2. **Whitelist testing IP addresses** in Cloudflare settings
+3. **Configure Cloudflare to allow Playwright user agents**
+4. **Use Cloudflare's "Under Attack Mode" bypass for testing**
+5. **Alternative:** Deploy to a separate testing environment without Cloudflare protection
 
-metadata:
-  created_by: "main_agent"
-  version: "2.0"
-  test_sequence: 1
-  run_ui: false
+### Next Steps:
+Main agent should:
+1. Contact infrastructure/DevOps team to adjust Cloudflare settings
+2. Provide a testing-friendly URL without bot protection
+3. Or implement Cloudflare bypass tokens for automated testing
 
-test_plan:
-  current_focus:
-    - "Multi-Language Chapter Names (9 Languages)"
-    - "French Verses with Translation"
-    - "German Verses with Translation"
-    - "Tafsir Fallback for French"
-    - "Tafsir for Arabic"
-    - "Full Audit Report"
-    - "Daily Hadith French"
-  stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
-
-agent_communication:
-  - agent: "testing"
-    message: "🎉 MULTI-LANGUAGE DEPLOYMENT FULLY FUNCTIONAL! All 7 critical backend endpoints tested and working correctly. Chapter names properly localized in all 9 languages (ar, en, fr, de, tr, ru, sv, nl, el). French and German verse translations working. Tafsir fallback mechanism working as designed. Full audit report passing all Islamic content integrity checks. Ready for production deployment."
+**Testing will resume once Cloudflare protection is configured to allow automated testing tools.**
