@@ -58,7 +58,7 @@ function ReelCommentsSheet({ post, onClose, getMediaUrl }: {
   onClose: () => void;
   getMediaUrl: (url?: string) => string;
 }) {
-  const { user } = useAuth();
+  const { user, getToken } = useAuth();
   const { t, dir } = useLocale();
   interface Comment { id: string; author_id: string; author_name: string; author_avatar?: string; content: string; created_at: string; reply_to?: string; }
   const [comments, setComments] = useState<Comment[]>([]);
@@ -118,7 +118,7 @@ function ReelCommentsSheet({ post, onClose, getMediaUrl }: {
             </div>
           )}
           {/* Sound button */}
-          <button className="absolute bottom-2 start-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center">
+          <button className="absolute bottom-2 left-2 w-7 h-7 rounded-full bg-black/50 flex items-center justify-center">
             <Volume2 className="w-3.5 h-3.5 text-white/70" />
           </button>
         </div>
@@ -133,7 +133,14 @@ function ReelCommentsSheet({ post, onClose, getMediaUrl }: {
               </div>
             </Link>
             <Link to={`/social-profile/${post.author_id}`} className="font-bold text-white text-[14px]">{post.author_name}</Link>
-            <button className="ms-auto px-3 py-1 border border-white/30 rounded-lg text-white text-[12px] font-medium">
+            <button onClick={() => {
+              const token = getToken();
+              if (token) {
+                fetch(`${BACKEND_URL}/api/sohba/follow/${post.author_id}`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+                  .then(r => r.json()).then(d => toast.success(d.following ? t('followed') : t('unfollowed')))
+                  .catch(() => {});
+              }
+            }} className="ms-auto px-3 py-1 border border-white/30 rounded-lg text-white text-[12px] font-medium active:scale-95 transition-transform">
               {t('follow')}
             </button>
           </div>
@@ -523,7 +530,7 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
       {paused && hasVideo && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
           <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white ms-1" />
+            <Play className="w-8 h-8 text-white fill-white ml-1" />
           </div>
         </div>
       )}
@@ -531,10 +538,10 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
       {/* Top gradient */}
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
       {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
 
-      {/* RIGHT SIDE ACTION BUTTONS - Instagram style */}
-      <div className="absolute end-3 flex flex-col items-center gap-5 z-20"
+      {/* RIGHT SIDE ACTION BUTTONS - Instagram style - ALWAYS on right */}
+      <div className="absolute right-3 flex flex-col items-center gap-5 z-20"
         style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
 
         {/* Author Avatar with gradient ring */}
@@ -585,7 +592,7 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
           {showMenu && (
             <>
               <div className="fixed inset-0 z-30" onClick={() => setShowMenu(false)} />
-              <div className="absolute end-0 bottom-8 z-40 bg-[#262626] border border-white/10 rounded-xl shadow-2xl py-1 min-w-[160px]" dir={dir}>
+              <div className="absolute right-0 bottom-8 z-40 bg-[#262626] border border-white/10 rounded-xl shadow-2xl py-1 min-w-[160px]" dir={dir}>
                 {isOwner && (
                   <>
                     <button onClick={() => { onEdit(); setShowMenu(false); }}
@@ -612,11 +619,11 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
         </div>
       </div>
 
-      {/* Mute toggle */}
+      {/* Mute toggle - ALWAYS on left */}
       {hasVideo && (
-        <div className="absolute start-3 z-20" style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          <button onClick={() => setMuted(!muted)} className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
-            {muted ? <VolumeX className="w-4 h-4 text-white/70" /> : <Volume2 className="w-4 h-4 text-white/70" />}
+        <div className="absolute left-3 z-20" style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+          <button onClick={() => setMuted(!muted)} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform border border-white/10">
+            {muted ? <VolumeX className="w-5 h-5 text-white/80" /> : <Volume2 className="w-5 h-5 text-white/80" />}
           </button>
         </div>
       )}
@@ -626,7 +633,7 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
 
         {/* Author + Follow + Description */}
-        <div className="px-3.5 pb-2 pe-16">
+        <div className="px-4 pb-2 pr-16">
           {/* Author row */}
           <div className="flex items-center gap-2 mb-1.5">
             <Link to={`/social-profile/${post.author_id}`}
@@ -635,7 +642,7 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
             </Link>
             {user && post.author_id !== user.id && (
               <button onClick={onFollow}
-                className={`px-2.5 py-0.5 border ${followed ? 'border-white/20 bg-white/10' : 'border-white/40'} text-white text-[11px] font-medium rounded-md active:scale-95`}>
+                className={`px-3 py-1 text-[11px] font-bold rounded-md active:scale-95 transition-all ${followed ? 'bg-white/20 text-white/70 border border-white/20' : 'bg-white text-black border border-white'}`}>
                 {followed ? t('following') || t('unfollow') : t('follow')}
               </button>
             )}

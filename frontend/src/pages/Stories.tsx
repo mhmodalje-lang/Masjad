@@ -751,12 +751,15 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
   const [likesCount, setLikesCount] = useState(story.likes_count);
   const [saved, setSaved] = useState(story.saved);
   const [descExpanded, setDescExpanded] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const isEmbed = story.is_embed || story.media_type === 'embed';
   const ytId = isEmbed && story.embed_url ? getYouTubeId(story.embed_url) : null;
   const videoSrc = getVideoSrc(story);
   const imgUrl = getMediaUrl(story.image_url);
   const isVideo = !!videoSrc;
+  const hasMedia = isVideo || isEmbed || !!imgUrl;
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -771,21 +774,30 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
   };
 
   const toggleLike = async () => {
-    if (!user) return;
+    if (!user) { toast.error(t('loginRequired')); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/like`, { method: 'POST', headers: authHeaders() });
-      const d = await r.json();
-      setLiked(d.liked); setLikesCount(prev => d.liked ? prev + 1 : prev - 1);
-    } catch {}
+      if (r.ok) { const d = await r.json(); setLiked(d.liked); setLikesCount(prev => d.liked ? prev + 1 : prev - 1); }
+    } catch { toast.error(t('error')); }
   };
 
   const toggleSave = async () => {
-    if (!user) return;
+    if (!user) { toast.error(t('loginRequired')); return; }
     try {
       const r = await fetch(`${BACKEND_URL}/api/sohba/posts/${story.id}/save`, { method: 'POST', headers: authHeaders() });
-      const d = await r.json();
-      setSaved(d.saved);
-    } catch {}
+      if (r.ok) { const d = await r.json(); setSaved(d.saved); toast.success(d.saved ? t('saved') : t('unsaved')); }
+    } catch { toast.error(t('error')); }
+  };
+
+  const handleFollow = async () => {
+    if (!user) { toast.error(t('loginRequired')); return; }
+    if (followLoading) return;
+    setFollowLoading(true);
+    try {
+      const r = await fetch(`${BACKEND_URL}/api/sohba/follow/${story.author_id}`, { method: 'POST', headers: authHeaders() });
+      if (r.ok) { const d = await r.json(); setIsFollowing(d.following); toast.success(d.following ? t('followed') : t('unfollowed')); }
+    } catch { toast.error(t('error')); }
+    setFollowLoading(false);
   };
 
   const handleShare = async () => {
@@ -795,17 +807,16 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
     if (navigator.share) {
       navigator.share({ title: story.title || '', text: story.content }).catch(() => {});
     } else {
-      navigator.clipboard?.writeText(story.content);
+      navigator.clipboard?.writeText(story.content || '');
       toast.success(t('contentCopied'));
     }
   };
 
-  // Truncate description to 4 words like Instagram
+  // Truncate description
   const descWords = (story.content || '').split(/\s+/);
-  const shortDesc = descWords.length > 4 ? descWords.slice(0, 4).join(' ') + ' ...' : story.content;
-  const hasLongDesc = descWords.length > 4;
+  const shortDesc = descWords.length > 6 ? descWords.slice(0, 6).join(' ') + '...' : story.content;
+  const hasLongDesc = descWords.length > 6;
 
-  // Format counts
   const formatCount = (n: number): string => {
     if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'K';
@@ -814,17 +825,20 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
 
   return (
     <div className="h-[100dvh] w-full snap-start relative flex items-center justify-center bg-black overflow-hidden">
-      {/* === BACKGROUND MEDIA - Video displays as uploaded, no text overlay === */}
+      {/* === MEDIA BACKGROUND - Video displays as uploaded === */}
       {ytId ? (
-        <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0&playsinline=1`}
+        <iframe src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActive ? 1 : 0}&rel=0&loop=1&controls=0&playsinline=1&mute=${muted ? 1 : 0}`}
           className="absolute inset-0 w-full h-full" frameBorder={0} allow="autoplay; encrypted-media" />
       ) : isVideo && videoSrc ? (
         <video ref={videoRef} src={videoSrc} className="absolute inset-0 w-full h-full object-cover" loop muted={muted} playsInline onClick={togglePlay} />
       ) : imgUrl ? (
-        <div className="absolute inset-0"><img src={imgUrl} alt="" className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/20" /></div>
+        <div className="absolute inset-0">
+          <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-8">
-          <p className="text-white text-lg font-bold text-center leading-[1.8] drop-shadow-lg"
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900 via-gray-900 to-black flex items-center justify-center px-10">
+          <p className="text-white text-xl font-bold text-center leading-[2] drop-shadow-lg"
             style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif", textShadow: '0 2px 16px rgba(0,0,0,0.7)' }}>
             {story.content}
           </p>
@@ -834,32 +848,30 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
       {/* Pause indicator */}
       {paused && (isVideo || ytId) && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="w-16 h-16 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center">
-            <Play className="w-8 h-8 text-white fill-white ms-1" />
+          <div className="w-16 h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center">
+            <Play className="w-8 h-8 text-white fill-white ml-1" />
           </div>
         </div>
       )}
 
       {/* Top gradient */}
-      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/40 to-transparent z-10 pointer-events-none" />
-      {/* Bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black/70 to-transparent z-10 pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/50 to-transparent z-10 pointer-events-none" />
+      {/* Bottom gradient - stronger for text readability */}
+      <div className="absolute bottom-0 left-0 right-0 h-56 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10 pointer-events-none" />
 
-      {/* === RIGHT SIDE ACTION BUTTONS - Instagram style === */}
-      <div className="absolute end-3 flex flex-col items-center gap-5 z-20"
-        style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-
-        {/* Author Avatar with gradient ring */}
-        <Link to={`/social-profile/${story.author_id}`} className="relative mb-1">
+      {/* === ACTION BUTTONS - ALWAYS on RIGHT side (like Instagram) === */}
+      <div className="absolute right-3 bottom-[140px] flex flex-col items-center gap-5 z-20">
+        {/* Author Avatar */}
+        <Link to={`/social-profile/${story.author_id}`} className="relative mb-2">
           <div className="p-[2px] rounded-full bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600">
             <img src={avatar(story.author_name, story.author_avatar)} alt=""
-              className="w-11 h-11 rounded-full border-[2px] border-black" />
+              className="w-10 h-10 rounded-full border-2 border-black object-cover" />
           </div>
         </Link>
 
         {/* Like */}
         <button onClick={toggleLike} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Heart className={cn("w-7 h-7 drop-shadow-lg", liked ? "fill-red-500 text-red-500" : "text-white")} />
+          <Heart className={cn("w-7 h-7 drop-shadow-lg transition-colors", liked ? "fill-red-500 text-red-500" : "text-white")} />
           <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(likesCount)}</span>
         </button>
 
@@ -875,56 +887,65 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
           <span className="text-white text-[11px] mt-1 font-bold drop-shadow">{formatCount(story.shares_count || 0)}</span>
         </button>
 
-        {/* Bookmark/Save */}
+        {/* Save/Bookmark */}
         <button onClick={toggleSave} className="flex flex-col items-center active:scale-90 transition-transform">
-          <Bookmark className={cn("w-7 h-7 drop-shadow-lg", saved ? "fill-white text-white" : "text-white")} />
+          <Bookmark className={cn("w-7 h-7 drop-shadow-lg transition-colors", saved ? "fill-white text-white" : "text-white")} />
         </button>
       </div>
 
-      {/* Mute toggle */}
-      {(isVideo || ytId) && (
-        <div className="absolute start-3 z-20" style={{ bottom: '110px', marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          <button onClick={() => setMuted(!muted)} className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform">
-            {muted ? <VolumeX className="w-4 h-4 text-white/70" /> : <Volume2 className="w-4 h-4 text-white/70" />}
+      {/* === MUTE BUTTON - ALWAYS on LEFT side === */}
+      {(isVideo || isEmbed) && (
+        <div className="absolute left-3 bottom-[140px] z-20">
+          <button onClick={() => setMuted(!muted)}
+            className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center active:scale-90 transition-transform border border-white/10">
+            {muted ? <VolumeX className="w-5 h-5 text-white/80" /> : <Volume2 className="w-5 h-5 text-white/80" />}
           </button>
         </div>
       )}
 
-      {/* === BOTTOM SECTION - Instagram Reels style: Author + Description + Comment bar === */}
-      <div className="absolute bottom-0 left-0 right-0 z-20" dir={dir}
+      {/* === BOTTOM SECTION - Author + Description + Comment bar === */}
+      <div className="absolute bottom-0 left-0 right-0 z-20"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
 
-        {/* Author + Follow + Description */}
-        <div className="px-3.5 pb-2 pe-16">
+        {/* Author + Follow + Description - always LTR-independent layout */}
+        <div className="px-4 pb-2 pr-16" dir={dir}>
           {/* Author row */}
-          <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center gap-2.5 mb-1.5">
             <Link to={`/social-profile/${story.author_id}`}
               className="text-white font-bold text-[14px] drop-shadow-lg">
               {story.author_name}
             </Link>
             {user && story.author_id !== user.id && (
-              <span className="px-2.5 py-0.5 border border-white/40 text-white text-[11px] font-medium rounded-md">
-                {t('follow')}
-              </span>
+              <button onClick={handleFollow} disabled={followLoading}
+                className={cn(
+                  "px-3 py-1 text-[11px] font-bold rounded-md transition-all active:scale-95",
+                  isFollowing
+                    ? "bg-white/20 text-white/70 border border-white/20"
+                    : "bg-white text-black border border-white"
+                )}>
+                {followLoading ? '...' : isFollowing ? t('following') : t('follow')}
+              </button>
             )}
           </div>
 
-          {/* Title if exists */}
-          {story.title && <p className="text-white/90 text-[13px] font-bold drop-shadow mb-0.5 line-clamp-1">{story.title}</p>}
+          {/* Title */}
+          {story.title && (
+            <p className="text-white/95 text-[13px] font-bold drop-shadow mb-0.5 line-clamp-1">{story.title}</p>
+          )}
 
-          {/* Description - truncated like Instagram, doesn't overlay video */}
-          {story.content && (isVideo || isEmbed || imgUrl) && (
+          {/* Description - only for media posts, text-only shows content in the center */}
+          {story.content && hasMedia && (
             <div>
               {descExpanded ? (
                 <>
-                  <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">{story.content}</p>
+                  <p className="text-white/85 text-[13px] leading-relaxed drop-shadow">{story.content}</p>
                   <button onClick={() => setDescExpanded(false)} className="text-white/50 text-[12px] font-medium mt-0.5">{t('showLess')}</button>
                 </>
               ) : (
-                <p className="text-white/90 text-[13px] leading-relaxed drop-shadow">
+                <p className="text-white/85 text-[13px] leading-relaxed drop-shadow">
                   {shortDesc}
                   {hasLongDesc && (
-                    <button onClick={() => setDescExpanded(true)} className="text-white/50 text-[12px] font-medium ms-1">{t('showMore')}</button>
+                    <button onClick={() => setDescExpanded(true)} className="text-white/50 text-[12px] font-medium mr-1 ml-1">{t('showMore')}</button>
                   )}
                 </p>
               )}
@@ -932,13 +953,17 @@ function ReelSlide({ story, isActive, onOpenComments }: { story: Story; isActive
           )}
         </div>
 
-        {/* Comment input bar - Instagram style */}
-        <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-black/30 backdrop-blur-sm border-t border-white/5">
-          {user && (
-            <img src={avatar(user.name || '', user.avatar)} alt="" className="w-7 h-7 rounded-full shrink-0 border border-white/20" />
+        {/* Comment input bar */}
+        <div className="flex items-center gap-2.5 px-4 py-2.5 bg-black/40 backdrop-blur-sm border-t border-white/10">
+          {user ? (
+            <img src={avatar(user.name || '', user.avatar)} alt="" className="w-8 h-8 rounded-full shrink-0 border border-white/20 object-cover" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-white/10 shrink-0 flex items-center justify-center">
+              <MessageCircle className="w-4 h-4 text-white/30" />
+            </div>
           )}
-          <button onClick={onOpenComments} className="flex-1 bg-white/10 rounded-full px-4 py-2 text-start">
-            <span className="text-white/30 text-[13px]">{t('addComment') || t('writeComment')}...</span>
+          <button onClick={onOpenComments} className="flex-1 bg-white/10 rounded-full px-4 py-2 text-start border border-white/5">
+            <span className="text-white/40 text-[13px]">{t('addComment') || t('writeComment')}...</span>
           </button>
         </div>
       </div>

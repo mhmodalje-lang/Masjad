@@ -25,6 +25,13 @@ Fix Stories page UI: compact category icons (pills instead of big squares), smal
 6. ✅ Add comment input bar at bottom of FullscreenViewer (Instagram-style)
 7. ✅ Add save/bookmark button and share count to FullscreenViewer
 8. ✅ Add show more/less for long descriptions
+9. ✅ Fix RTL layout - action buttons always on RIGHT (like Instagram)
+10. ✅ Fix RTL layout - mute button always on LEFT
+11. ✅ Fix Follow button to be functional (calls follow API)
+12. ✅ Fix Follow button styling (white bg when not following, transparent when following)
+13. ✅ Fix bottom gradient for better text readability
+14. ✅ Fix VideoReels.tsx same RTL issues
+15. ✅ Fix ReelCommentsSheet follow button to be functional
 
 ## Testing Protocol
 - Backend APIs should be tested with curl or deep_testing_backend_v2
