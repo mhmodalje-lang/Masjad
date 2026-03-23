@@ -25,7 +25,7 @@ export const QURAN_TRANSLATION_IDS: Record<string, number> = {
   tr: 77,   // Diyanet İşleri Başkanlığı
   sv: 48,   // Knut Bernström (Official Swedish)
   nl: 144,  // Sofian S. Siregar (Verified Dutch)
-  el: 0,    // Greek: Official translation pending
+  el: 9999, // Greek: Rowwad Translation Center via QuranEnc.com (handled by backend)
   ar: 0,    // Arabic original - no translation needed
 };
 

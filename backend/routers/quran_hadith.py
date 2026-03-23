@@ -137,7 +137,7 @@ TAFSIR_LABEL_BY_LANG = {
     "tr": "Elmalılı Hamdi Yazır",
     "sv": "التفسير الميسر — مجمع الملك فهد",
     "nl": "Malak Faris Abdalsalaam",
-    "el": "Επίσημη μετάφραση σε εξέλιξη",
+    "el": "Κέντρο Μετάφρασης Ρουάντ (Rowwad)",
 }
 
 TAFSIR_CACHE_TTL_DAYS = 30
@@ -267,6 +267,37 @@ async def get_chapter_v4(chapter_number: int, language: str = Query("ar")):
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
 
+# ==================== QURANENC API (Greek Translation) ====================
+QURANENC_BASE = "https://quranenc.com/api/v1"
+QURANENC_GREEK_KEY = "greek_rwwad"  # Rowwad Translation Center - Official Islamic source
+
+async def fetch_greek_translations(chapter_number: int) -> dict:
+    """Fetch Greek translations from QuranEnc.com API (Rowwad Translation Center)."""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURANENC_BASE}/translation/sura/{QURANENC_GREEK_KEY}/{chapter_number}")
+            r.raise_for_status()
+            data = r.json()
+            result = {}
+            for v in data.get("result", []):
+                aya_num = int(v.get("aya", 0))
+                result[aya_num] = v.get("translation", "")
+            return result
+    except Exception:
+        return {}
+
+async def fetch_greek_verse(chapter: int, verse: int) -> str:
+    """Fetch single Greek verse translation from QuranEnc.com API."""
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"{QURANENC_BASE}/translation/aya/{QURANENC_GREEK_KEY}/{chapter}/{verse}")
+            r.raise_for_status()
+            data = r.json()
+            return data.get("result", {}).get("translation", "")
+    except Exception:
+        return ""
+
+
 @router.get("/quran/v4/verses/by_chapter/{chapter_number}")
 async def get_verses_v4(
     chapter_number: int,
@@ -275,8 +306,10 @@ async def get_verses_v4(
     per_page: int = Query(50),
     translations: Optional[str] = Query(None),
 ):
-    """Fetch verses of a Surah with translations from Quran.com API v4"""
+    """Fetch verses of a Surah with translations from Quran.com API v4.
+    For Greek: Uses QuranEnc.com (Rowwad Translation Center) as official source."""
     try:
+        base_lang = language.split('-')[0]
         params = {
             "language": language,
             "page": page,
@@ -285,23 +318,39 @@ async def get_verses_v4(
             "fields": "text_uthmani",
         }
         # Auto-select translation if not specified
-        base_lang = language.split('-')[0]
         if translations:
             params["translations"] = translations
         elif base_lang != "ar":
             tid = QURAN_TRANSLATION_IDS.get(base_lang, 0)
             if tid > 0:
                 params["translations"] = str(tid)
-            # el (Greek) = 0 → no translation param → Arabic only
+            # el (Greek) = 0 → handled below via QuranEnc
 
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params=params)
             r.raise_for_status()
             data = r.json()
-            # For Greek: mark translation_pending
-            if base_lang == "el":
-                data["translation_pending"] = True
-                data["pending_language"] = "el"
+
+            # For Greek: inject translations from QuranEnc.com (Rowwad Center)
+            if base_lang == "el" and not translations:
+                greek_trans = await fetch_greek_translations(chapter_number)
+                if greek_trans:
+                    for v in data.get("verses", []):
+                        vk = v.get("verse_key", "")
+                        if ":" in vk:
+                            aya_num = int(vk.split(":")[1])
+                            if aya_num in greek_trans:
+                                v["translations"] = [{
+                                    "id": 9999,
+                                    "resource_id": 9999,
+                                    "text": greek_trans[aya_num],
+                                    "resource_name": "Rowwad Translation Center (مركز رواد للترجمة)",
+                                }]
+                    data["greek_source"] = "QuranEnc.com - Rowwad Translation Center"
+                else:
+                    data["translation_pending"] = True
+                    data["pending_language"] = "el"
+
             return data
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
@@ -566,7 +615,79 @@ async def get_tafsir_for_verse(
         except Exception:
             pass
 
-    # Greek or unknown: no translation available
+    # Greek: use QuranEnc.com (Rowwad Translation Center) as source
+    if base_lang == "el" and translation_id == 0:
+        cache_key = f"tafsir_v3_quranenc_el_{verse_key}"
+        greek_label = "Rowwad Translation Center (مركز رواد للترجمة)"
+        try:
+            cached = await db.tafsir_cache.find_one({
+                "cache_key": cache_key,
+                "expires_at": {"$gt": datetime.utcnow()}
+            })
+            if cached:
+                return {
+                    "success": True,
+                    "verse_key": verse_key,
+                    "language": "el",
+                    "tafsir_id": 9999,
+                    "tafsir_name": greek_label,
+                    "text": cached.get("text", ""),
+                    "is_fallback_language": False,
+                    "fallback_to_english": False,
+                    "translation_pending": False,
+                    "cached": True,
+                }
+        except Exception:
+            pass
+
+        ch_num, verse_num = verse_key.split(":")
+        greek_text = await fetch_greek_verse(int(ch_num), int(verse_num))
+        if greek_text:
+            try:
+                await db.tafsir_cache.update_one(
+                    {"cache_key": cache_key},
+                    {"$set": {
+                        "cache_key": cache_key,
+                        "verse_key": verse_key,
+                        "tafsir_id": 9999,
+                        "tafsir_name": greek_label,
+                        "text": greek_text,
+                        "is_fallback": False,
+                        "cached_at": datetime.utcnow(),
+                        "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                    }},
+                    upsert=True,
+                )
+            except Exception:
+                pass
+            return {
+                "success": True,
+                "verse_key": verse_key,
+                "language": "el",
+                "tafsir_id": 9999,
+                "tafsir_name": greek_label,
+                "text": greek_text,
+                "is_fallback_language": False,
+                "fallback_to_english": False,
+                "translation_pending": False,
+                "cached": False,
+            }
+        # If QuranEnc fails, show pending
+        return {
+            "success": True,
+            "verse_key": verse_key,
+            "language": "el",
+            "tafsir_id": None,
+            "tafsir_name": label,
+            "text": "",
+            "is_fallback_language": False,
+            "fallback_to_english": False,
+            "translation_pending": True,
+            "pending_language": "el",
+            "cached": False,
+        }
+
+    # Unknown language with no source: pending
     if translation_id == 0:
         return {
             "success": True,
@@ -704,14 +825,64 @@ async def get_bulk_tafsir_for_chapter(
         tafsir_id = TAFSIR_RESOURCE_IDS[base_lang]
         use_translation_api = False
     elif base_lang == "sv":
-        # Swedish: only 1 translation → use Arabic Al-Muyassar tafsir
         tafsir_id = TAFSIR_RESOURCE_IDS["ar"]  # 16
         use_translation_api = False
+    elif base_lang == "el":
+        # Greek: use QuranEnc.com (Rowwad Translation Center)
+        bulk_cache_key = f"tafsir_bulk_v3_quranenc_el_{chapter_number}_p{page}"
+        greek_label = "Rowwad Translation Center (مركز رواد للترجمة)"
+        try:
+            cached = await db.tafsir_cache.find_one({
+                "cache_key": bulk_cache_key,
+                "expires_at": {"$gt": datetime.utcnow()}
+            })
+            if cached:
+                return {
+                    "success": True, "chapter": chapter_number,
+                    "language": "el", "tafsir_id": 9999,
+                    "tafsirs": cached.get("tafsirs", []),
+                    "is_fallback_language": False, "cached": True,
+                }
+        except Exception:
+            pass
+        greek_trans = await fetch_greek_translations(chapter_number)
+        if greek_trans:
+            tafsirs_list = []
+            for aya_num, text in sorted(greek_trans.items()):
+                tafsirs_list.append({
+                    "verse_key": f"{chapter_number}:{aya_num}",
+                    "text": text,
+                    "tafsir_name": greek_label,
+                })
+            try:
+                await db.tafsir_cache.update_one(
+                    {"cache_key": bulk_cache_key},
+                    {"$set": {
+                        "cache_key": bulk_cache_key, "chapter": chapter_number,
+                        "tafsir_id": 9999, "tafsirs": tafsirs_list,
+                        "cached_at": datetime.utcnow(),
+                        "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                    }}, upsert=True,
+                )
+            except Exception:
+                pass
+            return {
+                "success": True, "chapter": chapter_number,
+                "language": "el", "tafsir_id": 9999,
+                "tafsirs": tafsirs_list,
+                "is_fallback_language": False, "cached": False,
+            }
+        return {
+            "success": True, "chapter": chapter_number,
+            "language": "el", "tafsir_id": None,
+            "tafsirs": [], "is_fallback_language": False,
+            "translation_pending": True, "cached": False,
+        }
     else:
         tafsir_id = TAFSIR_TRANSLATION_FALLBACK_IDS.get(base_lang, 0)
         use_translation_api = True
 
-    # Greek or unknown: pending
+    # Unknown language with no source: pending
     if tafsir_id == 0:
         return {
             "success": True,
