@@ -6,13 +6,6 @@
 @tailwind utilities;
 
 /* ═══ NATIVE APP FEEL ═══ */
-/* Prevent pull-to-refresh bounce (native apps don't have this) */
-html, body {
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Remove tap highlight (website indicator) */
 * {
   -webkit-tap-highlight-color: transparent;
@@ -35,26 +28,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Native-like page transitions */
-.page-enter {
-  opacity: 0;
-  transform: translateX(20px);
-}
-.page-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
-}
-.page-exit {
-  opacity: 1;
-  transform: translateX(0);
-}
-.page-exit-active {
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 150ms ease-in, transform 150ms ease-in;
-}
-
 /* Hide scrollbar for cleaner app look */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -62,13 +35,6 @@ html {
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-
-/* Standalone PWA: adjust for notch/safe areas */
-@media (display-mode: standalone) {
-  body {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
 }
 /* ═══ END NATIVE APP FEEL ═══ */
 
