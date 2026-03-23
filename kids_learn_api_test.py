@@ -19,7 +19,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://quran-integrity-1.preview.emergentagent.com"
+BACKEND_URL = "https://quran-verify-4.preview.emergentagent.com"
 
 # Test languages
 LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]

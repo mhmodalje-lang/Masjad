@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from review request
-BACKEND_URL = "https://quran-integrity-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://quran-verify-4.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'
@@ -70,7 +70,7 @@ def test_endpoint(method, url, headers=None, json_data=None, expected_status=200
 
 def main():
     log("🚀 TESTING NEW ENDPOINTS: Seed Content & P2P Donation Requests", Colors.BOLD)
-    log("Backend URL: https://quran-integrity-1.preview.emergentagent.com", Colors.CYAN)
+    log("Backend URL: https://quran-verify-4.preview.emergentagent.com", Colors.CYAN)
     log("="*80, Colors.BLUE)
     
     # Store test data

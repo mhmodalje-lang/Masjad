@@ -38,7 +38,7 @@ Languages: ar, en, fr, de, tr, ru, sv, nl, el
 **Status:** ❌ BLOCKED - Cloudflare Protection Preventing Automated Testing
 
 ### Issue Description:
-The frontend application at `https://quran-integrity-1.preview.emergentagent.com` is protected by Cloudflare security measures that are blocking automated testing tools (Playwright). This prevents comprehensive multi-language testing from being executed.
+The frontend application at `https://quran-verify-4.preview.emergentagent.com` is protected by Cloudflare security measures that are blocking automated testing tools (Playwright). This prevents comprehensive multi-language testing from being executed.
 
 ### Technical Details:
 1. **403 Forbidden Errors:** Multiple JavaScript/TypeScript resources are being blocked with 403 status codes
