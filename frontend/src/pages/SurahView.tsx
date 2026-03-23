@@ -27,47 +27,17 @@ interface TafsirData {
   verse_key: string;
 }
 
-// Quran translation editions by language - Official, globally recognized scholarly translations
+// Quran translation editions by language - KFGQPC / Official verified translations
 const quranTranslationEditions: Record<string, string> = {
-  en: 'en.sahih',
-  fr: 'fr.hamidullah',
-  de: 'de.bubenheim',
-  'de-AT': 'de.bubenheim',
-  tr: 'tr.diyanet',
-  ru: 'ru.kuliev',
-  sv: 'sv.bernstrom',
-  nl: 'nl.siregar',
-  el: 'en.sahih',
-  ur: 'ur.jalandhry',
-  id: 'id.indonesian',
-  es: 'es.cortes',
-  pt: 'pt.elhayek',
-  it: 'it.piccardo',
-  bn: 'bn.bengali',
-  fa: 'fa.makarem',
-  ms: 'ms.basmeih',
-  hi: 'hi.hindi',
-  th: 'th.thai',
-  ja: 'ja.japanese',
-  ko: 'ko.korean',
-  zh: 'zh.majian',
-  sw: 'sw.barwani',
-  sq: 'sq.ahmeti',
-  bs: 'bs.korkut',
-  az: 'az.mammadaliyev',
-  ml: 'ml.abdulhameed',
-  ta: 'ta.tamil',
-  tl: 'tl.filipino',
-  ha: 'ha.gumi',
-  ku: 'ku.asan',
-  so: 'so.abduh',
-  am: 'am.sadiq',
-  uz: 'uz.sodik',
-  tt: 'tt.nugman',
-  no: 'no.berg',
-  pl: 'pl.bielawskiego',
-  ro: 'ro.grigore',
-  cs: 'cs.hrbek',
+  en: 'en.sahih',          // Saheeh International (KFGQPC)
+  fr: 'fr.hamidullah',     // Muhammad Hamidullah (Classic French)
+  de: 'de.bubenheim',      // Frank Bubenheim & Nadeem
+  'de-AT': 'de.bubenheim', // Frank Bubenheim & Nadeem
+  tr: 'tr.diyanet',        // Diyanet Isleri (Turkish official)
+  ru: 'ru.kuliev',         // Elmir Kuliev (Standard Russian)
+  sv: 'sv.bernstrom',      // Knut Bernström (Official Swedish)
+  nl: 'nl.keyzer',         // Keyzer (Best available on AlQuran Cloud for Dutch)
+  el: 'en.sahih',          // Fallback: English Saheeh International
 };
 
 // === TAFSIR LOCAL CACHE HELPERS ===

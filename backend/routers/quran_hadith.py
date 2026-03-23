@@ -60,13 +60,16 @@ async def daily_hadith(language: str = Query("ar")):
     }
 
 # ==================== QURAN (Quran.com API v4) ====================
-# Official Quran translation IDs per language
+# Official Quran translation IDs per language (KFGQPC / Noble Quran verified)
 QURAN_TRANSLATION_IDS = {
-    "en": 131,   # Sahih International
-    "de": 27,    # Abu Rida Muhammad ibn Ahmad ibn Rassoul
-    "ru": 45,    # Ministry of Awqaf, Egypt
-    "fr": 31,    # Muhammad Hamidullah
-    "tr": 77,    # Diyanet Isleri
+    "en": 20,    # Saheeh International (KFGQPC)
+    "de": 27,    # Frank Bubenheim & Nadeem (Widely recognized German)
+    "ru": 45,    # Elmir Kuliev (Standard Russian)
+    "fr": 136,   # Montada Islamic Foundation (Modern French)
+    "tr": 77,    # Diyanet Isleri (Turkey's official authority)
+    "sv": 48,    # Knut Bernström (Official Swedish)
+    "nl": 235,   # Malak Faris Abdalsalaam (Modern Dutch)
+    "el": 20,    # Fallback to English Saheeh International
 }
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
@@ -255,7 +258,9 @@ async def get_tafsir_for_verse(
     
     base_lang = language.split('-')[0]  # Handle de-AT -> de
     tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
-    is_fallback = base_lang not in TAFSIR_RESOURCE_IDS or (base_lang != "ar" and base_lang != "en" and base_lang != "ru")
+    # Languages with native tafsir: ar (16), en (169), ru (170)
+    # All others fallback to English Ibn Kathir (169)
+    is_fallback = base_lang not in ["ar", "en", "ru"]
     
     # Check MongoDB cache first
     cache_key = f"tafsir_{tafsir_id}_{verse_key}"
@@ -343,7 +348,9 @@ async def get_bulk_tafsir_for_chapter(
     
     base_lang = language.split('-')[0]
     tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
-    is_fallback = base_lang not in TAFSIR_RESOURCE_IDS or (base_lang != "ar" and base_lang != "en" and base_lang != "ru")
+    # Languages with native tafsir: ar (16), en (169), ru (170)
+    # All others fallback to English Ibn Kathir (169)
+    is_fallback = base_lang not in ["ar", "en", "ru"]
     
     # Check bulk cache
     bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"
