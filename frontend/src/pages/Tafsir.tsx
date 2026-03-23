@@ -48,15 +48,15 @@ const SURAHS = [
 ];
 
 const TAFSIR_IDS: Record<string, number> = {
-  ar: 14,    // Arabic Tafsir Ibn Kathir
-  en: 169,   // English Tafsir Ibn Kathir
-  de: 169,   // Fallback to English
-  fr: 169,   // Fallback to English
-  tr: 169,   // Fallback to English
-  ru: 169,   // Fallback to English
-  sv: 169,   // Fallback to English
-  nl: 169,   // Fallback to English
-  el: 169,   // Fallback to English
+  ar: 16,    // Tafsir Al-Muyassar (التفسير الميسر) - King Fahd Complex
+  en: 169,   // Ibn Kathir (Abridged) - English
+  de: 169,   // Fallback to English Ibn Kathir
+  fr: 169,   // Fallback to English Ibn Kathir
+  tr: 169,   // Fallback to English Ibn Kathir
+  ru: 170,   // Al-Sa'di (Russian)
+  sv: 169,   // Fallback to English Ibn Kathir
+  nl: 169,   // Fallback to English Ibn Kathir
+  el: 169,   // Fallback to English Ibn Kathir
 };
 
 // Translation resource IDs per language (for non-Arabic Quran translations)

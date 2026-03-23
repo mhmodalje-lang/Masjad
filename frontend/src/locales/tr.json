@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "GDPR Madde 17 uyarınca veri silme hakkınız vardır.",
   "offlineNotice": "İnternet bağlantısı yok - bazı özellikler çalışmayabilir",
   "enableLocationForPrayer": "Namaz vakitleri için konum etkinleştirin",
-  "tapToEnableLocation": "Konum hizmetlerini etkinleştirmek için dokunun"
+  "tapToEnableLocation": "Konum hizmetlerini etkinleştirmek için dokunun",
+  "showExplanation": "Açıklamayı Göster",
+  "hideExplanation": "Açıklamayı Gizle",
+  "tafsirMuyassar": "Tefsiru'l-Müyesser",
+  "tafsirAbridged": "Kur'an-ı Kerim Muhtasar Tefsiri",
+  "loadingTafsir": "Açıklama yükleniyor...",
+  "tafsirSource": "Kaynak",
+  "shareAsImage": "Resim olarak paylaş",
+  "downloadApp": "Ezan ve Hikaye Uygulamasını İndirin",
+  "tafsirNotAvailable": "Bu ayet için açıklama mevcut değil",
+  "tafsirFallbackNote": "Açıklama İngilizce olarak mevcut - İbn Kesir (Muhtasar)"
 }

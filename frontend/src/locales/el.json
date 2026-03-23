@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Σύμφωνα με το Άρθρο 17 GDPR, δικαιούστε τη διαγραφή.",
   "offlineNotice": "Χωρίς σύνδεση στο διαδίκτυο - ορισμένες λειτουργίες ενδέχεται να μην λειτουργούν",
   "enableLocationForPrayer": "Ενεργοποιήστε την τοποθεσία για τις ώρες προσευχής",
-  "tapToEnableLocation": "Πατήστε εδώ για ενεργοποίηση"
+  "tapToEnableLocation": "Πατήστε εδώ για ενεργοποίηση",
+  "showExplanation": "Εμφάνιση ερμηνείας",
+  "hideExplanation": "Απόκρυψη ερμηνείας",
+  "tafsirMuyassar": "Ταφσίρ Αλ-Μουγιάσαρ",
+  "tafsirAbridged": "Συνοπτική ερμηνεία του Ευγενούς Κορανίου",
+  "loadingTafsir": "Φόρτωση ερμηνείας...",
+  "tafsirSource": "Πηγή",
+  "shareAsImage": "Κοινοποίηση ως εικόνα",
+  "downloadApp": "Κατεβάστε την εφαρμογή Athan & Hikaya",
+  "tafsirNotAvailable": "Η ερμηνεία δεν είναι διαθέσιμη για αυτό το εδάφιο",
+  "tafsirFallbackNote": "Ερμηνεία διαθέσιμη στα αγγλικά - Ibn Kathir (Συνοπτική)"
 }

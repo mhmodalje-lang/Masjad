@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Gemäß Art. 17 DSGVO haben Sie das Recht auf Löschung Ihrer Daten.",
   "offlineNotice": "Keine Internetverbindung - einige Funktionen sind eingeschränkt",
   "enableLocationForPrayer": "Standort für Gebetszeiten aktivieren",
-  "tapToEnableLocation": "Tippen Sie hier, um den Standort zu aktivieren"
+  "tapToEnableLocation": "Tippen Sie hier, um den Standort zu aktivieren",
+  "showExplanation": "Erklärung anzeigen",
+  "hideExplanation": "Erklärung verbergen",
+  "tafsirMuyassar": "Tafsir Al-Muyassar",
+  "tafsirAbridged": "Kurzfassung der Edlen Quran-Erklärung",
+  "loadingTafsir": "Erklärung wird geladen...",
+  "tafsirSource": "Quelle",
+  "shareAsImage": "Als Bild teilen",
+  "downloadApp": "Athan & Hikaya App herunterladen",
+  "tafsirNotAvailable": "Erklärung für diesen Vers nicht verfügbar",
+  "tafsirFallbackNote": "Erklärung auf Englisch verfügbar - Ibn Kathir (Kurzfassung)"
 }

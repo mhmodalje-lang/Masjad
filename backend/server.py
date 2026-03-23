@@ -101,6 +101,9 @@ async def create_indexes():
         await db.baraka_transactions.create_index([("user_id", 1), ("created_at", -1)])
         await db.ads_config.create_index("id", unique=True)
         await db.data_deletion_requests.create_index([("created_at", -1)])
+        # Tafsir cache indexes
+        await db.tafsir_cache.create_index("cache_key", unique=True)
+        await db.tafsir_cache.create_index("expires_at")
     except Exception as e:
         print(f"Index creation note: {e}")
     

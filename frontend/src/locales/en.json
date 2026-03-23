@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Per GDPR Article 17, you have the right to request deletion of all your personal data.",
   "offlineNotice": "No internet connection - some features may not work",
   "enableLocationForPrayer": "Enable location for prayer times",
-  "tapToEnableLocation": "Tap here to enable location services"
+  "tapToEnableLocation": "Tap here to enable location services",
+  "showExplanation": "Show Explanation",
+  "hideExplanation": "Hide Explanation",
+  "tafsirMuyassar": "Tafsir Al-Muyassar",
+  "tafsirAbridged": "Abridged Explanation of the Noble Quran",
+  "loadingTafsir": "Loading explanation...",
+  "tafsirSource": "Source",
+  "shareAsImage": "Share as Image",
+  "downloadApp": "Download Athan & Hikaya App",
+  "tafsirNotAvailable": "Explanation not available for this verse",
+  "tafsirFallbackNote": "Explanation available in English - Ibn Kathir (Abridged)"
 }

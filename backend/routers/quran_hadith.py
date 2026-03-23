@@ -71,6 +71,25 @@ QURAN_TRANSLATION_IDS = {
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
 
+# ==================== TAFSIR RESOURCE IDS ====================
+# Arabic: Tafsir Al-Muyassar (التفسير الميسر) - King Fahd Complex
+# English: Ibn Kathir Abridged - Best available scholarly English tafsir
+# Russian: Al-Sa'di - Best available Russian tafsir
+# Others: Fallback to English Ibn Kathir (Abridged)
+TAFSIR_RESOURCE_IDS = {
+    "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر)
+    "en": 169,   # Ibn Kathir (Abridged)
+    "ru": 170,   # Al-Sa'di (Russian)
+    "de": 169,   # Fallback → English Ibn Kathir
+    "fr": 169,   # Fallback → English Ibn Kathir
+    "tr": 169,   # Fallback → English Ibn Kathir
+    "sv": 169,   # Fallback → English Ibn Kathir
+    "nl": 169,   # Fallback → English Ibn Kathir
+    "el": 169,   # Fallback → English Ibn Kathir
+}
+
+TAFSIR_CACHE_TTL_DAYS = 30
+
 @router.get("/quran/v4/chapters")
 async def get_chapters_v4(language: str = Query("ar")):
     """Fetch all Surahs from Quran.com API v4"""
@@ -213,6 +232,197 @@ async def get_available_translations_v4(language: str = Query("en")):
             return r.json()
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
+
+# ==================== TAFSIR (Exegesis) API ====================
+
+@router.get("/quran/v4/tafsir/{verse_key}")
+async def get_tafsir_for_verse(
+    verse_key: str,
+    language: str = Query("ar"),
+):
+    """
+    Fetch Tafsir (Exegesis) for a specific verse.
+    - Arabic: Tafsir Al-Muyassar (التفسير الميسر) from King Fahd Complex
+    - English: Ibn Kathir (Abridged)
+    - Russian: Al-Sa'di
+    - Others: Falls back to English Ibn Kathir (Abridged)
+    
+    Implements MongoDB caching for 30 days for instant loading.
+    """
+    # Validate verse_key format (e.g., "1:1", "2:255")
+    if not re.match(r'^\d+:\d+$', verse_key):
+        raise HTTPException(400, "Invalid verse key format. Use chapter:verse (e.g., 1:1)")
+    
+    base_lang = language.split('-')[0]  # Handle de-AT -> de
+    tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
+    is_fallback = base_lang not in TAFSIR_RESOURCE_IDS or (base_lang != "ar" and base_lang != "en" and base_lang != "ru")
+    
+    # Check MongoDB cache first
+    cache_key = f"tafsir_{tafsir_id}_{verse_key}"
+    try:
+        cached = await db.tafsir_cache.find_one({
+            "cache_key": cache_key,
+            "expires_at": {"$gt": datetime.utcnow()}
+        })
+        if cached:
+            return {
+                "success": True,
+                "verse_key": verse_key,
+                "language": base_lang,
+                "tafsir_id": tafsir_id,
+                "tafsir_name": cached.get("tafsir_name", ""),
+                "text": cached.get("text", ""),
+                "is_fallback_language": cached.get("is_fallback", False),
+                "cached": True,
+            }
+    except Exception:
+        pass  # Cache miss, fetch from API
+    
+    # Fetch from Quran.com API v4
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
+            r.raise_for_status()
+            data = r.json()
+            
+            tafsir_data = data.get("tafsir", {})
+            raw_text = tafsir_data.get("text", "")
+            # Clean HTML tags from tafsir text
+            clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+            tafsir_name = tafsir_data.get("resource_name", "")
+            
+            # Cache in MongoDB
+            try:
+                await db.tafsir_cache.update_one(
+                    {"cache_key": cache_key},
+                    {"$set": {
+                        "cache_key": cache_key,
+                        "verse_key": verse_key,
+                        "tafsir_id": tafsir_id,
+                        "tafsir_name": tafsir_name,
+                        "text": clean_text,
+                        "is_fallback": is_fallback,
+                        "cached_at": datetime.utcnow(),
+                        "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                    }},
+                    upsert=True,
+                )
+            except Exception:
+                pass  # Non-critical: caching failure
+            
+            return {
+                "success": True,
+                "verse_key": verse_key,
+                "language": base_lang,
+                "tafsir_id": tafsir_id,
+                "tafsir_name": tafsir_name,
+                "text": clean_text,
+                "is_fallback_language": is_fallback,
+                "cached": False,
+            }
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(e.response.status_code, f"Tafsir API error: {str(e)}")
+    except Exception as e:
+        raise HTTPException(500, f"Tafsir fetch error: {str(e)}")
+
+
+@router.get("/quran/v4/tafsir/bulk/{chapter_number}")
+async def get_bulk_tafsir_for_chapter(
+    chapter_number: int,
+    language: str = Query("ar"),
+    page: int = Query(1),
+    per_page: int = Query(50),
+):
+    """
+    Fetch Tafsir for all verses of a chapter (bulk). 
+    More efficient than per-verse fetching.
+    Cached in MongoDB for 30 days.
+    """
+    if chapter_number < 1 or chapter_number > 114:
+        raise HTTPException(400, "Invalid chapter number (1-114)")
+    
+    base_lang = language.split('-')[0]
+    tafsir_id = TAFSIR_RESOURCE_IDS.get(base_lang, TAFSIR_RESOURCE_IDS["en"])
+    is_fallback = base_lang not in TAFSIR_RESOURCE_IDS or (base_lang != "ar" and base_lang != "en" and base_lang != "ru")
+    
+    # Check bulk cache
+    bulk_cache_key = f"tafsir_bulk_{tafsir_id}_{chapter_number}_p{page}"
+    try:
+        cached = await db.tafsir_cache.find_one({
+            "cache_key": bulk_cache_key,
+            "expires_at": {"$gt": datetime.utcnow()}
+        })
+        if cached:
+            return {
+                "success": True,
+                "chapter": chapter_number,
+                "language": base_lang,
+                "tafsir_id": tafsir_id,
+                "tafsirs": cached.get("tafsirs", []),
+                "is_fallback_language": cached.get("is_fallback", False),
+                "cached": True,
+            }
+    except Exception:
+        pass
+    
+    # Fetch from API - use the chapter tafsir endpoint 
+    try:
+        async with httpx.AsyncClient(timeout=60) as c:
+            # Quran.com v4 doesn't have a direct bulk tafsir endpoint per chapter
+            # We fetch verses first to know the count, then fetch tafsir per verse
+            verses_r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{chapter_number}", params={
+                "page": page, "per_page": per_page, "fields": "verse_key"
+            })
+            verses_r.raise_for_status()
+            verses_data = verses_r.json()
+            verse_keys = [v["verse_key"] for v in verses_data.get("verses", [])]
+            
+            tafsirs_list = []
+            for vk in verse_keys:
+                try:
+                    tr = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{vk}")
+                    if tr.status_code == 200:
+                        td = tr.json().get("tafsir", {})
+                        raw = td.get("text", "")
+                        clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').strip()
+                        tafsirs_list.append({
+                            "verse_key": vk,
+                            "text": clean,
+                            "tafsir_name": td.get("resource_name", ""),
+                        })
+                except Exception:
+                    tafsirs_list.append({"verse_key": vk, "text": "", "tafsir_name": ""})
+            
+            # Cache bulk result
+            try:
+                await db.tafsir_cache.update_one(
+                    {"cache_key": bulk_cache_key},
+                    {"$set": {
+                        "cache_key": bulk_cache_key,
+                        "chapter": chapter_number,
+                        "tafsir_id": tafsir_id,
+                        "tafsirs": tafsirs_list,
+                        "is_fallback": is_fallback,
+                        "cached_at": datetime.utcnow(),
+                        "expires_at": datetime.utcnow() + timedelta(days=TAFSIR_CACHE_TTL_DAYS),
+                    }},
+                    upsert=True,
+                )
+            except Exception:
+                pass
+            
+            return {
+                "success": True,
+                "chapter": chapter_number,
+                "language": base_lang,
+                "tafsir_id": tafsir_id,
+                "tafsirs": tafsirs_list,
+                "is_fallback_language": is_fallback,
+                "cached": False,
+            }
+    except Exception as e:
+        raise HTTPException(500, f"Bulk tafsir fetch error: {str(e)}")
+
 
 # ==================== HADITH (Sunnah.com API) ====================
 SUNNAH_API_BASE = "https://api.sunnah.com/v1"

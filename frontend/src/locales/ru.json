@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Согласно ст. 17 GDPR, вы имеете право на удаление данных.",
   "offlineNotice": "Нет подключения к интернету - некоторые функции недоступны",
   "enableLocationForPrayer": "Включите геолокацию для времени молитв",
-  "tapToEnableLocation": "Нажмите здесь для включения"
+  "tapToEnableLocation": "Нажмите здесь для включения",
+  "showExplanation": "Показать толкование",
+  "hideExplanation": "Скрыть толкование",
+  "tafsirMuyassar": "Тафсир Аль-Муяссар",
+  "tafsirAbridged": "Краткое толкование Благородного Корана",
+  "loadingTafsir": "Загрузка толкования...",
+  "tafsirSource": "Источник",
+  "shareAsImage": "Поделиться как изображение",
+  "downloadApp": "Скачать приложение Азан и Хикая",
+  "tafsirNotAvailable": "Толкование недоступно для этого аята",
+  "tafsirFallbackNote": "Толкование доступно на русском - Тафсир Ас-Саади"
 }

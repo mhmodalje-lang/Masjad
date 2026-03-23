@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Conform AVG Art. 17 heeft u recht op verwijdering.",
   "offlineNotice": "Geen internetverbinding - sommige functies werken mogelijk niet",
   "enableLocationForPrayer": "Locatie inschakelen voor gebedsttijden",
-  "tapToEnableLocation": "Tik hier om locatiediensten in te schakelen"
+  "tapToEnableLocation": "Tik hier om locatiediensten in te schakelen",
+  "showExplanation": "Uitleg tonen",
+  "hideExplanation": "Uitleg verbergen",
+  "tafsirMuyassar": "Tafsir Al-Muyassar",
+  "tafsirAbridged": "Verkorte uitleg van de Edele Koran",
+  "loadingTafsir": "Uitleg wordt geladen...",
+  "tafsirSource": "Bron",
+  "shareAsImage": "Delen als afbeelding",
+  "downloadApp": "Download de Athan & Hikaya-app",
+  "tafsirNotAvailable": "Uitleg niet beschikbaar voor dit vers",
+  "tafsirFallbackNote": "Uitleg beschikbaar in het Engels - Ibn Kathir (Verkort)"
 }

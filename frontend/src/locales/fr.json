@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Conformément à l'article 17 du RGPD.",
   "offlineNotice": "Pas de connexion Internet - certaines fonctions indisponibles",
   "enableLocationForPrayer": "Activez la localisation pour les heures de prière",
-  "tapToEnableLocation": "Appuyez ici pour activer la localisation"
+  "tapToEnableLocation": "Appuyez ici pour activer la localisation",
+  "showExplanation": "Afficher l'explication",
+  "hideExplanation": "Masquer l'explication",
+  "tafsirMuyassar": "Tafsir Al-Muyassar",
+  "tafsirAbridged": "Explication abrégée du Noble Coran",
+  "loadingTafsir": "Chargement de l'explication...",
+  "tafsirSource": "Source",
+  "shareAsImage": "Partager en image",
+  "downloadApp": "Télécharger l'appli Athan & Hikaya",
+  "tafsirNotAvailable": "Explication non disponible pour ce verset",
+  "tafsirFallbackNote": "Explication disponible en anglais - Ibn Kathir (Abrégé)"
 }

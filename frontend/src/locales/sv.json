@@ -2343,5 +2343,15 @@
   "dataDeletionFooter": "Enligt GDPR Art. 17 har du rätt till radering.",
   "offlineNotice": "Ingen internetanslutning - vissa funktioner kanske inte fungerar",
   "enableLocationForPrayer": "Aktivera plats för bönetider",
-  "tapToEnableLocation": "Tryck här för att aktivera platstjänster"
+  "tapToEnableLocation": "Tryck här för att aktivera platstjänster",
+  "showExplanation": "Visa förklaring",
+  "hideExplanation": "Dölj förklaring",
+  "tafsirMuyassar": "Tafsir Al-Muyassar",
+  "tafsirAbridged": "Förkortad förklaring av den Ädla Koranen",
+  "loadingTafsir": "Laddar förklaring...",
+  "tafsirSource": "Källa",
+  "shareAsImage": "Dela som bild",
+  "downloadApp": "Ladda ner Athan & Hikaya-appen",
+  "tafsirNotAvailable": "Förklaring inte tillgänglig för denna vers",
+  "tafsirFallbackNote": "Förklaring tillgänglig på engelska - Ibn Kathir (Förkortad)"
 }
