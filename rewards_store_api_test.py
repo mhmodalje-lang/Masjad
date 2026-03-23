@@ -2,7 +2,7 @@
 """
 Comprehensive Rewards Store API Testing
 Tests all 18 endpoints as specified in the review request
-Backend URL: https://store-ready-app-8.preview.emergentagent.com
+Backend URL: https://policy-compliant-11.preview.emergentagent.com
 """
 
 import requests
@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://store-ready-app-8.preview.emergentagent.com"
+BASE_URL = "https://policy-compliant-11.preview.emergentagent.com"
 TEST_USER_ID = "test_bot"
 KIDS_TEST_USER_ID = "kid_test"
 
