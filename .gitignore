@@ -255,3 +255,7 @@ backend/uploads/
 # Test files
 *.pyc
 __pycache__/
+-e 
+# Environment files
+*.env
+*.env.*
