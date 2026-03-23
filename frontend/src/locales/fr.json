@@ -2248,5 +2248,7 @@
   "and": "et",
   "userBlocked": "Cet utilisateur est bloqué",
   "reportDetails": "Détails supplémentaires (optionnel)",
-  "moreOptions": "Plus d'options"
+  "moreOptions": "Plus d'options",
+  "editDescription": "Modifier la description",
+  "addCommentFor": "Ajouter un commentaire pour"
 }

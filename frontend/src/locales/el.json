@@ -2248,5 +2248,7 @@
   "and": "and",
   "userBlocked": "This user is blocked",
   "reportDetails": "Additional details (optional)",
-  "moreOptions": "More options"
+  "moreOptions": "More options",
+  "editDescription": "Επεξεργασία περιγραφής",
+  "addCommentFor": "Προσθέστε σχόλιο για"
 }

@@ -2248,5 +2248,7 @@
   "and": "و",
   "userBlocked": "تم حظر هذا المستخدم",
   "reportDetails": "تفاصيل إضافية (اختياري)",
-  "moreOptions": "المزيد من الخيارات"
+  "moreOptions": "المزيد من الخيارات",
+  "editDescription": "تعديل الوصف",
+  "addCommentFor": "إضافة تعليق من أجل"
 }

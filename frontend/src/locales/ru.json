@@ -2248,5 +2248,7 @@
   "and": "и",
   "userBlocked": "Этот пользователь заблокирован",
   "reportDetails": "Дополнительно (необязательно)",
-  "moreOptions": "Ещё"
+  "moreOptions": "Ещё",
+  "editDescription": "Редактировать описание",
+  "addCommentFor": "Добавить комментарий для"
 }

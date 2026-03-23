@@ -2248,5 +2248,7 @@
   "and": "ve",
   "userBlocked": "Bu kullanıcı engellendi",
   "reportDetails": "Ek detaylar (isteğe bağlı)",
-  "moreOptions": "Diğer seçenekler"
+  "moreOptions": "Diğer seçenekler",
+  "editDescription": "Açıklamayı düzenle",
+  "addCommentFor": "Yorum ekle"
 }

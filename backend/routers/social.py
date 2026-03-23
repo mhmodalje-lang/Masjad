@@ -256,6 +256,23 @@ async def delete_post(post_id: str, user: dict = Depends(get_user)):
     await db.saves.delete_many({"post_id": post_id})
     return {"deleted": True}
 
+@router.patch("/sohba/posts/{post_id}")
+async def update_post(post_id: str, data: dict, user: dict = Depends(get_user)):
+    """Update post content/description - only post owner can edit"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(404, "المنشور غير موجود")
+    if post["author_id"] != user["id"]:
+        raise HTTPException(403, "غير مصرح بالتعديل")
+    update_fields = {}
+    if "content" in data:
+        update_fields["content"] = data["content"]
+    if update_fields:
+        await db.posts.update_one({"id": post_id}, {"$set": update_fields})
+    return {"success": True, "updated": update_fields}
+
 # ==================== FOLLOW SYSTEM ====================
 @router.post("/sohba/follow/{target_id}")
 async def toggle_follow(target_id: str, user: dict = Depends(get_user)):
