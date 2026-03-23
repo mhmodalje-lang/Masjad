@@ -10,7 +10,7 @@ from typing import Dict, Any
 import sys
 
 # Backend URL from environment
-BACKEND_URL = "https://quran-authentic-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://quran-integrity-1.preview.emergentagent.com/api"
 
 class TestResults:
     def __init__(self):
