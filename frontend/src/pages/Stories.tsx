@@ -94,8 +94,8 @@ function isVideoStory(s: { is_embed?: boolean; media_type?: string; content_type
 }
 
 /* ==================== COMMENTS SHEET ==================== */
-function CommentsSheet({ storyId, onClose, onCountChange }: {
-  storyId: string; onClose: () => void; onCountChange: (delta: number) => void;
+function CommentsSheet({ storyId, onClose, onCountChange, story }: {
+  storyId: string; onClose: () => void; onCountChange: (delta: number) => void; story?: Story;
 }) {
   const { user } = useAuth();
   const { t, dir } = useLocale();
@@ -147,6 +147,17 @@ function CommentsSheet({ storyId, onClose, onCountChange }: {
           <h3 className="text-foreground font-bold">{t('commentsTitle')} ({comments.length})</h3>
           <button onClick={onClose} className="p-1.5 rounded-full bg-muted/30 hover:bg-muted/50"><X className="w-4 h-4 text-muted-foreground" /></button>
         </div>
+        {/* Full description display */}
+        {story && story.content && (
+          <div className="px-5 py-3 border-b border-border/20" dir={dir}>
+            <div className="flex items-center gap-2 mb-2">
+              <img src={avatar(story.author_name, story.author_avatar)} alt="" className="w-8 h-8 rounded-full shrink-0" />
+              <span className="text-foreground font-bold text-[13px]">{story.author_name}</span>
+              <span className="text-muted-foreground text-[10px]">{timeAgo(story.created_at)}</span>
+            </div>
+            <p className="text-foreground text-[14px] leading-relaxed">{story.content}</p>
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto p-4 space-y-4" dir={dir}>
           {loading ? <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
            : comments.length === 0 ? <p className="text-center text-muted-foreground py-8 text-sm">{t('beFirstToComment')}</p>
@@ -686,7 +697,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
       </div>
 
       <AnimatePresence>
-        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)}
+        {showComments && <CommentsSheet storyId={story.id} story={story} onClose={() => setShowComments(false)}
           onCountChange={d => setCommentsCount(prev => prev + d)} />}
       </AnimatePresence>
     </div>
@@ -734,7 +745,7 @@ function FullscreenViewer({ stories, initialIndex, onClose }: { stories: Story[]
         {stories.map((s, i) => <ReelSlide key={s.id} story={s} isActive={i === idx} onOpenComments={() => setShowComments(true)} />)}
       </div>
       <AnimatePresence>
-        {showComments && <CommentsSheet storyId={story.id} onClose={() => setShowComments(false)} onCountChange={() => {}} />}
+        {showComments && <CommentsSheet storyId={story.id} story={story} onClose={() => setShowComments(false)} onCountChange={() => {}} />}
       </AnimatePresence>
     </motion.div>
   );
@@ -1495,7 +1506,7 @@ export default function Stories() {
       {/* Modals */}
       <AnimatePresence>
         {showCreate && <CreateSheet categories={categories} onClose={() => setShowCreate(false)} onCreated={s => setStories(prev => [s, ...prev])} />}
-        {showCommentsFor && <CommentsSheet storyId={showCommentsFor} onClose={() => setShowCommentsFor(null)}
+        {showCommentsFor && <CommentsSheet storyId={showCommentsFor} story={stories.find(s => s.id === showCommentsFor)} onClose={() => setShowCommentsFor(null)}
           onCountChange={d => setStories(p => p.map(x => x.id === showCommentsFor ? { ...x, comments_count: x.comments_count + d } : x))} />}
         {showViewer !== null && <FullscreenViewer stories={videoStories} initialIndex={showViewer} onClose={() => setShowViewer(null)} />}
       </AnimatePresence>
