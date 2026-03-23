@@ -72,7 +72,7 @@ export function useSEO() {
 
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (canonical) {
-      canonical.href = `https://qibla-guidance-hub.lovable.app${location.pathname}`;
+      canonical.href = location.pathname;
     }
   }, [location.pathname, locale]);
 }

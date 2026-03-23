@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PolicyFooter from '@/components/PolicyFooter';
 import { ArrowRight, ArrowLeft, Heart, Star, Shield, Users, Globe, Sparkles, Mail, Phone } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 
@@ -95,6 +96,7 @@ export default function AboutUs() {
           {t('appName')} v2.0 | {t('allRightsReserved')} © {new Date().getFullYear()}
         </p>
       </div>
+      <PolicyFooter />
     </div>
   );
 }

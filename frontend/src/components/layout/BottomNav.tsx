@@ -21,7 +21,7 @@ export function BottomNav() {
     { path: '/more', icon: User, label: t('navMore') },
   ];
 
-  const hiddenPaths = ['/auth', '/reels'];
+  const hiddenPaths = ['/auth', '/reels', '/privacy', '/terms', '/about', '/contact', '/delete-data', '/content-policy'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
   return (

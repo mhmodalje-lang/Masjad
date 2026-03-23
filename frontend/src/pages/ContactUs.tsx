@@ -1,5 +1,6 @@
 import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
+import PolicyFooter from '@/components/PolicyFooter';
 import { ArrowRight, ArrowLeft, Mail, Phone, MessageSquare, Globe, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -83,6 +84,7 @@ export default function ContactUs() {
         </div>
         <p className="text-center text-xs text-muted-foreground/50 pt-2">{t('ownerDeveloper')}</p>
       </div>
+      <PolicyFooter />
     </div>
   );
 }

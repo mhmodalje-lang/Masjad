@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { Link } from 'react-router-dom';
+import PolicyFooter from '@/components/PolicyFooter';
 import { ArrowRight, ArrowLeft, Trash2, Mail, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -127,6 +128,7 @@ export default function DataDeletion() {
           {t('dataDeletionFooter')}
         </p>
       </div>
+      <PolicyFooter />
     </div>
   );
 }

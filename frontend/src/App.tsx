@@ -85,11 +85,24 @@ function SEOWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Pages that should be accessible without AgeGate (for store review & Google Ads compliance)
+const PUBLIC_PATHS = ['/privacy', '/terms', '/about', '/contact', '/delete-data', '/content-policy'];
+
+function isPublicPath(): boolean {
+  return PUBLIC_PATHS.some(p => window.location.pathname.startsWith(p));
+}
+
 const App = () => {
   const [splashDone, setSplashDone] = useState(() => {
+    // Skip splash for public/policy pages (store reviewers & crawlers need instant access)
+    if (isPublicPath()) return true;
     return sessionStorage.getItem('splash_shown') === '1';
   });
-  const [ageGatePassed, setAgeGatePassed] = useState(() => hasPassedAgeGate());
+  const [ageGatePassed, setAgeGatePassed] = useState(() => {
+    // Skip AgeGate for public/policy pages (store reviewers & crawlers need instant access)
+    if (isPublicPath()) return true;
+    return hasPassedAgeGate();
+  });
 
   const handleSplashComplete = useCallback(() => {
     sessionStorage.setItem('splash_shown', '1');

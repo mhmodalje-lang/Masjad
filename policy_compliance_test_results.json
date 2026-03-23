@@ -1,0 +1,199 @@
+{
+  "timestamp": "2026-03-23T14:43:06.252251",
+  "backend_url": "https://policy-compliant-11.preview.emergentagent.com",
+  "total_tests": 12,
+  "passed": 10,
+  "failed": 2,
+  "success_rate": 83.33333333333334,
+  "results": [
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.208722,
+      "content_type": "application/json",
+      "content_length": 81,
+      "response_data": {
+        "status": "healthy",
+        "timestamp": "2026-03-23T14:43:04.996076",
+        "app": "\u0623\u0630\u0627\u0646 \u0648\u062d\u0643\u0627\u064a\u0629"
+      },
+      "test_name": "Health Check",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/health",
+      "expected_status": 200,
+      "description": "Should return 200 with healthy status"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.14394,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "Privacy Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/privacy",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.135258,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "Terms Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/terms",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.108241,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "About Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/about",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.099184,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "Contact Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/contact",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.10121,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "Delete Data Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/delete-data",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.11893,
+      "content_type": "text/html",
+      "content_length": 13104,
+      "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
+      "test_name": "Content Policy Page",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/content-policy",
+      "expected_status": 200,
+      "description": "Frontend route should be accessible"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.094656,
+      "content_type": "text/plain; charset=utf-8",
+      "content_length": 106,
+      "response_text": "# app-ads.txt - Azan & Hikaya\n# Publisher ID not configured yet. Set it in Admin Dashboard > Ad Settings.\n",
+      "test_name": "App Ads TXT",
+      "method": "GET",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/app-ads-txt",
+      "expected_status": 200,
+      "description": "Should return text/plain response"
+    },
+    {
+      "success": true,
+      "status_code": 401,
+      "response_time": 0.103315,
+      "content_type": "application/json",
+      "content_length": 22,
+      "response_data": {
+        "detail": "\u063a\u064a\u0631 \u0645\u0635\u0627\u062f\u0642"
+      },
+      "test_name": "Delete Account (No Auth)",
+      "method": "DELETE",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/auth/delete-account",
+      "expected_status": 401,
+      "description": "Should return 401 without auth"
+    },
+    {
+      "success": false,
+      "status_code": 422,
+      "response_time": 0.119636,
+      "content_type": "application/json",
+      "content_length": 133,
+      "response_data": {
+        "detail": [
+          {
+            "type": "missing",
+            "loc": [
+              "body"
+            ],
+            "msg": "Field required",
+            "input": null,
+            "url": "https://errors.pydantic.dev/2.12/v/missing"
+          }
+        ]
+      },
+      "test_name": "Report Content (No Auth)",
+      "method": "POST",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/report",
+      "expected_status": 401,
+      "description": "Should return 401 without auth"
+    },
+    {
+      "success": false,
+      "status_code": 422,
+      "response_time": 0.101991,
+      "content_type": "application/json",
+      "content_length": 133,
+      "response_data": {
+        "detail": [
+          {
+            "type": "missing",
+            "loc": [
+              "body"
+            ],
+            "msg": "Field required",
+            "input": null,
+            "url": "https://errors.pydantic.dev/2.12/v/missing"
+          }
+        ]
+      },
+      "test_name": "Block User (No Auth)",
+      "method": "POST",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/block-user",
+      "expected_status": 401,
+      "description": "Should return 401 without auth"
+    },
+    {
+      "success": true,
+      "status_code": 200,
+      "response_time": 0.097496,
+      "content_type": "application/json",
+      "content_length": 109,
+      "response_data": {
+        "success": true,
+        "message": "Data deletion request submitted successfully. We will process it within 30 days."
+      },
+      "test_name": "Data Deletion Request",
+      "method": "POST",
+      "url": "https://policy-compliant-11.preview.emergentagent.com/api/data-deletion-request",
+      "expected_status": 200,
+      "description": "Should return 200 with valid data"
+    }
+  ]
+}

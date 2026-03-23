@@ -1,5 +1,13 @@
 User-agent: Googlebot
 Allow: /
+Allow: /privacy
+Allow: /terms
+Allow: /about
+Allow: /contact
+Allow: /content-policy
+Allow: /delete-data
+Disallow: /admin
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
@@ -12,5 +20,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: /sitemap.xml

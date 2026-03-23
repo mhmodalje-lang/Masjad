@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Shield, AlertTriangle, Ban, Eye, Flag, Users } from 'lucide-react';
+import PolicyFooter from '@/components/PolicyFooter';
 import { useLocale } from '@/hooks/useLocale';
 
 const CONTENT_POLICY: Record<string, Record<string, string>> = {
@@ -406,6 +407,7 @@ export default function ContentPolicy() {
           <p className="text-sm text-primary"><a href="mailto:mohammedalrejab@gmail.com">mohammedalrejab@gmail.com</a></p>
         </div>
       </div>
+      <PolicyFooter />
     </div>
   );
 }

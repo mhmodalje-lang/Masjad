@@ -1,226 +1,222 @@
 #!/usr/bin/env python3
 """
-Policy Compliance Backend API Testing Script
-Tests the 4 NEW policy compliance endpoints for Azan & Hikaya app
+Policy Compliance Backend API Testing
+Testing all policy compliance endpoints after frontend-only changes
 """
 
-import asyncio
-import httpx
+import requests
 import json
-from typing import Dict, Any, List
+import sys
+from datetime import datetime
 
-# Backend URL from frontend .env
+# Backend URL from review request
 BACKEND_URL = "https://policy-compliant-11.preview.emergentagent.com"
 
-class PolicyComplianceAPITester:
-    def __init__(self):
-        self.base_url = BACKEND_URL
-        self.results = []
-        
-    def log_result(self, test_name: str, endpoint: str, status: str, details: str = ""):
-        """Log test result"""
-        result = {
-            "test": test_name,
-            "endpoint": endpoint,
-            "status": status,
-            "details": details
-        }
-        self.results.append(result)
-        print(f"{'✅' if status == 'PASS' else '❌'} {test_name}: {status}")
-        if details:
-            print(f"   Details: {details}")
-    
-    async def test_data_deletion_request_valid(self):
-        """Test 1: POST /api/data-deletion-request with valid data"""
-        test_name = "Data Deletion Request - Valid Email"
-        endpoint = "/api/data-deletion-request"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                payload = {
-                    "email": "test@example.com",
-                    "reason": "Testing deletion"
-                }
-                
-                response = await client.post(f"{self.base_url}{endpoint}", json=payload)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] is True:
-                        if "message" in data:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          f"Success response: {data['message']}")
-                        else:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          "Success response received (no message field)")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      f"Response missing success=true: {data}")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_app_ads_txt(self):
-        """Test 2: GET /api/app-ads-txt - Dynamic app-ads.txt content"""
-        test_name = "App Ads.txt Content"
-        endpoint = "/api/app-ads-txt"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    # Check if response is text/plain
-                    content_type = response.headers.get("content-type", "")
-                    
-                    if "text/plain" in content_type:
-                        content = response.text
-                        if content and len(content.strip()) > 0:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          f"Text/plain response with {len(content)} characters")
-                        else:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          "Text/plain response (empty content)")
-                    else:
-                        # Still pass if content is returned, even if not text/plain
-                        content = response.text
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Response received (content-type: {content_type})")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_data_deletion_request_empty_email(self):
-        """Test 3: POST /api/data-deletion-request with empty email"""
-        test_name = "Data Deletion Request - Empty Email Validation"
-        endpoint = "/api/data-deletion-request"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                payload = {
-                    "email": "",
-                    "reason": "test"
-                }
-                
-                response = await client.post(f"{self.base_url}{endpoint}", json=payload)
-                
-                if response.status_code == 400:
-                    data = response.json()
-                    
-                    # Check if error message mentions email requirement
-                    error_message = str(data).lower()
-                    if "email" in error_message and ("required" in error_message or "empty" in error_message):
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Correctly returns 400 with email validation: {data}")
-                    else:
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Returns 400 error (validation working): {data}")
-                elif response.status_code == 422:
-                    # Unprocessable Entity is also acceptable for validation errors
-                    data = response.json()
-                    self.log_result(test_name, endpoint, "PASS", 
-                                  f"Returns 422 validation error: {data}")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"Expected 400/422 but got HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_data_deletion_request_valid_second(self):
-        """Test 4: POST /api/data-deletion-request with another valid email"""
-        test_name = "Data Deletion Request - Second Valid Email"
-        endpoint = "/api/data-deletion-request"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                payload = {
-                    "email": "user@test.com",
-                    "reason": "I want to leave"
-                }
-                
-                response = await client.post(f"{self.base_url}{endpoint}", json=payload)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] is True:
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Success response: {data}")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      f"Response missing success=true: {data}")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def run_all_tests(self):
-        """Run all policy compliance API tests"""
-        print(f"🚀 Starting Policy Compliance API Tests for: {self.base_url}")
-        print("=" * 70)
-        print("Testing 4 NEW policy compliance endpoints:")
-        print("1. POST /api/data-deletion-request (valid email)")
-        print("2. GET /api/app-ads-txt (dynamic content)")
-        print("3. POST /api/data-deletion-request (empty email validation)")
-        print("4. POST /api/data-deletion-request (second valid email)")
-        print("=" * 70)
-        
-        # Run all tests in order
-        await self.test_data_deletion_request_valid()
-        await self.test_app_ads_txt()
-        await self.test_data_deletion_request_empty_email()
-        await self.test_data_deletion_request_valid_second()
-        
-        # Summary
-        print("\n" + "=" * 70)
-        print("📊 POLICY COMPLIANCE TEST SUMMARY")
-        print("=" * 70)
-        
-        passed = len([r for r in self.results if r["status"] == "PASS"])
-        failed = len([r for r in self.results if r["status"] == "FAIL"])
-        skipped = len([r for r in self.results if r["status"] == "SKIP"])
-        
-        print(f"✅ PASSED: {passed}")
-        print(f"❌ FAILED: {failed}")
-        print(f"⏭️  SKIPPED: {skipped}")
-        print(f"📈 SUCCESS RATE: {passed}/{passed+failed} ({(passed/(passed+failed)*100) if (passed+failed) > 0 else 0:.1f}%)")
-        
-        # Detailed results
-        if failed > 0:
-            print("\n🔍 FAILED TESTS DETAILS:")
-            for result in self.results:
-                if result["status"] == "FAIL":
-                    print(f"❌ {result['test']}: {result['details']}")
-        
-        print("\n📋 COMPLIANCE STATUS:")
-        if failed == 0:
-            print("✅ ALL POLICY COMPLIANCE ENDPOINTS WORKING CORRECTLY")
-            print("✅ Ready for Google Play Store submission")
+def test_endpoint(method, url, expected_status=200, data=None, headers=None, expected_content_type=None):
+    """Test a single endpoint and return results"""
+    try:
+        if method.upper() == "GET":
+            response = requests.get(url, headers=headers, timeout=10)
+        elif method.upper() == "POST":
+            response = requests.post(url, json=data, headers=headers, timeout=10)
+        elif method.upper() == "DELETE":
+            response = requests.delete(url, headers=headers, timeout=10)
         else:
-            print("❌ POLICY COMPLIANCE ISSUES FOUND - NEEDS FIXING")
-            print("❌ Not ready for Google Play Store submission")
+            return {"success": False, "error": f"Unsupported method: {method}"}
         
-        return self.results
-
-async def main():
-    """Main test runner"""
-    tester = PolicyComplianceAPITester()
-    results = await tester.run_all_tests()
+        result = {
+            "success": response.status_code == expected_status,
+            "status_code": response.status_code,
+            "response_time": response.elapsed.total_seconds(),
+            "content_type": response.headers.get('content-type', ''),
+            "content_length": len(response.text)
+        }
+        
+        # Check content type if specified
+        if expected_content_type and expected_content_type not in result["content_type"]:
+            result["success"] = False
+            result["error"] = f"Expected content-type {expected_content_type}, got {result['content_type']}"
+        
+        # Try to parse JSON response
+        try:
+            result["response_data"] = response.json()
+        except:
+            result["response_text"] = response.text[:200] + "..." if len(response.text) > 200 else response.text
+        
+        return result
     
-    # Return results for potential use by other scripts
-    return results
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error": str(e)}
+
+def main():
+    print("🧪 POLICY COMPLIANCE BACKEND API TESTING")
+    print("=" * 60)
+    print(f"Backend URL: {BACKEND_URL}")
+    print(f"Test Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+    
+    # Test cases from review request
+    test_cases = [
+        {
+            "name": "Health Check",
+            "method": "GET",
+            "url": f"{BACKEND_URL}/api/health",
+            "expected_status": 200,
+            "description": "Should return 200 with healthy status"
+        },
+        {
+            "name": "Privacy Page",
+            "method": "GET", 
+            "url": f"{BACKEND_URL}/privacy",
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "Terms Page",
+            "method": "GET",
+            "url": f"{BACKEND_URL}/terms", 
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "About Page",
+            "method": "GET",
+            "url": f"{BACKEND_URL}/about",
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "Contact Page", 
+            "method": "GET",
+            "url": f"{BACKEND_URL}/contact",
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "Delete Data Page",
+            "method": "GET",
+            "url": f"{BACKEND_URL}/delete-data",
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "Content Policy Page",
+            "method": "GET", 
+            "url": f"{BACKEND_URL}/content-policy",
+            "expected_status": 200,
+            "description": "Frontend route should be accessible"
+        },
+        {
+            "name": "App Ads TXT",
+            "method": "GET",
+            "url": f"{BACKEND_URL}/api/app-ads-txt",
+            "expected_status": 200,
+            "expected_content_type": "text/plain",
+            "description": "Should return text/plain response"
+        },
+        {
+            "name": "Delete Account (No Auth)",
+            "method": "DELETE",
+            "url": f"{BACKEND_URL}/api/auth/delete-account",
+            "expected_status": 401,
+            "description": "Should return 401 without auth"
+        },
+        {
+            "name": "Report Content (No Auth)",
+            "method": "POST",
+            "url": f"{BACKEND_URL}/api/report",
+            "expected_status": 401,
+            "description": "Should return 401 without auth"
+        },
+        {
+            "name": "Block User (No Auth)",
+            "method": "POST", 
+            "url": f"{BACKEND_URL}/api/block-user",
+            "expected_status": 401,
+            "description": "Should return 401 without auth"
+        },
+        {
+            "name": "Data Deletion Request",
+            "method": "POST",
+            "url": f"{BACKEND_URL}/api/data-deletion-request",
+            "data": {"email": "test@test.com", "reason": "test"},
+            "expected_status": 200,
+            "description": "Should return 200 with valid data"
+        }
+    ]
+    
+    results = []
+    passed = 0
+    failed = 0
+    
+    for i, test_case in enumerate(test_cases, 1):
+        print(f"Test {i:2d}: {test_case['name']}")
+        print(f"         {test_case['method']} {test_case['url']}")
+        print(f"         {test_case['description']}")
+        
+        result = test_endpoint(
+            method=test_case['method'],
+            url=test_case['url'],
+            expected_status=test_case['expected_status'],
+            data=test_case.get('data'),
+            expected_content_type=test_case.get('expected_content_type')
+        )
+        
+        if result['success']:
+            print(f"         ✅ PASS - Status: {result['status_code']}, Time: {result['response_time']:.3f}s")
+            passed += 1
+        else:
+            print(f"         ❌ FAIL - Status: {result.get('status_code', 'N/A')}")
+            if 'error' in result:
+                print(f"         Error: {result['error']}")
+            failed += 1
+        
+        # Add test case info to result
+        result.update({
+            'test_name': test_case['name'],
+            'method': test_case['method'],
+            'url': test_case['url'],
+            'expected_status': test_case['expected_status'],
+            'description': test_case['description']
+        })
+        
+        results.append(result)
+        print()
+    
+    # Summary
+    print("=" * 60)
+    print("📊 TEST SUMMARY")
+    print(f"Total Tests: {len(test_cases)}")
+    print(f"✅ Passed: {passed}")
+    print(f"❌ Failed: {failed}")
+    print(f"Success Rate: {(passed/len(test_cases)*100):.1f}%")
+    print()
+    
+    # Detailed results for failed tests
+    failed_tests = [r for r in results if not r['success']]
+    if failed_tests:
+        print("🔍 FAILED TESTS DETAILS:")
+        for test in failed_tests:
+            error_msg = test.get('error', f"Expected {test['expected_status']}, got {test.get('status_code', 'N/A')}")
+            print(f"- {test['test_name']}: {error_msg}") 
+        print()
+    
+    # Save results to JSON
+    with open('/app/policy_compliance_test_results.json', 'w') as f:
+        json.dump({
+            'timestamp': datetime.now().isoformat(),
+            'backend_url': BACKEND_URL,
+            'total_tests': len(test_cases),
+            'passed': passed,
+            'failed': failed,
+            'success_rate': passed/len(test_cases)*100,
+            'results': results
+        }, f, indent=2)
+    
+    print(f"📄 Detailed results saved to: /app/policy_compliance_test_results.json")
+    
+    # Return exit code based on results
+    return 0 if failed == 0 else 1
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(main())

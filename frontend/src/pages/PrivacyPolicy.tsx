@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PolicyFooter from '@/components/PolicyFooter';
 import { ArrowRight, ArrowLeft, Shield, Eye, Database, Lock, UserCheck, Globe, Trash2, Mail } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 
@@ -860,6 +861,7 @@ export default function PrivacyPolicy() {
 
         <p className="text-center text-xs text-muted-foreground/40 pt-2">{c.version}</p>
       </div>
+      <PolicyFooter />
     </div>
   );
 }

@@ -1,2 +1,4 @@
-# app-ads.txt - Azan wa Hikaya
-# Configure your AdMob/AdSense Publisher ID in the Admin Dashboard
+# app-ads.txt - Azan wa Hikaya (أذان وحكاية)
+# Replace YOUR_PUBLISHER_ID with your actual AdMob/AdSense Publisher ID
+# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

@@ -1,10 +1,10 @@
 /**
- * Service Worker for المؤذن العالمي
+ * Service Worker for أذان وحكاية - Azan wa Hikaya
  * Prayer notification scheduling with periodic checking
  */
 
-const CACHE_NAME = 'almuadhin-v3';
-const ATHAN_AUDIO_CACHE = 'athan-audio-v1';
+const CACHE_NAME = 'azanhikaya-v4';
+const ATHAN_AUDIO_CACHE = 'athan-audio-v2';
 
 const PRECACHE_ASSETS = [
   '/',

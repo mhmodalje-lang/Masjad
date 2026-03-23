@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PolicyFooter from '@/components/PolicyFooter';
 import { ArrowRight, ArrowLeft, FileText, AlertCircle, ShieldCheck, Ban, Scale, Globe } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
 
@@ -116,6 +117,7 @@ export default function TermsOfService() {
 
         <p className="text-center text-xs text-muted-foreground/40 pt-2">{t('termsLastUpdated')}</p>
       </div>
+      <PolicyFooter />
     </div>
   );
 }
