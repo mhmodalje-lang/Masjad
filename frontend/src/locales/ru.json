@@ -2353,5 +2353,8 @@
   "shareAsImage": "Поделиться как изображение",
   "downloadApp": "Скачать приложение Азан и Хикая",
   "tafsirNotAvailable": "Толкование недоступно для этого аята",
-  "tafsirFallbackNote": "Толкование доступно на русском - Тафсир Ас-Саади"
+  "tafsirFallbackNote": "Толкование доступно на русском - Тафсир Ас-Саади",
+  "tafsirTranslationPending": "Перевод готовится",
+  "tafsirTranslationPendingDesc": "Для этого языка готовится проверенный научный перевод. Арабский текст показан выше.",
+  "hadithTranslationPending": "Перевод хадиса готовится"
 }

@@ -2353,5 +2353,8 @@
   "shareAsImage": "Delen als afbeelding",
   "downloadApp": "Download de Athan & Hikaya-app",
   "tafsirNotAvailable": "Uitleg niet beschikbaar voor dit vers",
-  "tafsirFallbackNote": "Uitleg beschikbaar in het Engels - Ibn Kathir (Verkort)"
+  "tafsirFallbackNote": "Uitleg beschikbaar in het Engels - Ibn Kathir (Verkort)",
+  "tafsirTranslationPending": "Vertaling in voorbereiding",
+  "tafsirTranslationPendingDesc": "Een geverifieerde wetenschappelijke vertaling wordt voorbereid voor deze taal. De Arabische tekst wordt hierboven weergegeven.",
+  "hadithTranslationPending": "Hadith-vertaling in voorbereiding"
 }

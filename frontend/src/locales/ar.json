@@ -2353,5 +2353,8 @@
   "shareAsImage": "شارك كصورة",
   "downloadApp": "حمّل تطبيق أذان وحكاية",
   "tafsirNotAvailable": "التفسير غير متوفر لهذه الآية",
-  "tafsirFallbackNote": "التفسير متوفر بالإنجليزية - ابن كثير المختصر"
+  "tafsirFallbackNote": "التفسير متوفر بالإنجليزية - ابن كثير المختصر",
+  "tafsirTranslationPending": "الترجمة قيد الإعداد",
+  "tafsirTranslationPendingDesc": "يتم إعداد ترجمة علمية موثقة لهذه اللغة. النص العربي معروض أعلاه.",
+  "hadithTranslationPending": "ترجمة الحديث قيد الإعداد"
 }

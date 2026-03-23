@@ -2353,5 +2353,8 @@
   "shareAsImage": "Κοινοποίηση ως εικόνα",
   "downloadApp": "Κατεβάστε την εφαρμογή Athan & Hikaya",
   "tafsirNotAvailable": "Η ερμηνεία δεν είναι διαθέσιμη για αυτό το εδάφιο",
-  "tafsirFallbackNote": "Ερμηνεία διαθέσιμη στα αγγλικά - Ibn Kathir (Συνοπτική)"
+  "tafsirFallbackNote": "Ερμηνεία διαθέσιμη στα αγγλικά - Ibn Kathir (Συνοπτική)",
+  "tafsirTranslationPending": "Μετάφραση σε εξέλιξη",
+  "tafsirTranslationPendingDesc": "Μια επαληθευμένη ακαδημαϊκή μετάφραση ετοιμάζεται για αυτή τη γλώσσα. Το αραβικό κείμενο εμφανίζεται παραπάνω.",
+  "hadithTranslationPending": "Μετάφραση χαντίθ σε εξέλιξη"
 }

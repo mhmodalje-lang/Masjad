@@ -2353,5 +2353,8 @@
   "shareAsImage": "Als Bild teilen",
   "downloadApp": "Athan & Hikaya App herunterladen",
   "tafsirNotAvailable": "Erklärung für diesen Vers nicht verfügbar",
-  "tafsirFallbackNote": "Erklärung auf Englisch verfügbar - Ibn Kathir (Kurzfassung)"
+  "tafsirFallbackNote": "Erklärung auf Englisch verfügbar - Ibn Kathir (Kurzfassung)",
+  "tafsirTranslationPending": "Übersetzung in Vorbereitung",
+  "tafsirTranslationPendingDesc": "Eine verifizierte wissenschaftliche Übersetzung wird für diese Sprache vorbereitet. Der arabische Text ist oben angezeigt.",
+  "hadithTranslationPending": "Hadith-Übersetzung in Vorbereitung"
 }

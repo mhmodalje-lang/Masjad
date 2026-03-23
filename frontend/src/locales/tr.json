@@ -2353,5 +2353,8 @@
   "shareAsImage": "Resim olarak paylaş",
   "downloadApp": "Ezan ve Hikaye Uygulamasını İndirin",
   "tafsirNotAvailable": "Bu ayet için açıklama mevcut değil",
-  "tafsirFallbackNote": "Açıklama İngilizce olarak mevcut - İbn Kesir (Muhtasar)"
+  "tafsirFallbackNote": "Açıklama İngilizce olarak mevcut - İbn Kesir (Muhtasar)",
+  "tafsirTranslationPending": "Çeviri Hazırlanıyor",
+  "tafsirTranslationPendingDesc": "Bu dil için doğrulanmış bir ilmi çeviri hazırlanmaktadır. Arapça metin yukarıda gösterilmektedir.",
+  "hadithTranslationPending": "Hadis çevirisi hazırlanıyor"
 }
