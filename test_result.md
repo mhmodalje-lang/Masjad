@@ -45,7 +45,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://quran-114-surahs.preview.emergentagent.com  
+**Base URL:** https://hadith-cards.preview.emergentagent.com  
 **Total Tests:** 19  
 **Status:** ALL TESTS PASSED ✅
 
@@ -123,7 +123,7 @@
 
 ### Testing Date: 2026-01-27
 ### Testing Agent: Backend Testing Complete
-### Base URL: https://quran-114-surahs.preview.emergentagent.com
+### Base URL: https://hadith-cards.preview.emergentagent.com
 ### Total Tests: 73
 ### Status: ALL TESTS PASSED ✅
 
@@ -192,7 +192,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://quran-114-surahs.preview.emergentagent.com  
+**Base URL:** https://hadith-cards.preview.emergentagent.com  
 **Test Suite:** real_tafsir_rebuild_test.py  
 **Total Tests:** 39  
 **Status:** ALL TESTS PASSED ✅
@@ -246,7 +246,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://quran-114-surahs.preview.emergentagent.com  
+**Base URL:** https://hadith-cards.preview.emergentagent.com  
 **Test Suite:** v2026_comprehensive_test.py  
 **Total Tests:** 46  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -316,3 +316,84 @@
 - ✅ Authentic Islamic sources for all content
 
 **COMPREHENSIVE CONCLUSION:** V2026 Architecture Update is fully implemented and operational. All critical requirements verified through comprehensive testing across 46 test cases covering all 9 supported languages and all major API endpoints.
+
+
+## DIGITAL SHIELD & MIXED LANGUAGE FIX — COMPREHENSIVE TEST RESULTS
+
+### Testing Agent: Backend Testing Complete
+**Date:** 2026-03-24  
+**Base URL:** https://hadith-cards.preview.emergentagent.com  
+**Test Suite:** backend_test.py (Digital Shield Focus)  
+**Total Tests:** 5 major test categories  
+**Status:** ALL TESTS PASSED ✅ (100% Success Rate)
+
+### DIGITAL SHIELD API ENDPOINTS — FULL VERIFICATION:
+
+#### 1. Health Check ✅
+- **Endpoint:** `GET /api/health`
+- **Result:** Status = "healthy", API responsive
+- **Status:** Working correctly
+
+#### 2. Digital Shield - All Lessons (9 Languages) ✅
+- **Endpoint:** `GET /api/kids-learn/digital-shield?locale={lang}&theme=all`
+- **Languages Tested:** ar, en, fr, de, tr, ru, sv, nl, el
+- **Critical Verification:**
+  - ✅ All 9 languages return exactly 30 lessons
+  - ✅ Each lesson has required fields: `id`, `theme`, `icon`, `title`, `content`, `key_lesson`
+  - ✅ **MIXED LANGUAGE FIX VERIFIED:** No Arabic text in non-Arabic locales (except intentional Quran/Hadith quotes)
+  - ✅ Arabic quotes properly allowed in content when containing patterns: "قال تعالى", "قال النبي", "ﷺ"
+- **Result:** 9/9 languages passed all validation checks
+
+#### 3. Digital Shield - Theme Filtering ✅
+- **Endpoints:** `GET /api/kids-learn/digital-shield?locale=en&theme={theme}`
+- **Themes Tested:** deepfakes, privacy, social_media, misinformation, ethics, safety
+- **Critical Verification:**
+  - ✅ Each theme returns exactly 5 lessons
+  - ✅ All lessons in each theme have correct theme assignment
+  - ✅ Total: 6 themes × 5 lessons = 30 lessons confirmed
+- **Result:** 6/6 themes passed filtering validation
+
+#### 4. Digital Shield - Today's Lesson ✅
+- **Endpoint:** `GET /api/kids-learn/digital-shield/today?locale={lang}`
+- **Languages Tested:** en (English), sv (Swedish)
+- **Critical Verification:**
+  - ✅ Returns single lesson object with all required fields
+  - ✅ `lesson_number` in range 1-30, `total_lessons` = 30
+  - ✅ **Swedish Translation Verified:** No Arabic violations in Swedish locale
+  - ✅ Daily rotation working (lesson 23/30 on test date)
+- **Result:** Today's lesson rotation working correctly
+
+#### 5. Digital Shield - Themes List ✅
+- **Endpoint:** `GET /api/kids-learn/digital-shield/themes?locale=en`
+- **Critical Verification:**
+  - ✅ Returns exactly 6 themes
+  - ✅ Each theme has `id`, `count`, `icon` fields
+  - ✅ Each theme shows count = 5 lessons
+  - ✅ All expected themes present: deepfakes, privacy, social_media, misinformation, ethics, safety
+- **Result:** Themes list endpoint working correctly
+
+### MIXED LANGUAGE FIX VERIFICATION:
+- ✅ **Arabic Fallback Elimination:** No unwanted Arabic text in non-Arabic locales
+- ✅ **English Fallback Working:** All non-Arabic languages properly fallback to English
+- ✅ **Intentional Arabic Preserved:** Quran/Hadith quotes correctly maintained in content
+- ✅ **Unicode Range Check:** Verified no Arabic characters (\\u0600-\\u06FF) in inappropriate contexts
+
+### Backend API Status:
+- **All Digital Shield endpoints:** Fully functional ✅
+- **Multi-language support:** All 9 languages working ✅
+- **Theme filtering:** Perfect accuracy ✅
+- **Daily rotation:** Working correctly ✅
+- **Mixed language fix:** Successfully implemented ✅
+- **JSON data integrity:** 30 lessons properly loaded ✅
+
+### Changes Made (Previously):
+1. **i18n Fallback**: Changed from Arabic (`ar`) to English (`en`) as fallback language
+2. **Arabic Fallback Strings**: Replaced all `|| 'Arabic text'` patterns with English fallbacks
+3. **Digital Shield Backend**: Added 3 new endpoints:
+   - `GET /api/kids-learn/digital-shield?locale=en&theme=all` — Get all 30 lessons
+   - `GET /api/kids-learn/digital-shield/today?locale=en` — Get today's rotating lesson
+   - `GET /api/kids-learn/digital-shield/themes?locale=en` — Get theme list
+4. **Digital Shield Frontend**: Added 🛡️ Digital Shield tab to Noor Academy (KidsZone)
+5. **daily_lessons.json**: Fixed JSON parsing issue (unescaped quotes), 30 lessons verified
+
+**COMPREHENSIVE CONCLUSION:** Digital Shield & Mixed Language Fix is fully implemented and operational. All critical requirements verified through comprehensive testing across all 9 supported languages and all Digital Shield endpoints. The mixed language fix successfully prevents Arabic text leakage while preserving intentional Islamic content.

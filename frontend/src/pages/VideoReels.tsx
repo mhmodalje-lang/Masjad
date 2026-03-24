@@ -605,7 +605,7 @@ function ReelItem({ post, isActive, isOwner, onLike, onShare, onFollow, onCommen
                   <>
                     <button onClick={() => { onEdit(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-white hover:bg-white/10">
-                      <Pencil className="h-4 w-4 text-white/60" />{t('editDescription') || 'تعديل الوصف'}
+                      <Pencil className="h-4 w-4 text-white/60" />{t('editDescription') || 'Edit Description'}
                     </button>
                     <button onClick={() => { if (confirm(t('confirmDelete') || 'Delete?')) onDelete(); setShowMenu(false); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-red-400 hover:bg-white/10">

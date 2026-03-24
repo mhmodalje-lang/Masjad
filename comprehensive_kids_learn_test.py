@@ -34,7 +34,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://quran-114-surahs.preview.emergentagent.com"
+BACKEND_URL = "https://hadith-cards.preview.emergentagent.com"
 
 # Test languages - all 9 as requested
 ALL_LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]

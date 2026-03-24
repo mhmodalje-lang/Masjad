@@ -449,3 +449,96 @@ async def get_curriculum_progress(user_id: str = "guest"):
     return {"success": True, "progress": prog}
 
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# DIGITAL SHIELD — AI Awareness, Privacy for Girls, Modern Ethics
+# ═══════════════════════════════════════════════════════════════
+
+_DIGITAL_SHIELD_CACHE = None
+
+def _load_digital_shield():
+    global _DIGITAL_SHIELD_CACHE
+    if _DIGITAL_SHIELD_CACHE is None:
+        import os
+        data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'daily_lessons.json')
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                _DIGITAL_SHIELD_CACHE = json_module.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load digital shield lessons: {e}")
+            _DIGITAL_SHIELD_CACHE = []
+    return _DIGITAL_SHIELD_CACHE
+
+
+@router.get("/kids-learn/digital-shield")
+async def get_digital_shield_lessons(locale: str = "en", theme: str = "all"):
+    """Get all Digital Shield lessons (30 lessons on AI awareness, privacy, ethics)."""
+    lessons = _load_digital_shield()
+    result = []
+    for lesson in lessons:
+        lang = locale if locale in lesson.get("title", {}) else "en"
+        item = {
+            "id": lesson["id"],
+            "theme": lesson.get("theme", "general"),
+            "icon": lesson.get("icon", "shield"),
+            "title": lesson["title"].get(lang, lesson["title"].get("en", "")),
+            "content": lesson["content"].get(lang, lesson["content"].get("en", "")),
+            "key_lesson": lesson["key_lesson"].get(lang, lesson["key_lesson"].get("en", "")),
+        }
+        if theme == "all" or item["theme"] == theme:
+            result.append(item)
+    return {"success": True, "lessons": result, "total": len(result)}
+
+
+@router.get("/kids-learn/digital-shield/today")
+async def get_today_digital_shield(locale: str = "en"):
+    """Get today's Digital Shield lesson (rotates daily)."""
+    from datetime import datetime
+    lessons = _load_digital_shield()
+    if not lessons:
+        return {"success": False, "error": "No lessons available"}
+    day_of_year = datetime.now().timetuple().tm_yday
+    idx = (day_of_year - 1) % len(lessons)
+    lesson = lessons[idx]
+    lang = locale if locale in lesson.get("title", {}) else "en"
+    return {
+        "success": True,
+        "lesson": {
+            "id": lesson["id"],
+            "theme": lesson.get("theme", "general"),
+            "icon": lesson.get("icon", "shield"),
+            "title": lesson["title"].get(lang, lesson["title"].get("en", "")),
+            "content": lesson["content"].get(lang, lesson["content"].get("en", "")),
+            "key_lesson": lesson["key_lesson"].get(lang, lesson["key_lesson"].get("en", "")),
+        },
+        "lesson_number": idx + 1,
+        "total_lessons": len(lessons),
+    }
+
+
+@router.get("/kids-learn/digital-shield/themes")
+async def get_digital_shield_themes(locale: str = "en"):
+    """Get list of Digital Shield themes with lesson counts."""
+    lessons = _load_digital_shield()
+    theme_map = {}
+    for lesson in lessons:
+        t = lesson.get("theme", "general")
+        if t not in theme_map:
+            theme_map[t] = 0
+        theme_map[t] += 1
+    
+    theme_icons = {
+        "deepfakes": "shield-alert",
+        "privacy": "lock",
+        "social_media": "heart-off",
+        "misinformation": "search",
+        "ethics": "scale",
+        "safety": "shield-check",
+    }
+    
+    themes = [
+        {"id": t, "count": c, "icon": theme_icons.get(t, "shield")}
+        for t, c in theme_map.items()
+    ]
+    return {"success": True, "themes": themes}

@@ -4,7 +4,7 @@
  */
 import i18n from '@/lib/i18nConfig';
 import { isRTL, getDir, SUPPORTED_LANGUAGES, RTL_LANGUAGES, SUPPORTED_LANGUAGE_CODES } from '@/lib/i18nConfig';
-import arTranslations from '@/locales/ar.json';
+import enTranslations from '@/locales/en.json';
 
 // Re-export for backward compatibility
 export { isRTL as isRTLLanguage, getDir as getDirection };
@@ -43,8 +43,8 @@ export function detectDeviceLanguage(): string {
     }
   } catch {}
 
-  // Default to Arabic for Islamic app
-  return 'ar';
+  // Default to English for international users
+  return 'en';
 }
 
 /**
@@ -63,8 +63,8 @@ export async function loadTranslations(lang: string): Promise<Record<string, str
     return bundle as Record<string, string>;
   }
   
-  // Fallback to Arabic
-  return arTranslations as Record<string, string>;
+  // Fallback to English
+  return enTranslations as Record<string, string>;
 }
 
 /**
@@ -83,12 +83,12 @@ export function getSupportedLanguages() {
  * Get a single translation key (synchronous - uses i18next)
  */
 export function getTranslation(key: string, lang: string): string {
-  return i18n.getFixedT(lang)(key) || (arTranslations as Record<string, string>)[key] || key;
+  return i18n.getFixedT(lang)(key) || (enTranslations as Record<string, string>)[key] || key;
 }
 
 /**
  * Get all Arabic source strings
  */
 export function getArabicStrings(): Record<string, string> {
-  return arTranslations as Record<string, string>;
+  return enTranslations as Record<string, string>;
 }

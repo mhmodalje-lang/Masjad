@@ -12,7 +12,7 @@ import re
 from typing import Dict, Any, List
 
 # Base URL from review request
-BASE_URL = "https://quran-114-surahs.preview.emergentagent.com"
+BASE_URL = "https://hadith-cards.preview.emergentagent.com"
 
 # All 9 languages to test
 LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]

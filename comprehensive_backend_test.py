@@ -10,7 +10,7 @@ import time
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://quran-114-surahs.preview.emergentagent.com"
+BACKEND_URL = "https://hadith-cards.preview.emergentagent.com"
 
 class ComprehensiveAPITester:
     def __init__(self):

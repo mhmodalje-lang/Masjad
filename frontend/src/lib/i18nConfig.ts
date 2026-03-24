@@ -91,7 +91,7 @@ i18n
       el: { translation: elTranslations },
       'de-AT': { translation: deATTranslations },
     },
-    fallbackLng: 'ar',
+    fallbackLng: 'en',
     supportedLngs: SUPPORTED_LANGUAGE_CODES,
     interpolation: {
       escapeValue: false, // React already escapes
@@ -108,7 +108,7 @@ i18n
         // Check for Austrian German specifically
         if (full === 'de-at' || full.startsWith('de-at')) return 'de-AT';
         const code = full.split('-')[0];
-        return SUPPORTED_LANGUAGE_CODES.includes(code) ? code : 'ar';
+        return SUPPORTED_LANGUAGE_CODES.includes(code) ? code : 'en';
       },
     },
     react: {

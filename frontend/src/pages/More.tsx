@@ -85,7 +85,7 @@ export default function More() {
               {user.avatar ? (
                 <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
               ) : (
-                <span className="text-xl font-bold text-primary">{user.name?.[0] || user.email?.[0] || '؟'}</span>
+                <span className="text-xl font-bold text-primary">{user.name?.[0] || user.email?.[0] || '?'}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">

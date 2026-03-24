@@ -544,12 +544,12 @@ export default function SurahView() {
       const updated = savedBookmarks.filter(n => n !== surahNum);
       localStorage.setItem('quran_bookmarks', JSON.stringify(updated));
       setBookmarked(false);
-      toast.success(t('surahRemovedFromFav') || 'تم إزالة السورة من المفضلة');
+      toast.success(t('surahRemovedFromFav') || 'Surah removed from favorites');
     } else {
       const updated = [...savedBookmarks, surahNum];
       localStorage.setItem('quran_bookmarks', JSON.stringify(updated));
       setBookmarked(true);
-      toast.success(t('surahAddedToFav') || 'تم حفظ السورة في المفضلة ❤️');
+      toast.success(t('surahAddedToFav') || 'Surah added to favorites ❤️');
     }
   };
 

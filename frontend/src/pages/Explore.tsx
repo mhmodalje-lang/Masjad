@@ -174,7 +174,7 @@ function StoryDetailView({ storyId, onBack }: { storyId: string; onBack: () => v
       <div className="px-5 py-5">
         <div className="flex items-center gap-3 mb-4">
           <div className={cn('h-10 w-10 rounded-full flex items-center justify-center text-sm text-white font-bold', avatarColors[ci])}>
-            {story.author_name?.[0] || '؟'}
+            {story.author_name?.[0] || '?'}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">{story.author_name}</p>
@@ -233,7 +233,7 @@ function HorizontalStoryCard({ story, rank, onOpen, onLike }: { story: Story; ra
       <div className="flex-1 min-w-0 py-0.5">
         <p className="text-xs font-bold text-foreground line-clamp-2 mb-1">{story.title || story.content}</p>
         <div className="flex items-center gap-2 mb-1.5">
-          <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[7px] text-white font-bold shrink-0', avatarColors[ci])}>{story.author_name?.[0] || '؟'}</div>
+          <div className={cn('h-4 w-4 rounded-full flex items-center justify-center text-[7px] text-white font-bold shrink-0', avatarColors[ci])}>{story.author_name?.[0] || '?'}</div>
           <span className="text-[10px] text-muted-foreground truncate">{story.author_name}</span>
           <span className="text-[9px] text-muted-foreground">{timeAgo(story.created_at)}</span>
         </div>

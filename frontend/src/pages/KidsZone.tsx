@@ -14,13 +14,14 @@ const API = import.meta.env.REACT_APP_BACKEND_URL || '';
 interface CurrStage { id:string; emoji:string; color:string; title:string; description:string; day_start:number; day_end:number; total_lessons:number; }
 interface LessonSection { type:string; emoji:string; title:string; content:any; }
 interface Lesson { day:number; stage:any; lesson_number_in_stage:number; total_in_stage:number; sections:LessonSection[]; title:any; total_sections:number; xp_reward:number; }
-type MainTab = 'curriculum' | 'lesson' | 'quran' | 'islam' | 'library';
+type MainTab = 'curriculum' | 'lesson' | 'quran' | 'islam' | 'library' | 'shield';
 type IslamSub = 'duas' | 'hadiths' | 'prophets' | 'pillars' | 'wudu' | 'salah';
 
 /* ═══════ TAB CONFIG ═══════ */
 const TABS: {id:MainTab;emoji:string;key:string}[] = [
   {id:'quran',emoji:'📖',key:'quran'},
   {id:'islam',emoji:'🕌',key:'islam'},
+  {id:'shield',emoji:'🛡️',key:'digitalShield'},
   {id:'curriculum',emoji:'🎓',key:'curriculum'},
   {id:'lesson',emoji:'📅',key:'todaysLesson'},
   {id:'library',emoji:'📚',key:'learningLibrary'},
@@ -159,6 +160,11 @@ export default function KidsZone() {
   // Achievements
   const [badges, setBadges] = useState<any[]>([]);
 
+  // Digital Shield state
+  const [shieldLessons, setShieldLessons] = useState<any[]>([]);
+  const [shieldFilter, setShieldFilter] = useState('all');
+  const [expandedLesson, setExpandedLesson] = useState<string|null>(null);
+
   useEffect(() => { localStorage.setItem('kids_user_id', userId); }, [userId]);
 
   // ═══ PARENTAL CONSENT CHECK ═══
@@ -221,7 +227,8 @@ export default function KidsZone() {
     if (mainTab === 'quran') loadSurahs();
     if (mainTab === 'islam') loadIslamContent();
     if (mainTab === 'library') loadLibrary();
-  }, [mainTab, locale]);
+    if (mainTab === 'shield') loadShieldLessons();
+  }, [mainTab, locale, shieldFilter]);
 
   // ═══ LOADERS ═══
   const setLoad = (key:string,v:boolean) => setLoading(p=>({...p,[key]:v}));
@@ -275,6 +282,16 @@ export default function KidsZone() {
   };
   const loadBadges = async () => {
     try{const r=await fetch(`${API}/api/kids-learn/achievements?user_id=${userId}`);const d=await r.json();if(d.success)setBadges(d.badges);}catch{}
+  };
+
+  const loadShieldLessons = async () => {
+    setLoad('shield', true);
+    try {
+      const r = await fetch(`${API}/api/kids-learn/digital-shield?locale=${lang}&theme=${shieldFilter}`);
+      const d = await r.json();
+      if (d.success) setShieldLessons(d.lessons);
+    } catch { toast.error(t('genericError')); }
+    setLoad('shield', false);
   };
 
   const markDone = (idx:number) => setCompletedSections(p => new Set([...p, idx]));
@@ -654,7 +671,7 @@ export default function KidsZone() {
           />
           {a.tafsir_kids && (
             <div className="mx-4 mb-3 p-3 rounded-xl bg-amber-500/10 border border-amber-400/20">
-              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 mb-1">💡 {t('kidsTafsirLabel') || 'تفسير مبسّط للأطفال'}</p>
+              <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 mb-1">💡 {t('kidsTafsirLabel') || 'Simplified Tafsir for Kids'}</p>
               <p className="text-xs text-foreground/70 leading-relaxed">{a.tafsir_kids}</p>
             </div>
           )}
@@ -822,6 +839,131 @@ export default function KidsZone() {
     </div>);
   };
 
+  // ═══════ RENDER: DIGITAL SHIELD ═══════
+  const SHIELD_THEME_COLORS: Record<string,string> = {
+    deepfakes: 'from-red-500/15 to-orange-500/10 border-red-400/30',
+    privacy: 'from-blue-500/15 to-indigo-500/10 border-blue-400/30',
+    social_media: 'from-pink-500/15 to-rose-500/10 border-pink-400/30',
+    misinformation: 'from-amber-500/15 to-yellow-500/10 border-amber-400/30',
+    ethics: 'from-emerald-500/15 to-teal-500/10 border-emerald-400/30',
+    safety: 'from-violet-500/15 to-purple-500/10 border-violet-400/30',
+  };
+  const SHIELD_THEME_EMOJI: Record<string,string> = {
+    deepfakes: '🎭', privacy: '🔒', social_media: '📱',
+    misinformation: '📰', ethics: '⚖️', safety: '🛡️',
+  };
+  const SHIELD_THEME_TEXT_COLORS: Record<string,string> = {
+    deepfakes: 'text-red-600 dark:text-red-400',
+    privacy: 'text-blue-600 dark:text-blue-400',
+    social_media: 'text-pink-600 dark:text-pink-400',
+    misinformation: 'text-amber-600 dark:text-amber-400',
+    ethics: 'text-emerald-600 dark:text-emerald-400',
+    safety: 'text-violet-600 dark:text-violet-400',
+  };
+
+  const renderShield = () => {
+    if (loading.shield) return <LoadingSpinner />;
+
+    const themes = ['all', 'deepfakes', 'privacy', 'social_media', 'misinformation', 'ethics', 'safety'];
+
+    return (
+      <div className="space-y-4 pb-8">
+        {/* Header Card */}
+        <div className="text-center p-5 rounded-2xl bg-gradient-to-br from-violet-500/15 to-indigo-500/10 border border-violet-400/30">
+          <span className="text-5xl">🛡️</span>
+          <h2 className="text-xl font-bold mt-2 bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-transparent">{t('digitalShield')}</h2>
+          <p className="text-sm text-foreground/60 mt-1">{t('digitalShieldDesc')}</p>
+          <div className="mt-2 text-xs text-foreground/40">
+            {t('lessonOf').replace('{current}', String(shieldLessons.length)).replace('{total}', '30')} {t('allLessons').toLowerCase()}
+          </div>
+        </div>
+
+        {/* Theme Filter Pills */}
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+          {themes.map(th => (
+            <button
+              key={th}
+              onClick={() => { setShieldFilter(th); }}
+              className={cn(
+                "flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap border transition-all shrink-0",
+                shieldFilter === th
+                  ? "bg-violet-500/20 border-violet-400/40 text-violet-600 dark:text-violet-300 shadow-sm"
+                  : "bg-white/5 border-border/30 text-muted-foreground hover:bg-muted/20"
+              )}
+            >
+              <span>{th === 'all' ? '✨' : SHIELD_THEME_EMOJI[th] || '🛡️'}</span>
+              {th === 'all' ? t('allLessons') : t(th)}
+            </button>
+          ))}
+        </div>
+
+        {/* Lesson Cards */}
+        <div className="space-y-3">
+          {shieldLessons.map((lesson, idx) => {
+            const isOpen = expandedLesson === lesson.id;
+            const thColor = SHIELD_THEME_COLORS[lesson.theme] || SHIELD_THEME_COLORS.safety;
+            const thEmoji = SHIELD_THEME_EMOJI[lesson.theme] || '🛡️';
+            const thTextColor = SHIELD_THEME_TEXT_COLORS[lesson.theme] || 'text-violet-600 dark:text-violet-400';
+
+            return (
+              <button
+                key={lesson.id}
+                onClick={() => setExpandedLesson(isOpen ? null : lesson.id)}
+                className={cn(
+                  "w-full rounded-2xl border p-4 text-start transition-all duration-300",
+                  `bg-gradient-to-br ${thColor}`,
+                  isOpen && "ring-2 ring-violet-400/30 shadow-lg"
+                )}
+              >
+                {/* Card Header */}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/10 dark:bg-white/5 flex items-center justify-center text-xl shrink-0 border border-white/10">
+                    {thEmoji}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className={cn("text-[10px] font-bold uppercase tracking-wider", thTextColor)}>
+                        {t(lesson.theme)}
+                      </span>
+                      <span className="text-[10px] text-foreground/30">#{idx + 1}</span>
+                    </div>
+                    <h3 className="font-bold text-base text-foreground leading-snug">{lesson.title}</h3>
+                  </div>
+                  <ChevronDown className={cn("h-5 w-5 text-foreground/40 transition-transform shrink-0", isOpen && "rotate-180")} />
+                </div>
+
+                {/* Expanded Content */}
+                {isOpen && (
+                  <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    {/* Story / Advice */}
+                    <div className="p-3 rounded-xl bg-white/5 dark:bg-black/10 border border-white/10">
+                      <p className="text-sm leading-relaxed text-foreground/80">{lesson.content}</p>
+                    </div>
+                    {/* Key Moral (العبرة) */}
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Star className="h-4 w-4 text-amber-500" />
+                        <span className="text-xs font-bold text-amber-600 dark:text-amber-300">{t('keyMoral')}</span>
+                      </div>
+                      <p className="text-sm font-semibold text-amber-700 dark:text-amber-200">{lesson.key_lesson}</p>
+                    </div>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {shieldLessons.length === 0 && !loading.shield && (
+          <div className="text-center py-12 text-foreground/40">
+            <span className="text-4xl">🛡️</span>
+            <p className="mt-2 text-sm">{t('noResults')}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // ═══════ MAIN RENDER ═══════
   return(<div dir={dir} className="min-h-screen bg-background pb-24">
     <Confetti on={confetti}/>
@@ -909,6 +1051,7 @@ export default function KidsZone() {
       {mainTab==='quran' && renderQuran()}
       {mainTab==='islam' && renderIslam()}
       {mainTab==='library' && renderLibrary()}
+      {mainTab==='shield' && renderShield()}
     </div>
   </div>);
 }
