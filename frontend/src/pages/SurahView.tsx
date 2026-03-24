@@ -219,6 +219,7 @@ function AyahCard({
   playing,
   onPlay,
   t,
+  showArabic,
 }: {
   ayah: Ayah;
   surahId: string;
@@ -227,6 +228,7 @@ function AyahCard({
   playing: number | null;
   onPlay: (ayah: Ayah) => void;
   t: (k: string) => string;
+  showArabic: boolean;
 }) {
   const [showTafsir, setShowTafsir] = useState(false);
   const [tafsir, setTafsir] = useState<TafsirData | null>(null);
@@ -324,10 +326,12 @@ function AyahCard({
         </Button>
       </div>
 
-      {/* Ayah Arabic text */}
-      <p className="text-right text-2xl leading-[2.5] font-arabic text-foreground" dir="rtl">
-        {ayah.text}
-      </p>
+      {/* Ayah Arabic text — hidden by default for non-Arabic users */}
+      {showArabic && (
+        <p className="text-right text-2xl leading-[2.5] font-arabic text-foreground" dir="rtl">
+          {ayah.text}
+        </p>
+      )}
 
       {/* Translation */}
       {ayah.translation && (
@@ -445,6 +449,10 @@ export default function SurahView() {
   const [playing, setPlaying] = useState<number | null>(null);
   const [audio] = useState(new Audio());
   const [bookmarked, setBookmarked] = useState(false);
+  
+  // V2026: Arabic text visibility — OFF by default for foreign languages
+  const isArabicLocale = locale === 'ar';
+  const [showArabic, setShowArabic] = useState(isArabicLocale);
 
   useEffect(() => {
     const fetchAyahs = async () => {
@@ -595,8 +603,25 @@ export default function SurahView() {
         <div className="absolute -bottom-6 left-0 right-0 h-12 rounded-t-[2rem] bg-background" />
       </div>
 
-      {/* Bismillah */}
-      {id !== '1' && id !== '9' && (
+      {/* Show Arabic Toggle — for non-Arabic users */}
+      {!isArabicLocale && (
+        <div className="px-5 pt-2 pb-1 flex justify-center">
+          <button
+            onClick={() => setShowArabic(!showArabic)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${
+              showArabic 
+                ? 'bg-primary/20 text-primary border border-primary/30' 
+                : 'bg-muted/50 text-muted-foreground border border-border/30 hover:bg-muted'
+            }`}
+          >
+            <span className="font-arabic text-sm">ع</span>
+            <span>{showArabic ? (t('hideArabic') || 'Hide Arabic') : (t('showArabic') || 'Show Original Arabic')}</span>
+          </button>
+        </div>
+      )}
+
+      {/* Bismillah — show only when Arabic text is visible */}
+      {showArabic && id !== '1' && id !== '9' && (
         <div className="text-center py-6">
           <p className="text-2xl font-arabic text-foreground">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</p>
         </div>
@@ -617,6 +642,7 @@ export default function SurahView() {
               playing={playing}
               onPlay={playAyah}
               t={t}
+              showArabic={showArabic}
             />
           ))
         )}

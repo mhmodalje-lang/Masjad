@@ -2357,5 +2357,10 @@
   "tafsirTranslationPending": "",
   "tafsirTranslationPendingDesc": "",
   "hadithTranslationPending": "",
-  "verseLoadError": "Vers konnte nicht geladen werden"
+  "verseLoadError": "Vers konnte nicht geladen werden",
+  "showArabic": "Arabisches Original anzeigen",
+  "hideArabic": "Arabisch ausblenden",
+  "arabicTafsirNote": "Dies ist die arabische Gelehrtenerklärung (التفسير الميسر) — kein muttersprachlicher Tafsir für diese Sprache verfügbar",
+  "sahihBukhari": "Sahih Al-Bukhari",
+  "newHadith": "Neuer Hadith"
 }

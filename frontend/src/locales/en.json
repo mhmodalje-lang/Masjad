@@ -2394,5 +2394,10 @@
   "sourceIbnMajahBayhaqi": "Ibn Majah & Al-Bayhaqi",
   "translationPending": "Official translation pending",
   "kidsTafsirLabel": "Simplified Explanation for Kids",
-  "verseLoadError": "Unable to load verse"
+  "verseLoadError": "Unable to load verse",
+  "showArabic": "Show Original Arabic",
+  "hideArabic": "Hide Arabic",
+  "arabicTafsirNote": "This is the Arabic scholarly explanation (التفسير الميسر) — no native tafsir available for this language",
+  "sahihBukhari": "Sahih Al-Bukhari",
+  "newHadith": "New Hadith"
 }

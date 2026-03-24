@@ -2394,5 +2394,10 @@
   "sourceIbnMajahBayhaqi": "ابن ماجه والبيهقي",
   "translationPending": "الترجمة الرسمية قيد الإعداد",
   "kidsTafsirLabel": "تفسير مبسّط للأطفال",
-  "verseLoadError": "تعذر تحميل الآية"
+  "verseLoadError": "تعذر تحميل الآية",
+  "showArabic": "عرض النص العربي",
+  "hideArabic": "إخفاء النص العربي",
+  "arabicTafsirNote": "هذا التفسير الميسر من مجمع الملك فهد لطباعة المصحف الشريف",
+  "sahihBukhari": "صحيح البخاري",
+  "newHadith": "حديث آخر"
 }

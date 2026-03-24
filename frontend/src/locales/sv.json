@@ -336,7 +336,7 @@
   "dailyDuas": "Dagliga böner",
   "dailyGoalsSection": "Dagliga mål",
   "dailyGoalsTitle": "Dagliga mål",
-  "dailyHadith": "Dagens hadith",
+  "dailyHadith": "Dagens Hadith",
   "dailyLimit": "Daglig gräns",
   "dailyLogin": "Daglig inloggning",
   "dailyLoginDesc": "Logga in dagligen och tjäna belöning",
@@ -2394,5 +2394,10 @@
   "sourceIbnMajahBayhaqi": "Ibn Majah & Al-Bayhaqi",
   "translationPending": "Officiell översättning pågår",
   "kidsTafsirLabel": "Förenklad förklaring för barn",
-  "verseLoadError": "Kunde inte ladda vers"
+  "verseLoadError": "Kunde inte ladda vers",
+  "showArabic": "Visa arabiskt original",
+  "hideArabic": "Dölj arabiska",
+  "arabicTafsirNote": "Detta är den arabiska vetenskapliga förklaringen (التفسير الميسر) — ingen inhemsk tafsir tillgänglig för detta språk",
+  "sahihBukhari": "Sahih Al-Bukhari",
+  "newHadith": "Ny Hadith"
 }

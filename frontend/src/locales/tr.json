@@ -1561,7 +1561,7 @@
   "ruqyahShariah": "Rukye-i Şer'iyye",
   "ruqyahSubtitle": "Kur'an ve Sünnetten İslami şifa",
   "ruqyahTitle": "🛡️ Rukye Tedavisi",
-  "sahihMuslim": "Sahih Müslim",
+  "sahihMuslim": "Sahih-i Müslim",
   "sahoor": "Sahur",
   "sampleQ1": "Teravih namazının hükmü nedir?",
   "sampleQ2": "Mal zekatı nasıl hesaplanır?",
@@ -2394,5 +2394,10 @@
   "sourceIbnMajahBayhaqi": "İbn Mâce & Beyhakî",
   "translationPending": "Resmi çeviri hazırlanıyor",
   "kidsTafsirLabel": "Çocuklar için basitleştirilmiş açıklama",
-  "verseLoadError": "Ayet yüklenemedi"
+  "verseLoadError": "Ayet yüklenemedi",
+  "showArabic": "Arapça orijinali göster",
+  "hideArabic": "Arapçayı gizle",
+  "arabicTafsirNote": "Bu, Arapça ilmi açıklama (التفسير الميسر) — bu dil için yerli tefsir mevcut değil",
+  "sahihBukhari": "Sahih-i Buhari",
+  "newHadith": "Yeni Hadis"
 }
