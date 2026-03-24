@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import './lib/i18nConfig';
 import App from "./App.tsx";
 import "./index.css";
+import { Capacitor } from '@capacitor/core';
 
 // Initialize theme before render to prevent flash
 const savedTheme = localStorage.getItem('almuadhin_theme');
@@ -15,7 +16,6 @@ else document.documentElement.classList.remove('dark');
 // Add platform classes to body for CSS targeting
 function detectPlatform() {
   try {
-    const { Capacitor } = require('@capacitor/core');
     const platform = Capacitor.getPlatform();
     const isNative = Capacitor.isNativePlatform();
 
@@ -36,17 +36,8 @@ function detectPlatform() {
 detectPlatform();
 
 // ═══ Register Service Worker (Web only) ═══
-function isNativePlatform(): boolean {
-  try {
-    const { Capacitor } = require('@capacitor/core');
-    return Capacitor.isNativePlatform();
-  } catch {
-    return false;
-  }
-}
-
 // Only register service worker on web (not in native app)
-if ('serviceWorker' in navigator && !isNativePlatform()) {
+if ('serviceWorker' in navigator && !Capacitor.isNativePlatform()) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw-custom.js', { scope: '/' })
       .then(reg => {

@@ -23,9 +23,11 @@ export default function InstallBanner() {
   useEffect(() => {
     // Hide in native app mode (Capacitor) - not needed
     try {
-      const { Capacitor } = require('@capacitor/core');
-      if (Capacitor.isNativePlatform()) return;
-    } catch {}
+      if (typeof window !== 'undefined' && (window as Record<string, unknown>).Capacitor) {
+        const cap = (window as Record<string, unknown>).Capacitor as { isNativePlatform?: () => boolean };
+        if (cap.isNativePlatform?.()) return;
+      }
+    } catch { /* ignore */ }
     if (isInStandaloneMode()) return;
     if (localStorage.getItem(DISMISSED_KEY)) return;
 

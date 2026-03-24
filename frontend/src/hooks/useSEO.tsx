@@ -70,7 +70,7 @@ export function useSEO() {
     const twDesc = document.querySelector('meta[name="twitter:description"]');
     if (twDesc) twDesc.setAttribute('content', seo.description);
 
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    const canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
     if (canonical) {
       canonical.href = location.pathname;
     }

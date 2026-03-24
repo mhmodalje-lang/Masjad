@@ -15,7 +15,7 @@ import {
   Home, Calculator, Clock, ChevronDown, X,
   Info, Mail, Phone, Award, Sparkles, TrendingUp,
 } from 'lucide-react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 type LucideIconAlias = typeof Settings;
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';

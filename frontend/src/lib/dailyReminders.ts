@@ -80,7 +80,7 @@ export function scheduleDailyReminders(): () => void {
     const target = new Date(now);
     target.setHours(reminder.hour, reminder.minute, 0, 0);
 
-    let diff = target.getTime() - currentMs;
+    const diff = target.getTime() - currentMs;
     // If time already passed today, skip (will schedule tomorrow on next app open)
     if (diff <= 0) continue;
 
