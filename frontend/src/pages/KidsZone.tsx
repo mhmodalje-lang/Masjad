@@ -130,11 +130,11 @@ export default function KidsZone() {
     } else {
       setTimeout(() => {
         if (currentLetterIdx < alphabet.length - 1) {
-          toast.success(`✨ ${t('letterComplete') || 'Letter complete!'} +${xp} XP`);
+          toast.success(`✨ ${t('letterComplete')} ${t('earnedPoints').replace('{xp}', String(xp))}`);
           setCurrentLetterIdx(prev => prev + 1);
           loadLetterGames(currentLetterIdx + 1);
         } else {
-          toast.success(t('allLettersComplete') || 'All letters complete! 🎉');
+          toast.success(t('allLettersComplete'));
           setView('course');
         }
       }, 2500);
@@ -142,9 +142,9 @@ export default function KidsZone() {
   };
 
   const handleWatchAd = async () => {
-    toast.success(t('watchingAd') || 'Watching reward video...');
+    toast.success(t('watchingAd'));
     await new Promise(r => setTimeout(r, 2000));
-    try { const r = await fetch(`${API}/api/kids-learn/reward-ad?user_id=${userId}&coins=10`, { method: 'POST' }); const d = await r.json(); if (d.success) { toast.success(`🪙 +${d.earned} ${t('coinsEarned') || 'coins!'}`); loadProfile(); } } catch {}
+    try { const r = await fetch(`${API}/api/kids-learn/reward-ad?user_id=${userId}&coins=10`, { method: 'POST' }); const d = await r.json(); if (d.success) { toast.success(`🪙 +${d.earned} ${t('coinsEarned')}`); loadProfile(); } } catch {}
   };
 
   // ═══════ SHARED: BACK BUTTON ═══════
@@ -153,7 +153,7 @@ export default function KidsZone() {
       className="flex items-center gap-2 px-3 py-2 rounded-2xl bg-white/10 dark:bg-white/5 hover:bg-white/20 transition-all text-sm font-semibold text-foreground/70"
     >
       {isRTL ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-      {label || t('back') || 'Back'}
+      {label || t('back')}
     </button>
   );
 
@@ -166,8 +166,8 @@ export default function KidsZone() {
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-sm shadow-md border border-amber-300/20">✨</div>
             <div>
-              <h1 className="text-sm font-black text-foreground">{t('noorAcademy') || 'Noor Academy'}</h1>
-              <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Crown className="h-2.5 w-2.5 text-amber-500" />{t('level') || 'Lv.'} {profile?.level || 1}</p>
+              <h1 className="text-sm font-black text-foreground">{t('noorAcademy')}</h1>
+              <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Crown className="h-2.5 w-2.5 text-amber-500" />{t('level')} {profile?.level || 1}</p>
             </div>
           </div>
         )}
@@ -188,7 +188,7 @@ export default function KidsZone() {
         <div className="flex-1 h-2.5 rounded-full bg-muted overflow-hidden">
           <motion.div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full" animate={{ width: `${(profile?.total_xp || 0) % 100}%` }} />
         </div>
-        <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">{(profile?.total_xp || 0) % 100}/100</span>
+        <span className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">{(profile?.total_xp || 0) % 100}/100 {t('xpPoints')}</span>
       </div>
 
       {/* Today's Games — Big Hero Card */}
@@ -199,9 +199,9 @@ export default function KidsZone() {
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t('todaysGames') || "Today's Games"}</p>
-              <h2 className="text-2xl font-black mt-1">{dailyGames?.games_count || 4} {t('gamesAvailable') || 'Games'}</h2>
-              <p className="text-sm text-white/70 mt-1">🎯 {dailyGames?.total_xp || 60} XP</p>
+              <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t('todaysGames')}</p>
+              <h2 className="text-2xl font-black mt-1">{dailyGames?.games_count || 4} {t('gamesAvailable')}</h2>
+              <p className="text-sm text-white/70 mt-1">{t('targetXP').replace('{xp}', String(dailyGames?.total_xp || 60))}</p>
             </div>
             <div className="w-16 h-16 rounded-3xl bg-white/20 backdrop-blur flex items-center justify-center shadow-inner">
               <Play className="h-8 w-8 text-white fill-white" />
@@ -226,9 +226,9 @@ export default function KidsZone() {
         <div className="relative z-10 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">📖</div>
           <div className="flex-1">
-            <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t('arabicCourse') || 'Arabic & Quran Course'}</p>
-            <h3 className="text-lg font-black mt-0.5">{t('zeroToC1') || 'Zero → C1'}</h3>
-            <p className="text-xs text-white/60 mt-0.5">6 {t('levels') || 'levels'} • 216 {t('lessons') || 'lessons'}</p>
+            <p className="text-xs font-bold text-white/60 uppercase tracking-wider">{t('arabicCourse')}</p>
+            <h3 className="text-lg font-black mt-0.5">{t('zeroToC1')}</h3>
+            <p className="text-xs text-white/60 mt-0.5">6 {t('levels')} • 216 {t('lessons')}</p>
           </div>
           <ChevronRight className="h-6 w-6 text-white/50" />
         </div>
@@ -237,8 +237,8 @@ export default function KidsZone() {
       {/* Category Grid — 2x2 */}
       <div className="grid grid-cols-2 gap-3">
         {[
-          { emoji: '🛡️', label: t('digitalShield'), sub: '30 ' + (t('lessons') || 'lessons'), view: 'shield' as View, gradient: 'from-violet-500 to-purple-600' },
-          { emoji: '🏆', label: t('myProgress') || 'My Progress', sub: `${profile?.games_completed || 0} ${t('gamesPlayed') || 'played'}`, view: 'profile' as View, gradient: 'from-amber-500 to-orange-600' },
+          { emoji: '🛡️', label: t('digitalShield'), sub: '30 ' + (t('lessons')), view: 'shield' as View, gradient: 'from-violet-500 to-purple-600' },
+          { emoji: '🏆', label: t('myProgress'), sub: `${profile?.games_completed || 0} ${t('gamesPlayed')}`, view: 'profile' as View, gradient: 'from-amber-500 to-orange-600' },
         ].map(item => (
           <motion.button key={item.view} whileTap={{ scale: 0.97 }} onClick={() => setView(item.view)}
             className={`p-4 rounded-[20px] bg-gradient-to-br ${item.gradient} text-white text-start shadow-lg active:shadow-md transition-all`}
@@ -256,8 +256,8 @@ export default function KidsZone() {
       >
         <span className="text-3xl">🎬</span>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-foreground">{t('watchForCoins') || 'Watch & Earn'}</h3>
-          <p className="text-[10px] text-muted-foreground">{t('watchAdDesc') || 'Watch a video for bonus coins!'}</p>
+          <h3 className="text-sm font-bold text-foreground">{t('watchForCoins')}</h3>
+          <p className="text-[10px] text-muted-foreground">{t('watchAdDesc')}</p>
         </div>
         <div className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-black">+10 🪙</div>
       </motion.button>
@@ -265,9 +265,9 @@ export default function KidsZone() {
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { icon: <Zap className="h-5 w-5 text-emerald-500" />, val: profile?.total_xp || 0, label: 'XP' },
-          { icon: <Flame className="h-5 w-5 text-orange-500" />, val: profile?.streak_days || 0, label: t('streak') || 'Streak' },
-          { icon: <Crown className="h-5 w-5 text-amber-500" />, val: profile?.level || 1, label: t('level') || 'Level' },
+          { icon: <Zap className="h-5 w-5 text-emerald-500" />, val: profile?.total_xp || 0, label: t('xpPoints') },
+          { icon: <Flame className="h-5 w-5 text-orange-500" />, val: profile?.streak_days || 0, label: t('streak') },
+          { icon: <Crown className="h-5 w-5 text-amber-500" />, val: profile?.level || 1, label: t('level') },
         ].map((s, i) => (
           <div key={i} className="p-3 rounded-2xl bg-card border border-border text-center">
             <div className="flex justify-center">{s.icon}</div>
@@ -285,10 +285,10 @@ export default function KidsZone() {
     if (showReward) return (
       <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center h-[70vh] px-8 text-center max-w-lg mx-auto">
         <motion.div animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="text-7xl mb-6">🏆</motion.div>
-        <h2 className="text-2xl font-black">{t('allGamesComplete') || 'All Games Complete!'}</h2>
-        <p className="text-lg text-muted-foreground mt-2">+{earnedXP} XP</p>
+        <h2 className="text-2xl font-black">{t('allGamesComplete')}</h2>
+        <p className="text-lg text-muted-foreground mt-2">{t('earnedTotal').replace('{xp}', String(earnedXP))}</p>
         <div className="flex gap-3 mt-8">
-          <button onClick={() => { setView('home'); setShowReward(false); }} className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg">{t('backToHome') || 'Home'}</button>
+          <button onClick={() => { setView('home'); setShowReward(false); }} className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground font-bold shadow-lg">{t('backToHome')}</button>
           <button onClick={handleWatchAd} className="px-6 py-3 rounded-2xl bg-amber-500 text-white font-bold shadow-lg">🎬 +10🪙</button>
         </div>
       </motion.div>
@@ -298,8 +298,8 @@ export default function KidsZone() {
       <div className="pb-8 max-w-lg mx-auto">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-muted-foreground">{t('game') || 'Game'} {currentGameIdx + 1}/{dailyGames.games.length}</span>
-            <span className="text-xs font-bold text-emerald-500">+{earnedXP} XP</span>
+            <span className="text-xs font-bold text-muted-foreground">{t('gameOf').replace('{c}', String(currentGameIdx + 1)).replace('{t}', String(dailyGames.games.length))}</span>
+            <span className="text-xs font-bold text-emerald-500">{t('earnedPoints').replace('{xp}', String(earnedXP))}</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden"><motion.div className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full" animate={{ width: `${(currentGameIdx / dailyGames.games.length) * 100}%` }} /></div>
         </div>
@@ -319,8 +319,8 @@ export default function KidsZone() {
   const renderCourse = () => (
     <div className="space-y-4 px-4 pb-28 pt-4 max-w-lg mx-auto">
       <div className="text-center mb-2">
-        <h2 className="text-xl font-black">{t('arabicCourse') || 'Arabic & Quran Course'}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{t('zeroToC1') || 'From Zero to C1'} • 6 {t('levels') || 'levels'}</p>
+        <h2 className="text-xl font-black">{t('arabicCourse')}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{t('zeroToC1')} • 6 {t('levels')}</p>
       </div>
       {courseLevels.map((lv, i) => (
         <motion.button key={lv.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} whileTap={{ scale: 0.98 }}
@@ -334,7 +334,7 @@ export default function KidsZone() {
             <div className="flex-1">
               <h3 className="text-base font-black text-foreground">{lv.name}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{lv.desc}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{lv.units_count} {t('units') || 'units'} • {lv.total_lessons} {t('lessons') || 'lessons'}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{lv.units_count} {t('units')} • {lv.total_lessons} {t('lessons')}</p>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -360,7 +360,7 @@ export default function KidsZone() {
               if (unit.type === 'alphabet') {
                 setCurrentLetterIdx(0); loadLetterGames(0); setView('letter_lesson');
               } else {
-                toast.info(t('comingSoon') || 'Coming soon! 🚀');
+                toast.info(t('comingSoon'));
               }
             }}
             className="w-full p-4 rounded-[20px] bg-card border border-border flex items-center gap-4 text-start shadow-sm hover:shadow-md transition-all"
@@ -368,10 +368,10 @@ export default function KidsZone() {
             <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-xl">{TYPE_ICONS[unit.type] || '📚'}</div>
             <div className="flex-1">
               <h3 className="text-sm font-bold text-foreground">{unit.title}</h3>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{unit.lessons} {t('lessons') || 'lessons'}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{unit.lessons} {t('lessons')}</p>
             </div>
             {unit.type === 'alphabet' ? (
-              <div className="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold">{t('start') || 'Start'}</div>
+              <div className="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-bold">{t('start')}</div>
             ) : (
               <Lock className="h-4 w-4 text-muted-foreground/30" />
             )}
@@ -392,12 +392,12 @@ export default function KidsZone() {
         <div className="space-y-5 px-4 pb-28 pt-4 max-w-lg mx-auto">
           {/* Letter display */}
           <div className="text-center p-8 rounded-[28px] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200/30 dark:border-blue-800/30">
-            <p className="text-xs font-bold text-muted-foreground mb-2">{t('letter') || 'Letter'} {currentLetterIdx + 1}/28</p>
+            <p className="text-xs font-bold text-muted-foreground mb-2">{t('letterOf').replace('{c}', String(currentLetterIdx + 1)).replace('{t}', '28')}</p>
             <motion.div key={lt.letter} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-8xl font-black text-blue-600 dark:text-blue-400 mb-3" style={{ fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" }}>
               {lt.letter}
             </motion.div>
             <p className="text-xl font-bold text-foreground">{lt.name}</p>
-            <p className="text-sm text-muted-foreground">{t('sound') || 'Sound'}: <span className="font-bold text-foreground">{lt.sound}</span></p>
+            <p className="text-sm text-muted-foreground">{t('sound')}: <span className="font-bold text-foreground">{lt.sound}</span></p>
           </div>
 
           {/* Letter forms */}
@@ -405,7 +405,7 @@ export default function KidsZone() {
             {Object.entries(lt.forms).map(([form, char]) => (
               <div key={form} className="p-3 rounded-2xl bg-card border border-border text-center">
                 <p className="text-3xl mb-1" style={{ fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" }}>{char as string}</p>
-                <p className="text-[10px] text-muted-foreground capitalize">{form === 'isolated' ? (t('isolated') || 'Isolated') : form === 'initial' ? (t('initial') || 'Initial') : form === 'medial' ? (t('medial') || 'Medial') : (t('final') || 'Final')}</p>
+                <p className="text-[10px] text-muted-foreground capitalize">{form === 'isolated' ? (t('isolated')) : form === 'initial' ? (t('initial')) : form === 'medial' ? (t('medial')) : (t('final'))}</p>
               </div>
             ))}
           </div>
@@ -423,19 +423,19 @@ export default function KidsZone() {
           <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowLetterInfo(false)}
             className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-base font-black shadow-lg shadow-blue-500/20"
           >
-            {t('practiceNow') || 'Practice Now'} 🎮
+            {t('practiceNow')} 🎮
           </motion.button>
 
           {/* Navigate letters */}
           <div className="flex items-center justify-between">
             <button onClick={() => { if (currentLetterIdx > 0) { setCurrentLetterIdx(currentLetterIdx - 1); loadLetterGames(currentLetterIdx - 1); } }}
               disabled={currentLetterIdx === 0} className="px-4 py-2 rounded-xl bg-muted text-sm font-bold disabled:opacity-30">
-              {isRTL ? '→' : '←'} {t('prevLesson') || 'Previous'}
+              {isRTL ? '→' : '←'} {t('prevLesson')}
             </button>
             <span className="text-xs font-bold text-muted-foreground">{currentLetterIdx + 1}/28</span>
             <button onClick={() => { if (currentLetterIdx < 27) { setCurrentLetterIdx(currentLetterIdx + 1); loadLetterGames(currentLetterIdx + 1); } }}
               disabled={currentLetterIdx === 27} className="px-4 py-2 rounded-xl bg-muted text-sm font-bold disabled:opacity-30">
-              {t('nextLesson') || 'Next'} {isRTL ? '←' : '→'}
+              {t('nextLesson')} {isRTL ? '←' : '→'}
             </button>
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function KidsZone() {
         <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <button onClick={() => setShowLetterInfo(true)} className="text-xs font-bold text-primary">{isRTL ? '→' : '←'} {lt.letter} {lt.name}</button>
-            <span className="text-xs font-bold text-emerald-500">{t('game') || 'Game'} {letterGameIdx + 1}/{letterGames.length}</span>
+            <span className="text-xs font-bold text-emerald-500">{t('gameOf').replace('{c}', String(letterGameIdx + 1)).replace('{t}', String(letterGames.length))}</span>
           </div>
           <div className="h-2 rounded-full bg-muted overflow-hidden"><motion.div className="h-full bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full" animate={{ width: `${(letterGameIdx / letterGames.length) * 100}%` }} /></div>
         </div>
@@ -513,15 +513,15 @@ export default function KidsZone() {
     <div className="space-y-4 px-4 pb-28 pt-4 max-w-lg mx-auto">
       <div className="text-center p-6 rounded-[28px] bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/10 border border-amber-200/30 dark:border-amber-800/30">
         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-4xl mx-auto shadow-xl border-2 border-amber-300/30">✨</div>
-        <h2 className="text-xl font-black mt-3">{t('noorExplorer') || 'Noor Explorer'}</h2>
-        <div className="flex items-center justify-center gap-2 mt-1"><Crown className="h-4 w-4 text-amber-500" /><span className="text-sm font-bold text-amber-600 dark:text-amber-400">{t('level') || 'Level'} {profile?.level || 1}</span></div>
+        <h2 className="text-xl font-black mt-3">{t('noorExplorer')}</h2>
+        <div className="flex items-center justify-center gap-2 mt-1"><Crown className="h-4 w-4 text-amber-500" /><span className="text-sm font-bold text-amber-600 dark:text-amber-400">{t('level')} {profile?.level || 1}</span></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {[
-          { icon: <Zap className="h-6 w-6 text-emerald-500" />, val: profile?.total_xp || 0, label: t('totalXP') || 'Total XP', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-          { icon: <Flame className="h-6 w-6 text-orange-500" />, val: profile?.streak_days || 0, label: t('dayStreak') || 'Day Streak', bg: 'bg-orange-50 dark:bg-orange-950/20' },
-          { icon: <Trophy className="h-6 w-6 text-blue-500" />, val: profile?.games_completed || 0, label: t('gamesPlayed') || 'Games', bg: 'bg-blue-50 dark:bg-blue-950/20' },
-          { icon: <Gift className="h-6 w-6 text-amber-500" />, val: profile?.coins || 0, label: t('coins') || 'Coins', bg: 'bg-amber-50 dark:bg-amber-950/20' },
+          { icon: <Zap className="h-6 w-6 text-emerald-500" />, val: profile?.total_xp || 0, label: t('totalXP'), bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+          { icon: <Flame className="h-6 w-6 text-orange-500" />, val: profile?.streak_days || 0, label: t('dayStreak'), bg: 'bg-orange-50 dark:bg-orange-950/20' },
+          { icon: <Trophy className="h-6 w-6 text-blue-500" />, val: profile?.games_completed || 0, label: t('gamesPlayed'), bg: 'bg-blue-50 dark:bg-blue-950/20' },
+          { icon: <Gift className="h-6 w-6 text-amber-500" />, val: profile?.coins || 0, label: t('coins'), bg: 'bg-amber-50 dark:bg-amber-950/20' },
         ].map((s, i) => (
           <div key={i} className={cn("p-4 rounded-2xl border border-border text-center", s.bg)}>
             <div className="flex justify-center">{s.icon}</div>
@@ -535,8 +535,8 @@ export default function KidsZone() {
       >
         <span className="text-3xl">🎬</span>
         <div className="flex-1 text-start">
-          <h3 className="text-sm font-bold">{t('watchForCoins') || 'Watch & Earn Coins'}</h3>
-          <p className="text-[10px] text-muted-foreground">{t('watchAdDesc') || 'Watch a video for bonus coins!'}</p>
+          <h3 className="text-sm font-bold">{t('watchForCoins')}</h3>
+          <p className="text-[10px] text-muted-foreground">{t('watchAdDesc')}</p>
         </div>
         <div className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-black">+10 🪙</div>
       </motion.button>
