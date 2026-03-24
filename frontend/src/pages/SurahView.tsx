@@ -347,6 +347,7 @@ function AyahCard({
       <div className="mt-4 pt-3 border-t border-border/20">
         <button
           onClick={fetchTafsir}
+          data-testid="show-explanation-button"
           className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl
             bg-gradient-to-r from-emerald-500/10 to-teal-500/10
             hover:from-emerald-500/20 hover:to-teal-500/20
@@ -608,6 +609,7 @@ export default function SurahView() {
         <div className="px-5 pt-2 pb-1 flex justify-center">
           <button
             onClick={() => setShowArabic(!showArabic)}
+            data-testid="arabic-toggle-button"
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${
               showArabic 
                 ? 'bg-primary/20 text-primary border border-primary/30' 
