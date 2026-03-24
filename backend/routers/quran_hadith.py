@@ -267,35 +267,52 @@ async def get_chapter_v4(chapter_number: int, language: str = Query("ar")):
     except Exception as e:
         raise HTTPException(500, f"Quran API error: {str(e)}")
 
-# ==================== QURANENC API (Greek Translation) ====================
+# ==================== QURANENC API (Multi-Language Translations + Tafsir Footnotes) ====================
 QURANENC_BASE = "https://quranenc.com/api/v1"
-QURANENC_GREEK_KEY = "greek_rwwad"  # Rowwad Translation Center - Official Islamic source
 
-async def fetch_greek_translations(chapter_number: int) -> dict:
-    """Fetch Greek translations from QuranEnc.com API (Rowwad Translation Center)."""
+# QuranEnc translation keys per language (for tafsir/footnotes)
+QURANENC_TAFSIR_KEYS = {
+    "el": "greek_rwwad",        # Rowwad Translation Center - Greek
+    "fr": "french_rashid",      # Rashid Maash - has DETAILED footnotes/tafsir ✅
+    "tr": "turkish_rwwad",      # Rowwad Translation Center - Turkish
+    "nl": "dutch_center",       # Rowwad Translation Center - Dutch
+}
+
+# Languages where QuranEnc has detailed scholarly FOOTNOTES (real tafsir explanation)
+QURANENC_HAS_FOOTNOTES = {"fr"}  # French Rashid Maash has detailed footnotes
+
+async def fetch_quranenc_translations(chapter_number: int, quranenc_key: str) -> dict:
+    """Fetch translations from QuranEnc.com API. Returns {ayah_num: {translation, footnotes}}"""
     try:
         async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get(f"{QURANENC_BASE}/translation/sura/{QURANENC_GREEK_KEY}/{chapter_number}")
+            r = await c.get(f"{QURANENC_BASE}/translation/sura/{quranenc_key}/{chapter_number}")
             r.raise_for_status()
             data = r.json()
             result = {}
             for v in data.get("result", []):
                 aya_num = int(v.get("aya", 0))
-                result[aya_num] = v.get("translation", "")
+                result[aya_num] = {
+                    "translation": v.get("translation", ""),
+                    "footnotes": v.get("footnotes", "") or "",
+                }
             return result
     except Exception:
         return {}
 
-async def fetch_greek_verse(chapter: int, verse: int) -> str:
-    """Fetch single Greek verse translation from QuranEnc.com API."""
+async def fetch_quranenc_verse(chapter: int, verse: int, quranenc_key: str) -> dict:
+    """Fetch single verse translation + footnotes from QuranEnc.com API."""
     try:
         async with httpx.AsyncClient(timeout=15) as c:
-            r = await c.get(f"{QURANENC_BASE}/translation/aya/{QURANENC_GREEK_KEY}/{chapter}/{verse}")
+            r = await c.get(f"{QURANENC_BASE}/translation/aya/{quranenc_key}/{chapter}/{verse}")
             r.raise_for_status()
             data = r.json()
-            return data.get("result", {}).get("translation", "")
+            result = data.get("result", {})
+            return {
+                "translation": result.get("translation", ""),
+                "footnotes": result.get("footnotes", "") or "",
+            }
     except Exception:
-        return ""
+        return {"translation": "", "footnotes": ""}
 
 
 @router.get("/quran/v4/verses/by_chapter/{chapter_number}")
@@ -333,23 +350,25 @@ async def get_verses_v4(
 
             # For Greek: inject translations from QuranEnc.com (Rowwad Center)
             if base_lang == "el" and not translations:
-                greek_trans = await fetch_greek_translations(chapter_number)
-                if greek_trans:
-                    for v in data.get("verses", []):
-                        vk = v.get("verse_key", "")
-                        if ":" in vk:
-                            aya_num = int(vk.split(":")[1])
-                            if aya_num in greek_trans:
-                                v["translations"] = [{
-                                    "id": 9999,
-                                    "resource_id": 9999,
-                                    "text": greek_trans[aya_num],
-                                    "resource_name": "Rowwad Translation Center (مركز رواد للترجمة)",
-                                }]
-                    data["greek_source"] = "QuranEnc.com - Rowwad Translation Center"
-                else:
-                    data["translation_pending"] = True
-                    data["pending_language"] = "el"
+                quranenc_key = QURANENC_TAFSIR_KEYS.get("el")
+                if quranenc_key:
+                    greek_trans = await fetch_quranenc_translations(chapter_number, quranenc_key)
+                    if greek_trans:
+                        for v in data.get("verses", []):
+                            vk = v.get("verse_key", "")
+                            if ":" in vk:
+                                aya_num = int(vk.split(":")[1])
+                                if aya_num in greek_trans:
+                                    v["translations"] = [{
+                                        "id": 9999,
+                                        "resource_id": 9999,
+                                        "text": greek_trans[aya_num]["translation"],
+                                        "resource_name": "Rowwad Translation Center (مركز رواد للترجمة)",
+                                    }]
+                        data["greek_source"] = "QuranEnc.com - Rowwad Translation Center"
+                    else:
+                        data["translation_pending"] = True
+                        data["pending_language"] = "el"
 
             return data
     except Exception as e:
