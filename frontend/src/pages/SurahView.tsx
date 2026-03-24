@@ -45,24 +45,13 @@ export default function SurahView() {
         const chInfo = await fetchChapterInfo(chapterNum, locale);
         setChapter(chInfo);
 
-        // Fetch all verses with translation for current language
-        // Load all pages (some surahs have 200+ verses)
-        let allVerses: QuranVerse[] = [];
-        let page = 1;
-        let hasMore = true;
-
-        while (hasMore) {
-          const { verses: pageVerses, pagination } = await fetchVersesByChapter(
-            chapterNum,
-            locale,
-            page,
-            50
-          );
-          allVerses = [...allVerses, ...pageVerses];
-          hasMore = pagination?.next_page ? true : false;
-          page++;
-          if (page > 20) break; // Safety limit
-        }
+        // Fetch ALL verses in a single call (max surah = 286 ayahs)
+        const { verses: allVerses } = await fetchVersesByChapter(
+          chapterNum,
+          locale,
+          1,
+          300  // covers all surahs including Al-Baqarah (286)
+        );
 
         setVerses(allVerses);
       } catch (err) {

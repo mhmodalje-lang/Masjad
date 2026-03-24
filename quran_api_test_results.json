@@ -1,93 +1,70 @@
-[
-  {
-    "test": "Verse of Day (English)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=en",
-    "expected": "Verse with Arabic text and English translation",
-    "result": "✓ Arabic text, ✓ English translation, ✓ Surah: The Ranks, ✓ Ayah: 13",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.46126461029052734,
-      "verse": {
-        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
-        "surah": "The Ranks",
-        "ayah": 13,
-        "translation": "And [you will obtain] another [favor] that you love - victory from Allāh and an imminent conquest; and give good tidings to the believers."
-      }
-    }
+{
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10
   },
-  {
-    "test": "Verse of Day (Arabic)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=ar",
-    "expected": "Arabic verse without translation",
-    "result": "✓ Arabic text, ✓ No translation, ✓ Surah: The Ranks, ✓ Ayah: 13",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.1966257095336914,
-      "verse": {
-        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
-        "surah": "The Ranks",
-        "ayah": 13
-      }
+  "results": [
+    {
+      "test": "Verse of Day (English)",
+      "status": "PASS",
+      "details": "Arabic: '\u0648\u064e\u0623\u064f\u062e\u0652\u0631\u064e\u0649\u0670 \u062a\u064f\u062d\u0650\u0628\u0651\u064f\u0648\u0646\u064e\u0647\u064e\u0627 \u06d6 \u0646\u064e\u0635\u0652\u0631\u064c \u0645\u0651\u0650\u0646\u064e \u0671\u0644\u0644\u0651\u064e\u0647\u0650 \u0648\u064e...', Translation: 'And [you will obtain] another [favor] that you lov...', Surah: The Ranks, Ayah: 13",
+      "timestamp": "2026-03-24T03:32:29.952729"
+    },
+    {
+      "test": "Verse of Day (Arabic)",
+      "status": "PASS",
+      "details": "Arabic: '\u0648\u064e\u0623\u064f\u062e\u0652\u0631\u064e\u0649\u0670 \u062a\u064f\u062d\u0650\u0628\u0651\u064f\u0648\u0646\u064e\u0647\u064e\u0627 \u06d6 \u0646\u064e\u0635\u0652\u0631\u064c \u0645\u0651\u0650\u0646\u064e \u0671\u0644\u0644\u0651\u064e\u0647\u0650 \u0648\u064e...', Surah: The Ranks, Ayah: 13",
+      "timestamp": "2026-03-24T03:32:30.684531"
+    },
+    {
+      "test": "Verse of Day (French)",
+      "status": "PASS",
+      "details": "French translation: 'et il vous accordera d\u2019autres choses encore que vo...'",
+      "timestamp": "2026-03-24T03:32:31.436114"
+    },
+    {
+      "test": "Verse of Day (German)",
+      "status": "PASS",
+      "details": "German translation: 'Und (noch) eine andere (Huld), die ihr liebt (, wi...'",
+      "timestamp": "2026-03-24T03:32:32.433879"
+    },
+    {
+      "test": "Surah Al-Fatiha (English)",
+      "status": "PASS",
+      "details": "Ayahs: 7, Sample translation: 'In the name of All\u0101h, the Entirely Merciful, the E...'",
+      "timestamp": "2026-03-24T03:32:33.139849"
+    },
+    {
+      "test": "Surah Az-Zilzal (English)",
+      "status": "PASS",
+      "details": "Ayahs: 8, Previously empty surah now has content",
+      "timestamp": "2026-03-24T03:32:33.816321"
+    },
+    {
+      "test": "Surah Al-Qariah (English)",
+      "status": "PASS",
+      "details": "Ayahs: 11, Previously empty surah now has content",
+      "timestamp": "2026-03-24T03:32:34.607870"
+    },
+    {
+      "test": "Surah Al-Fatiha (German)",
+      "status": "PASS",
+      "details": "German translation sample: 'Im Namen Allahs, des Allerbarmers, des Barmherzige...'",
+      "timestamp": "2026-03-24T03:32:35.341858"
+    },
+    {
+      "test": "Surah Al-Fatiha (Arabic Muyassar)",
+      "status": "PASS",
+      "details": "Arabic Muyassar sample: '\u0623\u0628\u062a\u062f\u0626 \u0642\u0631\u0627\u0621\u0629 \u0627\u0644\u0642\u0631\u0622\u0646 \u0628\u0627\u0633\u0645 \u0627\u0644\u0644\u0647 \u0645\u0633\u062a\u0639\u064a\u0646\u0627 \u0628\u0647\u060c (\u0627\u0644\u0644\u0647\u0650) \u0639...'",
+      "timestamp": "2026-03-24T03:32:36.020303"
+    },
+    {
+      "test": "Surahs List (English)",
+      "status": "PASS",
+      "details": "Total surahs: 15, Sample: {'id': 'fatiha', 'number': 1, 'name_ar': '\u0627\u0644\u0641\u0627\u062a\u062d\u0629', 'name_en': 'Al-Fatiha', 'difficulty': 1, 'total_ayahs': 7, 'ayahs': [{'number': 1, 'arabic': '\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u064e\u0651\u0647\u0650 \u0627\u0644\u0631\u064e\u0651\u062d\u0652\u0645\u064e\u0646\u0650 \u0627\u0644\u0631\u064e\u0651\u062d\u0650\u064a\u0645\u0650', 'translation': 'In the name of Allah, the Most Gracious, the Most Merciful'}, {'number': 2, 'arabic': '\u0627\u0644\u0652\u062d\u064e\u0645\u0652\u062f\u064f \u0644\u0650\u0644\u064e\u0651\u0647\u0650 \u0631\u064e\u0628\u0650\u0651 \u0627\u0644\u0652\u0639\u064e\u0627\u0644\u064e\u0645\u0650\u064a\u0646\u064e', 'translation': 'All praise is due to Allah, Lord of all the worlds'}, {'number': 3, 'arabic': '\u0627\u0644\u0631\u064e\u0651\u062d\u0652\u0645\u064e\u0646\u0650 \u0627\u0644\u0631\u064e\u0651\u062d\u0650\u064a\u0645\u0650', 'translation': 'The Most Gracious, the Most Merciful'}, {'number': 4, 'arabic': '\u0645\u064e\u0627\u0644\u0650\u0643\u0650 \u064a\u064e\u0648\u0652\u0645\u0650 \u0627\u0644\u062f\u0650\u0651\u064a\u0646\u0650', 'translation': 'Master of the Day of Judgment'}, {'number': 5, 'arabic': '\u0625\u0650\u064a\u064e\u0651\u0627\u0643\u064e \u0646\u064e\u0639\u0652\u0628\u064f\u062f\u064f \u0648\u064e\u0625\u0650\u064a\u064e\u0651\u0627\u0643\u064e \u0646\u064e\u0633\u0652\u062a\u064e\u0639\u0650\u064a\u0646\u064f', 'translation': 'You alone we worship, and You alone we ask for help'}, {'number': 6, 'arabic': '\u0627\u0647\u0652\u062f\u0650\u0646\u064e\u0627 \u0627\u0644\u0635\u0650\u0651\u0631\u064e\u0627\u0637\u064e \u0627\u0644\u0652\u0645\u064f\u0633\u0652\u062a\u064e\u0642\u0650\u064a\u0645\u064e', 'translation': 'Guide us to the straight path'}, {'number': 7, 'arabic': '\u0635\u0650\u0631\u064e\u0627\u0637\u064e \u0627\u0644\u064e\u0651\u0630\u0650\u064a\u0646\u064e \u0623\u064e\u0646\u0652\u0639\u064e\u0645\u0652\u062a\u064e \u0639\u064e\u0644\u064e\u064a\u0652\u0647\u0650\u0645\u0652 \u063a\u064e\u064a\u0652\u0631\u0650 \u0627\u0644\u0652\u0645\u064e\u063a\u0652\u0636\u064f\u0648\u0628\u0650 \u0639\u064e\u0644\u064e\u064a\u0652\u0647\u0650\u0645\u0652 \u0648\u064e\u0644\u064e\u0627 \u0627\u0644\u0636\u064e\u0651\u0627\u0644\u0650\u0651\u064a\u0646\u064e', 'translation': 'The path of those You have blessed, not of those who earned anger, nor of those who went astray'}]}",
+      "timestamp": "2026-03-24T03:32:36.623705"
     }
-  },
-  {
-    "test": "Verse of Day (French)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=fr",
-    "expected": "Verse with French translation",
-    "result": "✓ Arabic text, ✓ French translation, ✓ Surah: Le rang, ✓ Ayah: 13",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.580235481262207,
-      "verse": {
-        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
-        "surah": "Le rang",
-        "ayah": 13,
-        "translation": "et il vous accordera d’autres choses encore que vous aimez bien: un secours [venant] d’Allah et une victoire prochaine. Et annonce la bonne nouvelle aux croyants."
-      }
-    }
-  },
-  {
-    "test": "Surah Al-Fatiha (English)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/fatiha?locale=en",
-    "expected": "7 ayahs with Arabic and English translation",
-    "result": "✓ 7 ayahs, ✓ Arabic text, ✓ English translations (Saheeh International ID 20)",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.18316245079040527,
-      "ayahs_count": 7
-    }
-  },
-  {
-    "test": "Surah Al-Fatiha (French)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/fatiha?locale=fr",
-    "expected": "7 ayahs with French translations",
-    "result": "✓ 7 ayahs, ✓ French translations (ID 31)",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.3343219757080078,
-      "ayahs_count": 7
-    }
-  },
-  {
-    "test": "Surah Al-Ikhlas (English)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/ikhlas?locale=en",
-    "expected": "4 ayahs with Arabic and English translation",
-    "result": "✓ 4 ayahs, ✓ Arabic text, ✓ English translations",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.24236369132995605,
-      "ayahs_count": 4
-    }
-  },
-  {
-    "test": "Surahs List (Arabic)",
-    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surahs?locale=ar",
-    "expected": "List of surahs",
-    "result": "✓ 15 surahs with required fields",
-    "status": "PASS",
-    "details": {
-      "response_time": 0.11020469665527344,
-      "surahs_count": 15
-    }
-  }
-]
+  ],
+  "timestamp": "2026-03-24T03:32:37.124156"
+}

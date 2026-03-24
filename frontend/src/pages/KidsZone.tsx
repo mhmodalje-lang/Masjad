@@ -86,6 +86,24 @@ export default function KidsZone() {
   // Quran state
   const [surahs, setSurahs] = useState<any[]>([]);
   const [selectedSurah, setSelectedSurah] = useState<any>(null);
+  const [surahLoading, setSurahLoading] = useState(false);
+
+  // Function to fetch surah detail with API translations
+  const selectSurahWithDetail = async (s: any) => {
+    setSurahLoading(true);
+    setSelectedSurah(s); // Show basic info immediately
+    try {
+      const lang = locale || 'ar';
+      const r = await fetch(`${API}/api/kids-learn/quran/surah/${s.id}?locale=${lang}`);
+      const d = await r.json();
+      if (d.success) {
+        setSelectedSurah(d.surah);
+      }
+    } catch (e) {
+      console.error('Failed to fetch surah detail:', e);
+    }
+    setSurahLoading(false);
+  };
 
   // Islam state
   const [islamSub, setIslamSub] = useState<IslamSub>('salah');
@@ -579,7 +597,10 @@ export default function KidsZone() {
         <p className="text-3xl font-bold font-arabic">{selectedSurah.name_ar}</p>
         <p className="text-sm text-emerald-500 dark:text-emerald-400 mt-1">{selectedSurah.name_en} - {selectedSurah.total_ayahs} {t('ayahPlural')}</p>
       </div>
-      {selectedSurah.ayahs?.map((a:any,i:number)=>(
+      {surahLoading ? (
+        <div className="flex justify-center py-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div></div>
+      ) : selectedSurah.ayahs?.length > 0 ? (
+        selectedSurah.ayahs.map((a:any,i:number)=>(
         <button key={i} onClick={()=>speak(a.arabic,'ar')} className="w-full p-4 rounded-2xl bg-card/60 border border-border/30 text-start hover:border-emerald-400/30 transition-all">
           <div className="flex items-start gap-3">
             <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400 shrink-0">{a.number}</span>
@@ -590,7 +611,9 @@ export default function KidsZone() {
             <Volume2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-2"/>
           </div>
         </button>
-      ))}
+      )) : (
+        <div className="text-center py-8 text-muted-foreground text-sm">{t('loading')}</div>
+      )}
     </div>);
 
     return(<div className="space-y-4 pb-8">
@@ -600,7 +623,7 @@ export default function KidsZone() {
         <p className="text-sm text-foreground/60 mt-1">{t('shortSurahsWithTranslation')}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {surahs.map(s=>(<button key={s.id} onClick={()=>setSelectedSurah(s)} className="p-4 rounded-2xl bg-card/60 border border-border/30 hover:border-emerald-400/30 transition-all text-start">
+        {surahs.map(s=>(<button key={s.id} onClick={()=>selectSurahWithDetail(s)} className="p-4 rounded-2xl bg-card/60 border border-border/30 hover:border-emerald-400/30 transition-all text-start">
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400">{s.number}</span>
             <div><p className="font-bold text-base font-arabic">{s.name_ar}</p><p className="text-xs text-foreground/60">{s.name_en}</p></div>

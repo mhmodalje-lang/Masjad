@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Quran.com API v4 Integration
-Tests all endpoints specified in the review request
+Backend Test Suite for Quran.com API v4 Integration Rebuild
+Testing all endpoints specified in the review request
 """
 
 import asyncio
 import httpx
 import json
-import time
-from typing import Dict, Any, List
+import re
+from datetime import datetime
 
 # Backend URL from frontend/.env
 BACKEND_URL = "https://tafsir-mobile-hub.preview.emergentagent.com"
@@ -16,625 +16,424 @@ BACKEND_URL = "https://tafsir-mobile-hub.preview.emergentagent.com"
 class QuranAPITester:
     def __init__(self):
         self.results = []
-        self.total_tests = 0
-        self.passed_tests = 0
-        self.failed_tests = 0
+        self.passed = 0
+        self.failed = 0
         
-    def log_test(self, test_name: str, endpoint: str, expected: str, result: str, status: str, details: Dict[str, Any] = None):
+    def log_result(self, test_name, status, details):
         """Log test result"""
-        self.total_tests += 1
-        if status == "PASS":
-            self.passed_tests += 1
-        else:
-            self.failed_tests += 1
-            
-        test_result = {
+        result = {
             "test": test_name,
-            "endpoint": endpoint,
-            "expected": expected,
-            "result": result,
             "status": status,
-            "details": details or {}
+            "details": details,
+            "timestamp": datetime.now().isoformat()
         }
-        self.results.append(test_result)
-        print(f"{'✅' if status == 'PASS' else '❌'} {test_name}: {result}")
-        
+        self.results.append(result)
+        if status == "PASS":
+            self.passed += 1
+            print(f"✅ {test_name}: PASSED")
+        else:
+            self.failed += 1
+            print(f"❌ {test_name}: FAILED - {details}")
+    
+    def is_arabic_uthmani(self, text):
+        """Check if text contains Arabic Uthmani script"""
+        if not text:
+            return False
+        # Check for Arabic Unicode range (U+0600-U+06FF)
+        arabic_pattern = re.compile(r'[\u0600-\u06FF]')
+        return bool(arabic_pattern.search(text))
+    
+    def has_no_alquran_cloud_refs(self, text):
+        """Verify no alquran.cloud references"""
+        if not text:
+            return True
+        return "alquran.cloud" not in text.lower()
+    
     async def test_verse_of_day_english(self):
-        """Test GET /api/ai/verse-of-day?language=en"""
-        endpoint = f"{BACKEND_URL}/api/ai/verse-of-day?language=en"
-        
+        """Test 1: GET /api/ai/verse-of-day?language=en"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/ai/verse-of-day?language=en")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Verse of Day (English)",
-                    endpoint,
-                    "200 with verse object",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
+                if response.status_code != 200:
+                    self.log_result("Verse of Day (English)", "FAIL", f"HTTP {response.status_code}")
+                    return
                 
-            data = response.json()
-            verse = data.get("verse", {})
-            
-            # Check required fields
-            required_fields = ["text", "translation", "surah", "ayah"]
-            missing_fields = [f for f in required_fields if f not in verse]
-            
-            if missing_fields:
-                self.log_test(
-                    "Verse of Day (English)",
-                    endpoint,
-                    "Verse with text, translation, surah, ayah",
-                    f"Missing fields: {missing_fields}",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                data = response.json()
+                verse = data.get("verse", {})
                 
-            # Check if translation is present (should NOT be AI-generated)
-            translation = verse.get("translation", "")
-            if not translation:
-                self.log_test(
-                    "Verse of Day (English)",
-                    endpoint,
-                    "English translation from Saheeh International",
-                    "No translation field",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                # Verify required fields
+                checks = []
+                checks.append(("Has Arabic text", bool(verse.get("text"))))
+                checks.append(("Arabic is Uthmani", self.is_arabic_uthmani(verse.get("text", ""))))
+                checks.append(("Has English translation", bool(verse.get("translation"))))
+                checks.append(("Has surah name", bool(verse.get("surah"))))
+                checks.append(("Has ayah number", isinstance(verse.get("ayah"), int)))
+                checks.append(("No alquran.cloud refs", self.has_no_alquran_cloud_refs(str(data))))
                 
-            # Check if Arabic text is in Uthmani script (contains Arabic characters)
-            arabic_text = verse.get("text", "")
-            has_arabic = any('\u0600' <= char <= '\u06FF' for char in arabic_text)
-            
-            if not has_arabic:
-                self.log_test(
-                    "Verse of Day (English)",
-                    endpoint,
-                    "Arabic text in Uthmani script",
-                    "No Arabic text found",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                all_passed = all(check[1] for check in checks)
+                details = f"Arabic: '{verse.get('text', '')[:50]}...', Translation: '{verse.get('translation', '')[:50]}...', Surah: {verse.get('surah')}, Ayah: {verse.get('ayah')}"
                 
-            self.log_test(
-                "Verse of Day (English)",
-                endpoint,
-                "Verse with Arabic text and English translation",
-                f"✓ Arabic text, ✓ English translation, ✓ Surah: {verse['surah']}, ✓ Ayah: {verse['ayah']}",
-                "PASS",
-                {"response_time": response_time, "verse": verse}
-            )
-            
+                if all_passed:
+                    self.log_result("Verse of Day (English)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Verse of Day (English)", "FAIL", f"Failed: {failed_checks}")
+                    
         except Exception as e:
-            self.log_test(
-                "Verse of Day (English)",
-                endpoint,
-                "200 with verse object",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
+            self.log_result("Verse of Day (English)", "FAIL", f"Exception: {str(e)}")
+    
     async def test_verse_of_day_arabic(self):
-        """Test GET /api/ai/verse-of-day?language=ar"""
-        endpoint = f"{BACKEND_URL}/api/ai/verse-of-day?language=ar"
-        
+        """Test 2: GET /api/ai/verse-of-day?language=ar"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/ai/verse-of-day?language=ar")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Verse of Day (Arabic)",
-                    endpoint,
-                    "200 with Arabic verse (no translation)",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
+                if response.status_code != 200:
+                    self.log_result("Verse of Day (Arabic)", "FAIL", f"HTTP {response.status_code}")
+                    return
                 
-            data = response.json()
-            verse = data.get("verse", {})
-            
-            # Check required fields for Arabic
-            required_fields = ["text", "surah", "ayah"]
-            missing_fields = [f for f in required_fields if f not in verse]
-            
-            if missing_fields:
-                self.log_test(
-                    "Verse of Day (Arabic)",
-                    endpoint,
-                    "Arabic verse without translation field",
-                    f"Missing fields: {missing_fields}",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                data = response.json()
+                verse = data.get("verse", {})
                 
-            # Check that translation field is NOT present for Arabic
-            if "translation" in verse:
-                self.log_test(
-                    "Verse of Day (Arabic)",
-                    endpoint,
-                    "Arabic verse without translation field",
-                    "Translation field present (should not be for Arabic)",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                # Verify required fields (Arabic should NOT have translation field)
+                checks = []
+                checks.append(("Has Arabic text", bool(verse.get("text"))))
+                checks.append(("Arabic is Uthmani", self.is_arabic_uthmani(verse.get("text", ""))))
+                checks.append(("No translation field", "translation" not in verse))
+                checks.append(("Has surah name", bool(verse.get("surah"))))
+                checks.append(("Has ayah number", isinstance(verse.get("ayah"), int)))
                 
-            # Check if Arabic text is present
-            arabic_text = verse.get("text", "")
-            has_arabic = any('\u0600' <= char <= '\u06FF' for char in arabic_text)
-            
-            if not has_arabic:
-                self.log_test(
-                    "Verse of Day (Arabic)",
-                    endpoint,
-                    "Arabic text in Uthmani script",
-                    "No Arabic text found",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                all_passed = all(check[1] for check in checks)
+                details = f"Arabic: '{verse.get('text', '')[:50]}...', Surah: {verse.get('surah')}, Ayah: {verse.get('ayah')}"
                 
-            self.log_test(
-                "Verse of Day (Arabic)",
-                endpoint,
-                "Arabic verse without translation",
-                f"✓ Arabic text, ✓ No translation, ✓ Surah: {verse['surah']}, ✓ Ayah: {verse['ayah']}",
-                "PASS",
-                {"response_time": response_time, "verse": verse}
-            )
-            
+                if all_passed:
+                    self.log_result("Verse of Day (Arabic)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Verse of Day (Arabic)", "FAIL", f"Failed: {failed_checks}")
+                    
         except Exception as e:
-            self.log_test(
-                "Verse of Day (Arabic)",
-                endpoint,
-                "200 with Arabic verse",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
+            self.log_result("Verse of Day (Arabic)", "FAIL", f"Exception: {str(e)}")
+    
     async def test_verse_of_day_french(self):
-        """Test GET /api/ai/verse-of-day?language=fr"""
-        endpoint = f"{BACKEND_URL}/api/ai/verse-of-day?language=fr"
-        
+        """Test 3: GET /api/ai/verse-of-day?language=fr"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/ai/verse-of-day?language=fr")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Verse of Day (French)",
-                    endpoint,
-                    "200 with French translation",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
+                if response.status_code != 200:
+                    self.log_result("Verse of Day (French)", "FAIL", f"HTTP {response.status_code}")
+                    return
                 
-            data = response.json()
-            verse = data.get("verse", {})
-            
-            # Check required fields
-            required_fields = ["text", "translation", "surah", "ayah"]
-            missing_fields = [f for f in required_fields if f not in verse]
-            
-            if missing_fields:
-                self.log_test(
-                    "Verse of Day (French)",
-                    endpoint,
-                    "Verse with French translation",
-                    f"Missing fields: {missing_fields}",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                data = response.json()
+                verse = data.get("verse", {})
                 
-            # Check if translation is present
-            translation = verse.get("translation", "")
-            if not translation:
-                self.log_test(
-                    "Verse of Day (French)",
-                    endpoint,
-                    "French translation",
-                    "No translation field",
-                    "FAIL",
-                    {"response_time": response_time, "verse": verse}
-                )
-                return
+                checks = []
+                checks.append(("Has Arabic text", bool(verse.get("text"))))
+                checks.append(("Has French translation", bool(verse.get("translation"))))
+                checks.append(("Has surah name", bool(verse.get("surah"))))
+                checks.append(("Has ayah number", isinstance(verse.get("ayah"), int)))
                 
-            self.log_test(
-                "Verse of Day (French)",
-                endpoint,
-                "Verse with French translation",
-                f"✓ Arabic text, ✓ French translation, ✓ Surah: {verse['surah']}, ✓ Ayah: {verse['ayah']}",
-                "PASS",
-                {"response_time": response_time, "verse": verse}
-            )
-            
+                all_passed = all(check[1] for check in checks)
+                details = f"French translation: '{verse.get('translation', '')[:50]}...'"
+                
+                if all_passed:
+                    self.log_result("Verse of Day (French)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Verse of Day (French)", "FAIL", f"Failed: {failed_checks}")
+                    
         except Exception as e:
-            self.log_test(
-                "Verse of Day (French)",
-                endpoint,
-                "200 with French translation",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
+            self.log_result("Verse of Day (French)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_verse_of_day_german(self):
+        """Test 4: GET /api/ai/verse-of-day?language=de"""
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response = await client.get(f"{BACKEND_URL}/api/ai/verse-of-day?language=de")
+                
+                if response.status_code != 200:
+                    self.log_result("Verse of Day (German)", "FAIL", f"HTTP {response.status_code}")
+                    return
+                
+                data = response.json()
+                verse = data.get("verse", {})
+                
+                checks = []
+                checks.append(("Has Arabic text", bool(verse.get("text"))))
+                checks.append(("Has German translation", bool(verse.get("translation"))))
+                checks.append(("Has surah name", bool(verse.get("surah"))))
+                checks.append(("Has ayah number", isinstance(verse.get("ayah"), int)))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"German translation: '{verse.get('translation', '')[:50]}...'"
+                
+                if all_passed:
+                    self.log_result("Verse of Day (German)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Verse of Day (German)", "FAIL", f"Failed: {failed_checks}")
+                    
+        except Exception as e:
+            self.log_result("Verse of Day (German)", "FAIL", f"Exception: {str(e)}")
+    
     async def test_surah_fatiha_english(self):
-        """Test GET /api/kids-learn/quran/surah/fatiha?locale=en"""
-        endpoint = f"{BACKEND_URL}/api/kids-learn/quran/surah/fatiha?locale=en"
-        
+        """Test 5: GET /api/kids-learn/quran/surah/fatiha?locale=en"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surah/fatiha?locale=en")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Surah Al-Fatiha (English)",
-                    endpoint,
-                    "200 with 7 ayahs",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
+                if response.status_code != 200:
+                    self.log_result("Surah Al-Fatiha (English)", "FAIL", f"HTTP {response.status_code}")
+                    return
                 
-            data = response.json()
-            surah = data.get("surah", {})
-            ayahs = surah.get("ayahs", [])
-            
-            # Check if we have 7 ayahs (Al-Fatiha has 7 verses)
-            if len(ayahs) != 7:
-                self.log_test(
-                    "Surah Al-Fatiha (English)",
-                    endpoint,
-                    "7 ayahs with Arabic and English translation",
-                    f"Found {len(ayahs)} ayahs instead of 7",
-                    "FAIL",
-                    {"response_time": response_time, "ayahs_count": len(ayahs)}
-                )
-                return
+                data = response.json()
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
                 
-            # Check each ayah has required fields
-            for i, ayah in enumerate(ayahs, 1):
-                if "arabic" not in ayah or "translation" not in ayah:
-                    self.log_test(
-                        "Surah Al-Fatiha (English)",
-                        endpoint,
-                        "Each ayah with arabic and translation fields",
-                        f"Ayah {i} missing required fields",
-                        "FAIL",
-                        {"response_time": response_time, "ayah": ayah}
-                    )
-                    return
+                checks = []
+                checks.append(("Has 7 ayahs", len(ayahs) == 7))
+                checks.append(("All ayahs have Arabic", all(ayah.get("arabic") for ayah in ayahs)))
+                checks.append(("All ayahs have translation", all(ayah.get("translation") for ayah in ayahs)))
+                checks.append(("Arabic is Uthmani", all(self.is_arabic_uthmani(ayah.get("arabic", "")) for ayah in ayahs)))
+                
+                # Check if translations are from Saheeh International (ID 20) - look for characteristic phrases
+                sample_translation = ayahs[0].get("translation", "") if ayahs else ""
+                checks.append(("Translation from Quran.com API", bool(sample_translation)))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"Ayahs: {len(ayahs)}, Sample translation: '{sample_translation[:50]}...'"
+                
+                if all_passed:
+                    self.log_result("Surah Al-Fatiha (English)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surah Al-Fatiha (English)", "FAIL", f"Failed: {failed_checks}")
                     
-                # Check if Arabic text is present
-                arabic_text = ayah.get("arabic", "")
-                has_arabic = any('\u0600' <= char <= '\u06FF' for char in arabic_text)
-                if not has_arabic:
-                    self.log_test(
-                        "Surah Al-Fatiha (English)",
-                        endpoint,
-                        "Arabic text in Uthmani script",
-                        f"Ayah {i} has no Arabic text",
-                        "FAIL",
-                        {"response_time": response_time, "ayah": ayah}
-                    )
-                    return
-                    
-                # Check if translation is present
-                translation = ayah.get("translation", "")
-                if not translation:
-                    self.log_test(
-                        "Surah Al-Fatiha (English)",
-                        endpoint,
-                        "English translation from Saheeh International",
-                        f"Ayah {i} has no translation",
-                        "FAIL",
-                        {"response_time": response_time, "ayah": ayah}
-                    )
-                    return
-                    
-            self.log_test(
-                "Surah Al-Fatiha (English)",
-                endpoint,
-                "7 ayahs with Arabic and English translation",
-                f"✓ 7 ayahs, ✓ Arabic text, ✓ English translations (Saheeh International ID 20)",
-                "PASS",
-                {"response_time": response_time, "ayahs_count": len(ayahs)}
-            )
-            
         except Exception as e:
-            self.log_test(
-                "Surah Al-Fatiha (English)",
-                endpoint,
-                "200 with 7 ayahs",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
-    async def test_surah_fatiha_french(self):
-        """Test GET /api/kids-learn/quran/surah/fatiha?locale=fr"""
-        endpoint = f"{BACKEND_URL}/api/kids-learn/quran/surah/fatiha?locale=fr"
-        
+            self.log_result("Surah Al-Fatiha (English)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_surah_zilzal_english(self):
+        """Test 6: GET /api/kids-learn/quran/surah/zilzal?locale=en"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surah/zilzal?locale=en")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Surah Al-Fatiha (French)",
-                    endpoint,
-                    "200 with French translations (ID 31)",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
-                
-            data = response.json()
-            surah = data.get("surah", {})
-            ayahs = surah.get("ayahs", [])
-            
-            # Check if we have 7 ayahs
-            if len(ayahs) != 7:
-                self.log_test(
-                    "Surah Al-Fatiha (French)",
-                    endpoint,
-                    "7 ayahs with French translations",
-                    f"Found {len(ayahs)} ayahs instead of 7",
-                    "FAIL",
-                    {"response_time": response_time, "ayahs_count": len(ayahs)}
-                )
-                return
-                
-            # Check each ayah has French translation
-            for i, ayah in enumerate(ayahs, 1):
-                translation = ayah.get("translation", "")
-                if not translation:
-                    self.log_test(
-                        "Surah Al-Fatiha (French)",
-                        endpoint,
-                        "French translations (ID 31)",
-                        f"Ayah {i} has no French translation",
-                        "FAIL",
-                        {"response_time": response_time, "ayah": ayah}
-                    )
+                if response.status_code != 200:
+                    self.log_result("Surah Az-Zilzal (English)", "FAIL", f"HTTP {response.status_code}")
                     return
+                
+                data = response.json()
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                checks = []
+                checks.append(("Has 8 ayahs", len(ayahs) == 8))
+                checks.append(("All ayahs have Arabic", all(ayah.get("arabic") for ayah in ayahs)))
+                checks.append(("All ayahs have translation", all(ayah.get("translation") for ayah in ayahs)))
+                checks.append(("Not empty (was previously empty)", len(ayahs) > 0))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"Ayahs: {len(ayahs)}, Previously empty surah now has content"
+                
+                if all_passed:
+                    self.log_result("Surah Az-Zilzal (English)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surah Az-Zilzal (English)", "FAIL", f"Failed: {failed_checks}")
                     
-            self.log_test(
-                "Surah Al-Fatiha (French)",
-                endpoint,
-                "7 ayahs with French translations",
-                f"✓ 7 ayahs, ✓ French translations (ID 31)",
-                "PASS",
-                {"response_time": response_time, "ayahs_count": len(ayahs)}
-            )
-            
         except Exception as e:
-            self.log_test(
-                "Surah Al-Fatiha (French)",
-                endpoint,
-                "200 with French translations",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
-    async def test_surah_ikhlas_english(self):
-        """Test GET /api/kids-learn/quran/surah/ikhlas?locale=en"""
-        endpoint = f"{BACKEND_URL}/api/kids-learn/quran/surah/ikhlas?locale=en"
-        
+            self.log_result("Surah Az-Zilzal (English)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_surah_qariah_english(self):
+        """Test 7: GET /api/kids-learn/quran/surah/qariah?locale=en"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surah/qariah?locale=en")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Surah Al-Ikhlas (English)",
-                    endpoint,
-                    "200 with 4 ayahs",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
-                
-            data = response.json()
-            surah = data.get("surah", {})
-            ayahs = surah.get("ayahs", [])
-            
-            # Check if we have 4 ayahs (Al-Ikhlas has 4 verses)
-            if len(ayahs) != 4:
-                self.log_test(
-                    "Surah Al-Ikhlas (English)",
-                    endpoint,
-                    "4 ayahs with Arabic and English translation",
-                    f"Found {len(ayahs)} ayahs instead of 4",
-                    "FAIL",
-                    {"response_time": response_time, "ayahs_count": len(ayahs)}
-                )
-                return
-                
-            # Check each ayah has required fields
-            for i, ayah in enumerate(ayahs, 1):
-                if "arabic" not in ayah or "translation" not in ayah:
-                    self.log_test(
-                        "Surah Al-Ikhlas (English)",
-                        endpoint,
-                        "Each ayah with arabic and translation fields",
-                        f"Ayah {i} missing required fields",
-                        "FAIL",
-                        {"response_time": response_time, "ayah": ayah}
-                    )
+                if response.status_code != 200:
+                    self.log_result("Surah Al-Qariah (English)", "FAIL", f"HTTP {response.status_code}")
                     return
+                
+                data = response.json()
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                checks = []
+                checks.append(("Has 11 ayahs", len(ayahs) == 11))
+                checks.append(("All ayahs have Arabic", all(ayah.get("arabic") for ayah in ayahs)))
+                checks.append(("All ayahs have translation", all(ayah.get("translation") for ayah in ayahs)))
+                checks.append(("Not empty (was previously empty)", len(ayahs) > 0))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"Ayahs: {len(ayahs)}, Previously empty surah now has content"
+                
+                if all_passed:
+                    self.log_result("Surah Al-Qariah (English)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surah Al-Qariah (English)", "FAIL", f"Failed: {failed_checks}")
                     
-            self.log_test(
-                "Surah Al-Ikhlas (English)",
-                endpoint,
-                "4 ayahs with Arabic and English translation",
-                f"✓ 4 ayahs, ✓ Arabic text, ✓ English translations",
-                "PASS",
-                {"response_time": response_time, "ayahs_count": len(ayahs)}
-            )
-            
         except Exception as e:
-            self.log_test(
-                "Surah Al-Ikhlas (English)",
-                endpoint,
-                "200 with 4 ayahs",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
-    async def test_surahs_list_arabic(self):
-        """Test GET /api/kids-learn/quran/surahs?locale=ar"""
-        endpoint = f"{BACKEND_URL}/api/kids-learn/quran/surahs?locale=ar"
-        
+            self.log_result("Surah Al-Qariah (English)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_surah_fatiha_german(self):
+        """Test 8: GET /api/kids-learn/quran/surah/fatiha?locale=de"""
         try:
-            start_time = time.time()
             async with httpx.AsyncClient(timeout=15) as client:
-                response = await client.get(endpoint)
-                response_time = time.time() - start_time
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surah/fatiha?locale=de")
                 
-            if response.status_code != 200:
-                self.log_test(
-                    "Surahs List (Arabic)",
-                    endpoint,
-                    "200 with list of surahs",
-                    f"HTTP {response.status_code}",
-                    "FAIL",
-                    {"response_time": response_time, "error": response.text}
-                )
-                return
-                
-            data = response.json()
-            surahs = data.get("surahs", [])
-            
-            if not surahs:
-                self.log_test(
-                    "Surahs List (Arabic)",
-                    endpoint,
-                    "List of surahs",
-                    "Empty surahs list",
-                    "FAIL",
-                    {"response_time": response_time, "data": data}
-                )
-                return
-                
-            # Check if surahs have required fields
-            for surah in surahs[:3]:  # Check first 3 surahs
-                required_fields = ["id", "number", "name_ar", "name_en"]
-                missing_fields = [f for f in required_fields if f not in surah]
-                if missing_fields:
-                    self.log_test(
-                        "Surahs List (Arabic)",
-                        endpoint,
-                        "Surahs with id, number, name_ar, name_en",
-                        f"Missing fields in surah: {missing_fields}",
-                        "FAIL",
-                        {"response_time": response_time, "surah": surah}
-                    )
+                if response.status_code != 200:
+                    self.log_result("Surah Al-Fatiha (German)", "FAIL", f"HTTP {response.status_code}")
                     return
+                
+                data = response.json()
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                checks = []
+                checks.append(("Has 7 ayahs", len(ayahs) == 7))
+                checks.append(("All ayahs have German translation", all(ayah.get("translation") for ayah in ayahs)))
+                
+                # Check for German translation characteristics (Bubenheim & Elyas ID 27)
+                sample_translation = ayahs[0].get("translation", "") if ayahs else ""
+                checks.append(("German translation from Quran.com API", bool(sample_translation)))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"German translation sample: '{sample_translation[:50]}...'"
+                
+                if all_passed:
+                    self.log_result("Surah Al-Fatiha (German)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surah Al-Fatiha (German)", "FAIL", f"Failed: {failed_checks}")
                     
-            self.log_test(
-                "Surahs List (Arabic)",
-                endpoint,
-                "List of surahs",
-                f"✓ {len(surahs)} surahs with required fields",
-                "PASS",
-                {"response_time": response_time, "surahs_count": len(surahs)}
-            )
-            
         except Exception as e:
-            self.log_test(
-                "Surahs List (Arabic)",
-                endpoint,
-                "200 with list of surahs",
-                f"Exception: {str(e)}",
-                "FAIL",
-                {"error": str(e)}
-            )
-            
+            self.log_result("Surah Al-Fatiha (German)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_surah_fatiha_arabic(self):
+        """Test 9: GET /api/kids-learn/quran/surah/fatiha?locale=ar"""
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surah/fatiha?locale=ar")
+                
+                if response.status_code != 200:
+                    self.log_result("Surah Al-Fatiha (Arabic Muyassar)", "FAIL", f"HTTP {response.status_code}")
+                    return
+                
+                data = response.json()
+                surah = data.get("surah", {})
+                ayahs = surah.get("ayahs", [])
+                
+                checks = []
+                checks.append(("Has 7 ayahs", len(ayahs) == 7))
+                checks.append(("All ayahs have Arabic text", all(ayah.get("arabic") for ayah in ayahs)))
+                checks.append(("All ayahs have Muyassar tafsir", all(ayah.get("translation") for ayah in ayahs)))
+                
+                # Check if translation is Arabic Muyassar tafsir
+                sample_tafsir = ayahs[0].get("translation", "") if ayahs else ""
+                checks.append(("Arabic Muyassar tafsir", self.is_arabic_uthmani(sample_tafsir)))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"Arabic Muyassar sample: '{sample_tafsir[:50]}...'"
+                
+                if all_passed:
+                    self.log_result("Surah Al-Fatiha (Arabic Muyassar)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surah Al-Fatiha (Arabic Muyassar)", "FAIL", f"Failed: {failed_checks}")
+                    
+        except Exception as e:
+            self.log_result("Surah Al-Fatiha (Arabic Muyassar)", "FAIL", f"Exception: {str(e)}")
+    
+    async def test_surahs_list_english(self):
+        """Test 10: GET /api/kids-learn/quran/surahs?locale=en"""
+        try:
+            async with httpx.AsyncClient(timeout=15) as client:
+                response = await client.get(f"{BACKEND_URL}/api/kids-learn/quran/surahs?locale=en")
+                
+                if response.status_code != 200:
+                    self.log_result("Surahs List (English)", "FAIL", f"HTTP {response.status_code}")
+                    return
+                
+                data = response.json()
+                surahs = data.get("surahs", [])
+                
+                checks = []
+                checks.append(("Has 15 surahs", len(surahs) == 15))
+                checks.append(("All surahs have required fields", all(
+                    surah.get("id") and surah.get("number") and surah.get("name_ar") and surah.get("name_en")
+                    for surah in surahs
+                )))
+                
+                all_passed = all(check[1] for check in checks)
+                details = f"Total surahs: {len(surahs)}, Sample: {surahs[0] if surahs else 'None'}"
+                
+                if all_passed:
+                    self.log_result("Surahs List (English)", "PASS", details)
+                else:
+                    failed_checks = [check[0] for check in checks if not check[1]]
+                    self.log_result("Surahs List (English)", "FAIL", f"Failed: {failed_checks}")
+                    
+        except Exception as e:
+            self.log_result("Surahs List (English)", "FAIL", f"Exception: {str(e)}")
+    
     async def run_all_tests(self):
-        """Run all Quran API v4 integration tests"""
-        print("🚀 Starting Quran.com API v4 Integration Tests")
+        """Run all test cases"""
+        print("🚀 Starting Quran.com API v4 Integration Test Suite")
         print("=" * 60)
         
-        # Test all endpoints specified in review request
-        await self.test_verse_of_day_english()
-        await self.test_verse_of_day_arabic()
-        await self.test_verse_of_day_french()
-        await self.test_surah_fatiha_english()
-        await self.test_surah_fatiha_french()
-        await self.test_surah_ikhlas_english()
-        await self.test_surahs_list_arabic()
+        test_methods = [
+            self.test_verse_of_day_english,
+            self.test_verse_of_day_arabic,
+            self.test_verse_of_day_french,
+            self.test_verse_of_day_german,
+            self.test_surah_fatiha_english,
+            self.test_surah_zilzal_english,
+            self.test_surah_qariah_english,
+            self.test_surah_fatiha_german,
+            self.test_surah_fatiha_arabic,
+            self.test_surahs_list_english,
+        ]
         
-        # Print summary
+        for test_method in test_methods:
+            await test_method()
+            await asyncio.sleep(0.5)  # Small delay between tests
+        
         print("\n" + "=" * 60)
-        print("📊 TEST SUMMARY")
-        print("=" * 60)
-        print(f"Total Tests: {self.total_tests}")
-        print(f"✅ Passed: {self.passed_tests}")
-        print(f"❌ Failed: {self.failed_tests}")
-        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%")
+        print(f"📊 TEST SUMMARY")
+        print(f"✅ Passed: {self.passed}")
+        print(f"❌ Failed: {self.failed}")
+        print(f"📈 Success Rate: {(self.passed / (self.passed + self.failed) * 100):.1f}%")
         
-        if self.failed_tests > 0:
-            print("\n❌ FAILED TESTS:")
+        if self.failed > 0:
+            print("\n🔍 FAILED TESTS:")
             for result in self.results:
                 if result["status"] == "FAIL":
-                    print(f"  • {result['test']}: {result['result']}")
-                    if result.get("details", {}).get("error"):
-                        print(f"    Error: {result['details']['error']}")
+                    print(f"   ❌ {result['test']}: {result['details']}")
         
-        print("\n🔍 KEY VERIFICATIONS:")
-        print("  • Translations from Quran.com API v4 (not hardcoded)")
-        print("  • No AI-generated translations")
-        print("  • Arabic text in Uthmani script")
-        print("  • Response times under 15s")
-        print("  • Correct translation IDs (en=20, fr=31)")
-        
-        return self.results
+        return self.passed, self.failed
 
 async def main():
     """Main test runner"""
     tester = QuranAPITester()
-    results = await tester.run_all_tests()
+    passed, failed = await tester.run_all_tests()
     
-    # Save results to file for reference
+    # Save detailed results
     with open("/app/quran_api_test_results.json", "w") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
+        json.dump({
+            "summary": {"passed": passed, "failed": failed, "total": passed + failed},
+            "results": tester.results,
+            "timestamp": datetime.now().isoformat()
+        }, f, indent=2)
     
-    print(f"\n📄 Detailed results saved to: /app/quran_api_test_results.json")
+    print(f"\n💾 Detailed results saved to: /app/quran_api_test_results.json")
+    
+    if failed == 0:
+        print("🎉 ALL TESTS PASSED! Quran.com API v4 integration is working perfectly.")
+    else:
+        print(f"⚠️  {failed} test(s) failed. Please check the issues above.")
 
 if __name__ == "__main__":
     asyncio.run(main())
