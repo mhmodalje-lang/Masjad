@@ -744,3 +744,110 @@
 - ✅ **Regression prevention:** All existing endpoints continue working
 
 **COMPREHENSIVE CONCLUSION:** Strict Localization Fix is fully implemented and operational. All critical requirements verified through comprehensive testing across 20 test cases covering all 9 supported languages and all major alphabet course endpoints. The system successfully provides complete localization without English text leakage in non-English locales, with proper Arabic letter names, word translations, and memory game form labels in all supported languages.
+
+
+## QURAN PAGE REBUILD — TEST INSTRUCTIONS
+
+### Changes Made:
+1. **Rebuilt Quran.tsx** — New surah list with localized names, Makkah/Madinah badges, search, Juz tab, bookmarks
+2. **Rebuilt SurahView.tsx** — Always-visible Arabic text, auto-translation, tafsir from authentic sources
+3. **Both pages** support all 9 languages
+
+### Test Requirements:
+1. GET /api/quran/v4/chapters?language=ru — should return 114 surahs with Russian translated names
+2. GET /api/quran/v4/chapters?language=ar — should return 114 surahs with Arabic names
+3. GET /api/quran/v4/chapters/1?language=fr — should return Al-Fatihah chapter info in French
+4. GET /api/quran/v4/verses/by_chapter/1?language=ru&per_page=10 — should return verses with Russian translations
+5. GET /api/quran/v4/global-verse/1/1?language=ru — should return verse 1 with RUSSIAN tafsir (As-Sa'di)
+6. GET /api/quran/v4/global-verse/1/1?language=ar — should return verse 1 with ARABIC tafsir (Al-Muyassar)
+7. GET /api/quran/v4/global-verse/1/1?language=en — should return verse 1 with ENGLISH tafsir (Ibn Kathir)
+8. GET /api/quran/v4/global-verse/1/1?language=tr — should return verse 1 with fallback to Arabic tafsir (tafsir_is_arabic=true)
+9. Regression: /api/kids-learn/daily-games?locale=en — should still return 4 games
+10. Regression: /api/kids-learn/course/alphabet/0?locale=ru — should return localized letter name "Алиф"
+
+## QURAN PAGE REBUILD — COMPREHENSIVE TEST RESULTS
+
+### Testing Agent: Backend Testing Complete
+**Date:** 2026-01-27  
+**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Test Suite:** quran_page_rebuild_test.py  
+**Total Tests:** 17  
+**Status:** ALL TESTS PASSED ✅ (100% Success Rate)
+
+### QURAN PAGE REBUILD API ENDPOINTS — FULL VERIFICATION:
+
+#### 1. Chapter List (All Surahs) — Multiple Languages ✅
+- **Endpoint:** `GET /api/quran/v4/chapters?language={lang}`
+- **Languages Tested:** ru, ar, fr, tr, en
+- **Critical Verification:**
+  - ✅ All 5 languages return exactly 114 chapters
+  - ✅ Each chapter has required fields: id, name_arabic, translated_name
+  - ✅ Russian chapters have proper translated names (different from Arabic)
+  - ✅ translated_name structure is correct (object with 'name' field)
+- **Result:** 5/5 languages passed all validation checks
+
+#### 2. Chapter Info ✅
+- **Al-Fatihah (Russian):** `GET /api/quran/v4/chapters/1?language=ru`
+  - ✅ Returns Russian translated name "Открывающая Коран"
+- **An-Nas (French):** `GET /api/quran/v4/chapters/114?language=fr`
+  - ✅ Returns French translated name (different from Arabic)
+- **Result:** 2/2 chapter info tests passed
+
+#### 3. Verses with Translation ✅
+- **Al-Fatihah Russian:** `GET /api/quran/v4/verses/by_chapter/1?language=ru&per_page=10`
+  - ✅ Returns exactly 7 verses with Russian translation text
+  - ✅ Translation text is different from Arabic text_uthmani
+- **Al-Fatihah French:** `GET /api/quran/v4/verses/by_chapter/1?language=fr&per_page=10`
+  - ✅ Returns 7 verses with French translation
+- **Al-Fatihah Arabic:** `GET /api/quran/v4/verses/by_chapter/1?language=ar&per_page=10`
+  - ✅ Returns 7 verses with Arabic text_uthmani
+- **Result:** 3/3 verse translation tests passed
+
+#### 4. Tafsir (MOST CRITICAL) ✅
+- **Russian Tafsir:** `GET /api/quran/v4/global-verse/1/1?language=ru`
+  - ✅ success: true
+  - ✅ tafsir: Non-empty Russian text (As-Sa'di tafsir)
+  - ✅ tafsir_is_arabic: false (correctly Russian)
+- **Arabic Tafsir:** `GET /api/quran/v4/global-verse/1/1?language=ar`
+  - ✅ success: true
+  - ✅ tafsir: Non-empty Arabic text (Al-Muyassar)
+- **English Tafsir:** `GET /api/quran/v4/global-verse/1/1?language=en`
+  - ✅ success: true
+  - ✅ tafsir: Non-empty English text (Ibn Kathir)
+  - ✅ tafsir_is_arabic: false (correctly English)
+- **Turkish Tafsir:** `GET /api/quran/v4/global-verse/1/1?language=tr`
+  - ✅ success: true
+  - ✅ tafsir: Arabic fallback text (Al-Muyassar)
+  - ✅ tafsir_is_arabic: true (correctly flagged as Arabic fallback)
+- **Result:** 4/4 tafsir tests passed with correct language handling
+
+#### 5. Regression Tests ✅
+- **Daily Games:** `GET /api/kids-learn/daily-games?locale=en`
+  - ✅ Returns 4 games successfully
+- **Arabic Course:** `GET /api/kids-learn/course/alphabet/0?locale=ru`
+  - ✅ Returns Russian letter name "Алиф"
+- **Digital Shield:** `GET /api/kids-learn/digital-shield?locale=fr&theme=all`
+  - ✅ Returns 30 lessons successfully
+- **Result:** 3/3 regression tests passed
+
+### Backend API Status:
+- **All Quran endpoints:** Fully functional ✅
+- **Multi-language support:** All 5 test languages working ✅
+- **Chapter list:** 114 surahs with proper translations ✅
+- **Chapter info:** Localized names working ✅
+- **Verses with translation:** Working correctly ✅
+- **Tafsir system:** Real tafsir with proper language handling ✅
+- **Regression prevention:** All existing endpoints maintained ✅
+
+### Quran Page Rebuild Verification:
+- ✅ **Chapter List API:** Returns 114 surahs with translated names in Russian, Arabic, French, Turkish, English
+- ✅ **Chapter Info API:** Provides localized chapter information (Al-Fatihah → "Открывающая Коран" in Russian)
+- ✅ **Verses API:** Returns verses with proper translations (7 verses for Al-Fatihah with Russian/French translations)
+- ✅ **Tafsir API (CRITICAL):** Working correctly with:
+  - Russian: As-Sa'di tafsir (tafsir_is_arabic=false)
+  - Arabic: Al-Muyassar tafsir
+  - English: Ibn Kathir tafsir (tafsir_is_arabic=false)
+  - Turkish: Arabic fallback (tafsir_is_arabic=true)
+- ✅ **Regression Tests:** All existing endpoints (daily games, Arabic course, digital shield) continue working
+
+**COMPREHENSIVE CONCLUSION:** Quran Page Rebuild is fully implemented and operational. All critical requirements verified through comprehensive testing across 17 test cases covering all major Quran API endpoints. The system successfully provides complete Quran functionality with proper multi-language support, authentic tafsir sources, and maintains backward compatibility with existing features.
