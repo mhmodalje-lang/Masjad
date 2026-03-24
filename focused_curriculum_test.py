@@ -15,7 +15,7 @@ import time
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://quran-verify-4.preview.emergentagent.com"
+BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
 
 class FocusedCurriculumTester:
     def __init__(self):

@@ -24,22 +24,20 @@ interface TafsirData {
   text: string;
   tafsir_name: string;
   is_fallback_language: boolean;
-  translation_pending: boolean;
   verse_key: string;
 }
 
-// Quran translation editions by language - KFGQPC / Official verified translations
-// These are kept as fallback identifiers for the legacy alquran.cloud API (audio only)
+// V2026: Legacy alquran.cloud edition identifiers (audio fallback only)
 const quranTranslationEditions: Record<string, string> = {
   en: 'en.sahih',
-  fr: 'fr.montada',
+  fr: 'fr.hamidullah',
   de: 'de.bubenheim',
   'de-AT': 'de.bubenheim',
   tr: 'tr.diyanet',
-  ru: 'ru.kuliev',
+  ru: 'ru.abuadel',
   sv: 'sv.bernstrom',
-  nl: 'nl.abdalsalaam',
-  el: 'en.sahih',
+  nl: 'nl.siregar',
+  el: 'el.rwwad',
 };
 
 // === TAFSIR LOCAL CACHE HELPERS ===
@@ -264,23 +262,12 @@ function AyahCard({
           text: data.text,
           tafsir_name: data.tafsir_name || '',
           is_fallback_language: data.is_fallback_language || false,
-          translation_pending: false,
           verse_key: verseKey,
         };
         setTafsir(tafsirData);
         setCachedTafsir(verseKey, locale, tafsirData);
-      } else if (data.translation_pending) {
-        // Language integrity: show "Translation Pending" instead of fallback
-        const pendingData: TafsirData = {
-          text: '',
-          tafsir_name: '',
-          is_fallback_language: false,
-          translation_pending: true,
-          verse_key: verseKey,
-        };
-        setTafsir(pendingData);
       } else {
-        setTafsir({ text: '', tafsir_name: '', is_fallback_language: false, translation_pending: false, verse_key: verseKey });
+        setTafsir({ text: '', tafsir_name: '', is_fallback_language: false, verse_key: verseKey });
       }
     } catch {
       toast.error(t('tafsirError') || 'Error loading tafsir');
@@ -390,18 +377,6 @@ function AyahCard({
                     <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />
                     <span className="text-sm text-muted-foreground">{t('loadingTafsir')}</span>
                   </div>
-                ) : tafsir?.translation_pending ? (
-                  <div className="flex flex-col items-center justify-center gap-3 py-6">
-                    <div className="h-12 w-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                      <BookOpen className="h-6 w-6 text-amber-500" />
-                    </div>
-                    <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
-                      {t('tafsirTranslationPending') || 'Translation Pending'}
-                    </p>
-                    <p className="text-xs text-muted-foreground text-center max-w-xs">
-                      {t('tafsirTranslationPendingDesc') || 'A verified scholarly translation for this language is being prepared. Arabic text is shown above.'}
-                    </p>
-                  </div>
                 ) : tafsir?.text ? (
                   <>
                     {/* Tafsir source badge */}
@@ -480,7 +455,6 @@ export default function SurahView() {
         );
         const versesData = await versesRes.json();
         const verses = versesData.verses || [];
-        const isTranslationPending = versesData.translation_pending === true;
 
         // Build audio URL helper: uses EveryAyah CDN with Alafasy recitation
         const padNum = (n: number, len: number = 3) => String(n).padStart(len, '0');
@@ -505,9 +479,7 @@ export default function SurahView() {
             text: v.text_uthmani || v.text || '',
             numberInSurah: v.verse_number || verseNum,
             audio: audioUrl,
-            translation: (locale !== 'ar' && translationText) ? translationText
-              : (isTranslationPending && locale !== 'ar') ? t('translationPending') || 'Η επίσημη μετάφραση σε εξέλιξη'
-              : undefined,
+            translation: (locale !== 'ar' && translationText) ? translationText : undefined,
           };
         });
 

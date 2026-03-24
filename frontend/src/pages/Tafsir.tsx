@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, BookOpen, Search, Star, Loader2 } from 'luci
 import { cn } from '@/lib/utils';
 
 const API = 'https://api.quran.com/api/v4';
+const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 // Surah list - all 114 surahs
 const SURAHS = [
@@ -47,28 +48,20 @@ const SURAHS = [
   {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},{n:114,ar:"الناس",en:"An-Nas",v:6},
 ];
 
-const TAFSIR_IDS: Record<string, number> = {
-  ar: 16,    // Tafsir Al-Muyassar (التفسير الميسر) - King Fahd Complex
-  en: 169,   // Ibn Kathir (Abridged) - English
-  de: 169,   // Fallback to English Ibn Kathir
-  fr: 169,   // Fallback to English Ibn Kathir
-  tr: 169,   // Fallback to English Ibn Kathir
-  ru: 170,   // Al-Sa'di (Russian)
-  sv: 169,   // Fallback to English Ibn Kathir
-  nl: 169,   // Fallback to English Ibn Kathir
-  el: 169,   // Fallback to English Ibn Kathir
-};
+// V2026: Tafsir now uses backend API for multi-language scholarly sources
+// No more hardcoded English fallback IDs
 
 // Translation resource IDs per language (for non-Arabic Quran translations)
+// V2026: Updated with user-specified IDs
 const TRANSLATION_IDS: Record<string, number> = {
-  en: 131,   // Saheeh International
-  de: 27,    // Abu Rida Muhammad ibn Ahmad ibn Rassoul
-  fr: 136,   // Muhammad Hamidullah
+  en: 20,    // Saheeh International
+  de: 27,    // Frank Bubenheim
+  fr: 31,    // Muhammad Hamidullah
   tr: 77,    // Diyanet İşleri
-  ru: 45,    // Elmir Kuliev
+  ru: 79,    // Abu Adel
   sv: 48,    // Knut Bernström
   nl: 144,   // Sofian Siregar
-  el: 131,   // Fallback to English
+  el: 0,     // Greek via QuranEnc (handled by backend)
 };
 
 export default function Tafsir() {
@@ -93,30 +86,40 @@ export default function Tafsir() {
     setLoading(true);
     setShowSurahList(false);
     try {
+      // Fetch Arabic text
       const ayahRes = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sNum}&verse_key=${sNum}:${aNum}`);
       const ayahData = await ayahRes.json();
       if (ayahData.verses && ayahData.verses.length > 0) {
         setAyahText(ayahData.verses[0].text_uthmani || '');
       }
 
-      // Load tafsir in the correct language
-      const tafsirId = TAFSIR_IDS[locale] || TAFSIR_IDS.en;
-      const tafsirRes = await fetch(`${API}/tafsirs/${tafsirId}/by_ayah/${sNum}:${aNum}`);
+      // V2026: Load tafsir from BACKEND (multi-language scholarly sources)
+      const tafsirRes = await fetch(`${BACKEND_URL}/api/quran/v4/tafsir/${sNum}:${aNum}?language=${locale}`);
       const tafsirData = await tafsirRes.json();
-      if (tafsirData.tafsir) {
-        const raw = tafsirData.tafsir.text || '';
-        const clean = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-        setTafsirText(clean);
+      if (tafsirData.success && tafsirData.text) {
+        setTafsirText(tafsirData.text);
+      } else {
+        setTafsirText('');
       }
 
       // Load translation for non-Arabic users
       if (!isAr) {
         const trId = TRANSLATION_IDS[locale] || TRANSLATION_IDS.en;
-        const trRes = await fetch(`${API}/quran/translations/${trId}?verse_key=${sNum}:${aNum}`);
-        const trData = await trRes.json();
-        if (trData.translations && trData.translations.length > 0) {
-          const raw = trData.translations[0].text || '';
-          setTranslationText(raw.replace(/<[^>]*>/g, '').trim());
+        if (trId > 0) {
+          const trRes = await fetch(`${API}/quran/translations/${trId}?verse_key=${sNum}:${aNum}`);
+          const trData = await trRes.json();
+          if (trData.translations && trData.translations.length > 0) {
+            const raw = trData.translations[0].text || '';
+            setTranslationText(raw.replace(/<[^>]*>/g, '').trim());
+          }
+        } else {
+          // For languages like Greek, use backend verse API
+          const verseRes = await fetch(`${BACKEND_URL}/api/quran/v4/verses/by_chapter/${sNum}?language=${locale}&per_page=300`);
+          const verseData = await verseRes.json();
+          const verse = verseData.verses?.find((v: any) => v.verse_key === `${sNum}:${aNum}`);
+          if (verse?.translations?.[0]?.text) {
+            setTranslationText(verse.translations[0].text.replace(/<[^>]*>/g, '').trim());
+          }
         }
       }
     } catch (e) {

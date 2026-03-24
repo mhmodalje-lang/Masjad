@@ -34,7 +34,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://quran-verify-4.preview.emergentagent.com"
+BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
 
 # Test languages - all 9 as requested
 ALL_LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]

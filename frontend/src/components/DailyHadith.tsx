@@ -99,20 +99,7 @@ export default function DailyHadith() {
         </p>
         
         {/* Hadith text — elegant centered typography */}
-        {hadith.translation_pending ? (
-          <>
-            <p className="text-lg font-arabic text-foreground leading-[2.4] text-center mb-4 px-2" dir="rtl">
-              «{hadith.arabic_text || hadith.text}»
-            </p>
-            <div className="w-16 h-[1px] mx-auto bg-gradient-to-r from-transparent via-[hsl(var(--islamic-gold)/0.3)] to-transparent mb-3" />
-            <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-xl bg-amber-500/10 border border-amber-500/20 mx-4">
-              <BookOpen className="h-3.5 w-3.5 text-amber-600" />
-              <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                {t('hadithTranslationPending') || 'Translation Pending'}
-              </span>
-            </div>
-          </>
-        ) : hadith.arabic_text ? (
+        {hadith.arabic_text ? (
           <>
             <p className="text-lg font-arabic text-foreground leading-[2.4] text-center mb-4 px-2" dir="rtl">
               «{hadith.arabic_text}»

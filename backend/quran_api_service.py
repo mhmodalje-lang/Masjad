@@ -16,13 +16,13 @@ from motor.motor_asyncio import AsyncIOMotorClient
 QURAN_EDITIONS = {
     "ar": "quran-uthmani",          # Original Uthmani text (King Fahd Complex)
     "en": "en.sahih",               # Saheeh International (KFGQPC)
-    "de": "de.bubenheim",           # Frank Bubenheim & Nadeem (recognized German)
-    "fr": "fr.montada",             # Montada Islamic Foundation (modern, verified French)
+    "de": "de.bubenheim",           # Frank Bubenheim & Nadeem
+    "fr": "fr.hamidullah",          # Muhammad Hamidullah (classic French)
     "tr": "tr.diyanet",             # Diyanet İşleri (Turkey's official authority)
-    "ru": "ru.kuliev",              # Elmir Kuliev (standard Russian)
+    "ru": "ru.abuadel",             # Abu Adel (verified Russian)
     "sv": "sv.bernstrom",           # Knut Bernström (official Swedish)
-    "nl": "nl.abdalsalaam",         # Malak Faris Abdalsalaam (modern Dutch)
-    "el": "en.sahih",               # Fallback to Saheeh International (no Greek available)
+    "nl": "nl.siregar",             # Sofian S. Siregar (verified Dutch)
+    "el": "el.rwwad",               # QuranEnc Rowwad (Greek)
 }
 
 # Tafsir (interpretation) editions where available

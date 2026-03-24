@@ -1,6 +1,6 @@
 {
   "timestamp": "2026-03-23T14:43:06.252251",
-  "backend_url": "https://quran-verify-4.preview.emergentagent.com",
+  "backend_url": "https://quran-rebuild-v2026.preview.emergentagent.com",
   "total_tests": 12,
   "passed": 10,
   "failed": 2,
@@ -19,7 +19,7 @@
       },
       "test_name": "Health Check",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/health",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/health",
       "expected_status": 200,
       "description": "Should return 200 with healthy status"
     },
@@ -32,7 +32,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "Privacy Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/privacy",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/privacy",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -45,7 +45,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "Terms Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/terms",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/terms",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -58,7 +58,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "About Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/about",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/about",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -71,7 +71,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "Contact Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/contact",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/contact",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -84,7 +84,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "Delete Data Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/delete-data",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/delete-data",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -97,7 +97,7 @@
       "response_text": "<!doctype html>\n<html lang=\"ar\" dir=\"rtl\">\n  <head>\n    <script type=\"module\">import { injectIntoGlobalHook } from \"/@react-refresh\";\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () => {};\nwind...",
       "test_name": "Content Policy Page",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/content-policy",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/content-policy",
       "expected_status": 200,
       "description": "Frontend route should be accessible"
     },
@@ -110,7 +110,7 @@
       "response_text": "# app-ads.txt - Azan & Hikaya\n# Publisher ID not configured yet. Set it in Admin Dashboard > Ad Settings.\n",
       "test_name": "App Ads TXT",
       "method": "GET",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/app-ads-txt",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/app-ads-txt",
       "expected_status": 200,
       "description": "Should return text/plain response"
     },
@@ -125,7 +125,7 @@
       },
       "test_name": "Delete Account (No Auth)",
       "method": "DELETE",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/auth/delete-account",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/auth/delete-account",
       "expected_status": 401,
       "description": "Should return 401 without auth"
     },
@@ -150,7 +150,7 @@
       },
       "test_name": "Report Content (No Auth)",
       "method": "POST",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/report",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/report",
       "expected_status": 401,
       "description": "Should return 401 without auth"
     },
@@ -175,7 +175,7 @@
       },
       "test_name": "Block User (No Auth)",
       "method": "POST",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/block-user",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/block-user",
       "expected_status": 401,
       "description": "Should return 401 without auth"
     },
@@ -191,7 +191,7 @@
       },
       "test_name": "Data Deletion Request",
       "method": "POST",
-      "url": "https://quran-verify-4.preview.emergentagent.com/api/data-deletion-request",
+      "url": "https://quran-rebuild-v2026.preview.emergentagent.com/api/data-deletion-request",
       "expected_status": 200,
       "description": "Should return 200 with valid data"
     }

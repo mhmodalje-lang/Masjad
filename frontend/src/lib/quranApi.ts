@@ -1,14 +1,17 @@
 /**
- * Quran.com API v4 Integration
+ * Quran.com API v4 Integration — V2026 GLOBAL REBUILD
  * Maps Surah and Hadith requests directly to https://api.quran.com/api/v4
  * Ensures 100% accuracy by using official API - NO machine translation for religious texts
  *
- * Supported Quran translation editions per language:
- * - English (en): Sahih International (131)
- * - German (de): Abu Rida Muhammad ibn Ahmad ibn Rassoul (27)
- * - Russian (ru): Ministry of Awqaf, Egypt (45)
+ * V2026 Translation IDs:
+ * - English (en): Sahih International (20)
+ * - German (de): Frank Bubenheim & Nadeem (27)
  * - French (fr): Muhammad Hamidullah (31)
  * - Turkish (tr): Diyanet İşleri (77)
+ * - Russian (ru): Abu Adel (79)
+ * - Swedish (sv): Knut Bernström (48)
+ * - Dutch (nl): Sofian S. Siregar (144)
+ * - Greek (el): QuranEnc Rowwad (via backend)
  *
  * Reference: https://api.quran.com/api/v4
  */
@@ -16,13 +19,13 @@
 const QURAN_API_BASE = 'https://api.quran.com/api/v4';
 const SUNNAH_API_BASE = 'https://api.sunnah.com/v1';
 
-// Official Quran.com translation resource IDs
+// V2026: Official Quran.com translation resource IDs
 export const QURAN_TRANSLATION_IDS: Record<string, number> = {
   en: 20,   // Saheeh International (KFGQPC)
-  de: 27,   // Bubenheim & Elyas (KFGQPC)
-  ru: 45,   // Elmir Kuliev (Standard Russian)
-  fr: 136,  // Montada Islamic Foundation (Modern French)
+  de: 27,   // Frank Bubenheim & Nadeem
+  fr: 31,   // Muhammad Hamidullah (classic French)
   tr: 77,   // Diyanet İşleri Başkanlığı
+  ru: 79,   // Abu Adel (verified Russian)
   sv: 48,   // Knut Bernström (Official Swedish)
   nl: 144,  // Sofian S. Siregar (Verified Dutch)
   el: 9999, // Greek: Rowwad Translation Center via QuranEnc.com (handled by backend)

@@ -19,7 +19,7 @@ router = APIRouter(tags=["Sponsored Content"])
 SPONSORED_CONTENT = [
     # ═══ ISLAMIC BOOKS ═══
     {"id": "sp_quran_tafsir", "category": "books", "emoji": "📖",
-     "title": {"ar": "تفسير ابن كثير الميسر", "en": "Ibn Kathir Tafsir Simplified", "de": "Ibn Kathir Tafsir vereinfacht", "fr": "Tafsir Ibn Kathir simplifié", "tr": "İbn Kesir Tefsiri", "ru": "Тафсир Ибн Касира", "sv": "Ibn Kathir Tafsir", "nl": "Ibn Kathir Tafsir", "el": "Ταφσίρ Ιμπν Καθίρ"},
+     "title": {"ar": "المختصر في تفسير القرآن الكريم", "en": "The Abridged Explanation of the Noble Quran", "de": "Kurzfassung der Erläuterung des edlen Quran", "fr": "L'Explication Abrégée du Noble Coran", "tr": "Kur'ân-ı Kerîm'in Kısa Açıklaması", "ru": "Краткое толкование Священного Корана", "sv": "Den Kortfattade Förklaringen av den Ädla Koranen", "nl": "De Beknopte Uitleg van de Edele Koran", "el": "Η Συνοπτική Εξήγηση του Ευγενούς Κορανίου"},
      "desc": {"ar": "فهم القرآن بأسلوب سهل ومبسط", "en": "Understand the Quran in a simple way", "de": "Den Quran einfach verstehen", "fr": "Comprendre le Coran facilement", "tr": "Kur'an'ı kolay anlayın", "ru": "Понимание Корана простым языком", "sv": "Förstå Koranen enkelt", "nl": "Begrijp de Koran eenvoudig", "el": "Κατανόηση του Κορανίου"},
      "cta": {"ar": "اقرأ مجاناً", "en": "Read Free", "de": "Kostenlos lesen", "fr": "Lire gratuitement", "tr": "Ücretsiz oku", "ru": "Читать бесплатно", "sv": "Läs gratis", "nl": "Gratis lezen", "el": "Διάβασε δωρεάν"},
      "color": "#10B981", "icon": "📖", "coins_reward": 5, "placement": ["main", "quran", "stories"],
