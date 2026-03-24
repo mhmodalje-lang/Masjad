@@ -35,6 +35,7 @@ from quran_api_service import (
     get_kids_surahs_all, get_surah_arabic_and_translation,
     QURAN_EDITIONS, KIDS_SURAH_NUMBERS, prefetch_kids_surahs
 )
+from kids_games_engine import generate_daily_games
 
 router = APIRouter(tags=["Kids Learn"])
 
@@ -542,3 +543,162 @@ async def get_digital_shield_themes(locale: str = "en"):
         for t, c in theme_map.items()
     ]
     return {"success": True, "themes": themes}
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# GAME ENGINE — Interactive Daily Games for Noor Academy
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/kids-learn/daily-games")
+async def get_daily_games(locale: str = "en", day: int = 0):
+    """Get today's set of interactive games (or a specific day's games)."""
+    if day <= 0:
+        from datetime import datetime
+        day = datetime.now().timetuple().tm_yday
+    
+    try:
+        games_data = generate_daily_games(day, locale)
+        return {"success": True, **games_data}
+    except Exception as e:
+        logger.error(f"Error generating daily games: {e}")
+        return {"success": False, "error": str(e)}
+
+
+@router.get("/kids-learn/game/{day}")
+async def get_game_by_day(day: int, locale: str = "en"):
+    """Get games for a specific day number (1-365)."""
+    if day < 1 or day > 365:
+        return {"success": False, "error": "Day must be between 1 and 365"}
+    games_data = generate_daily_games(day, locale)
+    return {"success": True, **games_data}
+
+
+class GameResultPayload(BaseModel):
+    user_id: str
+    game_id: str
+    day: int
+    score: int
+    max_score: int
+    xp_earned: int
+    time_seconds: int = 0
+
+
+@router.post("/kids-learn/game-result")
+async def save_game_result(payload: GameResultPayload):
+    """Save a game result and update streaks/XP."""
+    coll = db["kids_game_results"]
+    today_str = date.today().isoformat()
+    
+    result = {
+        "id": str(uuid.uuid4()),
+        "user_id": payload.user_id,
+        "game_id": payload.game_id,
+        "day": payload.day,
+        "score": payload.score,
+        "max_score": payload.max_score,
+        "xp_earned": payload.xp_earned,
+        "time_seconds": payload.time_seconds,
+        "date": today_str,
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    await coll.insert_one(result)
+    
+    # Update user profile: XP + streak
+    profile_coll = db["kids_profiles"]
+    profile = await profile_coll.find_one({"user_id": payload.user_id})
+    if not profile:
+        profile = {
+            "user_id": payload.user_id,
+            "total_xp": 0,
+            "level": 1,
+            "streak_days": 0,
+            "last_active_date": "",
+            "games_completed": 0,
+            "badges": [],
+            "coins": 0,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        await profile_coll.insert_one(profile)
+    
+    # Update XP
+    new_xp = profile.get("total_xp", 0) + payload.xp_earned
+    new_level = 1 + new_xp // 100  # Level up every 100 XP
+    new_games = profile.get("games_completed", 0) + 1
+    
+    # Update streak
+    last_date = profile.get("last_active_date", "")
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    if last_date == today_str:
+        new_streak = profile.get("streak_days", 0)
+    elif last_date == yesterday:
+        new_streak = profile.get("streak_days", 0) + 1
+    else:
+        new_streak = 1
+    
+    await profile_coll.update_one(
+        {"user_id": payload.user_id},
+        {"$set": {
+            "total_xp": new_xp,
+            "level": new_level,
+            "streak_days": new_streak,
+            "last_active_date": today_str,
+            "games_completed": new_games,
+        }}
+    )
+    
+    return {
+        "success": True,
+        "xp_earned": payload.xp_earned,
+        "total_xp": new_xp,
+        "level": new_level,
+        "streak_days": new_streak,
+        "games_completed": new_games,
+    }
+
+
+@router.get("/kids-learn/profile/{user_id}")
+async def get_kid_profile(user_id: str):
+    """Get a kid's game profile with stats."""
+    profile_coll = db["kids_profiles"]
+    profile = await profile_coll.find_one({"user_id": user_id})
+    if not profile:
+        profile = {
+            "user_id": user_id,
+            "total_xp": 0,
+            "level": 1,
+            "streak_days": 0,
+            "last_active_date": "",
+            "games_completed": 0,
+            "badges": [],
+            "coins": 0,
+        }
+    
+    # Check streak validity
+    today_str = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    last_date = profile.get("last_active_date", "")
+    if last_date not in [today_str, yesterday] and last_date != "":
+        profile["streak_days"] = 0  # Streak broken
+    
+    # Remove mongo _id
+    profile.pop("_id", None)
+    
+    return {"success": True, "profile": profile}
+
+
+@router.post("/kids-learn/reward-ad")
+async def reward_ad_watched(user_id: str, coins: int = 10):
+    """Reward coins for watching an ad."""
+    profile_coll = db["kids_profiles"]
+    profile = await profile_coll.find_one({"user_id": user_id})
+    if not profile:
+        return {"success": False, "error": "Profile not found"}
+    
+    new_coins = profile.get("coins", 0) + coins
+    await profile_coll.update_one(
+        {"user_id": user_id},
+        {"$set": {"coins": new_coins}}
+    )
+    
+    return {"success": True, "coins": new_coins, "earned": coins}
