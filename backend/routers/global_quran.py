@@ -1,26 +1,29 @@
 """
-Global Quran Verse API — V2026 REAL TAFSIR REBUILD
-====================================================
+Global Quran Verse API — V2026 REAL TAFSIR + LLM TRANSLATION
+==============================================================
 SINGLE unified endpoint. ALL 114 surahs, ALL 9 languages.
 
-REAL TAFSIR SOURCES (actual scholarly tafsir, NOT translations):
-- ar: التفسير الميسر (Al-Muyassar) — مجمع الملك فهد (ID 16, Quran.com tafsir endpoint)
-- en: Ibn Kathir Abridged (ID 169) — Quran.com tafsir endpoint (truncated)
-- ru: Тафсир ас-Саади (As-Sa'di) — (ID 170, Quran.com tafsir endpoint)
-- fr: QuranEnc french_rashid footnotes — Real scholarly explanatory notes
-- de/tr/sv/nl/el: Arabic التفسير الميسر (no native tafsir available in these languages)
-
-Tafsir = EXPLANATION of meaning, context, reasons of revelation.
-Translation = Just the meaning in another language.
-These are DIFFERENT. We never use another translation as "tafsir".
+REAL TAFSIR SOURCES:
+- ar: التفسير الميسر (Al-Muyassar) — مجمع الملك فهد
+- en: Ibn Kathir Abridged (ID 169)
+- ru: Тафсир ас-Саади (As-Sa'di) (ID 170)
+- fr: QuranEnc french_rashid footnotes
+- de/tr/sv/nl/el: LLM translation of Ibn Kathir into target language (cached in MongoDB)
 """
 
+import os
 import re
 import httpx
+import asyncio
+import logging
 from fastapi import APIRouter, Query
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 from deps import db
+
+load_dotenv()
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["global-quran"])
 
@@ -57,22 +60,85 @@ QURANENC_TAFSIR_KEYS = {
     "en_alt": "english_rwwad",   # English Rowwad — backup footnotes
 }
 
-# Languages WITHOUT native tafsir → use Arabic التفسير الميسر
-# (Turkish, German, Swedish, Dutch, Greek have NO real tafsir on any free Islamic API)
-ARABIC_TAFSIR_FALLBACK_LANGS = {"de", "tr", "sv", "nl", "el"}
+# Languages that need LLM translation of tafsir
+LLM_TAFSIR_LANGS = {"de", "tr", "sv", "nl", "el", "fr"}
 
 # Tafsir source labels per language
 TAFSIR_SOURCE_LABELS = {
     "ar": "التفسير الميسر — مجمع الملك فهد لطباعة المصحف الشريف",
     "en": "Ibn Kathir — Tafsir of the Noble Quran",
     "ru": "Тафсир ас-Саади — шейх Абдуррахман ас-Саади",
-    "fr": "Notes explicatives — Rachid Maash (QuranEnc)",
-    "de": "التفسير الميسر — König-Fahd-Komplex (Arabisch)",
-    "tr": "التفسير الميسر — Kral Fahd Kompleksi (Arapça)",
-    "sv": "التفسير الميسر — Kung Fahds Komplex (Arabiska)",
-    "nl": "التفسير الميسر — Koning Fahd Complex (Arabisch)",
-    "el": "التفسير الميسر — Συγκρότημα Βασιλιά Φαχντ (Αραβικά)",
+    "fr": "Ibn Kathir — Tafsir du Noble Coran",
+    "de": "Ibn Kathir — Tafsir des edlen Quran",
+    "tr": "İbn Kesir — Kur'an-ı Kerim Tefsiri",
+    "sv": "Ibn Kathir — Tafsir av den Ädla Koranen",
+    "nl": "Ibn Kathir — Tafsir van de Edele Koran",
+    "el": "Ιμπν Κατίρ — Τάφσιρ του Ευγενούς Κορανίου",
 }
+
+# Language full names for LLM prompt
+LANG_NAMES = {
+    "fr": "French", "de": "German", "tr": "Turkish",
+    "sv": "Swedish", "nl": "Dutch", "el": "Greek",
+}
+
+
+async def _translate_tafsir_llm(english_tafsir: str, target_lang: str, verse_key: str) -> str:
+    """Translate English tafsir to target language using LLM. Cache in MongoDB."""
+    if not english_tafsir:
+        return ""
+
+    # Check MongoDB cache first
+    cache_key = f"llm_tafsir_{target_lang}_{verse_key}"
+    try:
+        cached = await db.llm_tafsir_cache.find_one({"cache_key": cache_key})
+        if cached and cached.get("text"):
+            return cached["text"]
+    except Exception:
+        pass
+
+    # Translate using LLM
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        return ""
+
+    lang_name = LANG_NAMES.get(target_lang, target_lang)
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        chat = LlmChat(
+            api_key=api_key,
+            session_id=f"tafsir_translate_{cache_key}",
+            system_message=f"You are a precise translator of Islamic Quran tafsir (commentary). Translate the following scholarly Quran tafsir text from English to {lang_name}. Maintain the scholarly Islamic tone and terminology. Keep Arabic terms like Allah, Quran, Surah, and proper names in their commonly used form in {lang_name}. Do NOT add any commentary of your own. Output ONLY the translated text, nothing else."
+        )
+        chat.with_model("gemini", "gemini-2.5-flash")
+
+        # Truncate if too long for translation
+        source = english_tafsir[:2000]
+        msg = UserMessage(text=f"Translate this Quran tafsir to {lang_name}:\n\n{source}")
+        translated = await chat.send_message(msg)
+
+        if translated and len(translated) > 20:
+            # Cache in MongoDB
+            try:
+                await db.llm_tafsir_cache.update_one(
+                    {"cache_key": cache_key},
+                    {"$set": {
+                        "cache_key": cache_key,
+                        "text": translated,
+                        "source_lang": "en",
+                        "target_lang": target_lang,
+                        "verse_key": verse_key,
+                        "created_at": datetime.utcnow(),
+                    }},
+                    upsert=True,
+                )
+            except Exception:
+                pass
+            return translated
+    except Exception as e:
+        logger.warning(f"LLM tafsir translation failed for {verse_key} to {target_lang}: {e}")
+
+    return ""
 
 # Max chars for tafsir display
 MAX_TAFSIR_CHARS = 1500  # Allow more for real tafsir content
@@ -298,21 +364,25 @@ async def get_global_verse(
         tafsir_id = REAL_TAFSIR_IDS[base_lang]
         tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, tafsir_id)
 
-    # Strategy 2: QuranEnc footnotes (fr)
-    elif base_lang in QURANENC_TAFSIR_KEYS:
-        qe_key = QURANENC_TAFSIR_KEYS[base_lang]
-        tafsir_text = await _fetch_quranenc_footnotes(surah_id, ayah_id, qe_key)
-        # If no footnotes for this verse, fall back to Arabic tafsir
-        if not tafsir_text:
-            tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)  # Al-Muyassar
+    # Strategy 2: LLM translation of English tafsir (fr, de, tr, sv, nl, el)
+    elif base_lang in LLM_TAFSIR_LANGS:
+        # First fetch the English tafsir (Ibn Kathir)
+        en_tafsir = await _fetch_real_tafsir(surah_id, ayah_id, 169)
+        if en_tafsir:
+            # Translate to target language using LLM
+            tafsir_text = await _translate_tafsir_llm(en_tafsir, base_lang, verse_key)
             if tafsir_text:
+                tafsir_is_arabic = False
+            else:
+                # Fallback to Arabic if LLM fails
+                tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)
                 tafsir_is_arabic = True
-                tafsir_source = TAFSIR_SOURCE_LABELS.get("ar", "")
-
-    # Strategy 3: Arabic Al-Muyassar fallback (de, tr, sv, nl, el)
-    elif base_lang in ARABIC_TAFSIR_FALLBACK_LANGS:
-        tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)  # Al-Muyassar
-        tafsir_is_arabic = True
+                tafsir_source = "التفسير الميسر"
+        else:
+            # If English tafsir not available, fallback to Arabic
+            tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)
+            tafsir_is_arabic = True
+            tafsir_source = "التفسير الميسر"
 
     # Truncate if too long
     if len(tafsir_text) > MAX_TAFSIR_CHARS:
