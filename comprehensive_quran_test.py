@@ -11,7 +11,7 @@ import re
 from typing import Dict, Any, List
 
 # Base URL from frontend/.env
-BASE_URL = "https://hadith-cards.preview.emergentagent.com"
+BASE_URL = "https://kidszone-learn.preview.emergentagent.com"
 
 # All 9 languages to test
 LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]

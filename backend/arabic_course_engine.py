@@ -19,38 +19,149 @@ COURSE_LEVELS = [
 ]
 
 # ═══════════════════════════════════════════════════════
-# ARABIC ALPHABET — Complete with all forms
+# ARABIC ALPHABET — Complete with all forms + 9 languages
 # ═══════════════════════════════════════════════════════
 
 ARABIC_LETTERS = [
-    {"letter": "ا", "name": "Alif", "sound": "a", "transliteration": {"en":"Alif","fr":"Alif","de":"Alif","tr":"Elif","ru":"Алиф","sv":"Alif","nl":"Alif","el":"Αλίφ"}, "forms": {"isolated": "ا", "initial": "ا", "medial": "ـا", "final": "ـا"}, "emoji": "🐪", "word": {"ar": "أسد", "en": "Lion"}},
-    {"letter": "ب", "name": "Ba", "sound": "b", "transliteration": {"en":"Ba","fr":"Ba","de":"Ba","tr":"Be","ru":"Ба","sv":"Ba","nl":"Ba","el":"Μπα"}, "forms": {"isolated": "ب", "initial": "بـ", "medial": "ـبـ", "final": "ـب"}, "emoji": "🏠", "word": {"ar": "بيت", "en": "House"}},
-    {"letter": "ت", "name": "Ta", "sound": "t", "transliteration": {"en":"Ta","fr":"Ta","de":"Ta","tr":"Te","ru":"Та","sv":"Ta","nl":"Ta","el":"Τα"}, "forms": {"isolated": "ت", "initial": "تـ", "medial": "ـتـ", "final": "ـت"}, "emoji": "🍎", "word": {"ar": "تفاحة", "en": "Apple"}},
-    {"letter": "ث", "name": "Tha", "sound": "th", "transliteration": {"en":"Tha","fr":"Tha","de":"Tha","tr":"Se","ru":"Са","sv":"Tha","nl":"Tha","el":"Θα"}, "forms": {"isolated": "ث", "initial": "ثـ", "medial": "ـثـ", "final": "ـث"}, "emoji": "🦊", "word": {"ar": "ثعلب", "en": "Fox"}},
-    {"letter": "ج", "name": "Jim", "sound": "j", "transliteration": {"en":"Jim","fr":"Jim","de":"Dschim","tr":"Cim","ru":"Джим","sv":"Jim","nl":"Jim","el":"Τζιμ"}, "forms": {"isolated": "ج", "initial": "جـ", "medial": "ـجـ", "final": "ـج"}, "emoji": "🐫", "word": {"ar": "جمل", "en": "Camel"}},
-    {"letter": "ح", "name": "Ha", "sound": "ḥ", "transliteration": {"en":"Ha","fr":"Ha","de":"Ha","tr":"Ha","ru":"Ха","sv":"Ha","nl":"Ha","el":"Χα"}, "forms": {"isolated": "ح", "initial": "حـ", "medial": "ـحـ", "final": "ـح"}, "emoji": "🐴", "word": {"ar": "حصان", "en": "Horse"}},
-    {"letter": "خ", "name": "Kha", "sound": "kh", "transliteration": {"en":"Kha","fr":"Kha","de":"Cha","tr":"Hı","ru":"Ха","sv":"Kha","nl":"Kha","el":"Χα"}, "forms": {"isolated": "خ", "initial": "خـ", "medial": "ـخـ", "final": "ـخ"}, "emoji": "🍞", "word": {"ar": "خبز", "en": "Bread"}},
-    {"letter": "د", "name": "Dal", "sound": "d", "transliteration": {"en":"Dal","fr":"Dal","de":"Dal","tr":"Dal","ru":"Даль","sv":"Dal","nl":"Dal","el":"Νταλ"}, "forms": {"isolated": "د", "initial": "د", "medial": "ـد", "final": "ـد"}, "emoji": "🐻", "word": {"ar": "دب", "en": "Bear"}},
-    {"letter": "ذ", "name": "Dhal", "sound": "dh", "transliteration": {"en":"Dhal","fr":"Dhal","de":"Dhal","tr":"Zel","ru":"Заль","sv":"Dhal","nl":"Dhal","el":"Ζαλ"}, "forms": {"isolated": "ذ", "initial": "ذ", "medial": "ـذ", "final": "ـذ"}, "emoji": "🐺", "word": {"ar": "ذئب", "en": "Wolf"}},
-    {"letter": "ر", "name": "Ra", "sound": "r", "transliteration": {"en":"Ra","fr":"Ra","de":"Ra","tr":"Ra","ru":"Ра","sv":"Ra","nl":"Ra","el":"Ρα"}, "forms": {"isolated": "ر", "initial": "ر", "medial": "ـر", "final": "ـر"}, "emoji": "👨", "word": {"ar": "رجل", "en": "Man"}},
-    {"letter": "ز", "name": "Zay", "sound": "z", "transliteration": {"en":"Zay","fr":"Zay","de":"Zay","tr":"Ze","ru":"Зай","sv":"Zay","nl":"Zay","el":"Ζάι"}, "forms": {"isolated": "ز", "initial": "ز", "medial": "ـز", "final": "ـز"}, "emoji": "🌸", "word": {"ar": "زهرة", "en": "Flower"}},
-    {"letter": "س", "name": "Sin", "sound": "s", "transliteration": {"en":"Sin","fr":"Sin","de":"Sin","tr":"Sin","ru":"Син","sv":"Sin","nl":"Sin","el":"Σιν"}, "forms": {"isolated": "س", "initial": "سـ", "medial": "ـسـ", "final": "ـس"}, "emoji": "🐟", "word": {"ar": "سمكة", "en": "Fish"}},
-    {"letter": "ش", "name": "Shin", "sound": "sh", "transliteration": {"en":"Shin","fr":"Shin","de":"Schin","tr":"Şın","ru":"Шин","sv":"Shin","nl":"Shin","el":"Σιν"}, "forms": {"isolated": "ش", "initial": "شـ", "medial": "ـشـ", "final": "ـش"}, "emoji": "☀️", "word": {"ar": "شمس", "en": "Sun"}},
-    {"letter": "ص", "name": "Sad", "sound": "ṣ", "transliteration": {"en":"Sad","fr":"Sad","de":"Sad","tr":"Sad","ru":"Сад","sv":"Sad","nl":"Sad","el":"Σαντ"}, "forms": {"isolated": "ص", "initial": "صـ", "medial": "ـصـ", "final": "ـص"}, "emoji": "🧑", "word": {"ar": "صبي", "en": "Boy"}},
-    {"letter": "ض", "name": "Dad", "sound": "ḍ", "transliteration": {"en":"Dad","fr":"Dad","de":"Dad","tr":"Dad","ru":"Дад","sv":"Dad","nl":"Dad","el":"Ντα"}, "forms": {"isolated": "ض", "initial": "ضـ", "medial": "ـضـ", "final": "ـض"}, "emoji": "🐸", "word": {"ar": "ضفدع", "en": "Frog"}},
-    {"letter": "ط", "name": "Ta (emphatic)", "sound": "ṭ", "transliteration": {"en":"Ta","fr":"Ta","de":"Ta","tr":"Tı","ru":"Та","sv":"Ta","nl":"Ta","el":"Τα"}, "forms": {"isolated": "ط", "initial": "طـ", "medial": "ـطـ", "final": "ـط"}, "emoji": "🐦", "word": {"ar": "طائر", "en": "Bird"}},
-    {"letter": "ظ", "name": "Dha (emphatic)", "sound": "ẓ", "transliteration": {"en":"Dha","fr":"Dha","de":"Dha","tr":"Zı","ru":"За","sv":"Dha","nl":"Dha","el":"Ζα"}, "forms": {"isolated": "ظ", "initial": "ظـ", "medial": "ـظـ", "final": "ـظ"}, "emoji": "🫎", "word": {"ar": "ظبي", "en": "Deer"}},
-    {"letter": "ع", "name": "Ayn", "sound": "ʿ", "transliteration": {"en":"Ayn","fr":"Ayn","de":"Ayn","tr":"Ayn","ru":"Айн","sv":"Ayn","nl":"Ayn","el":"Αΐν"}, "forms": {"isolated": "ع", "initial": "عـ", "medial": "ـعـ", "final": "ـع"}, "emoji": "👁️", "word": {"ar": "عين", "en": "Eye"}},
-    {"letter": "غ", "name": "Ghayn", "sound": "gh", "transliteration": {"en":"Ghayn","fr":"Ghayn","de":"Ghain","tr":"Gayn","ru":"Гайн","sv":"Ghayn","nl":"Ghayn","el":"Γάιν"}, "forms": {"isolated": "غ", "initial": "غـ", "medial": "ـغـ", "final": "ـغ"}, "emoji": "☁️", "word": {"ar": "غيمة", "en": "Cloud"}},
-    {"letter": "ف", "name": "Fa", "sound": "f", "transliteration": {"en":"Fa","fr":"Fa","de":"Fa","tr":"Fe","ru":"Фа","sv":"Fa","nl":"Fa","el":"Φα"}, "forms": {"isolated": "ف", "initial": "فـ", "medial": "ـفـ", "final": "ـف"}, "emoji": "🐘", "word": {"ar": "فيل", "en": "Elephant"}},
-    {"letter": "ق", "name": "Qaf", "sound": "q", "transliteration": {"en":"Qaf","fr":"Qaf","de":"Qaf","tr":"Kaf","ru":"Каф","sv":"Qaf","nl":"Qaf","el":"Καφ"}, "forms": {"isolated": "ق", "initial": "قـ", "medial": "ـقـ", "final": "ـق"}, "emoji": "🐈", "word": {"ar": "قطة", "en": "Cat"}},
-    {"letter": "ك", "name": "Kaf", "sound": "k", "transliteration": {"en":"Kaf","fr":"Kaf","de":"Kaf","tr":"Kef","ru":"Каф","sv":"Kaf","nl":"Kaf","el":"Καφ"}, "forms": {"isolated": "ك", "initial": "كـ", "medial": "ـكـ", "final": "ـك"}, "emoji": "📖", "word": {"ar": "كتاب", "en": "Book"}},
-    {"letter": "ل", "name": "Lam", "sound": "l", "transliteration": {"en":"Lam","fr":"Lam","de":"Lam","tr":"Lam","ru":"Лям","sv":"Lam","nl":"Lam","el":"Λαμ"}, "forms": {"isolated": "ل", "initial": "لـ", "medial": "ـلـ", "final": "ـل"}, "emoji": "🍋", "word": {"ar": "ليمون", "en": "Lemon"}},
-    {"letter": "م", "name": "Mim", "sound": "m", "transliteration": {"en":"Mim","fr":"Mim","de":"Mim","tr":"Mim","ru":"Мим","sv":"Mim","nl":"Mim","el":"Μιμ"}, "forms": {"isolated": "م", "initial": "مـ", "medial": "ـمـ", "final": "ـم"}, "emoji": "🌙", "word": {"ar": "قمر", "en": "Moon"}},
-    {"letter": "ن", "name": "Nun", "sound": "n", "transliteration": {"en":"Nun","fr":"Nun","de":"Nun","tr":"Nun","ru":"Нун","sv":"Nun","nl":"Nun","el":"Νουν"}, "forms": {"isolated": "ن", "initial": "نـ", "medial": "ـنـ", "final": "ـن"}, "emoji": "⭐", "word": {"ar": "نجمة", "en": "Star"}},
-    {"letter": "ه", "name": "Ha", "sound": "h", "transliteration": {"en":"Ha","fr":"Ha","de":"Ha","tr":"He","ru":"Ха","sv":"Ha","nl":"Ha","el":"Χα"}, "forms": {"isolated": "ه", "initial": "هـ", "medial": "ـهـ", "final": "ـه"}, "emoji": "🎁", "word": {"ar": "هدية", "en": "Gift"}},
-    {"letter": "و", "name": "Waw", "sound": "w", "transliteration": {"en":"Waw","fr":"Waw","de":"Waw","tr":"Vav","ru":"Вав","sv":"Waw","nl":"Waw","el":"Ουάου"}, "forms": {"isolated": "و", "initial": "و", "medial": "ـو", "final": "ـو"}, "emoji": "🌹", "word": {"ar": "وردة", "en": "Rose"}},
-    {"letter": "ي", "name": "Ya", "sound": "y", "transliteration": {"en":"Ya","fr":"Ya","de":"Ya","tr":"Ye","ru":"Йа","sv":"Ya","nl":"Ya","el":"Για"}, "forms": {"isolated": "ي", "initial": "يـ", "medial": "ـيـ", "final": "ـي"}, "emoji": "✋", "word": {"ar": "يد", "en": "Hand"}},
+    {"letter": "ا", "name": "Alif", "sound": "a",
+     "transliteration": {"ar":"ألف","en":"Alif","fr":"Alif","de":"Alif","tr":"Elif","ru":"Алиф","sv":"Alif","nl":"Alif","el":"Αλίφ"},
+     "forms": {"isolated": "ا", "initial": "ا", "medial": "ـا", "final": "ـا"}, "emoji": "🐪",
+     "word": {"ar": "أسد", "en": "Lion", "fr": "Lion", "de": "Löwe", "tr": "Aslan", "ru": "Лев", "sv": "Lejon", "nl": "Leeuw", "el": "Λιοντάρι"}},
+
+    {"letter": "ب", "name": "Ba", "sound": "b",
+     "transliteration": {"ar":"باء","en":"Ba","fr":"Ba","de":"Ba","tr":"Be","ru":"Ба","sv":"Ba","nl":"Ba","el":"Μπα"},
+     "forms": {"isolated": "ب", "initial": "بـ", "medial": "ـبـ", "final": "ـب"}, "emoji": "🏠",
+     "word": {"ar": "بيت", "en": "House", "fr": "Maison", "de": "Haus", "tr": "Ev", "ru": "Дом", "sv": "Hus", "nl": "Huis", "el": "Σπίτι"}},
+
+    {"letter": "ت", "name": "Ta", "sound": "t",
+     "transliteration": {"ar":"تاء","en":"Ta","fr":"Ta","de":"Ta","tr":"Te","ru":"Та","sv":"Ta","nl":"Ta","el":"Τα"},
+     "forms": {"isolated": "ت", "initial": "تـ", "medial": "ـتـ", "final": "ـت"}, "emoji": "🍎",
+     "word": {"ar": "تفاحة", "en": "Apple", "fr": "Pomme", "de": "Apfel", "tr": "Elma", "ru": "Яблоко", "sv": "Äpple", "nl": "Appel", "el": "Μήλο"}},
+
+    {"letter": "ث", "name": "Tha", "sound": "th",
+     "transliteration": {"ar":"ثاء","en":"Tha","fr":"Tha","de":"Tha","tr":"Se","ru":"Са","sv":"Tha","nl":"Tha","el":"Θα"},
+     "forms": {"isolated": "ث", "initial": "ثـ", "medial": "ـثـ", "final": "ـث"}, "emoji": "🦊",
+     "word": {"ar": "ثعلب", "en": "Fox", "fr": "Renard", "de": "Fuchs", "tr": "Tilki", "ru": "Лиса", "sv": "Räv", "nl": "Vos", "el": "Αλεπού"}},
+
+    {"letter": "ج", "name": "Jim", "sound": "j",
+     "transliteration": {"ar":"جيم","en":"Jim","fr":"Jim","de":"Dschim","tr":"Cim","ru":"Джим","sv":"Jim","nl":"Jim","el":"Τζιμ"},
+     "forms": {"isolated": "ج", "initial": "جـ", "medial": "ـجـ", "final": "ـج"}, "emoji": "🐫",
+     "word": {"ar": "جمل", "en": "Camel", "fr": "Chameau", "de": "Kamel", "tr": "Deve", "ru": "Верблюд", "sv": "Kamel", "nl": "Kameel", "el": "Καμήλα"}},
+
+    {"letter": "ح", "name": "Ha", "sound": "ḥ",
+     "transliteration": {"ar":"حاء","en":"Ha","fr":"Ha","de":"Ha","tr":"Ha","ru":"Ха","sv":"Ha","nl":"Ha","el":"Χα"},
+     "forms": {"isolated": "ح", "initial": "حـ", "medial": "ـحـ", "final": "ـح"}, "emoji": "🐴",
+     "word": {"ar": "حصان", "en": "Horse", "fr": "Cheval", "de": "Pferd", "tr": "At", "ru": "Лошадь", "sv": "Häst", "nl": "Paard", "el": "Άλογο"}},
+
+    {"letter": "خ", "name": "Kha", "sound": "kh",
+     "transliteration": {"ar":"خاء","en":"Kha","fr":"Kha","de":"Cha","tr":"Hı","ru":"Ха","sv":"Kha","nl":"Kha","el":"Χα"},
+     "forms": {"isolated": "خ", "initial": "خـ", "medial": "ـخـ", "final": "ـخ"}, "emoji": "🍞",
+     "word": {"ar": "خبز", "en": "Bread", "fr": "Pain", "de": "Brot", "tr": "Ekmek", "ru": "Хлеб", "sv": "Bröd", "nl": "Brood", "el": "Ψωμί"}},
+
+    {"letter": "د", "name": "Dal", "sound": "d",
+     "transliteration": {"ar":"دال","en":"Dal","fr":"Dal","de":"Dal","tr":"Dal","ru":"Даль","sv":"Dal","nl":"Dal","el":"Νταλ"},
+     "forms": {"isolated": "د", "initial": "د", "medial": "ـد", "final": "ـد"}, "emoji": "🐻",
+     "word": {"ar": "دب", "en": "Bear", "fr": "Ours", "de": "Bär", "tr": "Ayı", "ru": "Медведь", "sv": "Björn", "nl": "Beer", "el": "Αρκούδα"}},
+
+    {"letter": "ذ", "name": "Dhal", "sound": "dh",
+     "transliteration": {"ar":"ذال","en":"Dhal","fr":"Dhal","de":"Dhal","tr":"Zel","ru":"Заль","sv":"Dhal","nl":"Dhal","el":"Ζαλ"},
+     "forms": {"isolated": "ذ", "initial": "ذ", "medial": "ـذ", "final": "ـذ"}, "emoji": "🐺",
+     "word": {"ar": "ذئب", "en": "Wolf", "fr": "Loup", "de": "Wolf", "tr": "Kurt", "ru": "Волк", "sv": "Varg", "nl": "Wolf", "el": "Λύκος"}},
+
+    {"letter": "ر", "name": "Ra", "sound": "r",
+     "transliteration": {"ar":"راء","en":"Ra","fr":"Ra","de":"Ra","tr":"Ra","ru":"Ра","sv":"Ra","nl":"Ra","el":"Ρα"},
+     "forms": {"isolated": "ر", "initial": "ر", "medial": "ـر", "final": "ـر"}, "emoji": "👨",
+     "word": {"ar": "رجل", "en": "Man", "fr": "Homme", "de": "Mann", "tr": "Adam", "ru": "Мужчина", "sv": "Man", "nl": "Man", "el": "Άνδρας"}},
+
+    {"letter": "ز", "name": "Zay", "sound": "z",
+     "transliteration": {"ar":"زاي","en":"Zay","fr":"Zay","de":"Zay","tr":"Ze","ru":"Зай","sv":"Zay","nl":"Zay","el":"Ζάι"},
+     "forms": {"isolated": "ز", "initial": "ز", "medial": "ـز", "final": "ـز"}, "emoji": "🌸",
+     "word": {"ar": "زهرة", "en": "Flower", "fr": "Fleur", "de": "Blume", "tr": "Çiçek", "ru": "Цветок", "sv": "Blomma", "nl": "Bloem", "el": "Λουλούδι"}},
+
+    {"letter": "س", "name": "Sin", "sound": "s",
+     "transliteration": {"ar":"سين","en":"Sin","fr":"Sin","de":"Sin","tr":"Sin","ru":"Син","sv":"Sin","nl":"Sin","el":"Σιν"},
+     "forms": {"isolated": "س", "initial": "سـ", "medial": "ـسـ", "final": "ـس"}, "emoji": "🐟",
+     "word": {"ar": "سمكة", "en": "Fish", "fr": "Poisson", "de": "Fisch", "tr": "Balık", "ru": "Рыба", "sv": "Fisk", "nl": "Vis", "el": "Ψάρι"}},
+
+    {"letter": "ش", "name": "Shin", "sound": "sh",
+     "transliteration": {"ar":"شين","en":"Shin","fr":"Shin","de":"Schin","tr":"Şın","ru":"Шин","sv":"Shin","nl":"Shin","el":"Σιν"},
+     "forms": {"isolated": "ش", "initial": "شـ", "medial": "ـشـ", "final": "ـش"}, "emoji": "☀️",
+     "word": {"ar": "شمس", "en": "Sun", "fr": "Soleil", "de": "Sonne", "tr": "Güneş", "ru": "Солнце", "sv": "Sol", "nl": "Zon", "el": "Ήλιος"}},
+
+    {"letter": "ص", "name": "Sad", "sound": "ṣ",
+     "transliteration": {"ar":"صاد","en":"Sad","fr":"Sad","de":"Sad","tr":"Sad","ru":"Сад","sv":"Sad","nl":"Sad","el":"Σαντ"},
+     "forms": {"isolated": "ص", "initial": "صـ", "medial": "ـصـ", "final": "ـص"}, "emoji": "🧑",
+     "word": {"ar": "صبي", "en": "Boy", "fr": "Garçon", "de": "Junge", "tr": "Oğlan", "ru": "Мальчик", "sv": "Pojke", "nl": "Jongen", "el": "Αγόρι"}},
+
+    {"letter": "ض", "name": "Dad", "sound": "ḍ",
+     "transliteration": {"ar":"ضاد","en":"Dad","fr":"Dad","de":"Dad","tr":"Dad","ru":"Дад","sv":"Dad","nl":"Dad","el":"Ντα"},
+     "forms": {"isolated": "ض", "initial": "ضـ", "medial": "ـضـ", "final": "ـض"}, "emoji": "🐸",
+     "word": {"ar": "ضفدع", "en": "Frog", "fr": "Grenouille", "de": "Frosch", "tr": "Kurbağa", "ru": "Лягушка", "sv": "Groda", "nl": "Kikker", "el": "Βάτραχος"}},
+
+    {"letter": "ط", "name": "Ta (emphatic)", "sound": "ṭ",
+     "transliteration": {"ar":"طاء","en":"Ta","fr":"Ta","de":"Ta","tr":"Tı","ru":"Та","sv":"Ta","nl":"Ta","el":"Τα"},
+     "forms": {"isolated": "ط", "initial": "طـ", "medial": "ـطـ", "final": "ـط"}, "emoji": "🐦",
+     "word": {"ar": "طائر", "en": "Bird", "fr": "Oiseau", "de": "Vogel", "tr": "Kuş", "ru": "Птица", "sv": "Fågel", "nl": "Vogel", "el": "Πουλί"}},
+
+    {"letter": "ظ", "name": "Dha (emphatic)", "sound": "ẓ",
+     "transliteration": {"ar":"ظاء","en":"Dha","fr":"Dha","de":"Dha","tr":"Zı","ru":"За","sv":"Dha","nl":"Dha","el":"Ζα"},
+     "forms": {"isolated": "ظ", "initial": "ظـ", "medial": "ـظـ", "final": "ـظ"}, "emoji": "🫎",
+     "word": {"ar": "ظبي", "en": "Deer", "fr": "Cerf", "de": "Hirsch", "tr": "Geyik", "ru": "Олень", "sv": "Hjort", "nl": "Hert", "el": "Ελάφι"}},
+
+    {"letter": "ع", "name": "Ayn", "sound": "ʿ",
+     "transliteration": {"ar":"عين","en":"Ayn","fr":"Ayn","de":"Ayn","tr":"Ayn","ru":"Айн","sv":"Ayn","nl":"Ayn","el":"Αΐν"},
+     "forms": {"isolated": "ع", "initial": "عـ", "medial": "ـعـ", "final": "ـع"}, "emoji": "👁️",
+     "word": {"ar": "عين", "en": "Eye", "fr": "Œil", "de": "Auge", "tr": "Göz", "ru": "Глаз", "sv": "Öga", "nl": "Oog", "el": "Μάτι"}},
+
+    {"letter": "غ", "name": "Ghayn", "sound": "gh",
+     "transliteration": {"ar":"غين","en":"Ghayn","fr":"Ghayn","de":"Ghain","tr":"Gayn","ru":"Гайн","sv":"Ghayn","nl":"Ghayn","el":"Γάιν"},
+     "forms": {"isolated": "غ", "initial": "غـ", "medial": "ـغـ", "final": "ـغ"}, "emoji": "☁️",
+     "word": {"ar": "غيمة", "en": "Cloud", "fr": "Nuage", "de": "Wolke", "tr": "Bulut", "ru": "Облако", "sv": "Moln", "nl": "Wolk", "el": "Σύννεφο"}},
+
+    {"letter": "ف", "name": "Fa", "sound": "f",
+     "transliteration": {"ar":"فاء","en":"Fa","fr":"Fa","de":"Fa","tr":"Fe","ru":"Фа","sv":"Fa","nl":"Fa","el":"Φα"},
+     "forms": {"isolated": "ف", "initial": "فـ", "medial": "ـفـ", "final": "ـف"}, "emoji": "🐘",
+     "word": {"ar": "فيل", "en": "Elephant", "fr": "Éléphant", "de": "Elefant", "tr": "Fil", "ru": "Слон", "sv": "Elefant", "nl": "Olifant", "el": "Ελέφαντας"}},
+
+    {"letter": "ق", "name": "Qaf", "sound": "q",
+     "transliteration": {"ar":"قاف","en":"Qaf","fr":"Qaf","de":"Qaf","tr":"Kaf","ru":"Каф","sv":"Qaf","nl":"Qaf","el":"Καφ"},
+     "forms": {"isolated": "ق", "initial": "قـ", "medial": "ـقـ", "final": "ـق"}, "emoji": "🐈",
+     "word": {"ar": "قطة", "en": "Cat", "fr": "Chat", "de": "Katze", "tr": "Kedi", "ru": "Кошка", "sv": "Katt", "nl": "Kat", "el": "Γάτα"}},
+
+    {"letter": "ك", "name": "Kaf", "sound": "k",
+     "transliteration": {"ar":"كاف","en":"Kaf","fr":"Kaf","de":"Kaf","tr":"Kef","ru":"Каф","sv":"Kaf","nl":"Kaf","el":"Καφ"},
+     "forms": {"isolated": "ك", "initial": "كـ", "medial": "ـكـ", "final": "ـك"}, "emoji": "📖",
+     "word": {"ar": "كتاب", "en": "Book", "fr": "Livre", "de": "Buch", "tr": "Kitap", "ru": "Книга", "sv": "Bok", "nl": "Boek", "el": "Βιβλίο"}},
+
+    {"letter": "ل", "name": "Lam", "sound": "l",
+     "transliteration": {"ar":"لام","en":"Lam","fr":"Lam","de":"Lam","tr":"Lam","ru":"Лям","sv":"Lam","nl":"Lam","el":"Λαμ"},
+     "forms": {"isolated": "ل", "initial": "لـ", "medial": "ـلـ", "final": "ـل"}, "emoji": "🍋",
+     "word": {"ar": "ليمون", "en": "Lemon", "fr": "Citron", "de": "Zitrone", "tr": "Limon", "ru": "Лимон", "sv": "Citron", "nl": "Citroen", "el": "Λεμόνι"}},
+
+    {"letter": "م", "name": "Mim", "sound": "m",
+     "transliteration": {"ar":"ميم","en":"Mim","fr":"Mim","de":"Mim","tr":"Mim","ru":"Мим","sv":"Mim","nl":"Mim","el":"Μιμ"},
+     "forms": {"isolated": "م", "initial": "مـ", "medial": "ـمـ", "final": "ـم"}, "emoji": "🌙",
+     "word": {"ar": "قمر", "en": "Moon", "fr": "Lune", "de": "Mond", "tr": "Ay", "ru": "Луна", "sv": "Måne", "nl": "Maan", "el": "Φεγγάρι"}},
+
+    {"letter": "ن", "name": "Nun", "sound": "n",
+     "transliteration": {"ar":"نون","en":"Nun","fr":"Nun","de":"Nun","tr":"Nun","ru":"Нун","sv":"Nun","nl":"Nun","el":"Νουν"},
+     "forms": {"isolated": "ن", "initial": "نـ", "medial": "ـنـ", "final": "ـن"}, "emoji": "⭐",
+     "word": {"ar": "نجمة", "en": "Star", "fr": "Étoile", "de": "Stern", "tr": "Yıldız", "ru": "Звезда", "sv": "Stjärna", "nl": "Ster", "el": "Αστέρι"}},
+
+    {"letter": "ه", "name": "Ha", "sound": "h",
+     "transliteration": {"ar":"هاء","en":"Ha","fr":"Ha","de":"Ha","tr":"He","ru":"Ха","sv":"Ha","nl":"Ha","el":"Χα"},
+     "forms": {"isolated": "ه", "initial": "هـ", "medial": "ـهـ", "final": "ـه"}, "emoji": "🎁",
+     "word": {"ar": "هدية", "en": "Gift", "fr": "Cadeau", "de": "Geschenk", "tr": "Hediye", "ru": "Подарок", "sv": "Gåva", "nl": "Cadeau", "el": "Δώρο"}},
+
+    {"letter": "و", "name": "Waw", "sound": "w",
+     "transliteration": {"ar":"واو","en":"Waw","fr":"Waw","de":"Waw","tr":"Vav","ru":"Вав","sv":"Waw","nl":"Waw","el":"Ουάου"},
+     "forms": {"isolated": "و", "initial": "و", "medial": "ـو", "final": "ـو"}, "emoji": "🌹",
+     "word": {"ar": "وردة", "en": "Rose", "fr": "Rose", "de": "Rose", "tr": "Gül", "ru": "Роза", "sv": "Ros", "nl": "Roos", "el": "Τριαντάφυλλο"}},
+
+    {"letter": "ي", "name": "Ya", "sound": "y",
+     "transliteration": {"ar":"ياء","en":"Ya","fr":"Ya","de":"Ya","tr":"Ye","ru":"Йа","sv":"Ya","nl":"Ya","el":"Για"},
+     "forms": {"isolated": "ي", "initial": "يـ", "medial": "ـيـ", "final": "ـي"}, "emoji": "✋",
+     "word": {"ar": "يد", "en": "Hand", "fr": "Main", "de": "Hand", "tr": "El", "ru": "Рука", "sv": "Hand", "nl": "Hand", "el": "Χέρι"}},
 ]
 
 # ═══════════════════════════════════════════════════════
@@ -108,6 +219,22 @@ COURSE_UNITS = {
     ],
 }
 
+# ═══════════════════════════════════════════════════════
+# FORM NAMES — All 9 languages
+# ═══════════════════════════════════════════════════════
+
+FORM_NAMES = {
+    "ar": ["معزول", "بداية", "وسط", "نهاية"],
+    "en": ["Isolated", "Initial", "Medial", "Final"],
+    "fr": ["Isolée", "Initiale", "Médiane", "Finale"],
+    "de": ["Isoliert", "Anfang", "Mitte", "Ende"],
+    "tr": ["Tek", "Başta", "Ortada", "Sonda"],
+    "ru": ["Отдельная", "Начальная", "Средняя", "Конечная"],
+    "sv": ["Isolerad", "Början", "Mitten", "Slutet"],
+    "nl": ["Geïsoleerd", "Initiaal", "Mediaal", "Finaal"],
+    "el": ["Μεμονωμένο", "Αρχικό", "Μεσαίο", "Τελικό"],
+}
+
 
 def get_course_overview(locale: str = "en"):
     """Get the full course structure overview."""
@@ -145,12 +272,12 @@ def get_alphabet_lesson(letter_index: int, locale: str = "en"):
     lt = ARABIC_LETTERS[letter_index]
     return {
         "letter": lt["letter"],
-        "name": lt["transliteration"].get(lang, lt["name"]),
+        "name": lt["transliteration"].get(lang, lt["transliteration"].get("en", lt["name"])),
         "sound": lt["sound"],
         "forms": lt["forms"],
         "emoji": lt["emoji"],
         "example_word": lt["word"]["ar"],
-        "example_translation": lt["word"]["en"],
+        "example_translation": lt["word"].get(lang, lt["word"]["en"]),
         "index": letter_index,
         "total": len(ARABIC_LETTERS),
     }
@@ -165,6 +292,7 @@ def generate_letter_games(letter_index: int, locale: str = "en"):
     random.seed(letter_index)
 
     games = []
+    letter_name = lt["transliteration"].get(lang, lt["transliteration"].get("en", lt["name"]))
 
     # Game 1: Letter Recognition Quiz
     other_indices = [i for i in range(len(ARABIC_LETTERS)) if i != letter_index]
@@ -173,15 +301,15 @@ def generate_letter_games(letter_index: int, locale: str = "en"):
     random.shuffle(options)
     correct_idx = options.index(lt["letter"])
     q_texts = {
-        "ar": f"أين حرف {lt['name']}؟",
-        "en": f"Where is the letter {lt['transliteration'].get('en', lt['name'])}?",
-        "fr": f"Où est la lettre {lt['transliteration'].get('fr', lt['name'])} ?",
-        "de": f"Wo ist der Buchstabe {lt['transliteration'].get('de', lt['name'])}?",
-        "tr": f"{lt['transliteration'].get('tr', lt['name'])} harfi nerede?",
-        "ru": f"Где буква {lt['transliteration'].get('ru', lt['name'])}?",
-        "sv": f"Var är bokstaven {lt['transliteration'].get('sv', lt['name'])}?",
-        "nl": f"Waar is de letter {lt['transliteration'].get('nl', lt['name'])}?",
-        "el": f"Πού είναι το γράμμα {lt['transliteration'].get('el', lt['name'])};",
+        "ar": f"أين حرف {letter_name}؟",
+        "en": f"Where is the letter {letter_name}?",
+        "fr": f"Où est la lettre {letter_name} ?",
+        "de": f"Wo ist der Buchstabe {letter_name}?",
+        "tr": f"{letter_name} harfi nerede?",
+        "ru": f"Где буква {letter_name}?",
+        "sv": f"Var är bokstaven {letter_name}?",
+        "nl": f"Waar is de letter {letter_name}?",
+        "el": f"Πού είναι το γράμμα {letter_name};",
     }
     games.append({
         "type": "quiz",
@@ -194,11 +322,10 @@ def generate_letter_games(letter_index: int, locale: str = "en"):
         "emoji": "🔤",
     })
 
-    # Game 2: Letter Forms Memory Match
-    form_names = {"ar": ["معزول", "بداية", "وسط", "نهاية"], "en": ["Isolated", "Initial", "Medial", "Final"]}
+    # Game 2: Letter Forms Memory Match — all 9 languages
     forms = list(lt["forms"].values())
     cards = []
-    labels = form_names.get(lang, form_names["en"])
+    labels = FORM_NAMES.get(lang, FORM_NAMES["en"])
     for i, (form, label) in enumerate(zip(forms, labels)):
         cards.append({"id": f"f{i}", "content": form, "pair_id": f"p{i}", "type": "emoji"})
         cards.append({"id": f"l{i}", "content": label, "pair_id": f"p{i}", "type": "text"})
@@ -216,14 +343,14 @@ def generate_letter_games(letter_index: int, locale: str = "en"):
     # Game 3: Word Recognition
     word_q = {
         "ar": f"أي كلمة تبدأ بحرف {lt['letter']}؟",
-        "en": f"Which word starts with {lt['transliteration'].get('en', lt['name'])}?",
-        "fr": f"Quel mot commence par {lt['transliteration'].get('fr', lt['name'])} ?",
-        "de": f"Welches Wort beginnt mit {lt['transliteration'].get('de', lt['name'])}?",
-        "tr": f"Hangi kelime {lt['transliteration'].get('tr', lt['name'])} ile başlar?",
-        "ru": f"Какое слово начинается на {lt['transliteration'].get('ru', lt['name'])}?",
-        "sv": f"Vilket ord börjar med {lt['transliteration'].get('sv', lt['name'])}?",
-        "nl": f"Welk woord begint met {lt['transliteration'].get('nl', lt['name'])}?",
-        "el": f"Ποια λέξη ξεκινά με {lt['transliteration'].get('el', lt['name'])};",
+        "en": f"Which word starts with {letter_name}?",
+        "fr": f"Quel mot commence par {letter_name} ?",
+        "de": f"Welches Wort beginnt mit {letter_name}?",
+        "tr": f"Hangi kelime {letter_name} ile başlar?",
+        "ru": f"Какое слово начинается на {letter_name}?",
+        "sv": f"Vilket ord börjar med {letter_name}?",
+        "nl": f"Welk woord begint met {letter_name}?",
+        "el": f"Ποια λέξη ξεκινά με {letter_name};",
     }
     word_options = [lt["word"]["ar"]] + [ARABIC_LETTERS[i]["word"]["ar"] for i in random.sample(other_indices, 3)]
     random.shuffle(word_options)

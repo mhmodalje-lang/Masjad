@@ -726,12 +726,12 @@ async def course_alphabet(locale: str = "en"):
         letters.append({
             "index": i,
             "letter": lt["letter"],
-            "name": lt["transliteration"].get(lang, lt["name"]),
+            "name": lt["transliteration"].get(lang, lt["transliteration"].get("en", lt["name"])),
             "sound": lt["sound"],
             "forms": lt["forms"],
             "emoji": lt["emoji"],
             "word_ar": lt["word"]["ar"],
-            "word_en": lt["word"]["en"],
+            "word_en": lt["word"].get(lang, lt["word"]["en"]),
         })
     return {"success": True, "letters": letters, "total": len(letters)}
 

@@ -17,7 +17,7 @@ import sys
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://hadith-cards.preview.emergentagent.com"
+BACKEND_URL = "https://kidszone-learn.preview.emergentagent.com"
 
 # Languages to test (9 total)
 LANGUAGES = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
