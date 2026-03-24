@@ -31,12 +31,16 @@ export const QURAN_TRANSLATION_IDS: Record<string, number> = {
   // ar: Uses Tafsir Al-Muyassar (16) as explanation
 };
 
-// ═══════ TAFSIR IDS ═══════
-export const QURAN_TAFSIR_IDS = {
-  ibn_kathir_en: 169,  // Ibn Kathir (English)
-  ibn_kathir_ar: 14,   // Ibn Kathir (Arabic)
-  muyassar: 16,        // Tafsir Al-Muyassar (Arabic)
+// ═══════ TAFSIR IDS (per language where available) ═══════
+export const QURAN_TAFSIR_IDS: Record<string, number> = {
+  ar: 16,   // Tafsir Al-Muyassar (Arabic)
+  en: 169,  // Ibn Kathir Abridged (English)
+  ru: 170,  // Al-Sa'di (Russian)
 };
+
+// Arabic tafsir as universal fallback
+export const TAFSIR_MUYASSAR_ID = 16;
+export const TAFSIR_IBN_KATHIR_AR = 14;
 
 // ═══════ RECITER IDS ═══════
 export const QURAN_RECITERS: Record<string, { id: number; name: string }> = {
@@ -244,6 +248,65 @@ export async function fetchVersesByJuz(
     return { verses: [], pagination: {} };
   }
 }
+
+// ═══════ 4b. Fetch chapter tafsir (per language or fallback to Arabic) ═══════
+export async function fetchChapterTafsir(
+  chapterNumber: number,
+  language: string = 'ar'
+): Promise<Map<string, string>> {
+  const tafsirMap = new Map<string, string>();
+  
+  // Get tafsir ID for the language, fallback to Arabic Muyassar
+  const tafsirId = QURAN_TAFSIR_IDS[language] || TAFSIR_MUYASSAR_ID;
+  
+  try {
+    const res = await fetch(`${QURAN_API_BASE}/tafsirs/${tafsirId}/by_chapter/${chapterNumber}`);
+    if (!res.ok) return tafsirMap;
+    const data = await res.json();
+    for (const t of (data.tafsirs || [])) {
+      if (t.verse_key) {
+        tafsirMap.set(t.verse_key, stripHtml(t.text || ''));
+      }
+    }
+  } catch (e) {
+    console.warn(`Tafsir fetch failed for chapter ${chapterNumber}, lang ${language}:`, e);
+  }
+  
+  return tafsirMap;
+}
+
+// ═══════ 4c. Tafsir label per language ═══════
+export function getTafsirLabel(language: string): string {
+  const labels: Record<string, string> = {
+    ar: 'التفسير الميسر',
+    en: 'Tafsir Ibn Kathir (Abridged)',
+    fr: 'Explication (Tafsir Al-Muyassar)',
+    de: 'Erklärung (Tafsir Al-Muyassar)',
+    tr: 'Tefsir (Tefsir el-Müyesser)',
+    ru: 'Тафсир ас-Саади',
+    nl: 'Uitleg (Tafsir Al-Muyassar)',
+    sv: 'Förklaring (Tafsir Al-Muyassar)',
+    el: 'Ερμηνεία (Tafsir Al-Muyassar)',
+  };
+  return labels[language] || labels['en'];
+}
+
+// ═══════ 4d. Translation label per language ═══════
+export function getTranslationLabel(language: string): string {
+  const labels: Record<string, string> = {
+    ar: 'ترجمة المعاني',
+    en: 'Translation of Meanings',
+    fr: 'Traduction des sens',
+    de: 'Übersetzung der Bedeutungen',
+    tr: 'Anlam Çevirisi',
+    ru: 'Перевод смыслов',
+    nl: 'Vertaling van de betekenissen',
+    sv: 'Översättning av innebörderna',
+    el: 'Μετάφραση νοημάτων',
+  };
+  return labels[language] || labels['en'];
+}
+
 
 // ═══════ 5. Fetch translation for a specific verse ═══════
 export async function fetchVerseTranslation(

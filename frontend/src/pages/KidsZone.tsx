@@ -606,7 +606,8 @@ export default function KidsZone() {
             <span className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-500 dark:text-emerald-400 shrink-0">{a.number}</span>
             <div className="flex-1">
               <p className="text-xl font-bold font-arabic leading-loose" dir="rtl">{a.arabic}</p>
-              {a.translation && <p className="text-sm text-foreground/60 mt-2">{a.translation}</p>}
+              {a.translation && <p className="text-[15px] text-foreground font-medium mt-2 leading-relaxed" dir="auto">{a.translation}</p>}
+              {a.tafsir && <p className="text-xs text-foreground/50 mt-2 leading-relaxed border-t border-border/20 pt-2" dir="auto">📖 {a.tafsir.length > 150 ? a.tafsir.slice(0, 150) + '...' : a.tafsir}</p>}
             </div>
             <Volume2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-2"/>
           </div>

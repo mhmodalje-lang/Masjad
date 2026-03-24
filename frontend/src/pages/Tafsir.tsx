@@ -8,8 +8,11 @@ import {
   fetchTafsir,
   fetchVerseTranslation,
   getComingSoonLabel,
+  getTafsirLabel,
+  getTranslationLabel,
   QURAN_TAFSIR_IDS,
   QURAN_TRANSLATION_IDS,
+  TAFSIR_MUYASSAR_ID,
   type QuranChapter,
 } from '@/lib/quranApi';
 
@@ -61,11 +64,7 @@ export default function Tafsir() {
       const arabicText = await fetchVerseUthmani(verseKey);
       setAyahText(arabicText || '');
 
-      // 2. Fetch Tafsir (Ibn Kathir Arabic)
-      const tafsir = await fetchTafsir(verseKey, QURAN_TAFSIR_IDS.ibn_kathir_ar);
-      setTafsirText(tafsir || '');
-
-      // 3. Fetch translation for current language
+      // 2. Fetch translation for current language
       if (!isAr) {
         const transId = QURAN_TRANSLATION_IDS[locale];
         if (transId) {
@@ -79,10 +78,15 @@ export default function Tafsir() {
           setTranslationText(getComingSoonLabel(locale));
         }
       } else {
-        // For Arabic, show Al-Muyassar explanation
-        const muyassarText = await fetchTafsir(verseKey, QURAN_TAFSIR_IDS.muyassar);
+        // For Arabic, show Al-Muyassar as translation
+        const muyassarText = await fetchTafsir(verseKey, TAFSIR_MUYASSAR_ID);
         setTranslationText(muyassarText || '');
       }
+
+      // 3. Fetch tafsir in user's language (or fallback to Arabic)
+      const tafsirId = QURAN_TAFSIR_IDS[locale] || TAFSIR_MUYASSAR_ID;
+      const tafsir = await fetchTafsir(verseKey, tafsirId);
+      setTafsirText(tafsir || '');
     } catch (e) {
       console.error('Tafsir fetch error:', e);
       setTafsirText(t('tafsirError'));
@@ -239,28 +243,33 @@ export default function Tafsir() {
                 </div>
               </div>
 
-              {/* Translation — from Quran.com API v4 with correct ID */}
+              {/* Translation in user's language (PROMINENT) */}
               {translationText && (
                 <div className="p-4 rounded-2xl bg-card border border-border/20">
-                  <p className="text-xs font-bold text-muted-foreground mb-2 uppercase">
-                    {isAr ? 'التفسير الميسر' : t('meaningTranslation') || 'Translation'}
+                  <p className="text-[10px] font-bold text-primary/70 uppercase tracking-wider mb-2">
+                    {getTranslationLabel(locale)}
                   </p>
-                  <p className="text-sm text-foreground/80 leading-relaxed" dir={isAr ? 'rtl' : 'auto'}>
+                  <p className="text-[15px] text-foreground font-medium leading-relaxed" dir="auto">
                     {translationText}
                   </p>
                 </div>
               )}
 
-              {/* Ibn Kathir Tafsir */}
-              <div className="p-5 rounded-2xl bg-card border border-border/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="h-4 w-4 text-amber-500" />
-                  <p className="text-sm font-bold text-foreground">{t('tafsirIbnKathir')}</p>
+              {/* Tafsir/Explanation in user's language (or Arabic fallback) */}
+              {tafsirText && (
+                <div className="p-5 rounded-2xl bg-amber-500/5 border border-amber-500/15">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BookOpen className="h-4 w-4 text-amber-500" />
+                    <p className="text-sm font-bold text-amber-700 dark:text-amber-400">
+                      📖 {getTafsirLabel(locale)}
+                    </p>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-[2] whitespace-pre-wrap"
+                    dir={locale === 'en' || locale === 'ru' ? 'ltr' : isRTL ? 'rtl' : 'ltr'}>
+                    {tafsirText}
+                  </p>
                 </div>
-                <p className="text-sm text-foreground/80 leading-[2] whitespace-pre-wrap" dir="rtl">
-                  {tafsirText || t('tafsirSelectVerse')}
-                </p>
-              </div>
+              )}
             </>
           )}
         </div>

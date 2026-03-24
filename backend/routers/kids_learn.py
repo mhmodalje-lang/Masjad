@@ -112,7 +112,27 @@ async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
         except Exception as e:
             logger.warning(f"Kids Quran Muyassar fetch failed for surah {chapter_num}: {e}")
     
-    # Build ayahs with API translations (fall back to hardcoded if API fails)
+    # Fetch tafsir/explanation from Quran.com v4 API
+    TAFSIR_IDS = {"ar": 16, "en": 169, "ru": 170}
+    tafsir_id = TAFSIR_IDS.get(lang, 16)  # fallback to Arabic Muyassar
+    api_tafsirs = {}
+    
+    try:
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_chapter/{chapter_num}")
+            if r.status_code == 200:
+                data = r.json()
+                for t in data.get("tafsirs", []):
+                    verse_key = t.get("verse_key", "")
+                    if verse_key:
+                        ayah_num = int(verse_key.split(":")[1])
+                        raw = t.get("text", "")
+                        clean = re.sub(r'<[^>]*>', '', raw).replace("&nbsp;", " ").strip()
+                        api_tafsirs[ayah_num] = clean
+    except Exception as e:
+        logger.warning(f"Kids Quran tafsir fetch failed for surah {chapter_num}: {e}")
+    
+    # Build ayahs with API translations + tafsir
     ayahs = []
     for a in surah["ayahs"]:
         ayah_num = a["num"]
@@ -122,10 +142,14 @@ async def get_quran_surah_detail(surah_id: str, locale: str = "ar"):
             translation = a.get(lang, a.get("en", ""))
         if not translation and lang == "el":
             translation = a.get("el", "Η μετάφραση έρχεται σύντομα")
+        
+        tafsir_text = api_tafsirs.get(ayah_num, "")
+        
         ayahs.append({
             "number": ayah_num,
             "arabic": a["ar"],
             "translation": translation or "",
+            "tafsir": tafsir_text,
         })
     
     return {
