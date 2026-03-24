@@ -100,18 +100,18 @@ QURAN_V4_BASE = "https://api.quran.com/api/v4"
 
 # ==================== TAFSIR RESOURCE IDS ====================
 # V2026 GLOBAL REBUILD — المختصر في تفسير القرآن الكريم
-# Native tafsir resources on Quran.com API:
-#   ar → Tafsir Al-Muyassar (King Fahd Complex)
-#   en → Ibn Kathir (Abridged)
-#   ru → Al-Sa'di (Russian)
+# V2026 EMERGENCY: Ibn Kathir (169) is BLOCKED.
+# Use ONLY concise translation-based explanations.
+# For English: Abdel Haleem (85) as explanation via global-verse endpoint.
+# Legacy tafsir endpoint kept for backward compatibility but uses short sources.
 TAFSIR_RESOURCE_IDS = {
-    "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر)
-    "en": 169,   # Ibn Kathir (Abridged)
+    "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر) — short Arabic
+    "en": 0,     # BLOCKED: was 169 (Ibn Kathir) — use global-verse endpoint instead
     "ru": 170,   # Al-Sa'di (Russian)
 }
 
 # Languages that have NATIVE tafsir on Quran.com
-NATIVE_TAFSIR_LANGS = {"ar", "en", "ru"}
+NATIVE_TAFSIR_LANGS = {"ar", "ru"}
 
 # V2026: For non-native tafsir languages, use a DIFFERENT scholar's translation
 # as the scholarly tafsir/explanation — ALWAYS in the user's language.

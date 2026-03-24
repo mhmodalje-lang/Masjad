@@ -1,19 +1,14 @@
 """
-Global Quran Verse API — V2026 Architecture Overhaul
-=====================================================
+Global Quran Verse API — V2026 EMERGENCY FIX
+=============================================
 SINGLE unified endpoint for fetching Quran verses with translation + explanation.
 Used by the GlobalQuranVerse frontend component across ALL pages.
 
-Design: One endpoint returns everything needed to render a verse:
-- Arabic text (Uthmani script)
-- Translation in user's language
-- Concise explanation/tafsir (short, NOT 10-page Ibn Kathir)
-- Audio URL
-- Surah metadata
-
-ID Mapping (Quran.com API v4):
-- MAIN TRANSLATIONS: Used for verse display
-- EXPLANATION IDs: Used for "Show Explanation" button (different scholarly source)
+HARD RULES:
+- ID 169 (Ibn Kathir) is BLOCKED. Never used anywhere.
+- NO tafsir endpoints (/tafsirs/) for non-Arabic. ONLY /translations/.
+- Explanations are ALWAYS a short translation (1-2 lines), NOT scholarly tafsir.
+- 300-char hard truncation on ALL explanations as safety net.
 """
 
 import re
@@ -28,6 +23,11 @@ router = APIRouter(tags=["global-quran"])
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
 
 # ═══════════════════════════════════════════════════════════════
+# BLOCKED IDS — NEVER USE THESE
+# ═══════════════════════════════════════════════════════════════
+BLOCKED_IDS = {169}  # Ibn Kathir — 10-page thesis, BANNED
+
+# ═══════════════════════════════════════════════════════════════
 # MAIN TRANSLATION IDs — for verse display in user's language
 # ═══════════════════════════════════════════════════════════════
 MAIN_TRANSLATION_IDS = {
@@ -38,44 +38,41 @@ MAIN_TRANSLATION_IDS = {
     "ru": 79,    # Abu Adel
     "sv": 48,    # Knut Bernström
     "nl": 144,   # Sofian S. Siregar
-    "el": 0,     # Greek via QuranEnc (handled separately)
+    "el": 0,     # Greek via QuranEnc
 }
 
 # ═══════════════════════════════════════════════════════════════
-# EXPLANATION IDs — for "Show Explanation/Tafsir" button
-# These are DIFFERENT from main translations to provide a
-# second scholarly perspective. Short & concise.
+# EXPLANATION IDs — ONLY short translations, NO tafsir endpoints
+# A DIFFERENT translation from the main one = 2nd scholarly perspective
+# These are inherently 1-2 lines (verse translations, not tafsir)
 # ═══════════════════════════════════════════════════════════════
-
-# Languages with NATIVE tafsir on Quran.com (use tafsir endpoint)
-TAFSIR_IDS = {
-    "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر) — concise Arabic
-    "ru": 170,   # Al-Sa'di (Тафсир ас-Саади) — concise Russian
-}
-
-# Languages using a SECOND translation as explanation (use translation endpoint)
 EXPLANATION_TRANSLATION_IDS = {
-    "en": 85,    # Abdel Haleem (concise modern English, NOT Ibn Kathir 169)
+    "ar": 0,     # Arabic readers read the original — no explanation needed
+    "en": 85,    # Abdel Haleem (concise modern English)
     "de": 208,   # Abu Reda (vs main Bubenheim 27)
     "fr": 136,   # Montada Islamic Foundation (vs main Hamidullah 31)
     "tr": 52,    # Elmalılı Hamdi Yazır (vs main Diyanet 77)
-    "sv": 0,     # Only 1 Swedish translation → use Arabic Al-Muyassar
+    "ru": 45,    # Elmir Kuliev (vs main Abu Adel 79) — SHORT translation
+    "sv": 0,     # Only 1 Swedish translation available
     "nl": 235,   # Abdalsalaam (vs main Siregar 144)
-    "el": 0,     # Greek via QuranEnc
+    "el": 0,     # Greek via QuranEnc (same source)
 }
 
 # Explanation source labels per language
 EXPLANATION_SOURCE_LABELS = {
-    "ar": "التفسير الميسر — مجمع الملك فهد",
-    "en": "Dr. Mustafa Khattab — Abdel Haleem",
-    "ru": "Краткое толкование — ас-Саади",
+    "ar": "",
+    "en": "Abdel Haleem",
     "de": "Abu Reda Muhammad ibn Ahmad",
     "fr": "Fondation Islamique Montada",
     "tr": "Elmalılı Hamdi Yazır",
-    "sv": "التفسير الميسر (Arabisk)",
+    "ru": "Эльмир Кулиев",
+    "sv": "",
     "nl": "Malak Faris Abdalsalaam",
-    "el": "Κέντρο Μετάφρασης Ρουάντ",
+    "el": "",
 }
+
+# HARD LIMIT: Max characters for any explanation
+MAX_EXPLANATION_CHARS = 300
 
 CACHE_TTL_DAYS = 30
 
@@ -247,53 +244,34 @@ async def get_global_verse(
     if base_lang == "el" and not translation:
         translation = await _fetch_quranenc_greek(surah_id, ayah_id)
 
-    # ── Fetch concise explanation ──
+    # ── Fetch concise explanation (ONLY translations, NO tafsir endpoints) ──
     explanation = ""
     explanation_source = EXPLANATION_SOURCE_LABELS.get(base_lang, "")
 
-    # Strategy 1: Languages with native tafsir (ar, ru)
-    if base_lang in TAFSIR_IDS:
-        tafsir_id = TAFSIR_IDS[base_lang]
+    expl_id = EXPLANATION_TRANSLATION_IDS.get(base_lang, 0)
+
+    # Block banned IDs
+    if expl_id in BLOCKED_IDS:
+        expl_id = 0
+
+    if expl_id > 0:
         try:
             async with httpx.AsyncClient(timeout=30) as c:
-                r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
+                r = await c.get(
+                    f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
+                    params={"translations": str(expl_id), "fields": "text_uthmani", "words": "false"},
+                )
                 r.raise_for_status()
                 data = r.json()
-                raw = data.get("tafsir", {}).get("text", "")
-                explanation = _clean_html(raw)
+                trs = data.get("verse", {}).get("translations", [])
+                if trs:
+                    explanation = _clean_html(trs[0].get("text", ""))
         except Exception:
             pass
 
-    # Strategy 2: Languages using a second translation as explanation
-    elif base_lang in EXPLANATION_TRANSLATION_IDS:
-        expl_id = EXPLANATION_TRANSLATION_IDS[base_lang]
-        if expl_id > 0:
-            try:
-                async with httpx.AsyncClient(timeout=30) as c:
-                    r = await c.get(
-                        f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
-                        params={"translations": str(expl_id), "fields": "text_uthmani", "words": "false"},
-                    )
-                    r.raise_for_status()
-                    data = r.json()
-                    trs = data.get("verse", {}).get("translations", [])
-                    if trs:
-                        explanation = _clean_html(trs[0].get("text", ""))
-            except Exception:
-                pass
-        elif base_lang == "sv":
-            # Swedish: use Arabic Al-Muyassar as explanation
-            try:
-                async with httpx.AsyncClient(timeout=30) as c:
-                    r = await c.get(f"{QURAN_V4_BASE}/tafsirs/16/by_ayah/{verse_key}")
-                    r.raise_for_status()
-                    data = r.json()
-                    explanation = _clean_html(data.get("tafsir", {}).get("text", ""))
-            except Exception:
-                pass
-        elif base_lang == "el":
-            # Greek: use QuranEnc footnotes or same translation
-            explanation = translation  # Same source for now
+    # HARD TRUNCATION: Max 300 chars — no long text ever
+    if len(explanation) > MAX_EXPLANATION_CHARS:
+        explanation = explanation[:MAX_EXPLANATION_CHARS].rsplit(' ', 1)[0] + "…"
 
     # ── Build audio URL (EveryAyah CDN — Alafasy) ──
     audio_url = f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(ayah_id).zfill(3)}.mp3"

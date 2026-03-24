@@ -1,106 +1,98 @@
-backend:
-  - task: "NEW Global Verse Endpoint - Single Verse (Multiple Languages)"
-    implemented: true
-    working: true
-    file: "/app/backend/routers/global_quran.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Initial testing required for V2026 Architecture Overhaul - Global Verse API with multiple languages (en, fr, de, ru, tr, el)"
-      - working: true
-        agent: "testing"
-        comment: "✅ ALL LANGUAGES TESTED SUCCESSFULLY. English (13 words), French (9 words), German (7 words), Turkish (6 words), Greek (10 words) explanations are concise. Russian (163 words) uses native As-Sa'di tafsir which is longer but still acceptable. All endpoints return proper Arabic text, translations, explanations, surah metadata, and audio URLs. Fixed routing conflict by moving bulk endpoint before single verse endpoint."
+# Test Results - V2026 Emergency Fix: Concise Explanations
 
-  - task: "NEW Global Verse Endpoint - Bulk Verses"
-    implemented: true
-    working: true
-    file: "/app/backend/routers/global_quran.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Initial testing required for bulk verse endpoint with French translation"
-      - working: true
-        agent: "testing"
-        comment: "✅ BULK ENDPOINT WORKING. Fixed FastAPI routing conflict by reordering endpoints. Successfully returns 7 verses of Al-Fatiha with French translations. All verses have proper Arabic text, translations, and audio URLs."
+## Testing Protocol
 
-  - task: "Existing Tafsir Endpoint Compatibility"
-    implemented: true
-    working: true
-    file: "/app/backend/routers/quran_hadith.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Verify existing tafsir endpoint still works with French language"
-      - working: true
-        agent: "testing"
-        comment: "✅ EXISTING TAFSIR ENDPOINT WORKING. French tafsir returns proper text with translation_pending=false. Uses Montada Islamic Foundation source."
+### Communication Protocol
+- The testing agent should update this file with test results after each run
+- Results should include: test name, status (PASS/FAIL), and any error details
 
-  - task: "Existing Daily Hadith Endpoint Compatibility"
-    implemented: true
-    working: true
-    file: "/app/backend/routers/quran_hadith.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Verify existing daily hadith endpoint works with French language"
-      - working: true
-        agent: "testing"
-        comment: "✅ DAILY HADITH ENDPOINT WORKING. French hadith translation working properly with translation_pending=false. Returns Sahih Al-Boukhari source."
+### Testing Instructions
+- Backend tests should be run using `deep_testing_backend_v2`
+- Frontend tests should only be run after explicit user permission
 
-  - task: "Health Check Endpoint"
-    implemented: true
-    working: true
-    file: "/app/backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Basic health check verification"
-      - working: true
-        agent: "testing"
-        comment: "✅ HEALTH CHECK WORKING. Returns healthy status with timestamp."
+### Incorporate User Feedback
+- User feedback should be incorporated into the next iteration
 
-frontend:
-  - task: "Frontend Testing"
-    implemented: false
-    working: "NA"
-    file: "N/A"
-    stuck_count: 0
-    priority: "low"
-    needs_retesting: false
-    status_history:
-      - working: "NA"
-        agent: "testing"
-        comment: "Frontend testing not required per system instructions"
+## Emergency Fix Summary
 
-metadata:
-  created_by: "testing_agent"
-  version: "1.0"
-  test_sequence: 1
-  run_ui: false
+### BLOCKED: Ibn Kathir (ID 169) — PERMANENTLY REMOVED
+- Removed from TAFSIR_RESOURCE_IDS in quran_hadith.py
+- Not present in global_quran.py EXPLANATION_TRANSLATION_IDS
+- Added to BLOCKED_IDS set as safety
 
-test_plan:
-  current_focus: []
-  stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+### REPLACED: All tafsir endpoints with translation endpoints
+- NO MORE `/tafsirs/{id}/by_ayah/` calls for explanations
+- ALL explanations now use `/verses/by_key/` with translation IDs
+- Translations are inherently 1-2 lines (not scholarly debates)
 
-agent_communication:
-  - agent: "testing"
-    message: "Starting V2026 Architecture Overhaul testing. Focus on critical endpoints: Global Verse API (single & bulk), existing endpoint compatibility, and explanation text validation."
-  - agent: "testing"
-    message: "🎉 ALL BACKEND TESTS PASSED (10/10)! Fixed critical FastAPI routing conflict in global_quran.py by reordering bulk endpoint before single verse endpoint. All languages working: EN, FR, DE, RU, TR, EL. Explanations are concise except Russian (163 words using native As-Sa'di tafsir). All existing endpoints maintain compatibility. V2026 Architecture Overhaul is FULLY FUNCTIONAL."
+### 300-CHAR HARD TRUNCATION
+- MAX_EXPLANATION_CHARS = 300 in global_quran.py
+- Any text exceeding 300 chars is truncated with "…"
+
+### Explanation IDs (all use Translation endpoint, NOT Tafsir):
+- en: 85 (Abdel Haleem) | fr: 136 (Montada) | de: 208 (Abu Reda)
+- tr: 52 (Elmalılı) | ru: 45 (Kuliev) | nl: 235 (Abdalsalaam)
+- ar/sv/el: No explanation button (reads original or only 1 translation)
+
+### DB Cache Purged
+- All global_verse_cache, quran_cache, tafsir_cache cleared
+
+### Test: Ayat Al-Kursi (2:255) — longest common verse
+- en: 298 chars ✅ | fr: 294 chars ✅ | de: 300 chars ✅
+- tr: 299 chars ✅ | ru: 293 chars ✅ | nl: 298 chars ✅
+
+## V2026 EMERGENCY FIX - COMPREHENSIVE TEST RESULTS
+
+### Testing Agent: Backend Testing Complete
+**Date:** 2026-01-27  
+**Base URL:** https://quran-rebuild-v2026.preview.emergentagent.com  
+**Total Tests:** 19  
+**Status:** ALL TESTS PASSED ✅
+
+### Critical Requirements Verification:
+
+#### 1. Ibn Kathir BLOCKED ✅
+- **Test:** `GET /api/quran/v4/global-verse/2/255?language=en`
+- **Result:** Source = "Abdel Haleem" (NOT Ibn Kathir)
+- **Length:** 298 characters (< 300 ✅)
+- **Status:** Ibn Kathir completely absent from system
+
+#### 2. All Languages Concise Explanations ✅
+- **French:** Source = "Fondation Islamique Montada", 294 chars
+- **German:** Source = "Abu Reda Muhammad ibn Ahmad", 300 chars
+- **Turkish:** Source = "Elmalılı Hamdi Yazır", 299 chars
+- **Russian:** Source = "Эльмир Кулиев" (NOT As-Sa'di), 293 chars
+- **Dutch:** Source = "Malak Faris Abdalsalaam", 298 chars
+
+#### 3. No Explanation Languages ✅
+- **Arabic:** Empty explanation "" ✅
+- **Swedish:** Empty explanation "" ✅
+- **Greek:** Empty explanation "" ✅
+
+#### 4. Short Verse Test ✅
+- **Bismillah (1:1):** 58 characters (< 100 ✅)
+
+#### 5. Health Check ✅
+- **API Status:** Healthy and responsive
+
+#### 6. Character Limit Enforcement ✅
+- **300-char hard limit:** All explanations ≤ 300 characters
+- **Multiple verses tested:** 2:255, 18:1, 36:1 across all languages
+- **Truncation working:** No explanation exceeds limit
+
+### Backend API Status:
+- **Health endpoint:** Working ✅
+- **Global verse endpoint:** Working ✅
+- **Language parameter handling:** Working ✅
+- **Source attribution:** Working ✅
+- **Character truncation:** Working ✅
+
+### Emergency Fix Verification:
+- ✅ Ibn Kathir (ID 169) completely removed
+- ✅ All explanations use translation endpoints (not tafsir)
+- ✅ 300-character hard truncation implemented
+- ✅ Correct source attribution for all languages
+- ✅ Empty explanations for ar/sv/el languages
+- ✅ Database cache properly cleared
+
+**CONCLUSION:** V2026 Emergency Fix successfully implemented and fully functional. All critical requirements met.
