@@ -36,6 +36,7 @@ from quran_api_service import (
     QURAN_EDITIONS, KIDS_SURAH_NUMBERS, prefetch_kids_surahs
 )
 from kids_games_engine import generate_daily_games
+from arabic_course_engine import get_course_overview, get_alphabet_lesson, generate_letter_games, ARABIC_LETTERS
 
 router = APIRouter(tags=["Kids Learn"])
 
@@ -702,3 +703,44 @@ async def reward_ad_watched(user_id: str, coins: int = 10):
     )
     
     return {"success": True, "coins": new_coins, "earned": coins}
+
+
+
+# ═══════════════════════════════════════════════════════════════
+# ARABIC & QURAN COURSE — Comprehensive Learning Path (0 → C1)
+# ═══════════════════════════════════════════════════════════════
+
+@router.get("/kids-learn/course/overview")
+async def course_overview(locale: str = "en"):
+    """Get the full Arabic & Quran course structure (Foundation → C1)."""
+    levels = get_course_overview(locale)
+    return {"success": True, "levels": levels, "total_levels": len(levels)}
+
+
+@router.get("/kids-learn/course/alphabet")
+async def course_alphabet(locale: str = "en"):
+    """Get all 28 Arabic letters with forms and examples."""
+    lang = locale if locale != "de-AT" else "de"
+    letters = []
+    for i, lt in enumerate(ARABIC_LETTERS):
+        letters.append({
+            "index": i,
+            "letter": lt["letter"],
+            "name": lt["transliteration"].get(lang, lt["name"]),
+            "sound": lt["sound"],
+            "forms": lt["forms"],
+            "emoji": lt["emoji"],
+            "word_ar": lt["word"]["ar"],
+            "word_en": lt["word"]["en"],
+        })
+    return {"success": True, "letters": letters, "total": len(letters)}
+
+
+@router.get("/kids-learn/course/alphabet/{index}")
+async def course_alphabet_letter(index: int, locale: str = "en"):
+    """Get a specific letter lesson with games."""
+    lesson = get_alphabet_lesson(index, locale)
+    if not lesson:
+        return {"success": False, "error": "Invalid letter index"}
+    games = generate_letter_games(index, locale)
+    return {"success": True, "lesson": lesson, "games": games}

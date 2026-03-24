@@ -2457,5 +2457,15 @@
   "playNow": "Spielen",
   "journeyDesc": "Schließe tägliche Spiele ab, um voranzukommen!",
   "coinsEarned": "Münzen verdient!",
-  "dragDropChallenge": "Ordne die Schritte"
+  "dragDropChallenge": "Ordne die Schritte",
+  "arabicCourse": "Arabisch & Koran Kurs",
+  "zeroToC1": "Null → C1",
+  "levels": "Stufen",
+  "units": "Einheiten",
+  "letter": "Buchstabe",
+  "sound": "Laut",
+  "practiceNow": "Jetzt üben",
+  "start": "Starten",
+  "letterComplete": "Buchstabe abgeschlossen!",
+  "allLettersComplete": "Alle Buchstaben geschafft!"
 }

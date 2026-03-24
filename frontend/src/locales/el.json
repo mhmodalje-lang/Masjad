@@ -2457,5 +2457,15 @@
   "playNow": "Παίξε",
   "journeyDesc": "Ολοκλήρωσε καθημερινά παιχνίδια για να προχωρήσεις!",
   "coinsEarned": "νομίσματα κερδήθηκαν!",
-  "dragDropChallenge": "Τακτοποίησε τα βήματα"
+  "dragDropChallenge": "Τακτοποίησε τα βήματα",
+  "arabicCourse": "Μάθημα αραβικών & Κορανιού",
+  "zeroToC1": "Μηδέν → C1",
+  "levels": "επίπεδα",
+  "units": "μονάδες",
+  "letter": "Γράμμα",
+  "sound": "Ήχος",
+  "practiceNow": "Εξάσκηση τώρα",
+  "start": "Ξεκίνα",
+  "letterComplete": "Γράμμα ολοκληρώθηκε!",
+  "allLettersComplete": "Όλα τα γράμματα ολοκληρώθηκαν!"
 }

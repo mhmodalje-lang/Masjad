@@ -2457,5 +2457,15 @@
   "playNow": "Играть",
   "journeyDesc": "Проходи ежедневные игры, чтобы продвигаться!",
   "coinsEarned": "монет заработано!",
-  "dragDropChallenge": "Расположи шаги"
+  "dragDropChallenge": "Расположи шаги",
+  "arabicCourse": "Курс арабского и Корана",
+  "zeroToC1": "С нуля → C1",
+  "levels": "уровней",
+  "units": "разделов",
+  "letter": "Буква",
+  "sound": "Звук",
+  "practiceNow": "Практикуй сейчас",
+  "start": "Начать",
+  "letterComplete": "Буква пройдена!",
+  "allLettersComplete": "Все буквы пройдены!"
 }

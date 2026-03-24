@@ -2457,5 +2457,15 @@
   "playNow": "Play",
   "journeyDesc": "Complete daily games to advance on your path!",
   "coinsEarned": "coins earned!",
-  "dragDropChallenge": "Order the Steps"
+  "dragDropChallenge": "Order the Steps",
+  "arabicCourse": "Arabic & Quran Course",
+  "zeroToC1": "Zero → C1",
+  "levels": "levels",
+  "units": "units",
+  "letter": "Letter",
+  "sound": "Sound",
+  "practiceNow": "Practice Now",
+  "start": "Start",
+  "letterComplete": "Letter complete!",
+  "allLettersComplete": "All letters complete! 🎉"
 }

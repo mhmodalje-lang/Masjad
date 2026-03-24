@@ -2457,5 +2457,15 @@
   "playNow": "Spela",
   "journeyDesc": "Slutför dagliga spel för att avancera!",
   "coinsEarned": "mynt tjänade!",
-  "dragDropChallenge": "Ordna stegen"
+  "dragDropChallenge": "Ordna stegen",
+  "arabicCourse": "Arabiska & Korankurs",
+  "zeroToC1": "Noll → C1",
+  "levels": "nivåer",
+  "units": "enheter",
+  "letter": "Bokstav",
+  "sound": "Ljud",
+  "practiceNow": "Öva nu",
+  "start": "Starta",
+  "letterComplete": "Bokstav klar!",
+  "allLettersComplete": "Alla bokstäver klara!"
 }

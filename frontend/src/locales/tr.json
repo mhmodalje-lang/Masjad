@@ -2457,5 +2457,15 @@
   "playNow": "Oyna",
   "journeyDesc": "Yolunda ilerlemek için günlük oyunları tamamla!",
   "coinsEarned": "jeton kazanıldı!",
-  "dragDropChallenge": "Adımları Sırala"
+  "dragDropChallenge": "Adımları Sırala",
+  "arabicCourse": "Arapça ve Kur'an Kursu",
+  "zeroToC1": "Sıfırdan → C1",
+  "levels": "seviye",
+  "units": "ünite",
+  "letter": "Harf",
+  "sound": "Ses",
+  "practiceNow": "Şimdi Pratik Yap",
+  "start": "Başla",
+  "letterComplete": "Harf tamamlandı!",
+  "allLettersComplete": "Tüm harfler tamamlandı!"
 }

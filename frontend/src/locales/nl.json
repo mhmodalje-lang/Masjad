@@ -2457,5 +2457,15 @@
   "playNow": "Spelen",
   "journeyDesc": "Voltooi dagelijkse spellen om vooruit te komen!",
   "coinsEarned": "munten verdiend!",
-  "dragDropChallenge": "Rangschik de stappen"
+  "dragDropChallenge": "Rangschik de stappen",
+  "arabicCourse": "Arabisch & Koran cursus",
+  "zeroToC1": "Nul → C1",
+  "levels": "niveaus",
+  "units": "eenheden",
+  "letter": "Letter",
+  "sound": "Klank",
+  "practiceNow": "Nu oefenen",
+  "start": "Start",
+  "letterComplete": "Letter voltooid!",
+  "allLettersComplete": "Alle letters voltooid!"
 }

@@ -1,314 +1,291 @@
 #!/usr/bin/env python3
 """
-Noor Academy Game Engine Backend Testing Suite
-Tests all game engine endpoints for the Islamic kids app
-Base URL: https://hadith-cards.preview.emergentagent.com
+Arabic Course Engine & App UI Rebuild - Comprehensive Backend Testing
+Testing all endpoints for the new Arabic & Quran Course system
 """
-
 import requests
 import json
 import sys
 from datetime import datetime
 
-# Configuration
+# Base URL from environment
 BASE_URL = "https://hadith-cards.preview.emergentagent.com"
-LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
-TEST_USER_ID = "test_backend_user"
 
-class GameEngineTestSuite:
+# Test configuration
+LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
+EXPECTED_LEVELS = 6
+EXPECTED_LETTERS = 28
+EXPECTED_TOTAL_LESSONS = 216  # Foundation=40, A1=34, A2=34, B1=36, B2=36, C1=36
+
+class TestResults:
     def __init__(self):
         self.passed = 0
         self.failed = 0
-        self.results = []
+        self.errors = []
         
-    def log(self, message, status="INFO"):
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {status}: {message}")
+    def log_pass(self, test_name):
+        print(f"✅ {test_name}")
+        self.passed += 1
         
-    def test_endpoint(self, method, endpoint, expected_status=200, data=None, description=""):
-        """Test a single endpoint"""
-        url = f"{BASE_URL}{endpoint}"
-        self.log(f"Testing {method} {endpoint} - {description}")
+    def log_fail(self, test_name, error):
+        print(f"❌ {test_name}: {error}")
+        self.failed += 1
+        self.errors.append(f"{test_name}: {error}")
         
-        try:
-            if method == "GET":
-                response = requests.get(url, timeout=30)
-            elif method == "POST":
-                response = requests.post(url, json=data, timeout=30)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-                
-            if response.status_code == expected_status:
-                self.passed += 1
-                self.log(f"✅ PASS: {description}", "PASS")
-                return response.json() if response.content else {}
-            else:
-                self.failed += 1
-                self.log(f"❌ FAIL: {description} - Status {response.status_code}", "FAIL")
-                self.log(f"Response: {response.text[:200]}", "ERROR")
-                return None
-                
-        except Exception as e:
-            self.failed += 1
-            self.log(f"❌ ERROR: {description} - {str(e)}", "ERROR")
-            return None
-    
-    def validate_daily_games_response(self, data, locale):
-        """Validate daily games response structure"""
-        if not data:
-            return False
-            
-        # Check required fields
-        required_fields = ["success", "games", "total_xp"]
-        for field in required_fields:
-            if field not in data:
-                self.log(f"Missing required field: {field}", "ERROR")
-                return False
-                
-        if not data.get("success"):
-            self.log(f"Response success=false for locale {locale}", "ERROR")
-            return False
-            
-        games = data.get("games", [])
-        if len(games) != 4:
-            self.log(f"Expected 4 games, got {len(games)} for locale {locale}", "ERROR")
-            return False
-            
-        if data.get("total_xp") != 60:
-            self.log(f"Expected total_xp=60, got {data.get('total_xp')} for locale {locale}", "ERROR")
-            return False
-            
-        # Validate each game
-        expected_types = ["quiz", "memory", "drag_drop", "scenario"]
-        game_types = [game.get("type") for game in games]
-        
-        for expected_type in expected_types:
-            if expected_type not in game_types:
-                self.log(f"Missing game type {expected_type} for locale {locale}", "ERROR")
-                return False
-                
-        # Check each game has required fields
-        for i, game in enumerate(games):
-            required_game_fields = ["type", "id", "title", "emoji", "xp"]
-            for field in required_game_fields:
-                if field not in game:
-                    self.log(f"Game {i} missing field {field} for locale {locale}", "ERROR")
-                    return False
-                    
-        # Check for Arabic text in non-Arabic locales
-        if locale != "ar":
-            for game in games:
-                title = game.get("title", "")
-                # Check for Arabic characters (Unicode range U+0600 to U+06FF)
-                if any('\u0600' <= char <= '\u06FF' for char in title):
-                    self.log(f"Found Arabic text in {locale} locale: {title}", "ERROR")
-                    return False
-                    
-        return True
-    
-    def run_daily_games_tests(self):
-        """Test daily games endpoint for all 9 languages"""
-        self.log("=" * 60)
-        self.log("TESTING DAILY GAMES ENDPOINT FOR ALL 9 LANGUAGES")
-        self.log("=" * 60)
-        
-        for locale in LANGUAGES:
-            endpoint = f"/api/kids-learn/daily-games?locale={locale}"
-            description = f"Daily games for {locale}"
-            
-            data = self.test_endpoint("GET", endpoint, description=description)
-            
-            if data and self.validate_daily_games_response(data, locale):
-                self.log(f"✅ Daily games validation passed for {locale}", "PASS")
-            elif data:
-                self.log(f"❌ Daily games validation failed for {locale}", "FAIL")
-                self.failed += 1
-    
-    def run_game_by_day_tests(self):
-        """Test game by day endpoint"""
-        self.log("=" * 60)
-        self.log("TESTING GAME BY DAY ENDPOINT")
-        self.log("=" * 60)
-        
-        test_cases = [
-            (1, "en", "Games for day 1 in English"),
-            (100, "sv", "Games for day 100 in Swedish"),
-            (365, "en", "Boundary test - day 365 in English"),
-        ]
-        
-        for day, locale, description in test_cases:
-            endpoint = f"/api/kids-learn/game/{day}?locale={locale}"
-            data = self.test_endpoint("GET", endpoint, description=description)
-            
-            if data and self.validate_daily_games_response(data, locale):
-                self.log(f"✅ Game by day validation passed for day {day}, locale {locale}", "PASS")
-            elif data:
-                self.log(f"❌ Game by day validation failed for day {day}, locale {locale}", "FAIL")
-                self.failed += 1
-    
-    def run_save_game_result_test(self):
-        """Test save game result endpoint"""
-        self.log("=" * 60)
-        self.log("TESTING SAVE GAME RESULT ENDPOINT")
-        self.log("=" * 60)
-        
-        payload = {
-            "user_id": TEST_USER_ID,
-            "game_id": "quiz_1",
-            "day": 1,
-            "score": 1,
-            "max_score": 1,
-            "xp_earned": 10,
-            "time_seconds": 15
-        }
-        
-        endpoint = "/api/kids-learn/game-result"
-        description = "Save game result"
-        
-        data = self.test_endpoint("POST", endpoint, data=payload, description=description)
-        
-        if data:
-            required_fields = ["success", "xp_earned", "total_xp", "level", "streak_days"]
-            valid = True
-            for field in required_fields:
-                if field not in data:
-                    self.log(f"Missing field in game result response: {field}", "ERROR")
-                    valid = False
-                    
-            if valid and data.get("success"):
-                self.log("✅ Save game result validation passed", "PASS")
-            else:
-                self.log("❌ Save game result validation failed", "FAIL")
-                self.failed += 1
-    
-    def run_profile_test(self):
-        """Test profile endpoint"""
-        self.log("=" * 60)
-        self.log("TESTING PROFILE ENDPOINT")
-        self.log("=" * 60)
-        
-        endpoint = f"/api/kids-learn/profile/{TEST_USER_ID}"
-        description = "Get user profile"
-        
-        data = self.test_endpoint("GET", endpoint, description=description)
-        
-        if data:
-            required_fields = ["success", "profile"]
-            valid = True
-            for field in required_fields:
-                if field not in data:
-                    self.log(f"Missing field in profile response: {field}", "ERROR")
-                    valid = False
-                    
-            if valid and data.get("success"):
-                profile = data.get("profile", {})
-                profile_fields = ["user_id", "total_xp", "level", "streak_days", "games_completed", "coins"]
-                for field in profile_fields:
-                    if field not in profile:
-                        self.log(f"Missing field in profile data: {field}", "ERROR")
-                        valid = False
-                        
-            if valid:
-                self.log("✅ Profile validation passed", "PASS")
-            else:
-                self.log("❌ Profile validation failed", "FAIL")
-                self.failed += 1
-    
-    def run_reward_ad_test(self):
-        """Test reward ad endpoint"""
-        self.log("=" * 60)
-        self.log("TESTING REWARD AD ENDPOINT")
-        self.log("=" * 60)
-        
-        endpoint = f"/api/kids-learn/reward-ad?user_id={TEST_USER_ID}&coins=10"
-        description = "Reward ad coins"
-        
-        data = self.test_endpoint("POST", endpoint, description=description)
-        
-        if data:
-            required_fields = ["success", "coins", "earned"]
-            valid = True
-            for field in required_fields:
-                if field not in data:
-                    self.log(f"Missing field in reward ad response: {field}", "ERROR")
-                    valid = False
-                    
-            if valid and data.get("success") and data.get("earned") == 10:
-                self.log("✅ Reward ad validation passed", "PASS")
-            else:
-                self.log("❌ Reward ad validation failed", "FAIL")
-                self.failed += 1
-    
-    def run_existing_endpoints_test(self):
-        """Test that existing endpoints still work"""
-        self.log("=" * 60)
-        self.log("TESTING EXISTING ENDPOINTS")
-        self.log("=" * 60)
-        
-        # Test Digital Shield endpoint
-        endpoint = "/api/kids-learn/digital-shield?locale=en&theme=all"
-        description = "Digital Shield - all lessons"
-        
-        data = self.test_endpoint("GET", endpoint, description=description)
-        
-        if data:
-            if data.get("success") and len(data.get("lessons", [])) == 30:
-                self.log("✅ Digital Shield endpoint working - 30 lessons found", "PASS")
-            else:
-                self.log(f"❌ Digital Shield endpoint failed - expected 30 lessons, got {len(data.get('lessons', []))}", "FAIL")
-                self.failed += 1
-        
-        # Test Health endpoint
-        endpoint = "/api/health"
-        description = "Health check"
-        
-        data = self.test_endpoint("GET", endpoint, description=description)
-        
-        if data:
+    def summary(self):
+        total = self.passed + self.failed
+        print(f"\n{'='*60}")
+        print(f"TEST SUMMARY: {self.passed}/{total} PASSED")
+        if self.failed > 0:
+            print(f"FAILED TESTS:")
+            for error in self.errors:
+                print(f"  - {error}")
+        print(f"{'='*60}")
+        return self.failed == 0
+
+def test_health_endpoint():
+    """Test basic health endpoint"""
+    results = TestResults()
+    try:
+        response = requests.get(f"{BASE_URL}/api/health", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
             if data.get("status") == "healthy":
-                self.log("✅ Health endpoint working", "PASS")
+                results.log_pass("Health endpoint working")
             else:
-                self.log("❌ Health endpoint failed", "FAIL")
-                self.failed += 1
-    
-    def run_all_tests(self):
-        """Run all test suites"""
-        self.log("🚀 STARTING NOOR ACADEMY GAME ENGINE BACKEND TESTS")
-        self.log(f"Base URL: {BASE_URL}")
-        self.log(f"Test User ID: {TEST_USER_ID}")
-        self.log(f"Languages to test: {', '.join(LANGUAGES)}")
-        
-        start_time = datetime.now()
-        
-        # Run all test suites
-        self.run_daily_games_tests()
-        self.run_game_by_day_tests()
-        self.run_save_game_result_test()
-        self.run_profile_test()
-        self.run_reward_ad_test()
-        self.run_existing_endpoints_test()
-        
-        # Summary
-        end_time = datetime.now()
-        duration = (end_time - start_time).total_seconds()
-        
-        self.log("=" * 60)
-        self.log("TEST SUMMARY")
-        self.log("=" * 60)
-        self.log(f"Total Tests: {self.passed + self.failed}")
-        self.log(f"Passed: {self.passed}")
-        self.log(f"Failed: {self.failed}")
-        self.log(f"Success Rate: {(self.passed / (self.passed + self.failed) * 100):.1f}%")
-        self.log(f"Duration: {duration:.2f} seconds")
-        
-        if self.failed == 0:
-            self.log("🎉 ALL TESTS PASSED! Game Engine is working correctly.", "SUCCESS")
-            return True
+                results.log_fail("Health endpoint", f"Status not healthy: {data}")
         else:
-            self.log(f"⚠️  {self.failed} TESTS FAILED. See details above.", "WARNING")
-            return False
+            results.log_fail("Health endpoint", f"HTTP {response.status_code}")
+    except Exception as e:
+        results.log_fail("Health endpoint", str(e))
+    return results
+
+def test_course_overview():
+    """Test course overview for all 9 languages"""
+    results = TestResults()
+    
+    for lang in LANGUAGES:
+        try:
+            response = requests.get(f"{BASE_URL}/api/kids-learn/course/overview?locale={lang}", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    levels = data.get("levels", [])
+                    total_levels = data.get("total_levels", 0)
+                    
+                    # Verify 6 levels
+                    if total_levels == EXPECTED_LEVELS and len(levels) == EXPECTED_LEVELS:
+                        # Verify each level has 6 units
+                        all_units_valid = True
+                        total_lessons = 0
+                        for level in levels:
+                            units = level.get("units", [])
+                            if len(units) != 6:
+                                all_units_valid = False
+                                break
+                            total_lessons += level.get("total_lessons", 0)
+                        
+                        if all_units_valid:
+                            if total_lessons == EXPECTED_TOTAL_LESSONS:
+                                results.log_pass(f"Course overview ({lang}) - {EXPECTED_LEVELS} levels, 6 units each, {total_lessons} total lessons")
+                            else:
+                                results.log_fail(f"Course overview ({lang})", f"Expected {EXPECTED_TOTAL_LESSONS} lessons, got {total_lessons}")
+                        else:
+                            results.log_fail(f"Course overview ({lang})", "Not all levels have 6 units")
+                    else:
+                        results.log_fail(f"Course overview ({lang})", f"Expected {EXPECTED_LEVELS} levels, got {total_levels}")
+                else:
+                    results.log_fail(f"Course overview ({lang})", f"Success=false: {data}")
+            else:
+                results.log_fail(f"Course overview ({lang})", f"HTTP {response.status_code}")
+        except Exception as e:
+            results.log_fail(f"Course overview ({lang})", str(e))
+    
+    return results
+
+def test_arabic_alphabet():
+    """Test Arabic alphabet endpoint"""
+    results = TestResults()
+    
+    try:
+        response = requests.get(f"{BASE_URL}/api/kids-learn/course/alphabet?locale=en", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                letters = data.get("letters", [])
+                total = data.get("total", 0)
+                
+                if total == EXPECTED_LETTERS and len(letters) == EXPECTED_LETTERS:
+                    # Verify each letter has required fields
+                    all_valid = True
+                    for letter in letters:
+                        required_fields = ["letter", "name", "sound", "forms", "emoji", "word_ar", "word_en"]
+                        for field in required_fields:
+                            if field not in letter or not letter[field]:
+                                all_valid = False
+                                break
+                        if not all_valid:
+                            break
+                    
+                    if all_valid:
+                        results.log_pass(f"Arabic alphabet - {EXPECTED_LETTERS} letters with all required fields")
+                    else:
+                        results.log_fail("Arabic alphabet", "Some letters missing required fields")
+                else:
+                    results.log_fail("Arabic alphabet", f"Expected {EXPECTED_LETTERS} letters, got {total}")
+            else:
+                results.log_fail("Arabic alphabet", f"Success=false: {data}")
+        else:
+            results.log_fail("Arabic alphabet", f"HTTP {response.status_code}")
+    except Exception as e:
+        results.log_fail("Arabic alphabet", str(e))
+    
+    return results
+
+def test_letter_lessons():
+    """Test letter lesson endpoints with games"""
+    results = TestResults()
+    
+    # Test boundary cases and specific examples
+    test_cases = [
+        (0, "en", "Alif lesson (first letter)"),
+        (27, "en", "Ya lesson (last letter)"),
+        (5, "sv", "Swedish locale test"),
+    ]
+    
+    for index, locale, description in test_cases:
+        try:
+            response = requests.get(f"{BASE_URL}/api/kids-learn/course/alphabet/{index}?locale={locale}", timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("success"):
+                    lesson = data.get("lesson", {})
+                    games = data.get("games", [])
+                    
+                    # Verify lesson has required fields
+                    lesson_fields = ["letter", "name", "forms", "emoji", "example_word", "example_translation"]
+                    lesson_valid = all(field in lesson for field in lesson_fields)
+                    
+                    # Verify games array
+                    games_valid = len(games) >= 3  # Should have at least 3 games
+                    game_types = [game.get("type") for game in games]
+                    has_quiz = "quiz" in game_types
+                    has_memory = "memory" in game_types
+                    
+                    # Check for Swedish locale - no Arabic in instructions
+                    swedish_valid = True
+                    if locale == "sv":
+                        for game in games:
+                            title = game.get("title", "")
+                            question = game.get("question", "")
+                            # Check for Arabic characters (basic check)
+                            if any('\u0600' <= char <= '\u06FF' for char in title + question):
+                                swedish_valid = False
+                                break
+                    
+                    if lesson_valid and games_valid and has_quiz and has_memory and swedish_valid:
+                        results.log_pass(f"{description} - lesson + {len(games)} games (quiz, memory)")
+                    else:
+                        issues = []
+                        if not lesson_valid:
+                            issues.append("lesson fields missing")
+                        if not games_valid:
+                            issues.append(f"only {len(games)} games")
+                        if not has_quiz:
+                            issues.append("no quiz game")
+                        if not has_memory:
+                            issues.append("no memory game")
+                        if not swedish_valid:
+                            issues.append("Arabic text in Swedish instructions")
+                        results.log_fail(description, ", ".join(issues))
+                else:
+                    results.log_fail(description, f"Success=false: {data}")
+            else:
+                results.log_fail(description, f"HTTP {response.status_code}")
+        except Exception as e:
+            results.log_fail(description, str(e))
+    
+    return results
+
+def test_previous_endpoints():
+    """Test that previous endpoints still work"""
+    results = TestResults()
+    
+    # Test daily games endpoint
+    try:
+        response = requests.get(f"{BASE_URL}/api/kids-learn/daily-games?locale=en", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                games = data.get("games", [])
+                total_xp = data.get("total_xp", 0)
+                if len(games) == 4 and total_xp == 60:
+                    results.log_pass("Daily games endpoint - 4 games, 60 XP")
+                else:
+                    results.log_fail("Daily games endpoint", f"Expected 4 games/60 XP, got {len(games)} games/{total_xp} XP")
+            else:
+                results.log_fail("Daily games endpoint", f"Success=false: {data}")
+        else:
+            results.log_fail("Daily games endpoint", f"HTTP {response.status_code}")
+    except Exception as e:
+        results.log_fail("Daily games endpoint", str(e))
+    
+    # Test digital shield endpoint
+    try:
+        response = requests.get(f"{BASE_URL}/api/kids-learn/digital-shield?locale=en&theme=all", timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success"):
+                lessons = data.get("lessons", [])
+                total = data.get("total", 0)
+                if total == 30 and len(lessons) == 30:
+                    results.log_pass("Digital shield endpoint - 30 lessons")
+                else:
+                    results.log_fail("Digital shield endpoint", f"Expected 30 lessons, got {total}")
+            else:
+                results.log_fail("Digital shield endpoint", f"Success=false: {data}")
+        else:
+            results.log_fail("Digital shield endpoint", f"HTTP {response.status_code}")
+    except Exception as e:
+        results.log_fail("Digital shield endpoint", str(e))
+    
+    return results
+
+def main():
+    """Run all tests"""
+    print("🧪 ARABIC COURSE ENGINE & APP UI REBUILD - BACKEND TESTING")
+    print(f"Base URL: {BASE_URL}")
+    print(f"Test Time: {datetime.now().isoformat()}")
+    print("="*60)
+    
+    all_results = TestResults()
+    
+    # Run all test suites
+    test_suites = [
+        ("Health Check", test_health_endpoint),
+        ("Course Overview (9 languages)", test_course_overview),
+        ("Arabic Alphabet (28 letters)", test_arabic_alphabet),
+        ("Letter Lessons + Games", test_letter_lessons),
+        ("Previous Endpoints", test_previous_endpoints),
+    ]
+    
+    for suite_name, test_func in test_suites:
+        print(f"\n📋 {suite_name}")
+        print("-" * 40)
+        suite_results = test_func()
+        all_results.passed += suite_results.passed
+        all_results.failed += suite_results.failed
+        all_results.errors.extend(suite_results.errors)
+    
+    # Final summary
+    success = all_results.summary()
+    
+    if success:
+        print("\n🎉 ALL TESTS PASSED! Arabic Course Engine is fully functional.")
+    else:
+        print(f"\n⚠️  {all_results.failed} TESTS FAILED. See details above.")
+    
+    return 0 if success else 1
 
 if __name__ == "__main__":
-    test_suite = GameEngineTestSuite()
-    success = test_suite.run_all_tests()
-    sys.exit(0 if success else 1)
+    sys.exit(main())

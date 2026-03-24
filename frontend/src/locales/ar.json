@@ -2457,5 +2457,15 @@
   "playNow": "العب الآن",
   "journeyDesc": "أكمل الألعاب اليومية لتتقدم في رحلتك!",
   "coinsEarned": "عملات مكتسبة!",
-  "dragDropChallenge": "تحدي الترتيب"
+  "dragDropChallenge": "تحدي الترتيب",
+  "arabicCourse": "كورس العربية والقرآن",
+  "zeroToC1": "من الصفر إلى C1",
+  "levels": "مستويات",
+  "units": "وحدات",
+  "letter": "حرف",
+  "sound": "صوت",
+  "practiceNow": "تدرب الآن",
+  "start": "ابدأ",
+  "letterComplete": "أتممت الحرف!",
+  "allLettersComplete": "أكملت جميع الحروف!"
 }
