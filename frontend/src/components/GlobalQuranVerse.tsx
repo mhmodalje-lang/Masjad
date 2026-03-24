@@ -26,8 +26,8 @@ const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 interface GlobalVerseData {
   arabic_text: string;
   translation: string;
-  explanation: string;
-  explanation_source: string;
+  tafsir: string;
+  tafsir_source: string;
   surah_name: string;
   surah_name_translated: string;
   verse_number: number;
@@ -94,8 +94,8 @@ export default function GlobalQuranVerse({
         const verseData: GlobalVerseData = {
           arabic_text: json.arabic_text || '',
           translation: json.translation || '',
-          explanation: json.explanation || '',
-          explanation_source: json.explanation_source || '',
+          tafsir: json.tafsir || '',
+          tafsir_source: json.tafsir_source || '',
           surah_name: json.surah_name || '',
           surah_name_translated: json.surah_name_translated || '',
           verse_number: json.verse_number || ayahId,
