@@ -268,17 +268,31 @@ async def get_verse_of_day(language: str = Query("ar")):
                 surah_name = chapter.get("translated_name", {}).get("name", chapter.get("name_simple", ""))
                 surah_arabic = chapter.get("name_arabic", "")
             
-            # 3. Fetch translation if not Arabic
+            # 3. Fetch translation/tafsir based on language
             translation = None
             trans_id = TRANSLATION_IDS.get(language)
-            if language != "ar" and trans_id:
+            
+            if language == "ar":
+                # For Arabic: fetch Muyassar tafsir
+                tf_res = await client.get(f"{QURAN_V4_BASE}/tafsirs/16/by_ayah/{verse_key}")
+                if tf_res.status_code == 200:
+                    tf_data = tf_res.json()
+                    tafsir = tf_data.get("tafsir", {})
+                    if tafsir.get("text"):
+                        raw = tafsir["text"]
+                        translation = re.sub(r'<[^>]*>', '', raw).replace("&nbsp;", " ").strip()
+            elif language == "el":
+                # Greek: no translation available
+                translation = "Η μετάφραση έρχεται σύντομα"
+            elif trans_id:
                 tr_res = await client.get(f"{QURAN_V4_BASE}/quran/translations/{trans_id}", params={"verse_key": verse_key})
                 if tr_res.status_code == 200:
                     tr_data = tr_res.json()
                     translations = tr_data.get("translations", [])
                     if translations:
                         raw = translations[0].get("text", "")
-                        translation = re.sub(r'<[^>]*>', '', raw).replace("&nbsp;", " ").strip()
+                        translation = re.sub(r'<sup[^>]*>.*?</sup>', '', raw)
+                        translation = re.sub(r'<[^>]*>', '', translation).replace("&nbsp;", " ").strip()
             
             result = {"text": arabic_text, "surah": surah_name or surah_arabic, "ayah": int(ayah_num)}
             if translation:
