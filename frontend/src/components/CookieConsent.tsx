@@ -8,6 +8,11 @@ export default function CookieConsent() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
+    // Hide in native app mode - cookies are handled by the native wrapper
+    try {
+      const { Capacitor } = require('@capacitor/core');
+      if (Capacitor.isNativePlatform()) return;
+    } catch {}
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
       // Small delay so it doesn't flash on load

@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { useTheme } from '@/components/ThemeProvider';
+import { hapticFeedback } from '@/lib/nativeBridge';
 
 export function BottomNav() {
   const location = useLocation();
@@ -53,6 +54,7 @@ export function BottomNav() {
                   key="create"
                   to={user ? '/stories?create=true' : '/auth'}
                   data-testid="nav-create"
+                  onClick={() => hapticFeedback('medium')}
                   className="relative flex flex-col items-center -mt-5"
                 >
                   <motion.div
@@ -78,6 +80,7 @@ export function BottomNav() {
                 key={item.path}
                 to={item.path}
                 data-testid={`nav-${item.path.replace('/', '') || 'home'}`}
+                onClick={() => hapticFeedback('selection')}
                 className={cn(
                   'relative flex flex-col items-center gap-1 py-1.5 px-3 rounded-2xl transition-all duration-300 min-w-[60px]',
                   isActive

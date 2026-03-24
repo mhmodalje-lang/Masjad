@@ -4,7 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { UnifiedPrayerProvider } from "@/hooks/useUnifiedPrayer";
@@ -14,6 +15,9 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { AdConfigProvider } from "@/hooks/useAdConfig";
 import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
+import { NativeAppProvider } from "@/components/NativeAppProvider";
+import { NativePageTransition } from "@/components/NativePageTransition";
+import { isNativeApp } from "@/lib/nativeBridge";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
@@ -22,6 +26,8 @@ import AnalyticsTracker from "@/components/AnalyticsTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AgeGate, { hasPassedAgeGate } from "@/components/AgeGate";
 import OfflineNotice from "@/components/OfflineNotice";
+import RateApp from "@/components/RateApp";
+import AppTrackingTransparency from "@/components/AppTrackingTransparency";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -123,6 +129,8 @@ const App = () => {
     );
   }
 
+  const isNative = isNativeApp();
+
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>
@@ -135,85 +143,93 @@ const App = () => {
                     <Toaster />
                     <Sonner />
                     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                      <ScrollToTop />
-                      <AnalyticsTracker />
-                      <SEOWrapper>
-                        <PermissionManager />
-                        <AppLayout>
-                          <ErrorBoundary>
-                            <Suspense fallback={<div className="min-h-screen" />}>
-                              <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/social-profile/:userId" element={<SocialProfile />} />
-                          <Route path="/reels" element={<VideoReels />} />
-                          <Route path="/create-post" element={<CreatePost />} />
-                          <Route path="/prayer-times" element={<PrayerTimes />} />
-                          <Route path="/qibla" element={<Qibla />} />
-                          <Route path="/quran" element={<Quran />} />
-                          <Route path="/quran/:id" element={<SurahView />} />
-                          <Route path="/tasbeeh" element={<Tasbeeh />} />
-                          <Route path="/duas" element={<Duas />} />
-                          <Route path="/more" element={<More />} />
-                          <Route path="/tracker" element={<PrayerTracker />} />
-                          <Route path="/zakat" element={<ZakatCalculator />} />
-                          <Route path="/stories" element={<Stories />} />
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/account" element={<Account />} />
-                          <Route path="/admin" element={<AdminDashboard />} />
-                          <Route path="/install" element={<Install />} />
-                          <Route path="/daily-duas" element={<DailyDuas />} />
-                          <Route path="/mosque-times" element={<MosquePrayerTimes />} />
-                          <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
-                          <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
-                          <Route path="/quran-goal" element={<QuranGoal />} />
-                          <Route path="/dhikr-settings" element={<DhikrSettings />} />
-                          <Route path="/notifications" element={<NotificationSettings />} />
-                          <Route path="/ruqyah" element={<Ruqyah />} />
-                          <Route path="/asma-al-husna" element={<AsmaAlHusna />} />
-                          <Route path="/ramadan-cards" element={<RamadanCards />} />
-                          <Route path="/ramadan-book" element={<RamadanBook />} />
-                          <Route path="/period-tracker" element={<PeriodTracker />} />
-                          <Route path="/profile" element={<Profile />} />
-                          <Route path="/profile/:userId" element={<Profile />} />
-                          <Route path="/messages" element={<Messages />} />
-                          <Route path="/store" element={<Store />} />
-                          <Route path="/rewards" element={<Rewards />} />
-                          <Route path="/points" element={<PointsBalance />} />
-                          <Route path="/ai-assistant" element={<AiAssistant />} />
-                          <Route path="/marketplace" element={<Marketplace />} />
-                          <Route path="/explore" element={<Explore />} />
-                          <Route path="/sohba" element={<Sohba />} />
-                          <Route path="/about" element={<AboutUs />} />
-                          <Route path="/privacy" element={<PrivacyPolicy />} />
-                          <Route path="/contact" element={<ContactUs />} />
-                          <Route path="/donations" element={<Donations />} />
-                          <Route path="/terms" element={<TermsOfService />} />
-                          <Route path="/arabic-academy" element={<Navigate to="/kids-zone" replace />} />
-                          <Route path="/kids-zone" element={<KidsZone />} />
-                          <Route path="/baraka-market" element={<BarakaMarket />} />
-                          <Route path="/tafsir" element={<Tafsir />} />
-                          <Route path="/forty-nawawi" element={<FortyNawawi />} />
-                          <Route path="/delete-data" element={<DataDeletion />} />
-                          <Route path="/content-policy" element={<ContentPolicy />} />
-                          <Route path="/live-streams" element={<LiveStreams />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </Suspense>
-                    </ErrorBoundary>
-                  </AppLayout>
-                  <CookieConsent />
-                  <GDPRAdConsent />
-                  <OfflineNotice />
-                </SEOWrapper>
-              </BrowserRouter>
-            </TooltipProvider>
-          </AdConfigProvider>
-        </UnifiedPrayerProvider>
-      </AuthProvider>
-    </LocaleProvider>
-  </ThemeProvider>
-</ErrorBoundary>
-  </QueryClientProvider>
+                      <NativeAppProvider>
+                        <ScrollToTop />
+                        <AnalyticsTracker />
+                        <SEOWrapper>
+                          <PermissionManager />
+                          <AppLayout>
+                            <ErrorBoundary>
+                              <Suspense fallback={<div className="min-h-screen" />}>
+                                <NativePageTransition>
+                                  <Routes>
+                                    <Route path="/" element={<Index />} />
+                                    <Route path="/social-profile/:userId" element={<SocialProfile />} />
+                                    <Route path="/reels" element={<VideoReels />} />
+                                    <Route path="/create-post" element={<CreatePost />} />
+                                    <Route path="/prayer-times" element={<PrayerTimes />} />
+                                    <Route path="/qibla" element={<Qibla />} />
+                                    <Route path="/quran" element={<Quran />} />
+                                    <Route path="/quran/:id" element={<SurahView />} />
+                                    <Route path="/tasbeeh" element={<Tasbeeh />} />
+                                    <Route path="/duas" element={<Duas />} />
+                                    <Route path="/more" element={<More />} />
+                                    <Route path="/tracker" element={<PrayerTracker />} />
+                                    <Route path="/zakat" element={<ZakatCalculator />} />
+                                    <Route path="/stories" element={<Stories />} />
+                                    <Route path="/auth" element={<Auth />} />
+                                    <Route path="/account" element={<Account />} />
+                                    <Route path="/admin" element={<AdminDashboard />} />
+                                    <Route path="/install" element={<Install />} />
+                                    <Route path="/daily-duas" element={<DailyDuas />} />
+                                    <Route path="/mosque-times" element={<MosquePrayerTimes />} />
+                                    <Route path="/ramadan-challenge" element={<RamadanChallenge />} />
+                                    <Route path="/ramadan-calendar" element={<RamadanCalendar />} />
+                                    <Route path="/quran-goal" element={<QuranGoal />} />
+                                    <Route path="/dhikr-settings" element={<DhikrSettings />} />
+                                    <Route path="/notifications" element={<NotificationSettings />} />
+                                    <Route path="/ruqyah" element={<Ruqyah />} />
+                                    <Route path="/asma-al-husna" element={<AsmaAlHusna />} />
+                                    <Route path="/ramadan-cards" element={<RamadanCards />} />
+                                    <Route path="/ramadan-book" element={<RamadanBook />} />
+                                    <Route path="/period-tracker" element={<PeriodTracker />} />
+                                    <Route path="/profile" element={<Profile />} />
+                                    <Route path="/profile/:userId" element={<Profile />} />
+                                    <Route path="/messages" element={<Messages />} />
+                                    <Route path="/store" element={<Store />} />
+                                    <Route path="/rewards" element={<Rewards />} />
+                                    <Route path="/points" element={<PointsBalance />} />
+                                    <Route path="/ai-assistant" element={<AiAssistant />} />
+                                    <Route path="/marketplace" element={<Marketplace />} />
+                                    <Route path="/explore" element={<Explore />} />
+                                    <Route path="/sohba" element={<Sohba />} />
+                                    <Route path="/about" element={<AboutUs />} />
+                                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                                    <Route path="/contact" element={<ContactUs />} />
+                                    <Route path="/donations" element={<Donations />} />
+                                    <Route path="/terms" element={<TermsOfService />} />
+                                    <Route path="/arabic-academy" element={<Navigate to="/kids-zone" replace />} />
+                                    <Route path="/kids-zone" element={<KidsZone />} />
+                                    <Route path="/baraka-market" element={<BarakaMarket />} />
+                                    <Route path="/tafsir" element={<Tafsir />} />
+                                    <Route path="/forty-nawawi" element={<FortyNawawi />} />
+                                    <Route path="/delete-data" element={<DataDeletion />} />
+                                    <Route path="/content-policy" element={<ContentPolicy />} />
+                                    <Route path="/live-streams" element={<LiveStreams />} />
+                                    <Route path="*" element={<NotFound />} />
+                                  </Routes>
+                                </NativePageTransition>
+                              </Suspense>
+                            </ErrorBoundary>
+                          </AppLayout>
+                          {/* Web-only overlays */}
+                          {!isNative && <CookieConsent />}
+                          <GDPRAdConsent />
+                          <OfflineNotice />
+                          {/* Native-only components */}
+                          {isNative && <RateApp />}
+                          {isNative && <AppTrackingTransparency />}
+                        </SEOWrapper>
+                      </NativeAppProvider>
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </AdConfigProvider>
+              </UnifiedPrayerProvider>
+            </AuthProvider>
+          </LocaleProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
+    </QueryClientProvider>
   );
 };
 

@@ -21,6 +21,11 @@ export default function InstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
+    // Hide in native app mode (Capacitor) - not needed
+    try {
+      const { Capacitor } = require('@capacitor/core');
+      if (Capacitor.isNativePlatform()) return;
+    } catch {}
     if (isInStandaloneMode()) return;
     if (localStorage.getItem(DISMISSED_KEY)) return;
 

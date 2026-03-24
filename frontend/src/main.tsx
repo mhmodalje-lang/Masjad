@@ -11,8 +11,42 @@ document.documentElement.classList.add(theme);
 if (theme === 'dark') document.documentElement.classList.remove('light');
 else document.documentElement.classList.remove('dark');
 
-// Register service worker for notifications
-if ('serviceWorker' in navigator) {
+// ═══ Native App Detection ═══
+// Add platform classes to body for CSS targeting
+function detectPlatform() {
+  try {
+    const { Capacitor } = require('@capacitor/core');
+    const platform = Capacitor.getPlatform();
+    const isNative = Capacitor.isNativePlatform();
+
+    document.body.classList.add(`platform-${platform}`);
+    if (isNative) {
+      document.body.classList.add('native-app');
+      // Prevent overscroll bouncing (native app indicator)
+      document.body.style.overscrollBehavior = 'none';
+      // Prevent pull-to-refresh on Android Chrome
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.add('web-app');
+    }
+  } catch {
+    document.body.classList.add('platform-web', 'web-app');
+  }
+}
+detectPlatform();
+
+// ═══ Register Service Worker (Web only) ═══
+function isNativePlatform(): boolean {
+  try {
+    const { Capacitor } = require('@capacitor/core');
+    return Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+}
+
+// Only register service worker on web (not in native app)
+if ('serviceWorker' in navigator && !isNativePlatform()) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw-custom.js', { scope: '/' })
       .then(reg => {
