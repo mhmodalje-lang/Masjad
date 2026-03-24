@@ -23,7 +23,7 @@ import re
 from typing import Dict, List, Any, Optional
 
 # Backend URL from review request
-BACKEND_URL = "https://media-portal-164.preview.emergentagent.com"
+BACKEND_URL = "https://tafsir-mobile-hub.preview.emergentagent.com"
 
 class IslamicGamificationTester:
     def __init__(self):
