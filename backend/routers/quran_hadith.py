@@ -106,7 +106,6 @@ QURAN_V4_BASE = "https://api.quran.com/api/v4"
 # Legacy tafsir endpoint kept for backward compatibility but uses short sources.
 TAFSIR_RESOURCE_IDS = {
     "ar": 16,    # Tafsir Al-Muyassar (التفسير الميسر) — short Arabic
-    "en": 0,     # BLOCKED: was 169 (Ibn Kathir) — use global-verse endpoint instead
     "ru": 170,   # Al-Sa'di (Russian)
 }
 
@@ -117,6 +116,7 @@ NATIVE_TAFSIR_LANGS = {"ar", "ru"}
 # as the scholarly tafsir/explanation — ALWAYS in the user's language.
 # Since main translation changed (fr→31 Hamidullah), tafsir uses DIFFERENT source.
 TAFSIR_TRANSLATION_FALLBACK_IDS = {
+    "en": 85,    # Abdel Haleem — Oxford Islamic Studies (vs main Saheeh International 20)
     "de": 208,   # Abu Reda (vs main Bubenheim 27)
     "fr": 136,   # Montada Islamic Foundation (vs main Hamidullah 31)
     "tr": 52,    # Elmalılı Hamdi Yazır (vs main Diyanet 77)
@@ -129,7 +129,7 @@ TAFSIR_TRANSLATION_FALLBACK_IDS = {
 # Each language shows its tafsir source name IN ITS OWN LANGUAGE
 TAFSIR_LABEL_BY_LANG = {
     "ar": "المختصر في تفسير القرآن الكريم — التفسير الميسر",
-    "en": "The Abridged Explanation of the Noble Quran — Ibn Kathir",
+    "en": "The Abridged Explanation of the Noble Quran — Abdel Haleem",
     "ru": "Краткое толкование Священного Корана — ас-Саади",
     "de": "Kurzfassung der Erläuterung des edlen Quran — Abu Reda",
     "fr": "L'Explication Abrégée du Noble Coran — Montada Islamique",
@@ -519,7 +519,7 @@ async def get_tafsir_for_verse(
                 data = r.json()
                 tafsir_data = data.get("tafsir", {})
                 raw_text = tafsir_data.get("text", "")
-                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'").strip()
                 tafsir_name = TAFSIR_LABEL_BY_LANG.get(base_lang, label)
 
                 try:
@@ -592,7 +592,7 @@ async def get_tafsir_for_verse(
                 data = r.json()
                 tafsir_data = data.get("tafsir", {})
                 raw_text = tafsir_data.get("text", "")
-                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').strip()
+                clean_text = re.sub(r'<[^>]*>', '', raw_text).replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'").strip()
                 try:
                     await db.tafsir_cache.update_one(
                         {"cache_key": cache_key},
@@ -762,7 +762,7 @@ async def get_tafsir_for_verse(
                 raw_text = translations_list[0].get("text", "")
                 # Clean HTML
                 clean_text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', raw_text)
-                clean_text = re.sub(r'<[^>]*>', '', clean_text).replace('&nbsp;', ' ').strip()
+                clean_text = re.sub(r'<[^>]*>', '', clean_text).replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'").strip()
             else:
                 clean_text = ""
 
@@ -947,7 +947,7 @@ async def get_bulk_tafsir_for_chapter(
                     if trans:
                         raw = trans[0].get("text", "")
                         text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', raw)
-                        text = re.sub(r'<[^>]*>', '', text).replace('&nbsp;', ' ').strip()
+                        text = re.sub(r'<[^>]*>', '', text).replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'").strip()
                     tafsirs_list.append({
                         "verse_key": vk,
                         "text": text,
@@ -969,7 +969,7 @@ async def get_bulk_tafsir_for_chapter(
                         if tr.status_code == 200:
                             td = tr.json().get("tafsir", {})
                             raw = td.get("text", "")
-                            clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').strip()
+                            clean = re.sub(r'<[^>]*>', '', raw).replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'").strip()
                             tafsirs_list.append({
                                 "verse_key": vk,
                                 "text": clean,

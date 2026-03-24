@@ -26,7 +26,7 @@ import sys
 from typing import Dict, List, Any
 
 # Backend URL
-BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
+BACKEND_URL = "https://quran-114-surahs.preview.emergentagent.com"
 
 # Languages from review request
 REVIEW_LANGUAGES = ["fr", "de", "tr", "sv", "nl", "el"]

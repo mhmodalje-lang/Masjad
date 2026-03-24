@@ -258,10 +258,10 @@ function AyahCard({
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
 
-      if (data.success && data.explanation) {
+      if (data.success && (data.tafsir || data.explanation)) {
         const tafsirData: TafsirData = {
-          text: data.explanation,
-          tafsir_name: data.explanation_source || '',
+          text: data.tafsir || data.explanation || '',
+          tafsir_name: data.tafsir_source || data.explanation_source || '',
           is_fallback_language: false,
           verse_key: verseKey,
         };

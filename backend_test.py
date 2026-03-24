@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any
 
 # Base URL from frontend/.env
-BASE_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
+BASE_URL = "https://quran-114-surahs.preview.emergentagent.com"
 
 class QuranAPITester:
     def __init__(self):

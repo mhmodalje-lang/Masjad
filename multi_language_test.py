@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, List
 
 # Backend URL from environment
-BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com/api"
+BACKEND_URL = "https://quran-114-surahs.preview.emergentagent.com/api"
 
 class MultiLanguageDeploymentTester:
     def __init__(self):

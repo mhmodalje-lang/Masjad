@@ -7,7 +7,7 @@ Tests the exact endpoints mentioned in the review request
 import requests
 import json
 
-BASE_URL = "https://quran-rebuild-v2026.preview.emergentagent.com/api"
+BASE_URL = "https://quran-114-surahs.preview.emergentagent.com/api"
 
 def get_auth_token():
     """Get auth token for test user"""

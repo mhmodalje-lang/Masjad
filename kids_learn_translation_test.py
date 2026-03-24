@@ -9,7 +9,7 @@ import requests
 import json
 from datetime import datetime
 
-BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
+BACKEND_URL = "https://quran-114-surahs.preview.emergentagent.com"
 ALL_LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]
 
 def test_all_languages():

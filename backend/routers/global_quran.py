@@ -94,7 +94,9 @@ def _clean_html(text: str) -> str:
     """Strip HTML tags and entities from API response text."""
     text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', text)
     text = re.sub(r'<[^>]*>', '', text)
-    return text.replace('&nbsp;', ' ').strip()
+    text = text.replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&')
+    text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'")
+    return text.strip()
 
 
 async def _fetch_quranenc_greek(surah: int, ayah: int) -> str:
