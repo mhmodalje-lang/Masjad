@@ -2,7 +2,7 @@
 """
 Backend Test Suite: Strict Localization Fix for Noor Academy Arabic Learning App
 Testing all 9 locales for proper localization without English text leakage
-Base URL: https://kidszone-learn.preview.emergentagent.com
+Base URL: https://ios-policy-app.preview.emergentagent.com
 """
 
 import requests
@@ -11,7 +11,7 @@ import sys
 from typing import Dict, List, Any
 
 # Base URL from frontend/.env
-BASE_URL = "https://kidszone-learn.preview.emergentagent.com"
+BASE_URL = "https://ios-policy-app.preview.emergentagent.com"
 
 # All 9 supported locales
 LOCALES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]

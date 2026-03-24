@@ -45,7 +45,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Total Tests:** 19  
 **Status:** ALL TESTS PASSED ✅
 
@@ -123,7 +123,7 @@
 
 ### Testing Date: 2026-01-27
 ### Testing Agent: Backend Testing Complete
-### Base URL: https://kidszone-learn.preview.emergentagent.com
+### Base URL: https://ios-policy-app.preview.emergentagent.com
 ### Total Tests: 73
 ### Status: ALL TESTS PASSED ✅
 
@@ -192,7 +192,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** real_tafsir_rebuild_test.py  
 **Total Tests:** 39  
 **Status:** ALL TESTS PASSED ✅
@@ -246,7 +246,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** v2026_comprehensive_test.py  
 **Total Tests:** 46  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -322,7 +322,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-03-24  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** backend_test.py (Digital Shield Focus)  
 **Total Tests:** 5 major test categories  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -426,7 +426,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** backend_test.py (Game Engine Focus)  
 **Total Tests:** 17  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -551,7 +551,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-03-24  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** backend_test.py (Arabic Course Engine Focus)  
 **Total Tests:** 16  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -657,7 +657,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-03-24  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** backend_test.py (Strict Localization Focus)  
 **Total Tests:** 20  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -790,7 +790,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** quran_page_rebuild_test.py  
 **Total Tests:** 17  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)
@@ -877,7 +877,7 @@
 
 ### Testing Agent: Backend Testing Complete
 **Date:** 2026-01-27  
-**Base URL:** https://kidszone-learn.preview.emergentagent.com  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
 **Test Suite:** llm_tafsir_test.py  
 **Total Tests:** 20  
 **Status:** ALL TESTS PASSED ✅ (100% Success Rate)

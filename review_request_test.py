@@ -26,7 +26,7 @@ import sys
 from typing import Dict, List, Any
 
 # Backend URL
-BACKEND_URL = "https://kidszone-learn.preview.emergentagent.com"
+BACKEND_URL = "https://ios-policy-app.preview.emergentagent.com"
 
 # Languages from review request
 REVIEW_LANGUAGES = ["fr", "de", "tr", "sv", "nl", "el"]
