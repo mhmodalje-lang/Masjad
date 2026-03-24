@@ -2,60 +2,34 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useLocale } from '@/hooks/useLocale';
 import { ChevronLeft, ChevronRight, BookOpen, Search, Star, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  fetchChapters,
+  fetchVerseUthmani,
+  fetchTafsir,
+  fetchVerseTranslation,
+  getComingSoonLabel,
+  QURAN_TAFSIR_IDS,
+  QURAN_TRANSLATION_IDS,
+  type QuranChapter,
+} from '@/lib/quranApi';
 
-const API = 'https://api.quran.com/api/v4';
-
-// Surah list - all 114 surahs
-const SURAHS = [
-  {n:1,ar:"الفاتحة",en:"Al-Fatiha",v:7},{n:2,ar:"البقرة",en:"Al-Baqara",v:286},{n:3,ar:"آل عمران",en:"Ali 'Imran",v:200},
-  {n:4,ar:"النساء",en:"An-Nisa",v:176},{n:5,ar:"المائدة",en:"Al-Ma'ida",v:120},{n:6,ar:"الأنعام",en:"Al-An'am",v:165},
-  {n:7,ar:"الأعراف",en:"Al-A'raf",v:206},{n:8,ar:"الأنفال",en:"Al-Anfal",v:75},{n:9,ar:"التوبة",en:"At-Tawba",v:129},
-  {n:10,ar:"يونس",en:"Yunus",v:109},{n:11,ar:"هود",en:"Hud",v:123},{n:12,ar:"يوسف",en:"Yusuf",v:111},
-  {n:13,ar:"الرعد",en:"Ar-Ra'd",v:43},{n:14,ar:"إبراهيم",en:"Ibrahim",v:52},{n:15,ar:"الحجر",en:"Al-Hijr",v:99},
-  {n:16,ar:"النحل",en:"An-Nahl",v:128},{n:17,ar:"الإسراء",en:"Al-Isra",v:111},{n:18,ar:"الكهف",en:"Al-Kahf",v:110},
-  {n:19,ar:"مريم",en:"Maryam",v:98},{n:20,ar:"طه",en:"Ta-Ha",v:135},{n:21,ar:"الأنبياء",en:"Al-Anbiya",v:112},
-  {n:22,ar:"الحج",en:"Al-Hajj",v:78},{n:23,ar:"المؤمنون",en:"Al-Mu'minun",v:118},{n:24,ar:"النور",en:"An-Nur",v:64},
-  {n:25,ar:"الفرقان",en:"Al-Furqan",v:77},{n:26,ar:"الشعراء",en:"Ash-Shu'ara",v:227},{n:27,ar:"النمل",en:"An-Naml",v:93},
-  {n:28,ar:"القصص",en:"Al-Qasas",v:88},{n:29,ar:"العنكبوت",en:"Al-Ankabut",v:69},{n:30,ar:"الروم",en:"Ar-Rum",v:60},
-  {n:31,ar:"لقمان",en:"Luqman",v:34},{n:32,ar:"السجدة",en:"As-Sajda",v:30},{n:33,ar:"الأحزاب",en:"Al-Ahzab",v:73},
-  {n:34,ar:"سبأ",en:"Saba",v:54},{n:35,ar:"فاطر",en:"Fatir",v:45},{n:36,ar:"يس",en:"Ya-Sin",v:83},
-  {n:37,ar:"الصافات",en:"As-Saffat",v:182},{n:38,ar:"ص",en:"Sad",v:88},{n:39,ar:"الزمر",en:"Az-Zumar",v:75},
-  {n:40,ar:"غافر",en:"Ghafir",v:85},{n:41,ar:"فصلت",en:"Fussilat",v:54},{n:42,ar:"الشورى",en:"Ash-Shura",v:53},
-  {n:43,ar:"الزخرف",en:"Az-Zukhruf",v:89},{n:44,ar:"الدخان",en:"Ad-Dukhan",v:59},{n:45,ar:"الجاثية",en:"Al-Jathiya",v:37},
-  {n:46,ar:"الأحقاف",en:"Al-Ahqaf",v:35},{n:47,ar:"محمد",en:"Muhammad",v:38},{n:48,ar:"الفتح",en:"Al-Fath",v:29},
-  {n:49,ar:"الحجرات",en:"Al-Hujurat",v:18},{n:50,ar:"ق",en:"Qaf",v:45},{n:51,ar:"الذاريات",en:"Adh-Dhariyat",v:60},
-  {n:52,ar:"الطور",en:"At-Tur",v:49},{n:53,ar:"النجم",en:"An-Najm",v:62},{n:54,ar:"القمر",en:"Al-Qamar",v:55},
-  {n:55,ar:"الرحمن",en:"Ar-Rahman",v:78},{n:56,ar:"الواقعة",en:"Al-Waqi'a",v:96},{n:57,ar:"الحديد",en:"Al-Hadid",v:29},
-  {n:58,ar:"المجادلة",en:"Al-Mujadila",v:22},{n:59,ar:"الحشر",en:"Al-Hashr",v:24},{n:60,ar:"الممتحنة",en:"Al-Mumtahina",v:13},
-  {n:61,ar:"الصف",en:"As-Saff",v:14},{n:62,ar:"الجمعة",en:"Al-Jumu'a",v:11},{n:63,ar:"المنافقون",en:"Al-Munafiqun",v:11},
-  {n:64,ar:"التغابن",en:"At-Taghabun",v:18},{n:65,ar:"الطلاق",en:"At-Talaq",v:12},{n:66,ar:"التحريم",en:"At-Tahrim",v:12},
-  {n:67,ar:"الملك",en:"Al-Mulk",v:30},{n:68,ar:"القلم",en:"Al-Qalam",v:52},{n:69,ar:"الحاقة",en:"Al-Haqqa",v:52},
-  {n:70,ar:"المعارج",en:"Al-Ma'arij",v:44},{n:71,ar:"نوح",en:"Nuh",v:28},{n:72,ar:"الجن",en:"Al-Jinn",v:28},
-  {n:73,ar:"المزمل",en:"Al-Muzzammil",v:20},{n:74,ar:"المدثر",en:"Al-Muddaththir",v:56},{n:75,ar:"القيامة",en:"Al-Qiyama",v:40},
-  {n:76,ar:"الإنسان",en:"Al-Insan",v:31},{n:77,ar:"المرسلات",en:"Al-Mursalat",v:50},{n:78,ar:"النبأ",en:"An-Naba",v:40},
-  {n:79,ar:"النازعات",en:"An-Nazi'at",v:46},{n:80,ar:"عبس",en:"Abasa",v:42},{n:81,ar:"التكوير",en:"At-Takwir",v:29},
-  {n:82,ar:"الانفطار",en:"Al-Infitar",v:19},{n:83,ar:"المطففين",en:"Al-Mutaffifin",v:36},{n:84,ar:"الانشقاق",en:"Al-Inshiqaq",v:25},
-  {n:85,ar:"البروج",en:"Al-Buruj",v:22},{n:86,ar:"الطارق",en:"At-Tariq",v:17},{n:87,ar:"الأعلى",en:"Al-A'la",v:19},
-  {n:88,ar:"الغاشية",en:"Al-Ghashiya",v:26},{n:89,ar:"الفجر",en:"Al-Fajr",v:30},{n:90,ar:"البلد",en:"Al-Balad",v:20},
-  {n:91,ar:"الشمس",en:"Ash-Shams",v:15},{n:92,ar:"الليل",en:"Al-Layl",v:21},{n:93,ar:"الضحى",en:"Ad-Duha",v:11},
-  {n:94,ar:"الشرح",en:"Ash-Sharh",v:8},{n:95,ar:"التين",en:"At-Tin",v:8},{n:96,ar:"العلق",en:"Al-Alaq",v:19},
-  {n:97,ar:"القدر",en:"Al-Qadr",v:5},{n:98,ar:"البينة",en:"Al-Bayyina",v:8},{n:99,ar:"الزلزلة",en:"Az-Zalzala",v:8},
-  {n:100,ar:"العاديات",en:"Al-Adiyat",v:11},{n:101,ar:"القارعة",en:"Al-Qari'a",v:11},{n:102,ar:"التكاثر",en:"At-Takathur",v:8},
-  {n:103,ar:"العصر",en:"Al-Asr",v:3},{n:104,ar:"الهمزة",en:"Al-Humaza",v:9},{n:105,ar:"الفيل",en:"Al-Fil",v:5},
-  {n:106,ar:"قريش",en:"Quraysh",v:4},{n:107,ar:"الماعون",en:"Al-Ma'un",v:7},{n:108,ar:"الكوثر",en:"Al-Kawthar",v:3},
-  {n:109,ar:"الكافرون",en:"Al-Kafirun",v:6},{n:110,ar:"النصر",en:"An-Nasr",v:3},{n:111,ar:"المسد",en:"Al-Masad",v:5},
-  {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},{n:114,ar:"الناس",en:"An-Nas",v:6},
-];
-
-const TAFSIR_IDS = { kathir_ar: 169, muyassar: 16 };
+/**
+ * Tafsir Page — V2026 REBUILD
+ * ALL data from Quran.com API v4.
+ * Translation uses MANDATORY IDs per language.
+ * Tafsir uses Ibn Kathir (169) or Al-Muyassar (16).
+ * NO AI translation. NO hardcoded text.
+ */
 
 export default function Tafsir() {
   const { locale, dir, t } = useLocale();
   const isAr = locale === 'ar';
 
+  const [chapters, setChapters] = useState<QuranChapter[]>([]);
   const [surahNum, setSurahNum] = useState(1);
   const [ayahNum, setAyahNum] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [chaptersLoading, setChaptersLoading] = useState(true);
   const [ayahText, setAyahText] = useState('');
   const [tafsirText, setTafsirText] = useState('');
   const [translationText, setTranslationText] = useState('');
@@ -65,57 +39,73 @@ export default function Tafsir() {
     try { return JSON.parse(localStorage.getItem('tafsir_favs') || '[]'); } catch { return []; }
   });
 
-  const surah = SURAHS.find(s => s.n === surahNum);
+  // Load chapters from Quran.com v4 with localized names
+  useEffect(() => {
+    setChaptersLoading(true);
+    fetchChapters(locale).then(data => {
+      setChapters(data);
+      setChaptersLoading(false);
+    }).catch(() => setChaptersLoading(false));
+  }, [locale]);
+
+  const currentChapter = chapters.find(c => c.id === surahNum);
+  const versesCount = currentChapter?.verses_count || 7;
 
   const loadTafsir = useCallback(async (sNum: number, aNum: number) => {
     setLoading(true);
     setShowSurahList(false);
+    const verseKey = `${sNum}:${aNum}`;
+
     try {
-      const ayahRes = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sNum}&verse_key=${sNum}:${aNum}`);
-      const ayahData = await ayahRes.json();
-      if (ayahData.verses && ayahData.verses.length > 0) {
-        setAyahText(ayahData.verses[0].text_uthmani || '');
-      }
+      // 1. Fetch Arabic text (Uthmani)
+      const arabicText = await fetchVerseUthmani(verseKey);
+      setAyahText(arabicText || '');
 
-      const tafsirRes = await fetch(`${API}/tafsirs/${TAFSIR_IDS.kathir_ar}/by_ayah/${sNum}:${aNum}`);
-      const tafsirData = await tafsirRes.json();
-      if (tafsirData.tafsir) {
-        const raw = tafsirData.tafsir.text || '';
-        const clean = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-        setTafsirText(clean);
-      }
+      // 2. Fetch Tafsir (Ibn Kathir Arabic)
+      const tafsir = await fetchTafsir(verseKey, QURAN_TAFSIR_IDS.ibn_kathir_ar);
+      setTafsirText(tafsir || '');
 
+      // 3. Fetch translation for current language
       if (!isAr) {
-        const trRes = await fetch(`${API}/quran/translations/131?verse_key=${sNum}:${aNum}`);
-        const trData = await trRes.json();
-        if (trData.translations && trData.translations.length > 0) {
-          const raw = trData.translations[0].text || '';
-          setTranslationText(raw.replace(/<[^>]*>/g, '').trim());
+        const transId = QURAN_TRANSLATION_IDS[locale];
+        if (transId) {
+          const trans = await fetchVerseTranslation(verseKey, locale);
+          if (trans) {
+            setTranslationText(trans);
+          } else {
+            setTranslationText(getComingSoonLabel(locale));
+          }
+        } else {
+          setTranslationText(getComingSoonLabel(locale));
         }
+      } else {
+        // For Arabic, show Al-Muyassar explanation
+        const muyassarText = await fetchTafsir(verseKey, QURAN_TAFSIR_IDS.muyassar);
+        setTranslationText(muyassarText || '');
       }
     } catch (e) {
       console.error('Tafsir fetch error:', e);
       setTafsirText(t('tafsirError'));
     }
     setLoading(false);
-  }, [isAr, t]);
+  }, [isAr, locale, t]);
 
   useEffect(() => {
-    if (!showSurahList) {
+    if (!showSurahList && chapters.length > 0) {
       loadTafsir(surahNum, ayahNum);
     }
-  }, [surahNum, ayahNum, showSurahList, loadTafsir]);
+  }, [surahNum, ayahNum, showSurahList, loadTafsir, chapters.length]);
 
   const prevAyah = () => {
     if (ayahNum > 1) setAyahNum(ayahNum - 1);
     else if (surahNum > 1) {
-      const prev = SURAHS.find(s => s.n === surahNum - 1);
-      if (prev) { setSurahNum(surahNum - 1); setAyahNum(prev.v); }
+      const prevCh = chapters.find(c => c.id === surahNum - 1);
+      if (prevCh) { setSurahNum(surahNum - 1); setAyahNum(prevCh.verses_count); }
     }
   };
 
   const nextAyah = () => {
-    if (surah && ayahNum < surah.v) setAyahNum(ayahNum + 1);
+    if (ayahNum < versesCount) setAyahNum(ayahNum + 1);
     else if (surahNum < 114) { setSurahNum(surahNum + 1); setAyahNum(1); }
   };
 
@@ -126,9 +116,21 @@ export default function Tafsir() {
     localStorage.setItem('tafsir_favs', JSON.stringify(newFavs));
   };
 
-  const filteredSurahs = searchQuery
-    ? SURAHS.filter(s => s.ar.includes(searchQuery) || s.en.toLowerCase().includes(searchQuery.toLowerCase()) || String(s.n).includes(searchQuery))
-    : SURAHS;
+  const filteredChapters = searchQuery
+    ? chapters.filter(c =>
+        c.name_arabic.includes(searchQuery) ||
+        c.name_simple.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (c.translated_name?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        String(c.id).includes(searchQuery)
+      )
+    : chapters;
+
+  // Display name for surah header
+  const surahDisplayName = currentChapter
+    ? isAr
+      ? currentChapter.name_arabic
+      : `${currentChapter.name_arabic} (${currentChapter.translated_name?.name || currentChapter.name_simple})`
+    : '';
 
   return (
     <div dir={dir} className="min-h-screen bg-background pb-24">
@@ -160,18 +162,27 @@ export default function Tafsir() {
           <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20">
             <p className="text-sm text-foreground/80 leading-relaxed">{t('tafsirDescription')}</p>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {filteredSurahs.map(s => (
-              <button key={s.n} onClick={() => { setSurahNum(s.n); setAyahNum(1); setShowSurahList(false); }}
-                className="p-3 rounded-xl bg-card border border-border/20 hover:border-emerald-500/30 transition-all text-right flex items-center gap-2.5 active:scale-[0.98]">
-                <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">{s.n}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-foreground truncate">{s.ar}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">{s.en} • {s.v} {t('tafsirVerses')}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+
+          {chaptersLoading ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {filteredChapters.map(ch => (
+                <button key={ch.id} onClick={() => { setSurahNum(ch.id); setAyahNum(1); setShowSurahList(false); }}
+                  className="p-3 rounded-xl bg-card border border-border/20 hover:border-emerald-500/30 transition-all text-right flex items-center gap-2.5 active:scale-[0.98]">
+                  <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold shrink-0">{ch.id}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{ch.name_arabic}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      {isAr ? ch.name_simple : ch.translated_name?.name || ch.name_simple} • {ch.verses_count} {t('tafsirVerses')}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -183,8 +194,8 @@ export default function Tafsir() {
               <ChevronRight className="h-5 w-5 text-foreground" />
             </button>
             <div className="text-center flex-1">
-              <p className="text-base font-bold text-foreground">{surah?.ar} ({surah?.en})</p>
-              <p className="text-xs text-muted-foreground">{t('tafsirVerse')} {ayahNum} / {surah?.v}</p>
+              <p className="text-base font-bold text-foreground">{surahDisplayName}</p>
+              <p className="text-xs text-muted-foreground">{t('tafsirVerse')} {ayahNum} / {versesCount}</p>
             </div>
             <button onClick={nextAyah} className="p-2.5 rounded-xl bg-card border border-border/20 hover:bg-muted/50 transition-all active:scale-95">
               <ChevronLeft className="h-5 w-5 text-foreground" />
@@ -192,17 +203,17 @@ export default function Tafsir() {
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {surah && Array.from({ length: Math.min(surah.v, 30) }, (_, i) => i + 1).map(num => (
+            {Array.from({ length: Math.min(versesCount, 30) }, (_, i) => i + 1).map(num => (
               <button key={num} onClick={() => setAyahNum(num)}
                 className={cn("w-9 h-9 rounded-lg text-xs font-bold shrink-0 transition-all",
                   num === ayahNum ? "bg-emerald-600 text-white shadow-lg" : "bg-card border border-border/20 text-foreground hover:bg-muted/50"
                 )}>{num}</button>
             ))}
-            {surah && surah.v > 30 && (
+            {versesCount > 30 && (
               <select value={ayahNum > 30 ? ayahNum : ''} onChange={e => setAyahNum(Number(e.target.value))}
                 className="h-9 px-2 rounded-lg text-xs bg-card border border-border/20 text-foreground">
                 <option value="" disabled>{t('tafsirMore')}</option>
-                {Array.from({ length: surah.v - 30 }, (_, i) => i + 31).map(n => (
+                {Array.from({ length: versesCount - 30 }, (_, i) => i + 31).map(n => (
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
@@ -216,10 +227,11 @@ export default function Tafsir() {
             </div>
           ) : (
             <>
+              {/* Arabic Verse */}
               <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 text-center">
                 <p className="text-2xl leading-[2.2] font-arabic text-foreground" dir="rtl">{ayahText || '...'}</p>
                 <div className="flex items-center justify-center gap-3 mt-3">
-                  <span className="text-xs text-muted-foreground">{surah?.ar} - {t('tafsirVerse')} {ayahNum}</span>
+                  <span className="text-xs text-muted-foreground">{currentChapter?.name_arabic} - {t('tafsirVerse')} {ayahNum}</span>
                   <button onClick={toggleFav} className={cn("p-1.5 rounded-full transition-all",
                     favorites.includes(`${surahNum}:${ayahNum}`) ? "text-amber-500" : "text-muted-foreground/40")}>
                     <Star className="h-4 w-4" fill={favorites.includes(`${surahNum}:${ayahNum}`) ? 'currentColor' : 'none'} />
@@ -227,13 +239,19 @@ export default function Tafsir() {
                 </div>
               </div>
 
-              {!isAr && translationText && (
+              {/* Translation — from Quran.com API v4 with correct ID */}
+              {translationText && (
                 <div className="p-4 rounded-2xl bg-card border border-border/20">
-                  <p className="text-xs font-bold text-muted-foreground mb-2 uppercase">Translation</p>
-                  <p className="text-sm text-foreground/80 leading-relaxed">{translationText}</p>
+                  <p className="text-xs font-bold text-muted-foreground mb-2 uppercase">
+                    {isAr ? 'التفسير الميسر' : t('meaningTranslation') || 'Translation'}
+                  </p>
+                  <p className="text-sm text-foreground/80 leading-relaxed" dir={isAr ? 'rtl' : 'auto'}>
+                    {translationText}
+                  </p>
                 </div>
               )}
 
+              {/* Ibn Kathir Tafsir */}
               <div className="p-5 rounded-2xl bg-card border border-border/20">
                 <div className="flex items-center gap-2 mb-3">
                   <BookOpen className="h-4 w-4 text-amber-500" />

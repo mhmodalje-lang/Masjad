@@ -23,6 +23,8 @@ class DhikrAIRequest(BaseModel):
 
 router = APIRouter(tags=["AI Assistant"])
 
+QURAN_V4_BASE = "https://api.quran.com/api/v4"
+
 @router.post("/ai/ask")
 async def ai_ask(data: dict, user: dict = Depends(get_user)):
     """AI Islamic assistant. 5 free questions, then requires credits. Max 20/day."""
@@ -197,7 +199,6 @@ async def smart_reminder(data: dict):
         "الصلاة على وقتها من أحب الأعمال إلى الله",
         "لا تؤخر صلاتك، فإن الموت لا يستأذن",
     ]
-    import random
     return {"reminder": random.choice(reminders)}
 
 # ==================== HIJRI DATE ====================
@@ -226,56 +227,68 @@ async def get_daily_dua():
 
 @router.get("/ai/verse-of-day")
 async def get_verse_of_day(language: str = Query("ar")):
-    """Get AI-selected verse of the day with translation"""
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"verse-of-day-{language}-{date.today().isoformat()}", system_message="أنت عالم قرآن. أعط آيات ملهمة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
-        
-        lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
-        
-        if language == "ar":
-            prompt = """اختر آية قرآنية ملهمة ومؤثرة. أعطني:
-1. نص الآية بالعربية
-2. اسم السورة
-3. رقم الآية
-
-أجب بصيغة JSON فقط:
-{"text": "نص الآية", "surah": "اسم السورة", "ayah": رقم_الآية}"""
-        else:
-            lang_name = lang_names.get(language, "English")
-            prompt = f"""Select an inspiring Quran verse. Give me:
-1. The Arabic text of the verse
-2. The {lang_name} translation of the verse
-3. The Surah name in {lang_name} transliteration (e.g., "At-Talaq", "Al-Baqarah")
-4. The Ayah number
-
-Reply ONLY in JSON:
-{{"text": "Arabic verse text", "translation": "{lang_name} translation", "surah": "Surah name in {lang_name}", "ayah": ayah_number}}"""
-        
-        response = await chat.chat([UserMessage(content=prompt)])
-        import re
-        match = re.search(r'\{[^}]+\}', response.content)
-        if match:
-            data = json_module.loads(match.group())
-            return {"verse": data}
-    except Exception as e:
-        logging.error(f"Verse error: {e}")
+    """Fetch verse of the day DIRECTLY from Quran.com API v4 — NO AI translation."""
+    # Curated inspiring verses (chapter:verse)
+    INSPIRING_VERSES = [
+        "2:286", "2:255", "2:152", "2:186", "3:139", "3:173", "5:3", "6:162",
+        "9:51", "10:62", "12:87", "13:28", "14:7", "15:9", "16:97", "17:82",
+        "20:114", "21:87", "23:115", "24:35", "25:74", "28:24", "29:69", "31:17",
+        "33:56", "35:32", "39:53", "40:60", "42:19", "47:7", "48:29", "49:13",
+        "55:13", "56:10", "59:22", "61:13", "65:2", "65:3", "67:2", "68:4",
+        "73:8", "76:30", "87:1", "89:27", "93:5", "94:5", "94:6", "97:1",
+    ]
     
-    # Fallback with translation
-    fallback_translations = {
-        "en": {"translation": "And whoever fears Allah - He will make for him a way out", "surah": "At-Talaq"},
-        "de": {"translation": "Und wer Allah fürchtet, dem wird Er einen Ausweg schaffen", "surah": "At-Talaq"},
-        "fr": {"translation": "Et quiconque craint Allah, Il lui donnera une issue", "surah": "At-Talaq"},
-        "ru": {"translation": "Тому, кто боится Аллаха, Он создаст выход", "surah": "Ат-Таляк"},
-        "tr": {"translation": "Kim Allah'tan korkarsa, Allah ona bir çıkış yolu yaratır", "surah": "Talak"},
-        "nl": {"translation": "En wie Allah vreest, Hij zal hem een uitweg verschaffen", "surah": "At-Talaq"},
-        "sv": {"translation": "Och den som fruktar Allah, Han ska ge honom en utväg", "surah": "At-Talaq"},
-        "el": {"translation": "Και όποιος φοβάται τον Αλλάχ, Αυτός θα του δώσει διέξοδο", "surah": "Ατ-Ταλάκ"},
+    TRANSLATION_IDS = {
+        "en": 20, "fr": 31, "de": 27, "tr": 77, "ru": 79,
+        "nl": 235, "sv": 48, "ar": 16,
     }
-    fb = fallback_translations.get(language, fallback_translations["en"])
-    if language == "ar":
-        return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق", "ayah": 3}}
-    return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "translation": fb["translation"], "surah": fb["surah"], "ayah": 3}}
+    
+    today = date.today()
+    day_of_year = today.timetuple().tm_yday
+    verse_key = INSPIRING_VERSES[day_of_year % len(INSPIRING_VERSES)]
+    chapter_num, ayah_num = verse_key.split(":")
+    
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            # 1. Fetch Arabic text
+            ar_res = await client.get(f"{QURAN_V4_BASE}/quran/verses/uthmani", params={"verse_key": verse_key})
+            arabic_text = ""
+            if ar_res.status_code == 200:
+                ar_data = ar_res.json()
+                if ar_data.get("verses"):
+                    arabic_text = ar_data["verses"][0].get("text_uthmani", "")
+            
+            # 2. Fetch chapter info in user's language
+            ch_res = await client.get(f"{QURAN_V4_BASE}/chapters/{chapter_num}", params={"language": language})
+            surah_name = ""
+            surah_arabic = ""
+            if ch_res.status_code == 200:
+                ch_data = ch_res.json()
+                chapter = ch_data.get("chapter", {})
+                surah_name = chapter.get("translated_name", {}).get("name", chapter.get("name_simple", ""))
+                surah_arabic = chapter.get("name_arabic", "")
+            
+            # 3. Fetch translation if not Arabic
+            translation = None
+            trans_id = TRANSLATION_IDS.get(language)
+            if language != "ar" and trans_id:
+                tr_res = await client.get(f"{QURAN_V4_BASE}/quran/translations/{trans_id}", params={"verse_key": verse_key})
+                if tr_res.status_code == 200:
+                    tr_data = tr_res.json()
+                    translations = tr_data.get("translations", [])
+                    if translations:
+                        raw = translations[0].get("text", "")
+                        translation = re.sub(r'<[^>]*>', '', raw).replace("&nbsp;", " ").strip()
+            
+            result = {"text": arabic_text, "surah": surah_name or surah_arabic, "ayah": int(ayah_num)}
+            if translation:
+                result["translation"] = translation
+            
+            return {"verse": result}
+    except Exception as e:
+        logging.error(f"Verse of day API error: {e}")
+        # Minimal fallback — still from real data
+        return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق" if language == "ar" else "At-Talaq", "ayah": 3}}
 
 @router.get("/ai/hadith-of-day")
 async def get_hadith_of_day(language: str = Query("ar")):

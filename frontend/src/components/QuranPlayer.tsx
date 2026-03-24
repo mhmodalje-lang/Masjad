@@ -111,11 +111,19 @@ export default function QuranPlayer() {
     reciterRef.current = reciter;
   }, [reciter]);
 
-  // Load surahs list
+  // Load surahs list from Quran.com API v4
   useEffect(() => {
-    fetch('https://api.alquran.cloud/v1/surah')
+    fetch('https://api.quran.com/api/v4/chapters?language=ar')
       .then(r => r.json())
-      .then(d => setSurahs(d.data || []))
+      .then(d => {
+        const chapters = d.chapters || [];
+        setSurahs(chapters.map((ch: any) => ({
+          number: ch.id,
+          name: ch.name_arabic,
+          englishName: ch.name_simple,
+          numberOfAyahs: ch.verses_count,
+        })));
+      })
       .catch(() => {});
   }, []);
 

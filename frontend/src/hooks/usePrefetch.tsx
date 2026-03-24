@@ -63,10 +63,10 @@ function prefetchMosques(lat: number, lon: number): Promise<any[]> {
 async function prefetchQuranIndex() {
   if (quranIndexCache) return;
   try {
-    const res = await fetch('https://api.alquran.cloud/v1/surah');
+    const res = await fetch('https://api.quran.com/api/v4/chapters?language=ar');
     if (res.ok) {
       const json = await res.json();
-      quranIndexCache = json.data;
+      quranIndexCache = json.chapters;
     }
   } catch { /* silent */ }
 }

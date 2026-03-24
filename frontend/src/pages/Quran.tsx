@@ -10,15 +10,14 @@ import IslamicAd from '@/components/IslamicAd';
 import { normalizeArabicForSearch } from '@/lib/arabicNormalize';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { fetchChapters, type QuranChapter } from '@/lib/quranApi';
 
-interface Surah {
-  number: number;
-  name: string;
-  englishName: string;
-  englishNameTranslation: string;
-  numberOfAyahs: number;
-  revelationType: string;
-}
+/**
+ * Quran Page — V2026 REBUILD
+ * ALL data fetched from Quran.com API v4
+ * Surah names are localized per language via: /chapters?language={lang}
+ * NO hardcoded text. NO alquran.cloud.
+ */
 
 const JUZ_DATA = [
   { number: 1, name: 'الم', startSurah: 1, startAyah: 1, endSurah: 2, endAyah: 141 },
@@ -54,24 +53,27 @@ const JUZ_DATA = [
 ];
 
 export default function Quran() {
-  const { t } = useLocale();
+  const { t, locale, isRTL } = useLocale();
   const { user } = useAuth();
-  const [surahs, setSurahs] = useState<Surah[]>([]);
+  const [chapters, setChapters] = useState<QuranChapter[]>([]);
   const [search, setSearch] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<'surah' | 'juz' | 'bookmarks'>('surah');
   const [bookmarks, setBookmarks] = useState<number[]>([]);
 
+  // Fetch chapters from Quran.com v4 with localized names
   useEffect(() => {
-    fetch('https://api.alquran.cloud/v1/surah')
-      .then(r => r.json())
-      .then(d => { setSurahs(d.data); setLoading(false); })
+    setLoading(true);
+    fetchChapters(locale)
+      .then((data) => {
+        setChapters(data);
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
-    // Load bookmarks from localStorage
     const savedBookmarks = JSON.parse(localStorage.getItem('quran_bookmarks') || '[]');
     setBookmarks(savedBookmarks);
   }, [user]);
@@ -94,27 +96,23 @@ export default function Quran() {
 
   const normalizedQuery = normalizeArabicForSearch(search);
 
-  const filtered = surahs.filter(s => {
+  const filtered = chapters.filter(ch => {
     if (!search.trim()) return true;
-
-    // Number search
-    if (String(s.number) === search.trim()) return true;
-
-    const nameNorm = normalizeArabicForSearch(s.name);
-    const enNameNorm = normalizeArabicForSearch(s.englishName);
-    const enTrNorm = normalizeArabicForSearch(s.englishNameTranslation);
-
+    if (String(ch.id) === search.trim()) return true;
+    const nameArabicNorm = normalizeArabicForSearch(ch.name_arabic);
+    const nameSimpleNorm = normalizeArabicForSearch(ch.name_simple);
+    const translatedNorm = normalizeArabicForSearch(ch.translated_name?.name || '');
     return (
-      nameNorm.includes(normalizedQuery) ||
-      enNameNorm.includes(normalizedQuery) ||
-      enTrNorm.includes(normalizedQuery)
+      nameArabicNorm.includes(normalizedQuery) ||
+      nameSimpleNorm.includes(normalizedQuery) ||
+      translatedNorm.includes(normalizedQuery)
     );
   });
 
-  const bookmarkedSurahs = surahs.filter(s => bookmarks.includes(s.number));
+  const bookmarkedChapters = chapters.filter(ch => bookmarks.includes(ch.id));
 
   return (
-    <div className="min-h-screen pb-24" dir="rtl">
+    <div className="min-h-screen pb-24" dir={isRTL ? 'rtl' : 'ltr'}>
       <PageHeader
         title={t('quran')}
         subtitle={t('quranSubtitle')}
@@ -186,29 +184,30 @@ export default function Quran() {
             <BookOpen className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : tab === 'surah' ? (
-          filtered.map((surah, i) => (
-            <SurahRow
-              key={surah.number}
-              surah={surah}
+          filtered.map((chapter, i) => (
+            <ChapterRow
+              key={chapter.id}
+              chapter={chapter}
               index={i}
-              isBookmarked={bookmarks.includes(surah.number)}
+              isBookmarked={bookmarks.includes(chapter.id)}
               onToggleBookmark={toggleBookmark}
+              locale={locale}
             />
           ))
         ) : tab === 'juz' ? (
           JUZ_DATA.map((juz) => {
-            const startSurah = surahs.find(s => s.number === juz.startSurah);
-            const endSurah = surahs.find(s => s.number === juz.endSurah);
+            const startChapter = chapters.find(c => c.id === juz.startSurah);
+            const endChapter = chapters.find(c => c.id === juz.endSurah);
             return (
               <Link
                 key={juz.number}
                 to={`/quran/${juz.startSurah}`}
                 className="flex items-center gap-3 py-4 border-b border-border/10 active:bg-muted/50 transition-colors"
               >
-                <div className="flex-1 min-w-0 text-right">
+                <div className="flex-1 min-w-0">
                   <p className="font-bold text-foreground">{juz.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {startSurah?.name} ({juz.startAyah}) → {endSurah?.name} ({juz.endAyah})
+                    {startChapter?.name_arabic || ''} ({juz.startAyah}) → {endChapter?.name_arabic || ''} ({juz.endAyah})
                   </p>
                 </div>
                 <div className="relative h-12 w-12 flex items-center justify-center flex-shrink-0">
@@ -223,7 +222,7 @@ export default function Quran() {
             );
           })
         ) : (
-          bookmarkedSurahs.length === 0 ? (
+          bookmarkedChapters.length === 0 ? (
             <div className="text-center py-20">
               <Bookmark className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-sm text-muted-foreground">
@@ -231,13 +230,14 @@ export default function Quran() {
               </p>
             </div>
           ) : (
-            bookmarkedSurahs.map((surah, i) => (
-              <SurahRow
-                key={surah.number}
-                surah={surah}
+            bookmarkedChapters.map((chapter, i) => (
+              <ChapterRow
+                key={chapter.id}
+                chapter={chapter}
                 index={i}
                 isBookmarked={true}
                 onToggleBookmark={toggleBookmark}
+                locale={locale}
               />
             ))
           )
@@ -252,13 +252,15 @@ export default function Quran() {
   );
 }
 
-const SurahRow = forwardRef<HTMLDivElement, {
-  surah: Surah;
+const ChapterRow = forwardRef<HTMLDivElement, {
+  chapter: QuranChapter;
   index: number;
   isBookmarked: boolean;
   onToggleBookmark: (e: React.MouseEvent, num: number) => void;
-}>(function SurahRow({ surah, index, isBookmarked, onToggleBookmark }, ref) {
+  locale: string;
+}>(function ChapterRow({ chapter, index, isBookmarked, onToggleBookmark, locale }, ref) {
   const navigate = useNavigate();
+  const isAr = locale === 'ar';
 
   return (
     <motion.div
@@ -269,26 +271,26 @@ const SurahRow = forwardRef<HTMLDivElement, {
       className="border-b border-border/10 last:border-b-0"
     >
       <div
-        onClick={() => navigate(`/quran/${surah.number}`)}
+        onClick={() => navigate(`/quran/${chapter.id}`)}
         className="flex items-center gap-3 py-4 active:bg-muted/50 transition-colors cursor-pointer"
       >
         <div className="flex gap-2">
-          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); onToggleBookmark(e, surah.number); }}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); onToggleBookmark(e, chapter.id); }}>
             {isBookmarked ? (
               <BookmarkCheck className="h-4 w-4 text-primary fill-primary" />
             ) : (
               <Bookmark className="h-4 w-4 text-muted-foreground" />
             )}
           </button>
-          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); navigate(`/quran/${surah.number}`); }}>
+          <button className="p-1.5 rounded-xl hover:bg-muted transition-colors" onClick={(e) => { e.stopPropagation(); navigate(`/quran/${chapter.id}`); }}>
             <Play className="h-4 w-4 text-primary fill-primary" />
           </button>
         </div>
 
-        <div className="flex-1 min-w-0 text-right">
-          <p className="font-bold text-foreground">{surah.name}</p>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-foreground font-arabic">{chapter.name_arabic}</p>
           <p className="text-xs text-muted-foreground">
-            {surah.englishNameTranslation} ({surah.numberOfAyahs})
+            {isAr ? chapter.name_simple : chapter.translated_name?.name || chapter.name_simple} ({chapter.verses_count})
           </p>
         </div>
 
@@ -298,7 +300,7 @@ const SurahRow = forwardRef<HTMLDivElement, {
             <circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" strokeWidth="0.5" />
           </svg>
           <span className="text-sm font-bold text-foreground z-10">
-            {surah.number.toLocaleString('ar-EG')}
+            {chapter.id.toLocaleString('ar-EG')}
           </span>
         </div>
       </div>

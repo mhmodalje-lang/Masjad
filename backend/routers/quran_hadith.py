@@ -62,11 +62,15 @@ async def daily_hadith(language: str = Query("ar")):
 # ==================== QURAN (Quran.com API v4) ====================
 # Official Quran translation IDs per language
 QURAN_TRANSLATION_IDS = {
-    "en": 131,   # Sahih International
-    "de": 27,    # Abu Rida Muhammad ibn Ahmad ibn Rassoul
-    "ru": 45,    # Ministry of Awqaf, Egypt
+    "en": 20,    # Saheeh International
     "fr": 31,    # Muhammad Hamidullah
-    "tr": 77,    # Diyanet Isleri
+    "de": 27,    # Bubenheim & Elyas
+    "tr": 77,    # Diyanet İşleri
+    "ru": 79,    # Abu Adel
+    "nl": 235,   # Malak Faris Abdalsalaam
+    "sv": 48,    # Knut Bernström
+    # "el": N/A  # Greek not available — show Arabic original
+    "ar": 16,    # Tafsir Al-Muyassar
 }
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
@@ -159,7 +163,7 @@ async def search_quran_v4(
     page: int = Query(1),
     size: int = Query(20),
 ):
-    """Search the Quran via Quran.com API v4 with fallback to legacy API"""
+    """Search the Quran via Quran.com API v4"""
     try:
         params = {
             "q": q,
@@ -172,13 +176,8 @@ async def search_quran_v4(
             if r.status_code == 200:
                 data = r.json()
                 return data
-            # Fallback to legacy alquran.cloud API if v4 search fails
-            r2 = await c.get(f"https://api.alquran.cloud/v1/search/{q}/all/ar")
-            if r2.status_code == 200:
-                return r2.json()
             return {"search": {"results": [], "total_results": 0}}
     except Exception as e:
-        # Final fallback - return empty results
         return {"search": {"results": [], "total_results": 0}, "error": str(e)}
 
 @router.get("/quran/v4/juzs")
@@ -278,12 +277,13 @@ async def get_specific_hadith(collection: str, hadith_number: str):
     except Exception as e:
         raise HTTPException(500, f"Hadith API error: {str(e)}")
 
-# Keep legacy endpoints for backward compatibility
+# Legacy endpoints redirected to v4
 @router.get("/quran/surah/{number}")
 async def get_surah(number: int, reciter: str = Query("ar.alafasy")):
+    """Legacy endpoint — now proxies to Quran.com v4"""
     try:
         async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get(f"https://api.alquran.cloud/v1/surah/{number}/{reciter}")
+            r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{number}", params={"language": "ar", "words": "false", "per_page": "286", "fields": "text_uthmani"})
             r.raise_for_status()
             return r.json()
     except Exception as e:
@@ -291,9 +291,10 @@ async def get_surah(number: int, reciter: str = Query("ar.alafasy")):
 
 @router.get("/quran/search")
 async def search_quran(q: str = Query(...)):
+    """Legacy endpoint — now proxies to Quran.com v4"""
     try:
         async with httpx.AsyncClient(timeout=15) as c:
-            r = await c.get(f"https://api.alquran.cloud/v1/search/{q}/all/ar")
+            r = await c.get(f"{QURAN_V4_BASE}/search", params={"q": q, "language": "ar"})
             r.raise_for_status()
             return r.json()
     except Exception as e:

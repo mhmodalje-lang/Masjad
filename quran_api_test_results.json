@@ -1,0 +1,93 @@
+[
+  {
+    "test": "Verse of Day (English)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=en",
+    "expected": "Verse with Arabic text and English translation",
+    "result": "✓ Arabic text, ✓ English translation, ✓ Surah: The Ranks, ✓ Ayah: 13",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.46126461029052734,
+      "verse": {
+        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
+        "surah": "The Ranks",
+        "ayah": 13,
+        "translation": "And [you will obtain] another [favor] that you love - victory from Allāh and an imminent conquest; and give good tidings to the believers."
+      }
+    }
+  },
+  {
+    "test": "Verse of Day (Arabic)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=ar",
+    "expected": "Arabic verse without translation",
+    "result": "✓ Arabic text, ✓ No translation, ✓ Surah: The Ranks, ✓ Ayah: 13",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.1966257095336914,
+      "verse": {
+        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
+        "surah": "The Ranks",
+        "ayah": 13
+      }
+    }
+  },
+  {
+    "test": "Verse of Day (French)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/ai/verse-of-day?language=fr",
+    "expected": "Verse with French translation",
+    "result": "✓ Arabic text, ✓ French translation, ✓ Surah: Le rang, ✓ Ayah: 13",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.580235481262207,
+      "verse": {
+        "text": "وَأُخْرَىٰ تُحِبُّونَهَا ۖ نَصْرٌ مِّنَ ٱللَّهِ وَفَتْحٌ قَرِيبٌ ۗ وَبَشِّرِ ٱلْمُؤْمِنِينَ",
+        "surah": "Le rang",
+        "ayah": 13,
+        "translation": "et il vous accordera d’autres choses encore que vous aimez bien: un secours [venant] d’Allah et une victoire prochaine. Et annonce la bonne nouvelle aux croyants."
+      }
+    }
+  },
+  {
+    "test": "Surah Al-Fatiha (English)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/fatiha?locale=en",
+    "expected": "7 ayahs with Arabic and English translation",
+    "result": "✓ 7 ayahs, ✓ Arabic text, ✓ English translations (Saheeh International ID 20)",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.18316245079040527,
+      "ayahs_count": 7
+    }
+  },
+  {
+    "test": "Surah Al-Fatiha (French)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/fatiha?locale=fr",
+    "expected": "7 ayahs with French translations",
+    "result": "✓ 7 ayahs, ✓ French translations (ID 31)",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.3343219757080078,
+      "ayahs_count": 7
+    }
+  },
+  {
+    "test": "Surah Al-Ikhlas (English)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surah/ikhlas?locale=en",
+    "expected": "4 ayahs with Arabic and English translation",
+    "result": "✓ 4 ayahs, ✓ Arabic text, ✓ English translations",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.24236369132995605,
+      "ayahs_count": 4
+    }
+  },
+  {
+    "test": "Surahs List (Arabic)",
+    "endpoint": "https://tafsir-mobile-hub.preview.emergentagent.com/api/kids-learn/quran/surahs?locale=ar",
+    "expected": "List of surahs",
+    "result": "✓ 15 surahs with required fields",
+    "status": "PASS",
+    "details": {
+      "response_time": 0.11020469665527344,
+      "surahs_count": 15
+    }
+  }
+]
