@@ -294,9 +294,15 @@ const SurahRow = forwardRef<HTMLDivElement, {
   locale: string;
 }>(function SurahRow({ surah, index, isBookmarked, onToggleBookmark, locale }, ref) {
   const navigate = useNavigate();
+  const isArabic = locale === 'ar';
 
   // Use the translated name from Quran.com v4 API
   const translatedName = surah.translated_name?.name || surah.englishNameTranslation || surah.englishName;
+  
+  // For non-Arabic: Show translated name as main, Arabic as secondary
+  // For Arabic: Show Arabic name as main
+  const mainName = isArabic ? surah.name : translatedName;
+  const secondaryName = isArabic ? '' : surah.name;
 
   return (
     <motion.div
@@ -324,9 +330,9 @@ const SurahRow = forwardRef<HTMLDivElement, {
         </div>
 
         <div className="flex-1 min-w-0 text-right">
-          <p className="font-bold text-foreground">{surah.name}</p>
+          <p className="font-bold text-foreground">{mainName}</p>
           <p className="text-xs text-muted-foreground">
-            {translatedName} ({surah.numberOfAyahs || surah.verses_count})
+            {secondaryName ? `${secondaryName} — ` : ''}{surah.numberOfAyahs || surah.verses_count} {isArabic ? 'آية' : ''}
           </p>
         </div>
 

@@ -1,20 +1,18 @@
 """
-Global Quran Verse API — V2026 TAFSIR REBUILD
-==============================================
+Global Quran Verse API — V2026 REAL TAFSIR REBUILD
+====================================================
 SINGLE unified endpoint. ALL 114 surahs, ALL 9 languages.
 
-TAFSIR SOURCES (Islamic scholarly sources per language):
-- ar: التفسير الميسر (Al-Muyassar) — مجمع الملك فهد (ID 16, tafsir endpoint)
-- ru: Тафсир ас-Саади (As-Sa'di) — (ID 170, tafsir endpoint)
-- en: Abdel Haleem (ID 85) — Oxford Islamic scholar
-- de: Abu Reda (ID 208) — Islamic scholar
-- fr: Montada Islamic Foundation (ID 136) — مؤسسة المنتدى الإسلامي
-- tr: Elmalılı Hamdi Yazır (ID 52) — Ottoman Islamic scholar / tafsir
-- nl: Abdalsalaam (ID 235) — Islamic scholar
-- sv: Knut Bernström (ID 48) — Swedish Islamic scholar
-- el: Rowwad Translation Center (QuranEnc) — مركز رواد الترجمة
+REAL TAFSIR SOURCES (actual scholarly tafsir, NOT translations):
+- ar: التفسير الميسر (Al-Muyassar) — مجمع الملك فهد (ID 16, Quran.com tafsir endpoint)
+- en: Ibn Kathir Abridged (ID 169) — Quran.com tafsir endpoint (truncated)
+- ru: Тафсир ас-Саади (As-Sa'di) — (ID 170, Quran.com tafsir endpoint)
+- fr: QuranEnc french_rashid footnotes — Real scholarly explanatory notes
+- de/tr/sv/nl/el: Arabic التفسير الميسر (no native tafsir available in these languages)
 
-All truncated to match Arabic Al-Muyassar length (~700 chars max).
+Tafsir = EXPLANATION of meaning, context, reasons of revelation.
+Translation = Just the meaning in another language.
+These are DIFFERENT. We never use another translation as "tafsir".
 """
 
 import re
@@ -27,14 +25,10 @@ from deps import db
 router = APIRouter(tags=["global-quran"])
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
+QURANENC_BASE = "https://quranenc.com/api/v1"
 
 # ═══════════════════════════════════════════════════════════════
-# BLOCKED IDS — NEVER USE
-# ═══════════════════════════════════════════════════════════════
-BLOCKED_IDS = {169}  # Ibn Kathir (too long)
-
-# ═══════════════════════════════════════════════════════════════
-# MAIN TRANSLATION IDs — for verse display
+# MAIN TRANSLATION IDs — for verse display (NOT tafsir)
 # ═══════════════════════════════════════════════════════════════
 MAIN_TRANSLATION_IDS = {
     "en": 20,    # Saheeh International
@@ -48,54 +42,55 @@ MAIN_TRANSLATION_IDS = {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# TAFSIR SOURCES — Real Islamic scholarly tafsir per language
-# ar/ru: Use Quran.com TAFSIR endpoint (real tafsir texts)
-# Other languages: Use Islamic scholarly translations (translation endpoint)
-# All truncated to ~700 chars to match Arabic التفسير الميسر length
+# REAL TAFSIR SOURCES — Actual scholarly explanations
+# Languages with Quran.com TAFSIR endpoint (REAL tafsir texts):
 # ═══════════════════════════════════════════════════════════════
-
-# Languages with REAL tafsir on Quran.com (use /tafsirs/ endpoint)
-TAFSIR_IDS = {
+REAL_TAFSIR_IDS = {
     "ar": 16,    # التفسير الميسر — مجمع الملك فهد
+    "en": 169,   # Ibn Kathir Abridged — Real tafsir with explanation
     "ru": 170,   # Тафсир ас-Саади
 }
 
-# Languages using Islamic scholarly translations as tafsir (use /translations/ endpoint)
-TAFSIR_TRANSLATION_IDS = {
-    "en": 85,    # Abdel Haleem — Oxford Islamic Studies
-    "de": 208,   # Abu Reda Muhammad ibn Ahmad — Islamic scholar
-    "fr": 136,   # Montada Islamic Foundation — مؤسسة المنتدى الإسلامي
-    "tr": 52,    # Elmalılı Hamdi Yazır — Ottoman Islamic tafsir scholar
-    "nl": 235,   # Abdalsalaam — Islamic scholar
-    "sv": 48,    # Knut Bernström — Swedish Islamic scholar
-    "el": 0,     # Rowwad (QuranEnc)
+# Languages using QuranEnc footnotes (real explanatory notes):
+QURANENC_TAFSIR_KEYS = {
+    "fr": "french_rashid",       # Rashid Maash — has DETAILED footnotes
+    "en_alt": "english_rwwad",   # English Rowwad — backup footnotes
 }
 
-# Islamic source labels per language
+# Languages WITHOUT native tafsir → use Arabic التفسير الميسر
+# (Turkish, German, Swedish, Dutch, Greek have NO real tafsir on any free Islamic API)
+ARABIC_TAFSIR_FALLBACK_LANGS = {"de", "tr", "sv", "nl", "el"}
+
+# Tafsir source labels per language
 TAFSIR_SOURCE_LABELS = {
     "ar": "التفسير الميسر — مجمع الملك فهد لطباعة المصحف الشريف",
-    "en": "Abdel Haleem — Oxford Islamic Studies",
+    "en": "Ibn Kathir — Tafsir of the Noble Quran",
     "ru": "Тафсир ас-Саади — шейх Абдуррахман ас-Саади",
-    "de": "Abu Reda Muhammad ibn Ahmad — Islamischer Gelehrter",
-    "fr": "Fondation Islamique Montada — مؤسسة المنتدى الإسلامي",
-    "tr": "Elmalılı Hamdi Yazır — Osmanlı İslam Müfessiri",
-    "nl": "Malak Faris Abdalsalaam — Islamitische Geleerde",
-    "sv": "Knut Bernström — Islamisk Forskare",
-    "el": "Κέντρο Μετάφρασης Ρουάντ — مركز رواد الترجمة",
+    "fr": "Notes explicatives — Rachid Maash (QuranEnc)",
+    "de": "التفسير الميسر — König-Fahd-Komplex (Arabisch)",
+    "tr": "التفسير الميسر — Kral Fahd Kompleksi (Arapça)",
+    "sv": "التفسير الميسر — Kung Fahds Komplex (Arabiska)",
+    "nl": "التفسير الميسر — Koning Fahd Complex (Arabisch)",
+    "el": "التفسير الميسر — Συγκρότημα Βασιλιά Φαχντ (Αραβικά)",
 }
 
-# Match Arabic التفسير الميسر max length (~688 chars for آية الكرسي)
-MAX_TAFSIR_CHARS = 700
+# Max chars for tafsir display
+MAX_TAFSIR_CHARS = 1500  # Allow more for real tafsir content
 
 CACHE_TTL_DAYS = 30
 
 
 def _clean_html(text: str) -> str:
     """Strip HTML tags and entities from API response text."""
+    # Remove <h1>, <h2> headers and their content for Ibn Kathir
+    text = re.sub(r'<h[1-6][^>]*>.*?</h[1-6]>', '', text, flags=re.DOTALL)
     text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', text)
     text = re.sub(r'<[^>]*>', '', text)
     text = text.replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&')
     text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'")
+    # Clean multiple spaces/newlines
+    text = re.sub(r'\n\s*\n', '\n', text)
+    text = re.sub(r'  +', ' ', text)
     return text.strip()
 
 
@@ -104,11 +99,45 @@ async def _fetch_quranenc_greek(surah: int, ayah: int) -> str:
     try:
         async with httpx.AsyncClient(timeout=20) as c:
             r = await c.get(
-                f"https://quranenc.com/api/v1/translation/aya/greek_rwwad/{surah}/{ayah}"
+                f"{QURANENC_BASE}/translation/aya/greek_rwwad/{surah}/{ayah}"
             )
             if r.status_code == 200:
                 data = r.json()
                 return data.get("result", {}).get("translation", "")
+    except Exception:
+        pass
+    return ""
+
+
+async def _fetch_quranenc_footnotes(surah: int, ayah: int, key: str) -> str:
+    """Fetch scholarly footnotes from QuranEnc.com (real explanatory notes)."""
+    try:
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.get(
+                f"{QURANENC_BASE}/translation/aya/{key}/{surah}/{ayah}"
+            )
+            if r.status_code == 200:
+                data = r.json()
+                footnotes = data.get("result", {}).get("footnotes", "") or ""
+                if footnotes:
+                    # Clean footnote markers like [123]
+                    footnotes = re.sub(r'\[\d+\]\s*', '', footnotes)
+                    return footnotes.strip()
+    except Exception:
+        pass
+    return ""
+
+
+async def _fetch_real_tafsir(surah: int, ayah: int, tafsir_id: int) -> str:
+    """Fetch REAL tafsir from Quran.com tafsir endpoint."""
+    verse_key = f"{surah}:{ayah}"
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
+            r.raise_for_status()
+            data = r.json()
+            raw = data.get("tafsir", {}).get("text", "")
+            return _clean_html(raw)
     except Exception:
         pass
     return ""
@@ -128,7 +157,6 @@ async def get_global_verses_bulk(
     base_lang = language.split("-")[0]
     verses = []
 
-    # Fetch all verses at once from Quran.com v4
     try:
         async with httpx.AsyncClient(timeout=30) as c:
             main_tr_id = MAIN_TRANSLATION_IDS.get(base_lang, 20)
@@ -187,16 +215,15 @@ async def get_global_verse(
     language: str = Query("ar"),
 ):
     """
-    V2026 Global Quran Verse Endpoint.
+    V2026 Global Quran Verse Endpoint — REAL TAFSIR VERSION.
     Returns everything needed to render a single verse:
-    - Arabic text, translation, concise explanation, audio, surah metadata.
-    Used by GlobalQuranVerse component across ALL pages.
+    - Arabic text, translation, REAL tafsir (not duplicate translation), audio, surah metadata.
     """
     base_lang = language.split("-")[0]
     verse_key = f"{surah_id}:{ayah_id}"
 
     # ── Check cache ──
-    cache_key = f"global_verse_v2_{base_lang}_{verse_key}"
+    cache_key = f"global_verse_v3_{base_lang}_{verse_key}"
     try:
         cached = await db.global_verse_cache.find_one({
             "cache_key": cache_key,
@@ -210,6 +237,7 @@ async def get_global_verse(
                 "translation": cached.get("translation", ""),
                 "tafsir": cached.get("tafsir", ""),
                 "tafsir_source": cached.get("tafsir_source", ""),
+                "tafsir_is_arabic": cached.get("tafsir_is_arabic", False),
                 "surah_name": cached.get("surah_name", ""),
                 "surah_name_translated": cached.get("surah_name_translated", ""),
                 "verse_number": ayah_id,
@@ -228,7 +256,6 @@ async def get_global_verse(
 
     try:
         async with httpx.AsyncClient(timeout=30) as c:
-            # Fetch verse with translation
             main_tr_id = MAIN_TRANSLATION_IDS.get(base_lang, 20)
             params = {
                 "fields": "text_uthmani",
@@ -259,47 +286,35 @@ async def get_global_verse(
     if base_lang == "el" and not translation:
         translation = await _fetch_quranenc_greek(surah_id, ayah_id)
 
-    # ── Fetch Islamic Tafsir (scholarly source per language) ──
+    # ══════════════════════════════════════════════════════════════
+    # FETCH REAL TAFSIR — scholarly explanation, NOT another translation
+    # ══════════════════════════════════════════════════════════════
     tafsir_text = ""
     tafsir_source = TAFSIR_SOURCE_LABELS.get(base_lang, "")
+    tafsir_is_arabic = False
 
-    # Strategy 1: Real tafsir endpoint (ar, ru)
-    if base_lang in TAFSIR_IDS:
-        tafsir_id = TAFSIR_IDS[base_lang]
-        try:
-            async with httpx.AsyncClient(timeout=30) as c:
-                r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
-                r.raise_for_status()
-                data = r.json()
-                raw = data.get("tafsir", {}).get("text", "")
-                tafsir_text = _clean_html(raw)
-        except Exception:
-            pass
+    # Strategy 1: Real tafsir endpoint (ar, en, ru)
+    if base_lang in REAL_TAFSIR_IDS:
+        tafsir_id = REAL_TAFSIR_IDS[base_lang]
+        tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, tafsir_id)
 
-    # Strategy 2: Islamic scholarly translation as tafsir (all other languages)
-    else:
-        tafsir_tr_id = TAFSIR_TRANSLATION_IDS.get(base_lang, 0)
-        if tafsir_tr_id in BLOCKED_IDS:
-            tafsir_tr_id = 0
-        if tafsir_tr_id > 0:
-            try:
-                async with httpx.AsyncClient(timeout=30) as c:
-                    r = await c.get(
-                        f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
-                        params={"translations": str(tafsir_tr_id), "fields": "text_uthmani", "words": "false"},
-                    )
-                    r.raise_for_status()
-                    data = r.json()
-                    trs = data.get("verse", {}).get("translations", [])
-                    if trs:
-                        tafsir_text = _clean_html(trs[0].get("text", ""))
-            except Exception:
-                pass
-        elif base_lang == "el":
-            # Greek: use same QuranEnc text
-            tafsir_text = translation
+    # Strategy 2: QuranEnc footnotes (fr)
+    elif base_lang in QURANENC_TAFSIR_KEYS:
+        qe_key = QURANENC_TAFSIR_KEYS[base_lang]
+        tafsir_text = await _fetch_quranenc_footnotes(surah_id, ayah_id, qe_key)
+        # If no footnotes for this verse, fall back to Arabic tafsir
+        if not tafsir_text:
+            tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)  # Al-Muyassar
+            if tafsir_text:
+                tafsir_is_arabic = True
+                tafsir_source = TAFSIR_SOURCE_LABELS.get("ar", "")
 
-    # Truncate to match Arabic التفسير الميسر length
+    # Strategy 3: Arabic Al-Muyassar fallback (de, tr, sv, nl, el)
+    elif base_lang in ARABIC_TAFSIR_FALLBACK_LANGS:
+        tafsir_text = await _fetch_real_tafsir(surah_id, ayah_id, 16)  # Al-Muyassar
+        tafsir_is_arabic = True
+
+    # Truncate if too long
     if len(tafsir_text) > MAX_TAFSIR_CHARS:
         tafsir_text = tafsir_text[:MAX_TAFSIR_CHARS].rsplit(' ', 1)[0] + "…"
 
@@ -312,6 +327,7 @@ async def get_global_verse(
         "translation": translation,
         "tafsir": tafsir_text,
         "tafsir_source": tafsir_source,
+        "tafsir_is_arabic": tafsir_is_arabic,
         "surah_name": surah_name,
         "surah_name_translated": surah_name_translated,
         "audio_url": audio_url,

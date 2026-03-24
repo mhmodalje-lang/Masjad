@@ -262,7 +262,7 @@ function AyahCard({
         const tafsirData: TafsirData = {
           text: data.tafsir || data.explanation || '',
           tafsir_name: data.tafsir_source || data.explanation_source || '',
-          is_fallback_language: false,
+          is_fallback_language: data.tafsir_is_arabic || false,
           verse_key: verseKey,
         };
         setTafsir(tafsirData);
@@ -388,8 +388,17 @@ function AyahCard({
                       </span>
                     </div>
 
+                    {/* Arabic tafsir notice for non-Arabic users */}
+                    {tafsir.is_fallback_language && (
+                      <div className="mb-3 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        <p className="text-xs text-amber-700 dark:text-amber-300 text-center">
+                          📖 {t('arabicTafsirNote') || 'This is the Arabic scholarly explanation (التفسير الميسر) — no native tafsir available for this language'}
+                        </p>
+                      </div>
+                    )}
+
                     {/* Tafsir text */}
-                    <p className="text-sm text-foreground/85 leading-[2] whitespace-pre-wrap" dir="auto">
+                    <p className={`text-sm text-foreground/85 leading-[2] whitespace-pre-wrap ${tafsir.is_fallback_language ? 'font-arabic text-right' : ''}`} dir={tafsir.is_fallback_language ? 'rtl' : 'auto'}>
                       {tafsir.text}
                     </p>
 
@@ -447,7 +456,14 @@ export default function SurahView() {
         const chapterRes = await fetch(`${BACKEND_URL}/api/quran/v4/chapters/${id}?language=${apiLang}`);
         const chapterData = await chapterRes.json();
         const chapterInfo = chapterData.chapter || {};
-        setSurahName(chapterInfo.name_arabic || chapterInfo.name_simple || '');
+        const translatedName = chapterInfo.translated_name?.name || chapterInfo.name_simple || '';
+        const arabicName = chapterInfo.name_arabic || '';
+        // Show translated name for non-Arabic, Arabic name for Arabic
+        if (apiLang === 'ar') {
+          setSurahName(arabicName);
+        } else {
+          setSurahName(translatedName || arabicName);
+        }
 
         // Fetch verses with translations from Quran.com v4 via our backend
         // Use per_page=300 to get all verses at once (longest surah is 286 ayahs)
