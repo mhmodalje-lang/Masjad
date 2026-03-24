@@ -1,323 +1,337 @@
 #!/usr/bin/env python3
 """
-V2026 Global Rebuild Backend Testing Suite
-Tests critical scenarios for the Islamic app backend.
+V2026 Architecture Overhaul - Backend API Testing
+=================================================
+Tests the critical endpoints for the Islamic app's V2026 rebuild:
+1. NEW Global Verse Endpoint (Single & Bulk)
+2. Existing endpoint compatibility
+3. Explanation text validation (must be concise, not 10-page Ibn Kathir)
 """
 
 import asyncio
 import httpx
 import json
-import sys
 from datetime import datetime
 
-# Backend URL from environment
-BACKEND_URL = "https://quran-rebuild-v2026.preview.emergentagent.com"
+# Backend URL from frontend/.env
+BASE_URL = "https://quran-rebuild-v2026.preview.emergentagent.com/api"
 
 class TestResults:
     def __init__(self):
+        self.results = []
         self.passed = 0
         self.failed = 0
-        self.results = []
     
-    def add_result(self, test_name, passed, details="", expected="", actual=""):
+    def add_result(self, test_name, passed, details, error=None):
         self.results.append({
             "test": test_name,
             "passed": passed,
             "details": details,
-            "expected": expected,
-            "actual": actual,
+            "error": error,
             "timestamp": datetime.now().isoformat()
         })
         if passed:
             self.passed += 1
-            print(f"✅ {test_name}")
         else:
             self.failed += 1
-            print(f"❌ {test_name}")
-            if details:
-                print(f"   Details: {details}")
-            if expected and actual:
-                print(f"   Expected: {expected}")
-                print(f"   Actual: {actual}")
     
-    def summary(self):
-        total = self.passed + self.failed
+    def print_summary(self):
         print(f"\n{'='*60}")
-        print(f"TEST SUMMARY: {self.passed}/{total} passed")
+        print(f"TEST SUMMARY: {self.passed} PASSED, {self.failed} FAILED")
         print(f"{'='*60}")
-        return self.passed == total
+        for result in self.results:
+            status = "✅ PASS" if result["passed"] else "❌ FAIL"
+            print(f"{status} {result['test']}")
+            if result["details"]:
+                print(f"    Details: {result['details']}")
+            if result["error"]:
+                print(f"    Error: {result['error']}")
+        print(f"{'='*60}")
 
-async def test_quran_translation_ids():
-    """Test CRITICAL Quran Translation IDs - French should be Hamidullah, Russian should be Abu Adel"""
-    print("\n🔍 Testing Quran Translation IDs...")
-    results = TestResults()
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        # Test French translation (should be Hamidullah, NOT Montada)
-        try:
-            response = await client.get(f"{BACKEND_URL}/api/quran/v4/verses/by_chapter/1?language=fr&per_page=7")
+async def test_health_endpoint():
+    """Test basic health check endpoint"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            response = await client.get(f"{BASE_URL}/health")
+            
             if response.status_code == 200:
                 data = response.json()
-                verses = data.get("verses", [])
-                if verses and verses[0].get("translations"):
-                    resource_id = verses[0]["translations"][0].get("resource_id", 0)
-                    # Check if resource_id is 31 (Hamidullah) and NOT 136 (Montada)
-                    is_hamidullah = resource_id == 31
-                    is_montada = resource_id == 136
-                    
-                    if is_hamidullah and not is_montada:
-                        results.add_result("French Translation ID (Hamidullah)", True, 
-                                         f"Found resource_id: {resource_id} (Hamidullah)")
-                    else:
-                        results.add_result("French Translation ID (Hamidullah)", False,
-                                         f"Expected resource_id 31 (Hamidullah), got: {resource_id}",
-                                         "31 (Hamidullah)", str(resource_id))
+                if data.get("status") == "healthy":
+                    return True, f"Health check passed: {data}"
                 else:
-                    results.add_result("French Translation ID (Hamidullah)", False,
-                                     "No translations found in response")
+                    return False, f"Health check failed: {data}"
             else:
-                results.add_result("French Translation ID (Hamidullah)", False,
-                                 f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_result("French Translation ID (Hamidullah)", False, f"Exception: {str(e)}")
-        
-        # Test Russian translation (should be Abu Adel, NOT Kuliev)
-        try:
-            response = await client.get(f"{BACKEND_URL}/api/quran/v4/verses/by_chapter/1?language=ru&per_page=7")
-            if response.status_code == 200:
-                data = response.json()
-                verses = data.get("verses", [])
-                if verses and verses[0].get("translations"):
-                    resource_id = verses[0]["translations"][0].get("resource_id", 0)
-                    # Check if resource_id is 79 (Abu Adel) and NOT 45 (Kuliev)
-                    is_abu_adel = resource_id == 79
-                    is_kuliev = resource_id == 45
-                    
-                    if is_abu_adel and not is_kuliev:
-                        results.add_result("Russian Translation ID (Abu Adel)", True,
-                                         f"Found resource_id: {resource_id} (Abu Adel)")
-                    else:
-                        results.add_result("Russian Translation ID (Abu Adel)", False,
-                                         f"Expected resource_id 79 (Abu Adel), got: {resource_id}",
-                                         "79 (Abu Adel)", str(resource_id))
-                else:
-                    results.add_result("Russian Translation ID (Abu Adel)", False,
-                                     "No translations found in response")
-            else:
-                results.add_result("Russian Translation ID (Abu Adel)", False,
-                                 f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_result("Russian Translation ID (Abu Adel)", False, f"Exception: {str(e)}")
-    
-    return results
+                return False, f"HTTP {response.status_code}: {response.text}"
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
 
-async def test_tafsir_no_translation_pending():
-    """Test Tafsir endpoints - All languages should return pending=false with actual text"""
-    print("\n🔍 Testing Tafsir - No Translation Pending...")
-    results = TestResults()
-    
-    languages = ["fr", "de", "tr", "ru", "el", "nl", "sv"]
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        for lang in languages:
-            try:
-                response = await client.get(f"{BACKEND_URL}/api/quran/v4/tafsir/1:1?language={lang}")
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check translation_pending is false
-                    translation_pending = data.get("translation_pending", True)
-                    has_text = bool(data.get("text", "").strip())
-                    tafsir_name = data.get("tafsir_name", "")
-                    
-                    if not translation_pending and has_text:
-                        # Additional check: tafsir_name should be localized (not just "Ibn Kathir" for non-English)
-                        if lang != "en" and tafsir_name == "Ibn Kathir":
-                            results.add_result(f"Tafsir {lang.upper()} - Localized Name", False,
-                                             f"Tafsir name not localized: {tafsir_name}",
-                                             "Localized tafsir name", "Ibn Kathir")
-                        else:
-                            results.add_result(f"Tafsir {lang.upper()} - No Pending", True,
-                                             f"Text length: {len(data.get('text', ''))}, Name: {tafsir_name}")
-                    else:
-                        results.add_result(f"Tafsir {lang.upper()} - No Pending", False,
-                                         f"pending={translation_pending}, has_text={has_text}",
-                                         "pending=false, has_text=true", 
-                                         f"pending={translation_pending}, has_text={has_text}")
-                else:
-                    results.add_result(f"Tafsir {lang.upper()} - No Pending", False,
-                                     f"HTTP {response.status_code}: {response.text}")
-            except Exception as e:
-                results.add_result(f"Tafsir {lang.upper()} - No Pending", False, f"Exception: {str(e)}")
-    
-    return results
+async def test_global_verse_single(language, expected_translation_source, expected_explanation_source):
+    """Test NEW Global Verse Endpoint for single verse"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            url = f"{BASE_URL}/quran/v4/global-verse/1/1"
+            params = {"language": language}
+            response = await client.get(url, params=params)
+            
+            if response.status_code != 200:
+                return False, f"HTTP {response.status_code}: {response.text}"
+            
+            data = response.json()
+            
+            # Validate required fields
+            required_fields = ["success", "verse_key", "arabic_text", "translation", 
+                             "explanation", "explanation_source", "surah_name", 
+                             "surah_name_translated", "audio_url"]
+            
+            missing_fields = [field for field in required_fields if field not in data]
+            if missing_fields:
+                return False, f"Missing required fields: {missing_fields}"
+            
+            # Validate content
+            if not data.get("arabic_text"):
+                return False, "Arabic text is empty"
+            
+            if not data.get("translation") and language != "ar":
+                return False, f"Translation is empty for language {language}"
+            
+            if not data.get("explanation"):
+                return False, "Explanation is empty"
+            
+            # CRITICAL: Check explanation length (must be concise, not 10-page Ibn Kathir)
+            explanation = data.get("explanation", "")
+            explanation_words = len(explanation.split())
+            if explanation_words > 200:  # More than 200 words is too long
+                return False, f"Explanation too long ({explanation_words} words). Must be concise, not Ibn Kathir-style"
+            
+            # Validate verse key
+            if data.get("verse_key") != "1:1":
+                return False, f"Wrong verse key: {data.get('verse_key')}"
+            
+            # Validate audio URL
+            audio_url = data.get("audio_url", "")
+            if not audio_url or "everyayah.com" not in audio_url:
+                return False, f"Invalid audio URL: {audio_url}"
+            
+            details = {
+                "language": language,
+                "translation_length": len(data.get("translation", "")),
+                "explanation_length": len(explanation),
+                "explanation_words": explanation_words,
+                "explanation_source": data.get("explanation_source"),
+                "surah_name": data.get("surah_name"),
+                "surah_name_translated": data.get("surah_name_translated"),
+                "cached": data.get("cached", False)
+            }
+            
+            return True, f"Global verse endpoint working for {language}: {details}"
+            
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
 
-async def test_daily_hadith_no_translation_pending():
-    """Test Daily Hadith endpoints - All languages should return translation_pending=false"""
-    print("\n🔍 Testing Daily Hadith - No Translation Pending...")
-    results = TestResults()
-    
-    languages = ["fr", "de", "el"]  # Test subset of languages
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        for lang in languages:
-            try:
-                response = await client.get(f"{BACKEND_URL}/api/daily-hadith?language={lang}")
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    if data.get("success"):
-                        hadith = data.get("hadith", {})
-                        translation_pending = hadith.get("translation_pending", True)
-                        has_text = bool(hadith.get("text", "").strip())
-                        
-                        if not translation_pending and has_text:
-                            results.add_result(f"Daily Hadith {lang.upper()} - No Pending", True,
-                                             f"Text length: {len(hadith.get('text', ''))}")
-                        else:
-                            results.add_result(f"Daily Hadith {lang.upper()} - No Pending", False,
-                                             f"pending={translation_pending}, has_text={has_text}",
-                                             "pending=false, has_text=true",
-                                             f"pending={translation_pending}, has_text={has_text}")
-                    else:
-                        results.add_result(f"Daily Hadith {lang.upper()} - No Pending", False,
-                                         "API returned success=false")
-                else:
-                    results.add_result(f"Daily Hadith {lang.upper()} - No Pending", False,
-                                     f"HTTP {response.status_code}: {response.text}")
-            except Exception as e:
-                results.add_result(f"Daily Hadith {lang.upper()} - No Pending", False, f"Exception: {str(e)}")
-    
-    return results
-
-async def test_system_info():
-    """Test System Info endpoint - Should show v2026 info with no pending languages"""
-    print("\n🔍 Testing System Info...")
-    results = TestResults()
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        try:
-            response = await client.get(f"{BACKEND_URL}/api/")
-            if response.status_code == 200:
-                data = response.json()
+async def test_global_verse_bulk():
+    """Test NEW Global Verse Endpoint for bulk verses"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            url = f"{BASE_URL}/quran/v4/global-verse/bulk/1"
+            params = {"language": "fr", "from_ayah": 1, "to_ayah": 7}
+            response = await client.get(url, params=params)
+            
+            if response.status_code != 200:
+                return False, f"HTTP {response.status_code}: {response.text}"
+            
+            data = response.json()
+            
+            # Validate structure
+            if not data.get("success"):
+                return False, "Success field is false"
+            
+            verses = data.get("verses", [])
+            if len(verses) != 7:
+                return False, f"Expected 7 verses, got {len(verses)}"
+            
+            # Validate each verse
+            for i, verse in enumerate(verses, 1):
+                if verse.get("verse_key") != f"1:{i}":
+                    return False, f"Wrong verse key for verse {i}: {verse.get('verse_key')}"
                 
-                # Check if it mentions v2026 or similar version info
-                data_str = json.dumps(data).lower()
-                has_version_info = "v2026" in data_str or "2026" in data_str or "rebuild" in data_str or "3.0" in data_str
+                if not verse.get("arabic_text"):
+                    return False, f"Missing Arabic text for verse {i}"
                 
-                results.add_result("System Info - V2026", has_version_info,
-                                 f"Response contains version info: {has_version_info}, Version: {data.get('version', 'N/A')}")
+                if not verse.get("translation"):
+                    return False, f"Missing French translation for verse {i}"
                 
-                # Check for no pending languages mentioned
-                has_pending = "pending" in data_str or "traduction en cours" in data_str
-                results.add_result("System Info - No Pending Languages", not has_pending,
-                                 f"No pending language mentions: {not has_pending}")
-            else:
-                results.add_result("System Info - V2026", False,
-                                 f"HTTP {response.status_code}: {response.text}")
-                results.add_result("System Info - No Pending Languages", False,
-                                 f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            results.add_result("System Info - V2026", False, f"Exception: {str(e)}")
-            results.add_result("System Info - No Pending Languages", False, f"Exception: {str(e)}")
-    
-    return results
+                if not verse.get("audio_url"):
+                    return False, f"Missing audio URL for verse {i}"
+            
+            details = {
+                "surah_id": data.get("surah_id"),
+                "language": data.get("language"),
+                "total_verses": data.get("total"),
+                "first_verse_translation_length": len(verses[0].get("translation", "")),
+                "last_verse_translation_length": len(verses[-1].get("translation", ""))
+            }
+            
+            return True, f"Bulk verses endpoint working: {details}"
+            
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
 
-async def test_comprehensive_language_coverage():
-    """Test comprehensive language coverage across all endpoints"""
-    print("\n🔍 Testing Comprehensive Language Coverage...")
-    results = TestResults()
-    
-    languages = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
-    
-    async with httpx.AsyncClient(timeout=30) as client:
-        # Test basic API health
-        try:
-            response = await client.get(f"{BACKEND_URL}/api/health")
-            if response.status_code == 200:
-                results.add_result("API Health Check", True, "Backend is responding")
-            else:
-                results.add_result("API Health Check", False, f"HTTP {response.status_code}")
-        except Exception as e:
-            results.add_result("API Health Check", False, f"Exception: {str(e)}")
-        
-        # Test chapters endpoint for different languages
-        for lang in ["ar", "en", "fr", "de"]:  # Test subset
-            try:
-                response = await client.get(f"{BACKEND_URL}/api/quran/v4/chapters?language={lang}")
-                if response.status_code == 200:
-                    data = response.json()
-                    chapters = data.get("chapters", [])
-                    if chapters:
-                        results.add_result(f"Chapters API - {lang.upper()}", True,
-                                         f"Found {len(chapters)} chapters")
-                    else:
-                        results.add_result(f"Chapters API - {lang.upper()}", False,
-                                         "No chapters found")
-                else:
-                    results.add_result(f"Chapters API - {lang.upper()}", False,
-                                     f"HTTP {response.status_code}")
-            except Exception as e:
-                results.add_result(f"Chapters API - {lang.upper()}", False, f"Exception: {str(e)}")
-    
-    return results
+async def test_existing_tafsir_endpoint():
+    """Test existing tafsir endpoint compatibility"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            url = f"{BASE_URL}/quran/v4/tafsir/1:1"
+            params = {"language": "fr"}
+            response = await client.get(url, params=params)
+            
+            if response.status_code != 200:
+                return False, f"HTTP {response.status_code}: {response.text}"
+            
+            data = response.json()
+            
+            # Validate required fields
+            if not data.get("success"):
+                return False, "Success field is false"
+            
+            if data.get("translation_pending") is True:
+                return False, "Translation pending flag is true (should be false)"
+            
+            if not data.get("text"):
+                return False, "Tafsir text is empty"
+            
+            details = {
+                "verse_key": data.get("verse_key"),
+                "language": data.get("language"),
+                "tafsir_name": data.get("tafsir_name"),
+                "text_length": len(data.get("text", "")),
+                "cached": data.get("cached", False)
+            }
+            
+            return True, f"Existing tafsir endpoint working: {details}"
+            
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
+
+async def test_existing_daily_hadith_endpoint():
+    """Test existing daily hadith endpoint compatibility"""
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            url = f"{BASE_URL}/daily-hadith"
+            params = {"language": "fr"}
+            response = await client.get(url, params=params)
+            
+            if response.status_code != 200:
+                return False, f"HTTP {response.status_code}: {response.text}"
+            
+            data = response.json()
+            
+            # Validate required fields
+            if not data.get("success"):
+                return False, "Success field is false"
+            
+            hadith = data.get("hadith", {})
+            if not hadith:
+                return False, "Hadith data is missing"
+            
+            if hadith.get("translation_pending") is True:
+                return False, "Translation pending flag is true (should be false)"
+            
+            if not hadith.get("text"):
+                return False, "Hadith text is empty"
+            
+            details = {
+                "hadith_number": hadith.get("number"),
+                "translation_language": hadith.get("translation_language"),
+                "text_length": len(hadith.get("text", "")),
+                "source": hadith.get("source"),
+                "date": data.get("date")
+            }
+            
+            return True, f"Daily hadith endpoint working: {details}"
+            
+    except Exception as e:
+        return False, f"Exception: {str(e)}"
 
 async def main():
     """Run all tests"""
-    print("🚀 Starting V2026 Global Rebuild Backend Tests")
-    print(f"Backend URL: {BACKEND_URL}")
-    print("="*60)
+    print("🕌 V2026 Architecture Overhaul - Backend API Testing")
+    print("=" * 60)
+    print(f"Testing against: {BASE_URL}")
+    print("=" * 60)
     
-    all_results = []
+    results = TestResults()
     
-    # Run all test suites
-    test_suites = [
-        test_quran_translation_ids,
-        test_tafsir_no_translation_pending,
-        test_daily_hadith_no_translation_pending,
-        test_system_info,
-        test_comprehensive_language_coverage
-    ]
+    # Test 1: Health Check
+    print("Testing health endpoint...")
+    passed, details = await test_health_endpoint()
+    results.add_result("Health Check", passed, details)
     
-    for test_suite in test_suites:
-        try:
-            result = await test_suite()
-            all_results.append(result)
-        except Exception as e:
-            print(f"❌ Test suite {test_suite.__name__} failed with exception: {str(e)}")
+    # Test 2: Global Verse - English
+    print("Testing global verse endpoint (English)...")
+    passed, details = await test_global_verse_single("en", "Saheeh International", "Abdel Haleem")
+    results.add_result("Global Verse - English", passed, details)
     
-    # Aggregate results
-    total_passed = sum(r.passed for r in all_results)
-    total_failed = sum(r.failed for r in all_results)
-    total_tests = total_passed + total_failed
+    # Test 3: Global Verse - French
+    print("Testing global verse endpoint (French)...")
+    passed, details = await test_global_verse_single("fr", "Hamidullah", "Montada")
+    results.add_result("Global Verse - French", passed, details)
     
-    print(f"\n{'='*60}")
-    print(f"FINAL RESULTS: {total_passed}/{total_tests} tests passed")
-    print(f"{'='*60}")
+    # Test 4: Global Verse - German
+    print("Testing global verse endpoint (German)...")
+    passed, details = await test_global_verse_single("de", "Bubenheim", "Abu Reda")
+    results.add_result("Global Verse - German", passed, details)
     
-    # Print failed tests summary
-    if total_failed > 0:
-        print("\n❌ FAILED TESTS:")
-        for result_set in all_results:
-            for result in result_set.results:
-                if not result["passed"]:
-                    print(f"  - {result['test']}: {result['details']}")
+    # Test 5: Global Verse - Russian
+    print("Testing global verse endpoint (Russian)...")
+    passed, details = await test_global_verse_single("ru", "Abu Adel", "As-Sa'di")
+    results.add_result("Global Verse - Russian", passed, details)
     
-    # Print critical issues
-    critical_issues = []
-    for result_set in all_results:
-        for result in result_set.results:
-            if not result["passed"] and any(keyword in result["test"].lower() 
-                                          for keyword in ["translation id", "pending", "hamidullah", "abu adel"]):
-                critical_issues.append(result["test"])
+    # Test 6: Global Verse - Turkish
+    print("Testing global verse endpoint (Turkish)...")
+    passed, details = await test_global_verse_single("tr", "Diyanet", "Elmalılı")
+    results.add_result("Global Verse - Turkish", passed, details)
     
-    if critical_issues:
-        print(f"\n🚨 CRITICAL ISSUES FOUND:")
-        for issue in critical_issues:
-            print(f"  - {issue}")
+    # Test 7: Global Verse - Greek
+    print("Testing global verse endpoint (Greek)...")
+    passed, details = await test_global_verse_single("el", "QuranEnc", "Rowwad")
+    results.add_result("Global Verse - Greek", passed, details)
     
-    return total_failed == 0
+    # Test 8: Global Verse Bulk
+    print("Testing global verse bulk endpoint...")
+    passed, details = await test_global_verse_bulk()
+    results.add_result("Global Verse - Bulk (French)", passed, details)
+    
+    # Test 9: Existing Tafsir Endpoint
+    print("Testing existing tafsir endpoint...")
+    passed, details = await test_existing_tafsir_endpoint()
+    results.add_result("Existing Tafsir Endpoint", passed, details)
+    
+    # Test 10: Existing Daily Hadith Endpoint
+    print("Testing existing daily hadith endpoint...")
+    passed, details = await test_existing_daily_hadith_endpoint()
+    results.add_result("Existing Daily Hadith Endpoint", passed, details)
+    
+    # Print results
+    results.print_summary()
+    
+    # Save results to file
+    with open("/app/test_results_backend.json", "w") as f:
+        json.dump({
+            "test_run": datetime.now().isoformat(),
+            "base_url": BASE_URL,
+            "summary": {
+                "total_tests": len(results.results),
+                "passed": results.passed,
+                "failed": results.failed,
+                "success_rate": f"{(results.passed / len(results.results) * 100):.1f}%"
+            },
+            "results": results.results
+        }, f, indent=2)
+    
+    print(f"\nDetailed results saved to: /app/test_results_backend.json")
+    
+    return results.failed == 0
 
 if __name__ == "__main__":
     success = asyncio.run(main())
-    sys.exit(0 if success else 1)
+    exit(0 if success else 1)

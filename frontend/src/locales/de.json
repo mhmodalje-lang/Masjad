@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "Al-Baihaqi",
   "sourceIbnMajahBayhaqi": "Ibn Madscha & Al-Baihaqi",
   "translationPending": "Offizielle Übersetzung in Vorbereitung",
-  "kidsTafsirLabel": "Vereinfachte Erklärung für Kinder"
+  "kidsTafsirLabel": "Vereinfachte Erklärung für Kinder",
+  "verseLoadError": "Vers konnte nicht geladen werden"
 }

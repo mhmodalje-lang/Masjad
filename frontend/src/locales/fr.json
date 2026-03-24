@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "Al-Bayhaqi",
   "sourceIbnMajahBayhaqi": "Ibn Majah & Al-Bayhaqi",
   "translationPending": "Traduction officielle en cours de préparation",
-  "kidsTafsirLabel": "Explication simplifiée pour les enfants"
+  "kidsTafsirLabel": "Explication simplifiée pour les enfants",
+  "verseLoadError": "Impossible de charger le verset"
 }

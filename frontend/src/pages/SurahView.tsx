@@ -253,15 +253,16 @@ function AyahCard({
     setShowTafsir(true);
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/quran/v4/tafsir/${verseKey}?language=${locale}`);
+      // V2026: Use global-verse endpoint for consistent concise explanations
+      const res = await fetch(`${BACKEND_URL}/api/quran/v4/global-verse/${surahId}/${ayah.numberInSurah}?language=${locale}`);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
 
-      if (data.success && data.text) {
+      if (data.success && data.explanation) {
         const tafsirData: TafsirData = {
-          text: data.text,
-          tafsir_name: data.tafsir_name || '',
-          is_fallback_language: data.is_fallback_language || false,
+          text: data.explanation,
+          tafsir_name: data.explanation_source || '',
+          is_fallback_language: false,
           verse_key: verseKey,
         };
         setTafsir(tafsirData);
@@ -275,7 +276,7 @@ function AyahCard({
     } finally {
       setLoadingTafsir(false);
     }
-  }, [tafsir, showTafsir, verseKey, locale, t]);
+  }, [tafsir, showTafsir, verseKey, locale, t, surahId, ayah.numberInSurah]);
 
   const handleShare = async () => {
     if (!tafsir?.text) return;

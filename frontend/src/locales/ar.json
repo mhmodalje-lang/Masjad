@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "البيهقي",
   "sourceIbnMajahBayhaqi": "ابن ماجه والبيهقي",
   "translationPending": "الترجمة الرسمية قيد الإعداد",
-  "kidsTafsirLabel": "تفسير مبسّط للأطفال"
+  "kidsTafsirLabel": "تفسير مبسّط للأطفال",
+  "verseLoadError": "تعذر تحميل الآية"
 }

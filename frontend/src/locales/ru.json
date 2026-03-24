@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "Аль-Байхаки",
   "sourceIbnMajahBayhaqi": "Ибн Маджа и Аль-Байхаки",
   "translationPending": "Официальный перевод готовится",
-  "kidsTafsirLabel": "Упрощённое объяснение для детей"
+  "kidsTafsirLabel": "Упрощённое объяснение для детей",
+  "verseLoadError": "Не удалось загрузить аят"
 }

@@ -2356,5 +2356,6 @@
   "tafsirFallbackNote": "Abu Reda Muhammad ibn Ahmad — Verifizierte gelehrte Quelle",
   "tafsirTranslationPending": "",
   "tafsirTranslationPendingDesc": "",
-  "hadithTranslationPending": ""
+  "hadithTranslationPending": "",
+  "verseLoadError": "Vers konnte nicht geladen werden"
 }

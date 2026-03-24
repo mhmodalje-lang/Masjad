@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
@@ -212,48 +212,55 @@ export function PrayerCountdown({ nextPrayer }: { nextPrayer?: { name: string; t
   );
 }
 
-/* 9. Verse of the Day */
+/* 9. Verse of the Day — V2026: Uses GlobalQuranVerse component */
 export function VerseOfDay() {
   const { t, locale } = useLocale();
-  const [verse, setVerse] = useState<{ text: string; translation?: string; surah: string; ayah: number } | null>(null);
+  const [verseRef, setVerseRef] = useState<{ surah: number; ayah: number } | null>(null);
 
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    const cacheKey = `verse_of_day_${locale}`;
+    const cacheKey = `verse_of_day_ref_${locale}`;
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
       try {
         const d = JSON.parse(cached);
-        if (d.date === today) { setVerse(d.verse); return; }
+        if (d.date === today) { setVerseRef(d.ref); return; }
       } catch {}
     }
     fetch(`${BACKEND_URL}/api/ai/verse-of-day?language=${locale}`)
       .then(r => r.json())
       .then(d => {
         if (d.verse) {
-          setVerse(d.verse);
-          localStorage.setItem(cacheKey, JSON.stringify({ date: today, verse: d.verse }));
+          // Extract surah:ayah from the response
+          const ref = { surah: d.verse.surah_number || 65, ayah: d.verse.ayah || 2 };
+          setVerseRef(ref);
+          localStorage.setItem(cacheKey, JSON.stringify({ date: today, ref }));
         }
       })
       .catch(() => {
-        setVerse({ text: 'وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا', surah: t('surahAtTalaq'), ayah: 2 });
+        // Default: At-Talaq 65:2-3
+        setVerseRef({ surah: 65, ayah: 2 });
       });
   }, [locale]);
 
-  if (!verse) return null;
-  const isAr = locale === 'ar';
+  if (!verseRef) return null;
+
+  // Dynamically import GlobalQuranVerse to avoid circular dependencies
+  const GlobalQuranVerse = React.lazy(() => import('@/components/GlobalQuranVerse'));
+
   return (
-    <div className="mx-4 mb-4 rounded-2xl bg-card border border-primary/10 p-4">
-      <p className="text-[10px] font-bold text-primary mb-2">📖 {t('verseOfDay')}</p>
-      <p className="text-[15px] text-foreground leading-[2] text-center" dir="rtl" style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
-        ﴿{verse.text}﴾
-      </p>
-      {!isAr && verse.translation && (
-        <p className="text-sm text-muted-foreground leading-relaxed text-center mt-2 pt-2 border-t border-border/30" dir="auto">
-          {verse.translation}
-        </p>
-      )}
-      <p className="text-[10px] text-muted-foreground mt-2" dir="auto">{t('surahLabel')} {verse.surah} - {t('ayahLabel')} {verse.ayah}</p>
+    <div className="mx-4 mb-4">
+      <p className="text-[10px] font-bold text-primary mb-2 px-1">📖 {t('verseOfDay')}</p>
+      <React.Suspense fallback={<div className="h-24 rounded-2xl bg-card/60 animate-pulse" />}>
+        <GlobalQuranVerse
+          surahId={verseRef.surah}
+          ayahId={verseRef.ayah}
+          compact={false}
+          showExplanation={true}
+          showAudio={true}
+          showSurahName={true}
+        />
+      </React.Suspense>
     </div>
   );
 }

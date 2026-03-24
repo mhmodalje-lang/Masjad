@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "Beyhakî",
   "sourceIbnMajahBayhaqi": "İbn Mâce & Beyhakî",
   "translationPending": "Resmi çeviri hazırlanıyor",
-  "kidsTafsirLabel": "Çocuklar için basitleştirilmiş açıklama"
+  "kidsTafsirLabel": "Çocuklar için basitleştirilmiş açıklama",
+  "verseLoadError": "Ayet yüklenemedi"
 }

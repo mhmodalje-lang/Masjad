@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useLocale } from '@/hooks/useLocale';
-import { ChevronLeft, ChevronRight, BookOpen, Search, Star, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Search, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import GlobalQuranVerse from '@/components/GlobalQuranVerse';
 
-const API = 'https://api.quran.com/api/v4';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 // Surah list - all 114 surahs
@@ -48,32 +48,14 @@ const SURAHS = [
   {n:112,ar:"الإخلاص",en:"Al-Ikhlas",v:4},{n:113,ar:"الفلق",en:"Al-Falaq",v:5},{n:114,ar:"الناس",en:"An-Nas",v:6},
 ];
 
-// V2026: Tafsir now uses backend API for multi-language scholarly sources
-// No more hardcoded English fallback IDs
-
-// Translation resource IDs per language (for non-Arabic Quran translations)
-// V2026: Updated with user-specified IDs
-const TRANSLATION_IDS: Record<string, number> = {
-  en: 20,    // Saheeh International
-  de: 27,    // Frank Bubenheim
-  fr: 31,    // Muhammad Hamidullah
-  tr: 77,    // Diyanet İşleri
-  ru: 79,    // Abu Adel
-  sv: 48,    // Knut Bernström
-  nl: 144,   // Sofian Siregar
-  el: 0,     // Greek via QuranEnc (handled by backend)
-};
+// V2026: All Quran verse fetching now goes through GlobalQuranVerse component
+// which uses the unified /api/quran/v4/global-verse endpoint.
 
 export default function Tafsir() {
   const { locale, dir, t } = useLocale();
-  const isAr = locale === 'ar';
 
   const [surahNum, setSurahNum] = useState(1);
   const [ayahNum, setAyahNum] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [ayahText, setAyahText] = useState('');
-  const [tafsirText, setTafsirText] = useState('');
-  const [translationText, setTranslationText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showSurahList, setShowSurahList] = useState(true);
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -81,59 +63,6 @@ export default function Tafsir() {
   });
 
   const surah = SURAHS.find(s => s.n === surahNum);
-
-  const loadTafsir = useCallback(async (sNum: number, aNum: number) => {
-    setLoading(true);
-    setShowSurahList(false);
-    try {
-      // Fetch Arabic text
-      const ayahRes = await fetch(`${API}/quran/verses/uthmani?chapter_number=${sNum}&verse_key=${sNum}:${aNum}`);
-      const ayahData = await ayahRes.json();
-      if (ayahData.verses && ayahData.verses.length > 0) {
-        setAyahText(ayahData.verses[0].text_uthmani || '');
-      }
-
-      // V2026: Load tafsir from BACKEND (multi-language scholarly sources)
-      const tafsirRes = await fetch(`${BACKEND_URL}/api/quran/v4/tafsir/${sNum}:${aNum}?language=${locale}`);
-      const tafsirData = await tafsirRes.json();
-      if (tafsirData.success && tafsirData.text) {
-        setTafsirText(tafsirData.text);
-      } else {
-        setTafsirText('');
-      }
-
-      // Load translation for non-Arabic users
-      if (!isAr) {
-        const trId = TRANSLATION_IDS[locale] || TRANSLATION_IDS.en;
-        if (trId > 0) {
-          const trRes = await fetch(`${API}/quran/translations/${trId}?verse_key=${sNum}:${aNum}`);
-          const trData = await trRes.json();
-          if (trData.translations && trData.translations.length > 0) {
-            const raw = trData.translations[0].text || '';
-            setTranslationText(raw.replace(/<[^>]*>/g, '').trim());
-          }
-        } else {
-          // For languages like Greek, use backend verse API
-          const verseRes = await fetch(`${BACKEND_URL}/api/quran/v4/verses/by_chapter/${sNum}?language=${locale}&per_page=300`);
-          const verseData = await verseRes.json();
-          const verse = verseData.verses?.find((v: any) => v.verse_key === `${sNum}:${aNum}`);
-          if (verse?.translations?.[0]?.text) {
-            setTranslationText(verse.translations[0].text.replace(/<[^>]*>/g, '').trim());
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Tafsir fetch error:', e);
-      setTafsirText(t('tafsirError'));
-    }
-    setLoading(false);
-  }, [isAr, locale, t]);
-
-  useEffect(() => {
-    if (!showSurahList) {
-      loadTafsir(surahNum, ayahNum);
-    }
-  }, [surahNum, ayahNum, showSurahList, loadTafsir]);
 
   const prevAyah = () => {
     if (ayahNum > 1) setAyahNum(ayahNum - 1);
@@ -204,7 +133,7 @@ export default function Tafsir() {
         </div>
       )}
 
-      {/* Tafsir Reading */}
+      {/* Tafsir Reading — V2026: Uses GlobalQuranVerse */}
       {!showSurahList && (
         <div className="px-4 py-3 space-y-4">
           <div className="flex items-center justify-between gap-2">
@@ -238,42 +167,27 @@ export default function Tafsir() {
             )}
           </div>
 
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-              <p className="text-sm text-muted-foreground">{t('tafsirLoading')}</p>
-            </div>
-          ) : (
-            <>
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border border-emerald-500/20 text-center">
-                <p className="text-2xl leading-[2.2] font-arabic text-foreground" dir="rtl">{ayahText || '...'}</p>
-                <div className="flex items-center justify-center gap-3 mt-3">
-                  <span className="text-xs text-muted-foreground">{surah?.ar} - {t('tafsirVerse')} {ayahNum}</span>
-                  <button onClick={toggleFav} className={cn("p-1.5 rounded-full transition-all",
-                    favorites.includes(`${surahNum}:${ayahNum}`) ? "text-amber-500" : "text-muted-foreground/40")}>
-                    <Star className="h-4 w-4" fill={favorites.includes(`${surahNum}:${ayahNum}`) ? 'currentColor' : 'none'} />
-                  </button>
-                </div>
-              </div>
+          {/* Favorite toggle */}
+          <div className="flex justify-end">
+            <button onClick={toggleFav} className={cn("flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+              favorites.includes(`${surahNum}:${ayahNum}`)
+                ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                : "bg-muted/30 text-muted-foreground border border-border/20")}>
+              <Star className="h-3 w-3" fill={favorites.includes(`${surahNum}:${ayahNum}`) ? 'currentColor' : 'none'} />
+              {favorites.includes(`${surahNum}:${ayahNum}`) ? t('tafsirFavorited') || '★' : t('tafsirFavorite') || '☆'}
+            </button>
+          </div>
 
-              {!isAr && translationText && (
-                <div className="p-4 rounded-2xl bg-card border border-border/20">
-                  <p className="text-xs font-bold text-muted-foreground mb-2 uppercase">Translation</p>
-                  <p className="text-sm text-foreground/80 leading-relaxed">{translationText}</p>
-                </div>
-              )}
-
-              <div className="p-5 rounded-2xl bg-card border border-border/20">
-                <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="h-4 w-4 text-amber-500" />
-                  <p className="text-sm font-bold text-foreground">{t('tafsirIbnKathir')}</p>
-                </div>
-                <p className="text-sm text-foreground/80 leading-[2] whitespace-pre-wrap" dir="rtl">
-                  {tafsirText || t('tafsirSelectVerse')}
-                </p>
-              </div>
-            </>
-          )}
+          {/* GlobalQuranVerse — replaces all old scattered fetching */}
+          <GlobalQuranVerse
+            key={`${surahNum}:${ayahNum}`}
+            surahId={surahNum}
+            ayahId={ayahNum}
+            compact={false}
+            showExplanation={true}
+            showAudio={true}
+            showSurahName={true}
+          />
         </div>
       )}
     </div>

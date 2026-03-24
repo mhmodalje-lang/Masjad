@@ -2393,5 +2393,6 @@
   "sourceBayhaqi": "Αλ-Μπαϊχακί",
   "sourceIbnMajahBayhaqi": "Ιμπν Μάτζα & Αλ-Μπαϊχακί",
   "translationPending": "Η επίσημη μετάφραση σε εξέλιξη",
-  "kidsTafsirLabel": "Απλοποιημένη εξήγηση για παιδιά"
+  "kidsTafsirLabel": "Απλοποιημένη εξήγηση για παιδιά",
+  "verseLoadError": "Αδυναμία φόρτωσης αγιάτ"
 }

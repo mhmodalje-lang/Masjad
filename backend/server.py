@@ -31,6 +31,7 @@ from routers.gamification import router as gamification_router
 from routers.baraka_market import router as baraka_market_router
 from routers.sponsored_content import router as sponsored_content_router
 from routers.rewards_store import router as rewards_store_router
+from routers.global_quran import router as global_quran_router
 
 # App
 app = FastAPI(title="أذان وحكاية API", version="3.0")
@@ -76,6 +77,7 @@ api_router.include_router(gamification_router)
 api_router.include_router(baraka_market_router)
 api_router.include_router(sponsored_content_router)
 api_router.include_router(rewards_store_router)
+api_router.include_router(global_quran_router)
 
 app.include_router(api_router)
 
