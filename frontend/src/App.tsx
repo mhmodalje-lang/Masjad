@@ -151,7 +151,6 @@ const App = () => {
                           <AppLayout>
                             <ErrorBoundary>
                               <Suspense fallback={<div className="min-h-screen" />}>
-                                <NativePageTransition>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
                                     <Route path="/social-profile/:userId" element={<SocialProfile />} />
@@ -208,7 +207,6 @@ const App = () => {
                                     <Route path="/live-streams" element={<LiveStreams />} />
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>
-                                </NativePageTransition>
                               </Suspense>
                             </ErrorBoundary>
                           </AppLayout>

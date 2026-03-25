@@ -28,28 +28,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* ═══ NATIVE APP - OVERSCROLL PREVENTION ═══ */
-/* Prevent bounce/overscroll (looks like a website) */
-html, body {
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Native app container - only fix positioning in native mode */
-body.native-app .native-app-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: none;
-}
-
-/* ═══ NATIVE APP - SAFE AREAS (iPhone notch, etc.) ═══ */
+/* ═══ NATIVE APP - Safe areas for notched devices ═══ */
 html {
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
@@ -58,22 +37,7 @@ html {
   --keyboard-height: 0px;
 }
 
-/* Safe padding for bottom nav */
-.pb-safe-nav {
-  padding-bottom: calc(70px + var(--sab, 0px));
-}
-
-/* Keyboard handling */
-body.keyboard-open .pb-safe-nav {
-  padding-bottom: calc(var(--keyboard-height, 0px) + 10px);
-}
-
-body.keyboard-open nav[data-testid="bottom-nav"] {
-  display: none;
-}
-
 /* ═══ NATIVE APP - TOUCH ACTIVE STATES ═══ */
-/* Native-like press feedback */
 .native-press {
   transition: transform 0.1s ease, opacity 0.1s ease;
 }
@@ -82,7 +46,6 @@ body.keyboard-open nav[data-testid="bottom-nav"] {
   opacity: 0.8;
 }
 
-/* Card press effect */
 .native-card-press {
   transition: transform 0.15s ease;
 }
@@ -90,15 +53,7 @@ body.keyboard-open nav[data-testid="bottom-nav"] {
   transform: scale(0.98);
 }
 
-/* ═══ NATIVE APP - MOMENTUM SCROLLING ═══ */
-.native-scroll {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
-}
-
 /* ═══ NATIVE APP - CONTEXT MENU PREVENTION ═══ */
-/* Prevent long-press context menu on images and buttons (native feel) */
 img, button, a, [role="button"] {
   -webkit-touch-callout: none;
 }
@@ -112,10 +67,9 @@ img, button, a, [role="button"] {
   scrollbar-width: none;
 }
 
-/* Global scrollbar minimization for native feel */
-::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+/* Keyboard handling for native apps */
+body.keyboard-open nav {
+  display: none;
 }
 
 /* ═══ END NATIVE APP FEEL ═══ */
