@@ -13,8 +13,23 @@ import re
 import httpx
 import os
 import json as json_module
+from routers.arabic_academy import ARABIC_LETTERS, QURAN_VOCAB, VOCAB_CATEGORIES
 
 router = APIRouter(tags=["Kids Zone"])
+
+# ═══ Confusable Arabic Phonemes ═══
+CONFUSABLE_PHONEMES = [
+    (6, 7, "ح", "خ"),   # Ha vs Kha
+    (12, 13, "س", "ش"), # Sin vs Shin
+    (14, 15, "ص", "ض"), # Sad vs Dad
+    (16, 17, "ط", "ظ"), # Tah vs Zah
+    (8, 9, "د", "ذ"),   # Dal vs Dhal
+    (4, 5, "ث", "ج"),   # Tha vs Jim
+    (18, 19, "ع", "غ"), # Ain vs Ghain
+    (26, 27, "ه", "و"), # Ha2 vs Waw
+    (3, 16, "ت", "ط"),  # Ta vs emphatic Tah
+    (8, 15, "د", "ض"),  # Dal vs emphatic Dad
+]
 
 # ═══ Constants ═══
 MOSQUE_STAGES = [
@@ -30,11 +45,11 @@ MOSQUE_STAGES = [
 ]
 
 DIFFICULTY_TIERS = [
-    {"name": "beginner", "min_xp": 0, "emoji": "🌱"},
-    {"name": "intermediate", "min_xp": 100, "emoji": "📖"},
-    {"name": "advanced", "min_xp": 300, "emoji": "⭐"},
-    {"name": "expert", "min_xp": 600, "emoji": "🌟"},
-    {"name": "master", "min_xp": 1000, "emoji": "💎"},
+    {"name": "beginner", "min_xp": 0, "emoji": "🌱", "choices": 2, "time_bonus": 30, "brick_reward": 1},
+    {"name": "intermediate", "min_xp": 100, "emoji": "📖", "choices": 3, "time_bonus": 25, "brick_reward": 2},
+    {"name": "advanced", "min_xp": 300, "emoji": "⭐", "choices": 4, "time_bonus": 20, "brick_reward": 3},
+    {"name": "expert", "min_xp": 600, "emoji": "🌟", "choices": 4, "time_bonus": 15, "brick_reward": 4},
+    {"name": "master", "min_xp": 1000, "emoji": "💎", "choices": 5, "time_bonus": 12, "brick_reward": 5},
 ]
 
 def get_difficulty_tier(total_xp: int) -> dict:

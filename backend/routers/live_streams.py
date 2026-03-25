@@ -17,6 +17,49 @@ from deps import get_admin_user
 
 router = APIRouter(tags=["Live Streams"])
 
+# Default live streams to seed when DB is empty
+DEFAULT_STREAMS = [
+    {
+        "id": "makkah-live",
+        "name": "بث مباشر من المسجد الحرام - مكة المكرمة",
+        "embed_type": "channel",
+        "embed_value": "UCbsPpCigjUXLes8oZEPpnnQ",
+        "thumbnail": "https://i.ytimg.com/vi/ZKVM8ERdBHQ/maxresdefault_live.jpg",
+        "city": "Makkah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 1,
+    },
+    {
+        "id": "madinah-live",
+        "name": "بث مباشر من المسجد النبوي - المدينة المنورة",
+        "embed_type": "video",
+        "embed_value": "Kp4ZqcS2EBo",
+        "thumbnail": "https://i.ytimg.com/vi/Kp4ZqcS2EBo/maxresdefault_live.jpg",
+        "city": "Madinah",
+        "country": "Saudi Arabia",
+        "category": "haramain",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 2,
+    },
+    {
+        "id": "aqsa-live",
+        "name": "بث مباشر من المسجد الأقصى - القدس",
+        "embed_type": "video",
+        "embed_value": "j1L8bEmWYCE",
+        "thumbnail": "https://i.ytimg.com/vi/j1L8bEmWYCE/maxresdefault_live.jpg",
+        "city": "Jerusalem",
+        "country": "Palestine",
+        "category": "holy",
+        "is_247": True,
+        "is_active": True,
+        "sort_order": 3,
+    },
+]
+
 @router.get("/live-streams")
 async def get_live_streams(category: str = "all"):
     """Get available live streams from DB"""

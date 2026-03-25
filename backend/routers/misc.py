@@ -35,30 +35,7 @@ async def get_app_ads_txt():
     
     return PlainTextResponse(content=content, media_type="text/plain")
 
-@router.post("/webhook/stripe")
-async def stripe_webhook(request: Request):
-    """Handle Stripe webhooks"""
-    try:
-        body = await request.body()
-        sig = request.headers.get("Stripe-Signature", "")
-        host_url = str(request.base_url).rstrip("/")
-        webhook_url = f"{host_url}api/webhook/stripe"
-        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
-        webhook_response = await stripe_checkout.handle_webhook(body, sig)
-        
-        if webhook_response.payment_status == "paid":
-            txn = await db.payment_transactions.find_one({"session_id": webhook_response.session_id})
-            if txn and txn.get("payment_status") != "paid":
-                await db.payment_transactions.update_one(
-                    {"session_id": webhook_response.session_id},
-                    {"$set": {"payment_status": "paid", "status": "complete", "updated_at": datetime.utcnow().isoformat()}}
-                )
-        
-        return {"received": True}
-    except Exception as e:
-        logger.error(f"Webhook error: {e}")
-        return {"received": True}
-
+# (webhook/stripe endpoint removed - already defined in economy router)
 
 @router.post("/user/bank-account")
 async def set_bank_account(data: dict, user: dict = Depends(get_user)):
@@ -203,39 +180,10 @@ async def admin_update_vendor(vendor_id: str, data: dict, user: dict = Depends(g
 
 
 # ==================== PRAYER TIMES ====================
-
-@router.post("/user/sync")
-async def sync_user_data(data: dict, user: dict = Depends(get_user)):
-    """Sync user data to cloud"""
-    if not user:
-        raise HTTPException(401, "مطلوب تسجيل الدخول")
-    
-    sync_doc = {
-        "user_id": user["id"],
-        "updated_at": datetime.utcnow().isoformat(),
-        **{k: data[k] for k in data if k not in ("user_id", "_id")}
-    }
-    await db.user_data.update_one({"user_id": user["id"]}, {"$set": sync_doc}, upsert=True)
-    return {"success": True}
-
-@router.get("/user/sync")
-async def get_user_data(user: dict = Depends(get_user)):
-    """Get synced user data"""
-    if not user:
-        raise HTTPException(401, "مطلوب تسجيل الدخول")
-    doc = await db.user_data.find_one({"user_id": user["id"]}, {"_id": 0})
-    return doc or {}
+# (user/sync endpoints removed - already defined in quran_hadith router)
 
 # ==================== ADMIN ====================
-
-@router.get("/pages")
-async def get_public_pages(category: str = ""):
-    """Public - get enabled custom pages"""
-    query = {"enabled": True}
-    if category:
-        query["category"] = category
-    pages = await db.custom_pages.find(query, {"_id": 0}).sort("order", 1).to_list(50)
-    return {"pages": pages}
+# (pages endpoint removed - already defined in admin router)
 
 # ===== RUQYAH MANAGEMENT =====
 class RuqyahItem(BaseModel):
@@ -304,8 +252,6 @@ def parse_video_url(url: str) -> dict:
     
     # Generic - return as-is for custom embed
     return {"embed_url": url, "video_type": "custom", "thumbnail_url": ""}
-
-@router.get("/admin/ruqyah")
 
 class EmbedContentRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=200)
@@ -509,37 +455,7 @@ async def get_blocked_users(user: dict = Depends(get_user)):
     return {"blocked_ids": [b["blocked_id"] for b in blocks]}
 
 
-@router.get("/admin/stats")
-async def admin_stats(user: dict = Depends(get_user)):
-    """Get admin dashboard statistics"""
-    admin = await db.users.find_one({"id": user["id"]}) if user else None
-    if not admin or (admin.get("email") not in ADMIN_EMAILS and not admin.get("is_admin")):
-        raise HTTPException(403, "غير مصرح")
-    
-    total_users = await db.users.count_documents({})
-    total_stories = await db.posts.count_documents({"is_story": True})
-    total_posts = await db.posts.count_documents({})
-    total_donations = await db.donations.count_documents({})
-    total_contacts = await db.contact_messages.count_documents({})
-    
-    # Latest categories with counts
-    pipeline = [
-        {"$match": {"is_story": True}},
-        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
-        {"$sort": {"count": -1}}
-    ]
-    categories = []
-    async for doc in db.posts.aggregate(pipeline):
-        categories.append({"category": doc["_id"], "count": doc["count"]})
-    
-    return {
-        "total_users": total_users,
-        "total_stories": total_stories,
-        "total_posts": total_posts,
-        "total_donations": total_donations,
-        "total_contacts": total_contacts,
-        "categories": categories
-    }
+# (admin/stats endpoint removed - already defined in admin router)
 
 @router.get("/admin/contacts")
 async def admin_contacts(user: dict = Depends(get_user), limit: int = 50):

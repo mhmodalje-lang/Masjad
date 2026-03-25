@@ -954,26 +954,7 @@ async def clear_tafsir_cache():
 # ==================== HADITH (Sunnah.com API) ====================
 SUNNAH_API_BASE = "https://api.sunnah.com/v1"
 
-@router.get("/hadith/collections")
-async def get_hadith_collections():
-    """Fetch available Hadith collections from Sunnah.com API"""
-    try:
-        async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get(f"{SUNNAH_API_BASE}/collections", headers={"X-API-Key": "SqD712P3E82xnwOAEOkGd5JZH8s9wRR24TqNFzjk"})
-            r.raise_for_status()
-            return r.json()
-    except Exception:
-        # Fallback to static collections list
-        return {
-            "data": [
-                {"name": "bukhari", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "صحيح البخاري"}, {"lang": "en", "title": "Sahih al-Bukhari"}]},
-                {"name": "muslim", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "صحيح مسلم"}, {"lang": "en", "title": "Sahih Muslim"}]},
-                {"name": "tirmidhi", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن الترمذي"}, {"lang": "en", "title": "Jami` at-Tirmidhi"}]},
-                {"name": "abudawud", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن أبي داود"}, {"lang": "en", "title": "Sunan Abi Dawud"}]},
-                {"name": "nasai", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن النسائي"}, {"lang": "en", "title": "Sunan an-Nasa'i"}]},
-                {"name": "ibnmajah", "hasBooks": True, "hasChapters": True, "collection": [{"lang": "ar", "title": "سنن ابن ماجه"}, {"lang": "en", "title": "Sunan Ibn Majah"}]},
-            ]
-        }
+# (hadith/collections endpoint removed - already defined in hadith router)
 
 @router.get("/hadith/{collection}/books")
 async def get_hadith_books(collection: str):
@@ -1038,27 +1019,7 @@ async def search_quran(q: str = Query(...)):
         raise HTTPException(500, str(e))
 
 # ==================== USER DATA SYNC ====================
-@router.post("/user/sync")
-async def sync_user_data(data: dict, user: dict = Depends(get_user)):
-    """Sync user data to cloud"""
-    if not user:
-        raise HTTPException(401, "مطلوب تسجيل الدخول")
-    
-    sync_doc = {
-        "user_id": user["id"],
-        "updated_at": datetime.utcnow().isoformat(),
-        **{k: data[k] for k in data if k not in ("user_id", "_id")}
-    }
-    await db.user_data.update_one({"user_id": user["id"]}, {"$set": sync_doc}, upsert=True)
-    return {"success": True}
-
-@router.get("/user/sync")
-async def get_user_data(user: dict = Depends(get_user)):
-    """Get synced user data"""
-    if not user:
-        raise HTTPException(401, "مطلوب تسجيل الدخول")
-    doc = await db.user_data.find_one({"user_id": user["id"]}, {"_id": 0})
-    return doc or {}
+# (user/sync endpoints removed - already defined in misc router)
 
 # ==================== DORAR.NET HADITH VERIFICATION ====================
 

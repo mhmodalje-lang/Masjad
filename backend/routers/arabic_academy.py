@@ -320,24 +320,7 @@ def build_90_day_curriculum():
                       "title_en": f"Letter: {letter['name_en']}", "title_ar": f"حرف: {letter['name_ar']}", "xp": 10})
     days.append({"day": 29, "level": 1, "type": "review", "content_id": 0, "title_en": "Alphabet Review 1", "title_ar": "مراجعة الأبجدية ١", "xp": 20})
     days.append({"day": 30, "level": 1, "type": "review", "content_id": 0, "title_en": "Alphabet Review 2", "title_ar": "مراجعة الأبجدية ٢", "xp": 20})
-    
-
-@router.get("/arabic-academy/letters")
-async def get_arabic_letters():
-    """Get all 28 Arabic letters with forms and examples"""
-    return {"success": True, "letters": ARABIC_LETTERS, "total": len(ARABIC_LETTERS)}
-
-@router.get("/arabic-academy/vocab")
-async def get_quran_vocab():
-    """Get Quranic vocabulary words"""
-    return {"success": True, "words": QURAN_VOCAB, "total": len(QURAN_VOCAB)}
-
-@router.get("/arabic-academy/daily-word")
-async def get_daily_word():
-    """Get a daily Quranic word based on day of year"""
-    day_of_year = datetime.utcnow().timetuple().tm_yday
-    word = QURAN_VOCAB[day_of_year % len(QURAN_VOCAB)]
-    return {"success": True, "word": word}
+    return days
 
 @router.get("/arabic-academy/progress/{user_id}")
 async def get_academy_progress(user_id: str):

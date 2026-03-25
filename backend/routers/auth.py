@@ -250,37 +250,6 @@ async def delete_account(user: dict = Depends(get_user)):
         logger.error(f"Error deleting account {uid}: {e}")
         raise HTTPException(500, "حدث خطأ أثناء حذف الحساب")
 
-class UpdateProfileRequest(BaseModel):
-    name: Optional[str] = None
-    avatar: Optional[str] = None
-    password: Optional[str] = None
-    bio: Optional[str] = None
-    cover_image: Optional[str] = None
-
-@router.put("/auth/update-profile")
-async def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_user)):
-    if not user:
-        raise HTTPException(401, "غير مصادق")
-    update = {}
-    if req.name and req.name.strip():
-        update["name"] = req.name.strip()
-    if req.avatar:
-        update["avatar"] = req.avatar
-    if req.bio is not None:
-        update["bio"] = req.bio.strip()[:500]
-    if req.cover_image:
-        update["cover_image"] = req.cover_image
-    if req.password and len(req.password) >= 6:
-        import hashlib
-        update["password_hash"] = hashlib.sha256(req.password.encode()).hexdigest()
-    if update:
-        await db.users.update_one({"id": user["id"]}, {"$set": update})
-    return {"success": True, "message": "تم تحديث الملف الشخصي"}
-
-# ==================== SOCIAL PLATFORM (صُحبة) ====================
-
-# SOHBA_CATEGORIES already defined above with multilingual support
-
 class CreatePostRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=5000)
     category: str = "general"

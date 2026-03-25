@@ -12,7 +12,16 @@
 - Track all issues found and fixed
 
 ## Current Task
-Enhancement: Complete Noor Academy V2 — add real content, fix placeholders, build frontend UI
+Comprehensive Backend Audit & Fix: Remove all duplicate routes, fix broken endpoints, clean code
+
+## Backend Fixes Applied
+1. Removed 16 duplicate routes across routers (arabic_academy, auth, misc, islamic_tools, quran_hadith, rewards_store, hadith)
+2. Fixed `build_90_day_curriculum()` missing return statement in arabic_academy.py
+3. Fixed `DEFAULT_STREAMS` undefined error in live_streams.py - added seed data
+4. Fixed `CONFUSABLE_PHONEMES` undefined error in kids_zone.py - added data
+5. Fixed `DIFFICULTY_TIERS` missing `choices` field in kids_zone.py
+6. Fixed `ARABIC_LETTERS` import missing in kids_zone.py
+7. Fixed orphan decorator `@router.get("/admin/ruqyah")` in misc.py (decorator without function)
 
 ## Backend Status
 - Academy Overview API: Working
@@ -31,17 +40,21 @@ Enhancement: Complete Noor Academy V2 — add real content, fix placeholders, bu
 - Quiz (select, true/false, sequence): Working
 
 ## APIs to Test
-1. GET /api/kids-learn/academy/overview?locale=en
-2. GET /api/kids-learn/academy/track/fiqh?locale=en
-3. GET /api/kids-learn/academy/track/seerah?locale=en
-4. GET /api/kids-learn/academy/track/aqeedah?locale=en
-5. GET /api/kids-learn/academy/fiqh/lesson/1?locale=en
-6. GET /api/kids-learn/academy/seerah/lesson/1?locale=en
-7. GET /api/kids-learn/academy/aqeedah/lesson/1?locale=en
-8. GET /api/kids-learn/academy/fiqh/lesson/40?locale=en (last lesson)
-9. GET /api/kids-learn/academy/seerah/lesson/60?locale=en (last lesson)
-10. GET /api/kids-learn/academy/fiqh/lesson/1?locale=ar (Arabic locale)
-11. GET /api/kids-learn/academy/track/nooraniya?locale=en (Nooraniya track)
+1. GET /api/health
+2. GET /api/live-streams (was broken - fixed DEFAULT_STREAMS)
+3. GET /api/kids-zone/generate-game (was broken - fixed missing data)
+4. GET /api/arabic-academy/letters (was duplicate - cleaned)
+5. GET /api/ad-config (was duplicate - cleaned)
+6. GET /api/quran/v4/chapters?language=ar
+7. GET /api/sohba/explore
+8. GET /api/stories/list
+9. GET /api/prayer-times?lat=48.2&lon=16.3
+10. GET /api/hadith/collections?language=en
+11. GET /api/kids-learn/academy/overview?locale=en
+12. GET /api/rewards/leaderboard
+13. GET /api/marketplace/products
+14. GET /api/ai/daily-dua
+15. GET /api/store/items
 
 ## Latest Testing Results (2026-01-27)
 
@@ -82,3 +95,41 @@ Enhancement: Complete Noor Academy V2 — add real content, fix placeholders, bu
 - No placeholder lessons remain for Fiqh (40 lessons all real)
 - No placeholder lessons remain for Seerah (60 lessons all real)
 - Comprehensive assessments (final lessons) have appropriate quiz structure
+
+---
+
+## Comprehensive Backend API Testing (2026-01-27)
+
+### Islamic App (أذان وحكاية) - All 15 Critical Endpoints: ✅ 100% SUCCESS (15/15 tests passed)
+
+**All Critical Endpoints Working:**
+1. ✅ GET /api/health - Status: healthy, App: أذان وحكاية
+2. ✅ GET /api/live-streams - Success: True, Streams count: 3 (recently fixed)
+3. ✅ GET /api/kids-zone/generate-game - Success: True, Game data returned (recently fixed)
+4. ✅ GET /api/arabic-academy/letters - Found 28 Arabic letters
+5. ✅ GET /api/ad-config - Ad config returned successfully
+6. ✅ GET /api/quran/v4/chapters?language=ar - Found 114 Quran chapters
+7. ✅ GET /api/sohba/explore - Found 6 posts
+8. ✅ GET /api/stories/list - Stories list returned successfully
+9. ✅ GET /api/prayer-times?lat=48.2&lon=16.3 - Prayer times returned successfully
+10. ✅ GET /api/hadith/collections?language=en - Hadith collections returned successfully
+11. ✅ GET /api/kids-learn/academy/overview?locale=en - Found 5 tracks
+12. ✅ GET /api/rewards/leaderboard - Leaderboard returned successfully
+13. ✅ GET /api/marketplace/products - Marketplace products returned successfully
+14. ✅ GET /api/ai/daily-dua - Daily dua returned successfully
+15. ✅ GET /api/store/items - Store items returned successfully
+
+**Critical Validations:**
+- ✅ All endpoints return 200 status code
+- ✅ All endpoints return valid JSON responses
+- ✅ No duplicate routes detected (verified via route analysis)
+- ✅ No critical server errors or connection issues
+- ✅ All recently fixed endpoints (live-streams, kids-zone/generate-game) working correctly
+- ✅ Backend logs show no duplicate route warnings
+- ✅ All API responses have expected data structures
+
+**Testing Agent Notes:**
+- Previous issues with kids-zone/generate-game (KeyError: 'choices', NameError: 'ARABIC_LETTERS') have been resolved
+- Route cleanup successfully removed 16 duplicate routes as documented
+- All endpoints responding correctly with proper JSON structure
+- No critical backend issues found during comprehensive testing

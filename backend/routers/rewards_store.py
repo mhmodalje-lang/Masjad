@@ -301,7 +301,7 @@ async def get_rewards_profile(user_id: str):
     }
 
 
-@router.get("/rewards/leaderboard")
+@router.get("/rewards/points-leaderboard")
 async def get_leaderboard(limit: int = 20):
     """Get top users by points."""
     col = db["user_rewards"]

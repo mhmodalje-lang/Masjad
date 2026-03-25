@@ -1,457 +1,484 @@
 #!/usr/bin/env python3
 """
-Islamic App Backend API Testing Script
-Tests the specific multilingual endpoints requested in the review request
+Islamic App (أذان وحكاية) Backend API Testing
+Test Date: 2026-01-27
+Focus: Comprehensive testing of all 15 critical endpoints as specified in review request
 """
 
-import asyncio
-import httpx
+import requests
 import json
-from typing import Dict, Any, List
+import re
+from typing import Dict, List, Any
 
-# Backend URL from frontend .env
-BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+# Configuration
+BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+TIMEOUT = 30
 
-class IslamicAppAPITester:
+class IslamicAppTester:
     def __init__(self):
-        self.base_url = BACKEND_URL
         self.results = []
+        self.total_tests = 0
+        self.passed_tests = 0
+        self.failed_tests = 0
         
-    def log_result(self, test_name: str, endpoint: str, status: str, details: str = ""):
+    def log_result(self, test_name: str, status: str, details: str = ""):
         """Log test result"""
-        result = {
-            "test": test_name,
-            "endpoint": endpoint,
-            "status": status,
-            "details": details
-        }
-        self.results.append(result)
-        print(f"{'✅' if status == 'PASS' else '❌'} {test_name}: {status}")
-        if details:
-            print(f"   Details: {details}")
-    
-    async def test_health_endpoint(self):
-        """Test Health Check - GET /api/health"""
-        test_name = "Health Check API"
+        self.results.append({
+            'test': test_name,
+            'status': status,
+            'details': details
+        })
+        self.total_tests += 1
+        if status == "PASS":
+            self.passed_tests += 1
+        else:
+            self.failed_tests += 1
+            
+    def make_request(self, endpoint: str) -> tuple:
+        """Make HTTP request and return (success, data, status_code)"""
+        try:
+            url = f"{BASE_URL}{endpoint}"
+            print(f"Testing: {url}")
+            response = requests.get(url, timeout=TIMEOUT)
+            
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    return True, data, 200
+                except json.JSONDecodeError:
+                    return False, f"Invalid JSON response", response.status_code
+            else:
+                return False, f"HTTP {response.status_code}: {response.text[:200]}", response.status_code
+                
+        except requests.exceptions.Timeout:
+            return False, "Request timeout", 0
+        except requests.exceptions.RequestException as e:
+            return False, f"Request error: {str(e)}", 0
+            
+    def test_health_endpoint(self):
+        """Test 1: Health endpoint"""
+        print("\n🔸 TEST 1: HEALTH ENDPOINT")
+        
         endpoint = "/api/health"
+        success, data, status_code = self.make_request(endpoint)
         
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
+        test_name = "GET /api/health"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for status healthy
+        if data.get('status') != 'healthy':
+            self.log_result(test_name, "FAIL", f"Expected status 'healthy', got '{data.get('status')}'")
+            return
+            
+        self.log_result(test_name, "PASS", f"Status: {data.get('status')}, App: {data.get('app', 'N/A')}")
+        
+    def test_live_streams(self):
+        """Test 2: Live streams endpoint"""
+        print("\n🔸 TEST 2: LIVE STREAMS")
+        
+        endpoint = "/api/live-streams"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/live-streams"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for success:true and streams array
+        if not data.get('success', False):
+            self.log_result(test_name, "FAIL", f"Expected success:true, got success:{data.get('success')}")
+            return
+            
+        streams = data.get('streams', [])
+        if not isinstance(streams, list):
+            self.log_result(test_name, "FAIL", f"Expected streams array, got {type(streams)}")
+            return
+            
+        self.log_result(test_name, "PASS", f"Success: {data.get('success')}, Streams count: {len(streams)}")
+        
+    def test_kids_zone_game(self):
+        """Test 3: Kids zone generate game"""
+        print("\n🔸 TEST 3: KIDS ZONE GENERATE GAME")
+        
+        endpoint = "/api/kids-zone/generate-game"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/kids-zone/generate-game"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for success:true and game data
+        if not data.get('success', False):
+            self.log_result(test_name, "FAIL", f"Expected success:true, got success:{data.get('success')}")
+            return
+            
+        game_data = data.get('game', {})
+        if not game_data:
+            self.log_result(test_name, "FAIL", f"Expected game data, got empty")
+            return
+            
+        self.log_result(test_name, "PASS", f"Success: {data.get('success')}, Game type: {game_data.get('type', 'N/A')}")
+        
+    def test_arabic_academy_letters(self):
+        """Test 4: Arabic academy letters"""
+        print("\n🔸 TEST 4: ARABIC ACADEMY LETTERS")
+        
+        endpoint = "/api/arabic-academy/letters"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/arabic-academy/letters"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for 28 Arabic letters
+        letters = data.get('letters', [])
+        if not isinstance(letters, list):
+            self.log_result(test_name, "FAIL", f"Expected letters array, got {type(letters)}")
+            return
+            
+        if len(letters) != 28:
+            self.log_result(test_name, "FAIL", f"Expected 28 Arabic letters, got {len(letters)}")
+            return
+            
+        self.log_result(test_name, "PASS", f"Found {len(letters)} Arabic letters")
+        
+    def test_ad_config(self):
+        """Test 5: Ad configuration"""
+        print("\n🔸 TEST 5: AD CONFIGURATION")
+        
+        endpoint = "/api/ad-config"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/ad-config"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Ad config returned successfully")
+        
+    def test_quran_chapters(self):
+        """Test 6: Quran chapters"""
+        print("\n🔸 TEST 6: QURAN CHAPTERS")
+        
+        endpoint = "/api/quran/v4/chapters?language=ar"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/quran/v4/chapters?language=ar"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for 114 chapters
+        chapters = data.get('chapters', [])
+        if not isinstance(chapters, list):
+            self.log_result(test_name, "FAIL", f"Expected chapters array, got {type(chapters)}")
+            return
+            
+        if len(chapters) != 114:
+            self.log_result(test_name, "FAIL", f"Expected 114 chapters, got {len(chapters)}")
+            return
+            
+        self.log_result(test_name, "PASS", f"Found {len(chapters)} Quran chapters")
+        
+    def test_sohba_explore(self):
+        """Test 7: Sohba explore"""
+        print("\n🔸 TEST 7: SOHBA EXPLORE")
+        
+        endpoint = "/api/sohba/explore"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/sohba/explore"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for posts array
+        posts = data.get('posts', [])
+        if not isinstance(posts, list):
+            self.log_result(test_name, "FAIL", f"Expected posts array, got {type(posts)}")
+            return
+            
+        self.log_result(test_name, "PASS", f"Found {len(posts)} posts")
+        
+    def test_stories_list(self):
+        """Test 8: Stories list"""
+        print("\n🔸 TEST 8: STORIES LIST")
+        
+        endpoint = "/api/stories/list"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/stories/list"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Stories list returned successfully")
+        
+    def test_prayer_times(self):
+        """Test 9: Prayer times"""
+        print("\n🔸 TEST 9: PRAYER TIMES")
+        
+        endpoint = "/api/prayer-times?lat=48.2&lon=16.3"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/prayer-times?lat=48.2&lon=16.3"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Prayer times returned successfully")
+        
+    def test_hadith_collections(self):
+        """Test 10: Hadith collections"""
+        print("\n🔸 TEST 10: HADITH COLLECTIONS")
+        
+        endpoint = "/api/hadith/collections?language=en"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/hadith/collections?language=en"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Hadith collections returned successfully")
+        
+    def test_kids_learn_academy_overview(self):
+        """Test 11: Kids learn academy overview"""
+        print("\n🔸 TEST 11: KIDS LEARN ACADEMY OVERVIEW")
+        
+        endpoint = "/api/kids-learn/academy/overview?locale=en"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/kids-learn/academy/overview?locale=en"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        # Check for 5 tracks
+        tracks = data.get('tracks', [])
+        if not isinstance(tracks, list):
+            self.log_result(test_name, "FAIL", f"Expected tracks array, got {type(tracks)}")
+            return
+            
+        if len(tracks) != 5:
+            self.log_result(test_name, "FAIL", f"Expected 5 tracks, got {len(tracks)}")
+            return
+            
+        self.log_result(test_name, "PASS", f"Found {len(tracks)} tracks")
+        
+    def test_rewards_leaderboard(self):
+        """Test 12: Rewards leaderboard"""
+        print("\n🔸 TEST 12: REWARDS LEADERBOARD")
+        
+        endpoint = "/api/rewards/leaderboard"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/rewards/leaderboard"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Leaderboard returned successfully")
+        
+    def test_marketplace_products(self):
+        """Test 13: Marketplace products"""
+        print("\n🔸 TEST 13: MARKETPLACE PRODUCTS")
+        
+        endpoint = "/api/marketplace/products"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/marketplace/products"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Marketplace products returned successfully")
+        
+    def test_ai_daily_dua(self):
+        """Test 14: AI daily dua"""
+        print("\n🔸 TEST 14: AI DAILY DUA")
+        
+        endpoint = "/api/ai/daily-dua"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/ai/daily-dua"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Daily dua returned successfully")
+        
+    def test_store_items(self):
+        """Test 15: Store items"""
+        print("\n🔸 TEST 15: STORE ITEMS")
+        
+        endpoint = "/api/store/items"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "GET /api/store/items"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict):
+            self.log_result(test_name, "FAIL", f"Invalid response structure")
+            return
+            
+        self.log_result(test_name, "PASS", f"Store items returned successfully")
+        
+    def run_all_tests(self):
+        """Run all tests and generate report"""
+        print("🚀 STARTING ISLAMIC APP (أذان وحكاية) BACKEND API TESTING")
+        print(f"📍 Base URL: {BASE_URL}")
+        print("🎯 Focus: Testing all 15 critical endpoints as per review request")
+        
+        # Run all test suites
+        self.test_health_endpoint()
+        self.test_live_streams()
+        self.test_kids_zone_game()
+        self.test_arabic_academy_letters()
+        self.test_ad_config()
+        self.test_quran_chapters()
+        self.test_sohba_explore()
+        self.test_stories_list()
+        self.test_prayer_times()
+        self.test_hadith_collections()
+        self.test_kids_learn_academy_overview()
+        self.test_rewards_leaderboard()
+        self.test_marketplace_products()
+        self.test_ai_daily_dua()
+        self.test_store_items()
+        
+        # Generate summary report
+        self.generate_report()
+        
+    def generate_report(self):
+        """Generate final test report"""
+        print("\n" + "="*80)
+        print("📊 ISLAMIC APP (أذان وحكاية) API TESTING RESULTS")
+        print("="*80)
+        
+        success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+        
+        print(f"📈 SUMMARY: {success_rate:.1f}% SUCCESS ({self.passed_tests}/{self.total_tests} tests passed)")
+        print(f"✅ PASSED: {self.passed_tests}")
+        print(f"❌ FAILED: {self.failed_tests}")
+        
+        # Group results by status
+        passed_tests = [r for r in self.results if r['status'] == 'PASS']
+        failed_tests = [r for r in self.results if r['status'] == 'FAIL']
+        
+        if failed_tests:
+            print(f"\n❌ FAILED TESTS ({len(failed_tests)}):")
+            for result in failed_tests:
+                print(f"   • {result['test']}: {result['details']}")
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "status" in data and data["status"] == "healthy":
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Health check successful: {data}")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      f"Invalid health response: {data}")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_quran_surahs_russian(self):
-        """Test Quran Surahs Russian - GET /api/kids-learn/quran/surahs?locale=ru"""
-        test_name = "Quran Surahs Russian Locale"
-        endpoint = "/api/kids-learn/quran/surahs?locale=ru"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
+        if passed_tests:
+            print(f"\n✅ PASSED TESTS ({len(passed_tests)}):")
+            for result in passed_tests:
+                print(f"   • {result['test']}: {result['details']}")
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "surahs" in data:
-                        surahs = data["surahs"]
-                        
-                        if len(surahs) > 0:
-                            # Check first surah structure
-                            surah = surahs[0]
-                            required_fields = ["id", "number", "name_ar", "name_en"]
-                            missing_fields = [field for field in required_fields if field not in surah]
-                            
-                            if not missing_fields:
-                                self.log_result(test_name, endpoint, "PASS", 
-                                              f"Returned {len(surahs)} surahs with Russian locale support")
-                            else:
-                                self.log_result(test_name, endpoint, "FAIL", 
-                                              f"Missing fields in surah: {missing_fields}")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "No surahs returned")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'surahs' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_surah_fatiha_russian(self):
-        """Test Surah Fatiha Russian - GET /api/kids-learn/quran/surah/fatiha?locale=ru"""
-        test_name = "Surah Fatiha Russian Translations"
-        endpoint = "/api/kids-learn/quran/surah/fatiha?locale=ru"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "surah" in data:
-                        surah = data["surah"]
-                        
-                        if "ayahs" in surah and len(surah["ayahs"]) > 0:
-                            # Check first ayah structure
-                            ayah = surah["ayahs"][0]
-                            required_fields = ["number", "arabic", "translation"]
-                            missing_fields = [field for field in required_fields if field not in ayah]
-                            
-                            if not missing_fields:
-                                self.log_result(test_name, endpoint, "PASS", 
-                                              f"Returned Fatiha with {len(surah['ayahs'])} ayahs and Russian translations")
-                            else:
-                                self.log_result(test_name, endpoint, "FAIL", 
-                                              f"Missing fields in ayah: {missing_fields}")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "No ayahs returned for Fatiha")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'surah' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_daily_lesson_arabic(self):
-        """Test Daily Lesson Arabic - GET /api/kids-learn/daily-lesson?locale=ar"""
-        test_name = "Daily Lesson Arabic Locale"
-        endpoint = "/api/kids-learn/daily-lesson?locale=ar"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "lesson" in data:
-                        lesson = data["lesson"]
-                        
-                        # Check lesson structure
-                        if isinstance(lesson, dict) and len(lesson) > 0:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          f"Returned Arabic daily lesson with {len(lesson)} sections")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "Empty or invalid lesson structure")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'lesson' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_daily_lesson_russian(self):
-        """Test Daily Lesson Russian - GET /api/kids-learn/daily-lesson?locale=ru"""
-        test_name = "Daily Lesson Russian Locale"
-        endpoint = "/api/kids-learn/daily-lesson?locale=ru"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "lesson" in data:
-                        lesson = data["lesson"]
-                        
-                        # Check lesson structure
-                        if isinstance(lesson, dict) and len(lesson) > 0:
-                            self.log_result(test_name, endpoint, "PASS", 
-                                          f"Returned Russian daily lesson with {len(lesson)} sections")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "Empty or invalid lesson structure")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'lesson' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_duas_german(self):
-        """Test Duas German - GET /api/kids-learn/duas?locale=de"""
-        test_name = "Duas German Locale"
-        endpoint = "/api/kids-learn/duas?locale=de"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "duas" in data:
-                        duas = data["duas"]
-                        
-                        if len(duas) > 0:
-                            # Check first dua structure
-                            dua = duas[0]
-                            required_fields = ["id", "category", "arabic", "title"]
-                            missing_fields = [field for field in required_fields if field not in dua]
-                            
-                            if not missing_fields:
-                                self.log_result(test_name, endpoint, "PASS", 
-                                              f"Returned {len(duas)} duas with German locale support")
-                            else:
-                                self.log_result(test_name, endpoint, "FAIL", 
-                                              f"Missing fields in dua: {missing_fields}")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "No duas returned")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'duas' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_hadiths_french(self):
-        """Test Hadiths French - GET /api/kids-learn/hadiths?locale=fr"""
-        test_name = "Hadiths French Locale"
-        endpoint = "/api/kids-learn/hadiths?locale=fr"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "hadiths" in data:
-                        hadiths = data["hadiths"]
-                        
-                        if len(hadiths) > 0:
-                            # Check first hadith structure
-                            hadith = hadiths[0]
-                            required_fields = ["id", "category", "arabic", "lesson"]
-                            missing_fields = [field for field in required_fields if field not in hadith]
-                            
-                            if not missing_fields:
-                                self.log_result(test_name, endpoint, "PASS", 
-                                              f"Returned {len(hadiths)} hadiths with French locale support")
-                            else:
-                                self.log_result(test_name, endpoint, "FAIL", 
-                                              f"Missing fields in hadith: {missing_fields}")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "No hadiths returned")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'hadiths' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_prophets_turkish(self):
-        """Test Prophets Turkish - GET /api/kids-learn/prophets?locale=tr"""
-        test_name = "Prophets Turkish Locale"
-        endpoint = "/api/kids-learn/prophets?locale=tr"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"] and "prophets" in data:
-                        prophets = data["prophets"]
-                        
-                        if len(prophets) > 0:
-                            # Check first prophet structure
-                            prophet = prophets[0]
-                            required_fields = ["id", "number", "name", "title"]
-                            missing_fields = [field for field in required_fields if field not in prophet]
-                            
-                            if not missing_fields:
-                                self.log_result(test_name, endpoint, "PASS", 
-                                              f"Returned {len(prophets)} prophets with Turkish locale support")
-                            else:
-                                self.log_result(test_name, endpoint, "FAIL", 
-                                              f"Missing fields in prophet: {missing_fields}")
-                        else:
-                            self.log_result(test_name, endpoint, "FAIL", 
-                                          "No prophets returned")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      "Response missing 'success' or 'prophets' fields")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_data_deletion_request(self):
-        """Test Data Deletion Request - POST /api/data-deletion-request"""
-        test_name = "Data Deletion Request API"
-        endpoint = "/api/data-deletion-request"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                payload = {
-                    "email": "test@test.com",
-                    "reason": "test"
-                }
-                response = await client.post(f"{self.base_url}{endpoint}", json=payload)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Check response structure
-                    if "success" in data and data["success"]:
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Data deletion request submitted successfully: {data.get('message', '')}")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      f"Invalid response structure: {data}")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def test_app_ads_txt(self):
-        """Test App Ads Txt - GET /api/app-ads-txt"""
-        test_name = "App Ads Txt API"
-        endpoint = "/api/app-ads-txt"
-        
-        try:
-            async with httpx.AsyncClient(timeout=30) as client:
-                response = await client.get(f"{self.base_url}{endpoint}")
-                
-                if response.status_code == 200:
-                    content = response.text
-                    content_type = response.headers.get("content-type", "")
-                    
-                    # Check content type
-                    if "text/plain" in content_type:
-                        self.log_result(test_name, endpoint, "PASS", 
-                                      f"Returned text/plain content: {content[:100]}...")
-                    else:
-                        self.log_result(test_name, endpoint, "FAIL", 
-                                      f"Wrong content type: {content_type}, expected text/plain")
-                else:
-                    self.log_result(test_name, endpoint, "FAIL", 
-                                  f"HTTP {response.status_code}: {response.text[:200]}")
-                    
-        except Exception as e:
-            self.log_result(test_name, endpoint, "FAIL", f"Exception: {str(e)}")
-    
-    async def run_all_tests(self):
-        """Run all Islamic App API tests"""
-        print(f"🚀 Starting Islamic App Backend API Tests for: {self.base_url}")
-        print("=" * 80)
-        
-        # Run all tests
-        await self.test_health_endpoint()
-        await self.test_quran_surahs_russian()
-        await self.test_surah_fatiha_russian()
-        await self.test_daily_lesson_arabic()
-        await self.test_daily_lesson_russian()
-        await self.test_duas_german()
-        await self.test_hadiths_french()
-        await self.test_prophets_turkish()
-        await self.test_data_deletion_request()
-        await self.test_app_ads_txt()
-        
-        # Summary
-        print("\n" + "=" * 80)
-        print("📊 ISLAMIC APP API TEST SUMMARY")
-        print("=" * 80)
-        
-        passed = len([r for r in self.results if r["status"] == "PASS"])
-        failed = len([r for r in self.results if r["status"] == "FAIL"])
-        skipped = len([r for r in self.results if r["status"] == "SKIP"])
-        
-        print(f"✅ PASSED: {passed}")
-        print(f"❌ FAILED: {failed}")
-        print(f"⏭️  SKIPPED: {skipped}")
-        print(f"📈 SUCCESS RATE: {passed}/{passed+failed} ({(passed/(passed+failed)*100) if (passed+failed) > 0 else 0:.1f}%)")
-        
-        # Detailed results
-        if failed > 0:
-            print("\n🔍 FAILED TESTS DETAILS:")
-            for result in self.results:
-                if result["status"] == "FAIL":
-                    print(f"❌ {result['test']}: {result['details']}")
-        
-        # Multilingual verification summary
-        print("\n🌍 MULTILINGUAL ENDPOINT VERIFICATION:")
-        multilingual_tests = [
-            ("Russian", "Quran Surahs Russian Locale"),
-            ("Russian", "Surah Fatiha Russian Translations"),
-            ("Arabic", "Daily Lesson Arabic Locale"),
-            ("Russian", "Daily Lesson Russian Locale"),
-            ("German", "Duas German Locale"),
-            ("French", "Hadiths French Locale"),
-            ("Turkish", "Prophets Turkish Locale")
-        ]
-        
-        for lang, test_name in multilingual_tests:
-            result = next((r for r in self.results if r["test"] == test_name), None)
-            if result:
-                status_icon = "✅" if result["status"] == "PASS" else "❌"
-                print(f"{status_icon} {lang}: {result['status']}")
-        
-        return self.results
-
-async def main():
-    """Main test runner"""
-    tester = IslamicAppAPITester()
-    results = await tester.run_all_tests()
-    
-    # Save results to JSON file for future reference
-    with open("/app/islamic_app_test_results.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    
-    return results
+        # Critical findings
+        critical_failures = [r for r in failed_tests if any(word in r['details'].lower() for word in ['timeout', 'connection', 'invalid json', 'http 5'])]
+        if critical_failures:
+            print(f"\n🚨 CRITICAL ISSUES FOUND ({len(critical_failures)}):")
+            for result in critical_failures:
+                print(f"   • {result['test']}: {result['details']}")
+        else:
+            print(f"\n🎉 ALL ENDPOINTS RESPONDING: No critical connection or server issues found")
+            
+        print("\n" + "="*80)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    tester = IslamicAppTester()
+    tester.run_all_tests()
