@@ -560,7 +560,7 @@ export default function MosquePrayerTimesPage() {
       `${t('mosquePrayerIsha')}: ${fmt(times.isha)}`,
       times.jumuah ? `${t('mosquePrayerJumuah')}: ${fmt(times.jumuah)}` : '',
       '',
-      `📅 ${new Date().toLocaleDateString(locale === 'ar' ? 'ar-SA' : undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
+      `📅 ${new Date().toLocaleDateString(locale === 'ar' ? 'ar-SA' : locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
     ].filter(Boolean).join('\n');
   };
 

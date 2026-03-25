@@ -566,7 +566,7 @@ export default function AdminDashboard() {
               <div className="rounded-2xl bg-card border border-primary/20 p-4 space-y-3">
                 <InputField label={t('notifTitle')} value={ruqyahForm.title} onChange={(v: string) => setRuqyahForm({...ruqyahForm, title: v})} placeholder="..." />
                 <InputField label={t('notifBody')} value={ruqyahForm.content} onChange={(v: string) => setRuqyahForm({...ruqyahForm, content: v})} placeholder="..." multiline />
-                <SelectField label={t('categoryField')} value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general','عين','حسد','سحر','مس','أرق','وسواس',t('protectionLabel')]} />
+                <SelectField label={t('categoryField')} value={ruqyahForm.category} onChange={(v: string) => setRuqyahForm({...ruqyahForm, category: v})} options={['general',t('ruqyahCatEye'),t('ruqyahCatEnvy'),t('ruqyahCatMagic'),'مس','أرق','وسواس',t('protectionLabel')]} />
                 <InputField label={t('adLinkUrl')} value={ruqyahForm.audio_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, audio_url: v})} placeholder="https://..." />
                 <InputField label={t('adVideoUrl')} value={ruqyahForm.video_url} onChange={(v: string) => setRuqyahForm({...ruqyahForm, video_url: v})} placeholder="https://www.youtube.com/watch?v=..." />
                 {ruqyahForm.video_url && (
@@ -697,7 +697,7 @@ export default function AdminDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{a.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">{a.body}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1">{a.type} • {new Date(a.created_at).toLocaleDateString('ar')}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{a.type} • {new Date(a.created_at).toLocaleDateString(locale)}</p>
                 </div>
                 <button onClick={() => deleteBroadcast(a.id)} className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
@@ -734,7 +734,7 @@ export default function AdminDashboard() {
 
             <h3 className="text-sm font-bold text-foreground"> ال{t('totalPosts')} ({embedContent.length})</h3>
             {embedContent.length === 0 ? (
-              <p className="text-center py-8 text-muted-foreground text-sm">{t('noData')} مضمن بعد</p>
+              <p className="text-center py-8 text-muted-foreground text-sm">{t('noEmbedYet')}</p>
             ) : (
               embedContent.map(item => (
                 <div key={item.id} className="rounded-xl neu-card p-4 space-y-2">
@@ -906,20 +906,20 @@ export default function AdminDashboard() {
         {/* ===== SETTINGS ===== */}
         {tab==='settings' && (
           <div className="space-y-4">
-            <h2 className="text-base font-bold text-foreground">إعدادات التطبيق</h2>
+            <h2 className="text-base font-bold text-foreground">{t('appSettingsTitle')}</h2>
             <div className="rounded-xl neu-card p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">{t('maintenanceMode')}</p><p className="text-[10px] text-muted-foreground">إيقاف مؤقت</p></div></div>
+                <div className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/><div><p className="text-sm font-bold text-foreground">{t('maintenanceMode')}</p><p className="text-[10px] text-muted-foreground">{t('tempPause')}</p></div></div>
                 <Switch checked={maintenance} onCheckedChange={setMaintenance} />
               </div>
-              <InputField label="إعلان عام" value={announcement} onChange={setAnnouncement} placeholder="رسالة للجميع..." />
+              <InputField label={t('generalAnnouncementLabel')} value={announcement} onChange={setAnnouncement} placeholder={t('msgForAll')} />
               <Button onClick={saveSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>{t('save')}</Button>
             </div>
             
             {/* Admin Bank Account */}
-            <h2 className="text-base font-bold text-foreground">الحساب {t('bankAccount')}ي (لاستقبال الأرباح)</h2>
+            <h2 className="text-base font-bold text-foreground">{t('bankAccountTitle')}</h2>
             <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
-              <InputField label="اسم {t('bankAccount')}" value={bankForm.bank_name||''} onChange={(v:string)=>setBankForm({...bankForm,bank_name:v})} placeholder="بنك..." />
+              <InputField label={t('bankNameLabel')} value={bankForm.bank_name||''} onChange={(v:string)=>setBankForm({...bankForm,bank_name:v})} placeholder="بنك..." />
               <InputField label="{t('accountHolder')}" value={bankForm.account_holder||''} onChange={(v:string)=>setBankForm({...bankForm,account_holder:v})} placeholder="الاسم..." />
               <InputField label="IBAN" value={bankForm.iban||''} onChange={(v:string)=>setBankForm({...bankForm,iban:v})} placeholder="SA00..." />
               <InputField label="SWIFT" value={bankForm.swift||''} onChange={(v:string)=>setBankForm({...bankForm,swift:v})} placeholder="SWIFT..." />
@@ -927,7 +927,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Marketplace Commission */}
-            <h2 className="text-base font-bold text-foreground">عمولة السوق</h2>
+            <h2 className="text-base font-bold text-foreground">{t('marketCommission')}</h2>
             <div className="rounded-xl neu-card p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <InputField label="{t('commissionRate')} %" value={String(commissionRate)} onChange={(v:string)=>setCommissionRate(Number(v)||0)} placeholder="10" />
@@ -935,44 +935,44 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            {/* Ad Settings - إعدادات {t('adsManagement')} */}
+            {/* Ad Settings - {t('adSettingsTitle')} */}
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Film className="h-4 w-4 text-primary"/>إعدادات {t('adsManagement')}
+              <Film className="h-4 w-4 text-primary"/>{t('adSettingsTitle')}
             </h2>
             <div className="rounded-xl bg-card border border-primary/20 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-emerald-500"/>
-                  <div><p className="text-sm font-bold text-foreground">تفعيل {t('adsManagement')}</p><p className="text-[10px] text-muted-foreground">عرض {t('adsManagement')} في التطبيق</p></div>
+                  <div><p className="text-sm font-bold text-foreground">{t('enableAds')}</p><p className="text-[10px] text-muted-foreground">عرض {t('adsManagement')} في التطبيق</p></div>
                 </div>
                 <Switch checked={adSettings.ads_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ads_enabled:v})} />
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Volume2 className="h-4 w-4 text-blue-500"/>
-                  <div><p className="text-sm font-bold text-foreground">كتم صوت الفيديو</p><p className="text-[10px] text-muted-foreground">كتم الصوت تلقائياً لإعلانات الفيديو</p></div>
+                  <div><p className="text-sm font-bold text-foreground">{t('muteVideo')}</p><p className="text-[10px] text-muted-foreground">كتم الصوت تلقائياً لإعلانات الفيديو</p></div>
                 </div>
                 <Switch checked={adSettings.video_ads_muted} onCheckedChange={(v)=>setAdSettings({...adSettings, video_ads_muted:v})} />
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-amber-500"/>
-                  <div><p className="text-sm font-bold text-foreground">موافقة GDPR</p><p className="text-[10px] text-muted-foreground">طلب الموافقة من {t('usersManagement')} الأوروبيين</p></div>
+                  <div><p className="text-sm font-bold text-foreground">{t('gdprConsent')}</p><p className="text-[10px] text-muted-foreground">طلب الموافقة من {t('usersManagement')} الأوروبيين</p></div>
                 </div>
                 <Switch checked={adSettings.gdpr_consent_required} onCheckedChange={(v)=>setAdSettings({...adSettings, gdpr_consent_required:v})} />
               </div>
               <div className="border-t border-border/30 pt-3 space-y-2">
-                <p className="text-xs font-bold text-foreground">أنواع {t('adsManagement')}:</p>
+                <p className="text-xs font-bold text-foreground">{t('adTypes')}</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">إعلانات البانر</p>
+                  <p className="text-xs text-muted-foreground">{t('bannerAds')}</p>
                   <Switch checked={adSettings.ad_banner_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_banner_enabled:v})} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">إعلانات بين {t('pagesManagement')}</p>
+                  <p className="text-xs text-muted-foreground">{t('interstitialAds')}</p>
                   <Switch checked={adSettings.ad_interstitial_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_interstitial_enabled:v})} />
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground">إعلانات المكافآت</p>
+                  <p className="text-xs text-muted-foreground">{t('rewardedAds')}</p>
                   <Switch checked={adSettings.ad_rewarded_enabled} onCheckedChange={(v)=>setAdSettings({...adSettings, ad_rewarded_enabled:v})} />
                 </div>
               </div>
@@ -980,30 +980,30 @@ export default function AdminDashboard() {
                 <InputField label="AdMob App ID" value={adSettings.admob_app_id} onChange={(v:string)=>setAdSettings({...adSettings, admob_app_id:v})} placeholder="ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY" />
                 <InputField label="AdSense Publisher ID" value={adSettings.adsense_publisher_id} onChange={(v:string)=>setAdSettings({...adSettings, adsense_publisher_id:v})} placeholder="pub-XXXXXXXXXXXXXXXX" />
               </div>
-              <Button onClick={saveAdSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ إعدادات {t('adsManagement')}</Button>
+              <Button onClick={saveAdSettings} size="sm" className="w-full rounded-xl gap-1"><Settings className="h-3 w-3"/>حفظ {t('adSettingsTitle')}</Button>
             </div>
 
             {/* Analytics Quick View */}
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-primary"/>التحليلات (آخر 7 أيام)
+              <BarChart3 className="h-4 w-4 text-primary"/>{t('analyticsTitle')}
             </h2>
             <div className="rounded-xl neu-card p-4 space-y-3">
-              <Button onClick={fetchAnalytics} size="sm" variant="outline" className="w-full rounded-xl gap-1"><RefreshCw className="h-3 w-3"/>تحديث التحليلات</Button>
+              <Button onClick={fetchAnalytics} size="sm" variant="outline" className="w-full rounded-xl gap-1"><RefreshCw className="h-3 w-3"/>{t('refreshAnalytics')}</Button>
               {analyticsData && (
                 <div className="space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-xl bg-muted/50 p-3 text-center">
                       <p className="text-xl font-bold text-foreground">{analyticsData.total_events || 0}</p>
-                      <p className="text-[10px] text-muted-foreground">إجمالي الأحداث</p>
+                      <p className="text-[10px] text-muted-foreground">{t('totalEvents')}</p>
                     </div>
                     <div className="rounded-xl bg-muted/50 p-3 text-center">
                       <p className="text-xl font-bold text-foreground">{analyticsData.unique_users || 0}</p>
-                      <p className="text-[10px] text-muted-foreground">مستخدمون فريدون</p>
+                      <p className="text-[10px] text-muted-foreground">{t('uniqueUsers')}</p>
                     </div>
                   </div>
                   {analyticsData.top_pages?.length > 0 && (
                     <div>
-                      <p className="text-xs font-bold text-foreground mb-1">أكثر {t('pagesManagement')} زيارة:</p>
+                      <p className="text-xs font-bold text-foreground mb-1">{t('mostVisitedPages')}</p>
                       {analyticsData.top_pages.slice(0, 5).map((p: any, i: number) => (
                         <div key={i} className="flex justify-between text-xs py-0.5">
                           <span className="text-muted-foreground">{p.page}</span>
@@ -1017,10 +1017,10 @@ export default function AdminDashboard() {
             </div>
 
             <div className="rounded-xl neu-card p-4 space-y-1 text-xs text-muted-foreground">
-              <p className="font-bold text-foreground text-sm">معلومات</p>
-              <p>أذان وحكاية v3.0</p>
-              <p>المسؤول: {user?.email}</p>
-              <p>الذكاء الاصطناعي: GPT-5.2</p>
+              <p className="font-bold text-foreground text-sm">{t('infoLabel')}</p>
+              <p>Azan & Hikaya v3.0</p>
+              <p>{t('responsibleLabel')} {user?.email}</p>
+              <p>{t('aiLabel')} GPT-5.2</p>
             </div>
           </div>
         )}
@@ -1028,9 +1028,9 @@ export default function AdminDashboard() {
         {/* ===== USER ADS (إعلانات القنوات) ===== */}
         {tab==='user-ads' && (
           <div className="space-y-3">
-            <h2 className="text-base font-bold text-foreground">إعلانات القنوات ({userAds.length})</h2>
-            <p className="text-xs text-muted-foreground">{t('adsManagement')} المقدمة من أصحاب القنوات للمراجعة والموافقة</p>
-            {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد إعلانات بعد</p> :
+            <h2 className="text-base font-bold text-foreground">{t('channelAds')} ({userAds.length})</h2>
+            <p className="text-xs text-muted-foreground">{t('channelAdsDesc')}</p>
+            {userAds.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noAdsYet')}</p> :
             userAds.map(ad => (
               <div key={ad.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-center justify-between">
@@ -1043,14 +1043,14 @@ export default function AdminDashboard() {
                     ad.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {ad.status === 'approved' ? t('approved') : ad.status === 'rejected' ? t('rejected') : 'في الانتظار'}
+                    {ad.status === 'approved' ? t('approved') : ad.status === 'rejected' ? t('rejected') : '{t('pendingStatus')}'}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{ad.description}</p>
                 {ad.video_url && <p className="text-[10px] text-blue-500 truncate">{ad.video_url}</p>}
                 <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-                  <span>المشاهدات: {ad.views || 0}</span>
-                  <span>السعر: {ad.price_credits} نقطة</span>
+                  <span>{t('viewsLabel')} {ad.views || 0}</span>
+                  <span>{t('priceLabel')} {ad.price_credits} {t('pointsUnit')}</span>
                 </div>
                 {ad.status === 'pending' && (
                   <div className="flex gap-2 pt-1">
@@ -1066,9 +1066,9 @@ export default function AdminDashboard() {
         {/* ===== VENDORS ({t('vendorRole')}) ===== */}
         {tab==='vendors' && (
           <div className="space-y-3">
-            <h2 className="text-base font-bold text-foreground">طلبات {t('vendorRole')} ({vendors.length})</h2>
-            <p className="text-xs text-muted-foreground">لا يُنشر أي منتج إلا بعد موافقتك على البائع</p>
-            {vendors.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">لا توجد طلبات</p> :
+            <h2 className="text-base font-bold text-foreground">{t('vendorRequests')} ({vendors.length})</h2>
+            <p className="text-xs text-muted-foreground">{t('vendorNoPublish')}</p>
+            {vendors.length === 0 ? <p className="text-center py-8 text-muted-foreground text-sm">{t('noVendorRequests')}</p> :
             vendors.map(v => (
               <div key={v.id} className="rounded-xl neu-card p-4 space-y-2">
                 <div className="flex items-center justify-between">
@@ -1081,7 +1081,7 @@ export default function AdminDashboard() {
                     v.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {v.status === 'approved' ? t('approved') : v.status === 'rejected' ? t('rejected') : 'في الانتظار'}
+                    {v.status === 'approved' ? t('approved') : v.status === 'rejected' ? t('rejected') : '{t('pendingStatus')}'}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{v.description}</p>
@@ -1100,26 +1100,26 @@ export default function AdminDashboard() {
         {/* ===== REVENUE (الإيرادات) ===== */}
         {tab==='revenue' && (
           <div className="space-y-4">
-            <h2 className="text-base font-bold text-foreground">الإيرادات</h2>
+            <h2 className="text-base font-bold text-foreground">{t('revenueTitle')}</h2>
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl bg-card border border-amber-500/20 p-4 text-center">
                 <Coins className="h-8 w-8 text-amber-500 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-foreground">{adminRevenue?.total_credits || 0}</p>
-                <p className="text-xs text-muted-foreground">نقاط من الهدايا (50%)</p>
+                <p className="text-xs text-muted-foreground">{t('giftPointsRevenue')}</p>
               </div>
               <div className="rounded-2xl bg-card border border-green-500/20 p-4 text-center">
                 <CreditCard className="h-8 w-8 text-green-500 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-foreground">-</p>
-                <p className="text-xs text-muted-foreground">الدفع الإلكتروني</p>
+                <p className="text-xs text-muted-foreground">{t('electronicPayment')}</p>
               </div>
             </div>
             <div className="rounded-xl bg-muted/50 border border-border/30 p-4 text-sm text-muted-foreground">
-              <p className="font-bold text-foreground mb-2">كيف يعمل نظام الإيرادات:</p>
+              <p className="font-bold text-foreground mb-2">{t('revenueHowItWorks')}</p>
               <ul className="space-y-1 text-xs list-disc list-inside">
-                <li>عند إرسال هدية: 50% للإدارة و 50% لصانع المحتوى</li>
-                <li>المستخدمون يكسبون النقاط من الإعلانات والأنشطة</li>
-                <li>أصحاب القنوات يرفعون إعلانات وتحدد الإدارة السعر</li>
-                <li>عمولة السوق تُخصم تلقائياً من كل عملية بيع</li>
+                <li>{t('revenueRule1')}</li>
+                <li>{t('revenueRule2')}</li>
+                <li>{t('revenueRule3')}</li>
+                <li>{t('revenueRule4')}</li>
               </ul>
             </div>
           </div>
@@ -1205,7 +1205,7 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1 block">{t('arabicTextOriginal')}</label>
-                  <textarea className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder="النص العربي الأصلي..." />
+                  <textarea className="w-full rounded-lg bg-background border border-border/10 px-3 py-2 text-sm text-foreground h-20" dir="rtl" value={dailyForm.arabic_text} onChange={e => setDailyForm({...dailyForm, arabic_text: e.target.value})} placeholder={t('originalArabicText')} />
                 </div>
                 <div>
                   <div className="flex gap-1 flex-wrap mb-2">

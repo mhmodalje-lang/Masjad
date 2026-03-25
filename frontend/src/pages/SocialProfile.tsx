@@ -262,7 +262,7 @@ export default function SocialProfile() {
             )}
             <div>
               <span className="text-muted-foreground text-xs">{t('joinDate')}</span>
-              <p className="text-white mt-0.5">{profile.created_at ? new Date(profile.created_at).toLocaleDateString('ar-SA') : '-'}</p>
+              <p className="text-white mt-0.5">{profile.created_at ? new Date(profile.created_at).toLocaleDateString(locale === 'ar' ? 'ar-SA' : locale) : '-'}</p>
             </div>
             <div>
               <span className="text-muted-foreground text-xs">{t('postsCount')}</span>

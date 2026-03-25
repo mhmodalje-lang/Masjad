@@ -65,7 +65,7 @@ export default function Index() {
 
   // Get today's Gregorian date in user's locale
   const localeMap: Record<string, string> = {
-    ar: 'ar-SA-u-ca-gregory', en: 'en-US', de: 'de-DE', ru: 'ru-RU', fr: 'fr-FR', tr: 'tr-TR', sv: 'sv-SE', nl: 'nl-NL', el: 'el-GR'
+    ar: 'ar-SA-u-ca-gregory', en: 'en-US', de: 'de-DE', 'de-AT': 'de-AT', ru: 'ru-RU', fr: 'fr-FR', tr: 'tr-TR', sv: 'sv-SE', nl: 'nl-NL', el: 'el-GR'
   };
   const gregorianDate = new Date().toLocaleDateString(localeMap[locale] || 'en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
