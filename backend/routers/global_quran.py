@@ -1,18 +1,29 @@
 """
-Global Quran API — SINGLE LANGUAGE EXPERIENCE
-==============================================
+Global Quran API — SINGLE LANGUAGE EXPERIENCE with INTELLIGENT FALLBACK
+========================================================================
 كل مستخدم يرى القرآن بلغته فقط. بدون خلط لغات.
 Every user sees the Quran in their OWN language ONLY. No language mixing.
 
-Arabic users → Arabic text + Arabic tafsir
-Turkish users → Turkish text + Turkish tafsir (from QuranEnc)
-English users → English text + English tafsir (Ibn Kathir)
-Russian users → Russian text + Russian tafsir (As-Sa'di)
-French users → French text + French tafsir (QuranEnc footnotes)
-German users → German text + German tafsir (QuranEnc footnotes)
-Dutch users → Dutch text + Dutch tafsir (QuranEnc footnotes)
-Swedish users → Swedish text only (no tafsir available)
-Greek users → English fallback text (no Greek source)
+TAFSIR STRATEGY (V2026 — Sharia-Compliant Fallback):
+====================================================
+Primary Sources (Native Language):
+- Arabic users → Arabic text + التفسير الميسر (Tafsir Al-Muyassar)
+- English users → English text + Ibn Kathir
+- Russian users → Russian text + Al-Sa'di (Elmir Kuliev)
+- Turkish users → Turkish text + QuranEnc footnotes (Rowwad)
+- French users → French text + QuranEnc footnotes (Rachid Maash)
+- German users → German text + QuranEnc footnotes (Bubenheim)
+- Dutch users → Dutch text + QuranEnc footnotes (Rowwad Center)
+
+Fallback (For languages without native tafsir):
+- Swedish users → Swedish text + English Ibn Kathir (fallback)
+- Greek users → Greek text + English Ibn Kathir (fallback)
+
+CRITICAL RULES:
+- NEVER show Arabic tafsir to non-Arabic users
+- NEVER use machine translation (Google Translate, etc.)
+- ALL sources are authentic Islamic scholarly works
+- Fallback is ONLY to English Ibn Kathir (never Arabic)
 
 ALL from authentic Islamic sources. NO AI/LLM content.
 """
@@ -59,11 +70,13 @@ QURANENC_TAFSIR = {"fr", "de", "tr", "nl"}
 TAFSIR_SOURCES = {
     "ar": "التفسير الميسر — مجمع الملك فهد",
     "en": "Tafsir Ibn Kathir",
-    "ru": "Тафсир ас-Саади",
+    "ru": "Тафсир ас-Саади (Elmir Kuliev)",
     "fr": "Notes — Rachid Maash (QuranEnc)",
     "de": "Erläuterungen — Bubenheim (QuranEnc)",
     "tr": "Açıklamalar — Ruvvâd Merkezi (QuranEnc)",
     "nl": "Toelichtingen — Rowwad (QuranEnc)",
+    "sv": "Tafsir Ibn Kathir (English fallback)",
+    "el": "Tafsir Ibn Kathir (English fallback)",
 }
 
 CACHE_TTL = 30  # days
@@ -130,20 +143,42 @@ async def _qurancom_tafsir(surah: int, ayah: int, tafsir_id: int) -> str:
 
 
 async def _get_tafsir(surah: int, ayah: int, lang: str) -> tuple:
-    """Get tafsir ONLY in user's language. Returns (text, source) or ("","")."""
+    """
+    Get tafsir with intelligent fallback system.
+    
+    Priority:
+    1. Try user's language first
+    2. If not available, fall back to English Ibn Kathir (for non-Arabic users)
+    3. NEVER show Arabic tafsir to non-Arabic users
+    
+    Returns (text, source) or ("","")
+    """
+    # PRIMARY SOURCE: Try user's language first
+    
     # Quran.com real tafsir: ar, en, ru
     if lang in REAL_TAFSIR_IDS:
         text = await _qurancom_tafsir(surah, ayah, REAL_TAFSIR_IDS[lang])
         if text:
+            logger.info(f"✅ Tafsir found for {lang} (Quran.com ID {REAL_TAFSIR_IDS[lang]}): {surah}:{ayah}")
             return text, TAFSIR_SOURCES.get(lang, "")
 
     # QuranEnc footnotes: fr, de, tr, nl
     if lang in QURANENC_KEYS and lang in QURANENC_TAFSIR:
         data = await _quranenc_verse(surah, ayah, QURANENC_KEYS[lang])
         if data.get("footnotes"):
+            logger.info(f"✅ Tafsir found for {lang} (QuranEnc): {surah}:{ayah}")
             return data["footnotes"], TAFSIR_SOURCES.get(lang, "")
-
-    # No tafsir available in this language → return nothing (no mixing!)
+    
+    # FALLBACK: For languages without tafsir (sv, el, etc.), use English Ibn Kathir
+    # CRITICAL: Only for non-Arabic users
+    if lang != "ar":
+        logger.warning(f"⚠️ No native tafsir for {lang}, falling back to English Ibn Kathir: {surah}:{ayah}")
+        text = await _qurancom_tafsir(surah, ayah, 169)  # English Ibn Kathir
+        if text:
+            return text, "Tafsir Ibn Kathir (English fallback)"
+    
+    # Last resort: no tafsir available
+    logger.error(f"❌ No tafsir available for {lang}: {surah}:{ayah}")
     return "", ""
 
 
