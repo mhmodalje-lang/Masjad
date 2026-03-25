@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo, type ReactNode } from 'react';
 import { usePrayerTimes, getNextPrayer, type PrayerTime } from './usePrayerTimes';
 import { useGeoLocation } from './useGeoLocation';
 import { MosqueService, MOSQUE_CHANGE_EVENT, type MosqueData, type AthanSound } from '@/lib/MosqueService';
@@ -175,10 +175,10 @@ export function UnifiedPrayerProvider({ children }: { children: ReactNode }) {
     return () => controller.abort();
   }, [mosqueState.mosque?.osm_id, mosqueState.madhab, location.calculationMethod, effectiveSchool]);
 
-  // Update remaining time every 30s
+  // Update remaining time every 60s (was 30s — reduces re-renders by half)
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    const interval = setInterval(() => setTick(t => t + 1), 30_000);
+    const interval = setInterval(() => setTick(t => t + 1), 60_000);
     return () => clearInterval(interval);
   }, []);
 
@@ -208,7 +208,7 @@ export function UnifiedPrayerProvider({ children }: { children: ReactNode }) {
     MosqueService.setMadhab(madhab);
   }, []);
 
-  const value: UnifiedPrayerData = {
+  const value: UnifiedPrayerData = useMemo(() => ({
     prayers,
     nextPrayer,
     remaining,
@@ -235,7 +235,14 @@ export function UnifiedPrayerProvider({ children }: { children: ReactNode }) {
     setMadhab,
     calculationMethod: location.calculationMethod,
     school: effectiveSchool,
-  };
+  }), [
+    prayers, nextPrayer, remaining, apiData.hijriDate, apiData.hijriDay,
+    apiData.hijriMonthNumber, apiData.hijriYear, apiData.loading, mosqueLoading,
+    source, sourceLabel, mosqueState.mosque?.name, location.city, location.country,
+    location.latitude, location.longitude, location.loading, location.error,
+    location.detectLocation, unlinkMosque, selectMosque, mosqueState.athanSound,
+    setAthanSound, mosqueState.madhab, setMadhab, location.calculationMethod, effectiveSchool
+  ]);
 
   return (
     <PrayerContext.Provider value={value}>

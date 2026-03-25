@@ -25,13 +25,14 @@ export function usePrefetch() {
     prefetchQuranIndex();
     if (!pagesPreloaded) {
       pagesPreloaded = true;
+      // Delay page preloads to 8s to not compete with initial render
       setTimeout(() => {
         import('../pages/PrayerTimes');
         import('../pages/Quran');
         import('../pages/Tasbeeh');
         import('../pages/Duas');
         import('../pages/More');
-      }, 5000);
+      }, 8000);
     }
   }, []);
 }

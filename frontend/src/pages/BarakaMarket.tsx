@@ -3,6 +3,7 @@ import { useLocale } from '@/hooks/useLocale';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Coins, Star, ShoppingBag, Play, CheckCircle, Lock, ChevronRight, Sparkles, Trophy, TrendingUp, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { toast } from 'sonner';
 
 const API = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -43,6 +44,7 @@ type CategoryTab = typeof CATEGORY_TABS[number];
 export default function BarakaMarket() {
   const { t, locale, dir } = useLocale();
   const navigate = useNavigate();
+  const goBack = useSmartBack();
   const userId = localStorage.getItem('noor_user_id') || 'guest_' + Math.random().toString(36).slice(2, 8);
   const isRTL = dir === 'rtl';
 
@@ -271,7 +273,7 @@ export default function BarakaMarket() {
       {/* Header */}
       <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/20">
         <div className="flex items-center gap-3 px-4 pt-3 pb-2">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-muted/30 hover:bg-muted/50 transition-all">
+          <button onClick={goBack} className="p-2 rounded-full bg-muted/30 hover:bg-muted/50 transition-all">
             {isRTL ? <ChevronRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
           </button>
           <div className="flex-1">

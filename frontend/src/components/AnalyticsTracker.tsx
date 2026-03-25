@@ -61,7 +61,7 @@ export default function AnalyticsTracker() {
     }
   }, []);
 
-  // Track page views on route change
+  // Track page views on route change (debounced for rapid navigation)
   useEffect(() => {
     const pagePath = location.pathname;
     const pageKey = PAGE_NAME_KEYS[pagePath];
@@ -70,20 +70,24 @@ export default function AnalyticsTracker() {
     // Firebase Analytics
     trackPageView(pagePath, pageName);
 
-    // Backend analytics (non-blocking)
-    const userId = localStorage.getItem('user_id') || 'anonymous';
-    fetch(`${BACKEND_URL}/api/analytics/event`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        event_type: 'page_view',
-        page: pagePath,
-        user_id: userId,
-        session_id: getSessionId(),
-        metadata: { page_name: pageName },
-        user_agent: navigator.userAgent,
-      }),
-    }).catch(() => {});
+    // Backend analytics (debounced, non-blocking)
+    const timer = setTimeout(() => {
+      const userId = localStorage.getItem('user_id') || 'anonymous';
+      fetch(`${BACKEND_URL}/api/analytics/event`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'page_view',
+          page: pagePath,
+          user_id: userId,
+          session_id: getSessionId(),
+          metadata: { page_name: pageName },
+          user_agent: navigator.userAgent,
+        }),
+      }).catch(() => {});
+    }, 1000); // 1s debounce
+
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   return null;

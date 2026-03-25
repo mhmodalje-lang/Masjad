@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import {
   Heart, MessageCircle, Share2, ArrowRight, Play, Pause,
   Volume2, VolumeX, X, Send, Reply, Trash2, Loader2, Flag,
@@ -288,6 +289,7 @@ export default function VideoReels() {
   const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
+  const goBack = useSmartBack('/stories');
   const [searchParams] = useSearchParams();
   const [posts, setPosts] = useState<VideoPost[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -409,7 +411,7 @@ export default function VideoReels() {
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3.5 py-2.5 bg-gradient-to-b from-black/50 to-transparent"
         style={{ paddingTop: 'max(8px, env(safe-area-inset-top, 8px))' }}>
-        <button onClick={() => navigate(-1)} className="text-white p-1 active:scale-90 transition-transform">
+        <button onClick={goBack} className="text-white p-1 active:scale-90 transition-transform">
           <ArrowRight className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-4">

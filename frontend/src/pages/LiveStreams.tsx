@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, ArrowRight, Radio, Wifi, WifiOff, Play, Plus, Trash2, Edit, Save, X, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { toast } from 'sonner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -38,6 +39,7 @@ export default function LiveStreams() {
   const { isAdmin } = useAdmin();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const goBack = useSmartBack();
   const [streams, setStreams] = useState<LiveStream[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeStreamId, setActiveStreamId] = useState<string | null>(null);
@@ -132,7 +134,7 @@ export default function LiveStreams() {
     <div className="min-h-screen pb-28 bg-background" dir={dir}>
       {/* Header */}
       <div className="sticky top-0 z-50 glass-nav bg-background/80 border-b border-border/10 px-4 h-14 flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-xl hover:bg-muted/50">
+        <button onClick={goBack} className="p-2 rounded-xl hover:bg-muted/50">
           {dir === 'rtl' ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
         </button>
         <h1 className="text-lg font-black text-foreground flex items-center gap-2">

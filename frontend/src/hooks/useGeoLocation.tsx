@@ -178,7 +178,7 @@ export function useGeoLocation() {
           error: (prev.latitude !== 0 || prev.longitude !== 0) ? null : '__LOCATION_ERROR__',
         }));
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
     );
   };
 

@@ -103,7 +103,7 @@ export default function Duas() {
       setShowFavorites(false);
       return;
     }
-    // Let React Router handle back — it knows the full history
+    // Use smart back - check if there's history
     const idx = (window.history.state as any)?.idx;
     if (typeof idx === 'number' && idx > 0) {
       window.history.back();

@@ -269,3 +269,57 @@ VERIFICATION: For endpoints 2-8, verify that the response does NOT contain keys 
 - No UI blocking issues or broken functionality
 - The app is production-ready from a frontend perspective
 - Minor observation: Ad Consent modal appears frequently but doesn't block functionality
+
+
+---
+
+## Performance Optimization Round (Current Task)
+
+user_problem_statement: "App is slow - keeps reloading, slow transitions, slow scrolling, back button problems. User wants the app to be super fast. Fix back button issues and check permissions on first user entry."
+
+### Changes Made:
+1. **Removed infinite CSS animations** - pulse-glow, shimmer (index.css, tailwind.config.ts)
+2. **Removed framer-motion from critical path** - Index.tsx prayer cards, announcements, BottomNav layoutId
+3. **Optimized BottomNav** - React.memo, CSS transitions instead of framer-motion
+4. **Optimized TopNav** - React.memo
+5. **Fixed ScrollToTop** - instant scroll, no smooth delay
+6. **Fixed back button on 7 pages** - VideoReels, SocialProfile, CreatePost, LiveStreams, PointsBalance, BarakaMarket all now use useSmartBack
+7. **Optimized SplashScreen** - reduced from 600ms to 350ms
+8. **Optimized UnifiedPrayerProvider** - tick 60s instead of 30s, useMemo on context value
+9. **PermissionManager** - reduced delay from 5s to 1.5s
+10. **AnalyticsTracker** - 1s debounce on backend fetch
+11. **Performance CSS** - content-visibility:auto, touch-action:manipulation, disabled smooth scroll
+12. **useGeoLocation** - enableHighAccuracy:false, longer maximumAge cache
+13. **QueryClient** - increased staleTime to 10min, gcTime to 60min
+
+### Test Results (Testing Agent - March 25, 2026):
+
+**✅ ALL PERFORMANCE TESTS PASSED**
+
+**Performance Metrics (Mobile 430x800):**
+1. ✅ Page Load Speed: 0.11s (Target: <3s) - **EXCELLENT**
+2. ✅ Navigation Speed: All under 1s (Target: <1s per navigation)
+   - Home → Stories: 0.28s
+   - Stories → Academy: 0.40s (after fix)
+   - Academy → More: 0.65s (after fix)
+   - More → Home: 0.23s
+   - Average: 0.39s
+3. ✅ Back Button: Works correctly (tested on Academy sub-pages)
+4. ✅ Permission Manager: Appears in 0.79s (Target: <2s)
+5. ✅ No Infinite Animations: Prayer cards have no infinite animations
+6. ✅ Scroll Performance: 0.31s (smooth, no jank)
+7. ✅ Visual Elements: All present (hero image, date, prayer times, bottom nav)
+
+**🔧 Critical Bug Fixed:**
+- **Issue**: "motion is not defined" error in KidsZone.tsx causing Academy page to crash
+- **Root Cause**: Missing `import { motion } from 'framer-motion';` in KidsZone.tsx (38 uses of motion.* without import)
+- **Impact**: Academy page navigation was slow (3.24s) and showing error screen
+- **Fix Applied**: Added missing import statement
+- **Result**: Academy navigation now 0.40s, no errors
+
+**Minor Observations (Non-Critical):**
+- Some decorative infinite animations remain on More.tsx and Messages.tsx (animate-mystic-float)
+- These are on secondary pages, not critical path, minimal performance impact
+
+**Conclusion:**
+All performance optimization goals achieved. App is now fast with smooth navigation, instant scrolling, and no blocking errors.

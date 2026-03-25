@@ -157,8 +157,8 @@ export function PermissionManager() {
       // Show UI only if there are permissions to request
       const hasPending = [loc, notif].some((s) => s === 'prompt');
       if (hasPending) {
-        // Wait longer for app to settle and other banners to clear before showing
-        setTimeout(() => setVisible(true), 5000);
+        // Show quickly after initial load
+        setTimeout(() => setVisible(true), 1500);
       }
 
       localStorage.setItem(PERMISSION_CHECK_KEY, String(Date.now()));

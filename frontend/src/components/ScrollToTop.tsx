@@ -1,24 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigationType } from 'react-router-dom';
 
 /**
- * Only scrolls to top on PUSH (new page) navigation.
- * Does NOT scroll on POP (back/forward) — lets browser restore position naturally.
+ * Instant scroll to top on PUSH navigation only.
+ * On POP (back/forward), the browser restores position naturally.
+ * Uses 'auto' behavior for instant scroll (no smooth animation delay).
  */
 export default function ScrollToTop() {
   const { pathname } = useLocation();
   const navType = useNavigationType();
+  const prevPathRef = useRef(pathname);
 
   useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    // Only scroll to top on PUSH (new page navigation)
+    // Skip on POP (back/forward) - let browser handle restoration
+    if (navType === 'PUSH' && prevPathRef.current !== pathname) {
+      // Use instant scroll for faster feel
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     }
-  }, []);
-
-  useEffect(() => {
-    if (navType === 'PUSH') {
-      window.scrollTo(0, 0);
-    }
+    prevPathRef.current = pathname;
   }, [pathname, navType]);
 
   return null;

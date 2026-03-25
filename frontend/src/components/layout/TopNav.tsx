@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/components/ThemeProvider';
@@ -5,7 +6,7 @@ import { Moon, Sun, SunMoon, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocale } from '@/hooks/useLocale';
 
-export function TopNav() {
+export const TopNav = memo(function TopNav() {
   const { user } = useAuth();
   const { theme, mode, toggle } = useTheme();
   const location = useLocation();
@@ -54,4 +55,4 @@ export function TopNav() {
       </div>
     </header>
   );
-}
+});

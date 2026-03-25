@@ -4,8 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { AnimatePresence } from "framer-motion";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LocaleProvider } from "@/hooks/useLocale";
 import { AuthProvider } from "@/hooks/useAuth";
 import { UnifiedPrayerProvider } from "@/hooks/useUnifiedPrayer";
@@ -16,7 +15,6 @@ import { AdConfigProvider } from "@/hooks/useAdConfig";
 import { useSEO } from "@/hooks/useSEO";
 import { usePrefetch } from "@/hooks/usePrefetch";
 import { NativeAppProvider } from "@/components/NativeAppProvider";
-import { NativePageTransition } from "@/components/NativePageTransition";
 import { isNativeApp } from "@/lib/nativeBridge";
 import SplashScreen from "@/components/SplashScreen";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -86,11 +84,12 @@ const ContentPolicy = lazy(() => import("./pages/ContentPolicy"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000,      // 5 minutes — don't refetch if data is fresh
-      gcTime: 30 * 60 * 1000,         // 30 minutes cache
+      staleTime: 10 * 60 * 1000,     // 10 minutes — don't refetch if data is fresh
+      gcTime: 60 * 60 * 1000,         // 60 minutes cache
       retry: 1,                        // Only 1 retry on failure
       refetchOnWindowFocus: false,     // Don't refetch when user switches tabs
       refetchOnMount: false,           // Don't refetch if cached data exists
+      refetchOnReconnect: false,       // Don't refetch on reconnect
     },
   },
 });
@@ -160,7 +159,7 @@ const App = () => {
                           <PermissionManager />
                           <AppLayout>
                             <ErrorBoundary>
-                              <Suspense fallback={<div className="min-h-screen" />}>
+                              <Suspense fallback={null}>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
                                     <Route path="/social-profile/:userId" element={<SocialProfile />} />

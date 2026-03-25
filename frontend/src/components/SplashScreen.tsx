@@ -12,11 +12,11 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   const isNative = isNativeApp();
 
   useEffect(() => {
-    // Shorter splash for native (native splash screen handles the initial loading)
-    const duration = isNative ? 400 : 600;
+    // Much shorter splash - get user to content ASAP
+    const duration = isNative ? 200 : 350;
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onComplete, 300);
+      setTimeout(onComplete, 150);
     }, duration);
     return () => clearTimeout(timer);
   }, [onComplete, isNative]);

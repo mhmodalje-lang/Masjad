@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocale } from "@/hooks/useLocale";
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { ArrowRight, MessageCircle, Settings, Heart, Play, Film, Loader2, Users } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
@@ -27,6 +28,7 @@ export default function SocialProfile() {
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser, getToken } = useAuth();
   const navigate = useNavigate();
+  const goBack = useSmartBack('/stories');
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState<any>({});
   const [isFollowing, setIsFollowing] = useState(false);
@@ -109,7 +111,7 @@ export default function SocialProfile() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 text-muted-foreground">
         <Users className="w-12 h-12 text-muted-foreground/60" />
         <p>{t('userNotFound')}</p>
-        <button onClick={() => navigate(-1)} className="text-emerald-500 text-sm font-bold">{t('goBack')}</button>
+        <button onClick={goBack} className="text-emerald-500 text-sm font-bold">{t('goBack')}</button>
       </div>
     );
   }
@@ -126,7 +128,7 @@ export default function SocialProfile() {
         <div className="absolute inset-0 opacity-[0.06]" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23fff' fill-opacity='.3'%3E%3Cpath d='M40 10L50 30H30z M40 70L30 50H50z M10 40L30 30V50z M70 40L50 50V30z'/%3E%3C/g%3E%3C/svg%3E")`,
         }} />
-        <button onClick={() => navigate(-1)}
+        <button onClick={goBack}
           className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white">
           <ArrowRight className="w-5 h-5" />
         </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import {
   Star, Flame, Trophy, ChevronRight, ChevronLeft, Shield, BookOpen,
   Lock, Play, Zap, Gift, ArrowLeft, Sparkles, Crown, CheckCircle,

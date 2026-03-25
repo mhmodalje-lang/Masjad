@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, memo, useMemo } from 'react';
 import DuaOfDayDrawer from '@/components/DuaOfDayDrawer';
 import { dailyDuas } from '@/data/dhikrDetails';
 import { useLocale } from '@/hooks/useLocale';
@@ -20,7 +20,6 @@ const meccaImage = '/mecca-hero.webp';
 import { getCurrentOccasion, isRamadan } from '@/data/islamicOccasions';
 import { subscribeToPush, unsubscribeFromPush, updatePushMosqueTimes } from '@/lib/pushSubscription';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 const FeaturedVideos = lazy(() => import('@/components/FeaturedVideos'));
 const NativeAdCard = lazy(() => import('@/components/NativeAdCard'));
 
@@ -289,9 +288,7 @@ export default function Index() {
 
       {/* ===== NEXT PRAYER CARD — Glassmorphism 2.0 ===== */}
       <div className="px-4 -mt-10 relative z-10 mb-5">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div 
           className="glass-mystic rounded-3xl p-5 shadow-float animate-fade-in"
         >
           <div className="flex items-center gap-5">
@@ -371,17 +368,16 @@ export default function Index() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* ===== OCCASION BANNER ===== */}
       {currentOccasion && <OccasionBanner occasion={currentOccasion} />}
 
       {/* ===== ADMIN ANNOUNCEMENTS ===== */}
-      <AnimatePresence>
         {visibleAnn.map(ann => (
-          <motion.div key={ann.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }}
-            className="px-4 mb-3">
+          <div key={ann.id}
+            className="px-4 mb-3 animate-fade-in">
             <div className={cn('rounded-2xl p-4 relative border',
               ann.type === 'warning' ? 'bg-amber-500/10 border-amber-500/30' :
               ann.type === 'promo' ? 'bg-primary/10 border-primary/30' :
@@ -398,9 +394,8 @@ export default function Index() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
-      </AnimatePresence>
 
       {/* ===== LOCATION ERROR (compact) ===== */}
       {locationError && prayers.length === 0 && (
@@ -468,13 +463,12 @@ export default function Index() {
           {prayers.map((prayer) => {
             const isNext = nextPrayer?.key === prayer.key;
             return (
-              <motion.div
+              <div
                 key={prayer.key}
-                whileTap={{ scale: 0.97 }}
                 className={cn(
-                  'rounded-2xl border p-3.5 text-center transition-all duration-300',
+                  'rounded-2xl border p-3.5 text-center transition-all duration-200 active:scale-[0.97]',
                   isNext
-                    ? 'glass-mystic border-primary/20 shadow-float animate-pulse-glow'
+                    ? 'glass-mystic border-primary/20 shadow-float'
                     : 'neu-card hover:shadow-elevated'
                 )}
               >
@@ -485,7 +479,7 @@ export default function Index() {
                 <p className={cn('text-sm font-bold tabular-nums', isNext ? 'text-primary' : 'text-foreground')}>
                   {prayer.time}
                 </p>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -545,9 +539,11 @@ export default function Index() {
 
       {/* ===== DAILY HADITH (shown when prayers loaded) ===== */}
       {prayers.length > 0 && (
-        <Suspense fallback={<div className="h-40" />}>
-          <DailyHadith />
-        </Suspense>
+        <div className="content-auto">
+          <Suspense fallback={<div className="h-40" />}>
+            <DailyHadith />
+          </Suspense>
+        </div>
       )}
 
       {/* ===== NATIVE SPONSORED CARD (blends with Hadith design) ===== */}
@@ -556,9 +552,11 @@ export default function Index() {
       </Suspense>
 
       {/* ===== FEATURED VIDEO CONTENT ===== */}
-      <Suspense fallback={<div className="h-48" />}>
-        <FeaturedVideos />
-      </Suspense>
+      <div className="content-auto">
+        <Suspense fallback={<div className="h-48" />}>
+          <FeaturedVideos />
+        </Suspense>
+      </div>
 
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
@@ -575,8 +573,9 @@ export default function Index() {
       </div>
 
       {/* ===== QURAN PLAYER ===== */}
-      <Suspense fallback={<div className="h-32" />}>
-        <QuranPlayer />
+      <div className="content-auto">
+        <Suspense fallback={<div className="h-32" />}>
+          <QuranPlayer />
         
         {/* ===== RUQYAH SECTION ===== */}
         <div className="px-4 mb-6">
@@ -614,7 +613,8 @@ export default function Index() {
             ))}
           </div>
         </div>
-      </Suspense>
+        </Suspense>
+      </div>
 
       {/* ===== DUA OF DAY ===== */}
       <div className="px-4 mb-5">

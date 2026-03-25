@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useLocale } from "@/hooks/useLocale";
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 import { X, Image, Video, FileText, Send, Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -29,6 +30,7 @@ export default function CreatePost() {
   const { t, dir } = useLocale();
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
+  const goBack = useSmartBack('/stories');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [content, setContent] = useState('');
@@ -146,7 +148,7 @@ export default function CreatePost() {
       {/* Header */}
       <div className="sticky top-0 z-40 bg-card border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => navigate(-1)} className="text-white">
+          <button onClick={goBack} className="text-white">
             <X className="w-6 h-6" />
           </button>
           <h1 className="text-white font-bold text-lg">{t('createPostTitle')}</h1>

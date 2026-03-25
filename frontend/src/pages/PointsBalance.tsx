@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '@/hooks/useSmartBack';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -40,6 +41,7 @@ export default function PointsBalance() {
   const { t, dir } = useLocale();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const goBack = useSmartBack();
 
   const [mode, setMode] = useState<'kids' | 'adults'>('adults');
   const [balance, setBalance] = useState<any>(null);
@@ -159,7 +161,7 @@ export default function PointsBalance() {
     <div className="min-h-screen bg-background pb-24 pt-2 px-4" dir={dir}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="p-2 rounded-xl neu-card">
+        <button onClick={goBack} className="p-2 rounded-xl neu-card">
           <ArrowLeft className="h-5 w-5 text-foreground" />
         </button>
         <h1 className="text-lg font-bold text-foreground">

@@ -129,9 +129,9 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "pulse-glow": "pulse-glow 3s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 0.5s ease-out forwards",
         "spin-slow": "spin-slow 8s linear infinite",
-        "heroZoom": "heroZoom 6s ease-out forwards",
+        "heroZoom": "heroZoom 2s ease-out forwards",
         "confetti-fall": "confetti-fall 3s ease-in forwards",
         "mystic-float": "mystic-float 4s ease-in-out infinite",
         "glow-ring": "mystic-glow-ring 3s ease-in-out infinite",

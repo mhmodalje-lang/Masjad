@@ -23,9 +23,9 @@ p, h1, h2, h3, h4, h5, h6, span, article, .selectable {
   user-select: text;
 }
 
-/* Smooth scrolling for page navigation only */
+/* Disable smooth scroll - instant navigation feels faster */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 /* ═══ NATIVE APP - Safe areas for notched devices ═══ */
@@ -611,8 +611,9 @@ html {
     opacity: 0.92;
   }
 }
+/* Removed infinite pulse - static glow for performance */
 .animate-pulse-glow {
-  animation: mystic-pulse-glow 3s ease-in-out infinite;
+  box-shadow: 0 0 20px -4px hsl(var(--islamic-green) / 0.18);
 }
 
 @keyframes golden-float-up {
@@ -631,7 +632,7 @@ html {
 .shimmer-mystic {
   background: linear-gradient(90deg, transparent 0%, hsl(var(--islamic-gold) / 0.06) 50%, transparent 100%);
   background-size: 200% 100%;
-  animation: mystic-shimmer 3s ease-in-out infinite;
+  /* Removed infinite shimmer for performance */
 }
 
 /* Ken Burns slow zoom animation for icon backgrounds */
@@ -963,7 +964,41 @@ html[lang="fr"] body {
   0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.3); }
   50% { box-shadow: 0 0 20px 4px rgba(212, 175, 55, 0.15); }
 }
+/* Static glow for performance (no infinite animation) */
 .animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.15);
 }
 
+
+
+/* ═══ PERFORMANCE OPTIMIZATIONS ═══ */
+/* GPU-accelerated transforms */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Content visibility for below-fold sections */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+}
+
+/* Contain layout for fixed elements */
+.contain-layout {
+  contain: layout style;
+}
+
+/* Fast tap response */
+* {
+  touch-action: manipulation;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
