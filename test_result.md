@@ -30,6 +30,16 @@
 - Added UI translations (DE, FR, SV, NL) for 100+ untranslated strings
 - All 10 languages: 0 empty translation values
 
+### Translation Sync Fix (July 2025):
+- **Added 41 missing keys** to ar.json, en.json, tr.json, el.json, ru.json (badges, leaderboard, startLesson, feedback, version, etc.)
+- **Fixed Arabic text leak** in de-AT.json (taraweehRuling had حكم mixed in German text)
+- **Fixed untranslated values** in nl.json (correctAnswer, home, arabicLetters, trending, etc.)
+- **Fixed untranslated values** in sv.json (final, initial)
+- **All 10 languages now have exactly 2558 keys each**
+- **0 empty values** across all languages
+- **0 Arabic text leaks** in non-Arabic files (excluding legitimate Islamic terms)
+- Total changes: 219 translations added/fixed
+
 ### Backend API Testing:
 - 10/11 endpoints working (90.9%)
 - Fixed: Sohba categories import error in social.py
@@ -305,3 +315,29 @@ The 4 pages that did load successfully suggest the app itself is functional, but
 
 #### Status:
 🚨 **BLOCKED** - Cannot complete comprehensive UI testing until Cloudflare bot protection is addressed. The app appears functional based on the 4 pages that loaded successfully, but 87% of pages are inaccessible due to security blocking.
+
+### Review Request Specific Backend Testing (Translation File Regression)
+**Test Date:** 2026-03-25  
+**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Test Agent:** Testing Agent  
+**Focus:** Verify no backend regressions from translation file updates
+
+#### Test Results Summary: ✅ ALL PASSED (7/7) - 100% Success Rate
+
+| Endpoint | Status | Result |
+|----------|--------|---------|
+| GET /api/health | ✅ PASS | Status 200 - Backend healthy |
+| GET /api/quran/v4/chapters?language=ar | ✅ PASS | Status 200 - 114 Arabic chapters |
+| GET /api/quran/v4/chapters?language=en | ✅ PASS | Status 200 - 114 English chapters |
+| GET /api/kids-learn/daily-games?locale=en | ✅ PASS | Status 200 - 4 English daily games |
+| GET /api/kids-learn/daily-games?locale=ar | ✅ PASS | Status 200 - 4 Arabic daily games |
+| GET /api/sohba/posts | ✅ PASS | Status 200 - 6 Sohba posts |
+| GET /api/sohba/categories | ✅ PASS | Status 200 - 10 Sohba categories |
+
+#### Conclusion:
+🎉 **Backend API is fully functional after translation file changes**
+- All 7 review request endpoints returning 200 status codes
+- No backend regressions detected from frontend locale JSON file updates
+- API responses contain expected data structures and counts
+- Translation file changes had zero impact on backend functionality
+- Backend services completely unaffected by frontend translation updates

@@ -1,0 +1,48 @@
+{
+  "test_summary": {
+    "total_tests": 7,
+    "passed_tests": 7,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "all_endpoints_working": true
+  },
+  "detailed_results": [
+    {
+      "endpoint": "/api/health",
+      "name": "Health Check",
+      "success": true
+    },
+    {
+      "endpoint": "/api/quran/v4/chapters?language=ar",
+      "name": "Quran Chapters (Arabic)",
+      "success": true
+    },
+    {
+      "endpoint": "/api/quran/v4/chapters?language=en",
+      "name": "Quran Chapters (English)",
+      "success": true
+    },
+    {
+      "endpoint": "/api/kids-learn/daily-games?locale=en",
+      "name": "Kids Daily Games (English)",
+      "success": true
+    },
+    {
+      "endpoint": "/api/kids-learn/daily-games?locale=ar",
+      "name": "Kids Daily Games (Arabic)",
+      "success": true
+    },
+    {
+      "endpoint": "/api/sohba/posts",
+      "name": "Sohba Posts",
+      "success": true
+    },
+    {
+      "endpoint": "/api/sohba/categories",
+      "name": "Sohba Categories",
+      "success": true
+    }
+  ],
+  "test_date": "2026-03-25T02:32:15.744796",
+  "backend_url": "https://multilang-sync-3.preview.emergentagent.com"
+}
