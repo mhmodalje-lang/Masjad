@@ -71,6 +71,9 @@ NOORANIYA_LESSONS_L7 = [
     {"id": 70, "level": 7, "lesson": 10, "emoji": "🎓", "title": {"ar": "الاختبار النهائي — شهادة التخرج", "en": "Final Exam — Graduation Certificate", "de": "Abschlussprüfung — Zertifikat", "fr": "Examen final — Certificat", "tr": "Final Sınavı — Mezuniyet", "ru": "Финальный экзамен — Сертификат", "sv": "Slutprov — Certifikat", "nl": "Eindexamen — Certificaat", "el": "Τελική εξέταση — Πιστοποιητικό"}, "method": "assessment", "content": {"sections": ["letter_recognition", "harakat", "tanween_shadda", "word_reading", "verse_reading", "tajweed_rules"], "pass_score": 80, "certificate": True}, "quiz": {"type": "comprehensive", "total_questions": 30}, "xp": 100},
 ]
 
+# Combine all Nooraniya lessons (Levels 4-7)
+NOORANIYA_ALL_LESSONS_EXTENDED = NOORANIYA_LESSONS_L4 + NOORANIYA_LESSONS_L5 + NOORANIYA_LESSONS_L6 + NOORANIYA_LESSONS_L7
+
 
 # ═══════════════════════════════════════════════════════════════
 # AQEEDAH TRACK — العقيدة الإسلامية (50 Lessons, 5 Levels)
@@ -97,6 +100,163 @@ AQEEDAH_LESSONS_L1 = [
     
     {"id": 8, "level": 1, "lesson": 8, "emoji": "📿", "title": {"ar": "لماذا خلقنا الله؟", "en": "Why Did Allah Create Us?", "de": "Warum hat Allah uns erschaffen?", "fr": "Pourquoi Allah nous a-t-il créés?", "tr": "Allah bizi neden yarattı?", "ru": "Почему Аллах создал нас?", "sv": "Varför skapade Allah oss?", "nl": "Waarom heeft Allah ons geschapen?", "el": "Γιατί μας δημιούργησε ο Αλλάχ;"}, "method": "conceptual", "content": {"verse": {"ar": "وَمَا خَلَقْتُ الْجِنَّ وَالْإِنسَ إِلَّا لِيَعْبُدُونِ", "translation": {"en": "And I did not create the jinn and mankind except to worship Me", "de": "Ich habe die Dschinn und Menschen nur erschaffen, damit sie Mir dienen", "fr": "Je n'ai créé les djinns et les hommes que pour qu'ils M'adorent", "tr": "Cinleri ve insanları ancak Bana ibadet etsinler diye yarattım", "ru": "Я сотворил джиннов и людей только для того, чтобы они поклонялись Мне", "sv": "Jag skapade djinnerna och människorna endast för att tillbe Mig", "nl": "Ik heb de djinn en mensen alleen geschapen om Mij te aanbidden", "el": "Δεν δημιούργησα τα τζίνι και τους ανθρώπους παρά για να Με λατρεύουν"}, "reference": "الذاريات: 56"}, "purpose": {"ar": "خُلقنا لعبادة الله: الصلاة، الصيام، الزكاة، الصدقة، بر الوالدين، مساعدة الآخرين", "en": "We were created to worship Allah: Prayer, fasting, charity, helping others, kindness to parents"}}, "quiz": {"type": "select", "question": {"ar": "لماذا خلقنا الله؟", "en": "Why did Allah create us?"}, "correct": {"ar": "لنعبده", "en": "To worship Him"}, "options": [{"ar": "لنعبده", "en": "To worship Him"}, {"ar": "للعب فقط", "en": "Just to play"}, {"ar": "بدون سبب", "en": "No reason"}]}, "xp": 25},
     
+    _create_placeholder_lesson(9, 1, 9, "🎮", {"ar": "لعبة: أسئلة التوحيد الثلاثة", "en": "Game: Three Questions of Tawheed", "de": "Spiel: Drei Fragen", "fr": "Jeu: Trois questions", "tr": "Oyun: Üç Soru", "ru": "Игра: Три вопроса", "sv": "Spel: Tre frågor", "nl": "Spel: Drie vragen", "el": "Παιχνίδι: Τρεις ερωτήσεις"}),
+    _create_placeholder_lesson(10, 1, 10, "🏆", {"ar": "اختبار التوحيد", "en": "Tawheed Assessment", "de": "Tawheed Bewertung", "fr": "Évaluation Tawheed", "tr": "Tevhid Değerlendirmesi", "ru": "Тест Таухид", "sv": "Tawheed bedömning", "nl": "Tawheed toets", "el": "Αξιολόγηση Ταουχίντ"}),
+]
+    
+
+
+# ═══════════════════════════════════════════════════════════════
+# AQEEDAH LEVELS 4-5 + FIQH 1-4 + SEERAH 1-6 — COMPLETE SKELETON
+# ═══════════════════════════════════════════════════════════════
+# Structure: First 5 lessons of each track have RICH content
+# Remaining lessons have PROFESSIONAL PLACEHOLDERS ready for content
+
+# Import rich content samples from separate file
+from data.noor_academy_aqeedah_fiqh_seerah import (
+    AQEEDAH_LESSONS_L2, 
+    AQEEDAH_LESSONS_L3
+)
+
+# ═══════════════════════════════════════════════════════════════
+# AQEEDAH LEVEL 4: FIVE PILLARS OF ISLAM (10 lessons)
+# ═══════════════════════════════════════════════════════════════
+
+def _create_placeholder_lesson(lesson_id, level, lesson_num, emoji, title_dict, track="aqeedah"):
+    """Create professional placeholder for lessons pending content"""
+    return {
+        "id": lesson_id,
+        "level": level,
+        "lesson": lesson_num,
+        "emoji": emoji,
+        "title": title_dict,
+        "method": "conceptual",
+        "content": {
+            "status": "placeholder",
+            "message": {
+                "ar": "قريباً — المحتوى قيد الإعداد",
+                "en": "Coming Soon — Content in preparation",
+                "de": "Demnächst — Inhalt in Vorbereitung",
+                "fr": "Prochainement — Contenu en préparation",
+                "tr": "Yakında — İçerik hazırlanıyor",
+                "ru": "Скоро — Контент в подготовке",
+                "sv": "Kommer snart — Innehåll förbereds",
+                "nl": "Binnenkort — Inhoud in voorbereiding",
+                "el": "Σύντομα — Περιεχόμενο σε προετοιμασία"
+            }
+        },
+        "quiz": {"type": "placeholder", "question": {"ar": "قريباً", "en": "Coming soon"}},
+        "xp": 20
+    }
+
+AQEEDAH_LESSONS_L4 = [
+    # Rich content samples (first 5)
+    {"id": 33, "level": 4, "lesson": 1, "emoji": "🕋", "title": {"ar": "الشهادتان — أساس الإسلام", "en": "The Two Testimonies — Foundation of Islam", "de": "Zwei Glaubensbekenntnisse", "fr": "Deux témoignages", "tr": "İki Şehadet", "ru": "Два свидетельства", "sv": "Två vittnesbörd", "nl": "Twee getuigenissen", "el": "Δύο μαρτυρίες"}, "method": "conceptual", "content": {"shahada": {"ar": "أشهد أن لا إله إلا الله وأشهد أن محمداً رسول الله", "en": "I bear witness that there is no god but Allah, and Muhammad is the Messenger of Allah"}, "meaning": [{"ar": "لا إله إلا الله: لا معبود بحق إلا الله", "en": "La ilaha illallah: No god worthy of worship except Allah"}, {"ar": "محمد رسول الله: محمد ﷺ نبي الله ورسوله", "en": "Muhammad is Allah's messenger: Muhammad ﷺ is Allah's prophet and messenger"}]}, "quiz": {"type": "recite", "question": {"ar": "اذكر الشهادتين", "en": "Recite the two testimonies"}}, "xp": 25},
+    
+    {"id": 34, "level": 4, "lesson": 2, "emoji": "🕌", "title": {"ar": "الصلاة — عماد الدين", "en": "Prayer — Pillar of Religion", "de": "Gebet — Säule der Religion", "fr": "Prière — Pilier de la religion", "tr": "Namaz — Dinin Direği", "ru": "Молитва — Столп религии", "sv": "Bön — Religionens pelare", "nl": "Gebed — Zuil van religie", "el": "Προσευχή — Πυλώνας θρησκείας"}, "method": "practical", "content": {"importance": {"ar": "الصلاة أول ما يُحاسب عليه العبد يوم القيامة", "en": "Prayer is the first thing a person will be accountable for on Judgment Day"}, "times": [{"ar": "الفجر", "en": "Fajr (Dawn)"}, {"ar": "الظهر", "en": "Dhuhr (Noon)"}, {"ar": "العصر", "en": "Asr (Afternoon)"}, {"ar": "المغرب", "en": "Maghrib (Sunset)"}, {"ar": "العشاء", "en": "Isha (Night)"}]}, "quiz": {"type": "select", "question": {"ar": "كم عدد الصلوات المفروضة؟", "en": "How many obligatory prayers?"}, "correct": "5"}, "xp": 25},
+    
+    {"id": 35, "level": 4, "lesson": 3, "emoji": "🌙", "title": {"ar": "الصيام — مدرسة التقوى", "en": "Fasting — School of Piety", "de": "Fasten — Schule der Frömmigkeit", "fr": "Jeûne — École de piété", "tr": "Oruç — Takva Okulu", "ru": "Пост — Школа благочестия", "sv": "Fasta — Fromhetens skola", "nl": "Vasten — School van vroomheid", "el": "Νηστεία — Σχολή ευσέβειας"}, "method": "story_based", "content": {"ramadan": {"ar": "صيام شهر رمضان ركن من أركان الإسلام", "en": "Fasting the month of Ramadan is a pillar of Islam"}, "benefits": [{"ar": "تقوية الإيمان", "en": "Strengthening faith"}, {"ar": "تعلم الصبر والإرادة", "en": "Learning patience and will"}, {"ar": "الشعور بالفقراء", "en": "Feeling for the poor"}]}, "quiz": {"type": "select", "question": {"ar": "في أي شهر نصوم؟", "en": "In which month do we fast?"}, "correct": {"ar": "رمضان", "en": "Ramadan"}}, "xp": 25},
+    
+    {"id": 36, "level": 4, "lesson": 4, "emoji": "💰", "title": {"ar": "الزكاة — طهارة المال", "en": "Zakat — Purification of Wealth", "de": "Zakat — Reinigung des Vermögens", "fr": "Zakat — Purification des biens", "tr": "Zekat — Malın Temizliği", "ru": "Закят — Очищение имущества", "sv": "Zakat — Förmögenhetens rening", "nl": "Zakat — Zuivering van rijkdom", "el": "Ζακάτ — Καθαρισμός πλούτου"}, "method": "conceptual", "content": {"definition": {"ar": "الزكاة: إخراج جزء من المال للفقراء والمساكين", "en": "Zakat: Giving a portion of wealth to the poor and needy"}, "wisdom": {"ar": "تطهير النفس من البخل ومساعدة المحتاجين", "en": "Purifying the soul from greed and helping those in need"}}, "quiz": {"type": "select", "question": {"ar": "لمن نُعطي الزكاة؟", "en": "To whom do we give Zakat?"}, "correct": {"ar": "الفقراء والمحتاجين", "en": "The poor and needy"}}, "xp": 25},
+    
+    {"id": 37, "level": 4, "lesson": 5, "emoji": "🕋", "title": {"ar": "الحج — رحلة العمر", "en": "Hajj — Journey of a Lifetime", "de": "Hadsch — Reise des Lebens", "fr": "Hajj — Voyage d'une vie", "tr": "Hac — Ömür Boyu Yolculuk", "ru": "Хадж — Путешествие жизни", "sv": "Hajj — Livets resa", "nl": "Hadj — Reis van een leven", "el": "Χατζ — Ταξίδι ζωής"}, "method": "story_based", "content": {"definition": {"ar": "الحج: زيارة بيت الله الحرام في مكة مرة في العمر", "en": "Hajj: Visiting Allah's Sacred House in Makkah once in a lifetime"}, "rituals": [{"ar": "الطواف حول الكعبة", "en": "Circling the Kaaba"}, {"ar": "السعي بين الصفا والمروة", "en": "Walking between Safa and Marwah"}, {"ar": "الوقوف بعرفة", "en": "Standing at Arafah"}]}, "quiz": {"type": "select", "question": {"ar": "أين نحج؟", "en": "Where do we perform Hajj?"}, "correct": {"ar": "مكة المكرمة", "en": "Makkah"}}, "xp": 30},
+    
+    # Placeholders for lessons 6-10
+    _create_placeholder_lesson(38, 4, 6, "🎮", {"ar": "لعبة: أركان الإسلام الخمسة", "en": "Game: Five Pillars of Islam", "de": "Spiel: Fünf Säulen", "fr": "Jeu: Cinq piliers", "tr": "Oyun: İslam'ın Beş Şartı", "ru": "Игра: Пять Столпов", "sv": "Spel: Fem pelare", "nl": "Spel: Vijf zuilen", "el": "Παιχνίδι: Πέντε πυλώνες"}),
+    _create_placeholder_lesson(39, 4, 7, "📿", {"ar": "الأذكار اليومية", "en": "Daily Adhkar", "de": "Tägliche Adhkar", "fr": "Adhkar quotidiens", "tr": "Günlük Zikirler", "ru": "Ежедневные зикры", "sv": "Daglig Adhkar", "nl": "Dagelijkse Adhkar", "el": "Καθημερινά Αντκάρ"}),
+    _create_placeholder_lesson(40, 4, 8, "🤲", {"ar": "آداب الدعاء", "en": "Etiquette of Dua", "de": "Etikette des Bittgebets", "fr": "Étiquette du Dua", "tr": "Dua Adabı", "ru": "Этикет мольбы", "sv": "Dua etikett", "nl": "Dua etiquette", "el": "Εθιμοτυπία Ντουά"}),
+    _create_placeholder_lesson(41, 4, 9, "📖", {"ar": "فضل قراءة القرآن", "en": "Virtues of Quran Recitation", "de": "Tugenden der Koranrezitation", "fr": "Vertus de la récitation", "tr": "Kur'an Okumanın Fazileti", "ru": "Достоинства чтения Корана", "sv": "Dygder i Koranrecitation", "nl": "Deugden van Koranrecitatie", "el": "Αρετές απαγγελίας Κορανίου"}),
+    _create_placeholder_lesson(42, 4, 10, "🏆", {"ar": "اختبار أركان الإسلام", "en": "Pillars of Islam Assessment", "de": "Bewertung Säulen des Islam", "fr": "Évaluation Piliers", "tr": "İslam Şartları Değerlendirmesi", "ru": "Тест по Столпам", "sv": "Islamiska pelare bedömning", "nl": "Toets Zuilen van Islam", "el": "Αξιολόγηση Πυλώνων"}),
+]
+
+# ═══════════════════════════════════════════════════════════════
+# AQEEDAH LEVEL 5: COMPREHENSIVE REVIEW (8 lessons)
+# ═══════════════════════════════════════════════════════════════
+
+AQEEDAH_LESSONS_L5 = [
+    _create_placeholder_lesson(43, 5, 1, "📚", {"ar": "مراجعة التوحيد", "en": "Tawheed Review", "de": "Tawheed-Wiederholung", "fr": "Révision Tawheed", "tr": "Tevhid Tekrarı", "ru": "Обзор Таухида", "sv": "Tawheed genomgång", "nl": "Tawheed herhaling", "el": "Επανάληψη Ταουχίντ"}),
+    _create_placeholder_lesson(44, 5, 2, "✨", {"ar": "مراجعة أسماء الله", "en": "Names of Allah Review", "de": "Namen Allahs Wiederholung", "fr": "Révision Noms d'Allah", "tr": "Esmaül Hüsna Tekrarı", "ru": "Обзор Имён Аллаха", "sv": "Allahs namn genomgång", "nl": "Namen van Allah herhaling", "el": "Επανάληψη Ονομάτων"}),
+    _create_placeholder_lesson(45, 5, 3, "👼", {"ar": "مراجعة أركان الإيمان", "en": "Pillars of Faith Review", "de": "Glaubenssäulen Wiederholung", "fr": "Révision Piliers Foi", "tr": "İman Şartları Tekrarı", "ru": "Обзор Столпов Веры", "sv": "Trosartiklar genomgång", "nl": "Geloofsartikelen herhaling", "el": "Επανάληψη Πυλώνων Πίστης"}),
+    _create_placeholder_lesson(46, 5, 4, "🕋", {"ar": "مراجعة أركان الإسلام", "en": "Pillars of Islam Review", "de": "Islam-Säulen Wiederholung", "fr": "Révision Piliers Islam", "tr": "İslam Şartları Tekrarı", "ru": "Обзор Столпов Ислама", "sv": "Islamiska pelare genomgång", "nl": "Zuilen van Islam herhaling", "el": "Επανάληψη Πυλώνων Ισλάμ"}),
+    _create_placeholder_lesson(47, 5, 5, "🎮", {"ar": "لعبة: العقيدة الشاملة", "en": "Game: Comprehensive Aqeedah", "de": "Spiel: Umfassende Aqeedah", "fr": "Jeu: Aqeedah complète", "tr": "Oyun: Kapsamlı Akide", "ru": "Игра: Полная Акида", "sv": "Spel: Omfattande Aqeedah", "nl": "Spel: Uitgebreide Aqeedah", "el": "Παιχνίδι: Πλήρης Ακίντα"}),
+    _create_placeholder_lesson(48, 5, 6, "📿", {"ar": "حفظ 50 اسماً من أسماء الله", "en": "Memorize 50 Names of Allah", "de": "50 Namen Allahs auswendig", "fr": "Mémoriser 50 Noms", "tr": "50 İsmi Ezberle", "ru": "Запомни 50 Имён", "sv": "Memorera 50 namn", "nl": "Onthoud 50 Namen", "el": "Απομνημόνευσε 50 Ονόματα"}),
+    _create_placeholder_lesson(49, 5, 7, "🌟", {"ar": "قصص الأنبياء والعبر", "en": "Prophets' Stories and Lessons", "de": "Prophetengeschichten", "fr": "Histoires des Prophètes", "tr": "Peygamber Kıssaları", "ru": "Истории Пророков", "sv": "Profeternas berättelser", "nl": "Verhalen van Profeten", "el": "Ιστορίες Προφητών"}),
+    _create_placeholder_lesson(50, 5, 8, "🎓", {"ar": "الاختبار النهائي — شهادة العقيدة", "en": "Final Exam — Aqeedah Certificate", "de": "Abschlussprüfung Aqeedah", "fr": "Examen final Aqeedah", "tr": "Final Sınavı Akide", "ru": "Финальный экзамен Акида", "sv": "Slutprov Aqeedah", "nl": "Eindexamen Aqeedah", "el": "Τελική εξέταση Ακίντα"}),
+]
+
+# Combine all Aqeedah lessons
+AQEEDAH_ALL_LESSONS = AQEEDAH_LESSONS_L1 + AQEEDAH_LESSONS_L2 + AQEEDAH_LESSONS_L3 + AQEEDAH_LESSONS_L4 + AQEEDAH_LESSONS_L5
+
+# ═══════════════════════════════════════════════════════════════
+# FIQH TRACK — الفقه المبسّط (40 Lessons, 4 Levels)
+# ═══════════════════════════════════════════════════════════════
+
+FIQH_LESSONS_L1 = [
+    # Rich content samples (first 5)
+    {"id": 1, "level": 1, "lesson": 1, "emoji": "💧", "title": {"ar": "الطهارة — أهميتها", "en": "Purification — Its Importance", "de": "Reinigung — Ihre Bedeutung", "fr": "Purification — Son importance", "tr": "Taharet — Önemi", "ru": "Очищение — Его важность", "sv": "Rening — Dess betydelse", "nl": "Reiniging — Belang ervan", "el": "Κάθαρση — Η σημασία της"}, "method": "conceptual", "content": {"importance": {"ar": "الطهارة شرط لصحة الصلاة", "en": "Purification is a condition for valid prayer"}, "types": [{"ar": "طهارة من الحدث (الوضوء والغسل)", "en": "Purification from impurity (Wudu & Ghusl)"}, {"ar": "طهارة من النجاسة", "en": "Purification from filth"}]}, "quiz": {"type": "select", "question": {"ar": "هل الطهارة شرط للصلاة؟", "en": "Is purification required for prayer?"}, "correct": true}, "xp": 20},
+    
+    {"id": 2, "level": 1, "lesson": 2, "emoji": "🚿", "title": {"ar": "الوضوء — خطوة بخطوة", "en": "Wudu — Step by Step", "de": "Wudu — Schritt für Schritt", "fr": "Wudu — Étape par étape", "tr": "Abdest — Adım Adım", "ru": "Вуду — Шаг за шагом", "sv": "Wudu — Steg för steg", "nl": "Woedoe — Stap voor stap", "el": "Γουντού — Βήμα προς βήμα"}, "method": "practical", "content": {"steps": [{"ar": "النية", "en": "Intention"}, {"ar": "غسل اليدين ثلاثاً", "en": "Wash hands 3 times"}, {"ar": "المضمضة والاستنشاق", "en": "Rinse mouth and nose"}, {"ar": "غسل الوجه", "en": "Wash face"}, {"ar": "غسل اليدين إلى المرفقين", "en": "Wash arms to elbows"}, {"ar": "مسح الرأس", "en": "Wipe head"}, {"ar": "غسل القدمين", "en": "Wash feet"}]}, "quiz": {"type": "sequence", "question": {"ar": "رتّب خطوات الوضوء", "en": "Arrange Wudu steps"}}, "xp": 25},
+    
+    {"id": 3, "level": 1, "lesson": 3, "emoji": "❌", "title": {"ar": "نواقض الوضوء", "en": "Things that Break Wudu", "de": "Was das Wudu bricht", "fr": "Ce qui annule le Wudu", "tr": "Abdesti Bozan Şeyler", "ru": "Что нарушает Вуду", "sv": "Vad som bryter Wudu", "nl": "Wat Woedoe breekt", "el": "Τι ακυρώνει το Γουντού"}, "method": "conceptual", "content": {"nullifiers": [{"ar": "الخروج من السبيلين", "en": "Anything exiting from private parts"}, {"ar": "النوم العميق", "en": "Deep sleep"}, {"ar": "فقدان العقل", "en": "Loss of consciousness"}, {"ar": "لمس الفرج بدون حائل", "en": "Touching private parts without barrier"}]}, "quiz": {"type": "select", "question": {"ar": "أي من هذه ينقض الوضوء؟", "en": "Which breaks Wudu?"}, "correct": {"ar": "النوم العميق", "en": "Deep sleep"}}, "xp": 20},
+    
+    {"id": 4, "level": 1, "lesson": 4, "emoji": "🛁", "title": {"ar": "الغسل — متى يجب؟", "en": "Ghusl — When Required?", "de": "Ghusl — Wann erforderlich?", "fr": "Ghusl — Quand requis?", "tr": "Gusül — Ne Zaman Gerekir?", "ru": "Гусль — Когда требуется?", "sv": "Ghusl — När krävs?", "nl": "Ghusl — Wanneer vereist?", "el": "Γκουσλ — Πότε απαιτείται;"}, "method": "conceptual", "content": {"occasions": [{"ar": "الجنابة", "en": "After sexual relations"}, {"ar": "انتهاء الحيض", "en": "End of menstruation"}, {"ar": "انتهاء النفاس", "en": "End of postnatal bleeding"}, {"ar": "الإسلام", "en": "Upon accepting Islam"}], "method": {"ar": "غسل جميع الجسم بالماء مع النية", "en": "Washing entire body with water with intention"}}, "quiz": {"type": "select", "question": {"ar": "متى يجب الغسل؟", "en": "When is Ghusl required?"}, "correct": {"ar": "عند الجنابة", "en": "After sexual relations"}}, "xp": 20},
+    
+    {"id": 5, "level": 1, "lesson": 5, "emoji": "🧼", "title": {"ar": "التيمم — البديل عند عدم الماء", "en": "Tayammum — Alternative When No Water", "de": "Tayammum — Alternative ohne Wasser", "fr": "Tayammum — Alternative sans eau", "tr": "Teyemmüm — Su Olmadığında", "ru": "Таяммум — Альтернатива без воды", "sv": "Tayammum — Alternativ utan vatten", "nl": "Tayammum — Alternatief zonder water", "el": "Ταγιαμούμ — Εναλλακτική χωρίς νερό"}, "method": "practical", "content": {"when": {"ar": "عند عدم وجود الماء أو عدم القدرة على استعماله", "en": "When water is unavailable or unable to use it"}, "method": [{"ar": "النية", "en": "Intention"}, {"ar": "ضرب الأرض بالكفين", "en": "Strike earth with palms"}, {"ar": "مسح الوجه", "en": "Wipe face"}, {"ar": "مسح اليدين", "en": "Wipe hands"}]}, "quiz": {"type": "select", "question": {"ar": "متى نتيمم؟", "en": "When do we do Tayammum?"}, "correct": {"ar": "عند عدم وجود الماء", "en": "When no water"}}, "xp": 20},
+    
+    # Placeholders for lessons 6-10
+    _create_placeholder_lesson(6, 1, 6, "🧺", {"ar": "إزالة النجاسات", "en": "Removing Impurities", "de": "Unreinheiten entfernen", "fr": "Enlever les impuretés", "tr": "Necasetleri Giderme", "ru": "Удаление нечистот", "sv": "Ta bort orenheter", "nl": "Onzuiverheden verwijderen", "el": "Αφαίρεση ακαθαρσιών"}, "fiqh"),
+    _create_placeholder_lesson(7, 1, 7, "👕", {"ar": "طهارة الثياب", "en": "Purity of Clothes", "de": "Reinheit der Kleidung", "fr": "Pureté des vêtements", "tr": "Giysilerin Temizliği", "ru": "Чистота одежды", "sv": "Klädernas renhet", "nl": "Zuiverheid van kleding", "el": "Καθαρότητα ρούχων"}, "fiqh"),
+    _create_placeholder_lesson(8, 1, 8, "🕌", {"ar": "طهارة المكان", "en": "Purity of Place", "de": "Reinheit des Ortes", "fr": "Pureté du lieu", "tr": "Mekânın Temizliği", "ru": "Чистота места", "sv": "Platsens renhet", "nl": "Zuiverheid van plaats", "el": "Καθαρότητα τόπου"}, "fiqh"),
+    _create_placeholder_lesson(9, 1, 9, "🎮", {"ar": "لعبة: اختبار الطهارة", "en": "Game: Purification Quiz", "de": "Spiel: Reinigungsquiz", "fr": "Jeu: Quiz purification", "tr": "Oyun: Taharet Testi", "ru": "Игра: Тест очищения", "sv": "Spel: Reningsquiz", "nl": "Spel: Reinigingsquiz", "el": "Παιχνίδι: Τεστ κάθαρσης"}, "fiqh"),
+    _create_placeholder_lesson(10, 1, 10, "🏆", {"ar": "اختبار الطهارة", "en": "Purification Assessment", "de": "Reinigungsbewertung", "fr": "Évaluation purification", "tr": "Taharet Değerlendirmesi", "ru": "Тест очищения", "sv": "Reningsbedömning", "nl": "Reinigingstoets", "el": "Αξιολόγηση κάθαρσης"}, "fiqh"),
+]
+
+# Create placeholder lessons for Fiqh Levels 2-4 (30 lessons)
+FIQH_LESSONS_L2 = [_create_placeholder_lesson(11+i, 2, i+1, "🕌", {"ar": f"الصلاة — درس {i+1}", "en": f"Prayer — Lesson {i+1}", "de": f"Gebet — Lektion {i+1}", "fr": f"Prière — Leçon {i+1}", "tr": f"Namaz — Ders {i+1}", "ru": f"Молитва — Урок {i+1}", "sv": f"Bön — Lektion {i+1}", "nl": f"Gebed — Les {i+1}", "el": f"Προσευχή — Μάθημα {i+1}"}, "fiqh") for i in range(12)]
+
+FIQH_LESSONS_L3 = [_create_placeholder_lesson(23+i, 3, i+1, "🌙", {"ar": f"الصيام — درس {i+1}", "en": f"Fasting — Lesson {i+1}", "de": f"Fasten — Lektion {i+1}", "fr": f"Jeûne — Leçon {i+1}", "tr": f"Oruç — Ders {i+1}", "ru": f"Пост — Урок {i+1}", "sv": f"Fasta — Lektion {i+1}", "nl": f"Vasten — Les {i+1}", "el": f"Νηστεία — Μάθημα {i+1}"}, "fiqh") for i in range(8)]
+
+FIQH_LESSONS_L4 = [_create_placeholder_lesson(31+i, 4, i+1, "💰", {"ar": f"الزكاة — درس {i+1}", "en": f"Zakat — Lesson {i+1}", "de": f"Zakat — Lektion {i+1}", "fr": f"Zakat — Leçon {i+1}", "tr": f"Zekat — Ders {i+1}", "ru": f"Закят — Урок {i+1}", "sv": f"Zakat — Lektion {i+1}", "nl": f"Zakat — Les {i+1}", "el": f"Ζακάτ — Μάθημα {i+1}"}, "fiqh") for i in range(10)]
+
+FIQH_ALL_LESSONS = FIQH_LESSONS_L1 + FIQH_LESSONS_L2 + FIQH_LESSONS_L3 + FIQH_LESSONS_L4
+
+# ═══════════════════════════════════════════════════════════════
+# SEERAH TRACK — السيرة النبوية (60 Lessons, 6 Levels)
+# ═══════════════════════════════════════════════════════════════
+
+SEERAH_LESSONS_L1 = [
+    # Rich content samples (first 5)
+    {"id": 1, "level": 1, "lesson": 1, "emoji": "👶", "title": {"ar": "ميلاد النبي ﷺ", "en": "Birth of the Prophet ﷺ", "de": "Geburt des Propheten ﷺ", "fr": "Naissance du Prophète ﷺ", "tr": "Hz. Peygamber'in ﷺ Doğumu", "ru": "Рождение Пророка ﷺ", "sv": "Profetens ﷺ födelse", "nl": "Geboorte van de Profeet ﷺ", "el": "Γέννηση Προφήτη ﷺ"}, "method": "story_based", "content": {"year": {"ar": "عام الفيل — 570 ميلادية", "en": "Year of the Elephant — 570 CE"}, "place": {"ar": "مكة المكرمة", "en": "Makkah"}, "story": {"ar": "ولد النبي محمد ﷺ يتيماً — مات أبوه قبل ولادته", "en": "Prophet Muhammad ﷺ was born an orphan — his father died before his birth"}}, "quiz": {"type": "select", "question": {"ar": "أين ولد النبي ﷺ؟", "en": "Where was the Prophet ﷺ born?"}, "correct": {"ar": "مكة", "en": "Makkah"}}, "xp": 20},
+    
+    {"id": 2, "level": 1, "lesson": 2, "emoji": "🤱", "title": {"ar": "في رعاية حليمة السعدية", "en": "In Care of Halimah As-Saadiyah", "de": "In der Obhut von Halimah", "fr": "Aux soins de Halimah", "tr": "Halime'nin Bakımında", "ru": "На попечении Халимы", "sv": "I Halimahs vård", "nl": "Onder hoede van Halimah", "el": "Στη φροντίδα της Χαλίμας"}, "method": "story_based", "content": {"story": {"ar": "أرسلته أمه ليعيش في البادية مع حليمة السعدية", "en": "His mother sent him to live in the desert with Halimah As-Saadiyah"}, "miracle": {"ar": "حادثة شق الصدر — طهّر الله قلبه", "en": "Incident of chest opening — Allah purified his heart"}}, "quiz": {"type": "select", "question": {"ar": "من التي رعت النبي ﷺ في طفولته؟", "en": "Who cared for the Prophet ﷺ in childhood?"}, "correct": {"ar": "حليمة السعدية", "en": "Halimah"}}, "xp": 20},
+    
+    {"id": 3, "level": 1, "lesson": 3, "emoji": "💔", "title": {"ar": "وفاة أمه وجده", "en": "Death of His Mother and Grandfather", "de": "Tod seiner Mutter und Großvaters", "fr": "Mort de sa mère et grand-père", "tr": "Annesinin ve Dedesinin Vefatı", "ru": "Смерть матери и деда", "sv": "Hans mors och farfars död", "nl": "Dood van moeder en grootvader", "el": "Θάνατος μητέρας και παππού"}, "method": "story_based", "content": {"mother_death": {"ar": "ماتت أمه آمنة وهو في السادسة", "en": "His mother Aminah died when he was 6"}, "grandfather": {"ar": "رعاه جده عبد المطلب ثم عمه أبو طالب", "en": "His grandfather Abdul Muttalib then uncle Abu Talib cared for him"}}, "quiz": {"type": "select", "question": {"ar": "من رعى النبي ﷺ بعد وفاة جده؟", "en": "Who cared for the Prophet ﷺ after his grandfather?"}, "correct": {"ar": "عمه أبو طالب", "en": "Uncle Abu Talib"}}, "xp": 20},
+    
+    {"id": 4, "level": 1, "lesson": 4, "emoji": "🐑", "title": {"ar": "الصادق الأمين", "en": "The Truthful, The Trustworthy", "de": "Der Wahrhaftige, Der Vertrauenswürdige", "fr": "Le Véridique, Le Digne de confiance", "tr": "Sadık ve Emin", "ru": "Правдивый, Надёжный", "sv": "Den Sanningsenlige, Pålitlige", "nl": "De Oprechte, Betrouwbare", "el": "Ο Αληθινός, Αξιόπιστος"}, "method": "story_based", "content": {"reputation": {"ar": "عُرف بين قومه بالصدق والأمانة قبل النبوة", "en": "Known among his people for truthfulness and trustworthiness before prophethood"}, "examples": [{"ar": "رعى الغنم في صغره", "en": "Shepherded sheep in youth"}, {"ar": "عمل في التجارة بأمانة", "en": "Worked in trade with honesty"}]}, "quiz": {"type": "select", "question": {"ar": "بماذا لُقّب النبي ﷺ قبل البعثة؟", "en": "What was the Prophet ﷺ called before prophethood?"}, "correct": {"ar": "الصادق الأمين", "en": "The Truthful, Trustworthy"}}, "xp": 20},
+    
+    {"id": 5, "level": 1, "lesson": 5, "emoji": "💍", "title": {"ar": "زواجه من خديجة رضي الله عنها", "en": "Marriage to Khadijah (RA)", "de": "Heirat mit Khadijah", "fr": "Mariage avec Khadijah", "tr": "Hz. Hatice ile Evliliği", "ru": "Брак с Хадиджей", "sv": "Äktenskap med Khadijah", "nl": "Huwelijk met Khadijah", "el": "Γάμος με την Χαντίζα"}, "method": "story_based", "content": {"marriage": {"ar": "تزوج من خديجة بنت خويلد وكان عمره 25 سنة", "en": "Married Khadijah bint Khuwaylid at age 25"}, "khadijah": {"ar": "كانت أول من آمن به وأول زوجاته", "en": "She was first to believe in him and his first wife"}, "children": {"ar": "رُزق منها بجميع أولاده إلا إبراهيم", "en": "All his children except Ibrahim were from her"}}, "quiz": {"type": "select", "question": {"ar": "من أول من آمن بالنبي ﷺ؟", "en": "Who first believed in the Prophet ﷺ?"}, "correct": {"ar": "خديجة", "en": "Khadijah"}}, "xp": 25},
+    
+    # Placeholders for lessons 6-10
+    _create_placeholder_lesson(6, 1, 6, "🕋", {"ar": "بناء الكعبة ووضع الحجر الأسود", "en": "Building Kaaba & Black Stone", "de": "Bau der Kaaba", "fr": "Construction de la Kaaba", "tr": "Kabe'nin İnşası", "ru": "Строительство Каабы", "sv": "Kaabas byggande", "nl": "Bouw van Kaaba", "el": "Κατασκευή Κάαμπα"}, "seerah"),
+    _create_placeholder_lesson(7, 1, 7, "⛰️", {"ar": "التحنث في غار حراء", "en": "Seclusion in Cave Hira", "de": "Klausur in Höhle Hira", "fr": "Retraite dans la grotte Hira", "tr": "Hira'da İnziva", "ru": "Уединение в пещере Хира", "sv": "Avskildhet i Hira-grottan", "nl": "Afzondering in grot Hira", "el": "Απομόνωση στο σπήλαιο Χίρα"}, "seerah"),
+    _create_placeholder_lesson(8, 1, 8, "🎮", {"ar": "لعبة: طفولة النبي ﷺ", "en": "Game: Prophet's Childhood", "de": "Spiel: Prophetenkindheit", "fr": "Jeu: Enfance du Prophète", "tr": "Oyun: Peygamber'in Çocukluğu", "ru": "Игра: Детство Пророка", "sv": "Spel: Profetens barndom", "nl": "Spel: Jeugd van Profeet", "el": "Παιχνίδι: Παιδική ηλικία"}, "seerah"),
+    _create_placeholder_lesson(9, 1, 9, "📖", {"ar": "صفات النبي ﷺ الخُلقية", "en": "Prophet's Moral Qualities", "de": "Moralische Eigenschaften", "fr": "Qualités morales", "tr": "Ahlaki Özellikleri", "ru": "Моральные качества", "sv": "Moraliska egenskaper", "nl": "Morele kwaliteiten", "el": "Ηθικές ιδιότητες"}, "seerah"),
+    _create_placeholder_lesson(10, 1, 10, "🏆", {"ar": "اختبار: الميلاد والطفولة", "en": "Assessment: Birth & Childhood", "de": "Bewertung: Geburt & Kindheit", "fr": "Évaluation: Naissance & enfance", "tr": "Değerlendirme: Doğum ve Çocukluk", "ru": "Тест: Рождение и детство", "sv": "Bedömning: Födelse & barndom", "nl": "Toets: Geboorte & jeugd", "el": "Αξιολόγηση: Γέννηση & παιδική ηλικία"}, "seerah"),
+]
+
+# Create placeholder lessons for Seerah Levels 2-6 (50 lessons)
+SEERAH_LESSONS_L2 = [_create_placeholder_lesson(11+i, 2, i+1, "📜", {"ar": f"النبوة — درس {i+1}", "en": f"Prophethood — Lesson {i+1}", "de": f"Prophetentum — Lektion {i+1}", "fr": f"Prophétie — Leçon {i+1}", "tr": f"Peygamberlik — Ders {i+1}", "ru": f"Пророчество — Урок {i+1}", "sv": f"Profetskap — Lektion {i+1}", "nl": f"Profeetschap — Les {i+1}", "el": f"Προφητεία — Μάθημα {i+1}"}, "seerah") for i in range(10)]
+
+SEERAH_LESSONS_L3 = [_create_placeholder_lesson(21+i, 3, i+1, "🐪", {"ar": f"الهجرة — درس {i+1}", "en": f"Hijrah — Lesson {i+1}", "de": f"Hijra — Lektion {i+1}", "fr": f"Hégire — Leçon {i+1}", "tr": f"Hicret — Ders {i+1}", "ru": f"Хиджра — Урок {i+1}", "sv": f"Hijrah — Lektion {i+1}", "nl": f"Hijrah — Les {i+1}", "el": f"Χίτζρα — Μάθημα {i+1}"}, "seerah") for i in range(10)]
+
+SEERAH_LESSONS_L4 = [_create_placeholder_lesson(31+i, 4, i+1, "⚔️", {"ar": f"الغزوات — درس {i+1}", "en": f"Battles — Lesson {i+1}", "de": f"Schlachten — Lektion {i+1}", "fr": f"Batailles — Leçon {i+1}", "tr": f"Gazalar — Ders {i+1}", "ru": f"Сражения — Урок {i+1}", "sv": f"Strider — Lektion {i+1}", "nl": f"Veldslagen — Les {i+1}", "el": f"Μάχες — Μάθημα {i+1}"}, "seerah") for i in range(10)]
+
+SEERAH_LESSONS_L5 = [_create_placeholder_lesson(41+i, 5, i+1, "🕋", {"ar": f"فتح مكة — درس {i+1}", "en": f"Conquest of Makkah — Lesson {i+1}", "de": f"Eroberung Mekkas — Lektion {i+1}", "fr": f"Conquête de La Mecque — Leçon {i+1}", "tr": f"Mekke Fethi — Ders {i+1}", "ru": f"Завоевание Мекки — Урок {i+1}", "sv": f"Erövring av Mecka — Lektion {i+1}", "nl": f"Verovering van Mekka — Les {i+1}", "el": f"Κατάκτηση Μέκκας — Μάθημα {i+1}"}, "seerah") for i in range(10)]
+
+SEERAH_LESSONS_L6 = [_create_placeholder_lesson(51+i, 6, i+1, "💝", {"ar": f"أخلاق النبي ﷺ — درس {i+1}", "en": f"Prophet's Character — Lesson {i+1}", "de": f"Charakter des Propheten — Lektion {i+1}", "fr": f"Caractère du Prophète — Leçon {i+1}", "tr": f"Peygamber'in Ahlakı — Ders {i+1}", "ru": f"Характер Пророка — Урок {i+1}", "sv": f"Profetens karaktär — Lektion {i+1}", "nl": f"Karakter van Profeet — Les {i+1}", "el": f"Χαρακτήρας Προφήτη — Μάθημα {i+1}"}, "seerah") for i in range(10)]
+
+SEERAH_ALL_LESSONS = SEERAH_LESSONS_L1 + SEERAH_LESSONS_L2 + SEERAH_LESSONS_L3 + SEERAH_LESSONS_L4 + SEERAH_LESSONS_L5 + SEERAH_LESSONS_L6
+
     {"id": 9, "level": 1, "lesson": 9, "emoji": "🎮", "title": {"ar": "لعبة: أسئلة التوحيد الثلاثة", "en": "Game: Three Questions of Tawheed", "de": "Spiel: Drei Fragen des Tawheed", "fr": "Jeu: Trois questions du Tawheed", "tr": "Oyun: Tevhidin Üç Sorusu", "ru": "Игра: Три вопроса Таухида", "sv": "Spel: Tre frågor om Tawheed", "nl": "Spel: Drie vragen over Tawheed", "el": "Παιχνίδι: Τρεις ερωτήσεις Ταουχίντ"}, "method": "game", "content": {"questions": [{"q": {"ar": "من ربك؟", "en": "Who is your Lord?"}, "a": {"ar": "ربي الله", "en": "My Lord is Allah"}}, {"q": {"ar": "ما دينك؟", "en": "What is your religion?"}, "a": {"ar": "ديني الإسلام", "en": "My religion is Islam"}}, {"q": {"ar": "من نبيك؟", "en": "Who is your Prophet?"}, "a": {"ar": "نبيي محمد ﷺ", "en": "My Prophet is Muhammad ﷺ"}}], "game_type": "rapid_recall", "tip": {"ar": "احفظ هذه الإجابات الثلاث جيداً!", "en": "Memorize these three answers well!", "de": "Präge dir diese drei Antworten gut ein!", "fr": "Mémorise bien ces trois réponses!", "tr": "Bu üç cevabı iyi ezberle!", "ru": "Хорошо запомни эти три ответа!", "sv": "Memorera dessa tre svar väl!", "nl": "Onthoud deze drie antwoorden goed!", "el": "Απομνημόνευσε καλά αυτές τις τρεις απαντήσεις!"}}, "quiz": {"type": "rapid_fire", "questions": 10, "time_limit": 60}, "xp": 30},
     
     {"id": 10, "level": 1, "lesson": 10, "emoji": "🏆", "title": {"ar": "اختبار التوحيد — المستوى الأول", "en": "Tawheed Assessment — Level 1", "de": "Tawheed-Bewertung — Stufe 1", "fr": "Évaluation Tawheed — Niveau 1", "tr": "Tevhid Değerlendirmesi — Seviye 1", "ru": "Тест по Таухиду — Уровень 1", "sv": "Tawheed-bedömning — Nivå 1", "nl": "Tawheed-toets — Niveau 1", "el": "Αξιολόγηση Ταουχίντ — Επίπεδο 1"}, "method": "assessment", "content": {"sections": ["three_questions", "allah_attributes", "purpose_of_creation", "worship"], "pass_score": 75, "tip": {"ar": "اختبار شامل لكل ما تعلمته! 75% للنجاح.", "en": "Comprehensive test of everything you learned! 75% to pass.", "de": "Umfassender Test über alles Gelernte! 75% zum Bestehen.", "fr": "Test complet sur tout ce que tu as appris! 75% pour réussir.", "tr": "Öğrendiğin her şeyin kapsamlı testi! Geçmek için %75.", "ru": "Полный тест всего изученного! 75% для прохождения.", "sv": "Omfattande test på allt du lärt! 75% för att klara.", "nl": "Uitgebreide toets over alles wat je leerde! 75% om te slagen.", "el": "Πλήρης δοκιμασία όλων όσων έμαθες! 75% για επιτυχία."}}, "quiz": {"type": "comprehensive", "total_questions": 15}, "xp": 60},

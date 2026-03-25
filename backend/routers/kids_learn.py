@@ -755,9 +755,18 @@ from data.noor_academy_v2 import (
     AQEEDAH_LEVELS, FIQH_LEVELS, SEERAH_LEVELS,
     TEACHING_METHODS, ACADEMY_BADGES,
 )
-# Import expanded lesson data (30 Nooraniya + 20 Adab)
-from data.noor_academy_v2 import NOORANIYA_ALL_LESSONS as NOORANIYA_LESSONS
+# Import ALL lesson data from both base and extended modules
+from data.noor_academy_v2 import NOORANIYA_ALL_LESSONS as NOORANIYA_BASE_LESSONS
 from data.noor_academy_v2 import ADAB_ALL_LESSONS as ADAB_LESSONS
+from data.noor_academy_extended import (
+    NOORANIYA_ALL_LESSONS_EXTENDED,
+    AQEEDAH_ALL_LESSONS,
+    FIQH_ALL_LESSONS,
+    SEERAH_ALL_LESSONS
+)
+
+# Combine Nooraniya lessons from both modules
+NOORANIYA_LESSONS = NOORANIYA_BASE_LESSONS + NOORANIYA_ALL_LESSONS_EXTENDED
 
 SUPPORTED_LANGS = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
 
@@ -951,12 +960,192 @@ async def academy_adab_detail(adab_id: int, locale: str = "ar"):
         "success": True,
         "adab": {
             "id": adab["id"],
-            "emoji": adab["emoji"],
             "title": _t(adab["title"], lang),
+            "emoji": adab["emoji"],
+            "method": adab["method"],
+            "lesson": adab["lesson"],
+            "xp": adab.get("xp", 20),
             "rules": adab["rules"].get(lang, adab["rules"].get("en", [])),
-            "hadith": _t(adab["hadith"], lang),
+            "has_next": adab_id < len(ADAB_LESSONS),
+            "has_prev": adab_id > 1,
         },
-        "has_next": adab_id < len(ADAB_LESSONS),
-        "has_prev": adab_id > 1,
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/aqeedah/lesson/{lesson_id}")
+async def academy_aqeedah_lesson(lesson_id: int, locale: str = "ar"):
+    """Get a specific Aqeedah lesson (1-50)."""
+    lang = _resolve_lang(locale)
+    lesson = next((l for l in AQEEDAH_ALL_LESSONS if l["id"] == lesson_id), None)
+    if not lesson:
+        return {"success": False, "error": f"Aqeedah lesson {lesson_id} not found"}
+
+    level_info = next((lv for lv in AQEEDAH_LEVELS if lv["level"] == lesson["level"]), None)
+
+    result = {
+        "id": lesson["id"],
+        "level": lesson["level"],
+        "level_title": _t(level_info["title"], lang) if level_info else "",
+        "lesson_in_level": lesson["lesson"],
+        "emoji": lesson["emoji"],
+        "title": _t(lesson["title"], lang),
+        "method": lesson["method"],
+        "xp": lesson.get("xp", 20),
+    }
+
+    # Translate content
+    content = lesson.get("content", {})
+    if content.get("status") == "placeholder":
+        result["content"] = {
+            "placeholder": True,
+            "message": _t(content.get("message", {}), lang)
+        }
+    else:
+        translated_content = {}
+        for key, val in content.items():
+            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
+                translated_content[key] = _t(val, lang)
+            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
+                translated_content[key] = [
+                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
+                    for item in val
+                ]
+            else:
+                translated_content[key] = val
+        result["content"] = translated_content
+
+    # Translate quiz
+    quiz = lesson.get("quiz", {})
+    result["quiz"] = {
+        "type": quiz.get("type", ""),
+        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
+        "correct": quiz.get("correct"),
+        "options": quiz.get("options", []),
+    }
+
+    return {
+        "success": True,
+        "lesson": result,
+        "has_next": lesson_id < len(AQEEDAH_ALL_LESSONS),
+        "has_prev": lesson_id > 1,
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/fiqh/lesson/{lesson_id}")
+async def academy_fiqh_lesson(lesson_id: int, locale: str = "ar"):
+    """Get a specific Fiqh lesson (1-40)."""
+    lang = _resolve_lang(locale)
+    lesson = next((l for l in FIQH_ALL_LESSONS if l["id"] == lesson_id), None)
+    if not lesson:
+        return {"success": False, "error": f"Fiqh lesson {lesson_id} not found"}
+
+    level_info = next((lv for lv in FIQH_LEVELS if lv["level"] == lesson["level"]), None)
+
+    result = {
+        "id": lesson["id"],
+        "level": lesson["level"],
+        "level_title": _t(level_info["title"], lang) if level_info else "",
+        "lesson_in_level": lesson["lesson"],
+        "emoji": lesson["emoji"],
+        "title": _t(lesson["title"], lang),
+        "method": lesson["method"],
+        "xp": lesson.get("xp", 20),
+    }
+
+    # Translate content (same pattern as Aqeedah)
+    content = lesson.get("content", {})
+    if content.get("status") == "placeholder":
+        result["content"] = {
+            "placeholder": True,
+            "message": _t(content.get("message", {}), lang)
+        }
+    else:
+        translated_content = {}
+        for key, val in content.items():
+            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
+                translated_content[key] = _t(val, lang)
+            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
+                translated_content[key] = [
+                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
+                    for item in val
+                ]
+            else:
+                translated_content[key] = val
+        result["content"] = translated_content
+
+    quiz = lesson.get("quiz", {})
+    result["quiz"] = {
+        "type": quiz.get("type", ""),
+        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
+        "correct": quiz.get("correct"),
+        "options": quiz.get("options", []),
+    }
+
+    return {
+        "success": True,
+        "lesson": result,
+        "has_next": lesson_id < len(FIQH_ALL_LESSONS),
+        "has_prev": lesson_id > 1,
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/seerah/lesson/{lesson_id}")
+async def academy_seerah_lesson(lesson_id: int, locale: str = "ar"):
+    """Get a specific Seerah lesson (1-60)."""
+    lang = _resolve_lang(locale)
+    lesson = next((l for l in SEERAH_ALL_LESSONS if l["id"] == lesson_id), None)
+    if not lesson:
+        return {"success": False, "error": f"Seerah lesson {lesson_id} not found"}
+
+    level_info = next((lv for lv in SEERAH_LEVELS if lv["level"] == lesson["level"]), None)
+
+    result = {
+        "id": lesson["id"],
+        "level": lesson["level"],
+        "level_title": _t(level_info["title"], lang) if level_info else "",
+        "lesson_in_level": lesson["lesson"],
+        "emoji": lesson["emoji"],
+        "title": _t(lesson["title"], lang),
+        "method": lesson["method"],
+        "xp": lesson.get("xp", 20),
+    }
+
+    # Translate content
+    content = lesson.get("content", {})
+    if content.get("status") == "placeholder":
+        result["content"] = {
+            "placeholder": True,
+            "message": _t(content.get("message", {}), lang)
+        }
+    else:
+        translated_content = {}
+        for key, val in content.items():
+            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
+                translated_content[key] = _t(val, lang)
+            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
+                translated_content[key] = [
+                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
+                    for item in val
+                ]
+            else:
+                translated_content[key] = val
+        result["content"] = translated_content
+
+    quiz = lesson.get("quiz", {})
+    result["quiz"] = {
+        "type": quiz.get("type", ""),
+        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
+        "correct": quiz.get("correct"),
+        "options": quiz.get("options", []),
+    }
+
+    return {
+        "success": True,
+        "lesson": result,
+        "has_next": lesson_id < len(SEERAH_ALL_LESSONS),
+        "has_prev": lesson_id > 1,
         "language": lang,
     }
