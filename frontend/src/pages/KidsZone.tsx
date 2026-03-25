@@ -21,7 +21,7 @@ interface DailyGames { day: number; total_xp: number; games: GameData[]; games_c
 interface KidProfile { user_id: string; total_xp: number; level: number; streak_days: number; games_completed: number; coins: number; badges: string[]; }
 interface ShieldLesson { id: string; theme: string; title: string; content: string; key_lesson: string; }
 interface CourseLevel { id: string; name: string; emoji: string; color: string; desc: string; units_count: number; total_lessons: number; units: any[]; }
-interface AlphabetLetter { index: number; letter: string; name: string; sound: string; forms: any; emoji: string; word_ar: string; word_en: string; }
+interface AlphabetLetter { index: number; letter: string; name: string; sound: string; forms: any; emoji: string; word_ar: string; word_en: string; word?: string; }
 interface AcademyTrack { id: string; name: string; emoji: string; color: string; description: string; total_lessons: number; levels: any[]; }
 interface AcademyOverview { academy_name: string; tracks: AcademyTrack[]; total_lessons: number; }
 interface AcademyLesson { id: number; title: string; emoji: string; level: number; lesson: number; method: string; content: any; quiz: any; xp: number; has_next: boolean; has_prev: boolean; level_name?: string; }
@@ -465,12 +465,12 @@ export default function KidsZone() {
             ))}
           </div>
 
-          {/* Example word */}
+          {/* Example word — Arabic + localized translation */}
           <div className="p-4 rounded-[20px] bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 dark:border-amber-800/30 flex items-center gap-4">
             <span className="text-4xl">{lt.emoji}</span>
-            <div>
+            <div className="flex-1">
               <p className="text-2xl font-bold" style={{ fontFamily: "'Noto Naskh Arabic', 'Amiri', serif" }}>{lt.word_ar}</p>
-              <p className="text-sm text-muted-foreground">{lt.word_en}</p>
+              <p className="text-lg font-semibold text-amber-700 dark:text-amber-300">{lt.word || lt.word_en}</p>
             </div>
           </div>
 
