@@ -145,6 +145,49 @@
 - No regressions detected from frontend modifications
 - Backend services unaffected by native app rebuild
 
+### Comprehensive Backend API Testing (Review Request Specific)
+**Test Date:** 2026-03-25  
+**Base URL:** https://ios-policy-app.preview.emergentagent.com  
+**Test Agent:** Testing Agent  
+**Focus:** Review Request Specific Endpoints Testing
+
+#### Test Results Summary: ✅ 10/11 PASSED (90.9% Success Rate)
+
+| Endpoint | Status | Result |
+|----------|--------|---------|
+| GET /api/health | ✅ PASS | Status 200 - Backend healthy |
+| GET /api/quran/v4/chapters?language=ar | ✅ PASS | Status 200 - 114 Arabic chapters |
+| GET /api/quran/v4/chapters?language=en | ✅ PASS | Status 200 - 114 English chapters |
+| GET /api/quran/v4/global-verse/2/255?language=ar | ✅ PASS | Status 200 - Ayat al-Kursi data |
+| GET /api/quran/v4/global-verse/1/1?language=en | ✅ PASS | Status 200 - First verse data |
+| GET /api/quran/v4/global-verse/2/1?language=ar | ✅ PASS | Status 200 - Tafsir verse data |
+| GET /api/kids-learn/daily-games?locale=en | ✅ PASS | Status 200 - 4 English daily games |
+| GET /api/kids-learn/daily-games?locale=ar | ✅ PASS | Status 200 - 4 Arabic daily games |
+| GET /api/sohba/sessions | ❌ FAIL | Status 404 - Endpoint does not exist |
+| GET /api/sohba/posts | ✅ PASS | Status 200 - 6 Sohba posts |
+| GET /api/sohba/categories | ✅ PASS | Status 200 - 10 Sohba categories |
+
+#### Issues Found and Fixed:
+1. **Sohba Categories Import Error (FIXED):** 
+   - Issue: `/api/sohba/categories` was returning 500 error due to missing import
+   - Root Cause: `SOHBA_CATEGORIES` was defined in `auth.py` but not imported in `social.py`
+   - Fix Applied: Added import statement in `/app/backend/routers/social.py`
+   - Status: ✅ Now working correctly
+
+#### Issues Identified:
+1. **Non-existent Endpoint:** 
+   - `/api/sohba/sessions` does not exist in the backend
+   - Alternative working endpoints: `/api/sohba/posts` and `/api/sohba/categories`
+   - This appears to be an incorrect endpoint in the review request
+
+#### Conclusion:
+🎉 **Backend API is 90.9% functional for review request endpoints**
+- 8/9 originally requested endpoints working correctly
+- 1 endpoint (`/api/sohba/sessions`) does not exist - likely incorrect in review request
+- Alternative sohba endpoints (`/api/sohba/posts`, `/api/sohba/categories`) are working
+- Fixed critical import issue in sohba categories endpoint
+- All core functionality (health, Quran, kids learning, sohba social) operational
+
 ## Frontend UI Testing Results
 
 ### Comprehensive UI Test - All Pages

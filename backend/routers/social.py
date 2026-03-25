@@ -16,6 +16,9 @@ import os
 import json as json_module
 from deps import get_admin_user
 
+# Import SOHBA_CATEGORIES from auth router
+from .auth import SOHBA_CATEGORIES
+
 router = APIRouter(tags=["Social (Sohba)"])
 
 class CreatePostRequest(BaseModel):

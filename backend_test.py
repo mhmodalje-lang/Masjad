@@ -1,396 +1,325 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite: Strict Localization Fix for Noor Academy Arabic Learning App
-Testing all 9 locales for proper localization without English text leakage
-Base URL: https://ios-policy-app.preview.emergentagent.com
+Islamic App Backend API Testing - Review Request Specific
+=========================================================
+Testing the exact endpoints mentioned in the review request.
+
+Review Request Endpoints:
+1. Health: GET /api/health
+2. Quran chapters: GET /api/quran/v4/chapters?language=ar
+3. Quran chapters English: GET /api/quran/v4/chapters?language=en
+4. Global verse: GET /api/quran/v4/global-verse/2/255?language=ar
+5. Global verse English: GET /api/quran/v4/global-verse/1/1?language=en
+6. Kids learn daily games: GET /api/kids-learn/daily-games?locale=en
+7. Kids learn daily games Arabic: GET /api/kids-learn/daily-games?locale=ar
+8. Sohba sessions: GET /api/sohba/sessions
+9. Tafsir: GET /api/quran/v4/global-verse/2/1?language=ar
+
+All endpoints should return 200 status codes.
 """
 
 import requests
 import json
 import sys
 from typing import Dict, List, Any
+from datetime import datetime
 
-# Base URL from frontend/.env
-BASE_URL = "https://ios-policy-app.preview.emergentagent.com"
+# Backend URL from frontend/.env
+BACKEND_URL = "https://ios-policy-app.preview.emergentagent.com"
 
-# All 9 supported locales
-LOCALES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
+# Test results storage
+test_results = []
 
-# Expected localized letter names for key locales
-EXPECTED_LETTER_NAMES = {
-    "ar": "ألف",  # Should be Arabic, NOT "Alif"
-    "ru": "Алиф",  # Should be Russian, NOT "Alif"
-    "fr": "Alif",  # Same in French
-    "tr": "Elif",  # Turkish
-    "de": "Alif",  # German
-    "el": "Αλίφ",  # Greek
-}
-
-# Expected word translations for "Lion" (first letter example)
-EXPECTED_WORD_TRANSLATIONS = {
-    "ar": "أسد",
-    "ru": "Лев",  # Should be Russian, NOT "Lion"
-    "fr": "Lion",  # Same in French
-    "tr": "Aslan",  # Should be Turkish, NOT "Lion"
-    "de": "Löwe",  # Should be German, NOT "Lion"
-    "el": "Λιοντάρι",  # Greek
-}
-
-# Expected memory game form labels (localized)
-EXPECTED_FORM_LABELS = {
-    "ar": ["معزول", "بداية", "وسط", "نهاية"],
-    "ru": ["Отдельная", "Начальная", "Средняя", "Конечная"],
-    "tr": ["Tek", "Başta", "Ortada", "Sonda"],
-    "de": ["Isoliert", "Anfang", "Mitte", "Ende"],
-    "sv": ["Isolerad", "Början", "Mitten", "Slutet"],
-    "el": ["Μεμονωμένο", "Αρχικό", "Μεσαίο", "Τελικό"],
-}
-
-class TestResults:
-    def __init__(self):
-        self.passed = 0
-        self.failed = 0
-        self.failures = []
+def log_test(test_name: str, endpoint: str, status: str, status_code: int = None, details: str = "", response_data: Any = None):
+    """Log test result with comprehensive details"""
+    result = {
+        "test": test_name,
+        "endpoint": endpoint,
+        "status": status,
+        "status_code": status_code,
+        "details": details,
+        "timestamp": datetime.now().isoformat(),
+        "response_preview": str(response_data)[:200] + "..." if response_data and len(str(response_data)) > 200 else str(response_data)
+    }
+    test_results.append(result)
     
-    def add_pass(self, test_name: str):
-        self.passed += 1
-        print(f"✅ PASS: {test_name}")
-    
-    def add_fail(self, test_name: str, error: str):
-        self.failed += 1
-        self.failures.append(f"{test_name}: {error}")
-        print(f"❌ FAIL: {test_name} - {error}")
-    
-    def summary(self):
-        total = self.passed + self.failed
-        print(f"\n{'='*60}")
-        print(f"TEST SUMMARY: {self.passed}/{total} PASSED")
-        print(f"{'='*60}")
-        if self.failures:
-            print("FAILURES:")
-            for failure in self.failures:
-                print(f"  - {failure}")
-        return self.failed == 0
+    status_icon = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
+    print(f"{status_icon} {test_name}: {status} (Status: {status_code})")
+    if details:
+        print(f"   Details: {details}")
 
-def make_request(endpoint: str, params: Dict = None) -> Dict[str, Any]:
-    """Make HTTP request with error handling."""
+def test_endpoint(endpoint: str, test_name: str) -> Dict[str, Any]:
+    """Test a single endpoint with comprehensive error handling"""
+    full_url = f"{BACKEND_URL}{endpoint}"
+    print(f"\n🔍 Testing: {test_name}")
+    print(f"   URL: {full_url}")
+    
     try:
-        url = f"{BASE_URL}{endpoint}"
-        response = requests.get(url, params=params, timeout=30)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        return {"error": str(e)}
-    except json.JSONDecodeError as e:
-        return {"error": f"JSON decode error: {e}"}
-
-def test_health_check(results: TestResults):
-    """Test 1: Health Check"""
-    print("\n🔍 Testing Health Check...")
-    data = make_request("/api/health")
-    
-    if "error" in data:
-        results.add_fail("Health Check", data["error"])
-        return
-    
-    if data.get("status") == "healthy":
-        results.add_pass("Health Check")
-    else:
-        results.add_fail("Health Check", f"Expected healthy status, got: {data}")
-
-def test_alphabet_lesson_localization(results: TestResults):
-    """Test 2: Alphabet Letter Lesson - ALL 9 LOCALES (MOST CRITICAL)"""
-    print("\n🔍 Testing Alphabet Letter Lesson Localization (Index 0 - Alif)...")
-    
-    for locale in LOCALES:
-        test_name = f"Alphabet Lesson Localization - {locale.upper()}"
-        data = make_request("/api/kids-learn/course/alphabet/0", {"locale": locale})
+        response = requests.get(full_url, timeout=15)
         
-        if "error" in data:
-            results.add_fail(test_name, data["error"])
-            continue
-        
-        if not data.get("success"):
-            results.add_fail(test_name, f"API returned success=false: {data}")
-            continue
-        
-        lesson = data.get("lesson", {})
-        games = data.get("games", [])
-        
-        # Check lesson name is localized (NOT English for non-English locales)
-        lesson_name = lesson.get("name", "")
-        if locale in EXPECTED_LETTER_NAMES:
-            expected_name = EXPECTED_LETTER_NAMES[locale]
-            if lesson_name != expected_name:
-                results.add_fail(test_name, f"Letter name should be '{expected_name}', got '{lesson_name}'")
-                continue
-        elif locale == "en":
-            if lesson_name != "Alif":
-                results.add_fail(test_name, f"English letter name should be 'Alif', got '{lesson_name}'")
-                continue
-        
-        # Check example_translation is localized (NOT English)
-        example_translation = lesson.get("example_translation", "")
-        if locale in EXPECTED_WORD_TRANSLATIONS:
-            expected_word = EXPECTED_WORD_TRANSLATIONS[locale]
-            if example_translation != expected_word:
-                results.add_fail(test_name, f"Word translation should be '{expected_word}', got '{example_translation}'")
-                continue
-        elif locale == "en":
-            if example_translation != "Lion":
-                results.add_fail(test_name, f"English word should be 'Lion', got '{example_translation}'")
-                continue
-        
-        # Check memory game form labels are localized
-        memory_game = None
-        for game in games:
-            if game.get("type") == "memory":
-                memory_game = game
-                break
-        
-        if memory_game:
-            cards = memory_game.get("cards", [])
-            text_cards = [card["content"] for card in cards if card.get("type") == "text"]
+        # Log the response
+        if response.status_code == 200:
+            try:
+                data = response.json()
+                log_test(test_name, endpoint, "PASS", response.status_code, 
+                        f"Successfully returned data", data)
+                return {"success": True, "data": data, "status_code": response.status_code}
+            except json.JSONDecodeError:
+                log_test(test_name, endpoint, "FAIL", response.status_code, 
+                        "Response is not valid JSON", response.text[:200])
+                return {"success": False, "error": "Invalid JSON response", "status_code": response.status_code}
+        else:
+            log_test(test_name, endpoint, "FAIL", response.status_code, 
+                    f"HTTP {response.status_code}: {response.text[:200]}")
+            return {"success": False, "error": response.text, "status_code": response.status_code}
             
-            if locale in EXPECTED_FORM_LABELS:
-                expected_labels = EXPECTED_FORM_LABELS[locale]
-                for expected_label in expected_labels:
-                    if expected_label not in text_cards:
-                        results.add_fail(test_name, f"Missing localized form label '{expected_label}' in memory game")
-                        break
-                else:
-                    # Check for English leakage in non-English locales
-                    if locale != "en":
-                        english_labels = ["Isolated", "Initial", "Medial", "Final"]
-                        for eng_label in english_labels:
-                            if eng_label in text_cards:
-                                results.add_fail(test_name, f"Found English form label '{eng_label}' in {locale} locale")
-                                break
-                        else:
-                            results.add_pass(test_name)
-                    else:
-                        results.add_pass(test_name)
-            else:
-                # For locales not in our expected list, just check no obvious English leakage
-                if locale != "en":
-                    english_labels = ["Isolated", "Initial", "Medial", "Final"]
-                    for eng_label in english_labels:
-                        if eng_label in text_cards:
-                            results.add_fail(test_name, f"Found English form label '{eng_label}' in {locale} locale")
-                            break
-                    else:
-                        results.add_pass(test_name)
-                else:
-                    results.add_pass(test_name)
-        else:
-            results.add_fail(test_name, "No memory game found in games array")
+    except requests.exceptions.Timeout:
+        log_test(test_name, endpoint, "FAIL", None, "Request timeout (15s)")
+        return {"success": False, "error": "Timeout"}
+    except requests.exceptions.ConnectionError:
+        log_test(test_name, endpoint, "FAIL", None, "Connection error")
+        return {"success": False, "error": "Connection error"}
+    except Exception as e:
+        log_test(test_name, endpoint, "FAIL", None, f"Unexpected error: {str(e)}")
+        return {"success": False, "error": str(e)}
 
-def test_alphabet_list_localization(results: TestResults):
-    """Test 3: Alphabet List - Localized words"""
-    print("\n🔍 Testing Alphabet List Localization...")
+def test_health_endpoint():
+    """Test the health endpoint"""
+    print("\n" + "="*60)
+    print("1. TESTING HEALTH ENDPOINT")
+    print("="*60)
     
-    test_locales = ["ar", "ru", "tr"]  # Key locales to test
+    result = test_endpoint("/api/health", "Health Check")
     
-    for locale in test_locales:
-        test_name = f"Alphabet List Localization - {locale.upper()}"
-        data = make_request("/api/kids-learn/course/alphabet", {"locale": locale})
-        
-        if "error" in data:
-            results.add_fail(test_name, data["error"])
-            continue
-        
-        if not data.get("success"):
-            results.add_fail(test_name, f"API returned success=false: {data}")
-            continue
-        
-        letters = data.get("letters", [])
-        if not letters:
-            results.add_fail(test_name, "No letters returned")
-            continue
-        
-        # Check first letter (Alif) word translation
-        first_letter = letters[0]
-        word_translation = first_letter.get("word_en", "")  # This field should contain localized word
-        
-        if locale in EXPECTED_WORD_TRANSLATIONS:
-            expected_word = EXPECTED_WORD_TRANSLATIONS[locale]
-            if word_translation == expected_word:
-                results.add_pass(test_name)
-            else:
-                results.add_fail(test_name, f"word_en should be '{expected_word}', got '{word_translation}'")
-        else:
-            results.add_pass(test_name)  # Pass for other locales
+    if result["success"]:
+        data = result["data"]
+        print(f"   ✅ Health Status: {data}")
+    
+    return result["success"]
 
-def test_boundary_letter_lesson(results: TestResults):
-    """Test 4: Letter Lesson at last index (boundary test)"""
-    print("\n🔍 Testing Boundary Letter Lesson (Index 27 - Ya)...")
+def test_quran_chapters():
+    """Test Quran chapters endpoints"""
+    print("\n" + "="*60)
+    print("2. TESTING QURAN CHAPTERS ENDPOINTS")
+    print("="*60)
     
-    test_name = "Boundary Letter Lesson (Index 27) - Russian"
-    data = make_request("/api/kids-learn/course/alphabet/27", {"locale": "ru"})
+    results = []
     
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-        return
+    # Test Arabic chapters
+    result_ar = test_endpoint("/api/quran/v4/chapters?language=ar", "Quran Chapters (Arabic)")
+    results.append(result_ar["success"])
     
-    if not data.get("success"):
-        results.add_fail(test_name, f"API returned success=false: {data}")
-        return
+    if result_ar["success"]:
+        chapters = result_ar["data"]
+        if isinstance(chapters, dict) and "chapters" in chapters:
+            chapter_count = len(chapters["chapters"])
+            print(f"   ✅ Found {chapter_count} Arabic chapters")
+        elif isinstance(chapters, list):
+            chapter_count = len(chapters)
+            print(f"   ✅ Found {chapter_count} Arabic chapters")
     
-    lesson = data.get("lesson", {})
-    if lesson.get("letter") == "ي" and lesson.get("name") == "Йа":
-        results.add_pass(test_name)
-    else:
-        results.add_fail(test_name, f"Expected letter 'ي' with name 'Йа', got letter '{lesson.get('letter')}' with name '{lesson.get('name')}'")
+    # Test English chapters
+    result_en = test_endpoint("/api/quran/v4/chapters?language=en", "Quran Chapters (English)")
+    results.append(result_en["success"])
+    
+    if result_en["success"]:
+        chapters = result_en["data"]
+        if isinstance(chapters, dict) and "chapters" in chapters:
+            chapter_count = len(chapters["chapters"])
+            print(f"   ✅ Found {chapter_count} English chapters")
+        elif isinstance(chapters, list):
+            chapter_count = len(chapters)
+            print(f"   ✅ Found {chapter_count} English chapters")
+    
+    return all(results)
 
-def test_quiz_questions_localization(results: TestResults):
-    """Test 5: Quiz questions localization"""
-    print("\n🔍 Testing Quiz Questions Localization...")
+def test_global_verses():
+    """Test global verse endpoints"""
+    print("\n" + "="*60)
+    print("3. TESTING GLOBAL VERSE ENDPOINTS")
+    print("="*60)
     
-    # Test Arabic locale
-    test_name = "Quiz Questions - Arabic Locale"
-    data = make_request("/api/kids-learn/course/alphabet/0", {"locale": "ar"})
+    results = []
     
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"API returned success=false: {data}")
-    else:
-        games = data.get("games", [])
-        quiz_game = None
-        for game in games:
-            if game.get("type") == "quiz":
-                quiz_game = game
-                break
-        
-        if quiz_game:
-            question = quiz_game.get("question", "")
-            if "ألف" in question:  # Should contain Arabic letter name
-                results.add_pass(test_name)
-            else:
-                results.add_fail(test_name, f"Quiz question should contain 'ألف', got: {question}")
-        else:
-            results.add_fail(test_name, "No quiz game found")
+    # Test Ayat al-Kursi (2:255) in Arabic
+    result_kursi = test_endpoint("/api/quran/v4/global-verse/2/255?language=ar", "Ayat al-Kursi (Arabic)")
+    results.append(result_kursi["success"])
     
-    # Test Russian locale
-    test_name = "Quiz Questions - Russian Locale"
-    data = make_request("/api/kids-learn/course/alphabet/0", {"locale": "ru"})
+    if result_kursi["success"]:
+        verse_data = result_kursi["data"]
+        print(f"   ✅ Ayat al-Kursi data: {str(verse_data)[:100]}...")
     
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"API returned success=false: {data}")
-    else:
-        games = data.get("games", [])
-        quiz_game = None
-        for game in games:
-            if game.get("type") == "quiz":
-                quiz_game = game
-                break
-        
-        if quiz_game:
-            question = quiz_game.get("question", "")
-            if "Алиф" in question:  # Should contain Russian letter name
-                results.add_pass(test_name)
-            else:
-                results.add_fail(test_name, f"Quiz question should contain 'Алиф', got: {question}")
-        else:
-            results.add_fail(test_name, "No quiz game found")
+    # Test first verse (1:1) in English
+    result_first = test_endpoint("/api/quran/v4/global-verse/1/1?language=en", "First Verse (English)")
+    results.append(result_first["success"])
+    
+    if result_first["success"]:
+        verse_data = result_first["data"]
+        print(f"   ✅ First verse data: {str(verse_data)[:100]}...")
+    
+    # Test Tafsir endpoint (2:1) in Arabic
+    result_tafsir = test_endpoint("/api/quran/v4/global-verse/2/1?language=ar", "Tafsir Verse (Arabic)")
+    results.append(result_tafsir["success"])
+    
+    if result_tafsir["success"]:
+        verse_data = result_tafsir["data"]
+        print(f"   ✅ Tafsir verse data: {str(verse_data)[:100]}...")
+    
+    return all(results)
 
-def test_regression_endpoints(results: TestResults):
-    """Test 6: Regression Tests - Existing endpoints still working"""
-    print("\n🔍 Testing Regression - Existing Endpoints...")
+def test_kids_learn_daily_games():
+    """Test kids learn daily games endpoints"""
+    print("\n" + "="*60)
+    print("4. TESTING KIDS LEARN DAILY GAMES ENDPOINTS")
+    print("="*60)
     
-    # Test daily games
-    test_name = "Regression - Daily Games"
-    data = make_request("/api/kids-learn/daily-games", {"locale": "en"})
+    results = []
     
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"Daily games API returned success=false: {data}")
+    # Test English daily games
+    result_en = test_endpoint("/api/kids-learn/daily-games?locale=en", "Kids Daily Games (English)")
+    results.append(result_en["success"])
+    
+    if result_en["success"]:
+        games_data = result_en["data"]
+        if isinstance(games_data, dict) and "games" in games_data:
+            game_count = len(games_data["games"])
+            print(f"   ✅ Found {game_count} English daily games")
+        elif isinstance(games_data, list):
+            game_count = len(games_data)
+            print(f"   ✅ Found {game_count} English daily games")
+    
+    # Test Arabic daily games
+    result_ar = test_endpoint("/api/kids-learn/daily-games?locale=ar", "Kids Daily Games (Arabic)")
+    results.append(result_ar["success"])
+    
+    if result_ar["success"]:
+        games_data = result_ar["data"]
+        if isinstance(games_data, dict) and "games" in games_data:
+            game_count = len(games_data["games"])
+            print(f"   ✅ Found {game_count} Arabic daily games")
+        elif isinstance(games_data, list):
+            game_count = len(games_data)
+            print(f"   ✅ Found {game_count} Arabic daily games")
+    
+    return all(results)
+
+def test_sohba_endpoints():
+    """Test Sohba endpoints (corrected from review request)"""
+    print("\n" + "="*60)
+    print("5. TESTING SOHBA ENDPOINTS")
+    print("="*60)
+    
+    # Test the requested endpoint (which doesn't exist)
+    result_sessions = test_endpoint("/api/sohba/sessions", "Sohba Sessions (Requested)")
+    
+    # Test the actual working sohba endpoints
+    result_posts = test_endpoint("/api/sohba/posts", "Sohba Posts (Actual)")
+    result_categories = test_endpoint("/api/sohba/categories", "Sohba Categories (Actual)")
+    
+    if result_posts["success"]:
+        posts_data = result_posts["data"]
+        if isinstance(posts_data, dict) and "posts" in posts_data:
+            post_count = len(posts_data["posts"])
+            total_count = posts_data.get("total", post_count)
+            print(f"   ✅ Found {post_count} Sohba posts (total: {total_count})")
+        elif isinstance(posts_data, list):
+            post_count = len(posts_data)
+            print(f"   ✅ Found {post_count} Sohba posts")
+    
+    if result_categories["success"]:
+        categories_data = result_categories["data"]
+        if isinstance(categories_data, dict) and "categories" in categories_data:
+            category_count = len(categories_data["categories"])
+            print(f"   ✅ Found {category_count} Sohba categories")
+        elif isinstance(categories_data, list):
+            category_count = len(categories_data)
+            print(f"   ✅ Found {category_count} Sohba categories")
+    
+    # Return true if at least one sohba endpoint works
+    return result_posts["success"] or result_categories["success"]
+
+def print_comprehensive_summary():
+    """Print comprehensive test summary"""
+    print("\n" + "="*80)
+    print("ISLAMIC APP BACKEND API TESTING SUMMARY")
+    print("="*80)
+    
+    total_tests = len(test_results)
+    passed_tests = len([r for r in test_results if r["status"] == "PASS"])
+    failed_tests = len([r for r in test_results if r["status"] == "FAIL"])
+    
+    print(f"📊 OVERALL RESULTS:")
+    print(f"   Total Tests: {total_tests}")
+    print(f"   ✅ Passed: {passed_tests}")
+    print(f"   ❌ Failed: {failed_tests}")
+    print(f"   Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+    
+    print(f"\n📋 ENDPOINT RESULTS:")
+    for result in test_results:
+        status_icon = "✅" if result["status"] == "PASS" else "❌"
+        print(f"   {status_icon} {result['test']}: {result['status']} ({result['status_code']})")
+    
+    if failed_tests > 0:
+        print(f"\n❌ FAILED TESTS DETAILS:")
+        for result in test_results:
+            if result["status"] == "FAIL":
+                print(f"   - {result['test']}")
+                print(f"     Endpoint: {result['endpoint']}")
+                print(f"     Status Code: {result['status_code']}")
+                print(f"     Details: {result['details']}")
+                print()
+    
+    print(f"\n🎯 REVIEW REQUEST COMPLIANCE:")
+    if passed_tests == total_tests:
+        print("   ✅ ALL ENDPOINTS RETURNING 200 STATUS CODES")
+        print("   ✅ Health endpoint working")
+        print("   ✅ Quran chapters (Arabic & English) working")
+        print("   ✅ Global verses (Arabic & English) working")
+        print("   ✅ Kids learn daily games (English & Arabic) working")
+        print("   ✅ Sohba sessions working")
+        print("   ✅ Tafsir endpoint working")
     else:
-        games = data.get("games", [])
-        total_xp = data.get("total_xp", 0)
-        if len(games) == 4 and total_xp == 60:
-            results.add_pass(test_name)
-        else:
-            results.add_fail(test_name, f"Expected 4 games with 60 XP, got {len(games)} games with {total_xp} XP")
+        print(f"   ❌ {failed_tests} ENDPOINTS FAILING")
+        print("   ⚠️  Review request requirements not fully met")
     
-    # Test digital shield
-    test_name = "Regression - Digital Shield"
-    data = make_request("/api/kids-learn/digital-shield", {"locale": "en", "theme": "all"})
-    
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"Digital shield API returned success=false: {data}")
-    else:
-        lessons = data.get("lessons", [])
-        if len(lessons) == 30:
-            results.add_pass(test_name)
-        else:
-            results.add_fail(test_name, f"Expected 30 lessons, got {len(lessons)}")
-    
-    # Test course overview
-    test_name = "Regression - Course Overview (English)"
-    data = make_request("/api/kids-learn/course/overview", {"locale": "en"})
-    
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"Course overview API returned success=false: {data}")
-    else:
-        levels = data.get("levels", [])
-        if len(levels) == 6:
-            results.add_pass(test_name)
-        else:
-            results.add_fail(test_name, f"Expected 6 levels, got {len(levels)}")
-    
-    # Test course overview Arabic
-    test_name = "Regression - Course Overview (Arabic)"
-    data = make_request("/api/kids-learn/course/overview", {"locale": "ar"})
-    
-    if "error" in data:
-        results.add_fail(test_name, data["error"])
-    elif not data.get("success"):
-        results.add_fail(test_name, f"Course overview Arabic API returned success=false: {data}")
-    else:
-        levels = data.get("levels", [])
-        if len(levels) == 6:
-            # Check if Arabic names are present
-            first_level = levels[0]
-            if "التمهيدي" in first_level.get("name", ""):
-                results.add_pass(test_name)
-            else:
-                results.add_fail(test_name, f"Expected Arabic level names, got: {first_level.get('name')}")
-        else:
-            results.add_fail(test_name, f"Expected 6 levels, got {len(levels)}")
+    return failed_tests == 0
 
 def main():
-    """Run all tests for Strict Localization Fix."""
-    print("🚀 Starting Backend Tests: Strict Localization Fix")
-    print(f"Base URL: {BASE_URL}")
-    print(f"Testing {len(LOCALES)} locales: {', '.join(LOCALES)}")
+    """Main test execution"""
+    print("🚀 ISLAMIC APP BACKEND API TESTING")
+    print(f"🌐 Backend URL: {BACKEND_URL}")
+    print(f"📅 Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"🎯 Focus: Review Request Specific Endpoints")
     
-    results = TestResults()
+    # Run all tests
+    health_success = test_health_endpoint()
+    chapters_success = test_quran_chapters()
+    verses_success = test_global_verses()
+    games_success = test_kids_learn_daily_games()
+    sohba_success = test_sohba_endpoints()
     
-    # Run all test suites
-    test_health_check(results)
-    test_alphabet_lesson_localization(results)
-    test_alphabet_list_localization(results)
-    test_boundary_letter_lesson(results)
-    test_quiz_questions_localization(results)
-    test_regression_endpoints(results)
+    # Print comprehensive summary
+    all_success = print_comprehensive_summary()
     
-    # Print final summary
-    success = results.summary()
+    # Save detailed results
+    results_file = "/app/backend_test_results.json"
+    with open(results_file, "w") as f:
+        json.dump({
+            "test_summary": {
+                "total_tests": len(test_results),
+                "passed_tests": len([r for r in test_results if r["status"] == "PASS"]),
+                "failed_tests": len([r for r in test_results if r["status"] == "FAIL"]),
+                "success_rate": (len([r for r in test_results if r["status"] == "PASS"])/len(test_results))*100,
+                "all_endpoints_working": all_success
+            },
+            "detailed_results": test_results
+        }, f, indent=2)
     
-    if success:
-        print("\n🎉 ALL TESTS PASSED! Strict Localization Fix is working correctly.")
-        sys.exit(0)
-    else:
-        print(f"\n💥 {results.failed} TESTS FAILED! Issues found with localization.")
-        sys.exit(1)
+    print(f"\n📄 Detailed results saved to: {results_file}")
+    
+    # Return appropriate exit code
+    return 0 if all_success else 1
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)
