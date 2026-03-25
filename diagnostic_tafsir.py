@@ -7,7 +7,7 @@ import asyncio
 import aiohttp
 import json
 
-BACKEND_URL = "https://maintain-momentum.preview.emergentagent.com"
+BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
 
 async def check_tafsir_content():
     async with aiohttp.ClientSession() as session:

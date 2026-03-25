@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from review request
-BACKEND_URL = "https://maintain-momentum.preview.emergentagent.com"
+BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
 
 def test_endpoint(method, url, expected_status=200, data=None, headers=None, expected_content_type=None):
     """Test a single endpoint and return results"""

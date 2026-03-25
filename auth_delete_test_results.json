@@ -1,7 +1,7 @@
 {
   "timestamp": "2026-03-22 23:37:45",
   "endpoint": "DELETE /api/auth/delete-account",
-  "backend_url": "https://maintain-momentum.preview.emergentagent.com",
+  "backend_url": "https://code-cleanup-deploy.preview.emergentagent.com",
   "summary": {
     "total": 4,
     "passed": 4,

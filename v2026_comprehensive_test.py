@@ -4,7 +4,7 @@ V2026 Architecture Update - COMPREHENSIVE API TESTING
 =====================================================
 Tests the COMPLETE Quran + Hadith API for the V2026 Architecture Update.
 
-Base URL: https://maintain-momentum.preview.emergentagent.com
+Base URL: https://code-cleanup-deploy.preview.emergentagent.com
 
 Test Coverage:
 1. CHAPTERS API (all 9 languages)
@@ -21,7 +21,7 @@ from typing import Dict, Any, List
 import time
 
 # Base URL from frontend/.env
-BASE_URL = "https://maintain-momentum.preview.emergentagent.com"
+BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
 
 # All 9 supported languages
 ALL_LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
