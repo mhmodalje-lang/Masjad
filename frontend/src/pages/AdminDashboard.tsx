@@ -1043,7 +1043,7 @@ export default function AdminDashboard() {
                     ad.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {ad.status === 'approved' ? t('approved') : ad.status === 'rejected' ? t('rejected') : '{t('pendingStatus')}'}
+                    {ad.status === 'approved' ? t('approved') : ad.status === 'rejected' ? t('rejected') : t('pendingStatus')}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{ad.description}</p>
@@ -1081,7 +1081,7 @@ export default function AdminDashboard() {
                     v.status === 'rejected' ? 'bg-red-500/10 text-red-500' :
                     'bg-amber-500/10 text-amber-500'
                   )}>
-                    {v.status === 'approved' ? t('approved') : v.status === 'rejected' ? t('rejected') : '{t('pendingStatus')}'}
+                    {v.status === 'approved' ? t('approved') : v.status === 'rejected' ? t('rejected') : t('pendingStatus')}
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{v.description}</p>

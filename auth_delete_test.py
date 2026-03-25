@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any
 
 # Backend URL from review request
-BACKEND_URL = "https://quran-engine-1.preview.emergentagent.com"
+BACKEND_URL = "https://maintain-momentum.preview.emergentagent.com"
 
 class AuthDeleteTester:
     def __init__(self):

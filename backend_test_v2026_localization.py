@@ -11,7 +11,7 @@ import sys
 from typing import Dict, Any, List
 
 # Backend URL from frontend environment
-BACKEND_URL = "https://quran-engine-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://maintain-momentum.preview.emergentagent.com/api"
 
 class V2026LocalizationTester:
     def __init__(self):

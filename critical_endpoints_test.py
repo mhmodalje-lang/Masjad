@@ -2,7 +2,7 @@
 """
 Critical Endpoints Test Suite
 Testing specific endpoints after frontend native app changes
-Base URL: https://quran-engine-1.preview.emergentagent.com
+Base URL: https://maintain-momentum.preview.emergentagent.com
 """
 
 import requests
@@ -11,7 +11,7 @@ import sys
 from typing import Dict, List, Any
 
 # Base URL from frontend/.env
-BASE_URL = "https://quran-engine-1.preview.emergentagent.com"
+BASE_URL = "https://maintain-momentum.preview.emergentagent.com"
 
 class TestResults:
     def __init__(self):
