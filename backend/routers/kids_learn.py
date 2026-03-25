@@ -731,7 +731,7 @@ async def course_alphabet(locale: str = "en"):
             "forms": lt["forms"],
             "emoji": lt["emoji"],
             "word_ar": lt["word"]["ar"],
-            "word_en": lt["word"].get(lang, lt["word"]["en"]),
+            "word": lt["word"].get(lang, lt["word"]["en"]),
         })
     return {"success": True, "letters": letters, "total": len(letters)}
 

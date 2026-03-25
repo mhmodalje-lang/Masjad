@@ -14,6 +14,12 @@ import httpx
 import os
 import json as json_module
 
+from data.arabic_academy_translations import (
+    LETTER_TRANSLATIONS, NUMBER_TRANSLATIONS, VOCAB_TRANSLATIONS,
+    SENTENCE_TRANSLATIONS, SUPPORTED_LOCALES,
+    resolve_locale, localize_letter, localize_vocab, localize_number, localize_sentence
+)
+
 router = APIRouter(tags=["Arabic Academy"])
 
 ARABIC_LETTERS = [
@@ -169,22 +175,29 @@ LIVE_STREAMS = [
 ]
 
 @router.get("/arabic-academy/letters")
-async def get_arabic_letters():
-    """Get all 28 Arabic letters with forms and examples"""
-    return {"success": True, "letters": ARABIC_LETTERS, "total": len(ARABIC_LETTERS)}
+async def get_arabic_letters(locale: str = "en"):
+    """Get all 28 Arabic letters — filtered by locale (only shows selected language + Arabic)"""
+    lang = resolve_locale(locale)
+    localized = [localize_letter(lt, lang) for lt in ARABIC_LETTERS]
+    return {"success": True, "letters": localized, "total": len(localized), "locale": lang}
 
 @router.get("/arabic-academy/vocab")
-async def get_quran_vocab():
-    """Get Quranic vocabulary words"""
-    return {"success": True, "words": QURAN_VOCAB, "total": len(QURAN_VOCAB)}
+async def get_quran_vocab(locale: str = "en"):
+    """Get vocabulary words — filtered by locale (only shows selected language + Arabic)"""
+    lang = resolve_locale(locale)
+    localized = [localize_vocab(vid, lang) for vid in VOCAB_TRANSLATIONS]
+    return {"success": True, "words": localized, "total": len(localized), "locale": lang}
 
 @router.get("/arabic-academy/daily-word")
-async def get_daily_word():
-    """Get a daily Quranic vocabulary word"""
+async def get_daily_word(locale: str = "en"):
+    """Get a daily vocabulary word — filtered by locale"""
+    lang = resolve_locale(locale)
     today = date.today()
-    idx = today.toordinal() % len(QURAN_VOCAB)
-    word = QURAN_VOCAB[idx]
-    return {"success": True, "word": word, "day_index": idx}
+    vocab_ids = list(VOCAB_TRANSLATIONS.keys())
+    idx = today.toordinal() % len(vocab_ids)
+    vid = vocab_ids[idx]
+    word = localize_vocab(vid, lang)
+    return {"success": True, "word": word, "day_index": idx, "locale": lang}
 
 ARABIC_NUMBERS = [
     {"id": i, "number": i, "arabic": n[0], "word_ar": n[1], "word_en": n[2], "transliteration": n[3]}
@@ -584,31 +597,37 @@ async def get_curriculum_day(day: int):
     return {"success": True, "lesson": lesson, "content": content}
 
 @router.get("/arabic-academy/numbers")
-async def get_arabic_numbers():
-    """Get all Arabic numbers"""
-    return {"success": True, "numbers": ARABIC_NUMBERS, "total": len(ARABIC_NUMBERS)}
+async def get_arabic_numbers(locale: str = "en"):
+    """Get all Arabic numbers — filtered by locale"""
+    lang = resolve_locale(locale)
+    localized = [localize_number(n, n["id"], lang) for n in ARABIC_NUMBERS]
+    return {"success": True, "numbers": localized, "total": len(localized), "locale": lang}
 
 @router.get("/arabic-academy/vocabulary")
-async def get_vocabulary(category: str = "all"):
-    """Get vocabulary by category"""
+async def get_vocabulary(category: str = "all", locale: str = "en"):
+    """Get vocabulary by category — filtered by locale (only shows selected language + Arabic)"""
+    lang = resolve_locale(locale)
+    
+    # Group translations by category
+    cats_available = sorted(set(v["cat"] for v in VOCAB_TRANSLATIONS.values()))
+    
     if category == "all":
-        all_words = []
-        for cat, words in VOCAB_CATEGORIES.items():
-            for w in words:
-                all_words.append({**w, "category": cat})
-        return {"success": True, "words": all_words, "total": len(all_words), "categories": list(VOCAB_CATEGORIES.keys())}
-    elif category in VOCAB_CATEGORIES:
-        words = [{**w, "category": category} for w in VOCAB_CATEGORIES[category]]
-        return {"success": True, "words": words, "total": len(words), "categories": list(VOCAB_CATEGORIES.keys())}
+        all_words = [localize_vocab(vid, lang) for vid in VOCAB_TRANSLATIONS]
+        return {"success": True, "words": all_words, "total": len(all_words), "categories": cats_available, "locale": lang}
+    elif category in cats_available:
+        words = [localize_vocab(vid, lang) for vid, v in VOCAB_TRANSLATIONS.items() if v["cat"] == category]
+        return {"success": True, "words": words, "total": len(words), "categories": cats_available, "locale": lang}
     raise HTTPException(status_code=404, detail="Category not found")
 
 @router.get("/arabic-academy/sentences")
-async def get_sentences(difficulty: int = 0):
-    """Get sentence building templates"""
-    sentences = SENTENCE_TEMPLATES
+async def get_sentences(difficulty: int = 0, locale: str = "en"):
+    """Get sentence building templates — filtered by locale"""
+    lang = resolve_locale(locale)
+    sentences = SENTENCE_TRANSLATIONS
     if difficulty > 0:
         sentences = [s for s in sentences if s["difficulty"] == difficulty]
-    return {"success": True, "sentences": sentences, "total": len(sentences)}
+    localized = [localize_sentence(s, lang) for s in sentences]
+    return {"success": True, "sentences": localized, "total": len(localized), "locale": lang}
 
 @router.post("/arabic-academy/progress-v2")
 async def save_progress_v2(data: dict):
