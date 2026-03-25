@@ -751,10 +751,13 @@ async def course_alphabet_letter(index: int, locale: str = "en"):
 # ═══════════════════════════════════════════════════════════════
 
 from data.noor_academy_v2 import (
-    ACADEMY_TRACKS, NOORANIYA_LEVELS, NOORANIYA_LESSONS,
+    ACADEMY_TRACKS, NOORANIYA_LEVELS,
     AQEEDAH_LEVELS, FIQH_LEVELS, SEERAH_LEVELS,
-    ADAB_LESSONS, TEACHING_METHODS, ACADEMY_BADGES,
+    TEACHING_METHODS, ACADEMY_BADGES,
 )
+# Import expanded lesson data (30 Nooraniya + 20 Adab)
+from data.noor_academy_v2 import NOORANIYA_ALL_LESSONS as NOORANIYA_LESSONS
+from data.noor_academy_v2 import ADAB_ALL_LESSONS as ADAB_LESSONS
 
 SUPPORTED_LANGS = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
 
