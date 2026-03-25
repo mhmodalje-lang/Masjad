@@ -744,3 +744,216 @@ async def course_alphabet_letter(index: int, locale: str = "en"):
         return {"success": False, "error": "Invalid letter index"}
     games = generate_letter_games(index, locale)
     return {"success": True, "lesson": lesson, "games": games}
+
+
+# ═══════════════════════════════════════════════════════════════
+# NOOR ACADEMY V2 — Modern Islamic Education Platform (2026)
+# ═══════════════════════════════════════════════════════════════
+
+from data.noor_academy_v2 import (
+    ACADEMY_TRACKS, NOORANIYA_LEVELS, NOORANIYA_LESSONS,
+    AQEEDAH_LEVELS, FIQH_LEVELS, SEERAH_LEVELS,
+    ADAB_LESSONS, TEACHING_METHODS, ACADEMY_BADGES,
+)
+
+SUPPORTED_LANGS = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
+
+def _resolve_lang(locale: str) -> str:
+    if locale == "de-AT":
+        return "de"
+    return locale if locale in SUPPORTED_LANGS else "en"
+
+def _t(obj, lang: str, fallback: str = "en"):
+    """Translate a multilingual dict to the target language."""
+    if isinstance(obj, dict):
+        return obj.get(lang, obj.get(fallback, ""))
+    return obj
+
+
+@router.get("/kids-learn/academy/overview")
+async def academy_overview(locale: str = "ar"):
+    """Get Noor Academy V2 overview — all 5 learning tracks."""
+    lang = _resolve_lang(locale)
+    tracks = []
+    for t in ACADEMY_TRACKS:
+        tracks.append({
+            "id": t["id"],
+            "emoji": t["emoji"],
+            "color": t["color"],
+            "icon": t["icon"],
+            "order": t["order"],
+            "title": _t(t["title"], lang),
+            "description": _t(t["desc"], lang),
+            "total_levels": t["total_levels"],
+            "total_lessons": t["total_lessons"],
+            "age_range": t["age_range"],
+            "method": t["method"],
+        })
+    return {
+        "success": True,
+        "academy_name": _t({"ar": "أكاديمية نور ٢.٠", "en": "Noor Academy 2.0", "de": "Noor Akademie 2.0", "fr": "Académie Noor 2.0", "tr": "Noor Akademi 2.0", "ru": "Академия Нур 2.0", "sv": "Noor Akademi 2.0", "nl": "Noor Academie 2.0", "el": "Ακαδημία Νουρ 2.0"}, lang),
+        "tagline": _t({"ar": "أحدث أساليب التعليم ٢٠٢٦ — من الصفر حتى الإتقان", "en": "Modern 2026 Teaching Methods — From Zero to Mastery", "de": "Moderne Lehrmethoden 2026 — Von Null bis zur Meisterschaft", "fr": "Méthodes modernes 2026 — De zéro à la maîtrise", "tr": "2026 Modern Öğretim Yöntemleri — Sıfırdan Ustalığa", "ru": "Современные методы обучения 2026 — От нуля до мастерства", "sv": "Moderna undervisningsmetoder 2026 — Från noll till mästerskap", "nl": "Moderne lesmethoden 2026 — Van nul tot meesterschap", "el": "Σύγχρονες μέθοδοι 2026 — Από το μηδέν ως την κατάκτηση"}, lang),
+        "tracks": tracks,
+        "total_tracks": len(tracks),
+        "teaching_methods": [{
+            "id": k, "icon": v["icon"],
+            "name": _t(v, lang),
+        } for k, v in TEACHING_METHODS.items()],
+        "badges": [{
+            "id": b["id"], "emoji": b["emoji"],
+            "title": _t(b["title"], lang),
+        } for b in ACADEMY_BADGES],
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/track/{track_id}")
+async def academy_track_detail(track_id: str, locale: str = "ar"):
+    """Get detailed info for a specific learning track."""
+    lang = _resolve_lang(locale)
+    track = next((t for t in ACADEMY_TRACKS if t["id"] == track_id), None)
+    if not track:
+        return {"success": False, "error": f"Track '{track_id}' not found. Valid: nooraniya, aqeedah, fiqh, seerah, adab"}
+
+    levels_data = {
+        "nooraniya": NOORANIYA_LEVELS,
+        "aqeedah": AQEEDAH_LEVELS,
+        "fiqh": FIQH_LEVELS,
+        "seerah": SEERAH_LEVELS,
+        "adab": [{"level": i+1, "emoji": l["emoji"], "title": l["title"], "lessons": 1} for i, l in enumerate(ADAB_LESSONS)],
+    }
+
+    levels = []
+    raw_levels = levels_data.get(track_id, [])
+    for lv in raw_levels:
+        lvl = {
+            "level": lv["level"],
+            "emoji": lv["emoji"],
+            "title": _t(lv["title"], lang),
+            "lessons": lv.get("lessons", 1),
+        }
+        if "color" in lv:
+            lvl["color"] = lv["color"]
+        if "desc" in lv:
+            lvl["description"] = _t(lv["desc"], lang)
+        if "skills" in lv:
+            lvl["skills"] = lv["skills"]
+        levels.append(lvl)
+
+    return {
+        "success": True,
+        "track": {
+            "id": track["id"],
+            "emoji": track["emoji"],
+            "color": track["color"],
+            "title": _t(track["title"], lang),
+            "description": _t(track["desc"], lang),
+            "method": track["method"],
+            "age_range": track["age_range"],
+        },
+        "levels": levels,
+        "total_levels": len(levels),
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/nooraniya/lesson/{lesson_id}")
+async def academy_nooraniya_lesson(lesson_id: int, locale: str = "ar"):
+    """Get a specific Nooraniya lesson (1-70)."""
+    lang = _resolve_lang(locale)
+    lesson = next((l for l in NOORANIYA_LESSONS if l["id"] == lesson_id), None)
+    if not lesson:
+        return {"success": False, "error": f"Nooraniya lesson {lesson_id} not found"}
+
+    level_info = next((lv for lv in NOORANIYA_LEVELS if lv["level"] == lesson["level"]), None)
+
+    result = {
+        "id": lesson["id"],
+        "level": lesson["level"],
+        "level_title": _t(level_info["title"], lang) if level_info else "",
+        "lesson_in_level": lesson["lesson"],
+        "emoji": lesson["emoji"],
+        "title": _t(lesson["title"], lang),
+        "method": lesson["method"],
+        "method_info": {
+            "icon": TEACHING_METHODS.get(lesson["method"], {}).get("icon", "📖"),
+            "name": _t(TEACHING_METHODS.get(lesson["method"], {}), lang),
+        },
+        "xp": lesson.get("xp", 15),
+    }
+
+    # Translate content
+    content = lesson.get("content", {})
+    translated_content = {}
+    for key, val in content.items():
+        if isinstance(val, dict) and ("ar" in val or "en" in val):
+            translated_content[key] = _t(val, lang)
+        elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
+            translated_content[key] = [
+                {k: _t(v, lang) if isinstance(v, dict) and ("ar" in v or "en" in v) else v for k, v in item.items()}
+                for item in val
+            ]
+        else:
+            translated_content[key] = val
+    result["content"] = translated_content
+
+    # Translate quiz
+    quiz = lesson.get("quiz", {})
+    result["quiz"] = {
+        "type": quiz.get("type", ""),
+        "question": _t(quiz.get("question", {}), lang),
+        "correct": quiz.get("correct"),
+        "options": quiz.get("options", []),
+    }
+
+    return {
+        "success": True,
+        "lesson": result,
+        "has_next": lesson_id < len(NOORANIYA_LESSONS),
+        "has_prev": lesson_id > 1,
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/adab")
+async def academy_adab_list(locale: str = "ar"):
+    """Get all 10 Islamic manners (Adab) lessons."""
+    lang = _resolve_lang(locale)
+    lessons = []
+    for adab in ADAB_LESSONS:
+        lessons.append({
+            "id": adab["id"],
+            "emoji": adab["emoji"],
+            "title": _t(adab["title"], lang),
+            "rules_count": len(adab["rules"].get(lang, adab["rules"].get("en", []))),
+        })
+    return {
+        "success": True,
+        "title": _t({"ar": "الآداب الإسلامية", "en": "Islamic Manners", "de": "Islamische Umgangsformen", "fr": "Bonnes manières islamiques", "tr": "İslami Adap", "ru": "Исламские манеры", "sv": "Islamiska seder", "nl": "Islamitische manieren", "el": "Ισλαμικοί τρόποι"}, lang),
+        "lessons": lessons,
+        "total": len(lessons),
+        "language": lang,
+    }
+
+
+@router.get("/kids-learn/academy/adab/{adab_id}")
+async def academy_adab_detail(adab_id: int, locale: str = "ar"):
+    """Get a specific Adab lesson detail."""
+    lang = _resolve_lang(locale)
+    adab = next((a for a in ADAB_LESSONS if a["id"] == adab_id), None)
+    if not adab:
+        return {"success": False, "error": f"Adab lesson {adab_id} not found"}
+
+    return {
+        "success": True,
+        "adab": {
+            "id": adab["id"],
+            "emoji": adab["emoji"],
+            "title": _t(adab["title"], lang),
+            "rules": adab["rules"].get(lang, adab["rules"].get("en", [])),
+            "hadith": _t(adab["hadith"], lang),
+        },
+        "has_next": adab_id < len(ADAB_LESSONS),
+        "has_prev": adab_id > 1,
+        "language": lang,
+    }
