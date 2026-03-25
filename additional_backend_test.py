@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BASE_URL = "https://fast-reload-app.preview.emergentagent.com"
 
 def test_additional_endpoints():
     """Test additional endpoints for comprehensive verification"""

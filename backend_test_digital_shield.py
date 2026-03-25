@@ -13,7 +13,7 @@ Testing specific endpoints as requested in the review:
    - Test specific verse keys across all 9 languages
    - CRITICAL: Verify NO Arabic text for non-Arabic locales
 
-Backend URL: https://code-cleanup-deploy.preview.emergentagent.com
+Backend URL: https://fast-reload-app.preview.emergentagent.com
 All API routes have /api prefix
 """
 
@@ -25,7 +25,7 @@ import re
 from typing import Dict, List, Any
 
 # Backend URL from environment
-BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com"
 
 # Test languages as specified in review request
 ALL_LANGUAGES = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]

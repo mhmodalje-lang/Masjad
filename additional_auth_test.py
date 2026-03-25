@@ -6,7 +6,7 @@ Additional testing for report and block-user endpoints with proper request bodie
 import requests
 import json
 
-BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com"
 
 def test_with_body():
     print("🔍 TESTING REPORT AND BLOCK-USER WITH PROPER REQUEST BODIES")

@@ -10,7 +10,7 @@ import json
 from typing import Dict, List, Any
 
 # Configuration
-BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BASE_URL = "https://fast-reload-app.preview.emergentagent.com"
 TIMEOUT = 30
 
 class ArabicAcademyLocalizationTester:

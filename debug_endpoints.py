@@ -6,7 +6,7 @@ Debugging specific failed endpoints
 import requests
 import json
 
-BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com/api"
+BASE_URL = "https://fast-reload-app.preview.emergentagent.com/api"
 
 def test_login_debug():
     """Debug login endpoint"""

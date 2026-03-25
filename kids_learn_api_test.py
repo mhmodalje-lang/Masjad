@@ -19,7 +19,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com"
 
 # Test languages
 LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]

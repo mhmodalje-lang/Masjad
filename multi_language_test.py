@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, List
 
 # Backend URL from environment
-BACKEND_URL = "https://code-cleanup-deploy.preview.emergentagent.com/api"
+BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com/api"
 
 class MultiLanguageDeploymentTester:
     def __init__(self):

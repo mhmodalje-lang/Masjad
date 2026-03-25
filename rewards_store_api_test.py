@@ -2,7 +2,7 @@
 """
 Comprehensive Rewards Store API Testing
 Tests all 18 endpoints as specified in the review request
-Backend URL: https://code-cleanup-deploy.preview.emergentagent.com
+Backend URL: https://fast-reload-app.preview.emergentagent.com
 """
 
 import requests
@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://code-cleanup-deploy.preview.emergentagent.com"
+BASE_URL = "https://fast-reload-app.preview.emergentagent.com"
 TEST_USER_ID = "test_bot"
 KIDS_TEST_USER_ID = "kid_test"
 
