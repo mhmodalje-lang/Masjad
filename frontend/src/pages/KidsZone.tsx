@@ -106,7 +106,14 @@ export default function KidsZone() {
   }, [lang, shieldFilter]);
 
   const loadAcademy = useCallback(async () => {
-    try { const r = await fetch(`${API}/api/kids-learn/academy/overview?locale=${lang}`); const d = await r.json(); if (d.success) setAcademyOverview(d); } catch {}
+    try { const r = await fetch(`${API}/api/kids-learn/academy/overview?locale=${lang}`); const d = await r.json(); if (d.success) { 
+      const tracks = (d.tracks || []).map((t: any) => ({
+        id: t.id, name: t.title || t.name, emoji: t.emoji, color: t.color, 
+        description: t.description, total_lessons: t.total_lessons || 0, 
+        levels: new Array(t.total_levels || 0),
+      }));
+      setAcademyOverview({ academy_name: d.academy_name, tracks, total_lessons: d.total_lessons }); 
+    }} catch {}
   }, [lang]);
 
   const loadTrack = useCallback(async (trackId: string) => {
