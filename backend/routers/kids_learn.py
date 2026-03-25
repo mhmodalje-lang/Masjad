@@ -821,7 +821,7 @@ async def academy_overview(locale: str = "ar"):
 
 @router.get("/kids-learn/academy/track/{track_id}")
 async def academy_track_detail(track_id: str, locale: str = "ar"):
-    """Get detailed info for a specific learning track."""
+    """Get detailed info for a specific learning track with lesson summaries."""
     lang = _resolve_lang(locale)
     track = next((t for t in ACADEMY_TRACKS if t["id"] == track_id), None)
     if not track:
@@ -835,14 +835,44 @@ async def academy_track_detail(track_id: str, locale: str = "ar"):
         "adab": [{"level": i+1, "emoji": l["emoji"], "title": l["title"], "lessons": 1} for i, l in enumerate(ADAB_LESSONS)],
     }
 
+    # Lesson data for the track
+    lessons_map = {
+        "nooraniya": NOORANIYA_LESSONS,
+        "aqeedah": AQEEDAH_ALL_LESSONS,
+        "fiqh": FIQH_ALL_LESSONS,
+        "seerah": SEERAH_ALL_LESSONS,
+        "adab": ADAB_LESSONS,
+    }
+    all_lessons = lessons_map.get(track_id, [])
+
     levels = []
     raw_levels = levels_data.get(track_id, [])
     for lv in raw_levels:
+        level_num = lv["level"]
+        # Get lessons for this level
+        if track_id == "adab":
+            level_lessons = [all_lessons[level_num - 1]] if level_num <= len(all_lessons) else []
+        else:
+            level_lessons = [l for l in all_lessons if l.get("level") == level_num]
+
+        lesson_summaries = []
+        for ls in level_lessons:
+            is_placeholder = ls.get("content", {}).get("placeholder", False) or ls.get("content", {}).get("status") == "placeholder"
+            lesson_summaries.append({
+                "id": ls["id"],
+                "emoji": ls.get("emoji", "📖"),
+                "title": _t(ls.get("title", {}), lang) if isinstance(ls.get("title"), dict) else str(ls.get("title", "")),
+                "lesson": ls.get("lesson", ls.get("id", 0)),
+                "xp": ls.get("xp", 20),
+                "content": {"placeholder": True} if is_placeholder else {},
+            })
+
         lvl = {
-            "level": lv["level"],
+            "level": level_num,
             "emoji": lv["emoji"],
-            "title": _t(lv["title"], lang),
-            "lessons": lv.get("lessons", 1),
+            "name": _t(lv["title"], lang),
+            "lessons_count": lv.get("lessons", len(level_lessons)),
+            "lessons": lesson_summaries,
         }
         if "color" in lv:
             lvl["color"] = lv["color"]
@@ -854,15 +884,11 @@ async def academy_track_detail(track_id: str, locale: str = "ar"):
 
     return {
         "success": True,
-        "track": {
-            "id": track["id"],
-            "emoji": track["emoji"],
-            "color": track["color"],
-            "title": _t(track["title"], lang),
-            "description": _t(track["desc"], lang),
-            "method": track["method"],
-            "age_range": track["age_range"],
-        },
+        "track_name": _t(track["title"], lang),
+        "emoji": track["emoji"],
+        "color": track["color"],
+        "description": _t(track["desc"], lang),
+        "total_lessons": sum(lv.get("lessons_count", 0) for lv in levels),
         "levels": levels,
         "total_levels": len(levels),
         "language": lang,

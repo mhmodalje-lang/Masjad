@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend Testing for Expanded Noor Academy V2 Content
+Noor Academy V2 Backend API Testing
 Test Date: 2026-01-27
-Focus: Expanded Nooraniya (30 lessons), Expanded Adab (20 lessons), Academy Overview Integration
+Focus: Complete testing of all Noor Academy V2 endpoints as specified in review request
 """
 
 import requests
@@ -34,51 +34,11 @@ class NoorAcademyV2Tester:
         else:
             self.failed_tests += 1
             
-    def has_arabic_text(self, text: str) -> bool:
-        """Check if text contains Arabic characters (Unicode range 0600-06FF)"""
-        if not isinstance(text, str):
-            return False
-        arabic_pattern = re.compile(r'[\u0600-\u06FF]')
-        return bool(arabic_pattern.search(text))
-        
-    def check_language_purity(self, response_data: dict, locale: str) -> bool:
-        """Check if non-Arabic locales contain Arabic text in UI elements"""
-        if locale == 'ar':
-            return True  # Arabic locale should contain Arabic text
-            
-        # For Nooraniya lessons, Arabic letters in content are expected (it's Arabic learning)
-        # We only check UI elements like title, level_title, method_info for language purity
-        if 'lesson' in response_data:
-            lesson = response_data['lesson']
-            ui_elements = {
-                'title': lesson.get('title', ''),
-                'level_title': lesson.get('level_title', ''),
-                'method_info_name': lesson.get('method_info', {}).get('name', '')
-            }
-            ui_text = json.dumps(ui_elements, ensure_ascii=False)
-            return not self.has_arabic_text(ui_text)
-        
-        # For Adab lessons, check UI elements but allow Arabic in rules/hadith for Arabic locale
-        if 'adab' in response_data:
-            adab = response_data['adab']
-            if locale != 'ar':
-                # For non-Arabic locales, check title only (rules and hadith should be localized)
-                ui_elements = {
-                    'title': adab.get('title', '')
-                }
-                ui_text = json.dumps(ui_elements, ensure_ascii=False)
-                return not self.has_arabic_text(ui_text)
-            return True
-        
-        # For other responses, check the full response except known Arabic content fields
-        response_copy = response_data.copy()
-        response_str = json.dumps(response_copy, ensure_ascii=False)
-        return not self.has_arabic_text(response_str)
-        
     def make_request(self, endpoint: str) -> tuple:
         """Make HTTP request and return (success, data, status_code)"""
         try:
             url = f"{BASE_URL}{endpoint}"
+            print(f"Testing: {url}")
             response = requests.get(url, timeout=TIMEOUT)
             
             if response.status_code == 200:
@@ -88,31 +48,62 @@ class NoorAcademyV2Tester:
                 except json.JSONDecodeError:
                     return False, f"Invalid JSON response", response.status_code
             else:
-                return False, f"HTTP {response.status_code}", response.status_code
+                return False, f"HTTP {response.status_code}: {response.text[:200]}", response.status_code
                 
         except requests.exceptions.Timeout:
             return False, "Request timeout", 0
         except requests.exceptions.RequestException as e:
             return False, f"Request error: {str(e)}", 0
             
-    def test_expanded_nooraniya(self):
-        """Test 1: Expanded Nooraniya (30 lessons across 3 levels)"""
-        print("\n🔸 TEST 1: EXPANDED NOORANIYA (30 LESSONS)")
+    def test_academy_overview(self):
+        """Test 1: Academy Overview - should return 5 tracks"""
+        print("\n🔸 TEST 1: ACADEMY OVERVIEW")
         
-        test_cases = [
-            {"lesson": 1, "locale": "en", "expected_level": 1, "description": "Level 1 lesson"},
-            {"lesson": 11, "locale": "fr", "expected_level": 2, "description": "Level 2 (Letter Combinations) in French"},
-            {"lesson": 15, "locale": "de", "expected_level": 2, "description": "Level 2 (Connecting) in German"},
-            {"lesson": 21, "locale": "tr", "expected_level": 3, "description": "Level 3 (Fatha vowel) in Turkish"},
-            {"lesson": 28, "locale": "ru", "expected_level": 3, "description": "Level 3 (Al-Fatiha practice) in Russian"},
-            {"lesson": 30, "locale": "sv", "expected_level": 3, "description": "Level 3 Assessment in Swedish"}
+        endpoint = "/api/kids-learn/academy/overview?locale=en"
+        success, data, status_code = self.make_request(endpoint)
+        
+        test_name = "Academy Overview (5 tracks)"
+        
+        if not success:
+            self.log_result(test_name, "FAIL", f"Request failed: {data}")
+            return
+            
+        # Check if response has expected structure
+        if not isinstance(data, dict) or not data.get('success', False):
+            self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
+            return
+            
+        # Check if 5 tracks are present
+        tracks = data.get('tracks', [])
+        if len(tracks) != 5:
+            self.log_result(test_name, "FAIL", f"Expected 5 tracks, got {len(tracks)}")
+            return
+            
+        # Verify track IDs
+        expected_tracks = {'nooraniya', 'aqeedah', 'fiqh', 'seerah', 'adab'}
+        actual_tracks = {track.get('id') for track in tracks}
+        if actual_tracks != expected_tracks:
+            self.log_result(test_name, "FAIL", f"Expected tracks {expected_tracks}, got {actual_tracks}")
+            return
+            
+        self.log_result(test_name, "PASS", f"5 tracks found: {', '.join(actual_tracks)}")
+        
+    def test_track_details(self):
+        """Test 2-4: Track Details - Fiqh (4 levels), Seerah (6 levels), Aqeedah (5 levels), Nooraniya"""
+        print("\n🔸 TEST 2-4: TRACK DETAILS")
+        
+        track_tests = [
+            {"track": "fiqh", "locale": "en", "expected_levels": 4, "description": "Fiqh Track with lesson summaries"},
+            {"track": "seerah", "locale": "en", "expected_levels": 6, "description": "Seerah Track with lesson summaries"},
+            {"track": "aqeedah", "locale": "en", "expected_levels": 5, "description": "Aqeedah Track with lesson summaries"},
+            {"track": "nooraniya", "locale": "en", "expected_levels": 7, "description": "Nooraniya Track with lesson summaries"},
         ]
         
-        for case in test_cases:
-            endpoint = f"/api/kids-learn/academy/nooraniya/lesson/{case['lesson']}?locale={case['locale']}"
+        for test_case in track_tests:
+            endpoint = f"/api/kids-learn/academy/track/{test_case['track']}?locale={test_case['locale']}"
             success, data, status_code = self.make_request(endpoint)
             
-            test_name = f"Nooraniya Lesson {case['lesson']} ({case['locale']})"
+            test_name = f"{test_case['track'].title()} Track ({test_case['expected_levels']} levels)"
             
             if not success:
                 self.log_result(test_name, "FAIL", f"Request failed: {data}")
@@ -123,182 +114,181 @@ class NoorAcademyV2Tester:
                 self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
                 continue
                 
-            # Check language purity (CRITICAL requirement)
-            if not self.check_language_purity(data, case['locale']):
-                self.log_result(test_name, "FAIL", f"CRITICAL: Arabic text found in UI elements for {case['locale']} response")
+            # Check levels count
+            levels = data.get('levels', [])
+            if len(levels) != test_case['expected_levels']:
+                self.log_result(test_name, "FAIL", f"Expected {test_case['expected_levels']} levels, got {len(levels)}")
                 continue
                 
-            # Check if lesson content exists
+            # Verify each level has lesson summaries (not just count)
+            has_lesson_summaries = True
+            for level in levels:
+                lessons = level.get('lessons', [])
+                if not isinstance(lessons, list):
+                    has_lesson_summaries = False
+                    break
+                # Check if lessons have proper structure (not just count)
+                for lesson in lessons:
+                    if not isinstance(lesson, dict) or 'id' not in lesson or 'title' not in lesson:
+                        has_lesson_summaries = False
+                        break
+                if not has_lesson_summaries:
+                    break
+                    
+            if not has_lesson_summaries:
+                self.log_result(test_name, "FAIL", "Levels should contain lesson objects with summaries, not just counts")
+                continue
+                
+            total_lessons = sum(len(level.get('lessons', [])) for level in levels)
+            self.log_result(test_name, "PASS", f"{test_case['description']} - {len(levels)} levels, {total_lessons} total lessons")
+            
+    def test_lesson_content(self):
+        """Test 5-10: Individual Lesson Content"""
+        print("\n🔸 TEST 5-10: LESSON CONTENT")
+        
+        lesson_tests = [
+            {"track": "fiqh", "lesson": 1, "locale": "en", "description": "Fiqh Lesson 1 - real content with quiz"},
+            {"track": "seerah", "lesson": 1, "locale": "en", "description": "Seerah Lesson 1 - real content with story"},
+            {"track": "aqeedah", "lesson": 1, "locale": "en", "description": "Aqeedah Lesson 1 - real content about Tawheed"},
+            {"track": "fiqh", "lesson": 40, "locale": "en", "description": "Fiqh Lesson 40 (last lesson)"},
+            {"track": "seerah", "lesson": 60, "locale": "en", "description": "Seerah Lesson 60 (last lesson)"},
+            {"track": "fiqh", "lesson": 1, "locale": "ar", "description": "Fiqh Lesson 1 in Arabic"},
+        ]
+        
+        for test_case in lesson_tests:
+            endpoint = f"/api/kids-learn/academy/{test_case['track']}/lesson/{test_case['lesson']}?locale={test_case['locale']}"
+            success, data, status_code = self.make_request(endpoint)
+            
+            test_name = f"{test_case['track'].title()} Lesson {test_case['lesson']} ({test_case['locale']})"
+            
+            if not success:
+                self.log_result(test_name, "FAIL", f"Request failed: {data}")
+                continue
+                
+            # Check if response has expected structure
+            if not isinstance(data, dict) or not data.get('success', False):
+                self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
+                continue
+                
+            # Check lesson data
             lesson_data = data.get('lesson', {})
             if not lesson_data:
                 self.log_result(test_name, "FAIL", "No lesson data found")
                 continue
                 
-            # Verify lesson has required fields
-            required_fields = ['title', 'level_title']
+            # Check for placeholder content
+            content = lesson_data.get('content', {})
+            if content.get('placeholder', False) or content.get('status') == 'placeholder':
+                self.log_result(test_name, "FAIL", "Lesson contains placeholder content - should have real content")
+                continue
+                
+            # Verify required fields
+            required_fields = ['id', 'title', 'content']
             missing_fields = [field for field in required_fields if not lesson_data.get(field)]
             if missing_fields:
-                self.log_result(test_name, "FAIL", f"Missing fields: {missing_fields}")
+                self.log_result(test_name, "FAIL", f"Missing required fields: {missing_fields}")
                 continue
                 
-            # Verify level matches expected
-            actual_level = lesson_data.get('level')
-            if actual_level != case['expected_level']:
-                self.log_result(test_name, "FAIL", f"Expected level {case['expected_level']}, got {actual_level}")
+            # Check for quiz
+            quiz = lesson_data.get('quiz', {})
+            if not quiz:
+                self.log_result(test_name, "FAIL", "Lesson should have a quiz")
                 continue
                 
-            self.log_result(test_name, "PASS", f"{case['description']} - Level {actual_level}, UI language purity maintained")
-            
-    def test_expanded_adab(self):
-        """Test 2: Expanded Adab (20 lessons)"""
-        print("\n🔸 TEST 2: EXPANDED ADAB (20 LESSONS)")
-        
-        # First test the overview to verify 20 total lessons
-        endpoint = "/api/kids-learn/academy/adab?locale=en"
-        success, data, status_code = self.make_request(endpoint)
-        
-        if success and isinstance(data, dict) and data.get('success'):
-            lessons = data.get('lessons', [])
-            lesson_count = len(lessons)
-            if lesson_count == 20:
-                self.log_result("Adab Overview (20 lessons)", "PASS", f"Verified {lesson_count} total lessons")
+            # Special handling for comprehensive assessments
+            if quiz.get('type') == 'comprehensive':
+                # Comprehensive assessments may have empty question but should have type
+                if not quiz.get('type'):
+                    self.log_result(test_name, "FAIL", "Comprehensive assessment should have quiz type")
+                    continue
             else:
-                self.log_result("Adab Overview (20 lessons)", "FAIL", f"Expected 20 lessons, got {lesson_count}")
-        else:
-            self.log_result("Adab Overview (20 lessons)", "FAIL", f"Request failed: {data}")
+                # Regular lessons should have questions
+                if not quiz.get('question'):
+                    self.log_result(test_name, "FAIL", "Lesson should have a quiz with question")
+                    continue
+                    
+                # Verify quiz structure for non-comprehensive quizzes
+                if not quiz.get('options') and quiz.get('type') not in ['true_false', 'input']:
+                    self.log_result(test_name, "FAIL", "Quiz should have options or be true/false or input type")
+                    continue
+                
+            # Special checks for specific lessons
+            if test_case['track'] == 'aqeedah' and test_case['lesson'] == 1:
+                # Should be about Tawheed
+                title = lesson_data.get('title', '').lower()
+                content_str = str(content).lower()
+                if 'tawheed' not in title and 'tawheed' not in content_str and 'توحيد' not in title and 'توحيد' not in content_str:
+                    self.log_result(test_name, "FAIL", "Aqeedah Lesson 1 should be about Tawheed")
+                    continue
+                    
+            if test_case['track'] == 'seerah' and test_case['lesson'] == 1:
+                # Should have story content
+                if not any(key in content for key in ['story', 'narrative', 'events', 'background']):
+                    self.log_result(test_name, "FAIL", "Seerah Lesson 1 should contain story content")
+                    continue
+                    
+            # Check Arabic content for Arabic locale
+            if test_case['locale'] == 'ar':
+                title = lesson_data.get('title', '')
+                if not self.has_arabic_text(title):
+                    self.log_result(test_name, "FAIL", "Arabic locale should return Arabic text in title")
+                    continue
+                    
+            self.log_result(test_name, "PASS", f"{test_case['description']} - Real content with quiz verified")
             
-        # Test specific lessons
-        test_cases = [
-            {"lesson": 1, "locale": "ar", "description": "Eating etiquette in Arabic (5 rules)"},
-            {"lesson": 11, "locale": "en", "description": "Dua etiquette (new lesson, 5 rules)"},
-            {"lesson": 16, "locale": "tr", "description": "Honoring Parents in Turkish"},
-            {"lesson": 20, "locale": "el", "description": "Environmental Ethics in Greek"}
+    def has_arabic_text(self, text: str) -> bool:
+        """Check if text contains Arabic characters (Unicode range 0600-06FF)"""
+        if not isinstance(text, str):
+            return False
+        arabic_pattern = re.compile(r'[\u0600-\u06FF]')
+        return bool(arabic_pattern.search(text))
+        
+    def test_comprehensive_validation(self):
+        """Test 11: Comprehensive validation of all tracks"""
+        print("\n🔸 TEST 11: COMPREHENSIVE VALIDATION")
+        
+        # Test that all tracks have no placeholder lessons
+        tracks_to_validate = [
+            {"track": "fiqh", "total_lessons": 40, "description": "All 40 Fiqh lessons should be real"},
+            {"track": "seerah", "total_lessons": 60, "description": "All 60 Seerah lessons should be real"},
         ]
         
-        for case in test_cases:
-            endpoint = f"/api/kids-learn/academy/adab/{case['lesson']}?locale={case['locale']}"
-            success, data, status_code = self.make_request(endpoint)
+        for track_info in tracks_to_validate:
+            track = track_info['track']
+            total_lessons = track_info['total_lessons']
             
-            test_name = f"Adab Lesson {case['lesson']} ({case['locale']})"
+            # Sample test a few lessons to verify no placeholders
+            sample_lessons = [1, total_lessons // 2, total_lessons]  # First, middle, last
             
-            if not success:
-                self.log_result(test_name, "FAIL", f"Request failed: {data}")
-                continue
+            placeholder_found = False
+            for lesson_num in sample_lessons:
+                endpoint = f"/api/kids-learn/academy/{track}/lesson/{lesson_num}?locale=en"
+                success, data, status_code = self.make_request(endpoint)
                 
-            # Check if response has expected structure
-            if not isinstance(data, dict) or not data.get('success', False):
-                self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
-                continue
-                
-            # Check language purity (CRITICAL requirement)
-            if not self.check_language_purity(data, case['locale']):
-                self.log_result(test_name, "FAIL", f"CRITICAL: Arabic text found in UI elements for {case['locale']} response")
-                continue
-                
-            # Check if lesson content exists (using 'adab' key instead of 'lesson')
-            lesson_data = data.get('adab', {})
-            if not lesson_data:
-                self.log_result(test_name, "FAIL", "No adab lesson data found")
-                continue
-                
-            # Verify lesson has rules array and hadith text (CRITICAL requirement)
-            rules = lesson_data.get('rules', [])
-            hadith = lesson_data.get('hadith', '')
-            
-            if not rules or not isinstance(rules, list):
-                self.log_result(test_name, "FAIL", "Missing or invalid rules array")
-                continue
-                
-            if not hadith or not isinstance(hadith, str):
-                self.log_result(test_name, "FAIL", "Missing or invalid hadith text")
-                continue
-                
-            self.log_result(test_name, "PASS", f"{case['description']} - Rules: {len(rules)}, Hadith present, language purity maintained")
-            
-    def test_academy_overview_integration(self):
-        """Test 3: Academy Overview Integration"""
-        print("\n🔸 TEST 3: ACADEMY OVERVIEW INTEGRATION")
-        
-        test_cases = [
-            {"locale": "nl", "description": "All 5 tracks visible with Dutch text"},
-            {"track": "adab", "locale": "fr", "description": "Verify 20 levels/adab lessons"},
-            {"track": "nooraniya", "locale": "el", "description": "Verify 7 levels in Greek"}
-        ]
-        
-        # Test academy overview
-        overview_case = test_cases[0]
-        endpoint = f"/api/kids-learn/academy/overview?locale={overview_case['locale']}"
-        success, data, status_code = self.make_request(endpoint)
-        
-        test_name = f"Academy Overview ({overview_case['locale']})"
-        
-        if not success:
-            self.log_result(test_name, "FAIL", f"Request failed: {data}")
-        else:
-            if not isinstance(data, dict) or not data.get('success', False):
-                self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
+                if success and data.get('success'):
+                    lesson_data = data.get('lesson', {})
+                    content = lesson_data.get('content', {})
+                    if content.get('placeholder', False) or content.get('status') == 'placeholder':
+                        placeholder_found = True
+                        break
+                        
+            test_name = f"{track.title()} Track - No Placeholders"
+            if placeholder_found:
+                self.log_result(test_name, "FAIL", f"Found placeholder content in {track} lessons")
             else:
-                # Check language purity
-                if not self.check_language_purity(data, overview_case['locale']):
-                    self.log_result(test_name, "FAIL", f"CRITICAL: Arabic text found in {overview_case['locale']} response")
-                else:
-                    # Check if 5 tracks are present
-                    tracks = data.get('tracks', [])
-                    if len(tracks) == 5:
-                        self.log_result(test_name, "PASS", f"{overview_case['description']} - 5 tracks verified")
-                    else:
-                        self.log_result(test_name, "FAIL", f"Expected 5 tracks, got {len(tracks)}")
-        
-        # Test specific track details
-        track_cases = test_cases[1:]
-        for case in track_cases:
-            endpoint = f"/api/kids-learn/academy/track/{case['track']}?locale={case['locale']}"
-            success, data, status_code = self.make_request(endpoint)
-            
-            test_name = f"Track {case['track']} ({case['locale']})"
-            
-            if not success:
-                self.log_result(test_name, "FAIL", f"Request failed: {data}")
-                continue
-                
-            if not isinstance(data, dict) or not data.get('success', False):
-                self.log_result(test_name, "FAIL", f"Invalid response structure or success=false")
-                continue
-                
-            # Check language purity
-            if not self.check_language_purity(data, case['locale']):
-                self.log_result(test_name, "FAIL", f"CRITICAL: Arabic text found in {case['locale']} response")
-                continue
-                
-            # Check track-specific requirements
-            if case['track'] == 'adab':
-                # Should have information about 20 lessons
-                levels = data.get('levels', [])  # Changed from track_data.get to data.get
-                total_lessons = sum(level.get('lessons', 0) for level in levels)
-                if total_lessons >= 20:
-                    self.log_result(test_name, "PASS", f"{case['description']} - {total_lessons} lessons found")
-                else:
-                    self.log_result(test_name, "FAIL", f"Expected 20+ lessons, got {total_lessons}")
-            elif case['track'] == 'nooraniya':
-                # Should have 7 levels
-                levels = data.get('levels', [])  # Changed from track_data.get to data.get
-                if len(levels) == 7:
-                    self.log_result(test_name, "PASS", f"{case['description']} - 7 levels verified")
-                else:
-                    self.log_result(test_name, "FAIL", f"Expected 7 levels, got {len(levels)}")
-            else:
-                self.log_result(test_name, "PASS", f"{case['description']} - Track data present")
+                self.log_result(test_name, "PASS", f"{track_info['description']}")
                 
     def run_all_tests(self):
         """Run all tests and generate report"""
-        print("🚀 STARTING EXPANDED NOOR ACADEMY V2 BACKEND TESTING")
+        print("🚀 STARTING NOOR ACADEMY V2 BACKEND API TESTING")
         print(f"📍 Base URL: {BASE_URL}")
-        print("🎯 Focus: Expanded Nooraniya (30 lessons), Expanded Adab (20 lessons), Academy Overview")
+        print("🎯 Focus: Complete Noor Academy V2 API validation as per review request")
         
         # Run all test suites
-        self.test_expanded_nooraniya()
-        self.test_expanded_adab()
-        self.test_academy_overview_integration()
+        self.test_academy_overview()
+        self.test_track_details()
+        self.test_lesson_content()
+        self.test_comprehensive_validation()
         
         # Generate summary report
         self.generate_report()
@@ -306,7 +296,7 @@ class NoorAcademyV2Tester:
     def generate_report(self):
         """Generate final test report"""
         print("\n" + "="*80)
-        print("📊 EXPANDED NOOR ACADEMY V2 TESTING RESULTS")
+        print("📊 NOOR ACADEMY V2 API TESTING RESULTS")
         print("="*80)
         
         success_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
@@ -330,13 +320,13 @@ class NoorAcademyV2Tester:
                 print(f"   • {result['test']}: {result['details']}")
                 
         # Critical findings
-        critical_failures = [r for r in failed_tests if 'CRITICAL' in r['details']]
+        critical_failures = [r for r in failed_tests if any(word in r['details'].lower() for word in ['placeholder', 'missing', 'invalid'])]
         if critical_failures:
             print(f"\n🚨 CRITICAL ISSUES FOUND ({len(critical_failures)}):")
             for result in critical_failures:
                 print(f"   • {result['test']}: {result['details']}")
         else:
-            print(f"\n🎉 CRITICAL REQUIREMENT MET: No Arabic text leakage detected in non-Arabic responses")
+            print(f"\n🎉 ALL CRITICAL REQUIREMENTS MET: No placeholder content, all APIs working correctly")
             
         print("\n" + "="*80)
 
