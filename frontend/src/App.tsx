@@ -83,7 +83,17 @@ const FortyNawawi = lazy(() => import("./pages/FortyNawawi"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const ContentPolicy = lazy(() => import("./pages/ContentPolicy"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 minutes — don't refetch if data is fresh
+      gcTime: 30 * 60 * 1000,         // 30 minutes cache
+      retry: 1,                        // Only 1 retry on failure
+      refetchOnWindowFocus: false,     // Don't refetch when user switches tabs
+      refetchOnMount: false,           // Don't refetch if cached data exists
+    },
+  },
+});
 
 function SEOWrapper({ children }: { children: React.ReactNode }) {
   useSEO();
