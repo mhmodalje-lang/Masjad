@@ -204,129 +204,109 @@ async def smart_reminder(data: dict):
 
 @router.get("/ai/daily-dua")
 async def get_daily_dua():
-    """Get AI-generated daily dua"""
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"daily-dua-{date.today().isoformat()}", system_message="أنت عالم إسلامي. أعط أدعية صحيحة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
-        prompt = """اختر دعاء إسلامي صحيح من القرآن أو السنة. أعطني:
-1. نص الدعاء بالعربية فقط
-2. المصدر (القرآن أو الحديث)
-
-أجب بصيغة JSON فقط:
-{"text": "نص الدعاء", "source": "المصدر"}"""
-        response = await chat.chat([UserMessage(content=prompt)])
-        import re
-        match = re.search(r'\{[^}]+\}', response.content)
-        if match:
-            data = json_module.loads(match.group())
-            return {"dua": data}
-    except Exception as e:
-        logging.error(f"Daily dua error: {e}")
-    return {"dua": {"text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", "source": "سورة البقرة 201"}}
+    """Get daily dua — rotates through curated collection based on date"""
+    DUAS = [
+        {"text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", "source": "سورة البقرة 201"},
+        {"text": "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِّن لِّسَانِي يَفْقَهُوا قَوْلِي", "source": "سورة طه 25-28"},
+        {"text": "رَبِّ زِدْنِي عِلْمًا", "source": "سورة طه 114"},
+        {"text": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْهُدَى وَالتُّقَى وَالْعَفَافَ وَالْغِنَى", "source": "صحيح مسلم"},
+        {"text": "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا", "source": "سورة الفرقان 74"},
+        {"text": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ الْهَمِّ وَالْحُزْنِ وَالْعَجْزِ وَالْكَسَلِ", "source": "صحيح البخاري"},
+        {"text": "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ", "source": "سورة النمل 19"},
+        {"text": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ", "source": "سورة آل عمران 173"},
+        {"text": "اللَّهُمَّ اهْدِنِي وَسَدِّدْنِي", "source": "صحيح مسلم"},
+        {"text": "رَبَّنَا لَا تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِن لَّدُنكَ رَحْمَةً", "source": "سورة آل عمران 8"},
+        {"text": "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ", "source": "سنن أبي داود"},
+        {"text": "رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ", "source": "سورة إبراهيم 40"},
+        {"text": "اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي", "source": "سنن الترمذي"},
+        {"text": "رَبَّنَا اغْفِرْ لَنَا ذُنُوبَنَا وَإِسْرَافَنَا فِي أَمْرِنَا وَثَبِّتْ أَقْدَامَنَا", "source": "سورة آل عمران 147"},
+        {"text": "لَا إِلَهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ", "source": "سورة الأنبياء 87"},
+    ]
+    day_index = (date.today() - date(2025, 1, 1)).days % len(DUAS)
+    return {"success": True, "dua": DUAS[day_index]}
 
 @router.get("/ai/verse-of-day")
 async def get_verse_of_day(language: str = Query("ar")):
-    """Get AI-selected verse of the day with translation"""
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"verse-of-day-{language}-{date.today().isoformat()}", system_message="أنت عالم قرآن. أعط آيات ملهمة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
-        
-        lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
-        
-        if language == "ar":
-            prompt = """اختر آية قرآنية ملهمة ومؤثرة. أعطني:
-1. نص الآية بالعربية
-2. اسم السورة
-3. رقم الآية
-
-أجب بصيغة JSON فقط:
-{"text": "نص الآية", "surah": "اسم السورة", "ayah": رقم_الآية}"""
-        else:
-            lang_name = lang_names.get(language, "English")
-            prompt = f"""Select an inspiring Quran verse. Give me:
-1. The Arabic text of the verse
-2. The {lang_name} translation of the verse
-3. The Surah name in {lang_name} transliteration (e.g., "At-Talaq", "Al-Baqarah")
-4. The Ayah number
-
-Reply ONLY in JSON:
-{{"text": "Arabic verse text", "translation": "{lang_name} translation", "surah": "Surah name in {lang_name}", "ayah": ayah_number}}"""
-        
-        response = await chat.chat([UserMessage(content=prompt)])
-        import re
-        match = re.search(r'\{[^}]+\}', response.content)
-        if match:
-            data = json_module.loads(match.group())
-            return {"verse": data}
-    except Exception as e:
-        logging.error(f"Verse error: {e}")
-    
-    # Fallback with translation
-    fallback_translations = {
-        "en": {"translation": "And whoever fears Allah - He will make for him a way out", "surah": "At-Talaq"},
-        "de": {"translation": "Und wer Allah fürchtet, dem wird Er einen Ausweg schaffen", "surah": "At-Talaq"},
-        "fr": {"translation": "Et quiconque craint Allah, Il lui donnera une issue", "surah": "At-Talaq"},
-        "ru": {"translation": "Тому, кто боится Аллаха, Он создаст выход", "surah": "Ат-Таляк"},
-        "tr": {"translation": "Kim Allah'tan korkarsa, Allah ona bir çıkış yolu yaratır", "surah": "Talak"},
-        "nl": {"translation": "En wie Allah vreest, Hij zal hem een uitweg verschaffen", "surah": "At-Talaq"},
-        "sv": {"translation": "Och den som fruktar Allah, Han ska ge honom en utväg", "surah": "At-Talaq"},
-        "el": {"translation": "Και όποιος φοβάται τον Αλλάχ, Αυτός θα του δώσει διέξοδο", "surah": "Ατ-Ταλάκ"},
-    }
-    fb = fallback_translations.get(language, fallback_translations["en"])
-    if language == "ar":
-        return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah": "الطلاق", "ayah": 3}}
-    return {"verse": {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "translation": fb["translation"], "surah": fb["surah"], "ayah": 3}}
+    """Get verse of the day — rotates through 30 curated verses daily"""
+    VERSES = [
+        {"text": "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ", "surah_ar": "الطلاق", "surah_en": "At-Talaq", "ayah": 3, "tr_en": "And whoever relies upon Allah - then He is sufficient for him"},
+        {"text": "إِنَّ مَعَ الْعُسْرِ يُسْرًا", "surah_ar": "الشرح", "surah_en": "Ash-Sharh", "ayah": 6, "tr_en": "Indeed, with hardship comes ease"},
+        {"text": "وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ", "surah_ar": "يوسف", "surah_en": "Yusuf", "ayah": 87, "tr_en": "Do not despair of the mercy of Allah"},
+        {"text": "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 152, "tr_en": "So remember Me; I will remember you. Be grateful to Me"},
+        {"text": "وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ", "surah_ar": "هود", "surah_en": "Hud", "ayah": 115, "tr_en": "And be patient, for indeed, Allah does not allow to be lost the reward of those who do good"},
+        {"text": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 201, "tr_en": "Our Lord, give us in this world that which is good and in the Hereafter that which is good"},
+        {"text": "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 186, "tr_en": "When My servants ask about Me, I am indeed near"},
+        {"text": "وَمَا أَرْسَلْنَاكَ إِلَّا رَحْمَةً لِّلْعَالَمِينَ", "surah_ar": "الأنبياء", "surah_en": "Al-Anbiya", "ayah": 107, "tr_en": "We have not sent you except as a mercy to the worlds"},
+        {"text": "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 153, "tr_en": "Indeed, Allah is with the patient"},
+        {"text": "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ", "surah_ar": "الضحى", "surah_en": "Ad-Duha", "ayah": 5, "tr_en": "And your Lord is going to give you, and you will be satisfied"},
+        {"text": "قُلْ هُوَ اللَّهُ أَحَدٌ", "surah_ar": "الإخلاص", "surah_en": "Al-Ikhlas", "ayah": 1, "tr_en": "Say: He is Allah, the One"},
+        {"text": "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ", "surah_ar": "ق", "surah_en": "Qaf", "ayah": 16, "tr_en": "We are closer to him than his jugular vein"},
+        {"text": "فَإِنَّ ذِكْرَى تَنفَعُ الْمُؤْمِنِينَ", "surah_ar": "الذاريات", "surah_en": "Adh-Dhariyat", "ayah": 55, "tr_en": "For indeed, the reminder benefits the believers"},
+        {"text": "وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ", "surah_ar": "آل عمران", "surah_en": "Ali Imran", "ayah": 134, "tr_en": "And Allah loves the doers of good"},
+        {"text": "ادْعُونِي أَسْتَجِبْ لَكُمْ", "surah_ar": "غافر", "surah_en": "Ghafir", "ayah": 60, "tr_en": "Call upon Me; I will respond to you"},
+        {"text": "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 286, "tr_en": "Allah does not burden a soul beyond that it can bear"},
+        {"text": "سَيَجْعَلُ اللَّهُ بَعْدَ عُسْرٍ يُسْرًا", "surah_ar": "الطلاق", "surah_en": "At-Talaq", "ayah": 7, "tr_en": "Allah will bring about ease after hardship"},
+        {"text": "يَا أَيُّهَا الَّذِينَ آمَنُوا اسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 153, "tr_en": "O you who believe, seek help through patience and prayer"},
+        {"text": "وَهُوَ مَعَكُمْ أَيْنَ مَا كُنتُمْ", "surah_ar": "الحديد", "surah_en": "Al-Hadid", "ayah": 4, "tr_en": "And He is with you wherever you are"},
+        {"text": "إِنَّا فَتَحْنَا لَكَ فَتْحًا مُّبِينًا", "surah_ar": "الفتح", "surah_en": "Al-Fath", "ayah": 1, "tr_en": "Indeed, We have given you a clear conquest"},
+        {"text": "وَرَحْمَتِي وَسِعَتْ كُلَّ شَيْءٍ", "surah_ar": "الأعراف", "surah_en": "Al-A'raf", "ayah": 156, "tr_en": "My mercy encompasses all things"},
+        {"text": "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ", "surah_ar": "الرعد", "surah_en": "Ar-Ra'd", "ayah": 28, "tr_en": "Verily, in the remembrance of Allah do hearts find rest"},
+        {"text": "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا", "surah_ar": "الطلاق", "surah_en": "At-Talaq", "ayah": 2, "tr_en": "Whoever fears Allah, He will make a way out for him"},
+        {"text": "وَقُل رَّبِّ زِدْنِي عِلْمًا", "surah_ar": "طه", "surah_en": "Ta-Ha", "ayah": 114, "tr_en": "And say, My Lord, increase me in knowledge"},
+        {"text": "إِنَّ اللَّهَ لَا يُغَيِّرُ مَا بِقَوْمٍ حَتَّىٰ يُغَيِّرُوا مَا بِأَنفُسِهِمْ", "surah_ar": "الرعد", "surah_en": "Ar-Ra'd", "ayah": 11, "tr_en": "Indeed, Allah will not change the condition of a people until they change what is in themselves"},
+        {"text": "فَبِأَيِّ آلَاءِ رَبِّكُمَا تُكَذِّبَانِ", "surah_ar": "الرحمن", "surah_en": "Ar-Rahman", "ayah": 13, "tr_en": "So which of the favors of your Lord would you deny?"},
+        {"text": "وَاسْتَغْفِرِ اللَّهَ إِنَّ اللَّهَ كَانَ غَفُورًا رَّحِيمًا", "surah_ar": "النساء", "surah_en": "An-Nisa", "ayah": 106, "tr_en": "And seek forgiveness of Allah. Indeed, Allah is Forgiving and Merciful"},
+        {"text": "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ", "surah_ar": "البقرة", "surah_en": "Al-Baqarah", "ayah": 216, "tr_en": "Perhaps you dislike a thing and it is good for you"},
+        {"text": "وَمَن يُؤْمِن بِاللَّهِ يَهْدِ قَلْبَهُ", "surah_ar": "التغابن", "surah_en": "At-Taghabun", "ayah": 11, "tr_en": "And whoever believes in Allah - He will guide his heart"},
+        {"text": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٍ", "surah_ar": "القلم", "surah_en": "Al-Qalam", "ayah": 4, "tr_en": "And indeed, you are of a great moral character"},
+    ]
+    day_index = (date.today() - date(2025, 1, 1)).days % len(VERSES)
+    v = VERSES[day_index]
+    result = {"text": v["text"], "surah": v["surah_ar"] if language == "ar" else v["surah_en"], "ayah": v["ayah"]}
+    if language != "ar":
+        result["translation"] = v["tr_en"]
+    return {"success": True, "verse": result}
 
 @router.get("/ai/hadith-of-day")
 async def get_hadith_of_day(language: str = Query("ar")):
-    """Get AI-selected hadith of the day with translation"""
-    try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage
-        chat = LlmChat(api_key=EMERGENT_LLM_KEY, session_id=f"hadith-of-day-{language}-{date.today().isoformat()}", system_message="أنت عالم حديث. أعط أحاديث صحيحة. أجب بـ JSON فقط.").with_model("gemini", "gemini-2.0-flash")
-        
-        lang_names = {"en": "English", "de": "German", "fr": "French", "ru": "Russian", "tr": "Turkish", "nl": "Dutch", "sv": "Swedish", "el": "Greek"}
-        
-        if language == "ar":
-            prompt = """اختر حديث نبوي صحيح ومشهور. أعطني:
-1. نص الحديث مختصر
-2. اسم الراوي
-3. المصدر (البخاري/مسلم/الترمذي...)
-
-أجب بصيغة JSON فقط:
-{"text": "نص الحديث", "narrator": "اسم الراوي", "source": "المصدر"}"""
-        else:
-            lang_name = lang_names.get(language, "English")
-            prompt = f"""Select a famous authentic hadith of Prophet Muhammad (PBUH). Give me:
-1. The Arabic text of the hadith (short)
-2. The {lang_name} translation
-3. The narrator name in {lang_name}
-4. The source in {lang_name} (e.g., "Sahih Bukhari", "Sahih Muslim")
-
-Reply ONLY in JSON:
-{{"text": "Arabic hadith text", "translation": "{lang_name} translation", "narrator": "Narrator in {lang_name}", "source": "Source in {lang_name}"}}"""
-        
-        response = await chat.chat([UserMessage(content=prompt)])
-        import re
-        match = re.search(r'\{[^}]+\}', response.content)
-        if match:
-            data = json_module.loads(match.group())
-            return {"hadith": data}
-    except Exception as e:
-        logging.error(f"Hadith error: {e}")
-    
-    fallback_translations = {
-        "en": {"translation": "The best of you are those who learn the Quran and teach it", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
-        "de": {"translation": "Die Besten unter euch sind diejenigen, die den Quran lernen und lehren", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
-        "fr": {"translation": "Les meilleurs d'entre vous sont ceux qui apprennent le Coran et l'enseignent", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
-        "ru": {"translation": "Лучшие из вас те, кто изучает Коран и обучает ему", "narrator": "Усман ибн Аффан", "source": "Сахих Бухари"},
-        "tr": {"translation": "Sizin en hayırlınız Kuran'ı öğrenen ve öğretendir", "narrator": "Osman bin Affan", "source": "Sahih Buhari"},
-        "nl": {"translation": "De besten onder jullie zijn degenen die de Koran leren en onderwijzen", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
-        "sv": {"translation": "De bästa bland er är de som lär sig Koranen och lär ut den", "narrator": "Uthman ibn Affan", "source": "Sahih Bukhari"},
-        "el": {"translation": "Οι καλύτεροι από εσάς είναι αυτοί που μαθαίνουν το Κοράνι και το διδάσκουν", "narrator": "Ουθμάν ιμπν Αφφάν", "source": "Σαχίχ Μπουχάρι"},
-    }
-    fb = fallback_translations.get(language, fallback_translations.get("en", {}))
-    if language == "ar":
-        return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "narrator": "عثمان بن عفان", "source": "صحيح البخاري"}}
-    return {"hadith": {"text": "خيركم من تعلم القرآن وعلمه", "translation": fb.get("translation", ""), "narrator": fb.get("narrator", "Uthman ibn Affan"), "source": fb.get("source", "Sahih Bukhari")}}
+    """Get hadith of the day — rotates through 30 curated hadiths daily"""
+    HADITHS = [
+        {"text": "خيركم من تعلم القرآن وعلمه", "narrator_ar": "عثمان بن عفان", "narrator_en": "Uthman ibn Affan", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "The best of you are those who learn the Quran and teach it"},
+        {"text": "إنما الأعمال بالنيات", "narrator_ar": "عمر بن الخطاب", "narrator_en": "Umar ibn Al-Khattab", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "Actions are judged by intentions"},
+        {"text": "من كان يؤمن بالله واليوم الآخر فليقل خيراً أو ليصمت", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "Whoever believes in Allah and the Last Day, let him speak good or keep silent"},
+        {"text": "لا يؤمن أحدكم حتى يحب لأخيه ما يحب لنفسه", "narrator_ar": "أنس بن مالك", "narrator_en": "Anas ibn Malik", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "None of you truly believes until he loves for his brother what he loves for himself"},
+        {"text": "الدين النصيحة", "narrator_ar": "تميم الداري", "narrator_en": "Tamim Ad-Dari", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Religion is sincerity/good counsel"},
+        {"text": "المسلم من سلم المسلمون من لسانه ويده", "narrator_ar": "عبدالله بن عمرو", "narrator_en": "Abdullah ibn Amr", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "A Muslim is one from whose tongue and hand other Muslims are safe"},
+        {"text": "تبسُّمك في وجه أخيك صدقة", "narrator_ar": "أبو ذر الغفاري", "narrator_en": "Abu Dharr", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "Your smile in the face of your brother is charity"},
+        {"text": "اتق الله حيثما كنت وأتبع السيئة الحسنة تمحها وخالق الناس بخلق حسن", "narrator_ar": "أبو ذر", "narrator_en": "Abu Dharr", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "Fear Allah wherever you are, follow a bad deed with a good deed to erase it, and treat people with good character"},
+        {"text": "إن الله رفيق يحب الرفق في الأمر كله", "narrator_ar": "عائشة", "narrator_en": "Aisha", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "Allah is gentle and loves gentleness in all things"},
+        {"text": "الطهور شطر الإيمان", "narrator_ar": "أبو مالك الأشعري", "narrator_en": "Abu Malik Al-Ash'ari", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Purification is half of faith"},
+        {"text": "من سلك طريقاً يلتمس فيه علماً سهل الله له طريقاً إلى الجنة", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Whoever takes a path seeking knowledge, Allah will make his path to Paradise easy"},
+        {"text": "ما نقصت صدقة من مال", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Charity does not decrease wealth"},
+        {"text": "خيركم خيركم لأهله وأنا خيركم لأهلي", "narrator_ar": "عائشة", "narrator_en": "Aisha", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "The best of you are the best to their families, and I am the best to my family"},
+        {"text": "الكلمة الطيبة صدقة", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "A good word is charity"},
+        {"text": "من حسن إسلام المرء تركه ما لا يعنيه", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "Part of someone's being a good Muslim is leaving alone what does not concern him"},
+        {"text": "لا تغضب", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "Do not get angry"},
+        {"text": "ما ملأ آدمي وعاءً شراً من بطنه", "narrator_ar": "المقدام بن معدي كرب", "narrator_en": "Al-Miqdam", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "A human being fills no worse vessel than his stomach"},
+        {"text": "المؤمن القوي خير وأحب إلى الله من المؤمن الضعيف", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "The strong believer is better and more beloved to Allah than the weak believer"},
+        {"text": "إن الله جميل يحب الجمال", "narrator_ar": "عبدالله بن مسعود", "narrator_en": "Ibn Mas'ud", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Allah is beautiful and loves beauty"},
+        {"text": "الدعاء هو العبادة", "narrator_ar": "النعمان بن بشير", "narrator_en": "An-Nu'man ibn Bashir", "source_ar": "سنن الترمذي", "source_en": "Tirmidhi", "tr_en": "Supplication is the essence of worship"},
+        {"text": "من صلى الفجر في جماعة فهو في ذمة الله", "narrator_ar": "جندب بن عبدالله", "narrator_en": "Jundub", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "Whoever prays Fajr in congregation is under Allah's protection"},
+        {"text": "أفضل الصدقة أن تُشبع كبداً جائعة", "narrator_ar": "أنس بن مالك", "narrator_en": "Anas ibn Malik", "source_ar": "سنن البيهقي", "source_en": "Al-Bayhaqi", "tr_en": "The best charity is to satisfy a hungry person"},
+        {"text": "إذا مات ابن آدم انقطع عمله إلا من ثلاث: صدقة جارية أو علم ينتفع به أو ولد صالح يدعو له", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "When a person dies, their deeds end except for three: ongoing charity, beneficial knowledge, or a righteous child who prays for them"},
+        {"text": "أحب الناس إلى الله أنفعهم للناس", "narrator_ar": "عبدالله بن عمر", "narrator_en": "Ibn Umar", "source_ar": "الطبراني", "source_en": "At-Tabarani", "tr_en": "The most beloved people to Allah are those who are most beneficial to people"},
+        {"text": "ما من مسلم يغرس غرساً فيأكل منه إنسان أو طائر إلا كان له صدقة", "narrator_ar": "أنس بن مالك", "narrator_en": "Anas ibn Malik", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "No Muslim plants a tree from which a person or bird eats except that it is charity for him"},
+        {"text": "ليس الشديد بالصرعة إنما الشديد الذي يملك نفسه عند الغضب", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "The strong person is not the one who can wrestle, but the one who controls himself when angry"},
+        {"text": "المسلم أخو المسلم لا يظلمه ولا يسلمه", "narrator_ar": "عبدالله بن عمر", "narrator_en": "Ibn Umar", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "A Muslim is a brother to another Muslim - he neither wrongs him nor surrenders him"},
+        {"text": "استفت قلبك وإن أفتاك الناس وأفتوك", "narrator_ar": "وابصة بن معبد", "narrator_en": "Wabisah", "source_ar": "مسند أحمد", "source_en": "Musnad Ahmad", "tr_en": "Consult your heart even if people give you verdicts"},
+        {"text": "أقرب ما يكون العبد من ربه وهو ساجد فأكثروا الدعاء", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح مسلم", "source_en": "Sahih Muslim", "tr_en": "The closest a servant is to his Lord is during prostration, so increase supplication"},
+        {"text": "من صام رمضان إيماناً واحتساباً غُفر له ما تقدم من ذنبه", "narrator_ar": "أبو هريرة", "narrator_en": "Abu Hurairah", "source_ar": "صحيح البخاري", "source_en": "Sahih Bukhari", "tr_en": "Whoever fasts Ramadan with faith and seeking reward, his previous sins will be forgiven"},
+    ]
+    day_index = (date.today() - date(2025, 1, 1)).days % len(HADITHS)
+    h = HADITHS[day_index]
+    result = {"text": h["text"], "narrator": h["narrator_ar"] if language == "ar" else h["narrator_en"], "source": h["source_ar"] if language == "ar" else h["source_en"]}
+    if language != "ar":
+        result["translation"] = h["tr_en"]
+    return {"success": True, "hadith": result}
 
 # ==================== VOICE SEARCH AI (بحث صوتي ذكي) ====================

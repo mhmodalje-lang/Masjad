@@ -3,7 +3,7 @@ Router: prayer
 """
 from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
 from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
 import uuid
@@ -32,9 +32,26 @@ class MosqueTimesRequest(BaseModel):
     mosqueName: str
     latitude: float
     longitude: float
-    method: int = 3
-    school: int = 0
+    method: Any = 3
+    school: Any = 0
     mosqueUuid: Optional[str] = None
+
+    @validator('method', pre=True)
+    def parse_method(cls, v):
+        if isinstance(v, int):
+            return v
+        METHOD_MAP = {"umm_al_qura": 4, "isna": 2, "mwl": 3, "egyptian": 5, "karachi": 1, "tehran": 7, "shia": 0, "gulf": 8, "kuwait": 9, "qatar": 10, "singapore": 11, "turkey": 13, "dubai": 16}
+        if isinstance(v, str):
+            return METHOD_MAP.get(v.lower().replace(" ", "_"), 3)
+        return 3
+
+    @validator('school', pre=True)
+    def parse_school(cls, v):
+        if isinstance(v, int):
+            return v
+        if isinstance(v, str):
+            return 1 if v.lower() in ('hanafi', '1') else 0
+        return 0
 
 class DhikrAIRequest(BaseModel):
     time_of_day: str = "morning"
