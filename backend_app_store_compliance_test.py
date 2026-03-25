@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://ios-policy-app.preview.emergentagent.com"
+BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com"
 
 def test_delete_account_endpoint():
     """Test DELETE /api/auth/delete-account - Account deletion endpoint"""

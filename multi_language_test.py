@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any, List
 
 # Backend URL from environment
-BACKEND_URL = "https://ios-policy-app.preview.emergentagent.com/api"
+BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com/api"
 
 class MultiLanguageDeploymentTester:
     def __init__(self):

@@ -129,7 +129,7 @@
 
 ### Critical Endpoints Verification (Post Frontend Changes)
 **Test Date:** 2026-01-27  
-**Base URL:** https://ios-policy-app.preview.emergentagent.com  
+**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 
 #### Test Results Summary: ✅ ALL PASSED (7/7)
@@ -161,7 +161,7 @@
 
 ### Comprehensive Backend API Testing (Review Request Specific)
 **Test Date:** 2026-03-25  
-**Base URL:** https://ios-policy-app.preview.emergentagent.com  
+**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Focus:** Review Request Specific Endpoints Testing
 
@@ -206,7 +206,7 @@
 
 ### Comprehensive UI Test - All Pages
 **Test Date:** 2026-03-24  
-**Test URL:** https://ios-policy-app.preview.emergentagent.com  
+**Test URL:** https://multilang-sync-3.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Viewport:** Mobile (390x844)  
 **Test Type:** Comprehensive page-by-page UI testing

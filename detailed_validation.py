@@ -6,7 +6,7 @@ Detailed Salah API Validation - Verify all requirements from review request
 import requests
 import json
 
-BACKEND_URL = "https://ios-policy-app.preview.emergentagent.com"
+BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com"
 
 def detailed_validation():
     print("=" * 70)

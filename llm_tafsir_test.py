@@ -2,7 +2,7 @@
 """
 Backend Test Suite: LLM Tafsir Translation Feature
 Testing LLM-translated tafsir for all 9 languages with longer timeouts
-Base URL: https://ios-policy-app.preview.emergentagent.com
+Base URL: https://multilang-sync-3.preview.emergentagent.com
 """
 
 import requests
@@ -12,7 +12,7 @@ import time
 from typing import Dict, List, Any
 
 # Base URL from frontend/.env
-BASE_URL = "https://ios-policy-app.preview.emergentagent.com"
+BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
 
 # All 9 supported languages
 LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
