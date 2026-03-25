@@ -6,6 +6,11 @@ from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_pa
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
+from data.asma_al_husna_data import get_asma_al_husna
+from data.multilingual_content import (
+    STORE_ITEMS_TRANSLATED, STORE_PACKAGES_TRANSLATED, GOLD_PACKAGES_TRANSLATED,
+    CREDIT_PACKAGES_TRANSLATED, ISLAMIC_GIFTS_TRANSLATED, ERROR_MESSAGES, get_error, _t
+)
 import uuid
 import random
 import math
@@ -34,7 +39,7 @@ REWARD_VALUES = {
 @router.get("/rewards/balance")
 async def get_gold_balance(user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
     if not wallet:
         wallet = {"user_id": user["id"], "gold": 0, "total_earned": 0, "streak": 0, "last_daily": None}
@@ -45,12 +50,12 @@ async def get_gold_balance(user: dict = Depends(get_user)):
 @router.post("/rewards/claim")
 async def claim_reward(data: ClaimRewardRequest, user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     
     reward_type = data.reward_type
     gold_amount = REWARD_VALUES.get(reward_type, 0)
     if gold_amount == 0:
-        raise HTTPException(400, "نوع المكافأة غير صالح")
+        raise HTTPException(400, get_error("invalid_reward_type"))
     
     wallet = await db.wallets.find_one({"user_id": user["id"]})
     if not wallet:
@@ -62,7 +67,7 @@ async def claim_reward(data: ClaimRewardRequest, user: dict = Depends(get_user))
     # Check daily login (once per day)
     if reward_type == "daily_login":
         if wallet.get("last_daily") == today:
-            return {"gold": wallet.get("gold", 0), "earned": 0, "message": "تم استلام مكافأة اليوم مسبقاً"}
+            return {"gold": wallet.get("gold", 0), "earned": 0, "message": get_error("reward_already_claimed")}
         
         # Calculate streak
         yesterday = (date.today() - timedelta(days=1)).isoformat()
@@ -111,7 +116,7 @@ async def claim_reward(data: ClaimRewardRequest, user: dict = Depends(get_user))
 @router.get("/rewards/history")
 async def get_reward_history(user: dict = Depends(get_user), page: int = 1, limit: int = 20):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     skip = (page - 1) * limit
     cursor = db.gold_transactions.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     transactions = await cursor.to_list(length=limit)
@@ -137,109 +142,9 @@ async def get_rewards_leaderboard(limit: int = 20):
     return {"leaderboard": leaderboard}
 
 @router.get("/asma-al-husna")
-async def get_asma_al_husna():
-    """Get the 99 Names of Allah"""
-    names = [
-        {"num": 1, "ar": "الرَّحْمَنُ", "meaning": "الذي وسعت رحمته كل شيء"},
-        {"num": 2, "ar": "الرَّحِيمُ", "meaning": "الذي يرحم عباده المؤمنين"},
-        {"num": 3, "ar": "المَلِكُ", "meaning": "المالك لكل شيء، المتصرف في خلقه"},
-        {"num": 4, "ar": "القُدُّوسُ", "meaning": "المنزه عن كل عيب ونقص"},
-        {"num": 5, "ar": "السَّلَامُ", "meaning": "السالم من كل عيب وآفة"},
-        {"num": 6, "ar": "المُؤْمِنُ", "meaning": "الذي يُصَدِّق عباده ويؤمنهم من عذابه"},
-        {"num": 7, "ar": "المُهَيْمِنُ", "meaning": "الشاهد على خلقه، المسيطر عليهم"},
-        {"num": 8, "ar": "العَزِيزُ", "meaning": "الغالب الذي لا يُغلب"},
-        {"num": 9, "ar": "الجَبَّارُ", "meaning": "الذي يجبر كسر عباده ويُصلح أحوالهم"},
-        {"num": 10, "ar": "المُتَكَبِّرُ", "meaning": "المتعالي عن صفات الخلق"},
-        {"num": 11, "ar": "الخَالِقُ", "meaning": "الذي أوجد الأشياء من العدم"},
-        {"num": 12, "ar": "البَارِئُ", "meaning": "الذي خلق الخلق لا على مثال سابق"},
-        {"num": 13, "ar": "المُصَوِّرُ", "meaning": "الذي صوّر جميع المخلوقات"},
-        {"num": 14, "ar": "الغَفَّارُ", "meaning": "الذي يغفر الذنوب مرة بعد مرة"},
-        {"num": 15, "ar": "القَهَّارُ", "meaning": "الذي قهر جميع المخلوقات"},
-        {"num": 16, "ar": "الوَهَّابُ", "meaning": "الذي يهب النعم بلا عوض"},
-        {"num": 17, "ar": "الرَّزَّاقُ", "meaning": "الذي يرزق جميع المخلوقات"},
-        {"num": 18, "ar": "الفَتَّاحُ", "meaning": "الذي يفتح أبواب الرزق والرحمة"},
-        {"num": 19, "ar": "العَلِيمُ", "meaning": "الذي يعلم كل شيء ظاهره وباطنه"},
-        {"num": 20, "ar": "القَابِضُ", "meaning": "الذي يقبض الأرزاق والأرواح"},
-        {"num": 21, "ar": "البَاسِطُ", "meaning": "الذي يبسط الرزق لمن يشاء"},
-        {"num": 22, "ar": "الخَافِضُ", "meaning": "الذي يخفض من يشاء"},
-        {"num": 23, "ar": "الرَّافِعُ", "meaning": "الذي يرفع من يشاء بالعز والطاعة"},
-        {"num": 24, "ar": "المُعِزُّ", "meaning": "الذي يهب العزة لمن يشاء"},
-        {"num": 25, "ar": "المُذِلُّ", "meaning": "الذي يذل من يشاء من الطغاة"},
-        {"num": 26, "ar": "السَّمِيعُ", "meaning": "الذي يسمع كل شيء"},
-        {"num": 27, "ar": "البَصِيرُ", "meaning": "الذي يرى كل شيء"},
-        {"num": 28, "ar": "الحَكَمُ", "meaning": "الحاكم العدل بين خلقه"},
-        {"num": 29, "ar": "العَدْلُ", "meaning": "العادل الذي لا يظلم أحداً"},
-        {"num": 30, "ar": "اللَّطِيفُ", "meaning": "الرفيق بعباده الذي يوصل لهم مصالحهم"},
-        {"num": 31, "ar": "الخَبِيرُ", "meaning": "العالم بحقائق الأشياء وبواطنها"},
-        {"num": 32, "ar": "الحَلِيمُ", "meaning": "الذي لا يعاجل بالعقوبة"},
-        {"num": 33, "ar": "العَظِيمُ", "meaning": "ذو العظمة المطلقة في ذاته وصفاته"},
-        {"num": 34, "ar": "الغَفُورُ", "meaning": "الذي يكثر من المغفرة"},
-        {"num": 35, "ar": "الشَّكُورُ", "meaning": "الذي يشكر اليسير من العمل ويثيب عليه"},
-        {"num": 36, "ar": "العَلِيُّ", "meaning": "المتعالي فوق خلقه بذاته وصفاته"},
-        {"num": 37, "ar": "الكَبِيرُ", "meaning": "ذو الكبرياء والعظمة"},
-        {"num": 38, "ar": "الحَفِيظُ", "meaning": "الذي يحفظ كل شيء"},
-        {"num": 39, "ar": "المُقِيتُ", "meaning": "الذي يقيت الخلائق ويوصل لهم أرزاقهم"},
-        {"num": 40, "ar": "الحَسِيبُ", "meaning": "الكافي الذي يحاسب عباده"},
-        {"num": 41, "ar": "الجَلِيلُ", "meaning": "ذو الجلال والعظمة"},
-        {"num": 42, "ar": "الكَرِيمُ", "meaning": "الكثير الخير الجواد المعطي"},
-        {"num": 43, "ar": "الرَّقِيبُ", "meaning": "المطلع على ما أكنّته الصدور"},
-        {"num": 44, "ar": "المُجِيبُ", "meaning": "الذي يجيب دعوة الداعي"},
-        {"num": 45, "ar": "الوَاسِعُ", "meaning": "الذي وسع رزقه جميع خلقه"},
-        {"num": 46, "ar": "الحَكِيمُ", "meaning": "الذي يضع الأشياء في مواضعها"},
-        {"num": 47, "ar": "الوَدُودُ", "meaning": "المحب لعباده الصالحين"},
-        {"num": 48, "ar": "المَجِيدُ", "meaning": "ذو المجد والشرف والكرم"},
-        {"num": 49, "ar": "البَاعِثُ", "meaning": "الذي يبعث الخلق يوم القيامة"},
-        {"num": 50, "ar": "الشَّهِيدُ", "meaning": "الحاضر الذي لا يغيب عنه شيء"},
-        {"num": 51, "ar": "الحَقُّ", "meaning": "الثابت الوجود حقاً"},
-        {"num": 52, "ar": "الوَكِيلُ", "meaning": "المتكفل بأرزاق العباد"},
-        {"num": 53, "ar": "القَوِيُّ", "meaning": "ذو القوة المتين"},
-        {"num": 54, "ar": "المَتِينُ", "meaning": "الشديد القوي"},
-        {"num": 55, "ar": "الوَلِيُّ", "meaning": "المتولي لأمور خلقه"},
-        {"num": 56, "ar": "الحَمِيدُ", "meaning": "المحمود في كل أفعاله"},
-        {"num": 57, "ar": "المُحْصِي", "meaning": "الذي أحصى كل شيء بعلمه"},
-        {"num": 58, "ar": "المُبْدِئُ", "meaning": "الذي بدأ خلق الأشياء"},
-        {"num": 59, "ar": "المُعِيدُ", "meaning": "الذي يعيد الخلق بعد فنائهم"},
-        {"num": 60, "ar": "المُحْيِي", "meaning": "الذي يحيي الموتى"},
-        {"num": 61, "ar": "المُمِيتُ", "meaning": "الذي يميت الأحياء"},
-        {"num": 62, "ar": "الحَيُّ", "meaning": "الباقي حياً لا يموت"},
-        {"num": 63, "ar": "القَيُّومُ", "meaning": "القائم بذاته المقيم لغيره"},
-        {"num": 64, "ar": "الوَاجِدُ", "meaning": "الغني الذي لا يفتقر"},
-        {"num": 65, "ar": "المَاجِدُ", "meaning": "ذو المجد التام"},
-        {"num": 66, "ar": "الوَاحِدُ", "meaning": "المنفرد بذاته وصفاته"},
-        {"num": 67, "ar": "الصَّمَدُ", "meaning": "المقصود في الحوائج"},
-        {"num": 68, "ar": "القَادِرُ", "meaning": "القادر على كل شيء"},
-        {"num": 69, "ar": "المُقْتَدِرُ", "meaning": "التام القدرة"},
-        {"num": 70, "ar": "المُقَدِّمُ", "meaning": "الذي يقدم من يشاء"},
-        {"num": 71, "ar": "المُؤَخِّرُ", "meaning": "الذي يؤخر من يشاء"},
-        {"num": 72, "ar": "الأَوَّلُ", "meaning": "الذي ليس قبله شيء"},
-        {"num": 73, "ar": "الآخِرُ", "meaning": "الذي ليس بعده شيء"},
-        {"num": 74, "ar": "الظَّاهِرُ", "meaning": "الذي ظهر فوق كل شيء"},
-        {"num": 75, "ar": "البَاطِنُ", "meaning": "المحتجب عن أبصار خلقه"},
-        {"num": 76, "ar": "الوَالِي", "meaning": "المتولي لأمور خلقه"},
-        {"num": 77, "ar": "المُتَعَالِي", "meaning": "المتعالي عن صفات المخلوقين"},
-        {"num": 78, "ar": "البَرُّ", "meaning": "العطوف على عباده"},
-        {"num": 79, "ar": "التَّوَّابُ", "meaning": "الذي يقبل توبة التائبين"},
-        {"num": 80, "ar": "المُنْتَقِمُ", "meaning": "الذي ينتقم ممن عصاه"},
-        {"num": 81, "ar": "العَفُوُّ", "meaning": "الذي يعفو عن الذنوب"},
-        {"num": 82, "ar": "الرَّؤُوفُ", "meaning": "الرحيم بعباده"},
-        {"num": 83, "ar": "مَالِكُ المُلْكِ", "meaning": "المتصرف في ملكه كيف يشاء"},
-        {"num": 84, "ar": "ذُو الجَلَالِ وَالإِكْرَامِ", "meaning": "ذو العظمة والكبرياء والكرم"},
-        {"num": 85, "ar": "المُقْسِطُ", "meaning": "العادل في حكمه"},
-        {"num": 86, "ar": "الجَامِعُ", "meaning": "الذي يجمع الخلائق ليوم القيامة"},
-        {"num": 87, "ar": "الغَنِيُّ", "meaning": "المستغني عن كل شيء"},
-        {"num": 88, "ar": "المُغْنِي", "meaning": "الذي يغني من يشاء"},
-        {"num": 89, "ar": "المَانِعُ", "meaning": "الذي يمنع ما يشاء عمن يشاء"},
-        {"num": 90, "ar": "الضَّارُّ", "meaning": "المقدر للضر على من يشاء"},
-        {"num": 91, "ar": "النَّافِعُ", "meaning": "المقدر للنفع لمن يشاء"},
-        {"num": 92, "ar": "النُّورُ", "meaning": "نور السماوات والأرض"},
-        {"num": 93, "ar": "الهَادِي", "meaning": "الذي يهدي من يشاء"},
-        {"num": 94, "ar": "البَدِيعُ", "meaning": "المبدع لخلقه بلا مثال سابق"},
-        {"num": 95, "ar": "البَاقِي", "meaning": "الذي لا ينتهي وجوده"},
-        {"num": 96, "ar": "الوَارِثُ", "meaning": "الباقي بعد فناء خلقه"},
-        {"num": 97, "ar": "الرَّشِيدُ", "meaning": "الذي يرشد الخلق لمصالحهم"},
-        {"num": 98, "ar": "الصَّبُورُ", "meaning": "الذي لا يعجل بالعقوبة"},
-        {"num": 99, "ar": "اللهُ", "meaning": "الاسم الأعظم الجامع لكل الأسماء"}
-    ]
+async def get_asma_al_husna_endpoint(locale: str = "ar"):
+    """Get the 99 Names of Allah - multilingual (from authentic Islamic sources)"""
+    names = get_asma_al_husna(locale)
     return {"names": names, "total": 99}
 class StoreItem(BaseModel):
     name: str
@@ -250,37 +155,54 @@ class StoreItem(BaseModel):
     image_url: Optional[str] = None
 
 @router.get("/store/items")
-async def get_store_items(category: str = "all"):
+async def get_store_items(category: str = "all", locale: str = "ar"):
+    lang = locale if locale in ["ar", "en", "de", "de-AT", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
+    if lang == "de-AT":
+        lang = "de"
     query = {} if category == "all" else {"category": category}
     items = await db.store_items.find(query, {"_id": 0}).to_list(100)
     if not items:
-        # Seed default items
-        defaults = [
-            {"id": str(uuid.uuid4()), "name": "إطار ذهبي", "description": "إطار ذهبي مميز لصورتك الشخصية", "price_gold": 50, "price_usd": 0.99, "category": "frame", "image_url": None, "active": True},
-            {"id": str(uuid.uuid4()), "name": "خلفية رمضانية", "description": "خلفية خاصة بشهر رمضان المبارك", "price_gold": 30, "price_usd": 0.49, "category": "theme", "image_url": None, "active": True},
-            {"id": str(uuid.uuid4()), "name": "شارة حافظ", "description": "شارة مميزة تظهر بجانب اسمك", "price_gold": 100, "price_usd": 1.99, "category": "badge", "image_url": None, "active": True},
-            {"id": str(uuid.uuid4()), "name": "تأثير نجوم", "description": "تأثير نجوم متحركة على منشوراتك", "price_gold": 75, "price_usd": 1.49, "category": "effect", "image_url": None, "active": True},
-            {"id": str(uuid.uuid4()), "name": "عضوية مميزة (شهر)", "description": "وصول لميزات حصرية لمدة شهر", "price_gold": 500, "price_usd": 4.99, "category": "membership", "image_url": None, "active": True},
-            {"id": str(uuid.uuid4()), "name": "صدقة جارية", "description": "تبرع بالذهب لمشاريع خيرية", "price_gold": 10, "price_usd": 0, "category": "charity", "image_url": None, "active": True},
-        ]
+        # Seed default items with multilingual support
+        defaults = []
+        for item_data in STORE_ITEMS_TRANSLATED:
+            defaults.append({
+                "id": str(uuid.uuid4()),
+                "name": _t(item_data["name"], lang),
+                "name_i18n": item_data["name"],
+                "description": _t(item_data["description"], lang),
+                "description_i18n": item_data["description"],
+                "price_gold": item_data["price_gold"],
+                "price_usd": item_data["price_usd"],
+                "category": item_data["category"],
+                "image_url": item_data["image_url"],
+                "active": item_data["active"],
+            })
         for item in defaults:
             await db.store_items.insert_one(item)
         items = [{k: v for k, v in d.items() if k != "_id"} for d in defaults]
+    else:
+        # Localize existing items
+        for item in items:
+            if "name_i18n" in item and isinstance(item["name_i18n"], dict):
+                item["name"] = item["name_i18n"].get(lang, item["name_i18n"].get("ar", item.get("name", "")))
+            if "description_i18n" in item and isinstance(item["description_i18n"], dict):
+                item["description"] = item["description_i18n"].get(lang, item["description_i18n"].get("ar", item.get("description", "")))
     return {"items": items}
 
 @router.post("/store/buy-gold")
 async def buy_with_gold(data: dict, user: dict = Depends(get_user)):
+    locale = data.get("locale", "ar")
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required", locale))
     
     item_id = data.get("item_id")
     item = await db.store_items.find_one({"id": item_id}, {"_id": 0})
     if not item:
-        raise HTTPException(404, "المنتج غير موجود")
+        raise HTTPException(404, get_error("product_not_found", locale))
     
     wallet = await db.wallets.find_one({"user_id": user["id"]})
     if not wallet or wallet.get("gold", 0) < item["price_gold"]:
-        raise HTTPException(400, "رصيد الذهب غير كافٍ")
+        raise HTTPException(400, get_error("insufficient_gold", locale))
     
     await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"gold": -item["price_gold"]}})
     
@@ -300,7 +222,7 @@ async def buy_with_gold(data: dict, user: dict = Depends(get_user)):
 @router.get("/store/my-purchases")
 async def get_my_purchases(user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     purchases = await db.purchases.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"purchases": purchases}
 
@@ -308,7 +230,7 @@ async def get_my_purchases(user: dict = Depends(get_user)):
 @router.get("/membership/status")
 async def get_membership(user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     membership = await db.memberships.find_one({"user_id": user["id"]}, {"_id": 0})
     if not membership:
         return {"active": False, "plan": "free", "expires_at": None}
@@ -325,28 +247,20 @@ from emergentintegrations.payments.stripe.checkout import StripeCheckout, Checko
 from starlette.requests import Request
 
 # Store packages (server-side defined prices - NEVER accept from frontend)
-STORE_PACKAGES = {
-    "frame": {"name": "إطار ذهبي", "price": 0.99},
-    "theme": {"name": "خلفية رمضانية", "price": 0.49},
-    "badge": {"name": "شارة حافظ", "price": 1.99},
-    "effect": {"name": "تأثير نجوم", "price": 1.49},
-    "membership_monthly": {"name": "عضوية مميزة (شهر)", "price": 4.99},
-    "gold_100": {"name": "100 ذهب", "price": 0.99},
-    "gold_500": {"name": "500 ذهب", "price": 3.99},
-    "gold_1000": {"name": "1000 ذهب", "price": 6.99},
-}
+STORE_PACKAGES = STORE_PACKAGES_TRANSLATED
 
 @router.post("/payments/checkout")
 async def create_checkout(data: dict, request: Request, user: dict = Depends(get_user)):
+    locale = data.get("locale", "ar")
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required", locale))
     
     package_id = data.get("package_id", "")
     origin_url = data.get("origin_url", "")
     item_id = data.get("item_id", "")
     
     if not origin_url:
-        raise HTTPException(400, "origin_url مطلوب")
+        raise HTTPException(400, get_error("origin_url_required", locale))
     
     # Get price from server-side packages OR from store item
     amount = 0.0
@@ -354,17 +268,18 @@ async def create_checkout(data: dict, request: Request, user: dict = Depends(get
     
     if package_id in STORE_PACKAGES:
         amount = STORE_PACKAGES[package_id]["price"]
-        package_name = STORE_PACKAGES[package_id]["name"]
+        pkg_name_dict = STORE_PACKAGES[package_id]["name"]
+        package_name = _t(pkg_name_dict, locale) if isinstance(pkg_name_dict, dict) else pkg_name_dict
     elif item_id:
         item = await db.store_items.find_one({"id": item_id}, {"_id": 0})
         if not item:
-            raise HTTPException(404, "المنتج غير موجود")
+            raise HTTPException(404, get_error("product_not_found", locale))
         if item.get("price_usd", 0) <= 0:
-            raise HTTPException(400, "هذا المنتج مجاني أو غير متاح للشراء بالمال")
+            raise HTTPException(400, get_error("product_free_or_unavailable", locale))
         amount = float(item["price_usd"])
         package_name = item["name"]
     else:
-        raise HTTPException(400, "يجب تحديد المنتج")
+        raise HTTPException(400, get_error("must_select_product", locale))
     
     success_url = f"{origin_url}/store?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin_url}/store"
@@ -415,11 +330,11 @@ async def create_checkout(data: dict, request: Request, user: dict = Depends(get
 @router.get("/payments/status/{session_id}")
 async def get_payment_status(session_id: str, request: Request, user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     
     txn = await db.payment_transactions.find_one({"session_id": session_id, "user_id": user["id"]}, {"_id": 0})
     if not txn:
-        raise HTTPException(404, "المعاملة غير موجودة")
+        raise HTTPException(404, get_error("transaction_not_found"))
     
     # If already processed, return cached status
     if txn.get("payment_status") in ["paid", "expired"]:
@@ -484,14 +399,15 @@ async def stripe_webhook(request: Request):
         return {"received": True}
 
 @router.get("/payments/packages")
-async def get_packages():
-    """Get available gold/membership packages"""
-    return {"packages": [
-        {"id": "gold_100", "name": "100 ذهب", "price": 0.99, "type": "gold", "amount": 100},
-        {"id": "gold_500", "name": "500 ذهب", "price": 3.99, "type": "gold", "amount": 500},
-        {"id": "gold_1000", "name": "1000 ذهب", "price": 6.99, "type": "gold", "amount": 1000},
-        {"id": "membership_monthly", "name": "عضوية مميزة (شهر)", "price": 4.99, "type": "membership"},
-    ]}
+async def get_packages(locale: str = "ar"):
+    """Get available gold/membership packages - multilingual"""
+    lang = locale if locale in ["ar", "en", "de", "de-AT", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
+    result = []
+    for pkg in GOLD_PACKAGES_TRANSLATED:
+        p = dict(pkg)
+        p["name"] = _t(pkg["name"], lang)
+        result.append(p)
+    return {"packages": result}
 
 
 # ==================== VIRTUAL CREDITS SYSTEM (مثل تيك توك) ====================
@@ -524,17 +440,8 @@ CURRENCY_DATA = {
     "NG": {"code": "NGN", "symbol": "₦", "rate": 1580.0},
 }
 
-# Credit packages: price in EUR (base), credits given
-CREDIT_PACKAGES = [
-    {"id": "credits_5", "credits": 65, "price_eur": 0.05, "label": "65 نقطة", "popular": False},
-    {"id": "credits_50", "credits": 650, "price_eur": 0.50, "label": "650 نقطة", "popular": False},
-    {"id": "credits_100", "credits": 1300, "price_eur": 1.0, "label": "1,300 نقطة", "popular": True},
-    {"id": "credits_500", "credits": 6800, "price_eur": 5.0, "label": "6,800 نقطة", "popular": False},
-    {"id": "credits_1000", "credits": 14000, "price_eur": 10.0, "label": "14,000 نقطة", "popular": False},
-    {"id": "credits_5000", "credits": 75000, "price_eur": 50.0, "label": "75,000 نقطة", "popular": False},
-    {"id": "credits_10000", "credits": 160000, "price_eur": 100.0, "label": "160,000 نقطة", "popular": False},
-    {"id": "credits_100000", "credits": 1700000, "price_eur": 1000.0, "label": "1,700,000 نقطة", "popular": False},
-]
+# Credit packages: price in EUR (base), credits given - multilingual
+CREDIT_PACKAGES = CREDIT_PACKAGES_TRANSLATED
 
 @router.get("/credits/detect-currency")
 async def detect_currency(lat: float = Query(0), lon: float = Query(0)):
@@ -554,14 +461,17 @@ async def detect_currency(lat: float = Query(0), lon: float = Query(0)):
     return {"country_code": country_code, "currency": currency}
 
 @router.get("/credits/packages")
-async def get_credit_packages(country: str = "US"):
-    """Get credit packages with local currency pricing"""
+async def get_credit_packages(country: str = "US", locale: str = "ar"):
+    """Get credit packages with local currency pricing - multilingual"""
     currency = CURRENCY_DATA.get(country, CURRENCY_DATA["US"])
     packages = []
     for pkg in CREDIT_PACKAGES:
         local_price = round(pkg["price_eur"] * currency["rate"] / CURRENCY_DATA.get("EU", {"rate": 0.92})["rate"], 2)
+        pkg_copy = dict(pkg)
+        if isinstance(pkg_copy.get("label"), dict):
+            pkg_copy["label"] = _t(pkg_copy["label"], locale)
         packages.append({
-            **pkg,
+            **pkg_copy,
             "local_price": local_price,
             "currency_code": currency["code"],
             "currency_symbol": currency["symbol"],
@@ -572,7 +482,7 @@ async def get_credit_packages(country: str = "US"):
 @router.get("/credits/balance")
 async def get_credits_balance(user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
     credits = wallet.get("credits", 0) if wallet else 0
     return {"credits": credits}
@@ -580,14 +490,15 @@ async def get_credits_balance(user: dict = Depends(get_user)):
 @router.post("/credits/purchase")
 async def purchase_credits(data: dict, request: Request, user: dict = Depends(get_user)):
     """Create checkout session to purchase credits"""
+    locale = data.get("locale", "ar")
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required", locale))
     
     package_id = data.get("package_id", "")
     origin_url = data.get("origin_url", "")
     pkg = next((p for p in CREDIT_PACKAGES if p["id"] == package_id), None)
     if not pkg:
-        raise HTTPException(400, "الباقة غير صالحة")
+        raise HTTPException(400, get_error("invalid_package", locale))
     
     success_url = f"{origin_url}/rewards?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{origin_url}/rewards"
@@ -616,30 +527,28 @@ async def purchase_credits(data: dict, request: Request, user: dict = Depends(ge
 
 
 # ==================== GIFT STORE (هدايا إسلامية) ====================
-ISLAMIC_GIFTS = [
-    {"id": "gift_lion", "name": "الأسد", "emoji": "🦁", "price_credits": 50, "description": "أسد الإسلام - هدية القوة"},
-    {"id": "gift_crescent", "name": "الهلال الذهبي", "emoji": "🌙", "price_credits": 100, "description": "رمز الإسلام المتألق"},
-    {"id": "gift_kaaba", "name": "الكعبة المشرفة", "emoji": "🕋", "price_credits": 500, "description": "هدية مميزة بيت الله الحرام"},
-    {"id": "gift_star", "name": "النجمة", "emoji": "⭐", "price_credits": 30, "description": "نجمة الإبداع"},
-    {"id": "gift_rose", "name": "الوردة", "emoji": "🌹", "price_credits": 20, "description": "وردة التقدير"},
-    {"id": "gift_book", "name": "القرآن", "emoji": "📖", "price_credits": 200, "description": "نور المعرفة والهداية"},
-    {"id": "gift_mosque", "name": "المسجد", "emoji": "🕌", "price_credits": 300, "description": "بيت من بيوت الله"},
-    {"id": "gift_prayer", "name": "سجادة الصلاة", "emoji": "🧎", "price_credits": 150, "description": "للعابدين المخلصين"},
-    {"id": "gift_crown", "name": "التاج الذهبي", "emoji": "👑", "price_credits": 1000, "description": "تاج الملوك - أغلى هدية"},
-    {"id": "gift_diamond", "name": "الماسة", "emoji": "💎", "price_credits": 2000, "description": "ألماسة نادرة للمميزين"},
-    {"id": "gift_dove", "name": "حمامة السلام", "emoji": "🕊️", "price_credits": 75, "description": "رسالة سلام ومحبة"},
-    {"id": "gift_palm", "name": "النخلة", "emoji": "🌴", "price_credits": 40, "description": "نخلة البركة"},
-]
+ISLAMIC_GIFTS = ISLAMIC_GIFTS_TRANSLATED
 
 @router.get("/gifts/list")
-async def list_gifts():
-    return {"gifts": ISLAMIC_GIFTS}
+async def list_gifts(locale: str = "ar"):
+    """List available gifts - multilingual"""
+    lang = locale if locale in ["ar", "en", "de", "de-AT", "fr", "tr", "ru", "sv", "nl", "el"] else "ar"
+    result = []
+    for g in ISLAMIC_GIFTS:
+        gift_copy = dict(g)
+        if isinstance(gift_copy.get("name"), dict):
+            gift_copy["name"] = _t(gift_copy["name"], lang)
+        if isinstance(gift_copy.get("description"), dict):
+            gift_copy["description"] = _t(gift_copy["description"], lang)
+        result.append(gift_copy)
+    return {"gifts": result}
 
 @router.post("/gifts/send")
 async def send_gift(data: dict, user: dict = Depends(get_user)):
     """Send a gift to a content creator. 50% admin, 50% creator."""
+    locale = data.get("locale", "ar")
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required", locale))
     
     gift_id = data.get("gift_id", "")
     recipient_id = data.get("recipient_id", "")
@@ -647,19 +556,19 @@ async def send_gift(data: dict, user: dict = Depends(get_user)):
     
     gift = next((g for g in ISLAMIC_GIFTS if g["id"] == gift_id), None)
     if not gift:
-        raise HTTPException(400, "الهدية غير صالحة")
+        raise HTTPException(400, get_error("invalid_gift", locale))
     
     if not recipient_id:
-        raise HTTPException(400, "يجب تحديد المستلم")
+        raise HTTPException(400, get_error("must_select_recipient", locale))
     
     if recipient_id == user["id"]:
-        raise HTTPException(400, "لا يمكنك إهداء نفسك")
+        raise HTTPException(400, get_error("cannot_gift_self", locale))
     
     # Check sender credits
     wallet = await db.wallets.find_one({"user_id": user["id"]})
     sender_credits = wallet.get("credits", 0) if wallet else 0
     if sender_credits < gift["price_credits"]:
-        raise HTTPException(400, "رصيد النقاط غير كافٍ")
+        raise HTTPException(400, get_error("insufficient_credits", locale))
     
     # Deduct from sender
     await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"credits": -gift["price_credits"]}})
@@ -682,6 +591,9 @@ async def send_gift(data: dict, user: dict = Depends(get_user)):
         upsert=True
     )
     
+    # Get localized gift name
+    gift_name = _t(gift["name"], locale) if isinstance(gift.get("name"), dict) else gift.get("name", "")
+    
     # Record gift transaction
     gift_record = {
         "id": str(uuid.uuid4()),
@@ -690,7 +602,7 @@ async def send_gift(data: dict, user: dict = Depends(get_user)):
         "recipient_id": recipient_id,
         "post_id": post_id,
         "gift_id": gift_id,
-        "gift_name": gift["name"],
+        "gift_name": gift_name,
         "gift_emoji": gift["emoji"],
         "credits": gift["price_credits"],
         "creator_share": creator_share,
@@ -701,12 +613,12 @@ async def send_gift(data: dict, user: dict = Depends(get_user)):
     gift_record.pop("_id", None)
     
     new_credits = sender_credits - gift["price_credits"]
-    return {"success": True, "credits_remaining": new_credits, "gift": gift, "message": f"تم إرسال {gift['emoji']} {gift['name']}!"}
+    return {"success": True, "credits_remaining": new_credits, "gift": {"id": gift["id"], "name": gift_name, "emoji": gift["emoji"]}, "message": f"{gift['emoji']} {gift_name}"}
 
 @router.get("/gifts/received")
 async def get_received_gifts(user: dict = Depends(get_user)):
     if not user:
-        raise HTTPException(401, "يجب تسجيل الدخول")
+        raise HTTPException(401, get_error("login_required"))
     gifts = await db.gift_transactions.find({"recipient_id": user["id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
     return {"gifts": gifts}
 

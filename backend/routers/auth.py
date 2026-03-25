@@ -6,6 +6,7 @@ from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_pa
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
+from data.multilingual_content import SOHBA_CATEGORIES_TRANSLATED, get_error
 import uuid
 import random
 import math
@@ -56,24 +57,13 @@ async def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_use
 
 # ==================== SOCIAL PLATFORM (صُحبة) ====================
 
-SOHBA_CATEGORIES = [
-    {"key": "general", "label": "عام", "labelKey": "sohbaCatGeneral", "icon": "globe"},
-    {"key": "quran", "label": "القرآن الكريم", "labelKey": "sohbaCatQuran", "icon": "book"},
-    {"key": "hadith", "label": "الحديث الشريف", "labelKey": "sohbaCatHadith", "icon": "scroll"},
-    {"key": "ramadan", "label": "رمضان", "labelKey": "sohbaCatRamadan", "icon": "moon"},
-    {"key": "dua", "label": "الدعاء والأذكار", "labelKey": "sohbaCatDua", "icon": "hands"},
-    {"key": "stories", "label": "قصص وعبر", "labelKey": "sohbaCatStories", "icon": "feather"},
-    {"key": "hajj", "label": "الحج والعمرة", "labelKey": "sohbaCatHajj", "icon": "kaaba"},
-    {"key": "halal", "label": "السفر الحلال", "labelKey": "sohbaCatHalal", "icon": "plane"},
-    {"key": "family", "label": "الأسرة المسلمة", "labelKey": "sohbaCatFamily", "icon": "heart"},
-    {"key": "youth", "label": "الشباب", "labelKey": "sohbaCatYouth", "icon": "users"},
-]
+SOHBA_CATEGORIES = SOHBA_CATEGORIES_TRANSLATED
 
 @router.post("/auth/register")
 async def register(data: UserRegister):
     email = data.email.lower().strip()
     if await db.users.find_one({"email": email}):
-        raise HTTPException(400, "البريد الإلكتروني مسجل مسبقاً")
+        raise HTTPException(400, get_error("email_already_registered"))
     uid = str(uuid.uuid4())
     user = {
         "id": uid, "email": email,
@@ -289,18 +279,7 @@ async def update_profile(req: UpdateProfileRequest, user: dict = Depends(get_use
 
 # ==================== SOCIAL PLATFORM (صُحبة) ====================
 
-SOHBA_CATEGORIES = [
-    {"key": "general", "label": "عام", "labelKey": "sohbaCatGeneral", "icon": "globe"},
-    {"key": "quran", "label": "القرآن الكريم", "labelKey": "sohbaCatQuran", "icon": "book"},
-    {"key": "hadith", "label": "الحديث الشريف", "labelKey": "sohbaCatHadith", "icon": "scroll"},
-    {"key": "ramadan", "label": "رمضان", "labelKey": "sohbaCatRamadan", "icon": "moon"},
-    {"key": "dua", "label": "الدعاء والأذكار", "labelKey": "sohbaCatDua", "icon": "hands"},
-    {"key": "stories", "label": "قصص وعبر", "labelKey": "sohbaCatStories", "icon": "feather"},
-    {"key": "hajj", "label": "الحج والعمرة", "labelKey": "sohbaCatHajj", "icon": "kaaba"},
-    {"key": "halal", "label": "السفر الحلال", "labelKey": "sohbaCatHalal", "icon": "plane"},
-    {"key": "family", "label": "الأسرة المسلمة", "labelKey": "sohbaCatFamily", "icon": "heart"},
-    {"key": "youth", "label": "الشباب", "labelKey": "sohbaCatYouth", "icon": "users"},
-]
+# SOHBA_CATEGORIES already defined above with multilingual support
 
 class CreatePostRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=5000)

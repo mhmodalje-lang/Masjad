@@ -7,6 +7,7 @@ from starlette.requests import Request
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
+from data.multilingual_content import STORY_CATEGORIES_TRANSLATED, STORE_LISTING_TRANSLATED, SEO_KEYWORDS_TRANSLATED, UI_STRINGS_ALL, _t
 import uuid
 import random
 import math
@@ -140,16 +141,10 @@ async def get_dhikr_audio(lang: str = "ar"):
 
 @router.get("/localization/supported")
 async def get_supported_localizations():
-    """Get all supported languages and their features"""
+    """Get all supported languages and their features - full 10 languages"""
+    from data.multilingual_content import SUPPORTED_LANGUAGES_FULL
     return {
-        "ui_languages": [
-            {"code": "ar", "label": "العربية", "flag": "🇸🇦", "dir": "rtl", "complete": True},
-            {"code": "en", "label": "English", "flag": "🇬🇧", "dir": "ltr", "complete": True},
-            {"code": "ru", "label": "Русский", "flag": "🇷🇺", "dir": "ltr", "complete": True},
-            {"code": "tr", "label": "Türkçe", "flag": "🇹🇷", "dir": "ltr", "complete": True},
-            {"code": "de", "label": "Deutsch", "flag": "🇩🇪", "dir": "ltr", "complete": True},
-            {"code": "fr", "label": "Français", "flag": "🇫🇷", "dir": "ltr", "complete": True},
-        ],
+        "ui_languages": SUPPORTED_LANGUAGES_FULL,
         "quran_translations": {
             "ar": {"id": None, "source": "original"},
             "en": {"id": 131, "source": "Saheeh International"},
@@ -157,6 +152,9 @@ async def get_supported_localizations():
             "tr": {"id": 77, "source": "Diyanet İşleri"},
             "de": {"id": 27, "source": "Bubenheim & Elyas"},
             "fr": {"id": 31, "source": "Muhammad Hamidullah"},
+            "sv": {"id": 48, "source": "Knut Bernström"},
+            "nl": {"id": 144, "source": "Sofian S. Siregar"},
+            "el": {"id": 131, "source": "Saheeh International (via English)"},
         },
         "prayer_times_global": True,
         "prayer_times_methods": {
@@ -165,97 +163,28 @@ async def get_supported_localizations():
             "russia": 2,
             "germany": 3,
             "france": 12,
+            "sweden": 3,
+            "netherlands": 3,
+            "greece": 2,
         },
-        "privacy_policy_languages": ["ar", "en", "ru", "tr", "de", "fr"],
+        "privacy_policy_languages": ["ar", "en", "ru", "tr", "de", "fr", "sv", "nl", "el"],
         "audio_languages": ["ar", "en"],
         "auto_language_detection": True,
-        "store_listing": {
-            "ar": {"title": "أذان وحكاية - مواقيت الصلاة والقرآن", "short": "مواقيت الصلاة، القرآن، الأذكار"},
-            "en": {"title": "Azan & Hikaya - Prayer Times & Quran", "short": "Prayer Times, Quran, Azkar"},
-            "ru": {"title": "Азан и Хикая - Время молитв и Коран", "short": "Время молитв, Коран, Азкар"},
-            "tr": {"title": "Ezan ve Hikaye - Namaz Vakitleri ve Kur'an", "short": "Namaz Vakitleri, Kur'an, Zikirler"},
-            "de": {"title": "Azan & Hikaya - Gebetszeiten & Koran", "short": "Gebetszeiten, Koran, Dhikr"},
-            "fr": {"title": "Azan & Hikaya - Heures de prière & Coran", "short": "Heures de prière, Coran, Dhikr"},
-        },
-        "seo_keywords": {
-            "ar": ["مواقيت الصلاة", "القرآن الكريم", "أذكار", "أدعية", "حكاياتي", "منصة إسلامية"],
-            "en": ["prayer times", "quran", "islamic app", "muslim", "azkar", "duas"],
-            "ru": ["время молитв", "коран", "исламское приложение", "мусульманин", "намаз"],
-            "tr": ["namaz vakitleri", "kuran", "islam uygulaması", "müslüman", "dua", "zikir"],
-            "de": ["gebetszeiten", "koran", "islamische app", "muslim", "dhikr", "dua"],
-        },
+        "store_listing": STORE_LISTING_TRANSLATED,
+        "seo_keywords": SEO_KEYWORDS_TRANSLATED,
     }
 
 @router.get("/localization/strings/{lang}")
 async def get_ui_strings(lang: str):
-    """Get UI translations for a specific language"""
-    strings = {
-        "ar": {
-            "home": "الرئيسية", "prayer_times": "مواقيت الصلاة", "quran": "القرآن الكريم",
-            "qibla": "اتجاه القبلة", "tasbeeh": "التسبيح", "duas": "الأدعية",
-            "stories": "حكاياتي", "messages": "الرسائل", "more": "المزيد",
-            "login": "تسجيل الدخول", "register": "إنشاء حساب", "profile": "الملف الشخصي",
-            "follow": "متابعة", "following": "متابَع", "followers": "متابعين",
-            "likes": "الإعجابات", "comments": "التعليقات", "share": "مشاركة",
-            "create_post": "إنشاء منشور", "trending": "الترندات", "video": "فيديو",
-            "search": "بحث", "settings": "الإعدادات", "logout": "خروج",
-        },
-        "en": {
-            "home": "Home", "prayer_times": "Prayer Times", "quran": "Quran",
-            "qibla": "Qibla", "tasbeeh": "Tasbeeh", "duas": "Duas",
-            "stories": "Hikayati", "messages": "Messages", "more": "More",
-            "login": "Login", "register": "Register", "profile": "Profile",
-            "follow": "Follow", "following": "Following", "followers": "Followers",
-            "likes": "Likes", "comments": "Comments", "share": "Share",
-            "create_post": "Create Post", "trending": "Trending", "video": "Video",
-            "search": "Search", "settings": "Settings", "logout": "Logout",
-        },
-        "ru": {
-            "home": "Главная", "prayer_times": "Время молитв", "quran": "Коран",
-            "qibla": "Кибла", "tasbeeh": "Тасбих", "duas": "Дуа",
-            "stories": "Хикаяти", "messages": "Сообщения", "more": "Ещё",
-            "login": "Войти", "register": "Регистрация", "profile": "Профиль",
-            "follow": "Подписаться", "following": "Подписан", "followers": "Подписчики",
-            "likes": "Нравится", "comments": "Комментарии", "share": "Поделиться",
-            "create_post": "Создать пост", "trending": "В тренде", "video": "Видео",
-            "search": "Поиск", "settings": "Настройки", "logout": "Выход",
-        },
-        "tr": {
-            "home": "Ana Sayfa", "prayer_times": "Namaz Vakitleri", "quran": "Kur'an",
-            "qibla": "Kıble", "tasbeeh": "Tesbih", "duas": "Dualar",
-            "stories": "Hikayelerim", "messages": "Mesajlar", "more": "Daha Fazla",
-            "login": "Giriş", "register": "Kayıt Ol", "profile": "Profil",
-            "follow": "Takip Et", "following": "Takip Ediliyor", "followers": "Takipçiler",
-            "likes": "Beğeniler", "comments": "Yorumlar", "share": "Paylaş",
-            "create_post": "Gönderi Oluştur", "trending": "Trendler", "video": "Video",
-            "search": "Ara", "settings": "Ayarlar", "logout": "Çıkış",
-        },
-        "de": {
-            "home": "Startseite", "prayer_times": "Gebetszeiten", "quran": "Koran",
-            "qibla": "Qibla", "tasbeeh": "Tasbih", "duas": "Bittgebete",
-            "stories": "Hikayati", "messages": "Nachrichten", "more": "Mehr",
-            "login": "Anmelden", "register": "Registrieren", "profile": "Profil",
-            "follow": "Folgen", "following": "Gefolgt", "followers": "Follower",
-            "likes": "Gefällt mir", "comments": "Kommentare", "share": "Teilen",
-            "create_post": "Beitrag erstellen", "trending": "Trends", "video": "Video",
-            "search": "Suche", "settings": "Einstellungen", "logout": "Abmelden",
-        },
-    }
-    return {"lang": lang, "strings": strings.get(lang, strings["ar"]), "dir": "rtl" if lang == "ar" else "ltr"}
+    """Get UI translations for a specific language - all 10 languages supported"""
+    effective_lang = lang
+    if lang == "de-AT":
+        effective_lang = "de"
+    strings = UI_STRINGS_ALL
+    return {"lang": lang, "strings": strings.get(effective_lang, strings["ar"]), "dir": "rtl" if lang == "ar" else "ltr"}
 
 # ==================== STORIES SYSTEM (حكايات) ====================
 # Uses the existing posts/comments/likes collections but with story-specific endpoints
 
-STORY_CATEGORIES = [
-    {"key": "general", "label": "عام", "labelKey": "storyCatGeneral", "emoji": "📝", "icon": "file-text", "color": "#64748b"},
-    {"key": "istighfar", "label": "قصص الاستغفار", "labelKey": "storyCatIstighfar", "emoji": "🤲", "icon": "sparkles", "color": "#10b981"},
-    {"key": "sahaba", "label": "قصص الصحابة", "labelKey": "storyCatSahaba", "emoji": "📖", "icon": "book", "color": "#f59e0b"},
-    {"key": "quran", "label": "قصص القرآن", "labelKey": "storyCatQuran", "emoji": "📗", "icon": "book-open", "color": "#059669"},
-    {"key": "prophets", "label": "قصص الأنبياء", "labelKey": "storyCatProphets", "emoji": "🌟", "icon": "star", "color": "#8b5cf6"},
-    {"key": "ruqyah", "label": "قصص الرقية", "labelKey": "storyCatRuqyah", "emoji": "🛡️", "icon": "shield", "color": "#3b82f6"},
-    {"key": "rizq", "label": "قصص الرزق", "labelKey": "storyCatRizq", "emoji": "✨", "icon": "coins", "color": "#eab308"},
-    {"key": "tawba", "label": "قصص التوبة", "labelKey": "storyCatTawba", "emoji": "💚", "icon": "heart", "color": "#22c55e"},
-    {"key": "miracles", "label": "معجزات وعبر", "labelKey": "storyCatMiracles", "emoji": "🌙", "icon": "moon", "color": "#6366f1"},
-    {"key": "embed", "label": "فيديوهات", "labelKey": "storyCatEmbed", "emoji": "🎬", "icon": "film", "color": "#ef4444"},
-]
+STORY_CATEGORIES = STORY_CATEGORIES_TRANSLATED
 

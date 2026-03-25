@@ -1,350 +1,430 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Multilingual App
-==================================================
-Testing ALL language-dependent endpoints as requested in review.
+Comprehensive Backend Testing for AzanHikaya Multilingual Endpoints
+==================================================================
+Testing all multilingual backend endpoints with multiple locales:
+ar, en, de, fr, tr, ru, sv, nl, el
 
-Base URL: https://backend-localization.preview.emergentagent.com
-
-Test Endpoints:
-1. GET /api/health - Basic health check
-2. GET /api/quran/v4/chapters?language=en - English Quran chapters
-3. GET /api/quran/v4/chapters?language=tr - Turkish Quran chapters  
-4. GET /api/quran/v4/chapters?language=fr - French Quran chapters
-5. GET /api/quran/v4/chapters?language=de - German Quran chapters
-6. GET /api/quran/v4/chapters?language=ru - Russian Quran chapters
-7. GET /api/kids-learn/daily-games?locale=en - English kids games
-8. GET /api/kids-learn/daily-games?locale=tr - Turkish kids games
-9. GET /api/kids-learn/daily-games?locale=de - German kids games
-10. GET /api/sohba/posts - Social posts
-11. GET /api/sohba/categories - Post categories
+Endpoints to test:
+1. Asma Al-Husna (99 Names of Allah)
+2. Gifts List
+3. Payment Packages
+4. Credit Packages
+5. Localization Strings
+6. Supported Localizations
+7. Store Items
 """
 
 import asyncio
-import httpx
+import aiohttp
 import json
-from datetime import datetime
+import sys
 from typing import Dict, List, Any
 
-# Base URL from frontend .env
-BASE_URL = "https://backend-localization.preview.emergentagent.com"
+# Backend URL from environment
+BACKEND_URL = "https://backend-localization.preview.emergentagent.com"
 
-class BackendTester:
+# Test locales
+LOCALES = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
+
+class MultilingualBackendTester:
     def __init__(self):
-        self.base_url = BASE_URL
+        self.session = None
         self.results = []
         self.total_tests = 0
         self.passed_tests = 0
         self.failed_tests = 0
-        
-    async def test_endpoint(self, method: str, endpoint: str, expected_status: int = 200, 
-                          description: str = "", validate_func=None) -> Dict[str, Any]:
-        """Test a single endpoint and return results"""
+
+    async def __aenter__(self):
+        self.session = aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30))
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if self.session:
+            await self.session.close()
+
+    def log_result(self, test_name: str, status: str, details: str = ""):
+        """Log test result"""
         self.total_tests += 1
-        url = f"{self.base_url}{endpoint}"
+        if status == "PASS":
+            self.passed_tests += 1
+            print(f"✅ {test_name}: {status}")
+        else:
+            self.failed_tests += 1
+            print(f"❌ {test_name}: {status}")
+            if details:
+                print(f"   Details: {details}")
         
+        self.results.append({
+            "test": test_name,
+            "status": status,
+            "details": details
+        })
+
+    async def test_endpoint(self, endpoint: str, expected_keys: List[str] = None, 
+                          expected_count: int = None, test_name: str = "") -> Dict[str, Any]:
+        """Test a single endpoint"""
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                if method.upper() == "GET":
-                    response = await client.get(url)
-                else:
-                    response = await client.request(method, url)
+            url = f"{BACKEND_URL}/api{endpoint}"
+            async with self.session.get(url) as response:
+                if response.status != 200:
+                    self.log_result(test_name, f"FAIL - HTTP {response.status}")
+                    return {"status": "fail", "error": f"HTTP {response.status}"}
                 
-                # Basic status check
-                status_ok = response.status_code == expected_status
-                
-                # Try to parse JSON
                 try:
-                    json_data = response.json()
-                    valid_json = True
-                except:
-                    json_data = None
-                    valid_json = False
+                    data = await response.json()
+                except json.JSONDecodeError as e:
+                    self.log_result(test_name, f"FAIL - Invalid JSON: {str(e)}")
+                    return {"status": "fail", "error": f"Invalid JSON: {str(e)}"}
                 
-                # Custom validation if provided
-                validation_result = True
-                validation_message = ""
-                if validate_func and json_data:
-                    try:
-                        validation_result, validation_message = validate_func(json_data)
-                    except Exception as e:
-                        validation_result = False
-                        validation_message = f"Validation error: {str(e)}"
+                # Validate expected keys
+                if expected_keys:
+                    missing_keys = [key for key in expected_keys if key not in data]
+                    if missing_keys:
+                        self.log_result(test_name, f"FAIL - Missing keys: {missing_keys}")
+                        return {"status": "fail", "error": f"Missing keys: {missing_keys}"}
                 
-                # Overall success
-                success = status_ok and valid_json and validation_result
+                # Validate expected count
+                if expected_count is not None:
+                    if "names" in data and len(data["names"]) != expected_count:
+                        self.log_result(test_name, f"FAIL - Expected {expected_count} items, got {len(data['names'])}")
+                        return {"status": "fail", "error": f"Count mismatch"}
+                    elif "gifts" in data and len(data["gifts"]) != expected_count:
+                        self.log_result(test_name, f"FAIL - Expected {expected_count} gifts, got {len(data['gifts'])}")
+                        return {"status": "fail", "error": f"Count mismatch"}
                 
-                if success:
-                    self.passed_tests += 1
-                else:
-                    self.failed_tests += 1
-                
-                result = {
-                    "endpoint": endpoint,
-                    "description": description,
-                    "method": method.upper(),
-                    "url": url,
-                    "status_code": response.status_code,
-                    "expected_status": expected_status,
-                    "status_ok": status_ok,
-                    "valid_json": valid_json,
-                    "validation_passed": validation_result,
-                    "validation_message": validation_message,
-                    "success": success,
-                    "response_size": len(response.content) if response.content else 0,
-                    "content_type": response.headers.get("content-type", ""),
-                    "data_sample": json_data if json_data and isinstance(json_data, dict) else None
-                }
-                
-                self.results.append(result)
-                return result
+                self.log_result(test_name, "PASS")
+                return {"status": "pass", "data": data}
                 
         except Exception as e:
-            self.failed_tests += 1
-            result = {
-                "endpoint": endpoint,
-                "description": description,
-                "method": method.upper(),
-                "url": url,
-                "status_code": 0,
-                "expected_status": expected_status,
-                "status_ok": False,
-                "valid_json": False,
-                "validation_passed": False,
-                "validation_message": f"Request failed: {str(e)}",
-                "success": False,
-                "response_size": 0,
-                "content_type": "",
-                "data_sample": None,
-                "error": str(e)
-            }
-            self.results.append(result)
-            return result
+            self.log_result(test_name, f"FAIL - Exception: {str(e)}")
+            return {"status": "fail", "error": str(e)}
 
-    def validate_quran_chapters(self, data: Dict) -> tuple[bool, str]:
-        """Validate Quran chapters response"""
-        if not isinstance(data, dict):
-            return False, "Response is not a dictionary"
+    async def test_asma_al_husna(self):
+        """Test Asma Al-Husna endpoints for all locales"""
+        print("\n🔸 Testing Asma Al-Husna (99 Names of Allah)")
+        print("=" * 60)
         
-        # Check if it has chapters data
-        if "chapters" in data:
-            chapters = data["chapters"]
-            if not isinstance(chapters, list):
-                return False, "Chapters is not a list"
-            if len(chapters) == 0:
-                return False, "No chapters returned"
+        for locale in LOCALES:
+            endpoint = f"/asma-al-husna?locale={locale}"
+            test_name = f"Asma Al-Husna ({locale})"
             
-            # Check first chapter structure
-            if len(chapters) > 0:
-                first_chapter = chapters[0]
-                required_fields = ["id", "name_simple", "name_arabic"]
-                for field in required_fields:
-                    if field not in first_chapter:
-                        return False, f"Missing required field: {field}"
+            result = await self.test_endpoint(
+                endpoint, 
+                expected_keys=["names", "total"],
+                expected_count=99,
+                test_name=test_name
+            )
             
-            return True, f"Found {len(chapters)} chapters"
-        
-        return False, "No chapters field in response"
+            if result["status"] == "pass":
+                data = result["data"]
+                # Verify total is 99
+                if data.get("total") != 99:
+                    self.log_result(f"{test_name} - Total Check", f"FAIL - Expected total=99, got {data.get('total')}")
+                else:
+                    # Verify each name has required fields
+                    sample_name = data["names"][0] if data["names"] else {}
+                    required_fields = ["num", "ar", "transliteration", "meaning"]
+                    missing_fields = [field for field in required_fields if field not in sample_name]
+                    
+                    if missing_fields:
+                        self.log_result(f"{test_name} - Structure Check", f"FAIL - Missing fields: {missing_fields}")
+                    else:
+                        # Check if Arabic text is present in non-Arabic locales (should not leak)
+                        if locale != "ar" and isinstance(sample_name.get("meaning"), str):
+                            # This is expected - meaning should be localized string
+                            pass
+                        self.log_result(f"{test_name} - Structure Check", "PASS")
 
-    def validate_kids_games(self, data: Dict) -> tuple[bool, str]:
-        """Validate kids games response"""
-        if not isinstance(data, dict):
-            return False, "Response is not a dictionary"
+    async def test_gifts_list(self):
+        """Test Gifts List endpoints for multiple locales"""
+        print("\n🔸 Testing Gifts List")
+        print("=" * 60)
         
-        # Check success field
-        if not data.get("success", False):
-            return False, "Success field is false or missing"
+        test_locales = ["en", "de", "nl"]  # Test subset as specified in review
         
-        # Check games data
-        if "games" in data:
-            games = data["games"]
-            if not isinstance(games, list):
-                return False, "Games is not a list"
-            if len(games) == 0:
-                return False, "No games returned"
+        for locale in test_locales:
+            endpoint = f"/gifts/list?locale={locale}"
+            test_name = f"Gifts List ({locale})"
             
-            return True, f"Found {len(games)} games"
-        
-        return False, "No games field in response"
-
-    def validate_sohba_posts(self, data: Dict) -> tuple[bool, str]:
-        """Validate sohba posts response"""
-        if not isinstance(data, dict):
-            return False, "Response is not a dictionary"
-        
-        if "posts" in data:
-            posts = data["posts"]
-            if not isinstance(posts, list):
-                return False, "Posts is not a list"
+            result = await self.test_endpoint(
+                endpoint,
+                expected_keys=["gifts"],
+                test_name=test_name
+            )
             
-            return True, f"Found {len(posts)} posts"
-        
-        return False, "No posts field in response"
+            if result["status"] == "pass":
+                data = result["data"]
+                gifts = data.get("gifts", [])
+                
+                if len(gifts) != 12:
+                    self.log_result(f"{test_name} - Count Check", f"FAIL - Expected 12 gifts, got {len(gifts)}")
+                else:
+                    self.log_result(f"{test_name} - Count Check", "PASS")
+                
+                # Verify gift structure
+                if gifts:
+                    sample_gift = gifts[0]
+                    required_fields = ["id", "name", "emoji", "price_credits", "description"]
+                    missing_fields = [field for field in required_fields if field not in sample_gift]
+                    
+                    if missing_fields:
+                        self.log_result(f"{test_name} - Structure Check", f"FAIL - Missing fields: {missing_fields}")
+                    else:
+                        self.log_result(f"{test_name} - Structure Check", "PASS")
 
-    def validate_sohba_categories(self, data: Dict) -> tuple[bool, str]:
-        """Validate sohba categories response"""
-        if not isinstance(data, dict):
-            return False, "Response is not a dictionary"
+    async def test_payment_packages(self):
+        """Test Payment Packages endpoints for multiple locales"""
+        print("\n🔸 Testing Payment Packages")
+        print("=" * 60)
         
-        if "categories" in data:
-            categories = data["categories"]
-            if not isinstance(categories, list):
-                return False, "Categories is not a list"
-            if len(categories) == 0:
-                return False, "No categories returned"
+        test_locales = ["en", "fr", "ru"]  # Test subset as specified in review
+        
+        for locale in test_locales:
+            endpoint = f"/payments/packages?locale={locale}"
+            test_name = f"Payment Packages ({locale})"
             
-            return True, f"Found {len(categories)} categories"
-        
-        return False, "No categories field in response"
+            result = await self.test_endpoint(
+                endpoint,
+                expected_keys=["packages"],
+                test_name=test_name
+            )
+            
+            if result["status"] == "pass":
+                data = result["data"]
+                packages = data.get("packages", [])
+                
+                # Verify package structure
+                if packages:
+                    sample_package = packages[0]
+                    if "name" not in sample_package:
+                        self.log_result(f"{test_name} - Structure Check", "FAIL - Missing 'name' field")
+                    else:
+                        self.log_result(f"{test_name} - Structure Check", "PASS")
 
-    async def run_comprehensive_tests(self):
-        """Run all comprehensive backend tests"""
-        print(f"🚀 Starting Comprehensive Backend Testing")
-        print(f"📍 Base URL: {self.base_url}")
-        print(f"⏰ Test Time: {datetime.now().isoformat()}")
+    async def test_credit_packages(self):
+        """Test Credit Packages endpoints for multiple locales"""
+        print("\n🔸 Testing Credit Packages")
+        print("=" * 60)
+        
+        test_locales = ["en", "tr"]  # Test subset as specified in review
+        
+        for locale in test_locales:
+            endpoint = f"/credits/packages?locale={locale}"
+            test_name = f"Credit Packages ({locale})"
+            
+            result = await self.test_endpoint(
+                endpoint,
+                expected_keys=["packages"],
+                test_name=test_name
+            )
+            
+            if result["status"] == "pass":
+                data = result["data"]
+                packages = data.get("packages", [])
+                
+                # Verify package structure
+                if packages:
+                    sample_package = packages[0]
+                    if "label" not in sample_package:
+                        self.log_result(f"{test_name} - Structure Check", "FAIL - Missing 'label' field")
+                    else:
+                        self.log_result(f"{test_name} - Structure Check", "PASS")
+
+    async def test_localization_strings(self):
+        """Test Localization Strings endpoints for all 10 languages"""
+        print("\n🔸 Testing Localization Strings (All 10 Languages)")
+        print("=" * 60)
+        
+        for locale in LOCALES:
+            endpoint = f"/localization/strings/{locale}"
+            test_name = f"Localization Strings ({locale})"
+            
+            result = await self.test_endpoint(
+                endpoint,
+                expected_keys=["lang", "strings", "dir"],
+                test_name=test_name
+            )
+            
+            if result["status"] == "pass":
+                data = result["data"]
+                strings = data.get("strings", {})
+                
+                # Verify required UI string keys
+                required_keys = ["home", "quran", "prayer_times", "settings"]
+                missing_keys = [key for key in required_keys if key not in strings]
+                
+                if missing_keys:
+                    self.log_result(f"{test_name} - Keys Check", f"FAIL - Missing keys: {missing_keys}")
+                else:
+                    self.log_result(f"{test_name} - Keys Check", "PASS")
+                
+                # Verify direction is correct
+                expected_dir = "rtl" if locale == "ar" else "ltr"
+                if data.get("dir") != expected_dir:
+                    self.log_result(f"{test_name} - Direction Check", f"FAIL - Expected {expected_dir}, got {data.get('dir')}")
+                else:
+                    self.log_result(f"{test_name} - Direction Check", "PASS")
+
+    async def test_supported_localizations(self):
+        """Test Supported Localizations endpoint"""
+        print("\n🔸 Testing Supported Localizations")
+        print("=" * 60)
+        
+        endpoint = "/localization/supported"
+        test_name = "Supported Localizations"
+        
+        result = await self.test_endpoint(
+            endpoint,
+            expected_keys=["ui_languages", "store_listing", "seo_keywords"],
+            test_name=test_name
+        )
+        
+        if result["status"] == "pass":
+            data = result["data"]
+            ui_languages = data.get("ui_languages", [])
+            
+            # Verify all 10 languages are present
+            expected_codes = ["ar", "en", "de", "de-AT", "fr", "tr", "ru", "sv", "nl", "el"]
+            actual_codes = [lang.get("code") for lang in ui_languages if isinstance(lang, dict)]
+            
+            missing_codes = [code for code in expected_codes if code not in actual_codes]
+            if missing_codes:
+                self.log_result(f"{test_name} - Languages Check", f"FAIL - Missing language codes: {missing_codes}")
+            else:
+                self.log_result(f"{test_name} - Languages Check", "PASS")
+            
+            # Verify store_listing has keys for all languages
+            store_listing = data.get("store_listing", {})
+            missing_store_keys = [code for code in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] if code not in store_listing]
+            if missing_store_keys:
+                self.log_result(f"{test_name} - Store Listing Check", f"FAIL - Missing store listing keys: {missing_store_keys}")
+            else:
+                self.log_result(f"{test_name} - Store Listing Check", "PASS")
+            
+            # Verify seo_keywords has keys for all languages
+            seo_keywords = data.get("seo_keywords", {})
+            missing_seo_keys = [code for code in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] if code not in seo_keywords]
+            if missing_seo_keys:
+                self.log_result(f"{test_name} - SEO Keywords Check", f"FAIL - Missing SEO keyword keys: {missing_seo_keys}")
+            else:
+                self.log_result(f"{test_name} - SEO Keywords Check", "PASS")
+
+    async def test_store_items(self):
+        """Test Store Items endpoints for multiple locales"""
+        print("\n🔸 Testing Store Items")
+        print("=" * 60)
+        
+        test_locales = ["en", "de"]  # Test subset as specified in review
+        
+        for locale in test_locales:
+            endpoint = f"/store/items?locale={locale}"
+            test_name = f"Store Items ({locale})"
+            
+            result = await self.test_endpoint(
+                endpoint,
+                expected_keys=["items"],
+                test_name=test_name
+            )
+            
+            if result["status"] == "pass":
+                data = result["data"]
+                items = data.get("items", [])
+                
+                # Verify item structure
+                if items:
+                    sample_item = items[0]
+                    required_fields = ["name", "description", "price_gold", "category"]
+                    missing_fields = [field for field in required_fields if field not in sample_item]
+                    
+                    if missing_fields:
+                        self.log_result(f"{test_name} - Structure Check", f"FAIL - Missing fields: {missing_fields}")
+                    else:
+                        self.log_result(f"{test_name} - Structure Check", "PASS")
+
+    async def test_arabic_text_leakage(self):
+        """Test that Arabic text doesn't leak into non-Arabic locale responses"""
+        print("\n🔸 Testing Arabic Text Leakage Prevention")
+        print("=" * 60)
+        
+        # Test a few non-Arabic locales for Arabic text leakage
+        test_locales = ["en", "de", "fr"]
+        
+        for locale in test_locales:
+            # Test Asma Al-Husna for Arabic leakage
+            endpoint = f"/asma-al-husna?locale={locale}"
+            test_name = f"Arabic Leakage Check - Asma Al-Husna ({locale})"
+            
+            result = await self.test_endpoint(endpoint, test_name=test_name)
+            
+            if result["status"] == "pass":
+                data = result["data"]
+                names = data.get("names", [])
+                
+                if names:
+                    sample_name = names[0]
+                    meaning = sample_name.get("meaning", "")
+                    
+                    # Check if meaning contains Arabic characters (basic check)
+                    has_arabic = any('\u0600' <= char <= '\u06FF' for char in str(meaning))
+                    
+                    if has_arabic and locale != "ar":
+                        self.log_result(f"{test_name} - Meaning Field", "FAIL - Arabic text found in non-Arabic locale")
+                    else:
+                        self.log_result(f"{test_name} - Meaning Field", "PASS")
+                    
+                    # The 'ar' field should always contain Arabic (this is expected)
+                    ar_field = sample_name.get("ar", "")
+                    has_arabic_in_ar = any('\u0600' <= char <= '\u06FF' for char in str(ar_field))
+                    
+                    if not has_arabic_in_ar:
+                        self.log_result(f"{test_name} - AR Field", "FAIL - Arabic field should contain Arabic text")
+                    else:
+                        self.log_result(f"{test_name} - AR Field", "PASS")
+
+    async def run_all_tests(self):
+        """Run all multilingual backend tests"""
+        print("🚀 Starting Comprehensive Multilingual Backend Testing")
+        print("=" * 80)
+        print(f"Backend URL: {BACKEND_URL}")
+        print(f"Testing Locales: {', '.join(LOCALES)}")
         print("=" * 80)
         
-        # Test 1: Health Check
-        await self.test_endpoint(
-            "GET", "/api/health", 200,
-            "Basic health check"
-        )
+        # Run all test suites
+        await self.test_asma_al_husna()
+        await self.test_gifts_list()
+        await self.test_payment_packages()
+        await self.test_credit_packages()
+        await self.test_localization_strings()
+        await self.test_supported_localizations()
+        await self.test_store_items()
+        await self.test_arabic_text_leakage()
         
-        # Test 2-6: Quran Chapters in Multiple Languages
-        languages = ["en", "tr", "fr", "de", "ru"]
-        for lang in languages:
-            await self.test_endpoint(
-                "GET", f"/api/quran/v4/chapters?language={lang}", 200,
-                f"{lang.upper()} Quran chapters",
-                self.validate_quran_chapters
-            )
+        # Print summary
+        print("\n" + "=" * 80)
+        print("🏁 TEST SUMMARY")
+        print("=" * 80)
+        print(f"Total Tests: {self.total_tests}")
+        print(f"✅ Passed: {self.passed_tests}")
+        print(f"❌ Failed: {self.failed_tests}")
+        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%" if self.total_tests > 0 else "0%")
         
-        # Test 7-9: Kids Games in Multiple Locales
-        locales = ["en", "tr", "de"]
-        for locale in locales:
-            await self.test_endpoint(
-                "GET", f"/api/kids-learn/daily-games?locale={locale}", 200,
-                f"{locale.upper()} kids games",
-                self.validate_kids_games
-            )
-        
-        # Test 10: Social Posts
-        await self.test_endpoint(
-            "GET", "/api/sohba/posts", 200,
-            "Social posts",
-            self.validate_sohba_posts
-        )
-        
-        # Test 11: Post Categories
-        await self.test_endpoint(
-            "GET", "/api/sohba/categories", 200,
-            "Post categories",
-            self.validate_sohba_categories
-        )
+        if self.failed_tests > 0:
+            print("\n❌ FAILED TESTS:")
+            for result in self.results:
+                if result["status"] != "PASS":
+                    print(f"  - {result['test']}: {result['status']}")
+                    if result["details"]:
+                        print(f"    {result['details']}")
         
         print("\n" + "=" * 80)
-        print("📊 TEST RESULTS SUMMARY")
-        print("=" * 80)
-        
-        # Print results table
-        print(f"{'Endpoint':<50} {'Status':<8} {'Result':<10}")
-        print("-" * 80)
-        
-        for result in self.results:
-            status_icon = "✅" if result["success"] else "❌"
-            status_code = result["status_code"]
-            endpoint = result["endpoint"][:47] + "..." if len(result["endpoint"]) > 50 else result["endpoint"]
-            
-            print(f"{endpoint:<50} {status_code:<8} {status_icon}")
-            
-            if not result["success"]:
-                print(f"   └─ Error: {result['validation_message']}")
-        
-        print("-" * 80)
-        print(f"📈 TOTAL TESTS: {self.total_tests}")
-        print(f"✅ PASSED: {self.passed_tests}")
-        print(f"❌ FAILED: {self.failed_tests}")
-        print(f"📊 SUCCESS RATE: {(self.passed_tests/self.total_tests*100):.1f}%")
-        
-        # Detailed failure analysis
-        failed_results = [r for r in self.results if not r["success"]]
-        if failed_results:
-            print("\n" + "=" * 80)
-            print("🔍 DETAILED FAILURE ANALYSIS")
-            print("=" * 80)
-            
-            for result in failed_results:
-                print(f"\n❌ FAILED: {result['description']}")
-                print(f"   Endpoint: {result['endpoint']}")
-                print(f"   Status Code: {result['status_code']} (expected {result['expected_status']})")
-                print(f"   Valid JSON: {result['valid_json']}")
-                print(f"   Validation: {result['validation_message']}")
-                if "error" in result:
-                    print(f"   Error: {result['error']}")
-        
-        # Language-specific analysis
-        print("\n" + "=" * 80)
-        print("🌍 LANGUAGE-SPECIFIC ANALYSIS")
-        print("=" * 80)
-        
-        # Quran chapters by language
-        quran_results = [r for r in self.results if "quran/v4/chapters" in r["endpoint"]]
-        print(f"\n📖 QURAN CHAPTERS TESTING:")
-        for result in quran_results:
-            lang = result["endpoint"].split("language=")[1] if "language=" in result["endpoint"] else "unknown"
-            status = "✅ PASS" if result["success"] else "❌ FAIL"
-            print(f"   {lang.upper()}: {status}")
-            if not result["success"]:
-                print(f"      └─ {result['validation_message']}")
-        
-        # Kids games by locale
-        games_results = [r for r in self.results if "kids-learn/daily-games" in r["endpoint"]]
-        print(f"\n🎮 KIDS GAMES TESTING:")
-        for result in games_results:
-            locale = result["endpoint"].split("locale=")[1] if "locale=" in result["endpoint"] else "unknown"
-            status = "✅ PASS" if result["success"] else "❌ FAIL"
-            print(f"   {locale.upper()}: {status}")
-            if not result["success"]:
-                print(f"      └─ {result['validation_message']}")
-        
-        # Content validation summary
-        print(f"\n📋 CONTENT VALIDATION SUMMARY:")
-        content_issues = []
-        for result in self.results:
-            if result["success"] and result["data_sample"]:
-                # Check for Arabic leaking into non-Arabic responses
-                if "language=" in result["endpoint"] and "language=ar" not in result["endpoint"]:
-                    # This is a non-Arabic language request
-                    lang = result["endpoint"].split("language=")[1].split("&")[0]
-                    if lang != "ar":
-                        # TODO: Add Arabic text detection logic if needed
-                        pass
-        
-        print("   ✅ All successful responses contain valid JSON structures")
-        print("   ✅ Language parameters are being processed correctly")
-        print("   ✅ No major content validation issues detected")
-        
-        return {
-            "total_tests": self.total_tests,
-            "passed_tests": self.passed_tests,
-            "failed_tests": self.failed_tests,
-            "success_rate": (self.passed_tests/self.total_tests*100) if self.total_tests > 0 else 0,
-            "results": self.results
-        }
+        return self.failed_tests == 0
 
 async def main():
-    """Main test execution"""
-    tester = BackendTester()
-    results = await tester.run_comprehensive_tests()
-    
-    # Save detailed results to file
-    with open("/app/backend_test_results.json", "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
-    
-    print(f"\n💾 Detailed results saved to: /app/backend_test_results.json")
-    print(f"🏁 Testing completed at: {datetime.now().isoformat()}")
-    
-    return results
+    """Main test runner"""
+    async with MultilingualBackendTester() as tester:
+        success = await tester.run_all_tests()
+        sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     asyncio.run(main())
