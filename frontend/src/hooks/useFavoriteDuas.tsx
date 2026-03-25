@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useLocale } from './useLocale';
 
 interface FavoriteDua {
   arabic: string;
@@ -25,6 +26,7 @@ function setLocalFavorites(favs: FavoriteDua[]) {
 
 export function useFavoriteDuas() {
   const { user } = useAuth();
+  const { t } = useLocale();
   const userId = user?.id || null;
   const [favorites, setFavorites] = useState<FavoriteDua[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,12 +50,12 @@ export function useFavoriteDuas() {
         const updated = getLocalFavorites().filter((f) => f.arabic !== dua.arabic);
         setLocalFavorites(updated);
         setFavorites(updated);
-        toast('تم إزالة الدعاء من المفضلة');
+        toast(t('duaRemovedFav'));
       } else {
         const updated = [...getLocalFavorites(), dua];
         setLocalFavorites(updated);
         setFavorites(updated);
-        toast('تم حفظ الدعاء في المفضلة ❤️');
+        toast(t('duaSavedFav'));
       }
     },
     [isFavorite]

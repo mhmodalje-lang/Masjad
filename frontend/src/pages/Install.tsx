@@ -141,9 +141,9 @@ export default function Install() {
               <h3 className="text-sm font-bold text-foreground">{`✨ ${t('installApp')}`}</h3>
               {[
                 { emoji: '⚡', text: t('installDesc') },
-                { emoji: '📶', text: 'يعمل بدون إنترنت' },
-                { emoji: '🔔', text: 'تنبيهات مواقيت الصلاة' },
-                { emoji: '💾', text: 'تخزين البيانات محلياً' },
+                { emoji: '📶', text: t('installFeature1') },
+                { emoji: '🔔', text: t('installFeature2') },
+                { emoji: '💾', text: t('installFeature3') },
               ].map((item, i) => (
                 <div key={i} className="flex items-center gap-3 justify-end rounded-xl bg-card border border-border p-4">
                   <p className="text-sm text-foreground">{item.text}</p>

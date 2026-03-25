@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useLocale } from './useLocale';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
@@ -19,6 +20,7 @@ export interface PushState {
 }
 
 export function usePushNotifications(userId?: string) {
+  const { t } = useLocale();
   const [state, setState] = useState<PushState>({
     supported: false,
     permission: 'default',
@@ -57,7 +59,7 @@ export function usePushNotifications(userId?: string) {
       const permission = await Notification.requestPermission();
       setState(prev => ({ ...prev, permission }));
       if (permission !== 'granted') {
-        toast.error('يجب السماح بالإشعارات');
+        toast.error(t('notifAllowRequired'));
         return false;
       }
 
@@ -94,11 +96,11 @@ export function usePushNotifications(userId?: string) {
       if (!res.ok) throw new Error('Failed to save subscription');
 
       setState(prev => ({ ...prev, subscribed: true }));
-      toast.success('تم تفعيل الإشعارات بنجاح 🔔');
+      toast.success(t('notifEnabled'));
       return true;
     } catch (err) {
       console.error('Push subscription failed:', err);
-      toast.error('فشل تفعيل الإشعارات');
+      toast.error(t('notifEnableFailed'));
       return false;
     } finally {
       setState(prev => ({ ...prev, loading: false }));
@@ -111,7 +113,7 @@ export function usePushNotifications(userId?: string) {
       const sub = await reg.pushManager.getSubscription();
       if (sub) await sub.unsubscribe();
       setState(prev => ({ ...prev, subscribed: false }));
-      toast.success('تم إيقاف الإشعارات');
+      toast.success(t('notifDisabled'));
     } catch (err) {
       console.error('Unsubscribe failed:', err);
     }
@@ -121,16 +123,16 @@ export function usePushNotifications(userId?: string) {
     try {
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
-      if (!sub) { toast.error('غير مشترك في الإشعارات'); return; }
+      if (!sub) { toast.error(t('notifNotSubscribed')); return; }
       const json = sub.toJSON();
       await fetch(`${BACKEND_URL}/api/push/test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ endpoint: json.endpoint }),
       });
-      toast.success('تم إرسال إشعار تجريبي ✅');
+      toast.success(t('notifTestSent') + ' ✅');
     } catch (_e) {
-      toast.error('فشل إرسال الإشعار التجريبي');
+      toast.error(t('notifTestFailed'));
     }
   }, []);
 

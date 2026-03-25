@@ -63,7 +63,7 @@ export default function RamadanCalendar() {
 
   return (
     <div className="min-h-screen pb-24" dir={dir}>
-      <PageHeader title="تقويم رمضان ١٤٤٧" backTo="/" />
+      <PageHeader title={t('ramadanCalendarTitle')} backTo="/" />
 
       {/* Ramadan Progress Hero */}
       <div className="px-4 mb-4">
@@ -80,7 +80,7 @@ export default function RamadanCalendar() {
               <div>
                 <h2 className="text-xl font-bold">{t('ramadanKareem')}</h2>
                 <p className="text-sm opacity-80 mt-1">
-                  {currentRamadanDay ? `{t('today')} ${currentRamadanDay} من 30` : 'رمضان ١٤٤٧ هـ'}
+                  {currentRamadanDay ? `${t('today')} ${currentRamadanDay} ${t('ramadanDayOf30')}` : t('ramadanCalendarTitle')}
                 </p>
               </div>
               <div className="text-left">
@@ -124,7 +124,7 @@ export default function RamadanCalendar() {
           <TabsList className="w-full grid grid-cols-3">
             <TabsTrigger value="calendar">{t('calendarTab')}</TabsTrigger>
             <TabsTrigger value="qadr">🌟 {t('laylatAlQadr')}</TabsTrigger>
-            <TabsTrigger value="duas">🤲 الأدعية</TabsTrigger>
+            <TabsTrigger value="duas">{t('duasTab')}</TabsTrigger>
           </TabsList>
 
           {/* Calendar Tab */}
@@ -175,7 +175,7 @@ export default function RamadanCalendar() {
                   <div className="flex items-center gap-2 mb-2">
                     {isPotentialLaylatAlQadr && <Sparkles className="h-5 w-5 text-accent" />}
                     <h3 className="font-bold text-foreground">
-                      {t('today')} {selectedDay} من رمضان
+                      {t('today')} {selectedDay} {t('ramadanDaySelected')}
                     </h3>
                     {isPotentialLaylatAlQadr && (
                       <span className="text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full">

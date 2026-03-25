@@ -328,11 +328,11 @@ export default function Profile() {
             <div className="py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('settingsPage')}</p>
               <MenuItem icon={Edit3} label="{t('editProfile')}" to="/account" color="text-primary" />
-              <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`المظهر: ${themeLabel}`}
+              <MenuItem icon={mode === 'dark' ? Moon : Sun} label={`${t('themeLabel')}: ${themeLabel}`}
                 onClick={() => { setMode(mode === 'auto' ? 'light' : mode === 'light' ? 'dark' : 'auto'); setMenuOpen(false); }}
                 color="text-amber-500" />
-              <MenuItem icon={Bell} label="الإشعارات" to="/notifications" color="text-red-500 dark:text-red-400" />
-              <MenuItem icon={Lock} label="الخصوصية" to="/account" color="text-muted-foreground" />
+              <MenuItem icon={Bell} label={t('notificationsLabel')} to="/notifications" color="text-red-500 dark:text-red-400" />
+              <MenuItem icon={Lock} label={t('privacyLabel')} to="/account" color="text-muted-foreground" />
             </div>
             <div className="border-t border-border/20 py-1">
               <p className="px-4 py-2 text-[10px] font-bold text-primary/60 uppercase tracking-wider">{t('helpPage')}</p>
