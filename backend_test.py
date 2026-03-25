@@ -8,7 +8,7 @@ Testing specific Quran API endpoints as requested:
 2. Bulk Verses with Turkish, French, German, English, Russian translations
 3. Single Verse with Tafsir in Turkish, French, English, Arabic
 
-Backend URL: https://backend-localization.preview.emergentagent.com
+Backend URL: https://quran-engine-1.preview.emergentagent.com
 All API routes have /api prefix
 """
 
@@ -19,7 +19,7 @@ import sys
 from typing import Dict, List, Any
 
 # Backend URL from environment
-BACKEND_URL = "https://backend-localization.preview.emergentagent.com"
+BACKEND_URL = "https://quran-engine-1.preview.emergentagent.com"
 
 class QuranAPITester:
     def __init__(self):

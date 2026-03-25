@@ -570,3 +570,133 @@ MOSQUE_STAGES = [
     {"stage": 6, "name": "golden_dome", "bricks_needed": 200, "emoji": "✨"},
 ]
 
+
+
+# ═══════════════════════════════════════════════════════════════
+# DIGITAL SHIELD (درع الوعي) — AI Safety, Privacy, Cyber-Ethics
+# ═══════════════════════════════════════════════════════════════
+
+from data.digital_shield_content import DIGITAL_SHIELD_MODULES, DIGITAL_SHIELD_LESSONS
+
+@router.get("/digital-shield/overview")
+async def digital_shield_overview(locale: str = "ar"):
+    """Get Digital Shield overview — 3 modules, 30 lessons."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    if locale == "de-AT":
+        lang = "de"
+
+    modules = []
+    for m in DIGITAL_SHIELD_MODULES:
+        start, end = m["lessons_range"]
+        modules.append({
+            "id": m["id"],
+            "emoji": m["emoji"],
+            "color": m["color"],
+            "title": m["title"].get(lang, m["title"]["en"]),
+            "description": m["desc"].get(lang, m["desc"]["en"]),
+            "lesson_start": start,
+            "lesson_end": end,
+            "total_lessons": end - start + 1,
+        })
+
+    return {
+        "success": True,
+        "title": {
+            "ar": "درع الوعي",
+            "en": "Digital Shield",
+            "de": "Digitaler Schutzschild",
+            "fr": "Bouclier Numérique",
+            "tr": "Dijital Kalkan",
+            "ru": "Цифровой Щит",
+            "sv": "Digital Sköld",
+            "nl": "Digitaal Schild",
+            "el": "Ψηφιακή Ασπίδα",
+        }.get(lang, "Digital Shield"),
+        "subtitle": {
+            "ar": "٣٠ درساً في سلامة الذكاء الاصطناعي والخصوصية والأخلاق الرقمية",
+            "en": "30 Lessons on AI Safety, Privacy & Cyber-Ethics",
+            "de": "30 Lektionen über KI-Sicherheit, Privatsphäre & Cyber-Ethik",
+            "fr": "30 leçons sur la sécurité IA, la vie privée et la cyber-éthique",
+            "tr": "Yapay Zekâ Güvenliği, Gizlilik ve Siber Ahlak Üzerine 30 Ders",
+            "ru": "30 уроков по безопасности ИИ, приватности и кибер-этике",
+            "sv": "30 lektioner om AI-säkerhet, integritet och cyberetik",
+            "nl": "30 lessen over AI-veiligheid, privacy en cyber-ethiek",
+            "el": "30 μαθήματα για ασφάλεια ΤΝ, απόρρητο και κυβερνο-ηθική",
+        }.get(lang, "30 Lessons on AI Safety, Privacy & Cyber-Ethics"),
+        "modules": modules,
+        "total_lessons": 30,
+        "language": lang,
+    }
+
+
+@router.get("/digital-shield/lesson/{lesson_id}")
+async def digital_shield_lesson(lesson_id: int, locale: str = "ar"):
+    """Get a specific Digital Shield lesson (1-30)."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    if locale == "de-AT":
+        lang = "de"
+
+    lesson = next((l for l in DIGITAL_SHIELD_LESSONS if l["id"] == lesson_id), None)
+    if not lesson:
+        return {"success": False, "error": "Lesson not found", "lesson_id": lesson_id}
+
+    # Find the module
+    module = next((m for m in DIGITAL_SHIELD_MODULES if m["lessons_range"][0] <= lesson_id <= m["lessons_range"][1]), None)
+
+    return {
+        "success": True,
+        "lesson": {
+            "id": lesson["id"],
+            "module": lesson["module"],
+            "module_title": module["title"].get(lang, module["title"]["en"]) if module else "",
+            "module_emoji": module["emoji"] if module else "",
+            "module_color": module["color"] if module else "",
+            "emoji": lesson["emoji"],
+            "title": lesson["title"].get(lang, lesson["title"]["en"]),
+            "content": lesson["content"].get(lang, lesson["content"]["en"]),
+            "islamic_reference": lesson["islamic_ref"].get(lang, lesson["islamic_ref"]["en"]),
+            "moral": lesson["moral"].get(lang, lesson["moral"]["en"]),
+        },
+        "language": lang,
+        "total_lessons": 30,
+        "has_next": lesson_id < 30,
+        "has_prev": lesson_id > 1,
+    }
+
+
+@router.get("/digital-shield/module/{module_id}")
+async def digital_shield_module_lessons(module_id: int, locale: str = "ar"):
+    """Get all lessons in a specific Digital Shield module (1-3)."""
+    lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
+    if locale == "de-AT":
+        lang = "de"
+
+    if module_id < 1 or module_id > 3:
+        return {"success": False, "error": "Module not found. Valid: 1, 2, 3"}
+
+    module = DIGITAL_SHIELD_MODULES[module_id - 1]
+    start, end = module["lessons_range"]
+
+    lessons = []
+    for l in DIGITAL_SHIELD_LESSONS:
+        if start <= l["id"] <= end:
+            lessons.append({
+                "id": l["id"],
+                "emoji": l["emoji"],
+                "title": l["title"].get(lang, l["title"]["en"]),
+                "content_preview": l["content"].get(lang, l["content"]["en"])[:150] + "...",
+            })
+
+    return {
+        "success": True,
+        "module": {
+            "id": module_id,
+            "emoji": module["emoji"],
+            "color": module["color"],
+            "title": module["title"].get(lang, module["title"]["en"]),
+            "description": module["desc"].get(lang, module["desc"]["en"]),
+        },
+        "lessons": lessons,
+        "total": len(lessons),
+        "language": lang,
+    }

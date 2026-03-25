@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://backend-localization.preview.emergentagent.com/api"
+BACKEND_URL = "https://quran-engine-1.preview.emergentagent.com/api"
 
 async def test_endpoint(client, url, description, expected_criteria):
     """Test a single endpoint and return results"""

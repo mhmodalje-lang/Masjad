@@ -21,7 +21,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://backend-localization.preview.emergentagent.com"
+BACKEND_URL = "https://quran-engine-1.preview.emergentagent.com"
 
 # Review request specific endpoints
 REVIEW_ENDPOINTS = [
