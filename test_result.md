@@ -172,3 +172,100 @@ VERIFICATION: For endpoints 2-8, verify that the response does NOT contain keys 
 - All endpoints return properly localized content without mixed language keys
 - Localization filtering works correctly for all tested languages
 - No critical backend issues found during comprehensive localization testing
+
+---
+
+## Frontend UI Testing (2026-03-25)
+
+### ✅ 100% SUCCESS - All Critical UI Features Working
+
+**Test Environment:**
+- URL: https://code-cleanup-deploy.preview.emergentagent.com
+- Browser: Chromium (Playwright)
+- Viewport: 1920x1080 (Desktop)
+- Date: March 25, 2026
+
+**Test Results:**
+
+1. ✅ **Age Verification Gate**
+   - Age gate displayed correctly on first load
+   - "I am 16 years or older" button clickable
+   - Continue button works
+   - Successfully passed age verification
+
+2. ✅ **Home Page (/)**
+   - Prayer times section visible
+   - Hadith of the Day section visible
+   - Verse of the Day section visible
+   - Hero image with Mecca displayed
+   - Location detection prompt shown
+   - Bottom navigation visible (Home, My Stories, Academy, More)
+
+3. ✅ **Academy Page (/kids-zone)**
+   - Successfully navigated to Academy tab
+   - "TODAY'S GAMES" section visible (4 games, 60 XP)
+   - "ARABIC & QURAN COURSE" section visible (Zero → C1, 6 levels, 216 lessons)
+   - "NOOR ACADEMY" section visible (5 Learning Tracks, 240+ lessons)
+   - All sections properly styled and interactive
+
+4. ✅ **Noor Academy Tracks**
+   - Successfully clicked "Noor Academy" button
+   - All 5 tracks displayed correctly:
+     * Nooraniya — Learn to Read Quran (70 lessons, 7 levels)
+     * Islamic Belief (Aqeedah) (50 lessons, 5 levels)
+     * Islamic Jurisprudence (Fiqh) (40 lessons, 4 levels)
+     * Prophet's Biography (Seerah) (visible in list)
+     * Islamic Manners (Adab) (visible in list)
+   - Track cards properly styled with emojis and descriptions
+
+5. ✅ **My Stories Page (/stories)**
+   - Successfully navigated to Stories tab
+   - Stories page loaded with data-testid="stories-page"
+   - Video/Trends tabs visible
+   - Category filters visible (All, General, Videos, etc.)
+   - Story feed displaying content
+   - Create post button visible
+
+6. ✅ **More Page (/more)**
+   - Successfully navigated to More tab
+   - More page loaded with data-testid="more-page"
+   - User profile card visible (Login/Sign up prompt)
+   - BARAKA Rewards section visible
+   - Islamic Tools grid visible (Qibla, Tasbih, Prayer, Quran, Duas, etc.)
+   - Settings section visible
+   - Help & Support section visible
+
+7. ✅ **Bottom Navigation**
+   - All navigation tabs visible and clickable
+   - Home tab works (returns to home page)
+   - My Stories tab works
+   - Academy tab works
+   - More tab works
+   - Navigation state properly maintained
+
+8. ✅ **No Critical Errors**
+   - Zero console errors detected
+   - Zero API errors detected
+   - All pages load without errors
+   - No broken images or missing resources
+
+**Modal Handling:**
+- Cookie consent modal appears and can be dismissed
+- Location permission modal appears (Later button works)
+- Ad Consent modal appears (can be closed)
+- Modals do not block core functionality
+
+**Screenshots Captured:**
+1. 01_home_page.png - Home page with prayer times and hadith
+2. 02_academy_home.png - Academy page with all 3 sections
+3. 03_academy_tracks.png - Noor Academy with 5 tracks displayed
+4. 04_stories_page.png - Stories feed page
+5. 05_more_page.png - More page with all menu items
+
+**Testing Agent Notes:**
+- All critical UI features are working correctly
+- Navigation between pages is smooth and functional
+- All content sections are properly displayed
+- No UI blocking issues or broken functionality
+- The app is production-ready from a frontend perspective
+- Minor observation: Ad Consent modal appears frequently but doesn't block functionality
