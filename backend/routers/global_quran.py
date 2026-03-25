@@ -1,28 +1,20 @@
 """
-Global Quran Verse API — V2026 AUTHENTIC ISLAMIC SOURCES REBUILD
-================================================================
-ALL translations and tafsir from AUTHENTIC Islamic sources ONLY.
-NO LLM-generated tafsir. NO AI translation of religious content.
+Global Quran API — SINGLE LANGUAGE EXPERIENCE
+==============================================
+كل مستخدم يرى القرآن بلغته فقط. بدون خلط لغات.
+Every user sees the Quran in their OWN language ONLY. No language mixing.
 
-TRANSLATION SOURCES:
-- ar: Original Arabic (Uthmani script)
-- en: Saheeh International (Quran.com ID 20)
-- de: Bubenheim & Elyas (QuranEnc german_bubenheim)
-- fr: Rashid Maash (QuranEnc french_rashid) — with scholarly footnotes
-- tr: Rowwad Translation Center (QuranEnc turkish_rwwad)
-- ru: Abu Adel (Quran.com ID 79)
-- sv: Knut Bernström (Quran.com ID 48)
-- nl: Rowwad Translation Center (QuranEnc dutch_center)
-- el: Quran.com English fallback (no Greek source on QuranEnc)
+Arabic users → Arabic text + Arabic tafsir
+Turkish users → Turkish text + Turkish tafsir (from QuranEnc)
+English users → English text + English tafsir (Ibn Kathir)
+Russian users → Russian text + Russian tafsir (As-Sa'di)
+French users → French text + French tafsir (QuranEnc footnotes)
+German users → German text + German tafsir (QuranEnc footnotes)
+Dutch users → Dutch text + Dutch tafsir (QuranEnc footnotes)
+Swedish users → Swedish text only (no tafsir available)
+Greek users → English fallback text (no Greek source)
 
-TAFSIR SOURCES (Real scholarly interpretation):
-- ar: Al-Muyassar — King Fahd Complex
-- en: Ibn Kathir Abridged (Quran.com ID 169)
-- ru: As-Sa'di (Quran.com ID 170)
-- fr: Scholarly footnotes from Rashid Maash (QuranEnc)
-- tr: Scholarly footnotes from Turkish Rowwad (QuranEnc)
-- de: Scholarly footnotes from Bubenheim (QuranEnc)
-- Others: Arabic Al-Muyassar with clear language indicator
+ALL from authentic Islamic sources. NO AI/LLM content.
 """
 
 import re
@@ -30,19 +22,15 @@ import httpx
 import logging
 from fastapi import APIRouter, Query
 from datetime import datetime, timedelta
-
 from deps import db
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter(tags=["global-quran"])
 
 QURAN_V4_BASE = "https://api.quran.com/api/v4"
 QURANENC_BASE = "https://quranenc.com/api/v1"
 
-# ═══════════════════════════════════════════════════════════════
-# QURANENC TRANSLATION KEYS — Authentic Islamic Sources
-# ═══════════════════════════════════════════════════════════════
+# ═══════ QuranEnc keys (authentic Islamic source) ═══════
 QURANENC_KEYS = {
     "tr": "turkish_rwwad",
     "de": "german_bubenheim",
@@ -50,262 +38,284 @@ QURANENC_KEYS = {
     "nl": "dutch_center",
 }
 
-QURANENC_HAS_FOOTNOTES = {"fr", "de", "tr", "nl"}
-
-# ═══════════════════════════════════════════════════════════════
-# QURAN.COM TRANSLATION IDs — for languages NOT on QuranEnc
-# ═══════════════════════════════════════════════════════════════
-QURANCOM_TRANSLATION_IDS = {
-    "en": 20,
-    "ru": 79,
-    "sv": 48,
-    "el": 20,  # English fallback for Greek
+# ═══════ Quran.com translation IDs ═══════
+QURANCOM_IDS = {
+    "en": 20,   # Saheeh International
+    "ru": 79,   # Abu Adel
+    "sv": 48,   # Knut Bernström
+    "el": 20,   # English fallback
 }
 
-# ═══════════════════════════════════════════════════════════════
-# REAL TAFSIR IDs (Quran.com) — Scholarly interpretation
-# ═══════════════════════════════════════════════════════════════
+# ═══════ Real Tafsir IDs (Quran.com) ═══════
 REAL_TAFSIR_IDS = {
-    "ar": 16,
-    "en": 169,
-    "ru": 170,
+    "ar": 16,   # التفسير الميسر
+    "en": 169,  # Ibn Kathir
+    "ru": 170,  # As-Sa'di
 }
 
-TAFSIR_SOURCE_LABELS = {
-    "ar": "التفسير الميسر — مجمع الملك فهد لطباعة المصحف الشريف",
-    "en": "Ibn Kathir — Tafsir of the Noble Quran",
-    "ru": "Тафсир ас-Саади — шейх Абдуррахман ас-Саади",
-    "fr": "Notes explicatives — Rachid Maash (QuranEnc)",
-    "de": "Erläuterungen — Frank Bubenheim (QuranEnc)",
-    "tr": "Açıklama Notları — Ruvvâd Tercüme Merkezi (QuranEnc)",
-    "nl": "Toelichtingen — Rowwad Vertaalcentrum (QuranEnc)",
-    "sv": "التفسير الميسر — Kung Fahds Komplex (Arabiska)",
-    "el": "التفسير الميسر — Σύμπλεγμα Βασιλιά Φαχντ (Αραβικά)",
+# Languages with QuranEnc footnotes (used as tafsir)
+QURANENC_TAFSIR = {"fr", "de", "tr", "nl"}
+
+TAFSIR_SOURCES = {
+    "ar": "التفسير الميسر — مجمع الملك فهد",
+    "en": "Tafsir Ibn Kathir",
+    "ru": "Тафсир ас-Саади",
+    "fr": "Notes — Rachid Maash (QuranEnc)",
+    "de": "Erläuterungen — Bubenheim (QuranEnc)",
+    "tr": "Açıklamalar — Ruvvâd Merkezi (QuranEnc)",
+    "nl": "Toelichtingen — Rowwad (QuranEnc)",
 }
 
-CACHE_TTL_DAYS = 30
-MAX_TAFSIR_CHARS = 2000
+CACHE_TTL = 30  # days
 
 
-def _clean_html(text: str) -> str:
-    """Strip HTML tags and entities."""
-    text = re.sub(r'<h[1-6][^>]*>.*?</h[1-6]>', '', text, flags=re.DOTALL)
+def _clean(text: str) -> str:
+    if not text:
+        return ""
     text = re.sub(r'<sup[^>]*>[\s\S]*?</sup>', '', text)
     text = re.sub(r'<[^>]*>', '', text)
     text = text.replace('&nbsp;', ' ').replace('&quot;', '"').replace('&amp;', '&')
     text = text.replace('&lt;', '<').replace('&gt;', '>').replace('&apos;', "'")
-    text = re.sub(r'\n\s*\n', '\n', text)
-    text = re.sub(r'  +', ' ', text)
-    return text.strip()
+    text = re.sub(r'\n\s*\n', '\n', text).strip()
+    return re.sub(r'  +', ' ', text)
 
 
-async def _fetch_quranenc_verse(surah: int, ayah: int, key: str) -> dict:
-    """Fetch translation + footnotes from QuranEnc.com (authentic Islamic source)."""
-    try:
-        async with httpx.AsyncClient(timeout=20) as c:
-            r = await c.get(f"{QURANENC_BASE}/translation/aya/{key}/{surah}/{ayah}")
-            if r.status_code == 200:
-                data = r.json()
-                result = data.get("result", {})
-                if result:
-                    translation = result.get("translation", "")
-                    footnotes = result.get("footnotes", "") or ""
-                    if footnotes:
-                        footnotes = re.sub(r'\[\d+\]\s*', '', footnotes).strip()
-                    return {"translation": translation, "footnotes": footnotes}
-    except Exception:
-        pass
-    return {"translation": "", "footnotes": ""}
+# ═══════════════════════════════════════════════════════════
+# FETCHERS
+# ═══════════════════════════════════════════════════════════
 
-
-async def _fetch_quranenc_sura(chapter: int, key: str) -> dict:
-    """Fetch entire sura from QuranEnc. Returns {ayah_num: {translation, footnotes}}."""
+async def _quranenc_sura(chapter: int, key: str) -> dict:
+    """Fetch entire sura from QuranEnc → {ayah: {text, footnotes}}"""
     try:
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get(f"{QURANENC_BASE}/translation/sura/{key}/{chapter}")
             r.raise_for_status()
-            data = r.json()
-            result = {}
-            for v in data.get("result", []):
-                aya_num = int(v.get("aya", 0))
-                footnotes = v.get("footnotes", "") or ""
-                if footnotes:
-                    footnotes = re.sub(r'\[\d+\]\s*', '', footnotes).strip()
-                result[aya_num] = {
-                    "translation": v.get("translation", ""),
-                    "footnotes": footnotes,
-                }
-            return result
+            out = {}
+            for v in r.json().get("result", []):
+                n = int(v.get("aya", 0))
+                fn = v.get("footnotes", "") or ""
+                if fn:
+                    fn = re.sub(r'\[\d+\]\s*', '', fn).strip()
+                out[n] = {"text": v.get("translation", ""), "footnotes": fn}
+            return out
     except Exception:
         return {}
 
 
-async def _fetch_real_tafsir(surah: int, ayah: int, tafsir_id: int) -> str:
-    """Fetch REAL tafsir from Quran.com tafsir endpoint."""
-    verse_key = f"{surah}:{ayah}"
+async def _quranenc_verse(surah: int, ayah: int, key: str) -> dict:
+    """Fetch single verse from QuranEnc → {text, footnotes}"""
     try:
-        async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{verse_key}")
-            r.raise_for_status()
-            data = r.json()
-            raw = data.get("tafsir", {}).get("text", "")
-            return _clean_html(raw)
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.get(f"{QURANENC_BASE}/translation/aya/{key}/{surah}/{ayah}")
+            if r.status_code == 200:
+                res = r.json().get("result", {})
+                fn = res.get("footnotes", "") or ""
+                if fn:
+                    fn = re.sub(r'\[\d+\]\s*', '', fn).strip()
+                return {"text": res.get("translation", ""), "footnotes": fn}
     except Exception:
         pass
-    return ""
+    return {"text": "", "footnotes": ""}
 
 
-async def _get_tafsir(surah: int, ayah: int, base_lang: str) -> tuple:
-    """Get tafsir from best authentic source. Returns (text, source, is_arabic)."""
-    # Priority 1: Quran.com real tafsir (ar, en, ru)
-    if base_lang in REAL_TAFSIR_IDS:
-        text = await _fetch_real_tafsir(surah, ayah, REAL_TAFSIR_IDS[base_lang])
+async def _qurancom_tafsir(surah: int, ayah: int, tafsir_id: int) -> str:
+    """Fetch real tafsir from Quran.com."""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/tafsirs/{tafsir_id}/by_ayah/{surah}:{ayah}")
+            r.raise_for_status()
+            return _clean(r.json().get("tafsir", {}).get("text", ""))
+    except Exception:
+        return ""
+
+
+async def _get_tafsir(surah: int, ayah: int, lang: str) -> tuple:
+    """Get tafsir ONLY in user's language. Returns (text, source) or ("","")."""
+    # Quran.com real tafsir: ar, en, ru
+    if lang in REAL_TAFSIR_IDS:
+        text = await _qurancom_tafsir(surah, ayah, REAL_TAFSIR_IDS[lang])
         if text:
-            return text, TAFSIR_SOURCE_LABELS.get(base_lang, ""), False
+            return text, TAFSIR_SOURCES.get(lang, "")
 
-    # Priority 2: QuranEnc scholarly footnotes (tr, fr, de, nl)
-    if base_lang in QURANENC_KEYS and base_lang in QURANENC_HAS_FOOTNOTES:
-        data = await _fetch_quranenc_verse(surah, ayah, QURANENC_KEYS[base_lang])
+    # QuranEnc footnotes: fr, de, tr, nl
+    if lang in QURANENC_KEYS and lang in QURANENC_TAFSIR:
+        data = await _quranenc_verse(surah, ayah, QURANENC_KEYS[lang])
         if data.get("footnotes"):
-            return data["footnotes"], TAFSIR_SOURCE_LABELS.get(base_lang, ""), False
+            return data["footnotes"], TAFSIR_SOURCES.get(lang, "")
 
-    # Priority 3: Arabic Al-Muyassar (authentic Islamic source)
-    text = await _fetch_real_tafsir(surah, ayah, 16)
-    if text:
-        return text, "التفسير الميسر — مجمع الملك فهد", True
+    # No tafsir available in this language → return nothing (no mixing!)
+    return "", ""
 
-    return "", "", False
 
+# ═══════════════════════════════════════════════════════════
+# BULK VERSES — كل آيات السورة بلغة المستخدم فقط
+# ═══════════════════════════════════════════════════════════
 
 @router.get("/quran/v4/global-verse/bulk/{surah_id}")
-async def get_global_verses_bulk(
+async def bulk_verses(
     surah_id: int,
     language: str = Query("ar"),
     from_ayah: int = Query(1),
     to_ayah: int = Query(7),
 ):
-    """Bulk fetch verses — ALL from authentic Islamic sources."""
-    base_lang = language.split("-")[0]
+    """Returns verses in user's language ONLY. No language mixing."""
+    lang = language.split("-")[0]
     verses = []
 
-    quranenc_data = {}
-    if base_lang in QURANENC_KEYS:
-        quranenc_data = await _fetch_quranenc_sura(surah_id, QURANENC_KEYS[base_lang])
+    if lang == "ar":
+        # Arabic: get original text from Quran.com
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{surah_id}",
+                    params={"fields": "text_uthmani", "words": "false", "per_page": to_ayah - from_ayah + 1})
+                r.raise_for_status()
+                for v in r.json().get("verses", []):
+                    vn = v.get("verse_number", 0)
+                    if from_ayah <= vn <= to_ayah:
+                        verses.append({
+                            "verse_key": f"{surah_id}:{vn}",
+                            "verse_number": vn,
+                            "text": v.get("text_uthmani", ""),
+                            "audio_url": f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(vn).zfill(3)}.mp3",
+                        })
+        except Exception:
+            pass
 
-    try:
-        async with httpx.AsyncClient(timeout=30) as c:
-            params = {"fields": "text_uthmani", "words": "false", "per_page": to_ayah - from_ayah + 1, "page": 1}
-            if not quranenc_data and base_lang != "ar":
-                tr_id = QURANCOM_TRANSLATION_IDS.get(base_lang, 0)
-                if tr_id > 0:
-                    params["translations"] = str(tr_id)
+    elif lang in QURANENC_KEYS:
+        # QuranEnc languages: tr, de, fr, nl
+        qenc = await _quranenc_sura(surah_id, QURANENC_KEYS[lang])
+        for vn in range(from_ayah, to_ayah + 1):
+            d = qenc.get(vn, {})
+            if d.get("text"):
+                verses.append({
+                    "verse_key": f"{surah_id}:{vn}",
+                    "verse_number": vn,
+                    "text": d["text"],
+                    "audio_url": f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(vn).zfill(3)}.mp3",
+                })
 
-            r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{surah_id}", params=params)
-            r.raise_for_status()
-            data = r.json()
+    else:
+        # Quran.com languages: en, ru, sv, el
+        tr_id = QURANCOM_IDS.get(lang, 20)
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/verses/by_chapter/{surah_id}",
+                    params={"fields": "text_uthmani", "words": "false",
+                            "translations": str(tr_id), "per_page": to_ayah - from_ayah + 1})
+                r.raise_for_status()
+                for v in r.json().get("verses", []):
+                    vn = v.get("verse_number", 0)
+                    if from_ayah <= vn <= to_ayah:
+                        text = ""
+                        if v.get("translations"):
+                            text = _clean(v["translations"][0].get("text", ""))
+                        verses.append({
+                            "verse_key": f"{surah_id}:{vn}",
+                            "verse_number": vn,
+                            "text": text,
+                            "audio_url": f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(vn).zfill(3)}.mp3",
+                        })
+        except Exception:
+            pass
 
-            for v in data.get("verses", []):
-                vn = v.get("verse_number", 0)
-                if from_ayah <= vn <= to_ayah:
-                    tr_text = ""
-                    if quranenc_data and vn in quranenc_data:
-                        tr_text = quranenc_data[vn].get("translation", "")
-                    elif v.get("translations"):
-                        tr_text = _clean_html(v["translations"][0].get("text", ""))
-                    verses.append({
-                        "verse_key": f"{surah_id}:{vn}",
-                        "verse_number": vn,
-                        "arabic_text": v.get("text_uthmani", ""),
-                        "translation": tr_text,
-                        "audio_url": f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(vn).zfill(3)}.mp3",
-                    })
-    except Exception:
-        pass
+    return {"success": True, "surah_id": surah_id, "language": lang, "verses": verses, "total": len(verses)}
 
-    return {"success": True, "surah_id": surah_id, "language": base_lang, "verses": verses, "total": len(verses)}
 
+# ═══════════════════════════════════════════════════════════
+# SINGLE VERSE + TAFSIR — بلغة المستخدم فقط
+# ═══════════════════════════════════════════════════════════
 
 @router.get("/quran/v4/global-verse/{surah_id}/{ayah_id}")
-async def get_global_verse(
+async def single_verse(
     surah_id: int,
     ayah_id: int,
     language: str = Query("ar"),
 ):
-    """V2026 Global Quran Verse — AUTHENTIC ISLAMIC SOURCES ONLY."""
-    base_lang = language.split("-")[0]
+    """Returns verse + tafsir in user's language ONLY. No mixing."""
+    lang = language.split("-")[0]
     verse_key = f"{surah_id}:{ayah_id}"
 
-    cache_key = f"global_verse_v4_{base_lang}_{verse_key}"
+    # Check cache
+    cache_key = f"gv5_{lang}_{verse_key}"
     try:
-        cached = await db.global_verse_cache.find_one({"cache_key": cache_key, "expires_at": {"$gt": datetime.utcnow()}})
+        cached = await db.global_verse_cache.find_one(
+            {"cache_key": cache_key, "expires_at": {"$gt": datetime.utcnow()}})
         if cached:
             return {
-                "success": True, "verse_key": verse_key,
-                "arabic_text": cached.get("arabic_text", ""), "translation": cached.get("translation", ""),
-                "tafsir": cached.get("tafsir", ""), "tafsir_source": cached.get("tafsir_source", ""),
-                "tafsir_is_arabic": cached.get("tafsir_is_arabic", False),
-                "surah_name": cached.get("surah_name", ""), "surah_name_translated": cached.get("surah_name_translated", ""),
-                "verse_number": ayah_id, "audio_url": cached.get("audio_url", ""),
-                "language": base_lang, "cached": True,
+                "success": True, "verse_key": verse_key, "verse_number": ayah_id,
+                "text": cached.get("text", ""),
+                "tafsir": cached.get("tafsir", ""),
+                "tafsir_source": cached.get("tafsir_source", ""),
+                "surah_name": cached.get("surah_name", ""),
+                "audio_url": cached.get("audio_url", ""),
+                "language": lang, "cached": True,
             }
     except Exception:
         pass
 
-    arabic_text = ""
-    translation = ""
+    text = ""
     surah_name = ""
-    surah_name_translated = ""
 
-    if base_lang in QURANENC_KEYS:
-        qenc_data = await _fetch_quranenc_verse(surah_id, ayah_id, QURANENC_KEYS[base_lang])
-        translation = qenc_data.get("translation", "")
+    # Get verse text in user's language
+    if lang == "ar":
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
+                    params={"fields": "text_uthmani", "words": "false"})
+                r.raise_for_status()
+                text = r.json().get("verse", {}).get("text_uthmani", "")
+        except Exception:
+            pass
+    elif lang in QURANENC_KEYS:
+        d = await _quranenc_verse(surah_id, ayah_id, QURANENC_KEYS[lang])
+        text = d.get("text", "")
+    else:
+        tr_id = QURANCOM_IDS.get(lang, 20)
+        try:
+            async with httpx.AsyncClient(timeout=30) as c:
+                r = await c.get(f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
+                    params={"fields": "text_uthmani", "words": "false", "translations": str(tr_id)})
+                r.raise_for_status()
+                vd = r.json().get("verse", {})
+                if vd.get("translations"):
+                    text = _clean(vd["translations"][0].get("text", ""))
+        except Exception:
+            pass
 
+    # Get surah name in user's language
     try:
-        async with httpx.AsyncClient(timeout=30) as c:
-            params = {"fields": "text_uthmani", "words": "false"}
-            if not translation and base_lang != "ar":
-                tr_id = QURANCOM_TRANSLATION_IDS.get(base_lang, 20)
-                if tr_id > 0:
-                    params["translations"] = str(tr_id)
-
-            r = await c.get(f"{QURAN_V4_BASE}/verses/by_key/{verse_key}", params=params)
-            r.raise_for_status()
-            data = r.json()
-            verse_data = data.get("verse", {})
-            arabic_text = verse_data.get("text_uthmani", "")
-
-            if not translation and verse_data.get("translations"):
-                translation = _clean_html(verse_data["translations"][0].get("text", ""))
-
-            r2 = await c.get(f"{QURAN_V4_BASE}/chapters/{surah_id}", params={"language": language})
-            if r2.status_code == 200:
-                ch_data = r2.json().get("chapter", {})
-                surah_name = ch_data.get("name_arabic", "")
-                surah_name_translated = ch_data.get("translated_name", {}).get("name", ch_data.get("name_simple", ""))
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/chapters/{surah_id}", params={"language": language})
+            if r.status_code == 200:
+                ch = r.json().get("chapter", {})
+                if lang == "ar":
+                    surah_name = ch.get("name_arabic", "")
+                else:
+                    surah_name = ch.get("translated_name", {}).get("name", ch.get("name_simple", ""))
     except Exception:
         pass
 
-    tafsir_text, tafsir_source, tafsir_is_arabic = await _get_tafsir(surah_id, ayah_id, base_lang)
+    # Get tafsir in user's language ONLY
+    tafsir_text, tafsir_source = await _get_tafsir(surah_id, ayah_id, lang)
 
-    if tafsir_text and len(tafsir_text) > MAX_TAFSIR_CHARS:
-        tafsir_text = tafsir_text[:MAX_TAFSIR_CHARS].rsplit(' ', 1)[0] + "…"
+    if tafsir_text and len(tafsir_text) > 2000:
+        tafsir_text = tafsir_text[:2000].rsplit(' ', 1)[0] + "…"
 
     audio_url = f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(ayah_id).zfill(3)}.mp3"
 
-    result = {
-        "arabic_text": arabic_text, "translation": translation,
-        "tafsir": tafsir_text, "tafsir_source": tafsir_source,
-        "tafsir_is_arabic": tafsir_is_arabic,
-        "surah_name": surah_name, "surah_name_translated": surah_name_translated,
-        "audio_url": audio_url,
-    }
+    result = {"text": text, "tafsir": tafsir_text, "tafsir_source": tafsir_source,
+              "surah_name": surah_name, "audio_url": audio_url}
+
+    # Cache
     try:
         await db.global_verse_cache.update_one(
             {"cache_key": cache_key},
-            {"$set": {**result, "cache_key": cache_key, "cached_at": datetime.utcnow(), "expires_at": datetime.utcnow() + timedelta(days=CACHE_TTL_DAYS)}},
-            upsert=True,
-        )
+            {"$set": {**result, "cache_key": cache_key,
+                      "cached_at": datetime.utcnow(),
+                      "expires_at": datetime.utcnow() + timedelta(days=CACHE_TTL)}},
+            upsert=True)
     except Exception:
         pass
 
-    return {"success": True, "verse_key": verse_key, **result, "verse_number": ayah_id, "language": base_lang, "cached": False}
+    return {"success": True, "verse_key": verse_key, "verse_number": ayah_id,
+            **result, "language": lang, "cached": False}
