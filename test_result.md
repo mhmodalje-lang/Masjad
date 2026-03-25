@@ -152,7 +152,7 @@
 
 ### Critical Endpoints Verification (Post Frontend Changes)
 **Test Date:** 2026-01-27  
-**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Base URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 
 #### Test Results Summary: ✅ ALL PASSED (7/7)
@@ -184,7 +184,7 @@
 
 ### Comprehensive Backend API Testing (Review Request Specific)
 **Test Date:** 2026-03-25  
-**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Base URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Focus:** Review Request Specific Endpoints Testing
 
@@ -229,7 +229,7 @@
 
 ### Comprehensive UI Test - All Pages
 **Test Date:** 2026-03-24  
-**Test URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Test URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Viewport:** Mobile (390x844)  
 **Test Type:** Comprehensive page-by-page UI testing
@@ -331,7 +331,7 @@ The 4 pages that did load successfully suggest the app itself is functional, but
 
 ### Review Request Specific Backend Testing (Translation File Regression)
 **Test Date:** 2026-03-25  
-**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Base URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Focus:** Verify no backend regressions from translation file updates
 
@@ -357,7 +357,7 @@ The 4 pages that did load successfully suggest the app itself is functional, but
 
 ### Review Request Specific Backend Testing (Post Translation Changes)
 **Test Date:** 2026-03-25  
-**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Base URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Focus:** Verify no backend regressions from massive frontend translation changes
 
@@ -410,7 +410,7 @@ The 4 pages that did load successfully suggest the app itself is functional, but
 
 ### Comprehensive Multilingual Backend Testing (Review Request Specific)
 **Test Date:** 2026-03-25  
-**Base URL:** https://multilang-sync-3.preview.emergentagent.com  
+**Base URL:** https://backend-localization.preview.emergentagent.com  
 **Test Agent:** Testing Agent  
 **Focus:** Comprehensive testing of ALL language-dependent endpoints as requested
 

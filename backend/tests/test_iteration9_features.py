@@ -13,7 +13,7 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
+    BASE_URL = "https://backend-localization.preview.emergentagent.com"
 
 # Test credentials
 ADMIN_EMAIL = "mhmd321324t@gmail.com"

@@ -4,7 +4,7 @@ Comprehensive Backend Testing for Multilingual App
 ==================================================
 Testing ALL language-dependent endpoints as requested in review.
 
-Base URL: https://multilang-sync-3.preview.emergentagent.com
+Base URL: https://backend-localization.preview.emergentagent.com
 
 Test Endpoints:
 1. GET /api/health - Basic health check
@@ -27,7 +27,7 @@ from datetime import datetime
 from typing import Dict, List, Any
 
 # Base URL from frontend .env
-BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
+BASE_URL = "https://backend-localization.preview.emergentagent.com"
 
 class BackendTester:
     def __init__(self):

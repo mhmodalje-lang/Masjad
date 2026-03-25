@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
+BASE_URL = "https://backend-localization.preview.emergentagent.com"
 
 def test_additional_endpoints():
     """Test additional endpoints for comprehensive verification"""

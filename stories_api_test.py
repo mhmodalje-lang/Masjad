@@ -10,7 +10,7 @@ import time
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com"
+BACKEND_URL = "https://backend-localization.preview.emergentagent.com"
 
 class StoriesAPITester:
     def __init__(self):

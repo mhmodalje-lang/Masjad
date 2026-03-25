@@ -12,7 +12,7 @@ import re
 from typing import Dict, Any, List
 
 # Base URL from review request
-BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
+BASE_URL = "https://backend-localization.preview.emergentagent.com"
 
 # All 9 languages to test
 LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]

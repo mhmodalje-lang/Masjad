@@ -19,7 +19,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com"
+BACKEND_URL = "https://backend-localization.preview.emergentagent.com"
 
 # Test languages
 LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]
