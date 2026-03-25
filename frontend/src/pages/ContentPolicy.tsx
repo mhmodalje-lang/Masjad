@@ -322,7 +322,7 @@ const CONTENT_POLICY: Record<string, Record<string, string>> = {
 };
 
 function getContent(locale: string): Record<string, string> {
-  return CONTENT_POLICY[locale] || CONTENT_POLICY['en'];
+  return CONTENT_POLICY[locale] || CONTENT_POLICY[locale.split('-')[0]] || CONTENT_POLICY['en'];
 }
 
 export default function ContentPolicy() {

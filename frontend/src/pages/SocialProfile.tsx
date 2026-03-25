@@ -168,7 +168,7 @@ export default function SocialProfile() {
           </div>
           <div className="text-center">
             <p className="text-foreground text-lg font-bold">{formatCount(stats.gifts_count || 0)}</p>
-            <p className="text-muted-foreground text-[11px]">الهدايا</p>
+            <p className="text-muted-foreground text-[11px]">{t('giftsLabel')}</p>
           </div>
         </div>
 
@@ -177,7 +177,7 @@ export default function SocialProfile() {
           {isOwnProfile ? (
             <Link to="/account"
               className="flex-1 py-2.5 rounded-2xl bg-emerald-600 text-white text-center font-bold text-sm hover:bg-emerald-500 transition-colors">
-              تعديل الملف الشخصي
+              {t('editProfile')}
             </Link>
           ) : (
             <>
@@ -185,11 +185,11 @@ export default function SocialProfile() {
                 className={`flex-1 py-2.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors ${
                   isFollowing ? 'bg-muted/30 border border-border/30 text-muted-foreground' : 'bg-emerald-600 text-white'
                 }`}>
-                {isFollowing ? 'متابَع ✓' : t('follow')}
+                {isFollowing ? t('followingLabel') : t('follow')}
               </button>
               <Link to="/messages"
                 className="flex-1 py-2.5 rounded-2xl bg-muted/30 border border-border/30 text-foreground text-center font-bold text-sm flex items-center justify-center gap-2">
-                <MessageCircle className="w-4 h-4" /> المحادثة
+                <MessageCircle className="w-4 h-4" /> {t('chatLabel')}
               </Link>
             </>
           )}
@@ -202,13 +202,13 @@ export default function SocialProfile() {
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
             activeTab === 'posts' ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground'
           }`}>
-          ال{t('postsCount')}
+          {t('postsTab')}
         </button>
         <button onClick={() => setActiveTab('info')}
           className={`flex-1 py-3 text-center font-bold text-sm transition-colors ${
             activeTab === 'info' ? 'text-foreground border-b-2 border-primary' : 'text-muted-foreground'
           }`}>
-          المعلومات
+          {t('infoTab')}
         </button>
       </div>
 
@@ -217,7 +217,7 @@ export default function SocialProfile() {
         <div className="grid grid-cols-2 gap-1.5 p-3">
           {posts.length === 0 ? (
             <div className="col-span-2 text-center py-16 text-muted-foreground text-sm">
-              لا توجد {t('postsCount')} حتى الآن
+              {t('noPostsYet')}
             </div>
           ) : (
             posts.map(post => (

@@ -45,7 +45,7 @@ export default function RamadanChallenge() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader title="تحدي رمضان" backTo="/" />
+      <PageHeader title={t('ramadanChallengeTitle')} backTo="/" />
 
       <div className="px-4 pt-4">
         {/* Progress card */}
@@ -132,7 +132,7 @@ export default function RamadanChallenge() {
                     </div>
                     <div className="flex-1">
                       <p className={cn('text-sm font-bold', done && 'text-accent line-through')}>
-                        يوم {day}: {deed}
+                        {t('dayLabel')} {day}: {deed}
                       </p>
                     </div>
                     <Heart className={cn('h-4 w-4', done ? 'text-accent' : 'text-muted-foreground')} />

@@ -32,7 +32,7 @@ const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; name: s
   TR: { code: 'TRY', symbol: '₺', name: 'Turkish Lira' },
   PK: { code: 'PKR', symbol: '₨', name: 'Pakistani Rupee' },
   IN: { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
-  BD: { code: 'BDT', symbol: '৳', name: 'تاكا بنغلاديشية' },
+  BD: { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka' },
   MY: { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit' },
   ID: { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah' },
   US: { code: 'USD', symbol: '$', name: 'US Dollar' },
@@ -45,20 +45,20 @@ const COUNTRY_CURRENCIES: Record<string, { code: string; symbol: string; name: s
   IT: { code: 'EUR', symbol: '€', name: 'Euro' },
   ES: { code: 'EUR', symbol: '€', name: 'Euro' },
   AT: { code: 'EUR', symbol: '€', name: 'Euro' },
-  SE: { code: 'SEK', symbol: 'kr', name: 'كرونة سويدية' },
-  NO: { code: 'NOK', symbol: 'kr', name: 'كرونة نرويجية' },
-  DK: { code: 'DKK', symbol: 'kr', name: 'كرونة دنماركية' },
-  CH: { code: 'CHF', symbol: 'Fr', name: 'فرنك سويسري' },
+  SE: { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' },
+  NO: { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone' },
+  DK: { code: 'DKK', symbol: 'kr', name: 'Danish Krone' },
+  CH: { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc' },
   AU: { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
-  NZ: { code: 'NZD', symbol: 'NZ$', name: 'دولار نيوزيلندي' },
-  ZA: { code: 'ZAR', symbol: 'R', name: 'راند جنوب أفريقي' },
-  NG: { code: 'NGN', symbol: '₦', name: 'نايرا نيجيرية' },
-  AF: { code: 'AFN', symbol: '؋', name: 'أفغاني' },
-  IR: { code: 'IRR', symbol: '﷼', name: 'ريال إيراني' },
-  SO: { code: 'SOS', symbol: 'Sh', name: 'شلن صومالي' },
-  MR: { code: 'MRU', symbol: 'أ.م', name: 'أوقية موريتانية' },
-  KM: { code: 'KMF', symbol: 'CF', name: 'فرنك قمري' },
-  DJ: { code: 'DJF', symbol: 'Fdj', name: 'فرنك جيبوتي' },
+  NZ: { code: 'NZD', symbol: 'NZ$', name: 'New Zealand Dollar' },
+  ZA: { code: 'ZAR', symbol: 'R', name: 'South African Rand' },
+  NG: { code: 'NGN', symbol: '₦', name: 'Nigerian Naira' },
+  AF: { code: 'AFN', symbol: '؋', name: 'Afghan Afghani' },
+  IR: { code: 'IRR', symbol: '﷼', name: 'Iranian Rial' },
+  SO: { code: 'SOS', symbol: 'Sh', name: 'Somali Shilling' },
+  MR: { code: 'MRU', symbol: 'UM', name: 'Mauritanian Ouguiya' },
+  KM: { code: 'KMF', symbol: 'CF', name: 'Comorian Franc' },
+  DJ: { code: 'DJF', symbol: 'Fdj', name: 'Djiboutian Franc' },
 };
 
 // Gold price per gram in USD (approximate, updated periodically)
@@ -367,7 +367,7 @@ export default function ZakatCalculator() {
                 <div className="p-6 text-center">
                   <p className="text-lg font-semibold text-foreground mb-2">{t('zakatNotRequired')}</p>
                   <p className="text-sm text-muted-foreground">
-                    أموالك ({formatNumber(result.total, currencyInfo.symbol)}) أقل من النصاب ({formatNumber(result.nisab, currencyInfo.symbol)})
+                    {t('zakatBelowNisabDesc').replace('{total}', formatNumber(result.total, currencyInfo.symbol)).replace('{nisab}', formatNumber(result.nisab, currencyInfo.symbol))}
                   </p>
                 </div>
               )}
@@ -379,8 +379,7 @@ export default function ZakatCalculator() {
         <div className="rounded-3xl bg-muted/50 p-5 text-xs text-muted-foreground leading-[1.8] shadow-elevated border border-border/10">
           <p className="font-bold text-foreground mb-2 text-sm">{`📌 ${t('zakatLegalNote')}`}</p>
           <p>
-            تعتمد هذه الحاسبة على نصاب الفضة (595 {t('gram')}) وهو الأقل، وذلك لمصلحة الفقراء وفق رأي جمهور العلماء.
-            نسبة الزكاة الثابتة هي 2.5% من إجمالي المال الذي بلغ النصاب ومرّ عليه حول كامل.
+            {t('zakatNoteText')}
           </p>
         </div>
       </div>

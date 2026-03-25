@@ -675,7 +675,7 @@ const PRIVACY_CONTENT: Record<string, Record<string, string>> = {
 
 // Fallback to English for unsupported languages
 function getContent(locale: string): Record<string, string> {
-  return PRIVACY_CONTENT[locale] || PRIVACY_CONTENT['en'];
+  return PRIVACY_CONTENT[locale] || PRIVACY_CONTENT[locale.split('-')[0]] || PRIVACY_CONTENT['en'];
 }
 
 export default function PrivacyPolicy() {

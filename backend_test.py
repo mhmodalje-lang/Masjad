@@ -1,325 +1,325 @@
 #!/usr/bin/env python3
 """
-Islamic App Backend API Testing - Review Request Specific
-=========================================================
-Testing the exact endpoints mentioned in the review request.
+Backend API Testing Script - Review Request Specific
+Test the backend API endpoints to verify the app is still working correctly after massive frontend translation changes.
 
-Review Request Endpoints:
-1. Health: GET /api/health
-2. Quran chapters: GET /api/quran/v4/chapters?language=ar
-3. Quran chapters English: GET /api/quran/v4/chapters?language=en
-4. Global verse: GET /api/quran/v4/global-verse/2/255?language=ar
-5. Global verse English: GET /api/quran/v4/global-verse/1/1?language=en
-6. Kids learn daily games: GET /api/kids-learn/daily-games?locale=en
-7. Kids learn daily games Arabic: GET /api/kids-learn/daily-games?locale=ar
-8. Sohba sessions: GET /api/sohba/sessions
-9. Tafsir: GET /api/quran/v4/global-verse/2/1?language=ar
+Base URL: https://multilang-sync-3.preview.emergentagent.com
 
-All endpoints should return 200 status codes.
+Test these endpoints:
+1. GET /api/health - Should return 200
+2. GET /api/quran/v4/chapters?language=ar - Should return 200 with Arabic chapters
+3. GET /api/quran/v4/chapters?language=tr - Should return 200 with Turkish chapters  
+4. GET /api/kids-learn/daily-games?locale=tr - Should return 200
+5. GET /api/sohba/posts - Should return 200
+6. GET /api/mosque-prayer-times/nearby?lat=48.8566&lng=2.3522 - Should return 200 (Paris mosque times)
+7. GET /api/zakat/gold-price?currency=TRY - Should return 200
 """
 
-import requests
+import asyncio
+import httpx
 import json
-import sys
-from typing import Dict, List, Any
 from datetime import datetime
+from typing import Dict, Any, List
 
-# Backend URL from frontend/.env
-BACKEND_URL = "https://multilang-sync-3.preview.emergentagent.com"
+# Base URL from frontend/.env
+BASE_URL = "https://multilang-sync-3.preview.emergentagent.com"
 
-# Test results storage
-test_results = []
-
-def log_test(test_name: str, endpoint: str, status: str, status_code: int = None, details: str = "", response_data: Any = None):
-    """Log test result with comprehensive details"""
-    result = {
-        "test": test_name,
-        "endpoint": endpoint,
-        "status": status,
-        "status_code": status_code,
-        "details": details,
-        "timestamp": datetime.now().isoformat(),
-        "response_preview": str(response_data)[:200] + "..." if response_data and len(str(response_data)) > 200 else str(response_data)
-    }
-    test_results.append(result)
-    
-    status_icon = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
-    print(f"{status_icon} {test_name}: {status} (Status: {status_code})")
-    if details:
-        print(f"   Details: {details}")
-
-def test_endpoint(endpoint: str, test_name: str) -> Dict[str, Any]:
-    """Test a single endpoint with comprehensive error handling"""
-    full_url = f"{BACKEND_URL}{endpoint}"
-    print(f"\n🔍 Testing: {test_name}")
-    print(f"   URL: {full_url}")
-    
-    try:
-        response = requests.get(full_url, timeout=15)
+class BackendTester:
+    def __init__(self):
+        self.base_url = BASE_URL
+        self.results = []
+        self.total_tests = 0
+        self.passed_tests = 0
         
-        # Log the response
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                log_test(test_name, endpoint, "PASS", response.status_code, 
-                        f"Successfully returned data", data)
-                return {"success": True, "data": data, "status_code": response.status_code}
-            except json.JSONDecodeError:
-                log_test(test_name, endpoint, "FAIL", response.status_code, 
-                        "Response is not valid JSON", response.text[:200])
-                return {"success": False, "error": "Invalid JSON response", "status_code": response.status_code}
-        else:
-            log_test(test_name, endpoint, "FAIL", response.status_code, 
-                    f"HTTP {response.status_code}: {response.text[:200]}")
-            return {"success": False, "error": response.text, "status_code": response.status_code}
+    async def test_endpoint(self, method: str, endpoint: str, expected_status: int = 200, 
+                          description: str = "", params: Dict = None, headers: Dict = None) -> Dict[str, Any]:
+        """Test a single endpoint and return results"""
+        self.total_tests += 1
+        url = f"{self.base_url}{endpoint}"
+        
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                if method.upper() == "GET":
+                    response = await client.get(url, params=params, headers=headers)
+                elif method.upper() == "POST":
+                    response = await client.post(url, json=params, headers=headers)
+                else:
+                    response = await client.request(method, url, params=params, headers=headers)
+                
+                # Check status code
+                status_ok = response.status_code == expected_status
+                if status_ok:
+                    self.passed_tests += 1
+                
+                # Try to parse JSON response
+                try:
+                    response_data = response.json()
+                    data_preview = str(response_data)[:200] + "..." if len(str(response_data)) > 200 else str(response_data)
+                except:
+                    response_data = response.text
+                    data_preview = response_data[:200] + "..." if len(response_data) > 200 else response_data
+                
+                result = {
+                    "endpoint": endpoint,
+                    "method": method.upper(),
+                    "description": description,
+                    "url": url,
+                    "status_code": response.status_code,
+                    "expected_status": expected_status,
+                    "passed": status_ok,
+                    "response_preview": data_preview,
+                    "response_size": len(str(response_data)),
+                    "headers": dict(response.headers),
+                    "params": params or {}
+                }
+                
+                # Additional validation for specific endpoints
+                if status_ok and response.status_code == 200:
+                    result["validation"] = self._validate_response(endpoint, response_data)
+                
+                self.results.append(result)
+                return result
+                
+        except Exception as e:
+            result = {
+                "endpoint": endpoint,
+                "method": method.upper(),
+                "description": description,
+                "url": url,
+                "status_code": 0,
+                "expected_status": expected_status,
+                "passed": False,
+                "error": str(e),
+                "response_preview": f"ERROR: {str(e)}",
+                "response_size": 0,
+                "headers": {},
+                "params": params or {}
+            }
+            self.results.append(result)
+            return result
+    
+    def _validate_response(self, endpoint: str, data: Any) -> Dict[str, Any]:
+        """Validate response data for specific endpoints"""
+        validation = {"valid": True, "issues": []}
+        
+        try:
+            if "/health" in endpoint:
+                if isinstance(data, dict):
+                    if "status" not in data:
+                        validation["issues"].append("Missing 'status' field")
+                    elif data.get("status") != "healthy":
+                        validation["issues"].append(f"Status is '{data.get('status')}', expected 'healthy'")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
             
-    except requests.exceptions.Timeout:
-        log_test(test_name, endpoint, "FAIL", None, "Request timeout (15s)")
-        return {"success": False, "error": "Timeout"}
-    except requests.exceptions.ConnectionError:
-        log_test(test_name, endpoint, "FAIL", None, "Connection error")
-        return {"success": False, "error": "Connection error"}
-    except Exception as e:
-        log_test(test_name, endpoint, "FAIL", None, f"Unexpected error: {str(e)}")
-        return {"success": False, "error": str(e)}
+            elif "/quran/v4/chapters" in endpoint:
+                if isinstance(data, dict):
+                    if "chapters" not in data:
+                        validation["issues"].append("Missing 'chapters' field")
+                    else:
+                        chapters = data.get("chapters", [])
+                        if not isinstance(chapters, list):
+                            validation["issues"].append("'chapters' is not a list")
+                        elif len(chapters) == 0:
+                            validation["issues"].append("No chapters returned")
+                        elif len(chapters) != 114:
+                            validation["issues"].append(f"Expected 114 chapters, got {len(chapters)}")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
+            
+            elif "/kids-learn/daily-games" in endpoint:
+                if isinstance(data, dict):
+                    if "success" not in data:
+                        validation["issues"].append("Missing 'success' field")
+                    elif not data.get("success"):
+                        validation["issues"].append("Success is False")
+                    if "games" not in data:
+                        validation["issues"].append("Missing 'games' field")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
+            
+            elif "/sohba/posts" in endpoint:
+                if isinstance(data, dict):
+                    if "posts" not in data:
+                        validation["issues"].append("Missing 'posts' field")
+                    else:
+                        posts = data.get("posts", [])
+                        if not isinstance(posts, list):
+                            validation["issues"].append("'posts' is not a list")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
+            
+            elif "/mosque-prayer-times/nearby" in endpoint or "/mosques/search" in endpoint:
+                if isinstance(data, dict):
+                    if "mosques" not in data:
+                        validation["issues"].append("Missing 'mosques' field")
+                    else:
+                        mosques = data.get("mosques", [])
+                        if not isinstance(mosques, list):
+                            validation["issues"].append("'mosques' is not a list")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
+            
+            elif "/zakat/gold-price" in endpoint:
+                if isinstance(data, dict):
+                    if "price" not in data and "gold_price" not in data:
+                        validation["issues"].append("Missing price field")
+                else:
+                    validation["issues"].append("Response is not a JSON object")
+            
+            validation["valid"] = len(validation["issues"]) == 0
+            
+        except Exception as e:
+            validation["valid"] = False
+            validation["issues"].append(f"Validation error: {str(e)}")
+        
+        return validation
+    
+    async def run_review_request_tests(self):
+        """Run all the tests specified in the review request"""
+        print("🚀 Starting Backend API Testing - Review Request Specific")
+        print(f"📍 Base URL: {self.base_url}")
+        print(f"⏰ Test Time: {datetime.now().isoformat()}")
+        print("=" * 80)
+        
+        # Test 1: Health Check
+        await self.test_endpoint(
+            "GET", "/api/health", 200,
+            "Health check endpoint - should return healthy status"
+        )
+        
+        # Test 2: Arabic Quran Chapters
+        await self.test_endpoint(
+            "GET", "/api/quran/v4/chapters", 200,
+            "Get Arabic Quran chapters",
+            params={"language": "ar"}
+        )
+        
+        # Test 3: Turkish Quran Chapters
+        await self.test_endpoint(
+            "GET", "/api/quran/v4/chapters", 200,
+            "Get Turkish Quran chapters",
+            params={"language": "tr"}
+        )
+        
+        # Test 4: Turkish Kids Daily Games
+        await self.test_endpoint(
+            "GET", "/api/kids-learn/daily-games", 200,
+            "Get Turkish kids daily games",
+            params={"locale": "tr"}
+        )
+        
+        # Test 5: Sohba Posts
+        await self.test_endpoint(
+            "GET", "/api/sohba/posts", 200,
+            "Get Sohba social posts"
+        )
+        
+        # Test 6: Paris Mosque Prayer Times (try different endpoints)
+        # First try the exact endpoint from review request
+        await self.test_endpoint(
+            "GET", "/api/mosque-prayer-times/nearby", 200,
+            "Get Paris mosque prayer times (exact endpoint)",
+            params={"lat": 48.8566, "lng": 2.3522}
+        )
+        
+        # If that fails, try the mosque search endpoint we found in the code
+        await self.test_endpoint(
+            "GET", "/api/mosques/search", 200,
+            "Search mosques near Paris (alternative endpoint)",
+            params={"lat": 48.8566, "lon": 2.3522, "radius": 5000}
+        )
+        
+        # Test 7: Zakat Gold Price (try different endpoints)
+        # First try the exact endpoint from review request
+        await self.test_endpoint(
+            "GET", "/api/zakat/gold-price", 200,
+            "Get gold price for Zakat in TRY (exact endpoint)",
+            params={"currency": "TRY"}
+        )
+        
+        # Additional tests for endpoints we know exist
+        print("\n📋 Additional Backend Verification Tests:")
+        
+        # Test Quran global verse endpoint
+        await self.test_endpoint(
+            "GET", "/api/quran/v4/global-verse/1/1", 200,
+            "Get first verse of Quran (Al-Fatiha 1:1)",
+            params={"language": "en"}
+        )
+        
+        # Test kids learn daily lesson
+        await self.test_endpoint(
+            "GET", "/api/kids-learn/daily-lesson", 200,
+            "Get kids daily lesson",
+            params={"locale": "en"}
+        )
+        
+        # Test prayer times
+        await self.test_endpoint(
+            "GET", "/api/prayer-times", 200,
+            "Get prayer times for Paris",
+            params={"lat": 48.8566, "lon": 2.3522, "method": 3}
+        )
+        
+        # Test sohba categories
+        await self.test_endpoint(
+            "GET", "/api/sohba/categories", 200,
+            "Get Sohba categories"
+        )
+        
+        print("\n" + "=" * 80)
+        self.print_summary()
+    
+    def print_summary(self):
+        """Print test results summary"""
+        print(f"📊 TEST RESULTS SUMMARY")
+        print(f"Total Tests: {self.total_tests}")
+        print(f"Passed: {self.passed_tests}")
+        print(f"Failed: {self.total_tests - self.passed_tests}")
+        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%")
+        print("=" * 80)
+        
+        # Print detailed results
+        for i, result in enumerate(self.results, 1):
+            status_icon = "✅" if result["passed"] else "❌"
+            print(f"{status_icon} Test {i}: {result['method']} {result['endpoint']}")
+            print(f"   Description: {result['description']}")
+            print(f"   Status: {result['status_code']} (expected {result['expected_status']})")
+            
+            if "error" in result:
+                print(f"   Error: {result['error']}")
+            elif result["passed"] and "validation" in result:
+                validation = result["validation"]
+                if validation["valid"]:
+                    print(f"   ✅ Response validation passed")
+                else:
+                    print(f"   ⚠️  Response validation issues: {', '.join(validation['issues'])}")
+            
+            if result["passed"]:
+                print(f"   Response size: {result['response_size']} chars")
+                print(f"   Preview: {result['response_preview']}")
+            
+            print()
+        
+        # Summary by category
+        failed_tests = [r for r in self.results if not r["passed"]]
+        if failed_tests:
+            print("❌ FAILED TESTS:")
+            for test in failed_tests:
+                error_msg = test.get('error', f"Status {test['status_code']}")
+                print(f"   - {test['method']} {test['endpoint']}: {error_msg}")
+        
+        passed_tests = [r for r in self.results if r["passed"]]
+        if passed_tests:
+            print("✅ PASSED TESTS:")
+            for test in passed_tests:
+                print(f"   - {test['method']} {test['endpoint']}: Status {test['status_code']}")
 
-def test_health_endpoint():
-    """Test the health endpoint"""
-    print("\n" + "="*60)
-    print("1. TESTING HEALTH ENDPOINT")
-    print("="*60)
-    
-    result = test_endpoint("/api/health", "Health Check")
-    
-    if result["success"]:
-        data = result["data"]
-        print(f"   ✅ Health Status: {data}")
-    
-    return result["success"]
-
-def test_quran_chapters():
-    """Test Quran chapters endpoints"""
-    print("\n" + "="*60)
-    print("2. TESTING QURAN CHAPTERS ENDPOINTS")
-    print("="*60)
-    
-    results = []
-    
-    # Test Arabic chapters
-    result_ar = test_endpoint("/api/quran/v4/chapters?language=ar", "Quran Chapters (Arabic)")
-    results.append(result_ar["success"])
-    
-    if result_ar["success"]:
-        chapters = result_ar["data"]
-        if isinstance(chapters, dict) and "chapters" in chapters:
-            chapter_count = len(chapters["chapters"])
-            print(f"   ✅ Found {chapter_count} Arabic chapters")
-        elif isinstance(chapters, list):
-            chapter_count = len(chapters)
-            print(f"   ✅ Found {chapter_count} Arabic chapters")
-    
-    # Test English chapters
-    result_en = test_endpoint("/api/quran/v4/chapters?language=en", "Quran Chapters (English)")
-    results.append(result_en["success"])
-    
-    if result_en["success"]:
-        chapters = result_en["data"]
-        if isinstance(chapters, dict) and "chapters" in chapters:
-            chapter_count = len(chapters["chapters"])
-            print(f"   ✅ Found {chapter_count} English chapters")
-        elif isinstance(chapters, list):
-            chapter_count = len(chapters)
-            print(f"   ✅ Found {chapter_count} English chapters")
-    
-    return all(results)
-
-def test_global_verses():
-    """Test global verse endpoints"""
-    print("\n" + "="*60)
-    print("3. TESTING GLOBAL VERSE ENDPOINTS")
-    print("="*60)
-    
-    results = []
-    
-    # Test Ayat al-Kursi (2:255) in Arabic
-    result_kursi = test_endpoint("/api/quran/v4/global-verse/2/255?language=ar", "Ayat al-Kursi (Arabic)")
-    results.append(result_kursi["success"])
-    
-    if result_kursi["success"]:
-        verse_data = result_kursi["data"]
-        print(f"   ✅ Ayat al-Kursi data: {str(verse_data)[:100]}...")
-    
-    # Test first verse (1:1) in English
-    result_first = test_endpoint("/api/quran/v4/global-verse/1/1?language=en", "First Verse (English)")
-    results.append(result_first["success"])
-    
-    if result_first["success"]:
-        verse_data = result_first["data"]
-        print(f"   ✅ First verse data: {str(verse_data)[:100]}...")
-    
-    # Test Tafsir endpoint (2:1) in Arabic
-    result_tafsir = test_endpoint("/api/quran/v4/global-verse/2/1?language=ar", "Tafsir Verse (Arabic)")
-    results.append(result_tafsir["success"])
-    
-    if result_tafsir["success"]:
-        verse_data = result_tafsir["data"]
-        print(f"   ✅ Tafsir verse data: {str(verse_data)[:100]}...")
-    
-    return all(results)
-
-def test_kids_learn_daily_games():
-    """Test kids learn daily games endpoints"""
-    print("\n" + "="*60)
-    print("4. TESTING KIDS LEARN DAILY GAMES ENDPOINTS")
-    print("="*60)
-    
-    results = []
-    
-    # Test English daily games
-    result_en = test_endpoint("/api/kids-learn/daily-games?locale=en", "Kids Daily Games (English)")
-    results.append(result_en["success"])
-    
-    if result_en["success"]:
-        games_data = result_en["data"]
-        if isinstance(games_data, dict) and "games" in games_data:
-            game_count = len(games_data["games"])
-            print(f"   ✅ Found {game_count} English daily games")
-        elif isinstance(games_data, list):
-            game_count = len(games_data)
-            print(f"   ✅ Found {game_count} English daily games")
-    
-    # Test Arabic daily games
-    result_ar = test_endpoint("/api/kids-learn/daily-games?locale=ar", "Kids Daily Games (Arabic)")
-    results.append(result_ar["success"])
-    
-    if result_ar["success"]:
-        games_data = result_ar["data"]
-        if isinstance(games_data, dict) and "games" in games_data:
-            game_count = len(games_data["games"])
-            print(f"   ✅ Found {game_count} Arabic daily games")
-        elif isinstance(games_data, list):
-            game_count = len(games_data)
-            print(f"   ✅ Found {game_count} Arabic daily games")
-    
-    return all(results)
-
-def test_sohba_endpoints():
-    """Test Sohba endpoints (corrected from review request)"""
-    print("\n" + "="*60)
-    print("5. TESTING SOHBA ENDPOINTS")
-    print("="*60)
-    
-    # Test the requested endpoint (which doesn't exist)
-    result_sessions = test_endpoint("/api/sohba/sessions", "Sohba Sessions (Requested)")
-    
-    # Test the actual working sohba endpoints
-    result_posts = test_endpoint("/api/sohba/posts", "Sohba Posts (Actual)")
-    result_categories = test_endpoint("/api/sohba/categories", "Sohba Categories (Actual)")
-    
-    if result_posts["success"]:
-        posts_data = result_posts["data"]
-        if isinstance(posts_data, dict) and "posts" in posts_data:
-            post_count = len(posts_data["posts"])
-            total_count = posts_data.get("total", post_count)
-            print(f"   ✅ Found {post_count} Sohba posts (total: {total_count})")
-        elif isinstance(posts_data, list):
-            post_count = len(posts_data)
-            print(f"   ✅ Found {post_count} Sohba posts")
-    
-    if result_categories["success"]:
-        categories_data = result_categories["data"]
-        if isinstance(categories_data, dict) and "categories" in categories_data:
-            category_count = len(categories_data["categories"])
-            print(f"   ✅ Found {category_count} Sohba categories")
-        elif isinstance(categories_data, list):
-            category_count = len(categories_data)
-            print(f"   ✅ Found {category_count} Sohba categories")
-    
-    # Return true if at least one sohba endpoint works
-    return result_posts["success"] or result_categories["success"]
-
-def print_comprehensive_summary():
-    """Print comprehensive test summary"""
-    print("\n" + "="*80)
-    print("ISLAMIC APP BACKEND API TESTING SUMMARY")
-    print("="*80)
-    
-    total_tests = len(test_results)
-    passed_tests = len([r for r in test_results if r["status"] == "PASS"])
-    failed_tests = len([r for r in test_results if r["status"] == "FAIL"])
-    
-    print(f"📊 OVERALL RESULTS:")
-    print(f"   Total Tests: {total_tests}")
-    print(f"   ✅ Passed: {passed_tests}")
-    print(f"   ❌ Failed: {failed_tests}")
-    print(f"   Success Rate: {(passed_tests/total_tests)*100:.1f}%")
-    
-    print(f"\n📋 ENDPOINT RESULTS:")
-    for result in test_results:
-        status_icon = "✅" if result["status"] == "PASS" else "❌"
-        print(f"   {status_icon} {result['test']}: {result['status']} ({result['status_code']})")
-    
-    if failed_tests > 0:
-        print(f"\n❌ FAILED TESTS DETAILS:")
-        for result in test_results:
-            if result["status"] == "FAIL":
-                print(f"   - {result['test']}")
-                print(f"     Endpoint: {result['endpoint']}")
-                print(f"     Status Code: {result['status_code']}")
-                print(f"     Details: {result['details']}")
-                print()
-    
-    print(f"\n🎯 REVIEW REQUEST COMPLIANCE:")
-    if passed_tests == total_tests:
-        print("   ✅ ALL ENDPOINTS RETURNING 200 STATUS CODES")
-        print("   ✅ Health endpoint working")
-        print("   ✅ Quran chapters (Arabic & English) working")
-        print("   ✅ Global verses (Arabic & English) working")
-        print("   ✅ Kids learn daily games (English & Arabic) working")
-        print("   ✅ Sohba sessions working")
-        print("   ✅ Tafsir endpoint working")
-    else:
-        print(f"   ❌ {failed_tests} ENDPOINTS FAILING")
-        print("   ⚠️  Review request requirements not fully met")
-    
-    return failed_tests == 0
-
-def main():
-    """Main test execution"""
-    print("🚀 ISLAMIC APP BACKEND API TESTING")
-    print(f"🌐 Backend URL: {BACKEND_URL}")
-    print(f"📅 Test Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"🎯 Focus: Review Request Specific Endpoints")
-    
-    # Run all tests
-    health_success = test_health_endpoint()
-    chapters_success = test_quran_chapters()
-    verses_success = test_global_verses()
-    games_success = test_kids_learn_daily_games()
-    sohba_success = test_sohba_endpoints()
-    
-    # Print comprehensive summary
-    all_success = print_comprehensive_summary()
-    
-    # Save detailed results
-    results_file = "/app/backend_test_results.json"
-    with open(results_file, "w") as f:
-        json.dump({
-            "test_summary": {
-                "total_tests": len(test_results),
-                "passed_tests": len([r for r in test_results if r["status"] == "PASS"]),
-                "failed_tests": len([r for r in test_results if r["status"] == "FAIL"]),
-                "success_rate": (len([r for r in test_results if r["status"] == "PASS"])/len(test_results))*100,
-                "all_endpoints_working": all_success
-            },
-            "detailed_results": test_results
-        }, f, indent=2)
-    
-    print(f"\n📄 Detailed results saved to: {results_file}")
-    
-    # Return appropriate exit code
-    return 0 if all_success else 1
+async def main():
+    """Main test runner"""
+    tester = BackendTester()
+    await tester.run_review_request_tests()
 
 if __name__ == "__main__":
-    exit_code = main()
-    sys.exit(exit_code)
+    asyncio.run(main())

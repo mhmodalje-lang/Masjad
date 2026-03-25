@@ -54,9 +54,9 @@ interface TimeDiffs {
   isha_diff: number;
 }
 
-const PRAYER_LABELS: Record<string, string> = {
-  fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر',
-  asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء', jumuah: 'الجمعة',
+const PRAYER_LABELS_MAP: Record<string, string> = {
+  fajr: 'mosquePrayerFajr', sunrise: 'mosquePrayerSunrise', dhuhr: 'mosquePrayerDhuhr',
+  asr: 'mosquePrayerAsr', maghrib: 'mosquePrayerMaghrib', isha: 'mosquePrayerIsha', jumuah: 'mosquePrayerJumuah',
 };
 const PRAYER_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha', 'jumuah'] as const;
 const COUNTDOWN_KEYS = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'] as const;
@@ -168,7 +168,7 @@ export default function MosquePrayerTimesPage() {
           const ss = diff % 60;
           setCountdown({
             key,
-            label: PRAYER_LABELS[key],
+            label: t(PRAYER_LABELS_MAP[key]),
             remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
           });
           return;
@@ -184,7 +184,7 @@ export default function MosquePrayerTimesPage() {
         const ss = diff % 60;
         setCountdown({
           key: 'fajr',
-          label: PRAYER_LABELS.fajr,
+          label: t(PRAYER_LABELS_MAP.fajr),
           remaining: `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`,
         });
       }
@@ -295,7 +295,7 @@ export default function MosquePrayerTimesPage() {
           const liveCacheKey = LIVE_CACHE_PREFIX + mosque.osm_id + '_' + dateKey;
           try { localStorage.setItem(liveCacheKey, JSON.stringify({ times: liveTimes, source: liveData.source })); } catch {}
           mosque.hasAutoSync = liveData.source === 'mawaqit';
-          if (liveData.source === 'mawaqit') toast.success(`تم سحب أوقات ${mosque.name} من Mawaqit ✅`);
+          if (liveData.source === 'mawaqit') toast.success(t('mawaqitSuccess'));
           setTimesLoading(false);
           return;
         }
@@ -549,18 +549,18 @@ export default function MosquePrayerTimesPage() {
   const getShareText = () => {
     if (!selectedMosque) return '';
     return [
-      `🕌 أوقات الصلاة — ${selectedMosque.name}`,
+      `🕌 ${t('prayerTimesTitle')} — ${selectedMosque.name}`,
       selectedMosque.address ? `📍 ${selectedMosque.address}` : '',
       '',
-      `الفجر: ${fmt(times.fajr)}`,
-      `الشروق: ${fmt(times.sunrise)}`,
-      `الظهر: ${fmt(times.dhuhr)}`,
-      `العصر: ${fmt(times.asr)}`,
-      `المغرب: ${fmt(times.maghrib)}`,
-      `العشاء: ${fmt(times.isha)}`,
-      times.jumuah ? `الجمعة: ${fmt(times.jumuah)}` : '',
+      `${t('mosquePrayerFajr')}: ${fmt(times.fajr)}`,
+      `${t('mosquePrayerSunrise')}: ${fmt(times.sunrise)}`,
+      `${t('mosquePrayerDhuhr')}: ${fmt(times.dhuhr)}`,
+      `${t('mosquePrayerAsr')}: ${fmt(times.asr)}`,
+      `${t('mosquePrayerMaghrib')}: ${fmt(times.maghrib)}`,
+      `${t('mosquePrayerIsha')}: ${fmt(times.isha)}`,
+      times.jumuah ? `${t('mosquePrayerJumuah')}: ${fmt(times.jumuah)}` : '',
       '',
-      `📅 ${new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
+      `📅 ${new Date().toLocaleDateString(locale === 'ar' ? 'ar-SA' : undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`,
     ].filter(Boolean).join('\n');
   };
 
@@ -581,7 +581,7 @@ export default function MosquePrayerTimesPage() {
     const text = getShareText();
     if (navigator.share) {
       try {
-        await navigator.share({ title: `أوقات ${selectedMosque?.name}`, text });
+        await navigator.share({ title: `${t('prayerTimesTitle')} ${selectedMosque?.name}`, text });
         return;
       } catch { /* cancelled */ }
     }
@@ -616,7 +616,7 @@ export default function MosquePrayerTimesPage() {
               <h1 className="text-lg font-bold text-foreground whitespace-nowrap">{t('mosqueTimesLabel')}</h1>
             </div>
             <p className="text-muted-foreground text-xs mt-2">
-              {location.city ? `📍 ${location.city} — {t('searchRadius')} 5 {t('km')}` : 'جارٍ تحديد الموقع...'}
+              {location.city ? `📍 ${location.city} — ${t('searchRadius')} 5 ${t('km')}` : t('locatingPosition')}
             </p>
           </div>
           <button onClick={() => searchMosques()} disabled={loading} className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/10 transition-all active:scale-95">
@@ -663,12 +663,12 @@ export default function MosquePrayerTimesPage() {
                       <Button size="sm" variant="ghost" onClick={() => startEditing('times')} className="gap-1 text-xs h-8 px-2">
                         <Edit3 className="h-3 w-3" /> {t('edit')}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => startEditing('diffs')} className="gap-1 text-xs h-8 px-2" title="ضبط فرق الدقائق">
+                      <Button size="sm" variant="ghost" onClick={() => startEditing('diffs')} className="gap-1 text-xs h-8 px-2" title={t('adjustMinutes')}>
                         <Settings2 className="h-3 w-3" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="ghost" className="text-xs h-8 px-2" title="مشاركة الأوقات">
+                          <Button size="sm" variant="ghost" className="text-xs h-8 px-2" title={t('shareTimes')}>
                             <Share2 className="h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -679,19 +679,19 @@ export default function MosquePrayerTimesPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={shareViaTelegram} className="gap-2 cursor-pointer">
                             <Send className="h-4 w-4 text-primary" />
-                            تيليجرام
+                            {t('telegram')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={shareViaMessenger} className="gap-2 cursor-pointer">
                             <MessageCircle className="h-4 w-4 text-primary" />
-                            ماسنجر
+                            {t('messenger')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={shareViaNative} className="gap-2 cursor-pointer">
                             <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                            مشاركة أخرى...
+                            {t('otherShare')}
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={copyToClipboard} className="gap-2 cursor-pointer">
                             <Copy className="h-4 w-4 text-muted-foreground" />
-                            نسخ النص
+                            {t('copyText')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -705,7 +705,7 @@ export default function MosquePrayerTimesPage() {
                         <X className="h-3.5 w-3.5" />
                       </Button>
                       <Button size="sm" onClick={saveTimes} disabled={saving} className="gap-1 text-xs h-8 px-2">
-                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} حفظ
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} {t('saveBtn')}
                       </Button>
                     </>
                   )}
@@ -732,15 +732,15 @@ export default function MosquePrayerTimesPage() {
                   : "bg-muted text-muted-foreground border border-border/30"
               )}>
                 <Clock className="h-3 w-3" />
-                {timesSource === 'manual' && 'أوقات يدوية محفوظة'}
-                {timesSource === 'mawaqit' && '⚡ أوقات مباشرة من Mawaqit'}
-                {timesSource === 'website' && '🌐 أوقات من موقع المسجد'}
-                {timesSource === 'api' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
-                {timesSource === 'calculated' && '⏳ أوقات حسابية — يمكنك تعديلها يدوياً'}
-                {timesSource === 'adjusted' && '⏱️ أوقات معدلة (تحديث يومي تلقائي)'}
+                {timesSource === 'manual' && t('manualTimesStored')}
+                {timesSource === 'mawaqit' && t('liveFromMawaqit')}
+                {timesSource === 'website' && t('timesFromWebsite')}
+                {timesSource === 'api' && t('calculatedTimes')}
+                {timesSource === 'calculated' && t('calculatedTimes')}
+                {timesSource === 'adjusted' && t('adjustedTimes')}
                 {(timesSource === 'manual' || timesSource === 'adjusted') && (
                   <button onClick={resetToAuto} className="ms-auto text-[10px] underline text-muted-foreground">
-                    إعادة للتلقائي
+                    {t('resetToAuto')}
                   </button>
                 )}
               </div>
@@ -751,7 +751,7 @@ export default function MosquePrayerTimesPage() {
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-primary" />
                     <span className="text-xs font-medium text-foreground">
-                      {countdown.label} بعد
+                      {countdown.label} {t('nextPrayerIn')}
                     </span>
                   </div>
                   <span className="text-lg font-bold font-mono text-primary tracking-wider" dir="ltr">
@@ -764,9 +764,9 @@ export default function MosquePrayerTimesPage() {
               {editing && (
                 <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-2 mb-3 text-xs text-amber-700 dark:text-amber-400">
                   {editMode === 'times' ? (
-                    '📝 وضع التعديل: أدخل أوقات الصلاة يدوياً'
+                    t('editModeManual')
                   ) : (
-                    '⏱️ وضع فرق الدقائق: حدد كم دقيقة يتقدم (+) أو يتأخر (-) كل وقت عن التوقيت الفلكي'
+                    t('editModeDiffs')
                   )}
                 </div>
               )}
@@ -780,7 +780,7 @@ export default function MosquePrayerTimesPage() {
                 <div className="space-y-1.5">
                   {PRAYER_KEYS.filter(k => k !== 'jumuah').map((key) => (
                     <div key={key} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
-                      <span className="text-sm font-medium text-foreground">{PRAYER_LABELS[key]}</span>
+                      <span className="text-sm font-medium text-foreground">{t(PRAYER_LABELS_MAP[key])}</span>
                       {editing ? (
                         editMode === 'times' ? (
                           <Input type="time" value={editTimes[key]}
@@ -831,7 +831,7 @@ export default function MosquePrayerTimesPage() {
                   ))}
                   {/* Jumuah separate */}
                   <div className="flex items-center justify-between py-2 border-t border-primary/20 mt-2 pt-3">
-                    <span className="text-sm font-medium text-primary">{PRAYER_LABELS.jumuah}</span>
+                    <span className="text-sm font-medium text-primary">{t(PRAYER_LABELS_MAP.jumuah)}</span>
                     {editing && editMode === 'times' ? (
                       <Input type="time" value={editTimes.jumuah}
                         onChange={(e) => setEditTimes(prev => ({ ...prev, jumuah: e.target.value }))}
@@ -853,8 +853,8 @@ export default function MosquePrayerTimesPage() {
           <div className="flex gap-2 mb-4 overflow-x-auto">
             {([
               { key: 'all' as const, label: t('allLabel'), count: mosques.length },
-              { key: 'auto' as const, label: '⚡ تلقائي', count: mosques.filter(m => m.hasAutoSync === true).length },
-              { key: 'manual' as const, label: '✏️ يدوي', count: mosques.filter(m => m.hasAutoSync === false).length },
+              { key: 'auto' as const, label: t('filterAuto'), count: mosques.filter(m => m.hasAutoSync === true).length },
+              { key: 'manual' as const, label: t('filterManual'), count: mosques.filter(m => m.hasAutoSync === false).length },
             ]).map(tab => (
               <button
                 key={tab.key}
@@ -879,7 +879,7 @@ export default function MosquePrayerTimesPage() {
               {t('chooseMosque')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              المساجد المحيطة بك ضمن {t('searchRadius')} 5 {t('km')}
+              {t('nearbyMosques')} {t('searchRadius')} 5 {t('km')}
             </p>
           </div>
         )}
@@ -937,20 +937,20 @@ export default function MosquePrayerTimesPage() {
                         <div className="flex items-center gap-2 mt-1">
                           {mosque._dist !== undefined && (
                             <span className="text-[11px] text-muted-foreground">
-                              📍 {mosque._dist.toFixed(1)} كم
+                              📍 {mosque._dist.toFixed(1)} {t('km')}
                             </span>
                           )}
                           {checkingAvailability === mosque.osm_id ? (
                             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                              <Loader2 className="h-3 w-3 animate-spin" /> جاري الفحص...
+                              <Loader2 className="h-3 w-3 animate-spin" /> {t('checkingLabel')}
                             </span>
                           ) : mosque.hasAutoSync === true ? (
                             <span className="text-[10px] text-green-600 flex items-center gap-1">
-                              ⚡ أوقات تلقائية متوفرة
+                              {t('autoTimesAvailable')}
                             </span>
                           ) : mosque.hasAutoSync === false ? (
                             <span className="text-[10px] text-amber-600 flex items-center gap-1">
-                              <AlertCircle className="h-3 w-3" /> يدوي فقط
+                              <AlertCircle className="h-3 w-3" /> {t('manualOnly')}
                             </span>
                           ) : null}
                         </div>
@@ -965,7 +965,7 @@ export default function MosquePrayerTimesPage() {
                             checkMosqueAvailability(mosque);
                           }}
                         >
-                          فحص
+                          {t('checkBtn')}
                         </Button>
                       )}
                     </div>
@@ -977,7 +977,7 @@ export default function MosquePrayerTimesPage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-10">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground/50 mb-3" />
               <p className="text-muted-foreground">{t('noMosquesFound')}</p>
-              <p className="text-xs text-muted-foreground mt-1">جرّب البحث بالاسم أو توسيع نطاق البحث</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('trySearchExpand')}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -989,12 +989,12 @@ export default function MosquePrayerTimesPage() {
             {t('noAutoTimeMosques')}
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            بعض المساجد لا تتوفر أوقاتها على الإنترنت. يمكنك:
+            {t('mosqueNoOnlineTimes')}
           </p>
           <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pe-4">
-            <li>إدخال الأوقات يدوياً مرة واحدة</li>
-            <li>أو ضبط فرق الدقائق عن التوقيت الفلكي (مثال: +5 للفجر)</li>
-            <li>سيتم التحديث تلقائياً يومياً بناءً على إعداداتك</li>
+            <li>{t('enterTimesManually')}</li>
+            <li>{t('setMinuteOffset')}</li>
+            <li>{t('autoUpdateDaily')}</li>
           </ul>
         </div>
       </div>

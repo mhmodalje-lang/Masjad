@@ -8,21 +8,21 @@ import { toast } from 'sonner';
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
 const CATEGORIES = [
-  { key: 'general', label: t('generalCategory'), labelKey: 'sohbaCatGeneral', emoji: '🌍' },
-  { key: 'quran', label: 'القرآن', labelKey: 'sohbaCatQuran', emoji: '📖' },
-  { key: 'hadith', label: 'الحديث', labelKey: 'sohbaCatHadith', emoji: '📜' },
-  { key: 'dua', label: 'الدعاء', labelKey: 'sohbaCatDua', emoji: '🤲' },
-  { key: 'stories', label: 'قصص', labelKey: 'sohbaCatStories', emoji: '📝' },
-  { key: 'ramadan', label: 'رمضان', labelKey: 'sohbaCatRamadan', emoji: '🌙' },
-  { key: 'family', label: 'الأسرة', labelKey: 'sohbaCatFamily', emoji: '👨‍👩‍👧‍👦' },
-  { key: 'youth', label: 'الشباب', labelKey: 'sohbaCatYouth', emoji: '💪' },
+  { key: 'general', labelKey: 'sohbaCatGeneral', emoji: '🌍' },
+  { key: 'quran', labelKey: 'sohbaCatQuran', emoji: '📖' },
+  { key: 'hadith', labelKey: 'sohbaCatHadith', emoji: '📜' },
+  { key: 'dua', labelKey: 'sohbaCatDua', emoji: '🤲' },
+  { key: 'stories', labelKey: 'sohbaCatStories', emoji: '📝' },
+  { key: 'ramadan', labelKey: 'sohbaCatRamadan', emoji: '🌙' },
+  { key: 'family', labelKey: 'sohbaCatFamily', emoji: '👨‍👩‍👧‍👦' },
+  { key: 'youth', labelKey: 'sohbaCatYouth', emoji: '💪' },
 ];
 
 const CONTENT_TYPES = [
-  { key: 'text', labelKey: 'textOption', label: 'نص', icon: FileText },
-  { key: 'image', labelKey: 'imageOption', label: 'صورة', icon: Image },
-  { key: 'video_short', labelKey: 'videoOption', label: 'ريلز', icon: Video },
-  { key: 'video_long', labelKey: 'videoOption', label: 'فيديو', icon: Camera },
+  { key: 'text', labelKey: 'textOption', icon: FileText },
+  { key: 'image', labelKey: 'imageOption', icon: Image },
+  { key: 'video_short', labelKey: 'reelsOption', icon: Video },
+  { key: 'video_long', labelKey: 'videoOption', icon: Camera },
 ];
 
 export default function CreatePost() {
@@ -78,11 +78,11 @@ export default function CreatePost() {
         body: formData,
       });
       
-      if (!res.ok) throw new Error('فشل في رفع الملف');
+      if (!res.ok) throw new Error(t('uploadError'));
       const data = await res.json();
       return data.url;
     } catch (err) {
-      toast.error('فشل في رفع الملف');
+      toast.error(t('uploadError'));
       return null;
     } finally {
       setUploading(false);
@@ -91,7 +91,7 @@ export default function CreatePost() {
 
   const handlePublish = async () => {
     if (!content.trim()) {
-      toast.error('اكتب شيئاً أولاً');
+      toast.error(t('writeFirst'));
       return;
     }
     
@@ -131,11 +131,11 @@ export default function CreatePost() {
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error('فشل في النشر');
-      toast.success('تم النشر بنجاح! ✨');
+      if (!res.ok) throw new Error(t('publishFailed'));
+      toast.success(t('publishSuccess'));
       navigate('/');
     } catch (err) {
-      toast.error('حدث خطأ أثناء النشر');
+      toast.error(t('publishError'));
     } finally {
       setPublishing(false);
     }
@@ -149,14 +149,14 @@ export default function CreatePost() {
           <button onClick={() => navigate(-1)} className="text-white">
             <X className="w-6 h-6" />
           </button>
-          <h1 className="text-white font-bold text-lg">إنشاء منشور</h1>
+          <h1 className="text-white font-bold text-lg">{t('createPostTitle')}</h1>
           <button
             onClick={handlePublish}
             disabled={publishing || !content.trim()}
             className="px-4 py-1.5 bg-emerald-600 text-white rounded-full text-sm font-bold disabled:opacity-50 flex items-center gap-1"
           >
             {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            نشر
+            {t('publishBtn')}
           </button>
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function CreatePost() {
               }`}
             >
               <ct.icon className="w-4 h-4" />
-              {ct.labelKey ? t(ct.labelKey) : ct.label}
+              {ct.labelKey ? t(ct.labelKey) : ct.key}
             </button>
           ))}
         </div>
@@ -194,7 +194,7 @@ export default function CreatePost() {
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="شارك فكرتك مع المجتمع..."
+          placeholder={t('sharePlaceholder')}
           className="w-full min-h-[150px] bg-card text-foreground rounded-xl p-4 border border-border focus:border-primary focus:outline-none resize-none text-base leading-relaxed placeholder:text-muted-foreground"
           dir={dir}
           maxLength={5000}
@@ -231,7 +231,7 @@ export default function CreatePost() {
               className="w-full py-12 border-2 border-dashed border-border/10 rounded-xl text-muted-foreground hover:border-emerald-600 hover:text-emerald-500 transition-colors flex flex-col items-center gap-2"
             >
               <Image className="w-8 h-8" />
-              <span className="text-sm">إضافة صورة أو فيديو</span>
+              <span className="text-sm">{t('addMediaBtn')}</span>
             </button>
           )}
         </div>
@@ -250,7 +250,7 @@ export default function CreatePost() {
                     : 'bg-muted/30 text-muted-foreground hover:bg-muted/50'
                 }`}
               >
-                {cat.emoji} {cat.labelKey ? t(cat.labelKey) : cat.label}
+                {cat.emoji} {cat.labelKey ? t(cat.labelKey) : cat.key}
               </button>
             ))}
           </div>
