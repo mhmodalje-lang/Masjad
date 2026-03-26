@@ -781,6 +781,46 @@ try:
 except Exception:
     pass
 
+# Load enriched educational content
+_ACADEMY_ENRICHED = {}
+_enriched_path = _os.path.join(_os.path.dirname(_os.path.dirname(__file__)), "data", "academy_enriched.json")
+try:
+    with open(_enriched_path, "r", encoding="utf-8") as _f:
+        _ACADEMY_ENRICHED = _json.load(_f)
+except Exception:
+    pass
+
+
+def _merge_enriched_content(track_id: str, lesson_id: int, original_content: dict) -> dict:
+    """Merge enriched educational content with original lesson content.
+    Enriched fields (intro, story, explanation, importance, examples, tip) 
+    are added to the original content, enriching the lesson with proper teaching methodology."""
+    enriched = _ACADEMY_ENRICHED.get(track_id, {}).get(str(lesson_id), {})
+    if not enriched:
+        return original_content
+    
+    merged = dict(original_content)
+    
+    # Add enriched fields that don't exist in original
+    for key in ['intro', 'story', 'explanation', 'importance', 'tip']:
+        if key in enriched and key not in merged:
+            merged[key] = enriched[key]
+        elif key in enriched and key in merged:
+            # If original is empty/short, use enriched version
+            orig_val = merged[key]
+            if isinstance(orig_val, dict):
+                orig_text = orig_val.get('ar', '') or orig_val.get('en', '')
+            else:
+                orig_text = str(orig_val)
+            if len(orig_text) < 30:
+                merged[key] = enriched[key]
+    
+    # Add examples if not present
+    if 'examples' in enriched and 'examples' not in merged:
+        merged['examples'] = enriched['examples']
+    
+    return merged
+
 def _translate_content(content: dict, lang: str) -> dict:
     """Recursively translate all translatable fields in content."""
     if content.get("status") == "placeholder":
@@ -1003,8 +1043,9 @@ async def academy_nooraniya_lesson(lesson_id: int, locale: str = "ar"):
         "xp": lesson.get("xp", 15),
     }
 
-    # Translate content
+    # Merge enriched content + Translate content
     content = lesson.get("content", {})
+    content = _merge_enriched_content("nooraniya", lesson_id, content)
     result["content"] = _translate_content(content, lang)
 
     # Translate quiz
@@ -1088,8 +1129,9 @@ async def academy_aqeedah_lesson(lesson_id: int, locale: str = "ar"):
         "xp": lesson.get("xp", 20),
     }
 
-    # Translate content
+    # Merge enriched content + Translate content
     content = lesson.get("content", {})
+    content = _merge_enriched_content("aqeedah", lesson_id, content)
     result["content"] = _translate_content(content, lang)
 
     # Translate quiz
@@ -1126,8 +1168,9 @@ async def academy_fiqh_lesson(lesson_id: int, locale: str = "ar"):
         "xp": lesson.get("xp", 20),
     }
 
-    # Translate content (same pattern as Aqeedah)
+    # Merge enriched content + Translate content
     content = lesson.get("content", {})
+    content = _merge_enriched_content("fiqh", lesson_id, content)
     result["content"] = _translate_content(content, lang)
 
     quiz = lesson.get("quiz", {})
@@ -1163,8 +1206,9 @@ async def academy_seerah_lesson(lesson_id: int, locale: str = "ar"):
         "xp": lesson.get("xp", 20),
     }
 
-    # Translate content
+    # Merge enriched content + Translate content
     content = lesson.get("content", {})
+    content = _merge_enriched_content("seerah", lesson_id, content)
     result["content"] = _translate_content(content, lang)
 
     quiz = lesson.get("quiz", {})
