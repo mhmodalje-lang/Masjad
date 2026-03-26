@@ -92,12 +92,12 @@ export default function GlobalQuranVerse({
 
       if (json.success) {
         const verseData: GlobalVerseData = {
-          arabic_text: json.arabic_text || '',
+          arabic_text: json.arabic_text || json.text || '',
           translation: json.translation || '',
           tafsir: json.tafsir || '',
           tafsir_source: json.tafsir_source || '',
           surah_name: json.surah_name || '',
-          surah_name_translated: json.surah_name_translated || '',
+          surah_name_translated: json.surah_name_translated || json.surah_name || '',
           verse_number: json.verse_number || ayahId,
           audio_url: json.audio_url || '',
           verse_key: json.verse_key || `${surahId}:${ayahId}`,
@@ -253,7 +253,7 @@ export default function GlobalQuranVerse({
         )}
 
         {/* Explanation / Tafsir toggle */}
-        {showExplanation && data.explanation && data.explanation !== data.translation && (
+        {showExplanation && data.tafsir && data.tafsir !== data.translation && (
           <div className="mt-3">
             <button
               onClick={() => setExplanationOpen(!explanationOpen)}
@@ -272,11 +272,11 @@ export default function GlobalQuranVerse({
             {explanationOpen && (
               <div className="mt-2 p-3 rounded-xl bg-amber-500/5 border border-amber-400/10">
                 <p className="text-sm text-foreground/80 leading-relaxed" dir="auto">
-                  {data.explanation}
+                  {data.tafsir}
                 </p>
-                {data.explanation_source && (
+                {data.tafsir_source && (
                   <p className="text-[10px] text-muted-foreground/50 mt-2 text-end" dir="auto">
-                    — {data.explanation_source}
+                    — {data.tafsir_source}
                   </p>
                 )}
               </div>

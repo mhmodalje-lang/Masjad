@@ -279,31 +279,41 @@ async def single_verse(
             return {
                 "success": True, "verse_key": verse_key, "verse_number": ayah_id,
                 "text": cached.get("text", ""),
+                "arabic_text": cached.get("arabic_text", ""),
+                "translation": cached.get("translation", ""),
                 "tafsir": cached.get("tafsir", ""),
                 "tafsir_source": cached.get("tafsir_source", ""),
                 "surah_name": cached.get("surah_name", ""),
+                "surah_name_translated": cached.get("surah_name_translated", ""),
                 "audio_url": cached.get("audio_url", ""),
                 "language": lang, "cached": True,
             }
     except Exception:
         pass
 
+    # ── Always fetch Arabic text for all languages ──
+    arabic_text = ""
+    try:
+        async with httpx.AsyncClient(timeout=30) as c:
+            r = await c.get(f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
+                params={"fields": "text_uthmani", "words": "false"})
+            r.raise_for_status()
+            arabic_text = r.json().get("verse", {}).get("text_uthmani", "")
+    except Exception:
+        pass
+
     text = ""
+    translation = ""
     surah_name = ""
+    surah_name_translated = ""
 
     # Get verse text in user's language
     if lang == "ar":
-        try:
-            async with httpx.AsyncClient(timeout=30) as c:
-                r = await c.get(f"{QURAN_V4_BASE}/verses/by_key/{verse_key}",
-                    params={"fields": "text_uthmani", "words": "false"})
-                r.raise_for_status()
-                text = r.json().get("verse", {}).get("text_uthmani", "")
-        except Exception:
-            pass
+        text = arabic_text
     elif lang in QURANENC_KEYS:
         d = await _quranenc_verse(surah_id, ayah_id, QURANENC_KEYS[lang])
         text = d.get("text", "")
+        translation = text
     else:
         tr_id = QURANCOM_IDS.get(lang, 20)
         try:
@@ -314,6 +324,7 @@ async def single_verse(
                 vd = r.json().get("verse", {})
                 if vd.get("translations"):
                     text = _clean(vd["translations"][0].get("text", ""))
+                    translation = text
         except Exception:
             pass
 
@@ -325,8 +336,10 @@ async def single_verse(
                 ch = r.json().get("chapter", {})
                 if lang == "ar":
                     surah_name = ch.get("name_arabic", "")
+                    surah_name_translated = surah_name
                 else:
-                    surah_name = ch.get("translated_name", {}).get("name", ch.get("name_simple", ""))
+                    surah_name = ch.get("name_arabic", "")
+                    surah_name_translated = ch.get("translated_name", {}).get("name", ch.get("name_simple", ""))
     except Exception:
         pass
 
@@ -338,8 +351,10 @@ async def single_verse(
 
     audio_url = f"https://everyayah.com/data/Alafasy_128kbps/{str(surah_id).zfill(3)}{str(ayah_id).zfill(3)}.mp3"
 
-    result = {"text": text, "tafsir": tafsir_text, "tafsir_source": tafsir_source,
-              "surah_name": surah_name, "audio_url": audio_url}
+    result = {"text": text, "arabic_text": arabic_text, "translation": translation,
+              "tafsir": tafsir_text, "tafsir_source": tafsir_source,
+              "surah_name": surah_name, "surah_name_translated": surah_name_translated,
+              "audio_url": audio_url}
 
     # Cache
     try:
