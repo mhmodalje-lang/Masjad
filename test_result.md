@@ -372,3 +372,95 @@ user_problem_statement: "User wants the app to respect device silent/vibrate mod
 
 ---
 
+
+
+---
+
+## Academy Translation Fix (Current Task - March 26, 2026)
+
+user_problem_statement: "Noor Academy (5 tracks, 240 lessons) has broken translations. Content and quizzes only in Arabic/English despite titles being translated. Need proper translations for all 8 languages."
+
+### Changes Made:
+1. **Generated AI translations** for 896 unique strings across 7 languages (de, fr, tr, ru, sv, nl, el) using GPT-4.1-mini
+2. **Created `/app/backend/data/academy_translations.json`** - Translation cache with all translations
+3. **Updated `kids_learn.py`** - Added `_translate_content()`, `_translate_list()`, `_translate_quiz()` helper functions
+4. **Updated `_t()` function** - Now checks translation cache when direct translation not found in data
+5. **Fixed quiz translation** - Quiz questions, correct answers, and options now properly translated
+6. **Fixed list translation** - List items that are translation dicts now properly resolved
+
+### APIs to Test:
+1. GET /api/kids-learn/academy/aqeedah/lesson/1?locale=de - German Aqeedah
+2. GET /api/kids-learn/academy/fiqh/lesson/1?locale=fr - French Fiqh
+3. GET /api/kids-learn/academy/seerah/lesson/1?locale=tr - Turkish Seerah
+4. GET /api/kids-learn/academy/nooraniya/lesson/1?locale=ru - Russian Nooraniya
+5. GET /api/kids-learn/academy/adab/1?locale=sv - Swedish Adab
+6. GET /api/kids-learn/academy/aqeedah/lesson/5?locale=el - Greek Aqeedah
+7. GET /api/kids-learn/academy/fiqh/lesson/3?locale=nl - Dutch Fiqh
+
+---
+
+## Noor Academy Translation System Testing (March 26, 2026)
+
+### ✅ 100% SUCCESS (7/7 tests passed) - All Translation Requirements Met
+
+**Test Environment:**
+- Backend URL: https://prayer-phone-mode.preview.emergentagent.com
+- Testing Agent: backend_test.py
+- Date: March 26, 2026
+
+**CRITICAL TRANSLATION VERIFICATION COMPLETE:**
+
+1. ✅ **GET /api/kids-learn/academy/aqeedah/lesson/1?locale=de** - German Aqeedah Lesson 1
+   - Title: "Tawheed — Bedeutung" (German)
+   - Quiz Question: "Was bedeutet La Ilaha Illa Allah?" (German)
+   - Quiz Options: ["Kein Gott außer Allah", "Allah ist groß", "Lob sei Allah"] (German)
+   - Content: Properly structured German content with meaning and types
+
+2. ✅ **GET /api/kids-learn/academy/fiqh/lesson/1?locale=fr** - French Fiqh Lesson 1
+   - Title: "Purification — Introduction" (French)
+   - Quiz Question: "Quelle est la condition pour que la prière soit valide ?" (French)
+   - Content: French content about purification types and methods
+
+3. ✅ **GET /api/kids-learn/academy/seerah/lesson/1?locale=tr** - Turkish Seerah Lesson 1
+   - Quiz Question: "Araplar İslam'dan önce neye tapardı?" (Turkish)
+   - Content: Turkish content verified
+
+4. ✅ **GET /api/kids-learn/academy/nooraniya/lesson/1?locale=ru** - Russian Nooraniya Lesson 1
+   - Quiz Question: "Какая буква звучит /b/?" (Russian)
+   - Content: Russian content verified
+
+5. ✅ **GET /api/kids-learn/academy/adab/1?locale=sv** - Swedish Adab Lesson 1
+   - Title: "Mat- & dryckesetikett" (Swedish)
+   - Rules: ["Säg Bismillah före maten", "Ät med höger hand", "Ät det som är närmast dig", "Kritisera inte maten", "Säg Alhamdulillah efter maten"] (Swedish)
+   - Hadith: "Profeten ﷺ sade: \"O pojke, nämn Allahs namn, ät med höger hand och ät det som är närmast\"" (Swedish)
+
+6. ✅ **GET /api/kids-learn/academy/aqeedah/lesson/5?locale=el** - Greek Aqeedah Lesson 5
+   - Quiz Question: "Ποιο είναι το μεγαλύτερο αμάρτημα;" (Greek)
+   - Content: Greek content verified
+
+7. ✅ **GET /api/kids-learn/academy/fiqh/lesson/3?locale=nl** - Dutch Fiqh Lesson 3
+   - Quiz Question: "Wat breekt wudu?" (Dutch)
+   - Content: Dutch content verified
+
+**Key Validation Completed:**
+- ✅ NO English content found in non-English locale requests
+- ✅ NO raw translation dictionaries (like {ar: ..., en: ...}) in responses
+- ✅ Quiz questions properly translated to requested locale
+- ✅ Quiz options are translated strings, not translation dicts
+- ✅ Lesson content fields contain actual translated strings
+- ✅ All 7 tested languages (de, fr, tr, ru, sv, el, nl) working correctly
+- ✅ Different endpoint structures handled correctly (lesson vs adab response format)
+
+**Technical Notes:**
+- Fixed backend_test.py to handle different response structures (lesson vs adab)
+- All endpoints return proper JSON with success=true
+- Content structures vary by lesson type but all properly translated
+- Translation system successfully resolves content from academy_translations.json cache
+
+**Testing Agent Notes:**
+- Noor Academy translation system is fully functional across all tested languages
+- All critical requirements from review request have been met
+- No English content leakage found in non-English locales
+- Translation quality appears high with proper Islamic terminology
+- System handles complex content structures (lists, nested objects) correctly
+

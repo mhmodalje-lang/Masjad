@@ -770,15 +770,98 @@ NOORANIYA_LESSONS = NOORANIYA_BASE_LESSONS + NOORANIYA_ALL_LESSONS_EXTENDED
 
 SUPPORTED_LANGS = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
 
+# Load translation cache for academy content
+import json as _json
+import os as _os
+_ACADEMY_TRANSLATIONS = {}
+_translations_path = _os.path.join(_os.path.dirname(_os.path.dirname(__file__)), "data", "academy_translations.json")
+try:
+    with open(_translations_path, "r", encoding="utf-8") as _f:
+        _ACADEMY_TRANSLATIONS = _json.load(_f)
+except Exception:
+    pass
+
+def _translate_content(content: dict, lang: str) -> dict:
+    """Recursively translate all translatable fields in content."""
+    if content.get("status") == "placeholder":
+        return {"placeholder": True, "message": _t(content.get("message", {}), lang)}
+    
+    translated = {}
+    for key, val in content.items():
+        if key in ("status",):
+            translated[key] = val
+        elif isinstance(val, dict) and any(k in val for k in ("ar", "en")):
+            # Check if this is a translatable dict or a nested structure
+            if all(isinstance(v, str) for v in val.values()):
+                # Pure translation dict like {"ar": "...", "en": "..."}
+                translated[key] = _t(val, lang)
+            else:
+                # Nested dict - recurse
+                translated[key] = _translate_content(val, lang)
+        elif isinstance(val, list):
+            translated[key] = _translate_list(val, lang)
+        else:
+            translated[key] = val
+    return translated
+
+
+def _translate_list(items: list, lang: str) -> list:
+    """Translate a list of items (dicts, strings, etc)."""
+    result = []
+    for item in items:
+        if isinstance(item, dict):
+            # Check if this dict IS a translation dict (has ar/en keys with string values)
+            if any(k in item for k in ("ar", "en")) and all(isinstance(v, str) for v in item.values()):
+                result.append(_t(item, lang))
+            else:
+                # Nested dict with mixed keys
+                translated_item = {}
+                for k, v in item.items():
+                    if isinstance(v, dict) and any(kk in v for kk in ("ar", "en")):
+                        translated_item[k] = _t(v, lang)
+                    elif isinstance(v, list):
+                        translated_item[k] = _translate_list(v, lang)
+                    else:
+                        translated_item[k] = v
+                result.append(translated_item)
+        else:
+            result.append(item)
+    return result
+
+
+def _translate_quiz(quiz: dict, lang: str) -> dict:
+    """Translate quiz question, correct answer, and options."""
+    question = quiz.get("question", {})
+    correct = quiz.get("correct", {})
+    options = quiz.get("options", [])
+    return {
+        "type": quiz.get("type", ""),
+        "question": _t(question, lang) if isinstance(question, dict) else question,
+        "correct": _t(correct, lang) if isinstance(correct, dict) else correct,
+        "options": [_t(opt, lang) if isinstance(opt, dict) else opt for opt in options],
+    }
+
 def _resolve_lang(locale: str) -> str:
     if locale == "de-AT":
         return "de"
     return locale if locale in SUPPORTED_LANGS else "en"
 
 def _t(obj, lang: str, fallback: str = "en"):
-    """Translate a multilingual dict to the target language."""
+    """Translate a multilingual dict to the target language, with LLM translation fallback."""
     if isinstance(obj, dict):
-        return obj.get(lang, obj.get(fallback, ""))
+        # Direct translation available
+        if lang in obj:
+            return obj[lang]
+        
+        # Try LLM translation cache
+        en_text = obj.get("en", "")
+        if en_text and lang not in ("ar", "en") and en_text in _ACADEMY_TRANSLATIONS:
+            cached = _ACADEMY_TRANSLATIONS[en_text]
+            if lang in cached:
+                return cached[lang]
+        
+        # Fallback to English
+        return obj.get(fallback, "")
     return obj
 
 
@@ -922,27 +1005,11 @@ async def academy_nooraniya_lesson(lesson_id: int, locale: str = "ar"):
 
     # Translate content
     content = lesson.get("content", {})
-    translated_content = {}
-    for key, val in content.items():
-        if isinstance(val, dict) and ("ar" in val or "en" in val):
-            translated_content[key] = _t(val, lang)
-        elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
-            translated_content[key] = [
-                {k: _t(v, lang) if isinstance(v, dict) and ("ar" in v or "en" in v) else v for k, v in item.items()}
-                for item in val
-            ]
-        else:
-            translated_content[key] = val
-    result["content"] = translated_content
+    result["content"] = _translate_content(content, lang)
 
     # Translate quiz
     quiz = lesson.get("quiz", {})
-    result["quiz"] = {
-        "type": quiz.get("type", ""),
-        "question": _t(quiz.get("question", {}), lang),
-        "correct": quiz.get("correct"),
-        "options": quiz.get("options", []),
-    }
+    result["quiz"] = _translate_quiz(quiz, lang)
 
     return {
         "success": True,
@@ -1023,33 +1090,11 @@ async def academy_aqeedah_lesson(lesson_id: int, locale: str = "ar"):
 
     # Translate content
     content = lesson.get("content", {})
-    if content.get("status") == "placeholder":
-        result["content"] = {
-            "placeholder": True,
-            "message": _t(content.get("message", {}), lang)
-        }
-    else:
-        translated_content = {}
-        for key, val in content.items():
-            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
-                translated_content[key] = _t(val, lang)
-            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
-                translated_content[key] = [
-                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
-                    for item in val
-                ]
-            else:
-                translated_content[key] = val
-        result["content"] = translated_content
+    result["content"] = _translate_content(content, lang)
 
     # Translate quiz
     quiz = lesson.get("quiz", {})
-    result["quiz"] = {
-        "type": quiz.get("type", ""),
-        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
-        "correct": quiz.get("correct"),
-        "options": quiz.get("options", []),
-    }
+    result["quiz"] = _translate_quiz(quiz, lang)
 
     return {
         "success": True,
@@ -1083,32 +1128,10 @@ async def academy_fiqh_lesson(lesson_id: int, locale: str = "ar"):
 
     # Translate content (same pattern as Aqeedah)
     content = lesson.get("content", {})
-    if content.get("status") == "placeholder":
-        result["content"] = {
-            "placeholder": True,
-            "message": _t(content.get("message", {}), lang)
-        }
-    else:
-        translated_content = {}
-        for key, val in content.items():
-            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
-                translated_content[key] = _t(val, lang)
-            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
-                translated_content[key] = [
-                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
-                    for item in val
-                ]
-            else:
-                translated_content[key] = val
-        result["content"] = translated_content
+    result["content"] = _translate_content(content, lang)
 
     quiz = lesson.get("quiz", {})
-    result["quiz"] = {
-        "type": quiz.get("type", ""),
-        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
-        "correct": quiz.get("correct"),
-        "options": quiz.get("options", []),
-    }
+    result["quiz"] = _translate_quiz(quiz, lang)
 
     return {
         "success": True,
@@ -1142,32 +1165,10 @@ async def academy_seerah_lesson(lesson_id: int, locale: str = "ar"):
 
     # Translate content
     content = lesson.get("content", {})
-    if content.get("status") == "placeholder":
-        result["content"] = {
-            "placeholder": True,
-            "message": _t(content.get("message", {}), lang)
-        }
-    else:
-        translated_content = {}
-        for key, val in content.items():
-            if isinstance(val, dict) and any(k in val for k in ["ar", "en"]):
-                translated_content[key] = _t(val, lang)
-            elif isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
-                translated_content[key] = [
-                    {k: _t(v, lang) if isinstance(v, dict) and any(kk in v for kk in ["ar", "en"]) else v for k, v in item.items()}
-                    for item in val
-                ]
-            else:
-                translated_content[key] = val
-        result["content"] = translated_content
+    result["content"] = _translate_content(content, lang)
 
     quiz = lesson.get("quiz", {})
-    result["quiz"] = {
-        "type": quiz.get("type", ""),
-        "question": _t(quiz.get("question", {}), lang) if isinstance(quiz.get("question"), dict) else quiz.get("question", ""),
-        "correct": quiz.get("correct"),
-        "options": quiz.get("options", []),
-    }
+    result["quiz"] = _translate_quiz(quiz, lang)
 
     return {
         "success": True,

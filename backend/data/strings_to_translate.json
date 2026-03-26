@@ -1,0 +1,3666 @@
+{
+  "total": 913,
+  "target_languages": [
+    "de",
+    "fr",
+    "tr",
+    "ru",
+    "sv",
+    "nl",
+    "el"
+  ],
+  "strings": [
+    {
+      "en": "\"Allah does not forgive association with Him\" (4:48)",
+      "ar": "﴿إِنَّ اللَّهَ لَا يَغْفِرُ أَن يُشْرَكَ بِهِ﴾"
+    },
+    {
+      "en": "\"Allah is the Creator of all things\" (39:62)",
+      "ar": "﴿اللَّهُ خَالِقُ كُلِّ شَيْءٍ﴾"
+    },
+    {
+      "en": "\"And We sent down from the sky purifying water\" (Quran 25:48)",
+      "ar": "﴿وَأَنزَلْنَا مِنَ السَّمَاءِ مَاءً طَهُورًا﴾"
+    },
+    {
+      "en": "\"Did He not find you an orphan and give you refuge?\" (93:6)",
+      "ar": "﴿أَلَمْ يَجِدْكَ يَتِيمًا فَآوَىٰ﴾"
+    },
+    {
+      "en": "\"Glory be to the One who took His servant by night from Masjid al-Haram to Masjid al-Aqsa\" (17:1)",
+      "ar": "﴿سُبْحَانَ الَّذِي أَسْرَىٰ بِعَبْدِهِ لَيْلًا مِّنَ الْمَسْجِدِ الْحَرَامِ إِلَى الْمَسْجِدِ الْأَقْصَى﴾"
+    },
+    {
+      "en": "\"Have you not seen how your Lord dealt with the companions of the elephant?\" (105:1)",
+      "ar": "﴿أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ﴾"
+    },
+    {
+      "en": "\"So turn your face toward Masjid al-Haram\" (2:144)",
+      "ar": "﴿فَوَلِّ وَجْهَكَ شَطْرَ الْمَسْجِدِ الْحَرَامِ﴾"
+    },
+    {
+      "en": "\"Then seek clean earth\" (Quran 4:43)",
+      "ar": "﴿فَتَيَمَّمُوا صَعِيدًا طَيِّبًا﴾"
+    },
+    {
+      "en": "\"When My servants ask about Me, I am near. I respond\" (2:186)",
+      "ar": "﴿وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ أُجِيبُ دَعْوَةَ الدَّاعِ﴾"
+    },
+    {
+      "en": "10 AH",
+      "ar": "السنة 10 هـ"
+    },
+    {
+      "en": "10%",
+      "ar": "10%"
+    },
+    {
+      "en": "100",
+      "ar": "100"
+    },
+    {
+      "en": "100 grams",
+      "ar": "100 غرام"
+    },
+    {
+      "en": "17 Ramadan, 2 AH",
+      "ar": "17 رمضان السنة 2 هـ"
+    },
+    {
+      "en": "2.5%",
+      "ar": "2.5%"
+    },
+    {
+      "en": "2.5% of wealth when it reaches Nisab",
+      "ar": "2.5% من الأموال إذا بلغت النصاب"
+    },
+    {
+      "en": "3 days each month",
+      "ar": "صيام ثلاثة أيام من كل شهر"
+    },
+    {
+      "en": "5 AH",
+      "ar": "السنة 5 هـ"
+    },
+    {
+      "en": "5%",
+      "ar": "5%"
+    },
+    {
+      "en": "5% or 10% depending on irrigation",
+      "ar": "5% أو 10% حسب طريقة الري"
+    },
+    {
+      "en": "50",
+      "ar": "50"
+    },
+    {
+      "en": "50 grams",
+      "ar": "50 غرام"
+    },
+    {
+      "en": "8 AH",
+      "ar": "السنة 8 هـ"
+    },
+    {
+      "en": "85 grams",
+      "ar": "85 غرام"
+    },
+    {
+      "en": "85 grams of gold",
+      "ar": "85 غرام ذهب"
+    },
+    {
+      "en": "99",
+      "ar": "99"
+    },
+    {
+      "en": "A Muslim seeks safety for their religion even in faraway lands",
+      "ar": "المسلم يبحث عن الأمان لدينه ولو في بلاد بعيدة"
+    },
+    {
+      "en": "A Sa' of the staple food of the land (about 3kg of rice or dates)",
+      "ar": "صاع من غالب قوت أهل البلد (حوالي 3 كيلو من الأرز أو التمر)"
+    },
+    {
+      "en": "A believer combines fear of Allah and hope",
+      "ar": "المؤمن يجمع بين خوف الله ورجائه"
+    },
+    {
+      "en": "A month after Ramadan",
+      "ar": "بعد رمضان بشهر"
+    },
+    {
+      "en": "A person in Ihram may use perfume",
+      "ar": "يجوز للمُحرم استعمال العطر"
+    },
+    {
+      "en": "Abdullah",
+      "ar": "عبدالله بن زيد"
+    },
+    {
+      "en": "Abdullah bin Zayd had a dream about the Adhan, the Prophet ﷺ approved it — and ordered Bilal to call because his voice was more beautiful",
+      "ar": "رأى عبدالله بن زيد رؤيا بالأذان فأقرّها النبي ﷺ — وأمر بلالاً أن يؤذن لأن صوته أندى"
+    },
+    {
+      "en": "Ability to fast",
+      "ar": "القدرة على الصيام"
+    },
+    {
+      "en": "Abraham",
+      "ar": "إبراهيم"
+    },
+    {
+      "en": "Abraham",
+      "ar": "إبراهيم عليه السلام"
+    },
+    {
+      "en": "Abstaining from nullifiers from Fajr to Maghrib",
+      "ar": "الإمساك عن المفطرات من الفجر إلى المغرب"
+    },
+    {
+      "en": "Abu Bakr",
+      "ar": "أبو بكر"
+    },
+    {
+      "en": "Abu Bakr & Umar",
+      "ar": "أبو بكر وعمر"
+    },
+    {
+      "en": "Abu Bakr — first free man",
+      "ar": "أبو بكر — أول رجل حر"
+    },
+    {
+      "en": "Abu Talib & Khadijah",
+      "ar": "أبو طالب وخديجة"
+    },
+    {
+      "en": "Abu Talib and Khadijah",
+      "ar": "أبو طالب وخديجة"
+    },
+    {
+      "en": "Adding/omitting",
+      "ar": "عند الزيادة أو النقص في الصلاة"
+    },
+    {
+      "en": "After 3 years Allah commanded public preaching — he climbed Mount Safa and called Quraysh: 'If I told you an army was about to attack, would you believe me?' They said: Yes. He said: 'I am a warner to you of severe punishment'",
+      "ar": "بعد 3 سنوات أمر الله نبيه بالجهر بالدعوة — صعد على جبل الصفا ونادى قريشاً: يا معشر قريش لو أخبرتكم أن خيلاً تريد أن تُغير عليكم أكنتم مصدّقي؟ قالوا: نعم — قال: فإني نذير لكم بين يدي عذاب شديد"
+    },
+    {
+      "en": "After conquering Makkah, Muslims faced Hawazin at Hunayn — they almost lost but the Prophet ﷺ stood firm and victory returned",
+      "ar": "بعد فتح مكة واجه المسلمون هوازن في حنين — كاد المسلمون يُهزمون لكن ثبت النبي ﷺ وعاد النصر"
+    },
+    {
+      "en": "After sunrise",
+      "ar": "بعد الشروق"
+    },
+    {
+      "en": "After the conquest of Makkah, delegations came from everywhere declaring Islam — year 9 AH was called the Year of Delegations",
+      "ar": "بعد فتح مكة جاءت الوفود من كل مكان تعلن إسلامها — سُمي العام 9 هـ بعام الوفود"
+    },
+    {
+      "en": "Age of discernment",
+      "ar": "التمييز"
+    },
+    {
+      "en": "Aisha",
+      "ar": "عائشة"
+    },
+    {
+      "en": "Al-Adl — The Just",
+      "ar": "العدل"
+    },
+    {
+      "en": "Al-Afuww — The Pardoner",
+      "ar": "العفو"
+    },
+    {
+      "en": "Al-Aleem",
+      "ar": "العليم"
+    },
+    {
+      "en": "Al-Aleem — The All-Knowing",
+      "ar": "العليم"
+    },
+    {
+      "en": "Al-Azeez",
+      "ar": "العزيز"
+    },
+    {
+      "en": "Al-Azeez — The Almighty",
+      "ar": "العزيز"
+    },
+    {
+      "en": "Al-Baseer — The All-Seeing",
+      "ar": "البصير"
+    },
+    {
+      "en": "Al-Firdaws",
+      "ar": "الفردوس"
+    },
+    {
+      "en": "Al-Ghafoor",
+      "ar": "الغفور"
+    },
+    {
+      "en": "Al-Ghafoor — The Most Forgiving",
+      "ar": "الغفور"
+    },
+    {
+      "en": "Al-Hadi",
+      "ar": "الهادي"
+    },
+    {
+      "en": "Al-Hadi — The Guide",
+      "ar": "الهادي"
+    },
+    {
+      "en": "Al-Hakam — The Judge",
+      "ar": "الحكم"
+    },
+    {
+      "en": "Al-Hakeem — The Most Wise",
+      "ar": "الحكيم"
+    },
+    {
+      "en": "Al-Jabbar — The Compeller",
+      "ar": "الجبار"
+    },
+    {
+      "en": "Al-Lateef — The Most Subtle",
+      "ar": "اللطيف"
+    },
+    {
+      "en": "Al-Malik",
+      "ar": "الملك"
+    },
+    {
+      "en": "Al-Malik — The King",
+      "ar": "الملك"
+    },
+    {
+      "en": "Al-Qawiyy",
+      "ar": "القوي"
+    },
+    {
+      "en": "Al-Qawiyy — The Most Strong",
+      "ar": "القوي"
+    },
+    {
+      "en": "Al-Wahhab — The Bestower",
+      "ar": "الوهاب"
+    },
+    {
+      "en": "Ali",
+      "ar": "علي"
+    },
+    {
+      "en": "Ali",
+      "ar": "علي بن أبي طالب"
+    },
+    {
+      "en": "Ali slept in the Prophet's ﷺ bed to deceive Quraysh — the Prophet ﷺ left reciting: 'We have put a barrier before them'",
+      "ar": "نام علي في فراش النبي ﷺ ليلة الهجرة ليخدع قريشاً — والنبي ﷺ خرج وقرأ: ﴿وَجَعَلْنَا مِن بَيْنِ أَيْدِيهِمْ سَدًّا﴾"
+    },
+    {
+      "en": "Ali — first boy",
+      "ar": "علي بن أبي طالب — أول صبي"
+    },
+    {
+      "en": "Allah",
+      "ar": "الله"
+    },
+    {
+      "en": "Allah accepts repentance from His servants and rejoices in it",
+      "ar": "الله يقبل التوبة من عباده ويفرح بها"
+    },
+    {
+      "en": "Allah alone",
+      "ar": "الله وحده"
+    },
+    {
+      "en": "Allah bestows health, wellbeing and children",
+      "ar": "الله يهب الصحة والعافية والأولاد"
+    },
+    {
+      "en": "Allah completed the Islamic religion",
+      "ar": "أكمل الله الدين الإسلامي"
+    },
+    {
+      "en": "Allah erases bad deeds and pardons them completely",
+      "ar": "الله يمحو السيئات ويعفو عنها تماماً"
+    },
+    {
+      "en": "Allah forgives sins no matter how many if we repent to Him",
+      "ar": "الله يغفر الذنوب مهما كثرت إذا تبنا إليه"
+    },
+    {
+      "en": "Allah has 99 names",
+      "ar": "لله 99 اسماً حسناً"
+    },
+    {
+      "en": "Allah has 99 names, whoever memorizes them enters Paradise",
+      "ar": "لله تسعة وتسعون اسماً، من أحصاها دخل الجنة"
+    },
+    {
+      "en": "Allah hears our prayers even if we whisper",
+      "ar": "الله يسمع دعاءنا حتى لو همسنا"
+    },
+    {
+      "en": "Allah hears our prayers even if...",
+      "ar": "الله يسمع دعاءنا حتى لو..."
+    },
+    {
+      "en": "Allah is One",
+      "ar": "الله واحد أحد لا شريك له"
+    },
+    {
+      "en": "Allah is almighty and is never defeated",
+      "ar": "الله عزيز لا يُغلب أبداً"
+    },
+    {
+      "en": "Allah is great",
+      "ar": "الله كبير"
+    },
+    {
+      "en": "Allah is just and never wrongs anyone",
+      "ar": "الله عادل ولا يظلم أحداً أبداً"
+    },
+    {
+      "en": "Allah is just and wrongs no one",
+      "ar": "الله عادل لا يظلم أحداً"
+    },
+    {
+      "en": "Allah is strong, nothing in earth or heaven can overpower Him",
+      "ar": "الله قوي لا يُعجزه شيء في الأرض ولا في السماء"
+    },
+    {
+      "en": "Allah is subtle with His servants, managing their affairs gently",
+      "ar": "الله لطيف بعباده يدبر أمورهم بلطف"
+    },
+    {
+      "en": "Allah is the Creator of everything",
+      "ar": "الله خالق كل شيء"
+    },
+    {
+      "en": "Allah is the Judge between people on Judgment Day",
+      "ar": "الله هو الحاكم بين الناس يوم القيامة"
+    },
+    {
+      "en": "Allah is the King of heavens and earth",
+      "ar": "الله ملك السماوات والأرض"
+    },
+    {
+      "en": "Allah is wise in everything He does and decrees",
+      "ar": "الله حكيم في كل ما يفعله ويقدره"
+    },
+    {
+      "en": "Allah judging people for their deeds",
+      "ar": "محاسبة الله للعباد على أعمالهم"
+    },
+    {
+      "en": "Allah knows everything before it happens",
+      "ar": "الله يعلم كل شيء قبل أن يحدث"
+    },
+    {
+      "en": "Allah mends the broken and overpowers oppressors",
+      "ar": "الله يجبر الكسير ويقهر الظالمين"
+    },
+    {
+      "en": "Allah never dies",
+      "ar": "من كان يعبد الله فإن الله حي لا يموت"
+    },
+    {
+      "en": "Allah permitted His Prophet ﷺ to migrate to Madinah after Quraysh conspired to kill him",
+      "ar": "أذن الله لنبيه ﷺ بالهجرة إلى المدينة بعد أن تآمرت قريش على قتله"
+    },
+    {
+      "en": "Allah provides for birds, animals and all creatures",
+      "ar": "الله يرزق الطير والحيوانات وكل المخلوقات"
+    },
+    {
+      "en": "Allah sees everything — even in darkness",
+      "ar": "الله يرى كل شيء — حتى في الظلام"
+    },
+    {
+      "en": "Allah sent 25 prophets and messengers mentioned in Quran, first was Adam and last was Muhammad ﷺ",
+      "ar": "أرسل الله 25 نبياً ورسولاً ذُكروا في القرآن، وأولهم آدم وآخرهم محمد ﷺ"
+    },
+    {
+      "en": "Allah took His Prophet ﷺ from Masjid al-Haram to Masjid al-Aqsa then ascended through seven heavens — where the five daily prayers were ordained",
+      "ar": "أسرى الله بنبيه ﷺ من المسجد الحرام إلى المسجد الأقصى ثم عرج به إلى السماوات السبع — وهناك فُرضت الصلوات الخمس"
+    },
+    {
+      "en": "Allah wrote everything in the Preserved Tablet",
+      "ar": "كتب الله كل شيء في اللوح المحفوظ"
+    },
+    {
+      "en": "Allahu Akbar",
+      "ar": "الله أكبر"
+    },
+    {
+      "en": "Always",
+      "ar": "دائماً"
+    },
+    {
+      "en": "An oath is swearing by Allah — it's not permissible to swear by other than Allah",
+      "ar": "اليمين هو الحلف بالله — لا يجوز الحلف بغير الله"
+    },
+    {
+      "en": "An ordinary man",
+      "ar": "رجل عادي"
+    },
+    {
+      "en": "An-Nur",
+      "ar": "النور"
+    },
+    {
+      "en": "An-Nur — The Light",
+      "ar": "النور"
+    },
+    {
+      "en": "Angel of Death",
+      "ar": "ملك الموت"
+    },
+    {
+      "en": "Angels & Books Review",
+      "ar": "مراجعة الملائكة والكتب"
+    },
+    {
+      "en": "Angels are created from light, don't eat or drink, always obey Allah",
+      "ar": "الملائكة مخلوقون من نور، لا يأكلون ولا يشربون، يطيعون الله دائماً"
+    },
+    {
+      "en": "Angels created from light",
+      "ar": "الملائكة مخلوقون من نور"
+    },
+    {
+      "en": "Angels from?",
+      "ar": "مِم خُلقت الملائكة؟"
+    },
+    {
+      "en": "Angels opened his chest and purified his heart",
+      "ar": "شقّ الملائكة لصدره وتطهير قلبه"
+    },
+    {
+      "en": "Any direction",
+      "ar": "أي اتجاه"
+    },
+    {
+      "en": "Any food",
+      "ar": "أي طعام"
+    },
+    {
+      "en": "Anyone",
+      "ar": "أي أحد"
+    },
+    {
+      "en": "Anything exiting from the private parts",
+      "ar": "الخارج من السبيلين"
+    },
+    {
+      "en": "Anytime",
+      "ar": "في أي وقت"
+    },
+    {
+      "en": "Ar-Rahman",
+      "ar": "الرحمن"
+    },
+    {
+      "en": "Ar-Rayyan",
+      "ar": "الريان"
+    },
+    {
+      "en": "Ar-Razzaq",
+      "ar": "الرزاق"
+    },
+    {
+      "en": "Ar-Razzaq — The Provider",
+      "ar": "الرزاق"
+    },
+    {
+      "en": "Arabs before Islam worshipped idols and lived in ignorance — they buried girls alive and fought over trivial matters",
+      "ar": "كان العرب قبل الإسلام يعبدون الأصنام ويعيشون في الجاهلية — كانوا يئدون البنات ويتحاربون لأتفه الأسباب"
+    },
+    {
+      "en": "Arafah",
+      "ar": "الوقوف بعرفة"
+    },
+    {
+      "en": "Arafah Day 9",
+      "ar": "عرفة يوم 9"
+    },
+    {
+      "en": "Archers left",
+      "ar": "ترك الرماة مواقعهم"
+    },
+    {
+      "en": "Archers left positions",
+      "ar": "ترك الرماة مواقعهم"
+    },
+    {
+      "en": "Arrange the five pillars correctly",
+      "ar": "رتّب أركان الإسلام الخمسة بالترتيب الصحيح"
+    },
+    {
+      "en": "Arrange the pillars of wudu",
+      "ar": "رتّب أركان الوضوء"
+    },
+    {
+      "en": "Arrange the stages of the Last Day",
+      "ar": "رتّب مراحل اليوم الآخر"
+    },
+    {
+      "en": "Arrange who cared for the Prophet ﷺ",
+      "ar": "رتّب من كفل النبي ﷺ"
+    },
+    {
+      "en": "As-Salam",
+      "ar": "السلام"
+    },
+    {
+      "en": "As-Samee",
+      "ar": "السميع"
+    },
+    {
+      "en": "As-Samee — The All-Hearing",
+      "ar": "السميع"
+    },
+    {
+      "en": "Asr",
+      "ar": "العصر"
+    },
+    {
+      "en": "Assessment",
+      "ar": "اختبار تقييمي"
+    },
+    {
+      "en": "Assessment — Level 4",
+      "ar": "اختبار شامل — المستوى الرابع"
+    },
+    {
+      "en": "At Maghrib",
+      "ar": "عند المغرب"
+    },
+    {
+      "en": "At Uhud victory turned to defeat when archers left their positions — the Prophet ﷺ was wounded — but he stood firm",
+      "ar": "في أحد تحول النصر إلى هزيمة عندما ترك الرماة مواقعهم — جُرح النبي ﷺ وكُسرت رباعيته — لكنه ثبت ﷺ"
+    },
+    {
+      "en": "At-Tawwab — Acceptor of Repentance",
+      "ar": "التواب"
+    },
+    {
+      "en": "Audio Matching",
+      "ar": "مطابقة صوتية"
+    },
+    {
+      "en": "Avenge me",
+      "ar": "اللهم انتقم منهم"
+    },
+    {
+      "en": "Badr",
+      "ar": "بدر"
+    },
+    {
+      "en": "Battles were for defense not aggression",
+      "ar": "كانت الغزوات للدفاع وليس للعدوان"
+    },
+    {
+      "en": "Beautiful Names?",
+      "ar": "كم أسماء الله الحسنى؟"
+    },
+    {
+      "en": "Because of Hajj",
+      "ar": "بسبب الحج"
+    },
+    {
+      "en": "Because of trade",
+      "ar": "بسبب التجارة"
+    },
+    {
+      "en": "Before Eid",
+      "ar": "قبل صلاة العيد"
+    },
+    {
+      "en": "Before Eid prayer",
+      "ar": "قبل صلاة العيد"
+    },
+    {
+      "en": "Before Fajr",
+      "ar": "قبل الفجر"
+    },
+    {
+      "en": "Being Muslim",
+      "ar": "الإسلام"
+    },
+    {
+      "en": "Being resident (not traveling)",
+      "ar": "الإقامة (ليس مسافراً)"
+    },
+    {
+      "en": "Belief in Allah",
+      "ar": "الإيمان بالله"
+    },
+    {
+      "en": "Belief in Allah's existence",
+      "ar": "الإيمان بوجود الله"
+    },
+    {
+      "en": "Belief in Angels",
+      "ar": "الإيمان بالملائكة"
+    },
+    {
+      "en": "Belief in Books",
+      "ar": "الإيمان بالكتب"
+    },
+    {
+      "en": "Belief in Divine Decree",
+      "ar": "الإيمان بالقدر"
+    },
+    {
+      "en": "Belief in His Lordship",
+      "ar": "الإيمان بربوبيته"
+    },
+    {
+      "en": "Belief in His Names and Attributes",
+      "ar": "الإيمان بأسمائه وصفاته"
+    },
+    {
+      "en": "Belief in His exclusive right to worship",
+      "ar": "الإيمان بألوهيته"
+    },
+    {
+      "en": "Belief in Messengers",
+      "ar": "الإيمان بالرسل"
+    },
+    {
+      "en": "Belief in Qadar means we should be lazy and not work",
+      "ar": "الإيمان بالقدر يعني أن نتكاسل ولا نعمل"
+    },
+    {
+      "en": "Belief in the Last Day",
+      "ar": "الإيمان باليوم الآخر"
+    },
+    {
+      "en": "Believe & follow",
+      "ar": "الإيمان به واتباع سنته"
+    },
+    {
+      "en": "Believe in Qadar and work hard",
+      "ar": "نؤمن بالقدر ونعمل بجد"
+    },
+    {
+      "en": "Believing & following",
+      "ar": "الإيمان به واتباع سنته"
+    },
+    {
+      "en": "Believing in him ﷺ",
+      "ar": "الإيمان به ﷺ"
+    },
+    {
+      "en": "Believing in his prophethood",
+      "ar": "الإيمان بنبوته ﷺ"
+    },
+    {
+      "en": "Bilal",
+      "ar": "بلال بن رباح"
+    },
+    {
+      "en": "Bilal — tortured with hot stones",
+      "ar": "بلال بن رباح — عُذّب بالحجارة الحارة"
+    },
+    {
+      "en": "Blessings on Halimah and her flock",
+      "ar": "البركة التي حلّت على حليمة وأغنامها"
+    },
+    {
+      "en": "Blood",
+      "ar": "الدم"
+    },
+    {
+      "en": "Blows the trumpet on Judgment Day",
+      "ar": "ينفخ في الصور يوم القيامة"
+    },
+    {
+      "en": "Bow: Subhana Rabbiyal Adheem",
+      "ar": "الركوع: سبحان ربي العظيم"
+    },
+    {
+      "en": "Bowing",
+      "ar": "الركوع"
+    },
+    {
+      "en": "Bowing (Ruku)",
+      "ar": "الركوع"
+    },
+    {
+      "en": "Brave",
+      "ar": "الشجاع"
+    },
+    {
+      "en": "Breaking fast with dates or water",
+      "ar": "الإفطار على تمر أو ماء"
+    },
+    {
+      "en": "Brings revelation",
+      "ar": "ينزل بالوحي"
+    },
+    {
+      "en": "But Allah wanted to save them by sending a great Prophet from among them",
+      "ar": "لكن الله أراد أن يُنقذهم بإرسال نبي عظيم من بينهم"
+    },
+    {
+      "en": "By intelligence",
+      "ar": "بالذكاء"
+    },
+    {
+      "en": "By luck",
+      "ar": "بالحظ"
+    },
+    {
+      "en": "By money",
+      "ar": "بالمال"
+    },
+    {
+      "en": "Caesar",
+      "ar": "قيصر"
+    },
+    {
+      "en": "Call upon Him at all times",
+      "ar": "ندعو في كل وقت"
+    },
+    {
+      "en": "Call with certainty and sincerity",
+      "ar": "ندعو بيقين وإخلاص"
+    },
+    {
+      "en": "Called Truthful/Trustworthy before prophethood",
+      "ar": "لُقّب بالصادق الأمين قبل النبوة"
+    },
+    {
+      "en": "Cave Hira",
+      "ar": "غار حراء"
+    },
+    {
+      "en": "Chance",
+      "ar": "الصدفة"
+    },
+    {
+      "en": "Changed in color, taste or smell by impurity — not valid for wudu",
+      "ar": "تغيّر لونه أو طعمه أو رائحته بالنجاسة — لا يصح الوضوء به"
+    },
+    {
+      "en": "Chastity and modesty",
+      "ar": "العفة والحياء"
+    },
+    {
+      "en": "Chose one tribe",
+      "ar": "اختار قبيلة واحدة"
+    },
+    {
+      "en": "Circumcision",
+      "ar": "الختان"
+    },
+    {
+      "en": "Clean with water or stones",
+      "ar": "الاستنجاء بالماء أو الاستجمار"
+    },
+    {
+      "en": "Cleaning after using toilet",
+      "ar": "الاستنجاء"
+    },
+    {
+      "en": "Companions were deeply grieved — Abu Bakr said: Whoever worshipped Muhammad, Muhammad has died. Whoever worships Allah, Allah is alive and never dies",
+      "ar": "حزن الصحابة حزناً شديداً — قال أبو بكر: من كان يعبد محمداً فإن محمداً قد مات ومن كان يعبد الله فإن الله حي لا يموت"
+    },
+    {
+      "en": "Comprehensive Review — L1",
+      "ar": "مراجعة شاملة — درس 1"
+    },
+    {
+      "en": "Comprehensive Review — L2",
+      "ar": "مراجعة شاملة — درس 2"
+    },
+    {
+      "en": "Comprehensive Review — L3",
+      "ar": "مراجعة شاملة — درس 3"
+    },
+    {
+      "en": "Comprehensive Review — L4",
+      "ar": "مراجعة شاملة — درس 4"
+    },
+    {
+      "en": "Comprehensive Review — L5",
+      "ar": "مراجعة شاملة — درس 5"
+    },
+    {
+      "en": "Comprehensive Review — L6",
+      "ar": "مراجعة شاملة — درس 6"
+    },
+    {
+      "en": "Comprehensive Review — L7",
+      "ar": "مراجعة شاملة — درس 7"
+    },
+    {
+      "en": "Comprehensive Review — L8",
+      "ar": "مراجعة شاملة — درس 8"
+    },
+    {
+      "en": "Comprehensive test",
+      "ar": "اختبار شامل لأركان الإسلام والإحسان والتوكل"
+    },
+    {
+      "en": "Congregational prayer is 27 times better than praying alone",
+      "ar": "صلاة الجماعة أفضل من صلاة الفرد بسبع وعشرين درجة"
+    },
+    {
+      "en": "Congregational prayer is better by how many degrees?",
+      "ar": "صلاة الجماعة أفضل بكم درجة؟"
+    },
+    {
+      "en": "Continue the mistake",
+      "ar": "نستمر في الخطأ"
+    },
+    {
+      "en": "Coughing",
+      "ar": "السعال"
+    },
+    {
+      "en": "Covering head for men",
+      "ar": "تغطية الرأس للرجال"
+    },
+    {
+      "en": "Covering the awrah",
+      "ar": "ستر العورة"
+    },
+    {
+      "en": "Created angels from light and jinn from fire",
+      "ar": "خلق الملائكة من نور والجن من نار"
+    },
+    {
+      "en": "Created heavens and earth",
+      "ar": "خلق السماوات والأرض"
+    },
+    {
+      "en": "Created humans from clay",
+      "ar": "خلق الإنسان من طين"
+    },
+    {
+      "en": "Creation",
+      "ar": "الخلق"
+    },
+    {
+      "en": "Crops and fruits",
+      "ar": "الزروع والثمار"
+    },
+    {
+      "en": "Crying from fear of Allah",
+      "ar": "البكاء من خشية الله"
+    },
+    {
+      "en": "Damma + Waw = long /uu/ sound",
+      "ar": "ضمة + واو = مد بالواو (صوت طويل /uu/)"
+    },
+    {
+      "en": "Dates or water",
+      "ar": "تمر أو ماء"
+    },
+    {
+      "en": "David",
+      "ar": "داود عليه السلام"
+    },
+    {
+      "en": "Day 10: Stone, sacrifice, shave, Tawaf",
+      "ar": "يوم 10: رمي جمرة العقبة والنحر والحلق والطواف"
+    },
+    {
+      "en": "Day 8: Go to Mina",
+      "ar": "يوم 8: التوجه لمنى"
+    },
+    {
+      "en": "Day 9: Stand at Arafah",
+      "ar": "يوم 9: الوقوف بعرفة"
+    },
+    {
+      "en": "Day of Arafah fasting expiates how many years?",
+      "ar": "صيام يوم عرفة يكفّر ذنوب كم سنة؟"
+    },
+    {
+      "en": "Days 11-13: Stone the Jamarat",
+      "ar": "أيام 11-13: رمي الجمرات"
+    },
+    {
+      "en": "Death",
+      "ar": "الموت"
+    },
+    {
+      "en": "Deeds are presented to Allah on these days",
+      "ar": "تُعرض الأعمال فيهما على الله"
+    },
+    {
+      "en": "Deep sleep",
+      "ar": "النوم العميق"
+    },
+    {
+      "en": "Defending him",
+      "ar": "الدفاع عنه"
+    },
+    {
+      "en": "Delaying Suhoor",
+      "ar": "تأخير السحور"
+    },
+    {
+      "en": "Despair",
+      "ar": "نيأس"
+    },
+    {
+      "en": "Despite all sorrow, the Prophet ﷺ continued his mission — steadfastness on truth is above everything",
+      "ar": "رغم كل الحزن استمر النبي ﷺ في دعوته — فالثبات على الحق أهم من كل شيء"
+    },
+    {
+      "en": "Dhuhr",
+      "ar": "الظهر"
+    },
+    {
+      "en": "Does Qadar mean laziness?",
+      "ar": "هل الإيمان بالقدر يعني الكسل؟"
+    },
+    {
+      "en": "Dog impurity",
+      "ar": "نجاسة الكلب"
+    },
+    {
+      "en": "Don't face or turn back to Qibla",
+      "ar": "عدم استقبال القبلة أو استدبارها"
+    },
+    {
+      "en": "Drinking",
+      "ar": "الشرب"
+    },
+    {
+      "en": "Dua is a great act of worship — we call upon Allah alone",
+      "ar": "الدعاء عبادة عظيمة — ندعو الله وحده ولا ندعو غيره"
+    },
+    {
+      "en": "Eating",
+      "ar": "الأكل"
+    },
+    {
+      "en": "Eating a lot",
+      "ar": "الأكل كثيراً"
+    },
+    {
+      "en": "Eating camel meat (according to some scholars)",
+      "ar": "أكل لحم الجِمال عند بعض العلماء"
+    },
+    {
+      "en": "Eating or drinking",
+      "ar": "الأكل والشرب"
+    },
+    {
+      "en": "Eating or drinking intentionally",
+      "ar": "الأكل أو الشرب عمداً"
+    },
+    {
+      "en": "Eating/drinking forgetfully",
+      "ar": "الأكل أو الشرب ناسياً"
+    },
+    {
+      "en": "Eid al-Adha",
+      "ar": "عيد الأضحى"
+    },
+    {
+      "en": "Eid al-Fitr",
+      "ar": "عيد الفطر"
+    },
+    {
+      "en": "Eid ghusl",
+      "ar": "غسل العيدين"
+    },
+    {
+      "en": "Eid prayer is a confirmed Sunnah — 2 rak'ahs with extra Takbeers",
+      "ar": "صلاة العيد سنة مؤكدة — ركعتان مع تكبيرات زائدة"
+    },
+    {
+      "en": "Either",
+      "ar": "أي رجل"
+    },
+    {
+      "en": "End of worldly life",
+      "ar": "نهاية الحياة الدنيا"
+    },
+    {
+      "en": "Endured his people's harm for many years",
+      "ar": "صبر على أذى قومه سنوات طويلة"
+    },
+    {
+      "en": "Enter with left foot",
+      "ar": "الدخول بالرجل اليسرى"
+    },
+    {
+      "en": "Eternal reward",
+      "ar": "الجزاء الأبدي"
+    },
+    {
+      "en": "Even enemies would entrust him with their belongings",
+      "ar": "حتى أعداؤه كانوا يودعون عنده أماناتهم"
+    },
+    {
+      "en": "Every day",
+      "ar": "كل يوم"
+    },
+    {
+      "en": "Every prayer",
+      "ar": "كل صلاة"
+    },
+    {
+      "en": "Every year",
+      "ar": "كل سنة"
+    },
+    {
+      "en": "Everything is over",
+      "ar": "لقد انتهى كل شيء"
+    },
+    {
+      "en": "Excessive continuous movement",
+      "ar": "الحركة الكثيرة المتوالية"
+    },
+    {
+      "en": "Exit with right foot",
+      "ar": "الخروج بالرجل اليمنى"
+    },
+    {
+      "en": "Expiates sins of one year",
+      "ar": "يكفّر ذنوب سنة"
+    },
+    {
+      "en": "Expiates sins of two years",
+      "ar": "يكفّر ذنوب سنتين"
+    },
+    {
+      "en": "Expiation for oath: feed 10 poor, clothe them, or free a slave; if unable, fast 3 days",
+      "ar": "كفارة اليمين: إطعام عشرة مساكين أو كسوتهم أو تحرير رقبة، فإن لم يجد فصيام ثلاثة أيام"
+    },
+    {
+      "en": "Facing the Qibla",
+      "ar": "استقبال القبلة"
+    },
+    {
+      "en": "Faith and good deeds",
+      "ar": "بالإيمان والعمل الصالح"
+    },
+    {
+      "en": "Faith, deeds & mercy",
+      "ar": "بالإيمان والعمل الصالح ورحمة الله"
+    },
+    {
+      "en": "Fajr",
+      "ar": "الفجر"
+    },
+    {
+      "en": "Fasting",
+      "ar": "الصيام"
+    },
+    {
+      "en": "Fasting Ashura",
+      "ar": "صيام عاشوراء"
+    },
+    {
+      "en": "Fasting Ramadan",
+      "ar": "صيام رمضان"
+    },
+    {
+      "en": "Fasting Ramadan obligatory for every mature Muslim",
+      "ar": "صيام رمضان فرض على كل مسلم بالغ"
+    },
+    {
+      "en": "Fasting day of Arafah",
+      "ar": "صيام يوم عرفة"
+    },
+    {
+      "en": "Fasting is a shield — protection from Hellfire",
+      "ar": "الصيام جُنّة — وقاية من النار"
+    },
+    {
+      "en": "Fasting — Piety and Patience",
+      "ar": "الصيام — تقوى وصبر"
+    },
+    {
+      "en": "Few numbers",
+      "ar": "قلة العدد"
+    },
+    {
+      "en": "Final Comprehensive Test",
+      "ar": "اختبار نهائي شامل"
+    },
+    {
+      "en": "Final Tashahhud",
+      "ar": "التشهد الأخير"
+    },
+    {
+      "en": "Fire",
+      "ar": "نار"
+    },
+    {
+      "en": "First battle with Romans — 3 leaders martyred: Zayd, Ja'far, Abdullah — then Khalid ibn al-Walid took the banner and retreated wisely",
+      "ar": "أول معركة مع الروم — استشهد 3 قادة: زيد بن حارثة وجعفر بن أبي طالب وعبدالله بن رواحة — ثم أخذ خالد بن الوليد الراية وانسحب بذكاء"
+    },
+    {
+      "en": "First pillar of Islam?",
+      "ar": "ما أول أركان الإسلام؟"
+    },
+    {
+      "en": "First pillar?",
+      "ar": "أول ركن في الإسلام؟"
+    },
+    {
+      "en": "Five",
+      "ar": "خمس"
+    },
+    {
+      "en": "Five",
+      "ar": "خمسة"
+    },
+    {
+      "en": "Five daily prayers",
+      "ar": "الصلوات الخمس"
+    },
+    {
+      "en": "Five pillars of Islam",
+      "ar": "أركان الإسلام خمسة"
+    },
+    {
+      "en": "Five prayers",
+      "ar": "الصلوات الخمس"
+    },
+    {
+      "en": "Five times",
+      "ar": "خمس مرات"
+    },
+    {
+      "en": "Followers stand behind imam in straight rows",
+      "ar": "المأمومون يقفون خلف الإمام في صفوف مستوية"
+    },
+    {
+      "en": "Following his Sunnah",
+      "ar": "اتباع سنته"
+    },
+    {
+      "en": "Forget him",
+      "ar": "نسيانه"
+    },
+    {
+      "en": "Four",
+      "ar": "أربعة"
+    },
+    {
+      "en": "Freeing slaves",
+      "ar": "في الرقاب"
+    },
+    {
+      "en": "Friday ghusl",
+      "ar": "غسل الجمعة"
+    },
+    {
+      "en": "Friday prayer is obligatory for every adult Muslim male — 2 rak'ahs after 2 sermons",
+      "ar": "صلاة الجمعة فرض على كل مسلم بالغ ذكر — ركعتان بعد خطبتين"
+    },
+    {
+      "en": "From Asr time to sunset",
+      "ar": "من وقت العصر إلى غروب الشمس"
+    },
+    {
+      "en": "From dawn to sunrise",
+      "ar": "من طلوع الفجر إلى شروق الشمس"
+    },
+    {
+      "en": "From hairline to chin",
+      "ar": "من منبت الشعر إلى الذقن"
+    },
+    {
+      "en": "From noon to Asr time",
+      "ar": "من زوال الشمس إلى وقت العصر"
+    },
+    {
+      "en": "From sunset to twilight",
+      "ar": "من غروب الشمس إلى مغيب الشفق"
+    },
+    {
+      "en": "From twilight to midnight",
+      "ar": "من مغيب الشفق إلى نصف الليل"
+    },
+    {
+      "en": "Game-Based Learning",
+      "ar": "تعلّم باللعب"
+    },
+    {
+      "en": "Game: Pillars of Islam",
+      "ar": "لعبة: أركان الإسلام"
+    },
+    {
+      "en": "Gave a man sheep filling a valley",
+      "ar": "أعطى رجلاً غنماً بين جبلين"
+    },
+    {
+      "en": "Generosity",
+      "ar": "الجود والكرم"
+    },
+    {
+      "en": "Generous",
+      "ar": "الكريم"
+    },
+    {
+      "en": "Ghusl (full body wash)",
+      "ar": "الغسل"
+    },
+    {
+      "en": "Go, you are free",
+      "ar": "اذهبوا فأنتم الطلقاء"
+    },
+    {
+      "en": "Good character",
+      "ar": "حسن الخلق"
+    },
+    {
+      "en": "Gospel",
+      "ar": "الإنجيل"
+    },
+    {
+      "en": "Greatest sin?",
+      "ar": "ما أعظم ذنب؟"
+    },
+    {
+      "en": "Guide my people",
+      "ar": "اللهم اهدِ قومي"
+    },
+    {
+      "en": "Hajj",
+      "ar": "الحج"
+    },
+    {
+      "en": "Hajj",
+      "ar": "حج البيت"
+    },
+    {
+      "en": "Hajj is traveling to the Sacred House of Allah to perform specific rites at a specific time",
+      "ar": "الحج هو قصد بيت الله الحرام لأداء مناسك مخصوصة في وقت مخصوص"
+    },
+    {
+      "en": "Hajj obligatory once for the able",
+      "ar": "الحج فرض مرة في العمر على المستطيع"
+    },
+    {
+      "en": "Hajj — Pilgrimage",
+      "ar": "الحج — قصد بيت الله"
+    },
+    {
+      "en": "Halimah",
+      "ar": "حليمة السعدية"
+    },
+    {
+      "en": "Halimah As-Sa'diyyah nursed the Prophet ﷺ and he lived with her in the desert — blessings came to her home with his arrival",
+      "ar": "أرضعت حليمة السعدية النبي ﷺ وعاش معها في البادية — وحلّت البركة على بيتها بقدومه"
+    },
+    {
+      "en": "Hamza & Ali",
+      "ar": "حمزة وعلي"
+    },
+    {
+      "en": "Hastening to break the fast",
+      "ar": "تعجيل الفطر"
+    },
+    {
+      "en": "He fasted so much they said he never breaks fast",
+      "ar": "كان يصوم حتى يُقال لا يفطر"
+    },
+    {
+      "en": "He helped with household chores",
+      "ar": "كان يساعد في أعمال البيت"
+    },
+    {
+      "en": "He joked with wives and played with grandchildren",
+      "ar": "كان يمزح مع زوجاته ويلاعب أحفاده"
+    },
+    {
+      "en": "He never refused anyone's invitation",
+      "ar": "لم يرفض دعوة أحد"
+    },
+    {
+      "en": "He prayed at night until his feet would swell",
+      "ar": "كان يقوم الليل حتى تتورم قدماه"
+    },
+    {
+      "en": "He sat on the ground and ate with servants",
+      "ar": "كان يجلس على الأرض ويأكل مع الخدم"
+    },
+    {
+      "en": "He was never asked for anything and said: No",
+      "ar": "ما سُئل شيئاً قط فقال: لا"
+    },
+    {
+      "en": "He was the bravest — stood firm at Uhud and Hunayn",
+      "ar": "كان أشجع الناس — ثبت في أحد وحنين"
+    },
+    {
+      "en": "He was the most generous of people, most generous in Ramadan",
+      "ar": "كان أجود الناس وكان أجود ما يكون في رمضان"
+    },
+    {
+      "en": "He would mend his shoes and sew his clothes himself",
+      "ar": "كان يخصف نعله ويخيط ثوبه بنفسه"
+    },
+    {
+      "en": "Hellfire is the abode of painful punishment — we seek Allah's protection from it",
+      "ar": "النار دار العذاب الأليم — نعوذ بالله منها"
+    },
+    {
+      "en": "Hid",
+      "ar": "اختبأ"
+    },
+    {
+      "en": "His father Abdullah died before his birth, his mother Aminah died when he was 6, then his grandfather Abdul Muttalib cared for him, then his uncle Abu Talib",
+      "ar": "توفي والده عبدالله قبل مولده، وتوفيت أمه آمنة وعمره 6 سنوات، ثم كفله جده عبد المطلب ثم عمه أبو طالب"
+    },
+    {
+      "en": "How did the Prophet ﷺ react in difficult battles?",
+      "ar": "ما موقف النبي ﷺ في المعارك الصعبة؟"
+    },
+    {
+      "en": "How did the Prophet ﷺ resolve Quraysh's dispute?",
+      "ar": "كيف حلّ النبي ﷺ خلاف قريش؟"
+    },
+    {
+      "en": "How do we enter Paradise?",
+      "ar": "كيف ندخل الجنة؟"
+    },
+    {
+      "en": "How do we protect ourselves from Hellfire?",
+      "ar": "كيف نحمي أنفسنا من النار؟"
+    },
+    {
+      "en": "How many Beautiful Names does Allah have?",
+      "ar": "كم عدد أسماء الله الحسنى؟"
+    },
+    {
+      "en": "How many Muslims were at Badr?",
+      "ar": "كم كان عدد المسلمين في بدر؟"
+    },
+    {
+      "en": "How many daily prayers?",
+      "ar": "كم صلاة في اليوم؟"
+    },
+    {
+      "en": "How many gods do we worship?",
+      "ar": "كم إله نعبد؟"
+    },
+    {
+      "en": "How many idols were around Ka'bah?",
+      "ar": "كم صنماً كان حول الكعبة؟"
+    },
+    {
+      "en": "How many obligatory prayers are there?",
+      "ar": "كم عدد الصلوات المفروضة؟"
+    },
+    {
+      "en": "How many pillars of Islam?",
+      "ar": "كم أركان الإسلام؟"
+    },
+    {
+      "en": "How many pillars of faith are there?",
+      "ar": "كم عدد أركان الإيمان؟"
+    },
+    {
+      "en": "How many rak'ahs does a traveler pray for Dhuhr?",
+      "ar": "كم ركعة يصلي المسافر الظهر؟"
+    },
+    {
+      "en": "How many rak'ahs in Friday prayer?",
+      "ar": "كم ركعة صلاة الجمعة؟"
+    },
+    {
+      "en": "How many rights?",
+      "ar": "كم حق للمسلم على المسلم؟"
+    },
+    {
+      "en": "How many rounds do we make around Ka'bah?",
+      "ar": "كم شوطاً نطوف حول الكعبة؟"
+    },
+    {
+      "en": "How many times is Hajj obligatory?",
+      "ar": "كم مرة يجب الحج في العمر؟"
+    },
+    {
+      "en": "How many years did the boycott last?",
+      "ar": "كم سنة استمر الحصار؟"
+    },
+    {
+      "en": "How many years was the secret call?",
+      "ar": "كم سنة استمرت الدعوة السرية؟"
+    },
+    {
+      "en": "How often?",
+      "ar": "كم مرة يجب الحج؟"
+    },
+    {
+      "en": "How old was the Prophet ﷺ when he married Khadijah?",
+      "ar": "كم كان عمر النبي ﷺ عندما تزوج خديجة؟"
+    },
+    {
+      "en": "How old was the Prophet ﷺ when revelation came?",
+      "ar": "كم كان عمر النبي ﷺ عند نزول الوحي؟"
+    },
+    {
+      "en": "Hunting land animals",
+      "ar": "صيد البر"
+    },
+    {
+      "en": "Idols",
+      "ar": "الأصنام"
+    },
+    {
+      "en": "If a fasting person eats forgetfully, their fast is still valid",
+      "ar": "إذا أكل الصائم ناسياً فصيامه صحيح"
+    },
+    {
+      "en": "If you doubt whether your wudu broke, the default is it remains valid",
+      "ar": "إذا شككت هل انتقض وضوؤك أم لا، فالأصل بقاء الوضوء"
+    },
+    {
+      "en": "Ihram",
+      "ar": "الإحرام"
+    },
+    {
+      "en": "Ihram (entering state of pilgrimage)",
+      "ar": "الإحرام"
+    },
+    {
+      "en": "Ihram from Miqat",
+      "ar": "الإحرام من الميقات"
+    },
+    {
+      "en": "Ihram ghusl",
+      "ar": "غسل الإحرام"
+    },
+    {
+      "en": "Ihsan higher than?",
+      "ar": "الإحسان أعلى من...؟"
+    },
+    {
+      "en": "Ihsan — Highest Level",
+      "ar": "الإحسان — أعلى المراتب"
+    },
+    {
+      "en": "Imam stands in front of followers",
+      "ar": "الإمام يقف أمام المأمومين"
+    },
+    {
+      "en": "Impure water",
+      "ar": "الماء النجس"
+    },
+    {
+      "en": "In 8 AH the Prophet ﷺ conquered Makkah with 10,000 fighters — entered almost without fighting — declared general amnesty: 'Go, you are free'",
+      "ar": "في السنة 8 هـ فتح النبي ﷺ مكة بـ 10000 مقاتل — دخلها بلا قتال تقريباً — وأعلن العفو العام: اذهبوا فأنتم الطلقاء"
+    },
+    {
+      "en": "In Ramadan",
+      "ar": "في رمضان"
+    },
+    {
+      "en": "In Ramadan after Isha",
+      "ar": "في رمضان بعد العشاء"
+    },
+    {
+      "en": "In the 10th year of prophethood, Abu Talib and Khadijah both passed away — so it was called the Year of Sorrow",
+      "ar": "في العام العاشر من البعثة توفي عم النبي أبو طالب ثم زوجته خديجة — فسُمي عام الحزن"
+    },
+    {
+      "en": "In the cause of Allah",
+      "ar": "في سبيل الله"
+    },
+    {
+      "en": "In the morning",
+      "ar": "في الصباح"
+    },
+    {
+      "en": "In the name",
+      "ar": "بسم"
+    },
+    {
+      "en": "In the name (of Allah)",
+      "ar": "بسم (الله)"
+    },
+    {
+      "en": "Intend wudu for Allah's sake",
+      "ar": "ننوي الوضوء لله تعالى"
+    },
+    {
+      "en": "Intention",
+      "ar": "النية"
+    },
+    {
+      "en": "Intention before Fajr",
+      "ar": "النية قبل الفجر"
+    },
+    {
+      "en": "Intention in the heart",
+      "ar": "النية في القلب"
+    },
+    {
+      "en": "Intention, wash hands, perform wudu, then pour water over entire body",
+      "ar": "النية ثم غسل اليدين ثم الوضوء ثم إفاضة الماء على الجسم كله"
+    },
+    {
+      "en": "Intentional vomiting",
+      "ar": "القيء عمداً"
+    },
+    {
+      "en": "Intentionally omitting a pillar",
+      "ar": "ترك ركن عمداً"
+    },
+    {
+      "en": "Interactive Diagram",
+      "ar": "مخطط تفاعلي"
+    },
+    {
+      "en": "Is this a short or long sound?",
+      "ar": "هل هذا صوت قصير أم طويل؟"
+    },
+    {
+      "en": "Isha",
+      "ar": "العشاء"
+    },
+    {
+      "en": "Islam & Iman",
+      "ar": "الإسلام والإيمان"
+    },
+    {
+      "en": "Israfeel",
+      "ar": "إسرافيل"
+    },
+    {
+      "en": "It contains guidance for humanity",
+      "ar": "فيه هداية للبشرية"
+    },
+    {
+      "en": "It's Sunnah to recite a surah after Al-Fatiha",
+      "ar": "من السنة قراءة سورة بعد الفاتحة"
+    },
+    {
+      "en": "It's permissible to swear by other than Allah",
+      "ar": "يجوز الحلف بغير الله"
+    },
+    {
+      "en": "Janabah",
+      "ar": "الجنابة"
+    },
+    {
+      "en": "Janabah (major impurity)",
+      "ar": "الجنابة"
+    },
+    {
+      "en": "Jerusalem",
+      "ar": "بيت المقدس"
+    },
+    {
+      "en": "Jesus",
+      "ar": "عيسى عليه السلام"
+    },
+    {
+      "en": "Jesus",
+      "ar": "عيسى"
+    },
+    {
+      "en": "Jibreel",
+      "ar": "جبريل"
+    },
+    {
+      "en": "Jibreel (Gabriel)",
+      "ar": "جبريل"
+    },
+    {
+      "en": "Jibreel came in the form of a man to the Prophet ﷺ and asked him about Islam, Iman and Ihsan",
+      "ar": "جاء جبريل عليه السلام في هيئة رجل إلى النبي ﷺ وسأله عن الإسلام والإيمان والإحسان"
+    },
+    {
+      "en": "Jibreel came to the Prophet ﷺ in Cave Hira and said: Read! He said: I cannot read. So Allah revealed: 'Read in the name of your Lord who created' (96:1)",
+      "ar": "جاء جبريل إلى النبي ﷺ في غار حراء وقال: اقرأ — فقال: ما أنا بقارئ — فأنزل الله: ﴿اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ﴾"
+    },
+    {
+      "en": "Judgment",
+      "ar": "الحساب"
+    },
+    {
+      "en": "Juice",
+      "ar": "العصير"
+    },
+    {
+      "en": "Juice",
+      "ar": "عصير"
+    },
+    {
+      "en": "Ka'bah",
+      "ar": "الكعبة"
+    },
+    {
+      "en": "Kasra + Ya = long /ii/ sound",
+      "ar": "كسرة + ياء = مد بالياء (صوت طويل /ii/)"
+    },
+    {
+      "en": "Khadijah",
+      "ar": "خديجة"
+    },
+    {
+      "en": "Khadijah was the best wife — she comforted him, believed him, and spent her wealth for Allah's sake",
+      "ar": "خديجة رضي الله عنها كانت خير زوجة — واسته وصدّقته وأنفقت مالها في سبيل الله"
+    },
+    {
+      "en": "Khadijah — first woman",
+      "ar": "خديجة — أول امرأة"
+    },
+    {
+      "en": "Khalid",
+      "ar": "خالد بن الوليد"
+    },
+    {
+      "en": "Kisra",
+      "ar": "كسرى"
+    },
+    {
+      "en": "Knowledge",
+      "ar": "العلم"
+    },
+    {
+      "en": "Last prophet Muhammad ﷺ",
+      "ar": "آخر الأنبياء محمد ﷺ"
+    },
+    {
+      "en": "Last prophet?",
+      "ar": "من خاتم الأنبياء؟"
+    },
+    {
+      "en": "Laughing",
+      "ar": "الضحك"
+    },
+    {
+      "en": "Laylat al-Qadr is better than how many months?",
+      "ar": "ليلة القدر خير من كم شهر؟"
+    },
+    {
+      "en": "Laylat al-Qadr is in the last 10 nights of Ramadan, most likely the odd nights",
+      "ar": "ليلة القدر في العشر الأواخر من رمضان، وأرجاها ليالي الأوتار"
+    },
+    {
+      "en": "Laziness",
+      "ar": "الكسل"
+    },
+    {
+      "en": "Leave Makkah",
+      "ar": "اخرجوا من مكة"
+    },
+    {
+      "en": "Left",
+      "ar": "اليسرى"
+    },
+    {
+      "en": "Letter Tracing",
+      "ar": "تتبع الحروف"
+    },
+    {
+      "en": "Light",
+      "ar": "نور"
+    },
+    {
+      "en": "Like fasting forever",
+      "ar": "كصيام الدهر"
+    },
+    {
+      "en": "Lips",
+      "ar": "الشفتان"
+    },
+    {
+      "en": "Livestock (camels, cattle, sheep)",
+      "ar": "الأنعام (الإبل والبقر والغنم)"
+    },
+    {
+      "en": "Loss of consciousness",
+      "ar": "زوال العقل"
+    },
+    {
+      "en": "Loving him above all creation",
+      "ar": "محبته فوق كل مخلوق"
+    },
+    {
+      "en": "Lying",
+      "ar": "الكذب"
+    },
+    {
+      "en": "Madinah",
+      "ar": "أهل المدينة"
+    },
+    {
+      "en": "Madinah",
+      "ar": "المدينة"
+    },
+    {
+      "en": "Maghrib",
+      "ar": "المغرب"
+    },
+    {
+      "en": "Major Shirk: worshipping other than Allah",
+      "ar": "الشرك الأكبر: عبادة غير الله"
+    },
+    {
+      "en": "Major ritual impurity",
+      "ar": "الطهارة من الحدث الأكبر"
+    },
+    {
+      "en": "Makkah",
+      "ar": "أهل مكة"
+    },
+    {
+      "en": "Makkah",
+      "ar": "مكة"
+    },
+    {
+      "en": "Many delegations",
+      "ar": "جاءت وفود كثيرة تسلم"
+    },
+    {
+      "en": "Many delegations came",
+      "ar": "جاءت وفود كثيرة تسلم"
+    },
+    {
+      "en": "Market",
+      "ar": "السوق"
+    },
+    {
+      "en": "Market",
+      "ar": "سوق"
+    },
+    {
+      "en": "Match the name with its meaning",
+      "ar": "طابق الاسم بمعناه"
+    },
+    {
+      "en": "Maturity",
+      "ar": "البلوغ"
+    },
+    {
+      "en": "Meaning of trust?",
+      "ar": "ما معنى التوكل؟"
+    },
+    {
+      "en": "Meeting Allah and seeing His Noble Face",
+      "ar": "لقاء الله والنظر إلى وجهه الكريم"
+    },
+    {
+      "en": "Menstruation (for women)",
+      "ar": "الحيض للمرأة"
+    },
+    {
+      "en": "Menstruation and postpartum bleeding",
+      "ar": "الحيض والنفاس"
+    },
+    {
+      "en": "Mercy to animals",
+      "ar": "رحمته بالحيوانات"
+    },
+    {
+      "en": "Mercy to children — he would carry Hasan and Husayn",
+      "ar": "رحمته بالأطفال — كان يحمل الحسن والحسين"
+    },
+    {
+      "en": "Mercy to enemies — forgave people of Makkah",
+      "ar": "رحمته بأعدائه — عفا عن أهل مكة"
+    },
+    {
+      "en": "Micro-Learning (5 min)",
+      "ar": "تعلّم مصغّر"
+    },
+    {
+      "en": "Middle of tongue",
+      "ar": "وسط اللسان"
+    },
+    {
+      "en": "Mikaeel",
+      "ar": "ميكائيل"
+    },
+    {
+      "en": "Mikaeel (Michael)",
+      "ar": "ميكائيل"
+    },
+    {
+      "en": "Mina Day 8",
+      "ar": "منى يوم 8"
+    },
+    {
+      "en": "Minor Shirk: showing off",
+      "ar": "الشرك الأصغر: الرياء"
+    },
+    {
+      "en": "Minor ritual impurity",
+      "ar": "الطهارة من الحدث الأصغر"
+    },
+    {
+      "en": "Monday and Thursday fasting",
+      "ar": "صيام الإثنين والخميس"
+    },
+    {
+      "en": "Money (gold, silver, currency)",
+      "ar": "النقود (الذهب والفضة والعملات)"
+    },
+    {
+      "en": "Moses",
+      "ar": "موسى عليه السلام"
+    },
+    {
+      "en": "Moses",
+      "ar": "موسى"
+    },
+    {
+      "en": "Mosque",
+      "ar": "المسجد"
+    },
+    {
+      "en": "Mosque",
+      "ar": "المسجد النبوي"
+    },
+    {
+      "en": "Mount Safa",
+      "ar": "جبل الصفا"
+    },
+    {
+      "en": "Muhammad ﷺ",
+      "ar": "محمد ﷺ"
+    },
+    {
+      "en": "Muharram",
+      "ar": "محرم"
+    },
+    {
+      "en": "Muslims besieged Ta'if but didn't conquer it — its people embraced Islam voluntarily later",
+      "ar": "حاصر المسلمون الطائف لكنها لم تُفتح — ثم أسلم أهلها طوعاً بعد ذلك"
+    },
+    {
+      "en": "Muslims conquered Khaybar led by Ali — the Prophet ﷺ gave him the banner saying: 'I'll give the banner to a man who loves Allah and His Messenger'",
+      "ar": "فتح المسلمون خيبر بقيادة علي بن أبي طالب — أعطاه النبي ﷺ الراية وقال: لأعطين الراية رجلاً يحب الله ورسوله"
+    },
+    {
+      "en": "Muslims dug a trench around Madinah on Salman al-Farisi's suggestion — 10,000 polytheists besieged but Allah sent wind and unseen forces",
+      "ar": "حفر المسلمون خندقاً حول المدينة بناءً على اقتراح سلمان الفارسي — 10000 مشرك حاصروا المدينة لكن الله أرسل ريحاً وجنوداً لم يروها"
+    },
+    {
+      "en": "Must be livestock (camel, cattle, sheep) free from defects",
+      "ar": "أن تكون بهيمة الأنعام (إبل أو بقر أو غنم) سليمة من العيوب"
+    },
+    {
+      "en": "Muzdalifah",
+      "ar": "مزدلفة"
+    },
+    {
+      "en": "Names of Allah Review",
+      "ar": "مراجعة أسماء الله"
+    },
+    {
+      "en": "Nature",
+      "ar": "الطبيعة"
+    },
+    {
+      "en": "Negus",
+      "ar": "النجاشي"
+    },
+    {
+      "en": "Night 10: Stay at Muzdalifah",
+      "ar": "ليلة 10: المبيت بمزدلفة"
+    },
+    {
+      "en": "No",
+      "ar": "لا"
+    },
+    {
+      "en": "No deity except Allah",
+      "ar": "لا معبود بحق إلا الله"
+    },
+    {
+      "en": "No deity worthy of worship except Allah",
+      "ar": "لا معبود بحق إلا الله"
+    },
+    {
+      "en": "Noah",
+      "ar": "نوح"
+    },
+    {
+      "en": "North",
+      "ar": "الشمال"
+    },
+    {
+      "en": "Not working",
+      "ar": "عدم العمل"
+    },
+    {
+      "en": "Nothing",
+      "ar": "لا شيء"
+    },
+    {
+      "en": "Nothing happens except by Allah's will",
+      "ar": "لا يحدث شيء إلا بمشيئة الله"
+    },
+    {
+      "en": "O Allah guide my people",
+      "ar": "اللهم اهدِ قومي"
+    },
+    {
+      "en": "O Allah, You are forgiving and love forgiveness, so forgive me",
+      "ar": "اللهم إنك عفو تحب العفو فاعفُ عني"
+    },
+    {
+      "en": "O you who believe, fasting is prescribed for you as it was for those before you, that you may become righteous (2:183)",
+      "ar": "﴿يَا أَيُّهَا الَّذِينَ آمَنُوا كُتِبَ عَلَيْكُمُ الصِّيَامُ كَمَا كُتِبَ عَلَى الَّذِينَ مِن قَبْلِكُمْ لَعَلَّكُمْ تَتَّقُونَ﴾"
+    },
+    {
+      "en": "Obey & follow",
+      "ar": "طاعته واتباع سنته"
+    },
+    {
+      "en": "Obey and follow",
+      "ar": "طاعته واتباع سنته"
+    },
+    {
+      "en": "Obeying his commands, believing his reports, and avoiding what he forbade",
+      "ar": "طاعته فيما أمر وتصديقه فيما أخبر واجتناب ما نهى عنه وزجر"
+    },
+    {
+      "en": "Obeying the leader is obligatory",
+      "ar": "طاعة القائد واجبة"
+    },
+    {
+      "en": "Obligatory once in a lifetime for every sane, adult Muslim who is able",
+      "ar": "واجب مرة في العمر على المسلم البالغ العاقل المستطيع"
+    },
+    {
+      "en": "On the Day of Arafah, the verse was revealed: 'Today I have completed your religion and perfected My favor upon you and approved Islam as your religion' (5:3)",
+      "ar": "في يوم عرفة نزلت الآية: ﴿الْيَوْمَ أَكْمَلْتُ لَكُمْ دِينَكُمْ وَأَتْمَمْتُ عَلَيْكُمْ نِعْمَتِي وَرَضِيتُ لَكُمُ الْإِسْلَامَ دِينًا﴾"
+    },
+    {
+      "en": "Once",
+      "ar": "مرة واحدة"
+    },
+    {
+      "en": "Only Makkah",
+      "ar": "أهل مكة فقط"
+    },
+    {
+      "en": "Only One",
+      "ar": "واحد فقط"
+    },
+    {
+      "en": "Only build mosques",
+      "ar": "بناء المساجد فقط"
+    },
+    {
+      "en": "Only fasting",
+      "ar": "الصيام فقط"
+    },
+    {
+      "en": "Only in summer",
+      "ar": "في الصيف فقط"
+    },
+    {
+      "en": "Only money",
+      "ar": "بالمال فقط"
+    },
+    {
+      "en": "Only prayer",
+      "ar": "الصلاة فقط"
+    },
+    {
+      "en": "Only trade",
+      "ar": "التجارة فقط"
+    },
+    {
+      "en": "Opening Takbeer",
+      "ar": "تكبيرة الإحرام"
+    },
+    {
+      "en": "Opening supplication",
+      "ar": "دعاء الاستفتاح"
+    },
+    {
+      "en": "Paid before Eid prayer",
+      "ar": "تُخرج قبل صلاة العيد"
+    },
+    {
+      "en": "Palace",
+      "ar": "قصر"
+    },
+    {
+      "en": "Palace",
+      "ar": "القصر"
+    },
+    {
+      "en": "Palaces and gardens",
+      "ar": "قصور وحدائق"
+    },
+    {
+      "en": "Paradise is the abode of eternal bliss — in it is what no eye has seen nor ear has heard",
+      "ar": "الجنة دار النعيم الأبدي — فيها ما لا عين رأت ولا أذن سمعت"
+    },
+    {
+      "en": "Paradise or Hellfire",
+      "ar": "الجنة أو النار"
+    },
+    {
+      "en": "Patience in hardship",
+      "ar": "الصبر في الشدائد"
+    },
+    {
+      "en": "Pay tribute",
+      "ar": "ادفعوا الجزية"
+    },
+    {
+      "en": "People of Madinah",
+      "ar": "أهل المدينة"
+    },
+    {
+      "en": "People of Madinah pledged allegiance to the Prophet ﷺ at Aqabah — First and Second Pledges — on faith in Allah, supporting His Messenger, and migration",
+      "ar": "بايع أهل المدينة النبي ﷺ عند العقبة — بيعة العقبة الأولى والثانية — على الإيمان بالله ونصرة رسوله والهجرة"
+    },
+    {
+      "en": "People of Madinah welcomed the Prophet ﷺ with joy and songs — and the first thing he did was build the Prophet's Mosque",
+      "ar": "استقبل أهل المدينة النبي ﷺ بالفرح والأناشيد — طلع البدر علينا — وأول ما فعل ﷺ بنى المسجد النبوي"
+    },
+    {
+      "en": "People of Ta'if embraced Islam voluntarily",
+      "ar": "أسلم أهل الطائف طوعاً"
+    },
+    {
+      "en": "Perfume",
+      "ar": "الطيب (العطر)"
+    },
+    {
+      "en": "Physical impurity",
+      "ar": "الطهارة من النجاسة"
+    },
+    {
+      "en": "Pillars of Faith Review",
+      "ar": "مراجعة أركان الإيمان"
+    },
+    {
+      "en": "Pillars of Islam Detail — L1",
+      "ar": "أركان الإسلام بالتفصيل — درس 1"
+    },
+    {
+      "en": "Pillars of Islam Detail — L10",
+      "ar": "أركان الإسلام بالتفصيل — درس 10"
+    },
+    {
+      "en": "Pillars of Islam Detail — L2",
+      "ar": "أركان الإسلام بالتفصيل — درس 2"
+    },
+    {
+      "en": "Pillars of Islam Detail — L3",
+      "ar": "أركان الإسلام بالتفصيل — درس 3"
+    },
+    {
+      "en": "Pillars of Islam Detail — L4",
+      "ar": "أركان الإسلام بالتفصيل — درس 4"
+    },
+    {
+      "en": "Pillars of Islam Detail — L5",
+      "ar": "أركان الإسلام بالتفصيل — درس 5"
+    },
+    {
+      "en": "Pillars of Islam Detail — L6",
+      "ar": "أركان الإسلام بالتفصيل — درس 6"
+    },
+    {
+      "en": "Pillars of Islam Detail — L7",
+      "ar": "أركان الإسلام بالتفصيل — درس 7"
+    },
+    {
+      "en": "Pillars of Islam Detail — L8",
+      "ar": "أركان الإسلام بالتفصيل — درس 8"
+    },
+    {
+      "en": "Pillars of Islam Detail — L9",
+      "ar": "أركان الإسلام بالتفصيل — درس 9"
+    },
+    {
+      "en": "Pillars of Islam Review",
+      "ar": "مراجعة أركان الإسلام"
+    },
+    {
+      "en": "Pillars of faith?",
+      "ar": "كم أركان الإيمان؟"
+    },
+    {
+      "en": "Placed on cloth",
+      "ar": "وضع الحجر على ثوب"
+    },
+    {
+      "en": "Placed stone on cloth",
+      "ar": "وضع الحجر على ثوب"
+    },
+    {
+      "en": "Placing right hand over left",
+      "ar": "وضع اليد اليمنى على اليسرى"
+    },
+    {
+      "en": "Postpartum bleeding",
+      "ar": "النفاس"
+    },
+    {
+      "en": "Practice-Based",
+      "ar": "تعلّم بالتطبيق"
+    },
+    {
+      "en": "Praise be to Allah",
+      "ar": "الحمد لله"
+    },
+    {
+      "en": "Prayer",
+      "ar": "الصلاة"
+    },
+    {
+      "en": "Prayer five times daily — pillar of religion",
+      "ar": "الصلاة خمس مرات في اليوم — عمود الدين"
+    },
+    {
+      "en": "Prayer is the pillar of religion and the first thing a person is judged on, on Judgment Day",
+      "ar": "الصلاة عمود الدين وأول ما يُحاسب عليه العبد يوم القيامة"
+    },
+    {
+      "en": "Prayer — Pillar of Religion",
+      "ar": "الصلاة — عمود الدين"
+    },
+    {
+      "en": "Preparation and planning are important",
+      "ar": "الإعداد والتخطيط مهم"
+    },
+    {
+      "en": "Prophets",
+      "ar": "الأنبياء"
+    },
+    {
+      "en": "Prophets & Last Day",
+      "ar": "مراجعة الأنبياء واليوم الآخر"
+    },
+    {
+      "en": "Prostrate: Subhana Rabbiyal A'la",
+      "ar": "السجود: سبحان ربي الأعلى"
+    },
+    {
+      "en": "Prostration",
+      "ar": "السجود"
+    },
+    {
+      "en": "Prostration (Sujud)",
+      "ar": "السجود"
+    },
+    {
+      "en": "Psalms",
+      "ar": "الزبور"
+    },
+    {
+      "en": "Pure itself and purifies others — valid for wudu",
+      "ar": "طاهر في نفسه مُطهّر لغيره — يصح الوضوء به"
+    },
+    {
+      "en": "Pure water",
+      "ar": "الماء الطهور"
+    },
+    {
+      "en": "Purification",
+      "ar": "الطهارة"
+    },
+    {
+      "en": "Purification is a condition for valid prayer, and it's one of the most important rulings in Islam",
+      "ar": "الطهارة شرط لصحة الصلاة، وهي من أهم أحكام الإسلام"
+    },
+    {
+      "en": "Qadar & Tawakkul Review",
+      "ar": "مراجعة القدر والتوكل"
+    },
+    {
+      "en": "Qibla",
+      "ar": "القبلة (الكعبة)"
+    },
+    {
+      "en": "Qibla (Ka'bah)",
+      "ar": "القبلة (الكعبة)"
+    },
+    {
+      "en": "Quran",
+      "ar": "القرآن"
+    },
+    {
+      "en": "Quraysh boycotted Banu Hashim for 3 years — no trade, no marriage — they ate leaves from hunger",
+      "ar": "حاصرت قريش بني هاشم 3 سنوات — لا بيع ولا شراء ولا زواج — حتى أكلوا أوراق الشجر من الجوع"
+    },
+    {
+      "en": "Quraysh tortured Muslims — Bilal was tortured in the desert saying: One (God)! One! — Sumayyah was the first martyr in Islam",
+      "ar": "عذّبت قريش المسلمين — بلال عُذّب في الصحراء وقال: أحد أحد — سمية أول شهيدة في الإسلام"
+    },
+    {
+      "en": "Raising hands during Takbeer",
+      "ar": "رفع اليدين عند التكبير"
+    },
+    {
+      "en": "Ramadan",
+      "ar": "رمضان"
+    },
+    {
+      "en": "Ramadan after Isha",
+      "ar": "في رمضان بعد العشاء"
+    },
+    {
+      "en": "Read",
+      "ar": "اقرأ"
+    },
+    {
+      "en": "Read (Iqra)",
+      "ar": "اقرأ"
+    },
+    {
+      "en": "Read: بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",
+      "ar": "اقرأ الآية: بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
+    },
+    {
+      "en": "Read: رَحِيمِ",
+      "ar": "اقرأ: رَحِيمِ"
+    },
+    {
+      "en": "Read: نُورُ",
+      "ar": "اقرأ: نُورُ"
+    },
+    {
+      "en": "Reading Al-Fatiha",
+      "ar": "قراءة الفاتحة"
+    },
+    {
+      "en": "Reading it is worship",
+      "ar": "قراءته عبادة"
+    },
+    {
+      "en": "Recite opening supplication then Al-Fatiha",
+      "ar": "قراءة دعاء الاستفتاح ثم الفاتحة"
+    },
+    {
+      "en": "Recite the first 10 names",
+      "ar": "اقرأ أول 10 أسماء"
+    },
+    {
+      "en": "Reciting a surah after Al-Fatiha",
+      "ar": "قراءة سورة بعد الفاتحة"
+    },
+    {
+      "en": "Recommended to divide into thirds: family, gifts, and the poor",
+      "ar": "يُستحب تقسيمها أثلاثاً: ثلث للأهل وثلث للهدية وثلث للفقراء"
+    },
+    {
+      "en": "Refused to intervene",
+      "ar": "رفض التدخل"
+    },
+    {
+      "en": "Relations between residents",
+      "ar": "العلاقة بين سكان المدينة"
+    },
+    {
+      "en": "Removing armpit hair",
+      "ar": "نتف الإبط"
+    },
+    {
+      "en": "Removing impurity with water",
+      "ar": "إزالة النجاسة بالماء"
+    },
+    {
+      "en": "Repent to Allah",
+      "ar": "نتوب ونستغفر الله"
+    },
+    {
+      "en": "Resident relations",
+      "ar": "العلاقة بين سكان المدينة"
+    },
+    {
+      "en": "Responsible for rain and vegetation",
+      "ar": "مسؤول عن المطر والنبات"
+    },
+    {
+      "en": "Resurrection",
+      "ar": "البعث"
+    },
+    {
+      "en": "Retreated",
+      "ar": "تراجع"
+    },
+    {
+      "en": "Revival of people after death",
+      "ar": "إحياء الناس بعد موتهم"
+    },
+    {
+      "en": "Right",
+      "ar": "اليمنى"
+    },
+    {
+      "en": "Rights of Muslims",
+      "ar": "حقوق المسلم على المسلم"
+    },
+    {
+      "en": "Rise: Sami Allahu liman hamidah",
+      "ar": "الرفع: سمع الله لمن حمده"
+    },
+    {
+      "en": "Rising from bowing",
+      "ar": "الاعتدال من الركوع"
+    },
+    {
+      "en": "Rivers of water, milk and honey",
+      "ar": "أنهار من ماء ولبن وعسل"
+    },
+    {
+      "en": "Sa'i 7 times between Safa and Marwah",
+      "ar": "السعي بين الصفا والمروة 7 أشواط"
+    },
+    {
+      "en": "Sa'i between Safa and Marwah",
+      "ar": "السعي بين الصفا والمروة"
+    },
+    {
+      "en": "Sacrifice",
+      "ar": "الذبح"
+    },
+    {
+      "en": "Salman",
+      "ar": "سلمان الفارسي"
+    },
+    {
+      "en": "Sanity",
+      "ar": "العقل"
+    },
+    {
+      "en": "Say",
+      "ar": "قل"
+    },
+    {
+      "en": "Say Allahu Akbar",
+      "ar": "تكبيرة الإحرام: الله أكبر"
+    },
+    {
+      "en": "Say: Bismillah, O Allah I seek refuge in You from evil",
+      "ar": "قول: بسم الله اللهم إني أعوذ بك من الخبث والخبائث"
+    },
+    {
+      "en": "Say: Ghufranaka (Your forgiveness)",
+      "ar": "قول: غفرانك"
+    },
+    {
+      "en": "Saying Ameen after Al-Fatiha",
+      "ar": "التأمين بعد الفاتحة"
+    },
+    {
+      "en": "Saying Bismillah, Siwak, washing palms, rinsing mouth, sniffing water",
+      "ar": "التسمية، السواك، غسل الكفين، المضمضة، الاستنشاق"
+    },
+    {
+      "en": "Saying Tasbeeh three times in bowing and prostration",
+      "ar": "التسبيح ثلاثاً في الركوع والسجود"
+    },
+    {
+      "en": "Scrolls of Abraham",
+      "ar": "صحف إبراهيم"
+    },
+    {
+      "en": "Second pillar?",
+      "ar": "ما ثاني ركن بعد الشهادتين؟"
+    },
+    {
+      "en": "Second prostration",
+      "ar": "السجود الثاني"
+    },
+    {
+      "en": "Sending blessings upon him",
+      "ar": "الصلاة والسلام عليه"
+    },
+    {
+      "en": "Seven",
+      "ar": "سبع"
+    },
+    {
+      "en": "Seven",
+      "ar": "سبعة"
+    },
+    {
+      "en": "Seven washes, one with earth",
+      "ar": "سبع غسلات إحداها بالتراب"
+    },
+    {
+      "en": "Severe punishment for those who disbelieved, associated partners with Allah and oppressed",
+      "ar": "عذاب شديد للذين كفروا وأشركوا وظلموا"
+    },
+    {
+      "en": "Sewn clothes for men",
+      "ar": "لبس المخيط للرجال"
+    },
+    {
+      "en": "Sha'ban",
+      "ar": "شعبان"
+    },
+    {
+      "en": "Shahada",
+      "ar": "الشهادتان"
+    },
+    {
+      "en": "Shave",
+      "ar": "الحلق"
+    },
+    {
+      "en": "Shaving hair",
+      "ar": "حلق الشعر"
+    },
+    {
+      "en": "Shaving or trimming hair",
+      "ar": "الحلق أو التقصير"
+    },
+    {
+      "en": "Shirk",
+      "ar": "الشرك بالله"
+    },
+    {
+      "en": "Shirk: worshipping anything alongside Allah or calling upon other than Allah",
+      "ar": "الشرك: أن تعبد مع الله غيره أو تدعو غير الله"
+    },
+    {
+      "en": "Sit: Rabbi ighfir li",
+      "ar": "الجلوس بين السجدتين: رب اغفر لي"
+    },
+    {
+      "en": "Sitting between prostrations",
+      "ar": "الجلوس بين السجدتين"
+    },
+    {
+      "en": "Siwak — cleaning teeth",
+      "ar": "السواك — تنظيف الأسنان"
+    },
+    {
+      "en": "Six",
+      "ar": "ستة"
+    },
+    {
+      "en": "Six",
+      "ar": "ست حقوق"
+    },
+    {
+      "en": "Six pillars of faith",
+      "ar": "أركان الإيمان ستة"
+    },
+    {
+      "en": "Six rights: Salam, visiting sick, accepting invitation, saying yarhamuk Allah, advice, funeral",
+      "ar": "ست حقوق: السلام والعيادة وإجابة الدعوة والتشميت والنصيحة واتباع الجنازة"
+    },
+    {
+      "en": "Sleeping",
+      "ar": "النوم"
+    },
+    {
+      "en": "Sleeping a lot",
+      "ar": "النوم كثيراً"
+    },
+    {
+      "en": "Sometimes",
+      "ar": "أحياناً"
+    },
+    {
+      "en": "Spaced Repetition",
+      "ar": "التكرار المتباعد"
+    },
+    {
+      "en": "Speaking",
+      "ar": "الكلام عمداً"
+    },
+    {
+      "en": "Speaking intentionally",
+      "ar": "الكلام عمداً"
+    },
+    {
+      "en": "Stand facing Qibla",
+      "ar": "الوقوف واستقبال القبلة"
+    },
+    {
+      "en": "Standing at Arafah",
+      "ar": "الوقوف بعرفة"
+    },
+    {
+      "en": "Standing if able",
+      "ar": "القيام مع القدرة"
+    },
+    {
+      "en": "Stars",
+      "ar": "النجوم"
+    },
+    {
+      "en": "Start with praising Allah and sending blessings on Prophet",
+      "ar": "نبدأ بحمد الله والصلاة على النبي"
+    },
+    {
+      "en": "Start with the right",
+      "ar": "البدء باليمنى"
+    },
+    {
+      "en": "Stealing",
+      "ar": "السرقة"
+    },
+    {
+      "en": "Stone Jamrah",
+      "ar": "رمي جمرة العقبة"
+    },
+    {
+      "en": "Stoned at Ta'if, he said: O Allah guide my people for they don't know",
+      "ar": "في الطائف رُجم بالحجارة فقال: اللهم اهدِ قومي فإنهم لا يعلمون"
+    },
+    {
+      "en": "Stoning",
+      "ar": "رمي الجمرات"
+    },
+    {
+      "en": "Stood firm",
+      "ar": "ثبت وشجّع أصحابه"
+    },
+    {
+      "en": "Stood firm and encouraged",
+      "ar": "ثبت وشجّع أصحابه"
+    },
+    {
+      "en": "Story-Based Learning",
+      "ar": "تعلّم بالقصص"
+    },
+    {
+      "en": "Strike palms on clean earth",
+      "ar": "ضرب الكفين على التراب الطاهر"
+    },
+    {
+      "en": "Subhana Rabbiyal A'la",
+      "ar": "سبحان ربي الأعلى"
+    },
+    {
+      "en": "Subhana Rabbiyal Adheem",
+      "ar": "سبحان ربي العظيم"
+    },
+    {
+      "en": "Sujud as-Sahw: two prostrations when adding, omitting or doubting in prayer",
+      "ar": "سجود السهو: سجدتان عند الزيادة أو النقص أو الشك في الصلاة"
+    },
+    {
+      "en": "Sujud at-Tilawah: one prostration when reciting an ayah of prostration",
+      "ar": "سجود التلاوة: سجدة واحدة عند قراءة آية فيها سجدة"
+    },
+    {
+      "en": "Sumayyah",
+      "ar": "سمية"
+    },
+    {
+      "en": "Supplication when breaking fast",
+      "ar": "الدعاء عند الإفطار"
+    },
+    {
+      "en": "Ta'if",
+      "ar": "أهل الطائف"
+    },
+    {
+      "en": "Ta'if",
+      "ar": "الطائف"
+    },
+    {
+      "en": "Tabuk",
+      "ar": "تبوك"
+    },
+    {
+      "en": "Tahajjud at the last third of the night — among the best prayers after obligatory ones",
+      "ar": "صلاة التهجد في آخر الليل — من أفضل الصلوات بعد الفريضة"
+    },
+    {
+      "en": "Take means & rely on Allah",
+      "ar": "الأخذ بالأسباب والاعتماد على الله"
+    },
+    {
+      "en": "Take precautions and trust Allah",
+      "ar": "اعقلها وتوكل — نأخذ بالأسباب ونتوكل على الله"
+    },
+    {
+      "en": "Takes souls",
+      "ar": "يقبض الأرواح"
+    },
+    {
+      "en": "Taraweeh is a confirmed Sunnah in Ramadan — prayed after Isha in congregation at the mosque",
+      "ar": "صلاة التراويح سنة مؤكدة في رمضان — تُصلى بعد العشاء جماعة في المسجد"
+    },
+    {
+      "en": "Tashahhud and Salam",
+      "ar": "التشهد والتسليم"
+    },
+    {
+      "en": "Tasleem (Salam)",
+      "ar": "التسليم"
+    },
+    {
+      "en": "Tawaf",
+      "ar": "الطواف"
+    },
+    {
+      "en": "Tawaf 7 times around Ka'bah",
+      "ar": "الطواف بالبيت 7 أشواط"
+    },
+    {
+      "en": "Tawaf al-Ifadah",
+      "ar": "طواف الإفاضة"
+    },
+    {
+      "en": "Tawheed Review",
+      "ar": "مراجعة التوحيد"
+    },
+    {
+      "en": "Tawheed of Lordship — Allah is the Creator, Provider, Sustainer",
+      "ar": "توحيد الربوبية — الله الخالق الرازق المدبر"
+    },
+    {
+      "en": "Tawheed of Names & Attributes — Allah has the Beautiful Names",
+      "ar": "توحيد الأسماء والصفات — لله الأسماء الحسنى"
+    },
+    {
+      "en": "Tawheed of Worship — we worship Allah alone",
+      "ar": "توحيد الألوهية — نعبد الله وحده"
+    },
+    {
+      "en": "Ten",
+      "ar": "عشر"
+    },
+    {
+      "en": "Test on everything studied",
+      "ar": "اختبار شامل لكل ما درسناه"
+    },
+    {
+      "en": "The All-Knowing",
+      "ar": "الذي يعلم كل شيء"
+    },
+    {
+      "en": "The Alliance of Al-Fudul was to support the oppressed",
+      "ar": "حلف الفضول كان لنصرة المظلومين"
+    },
+    {
+      "en": "The Ansar shared their wealth with the Muhajirun",
+      "ar": "قاسم الأنصار المهاجرين أموالهم"
+    },
+    {
+      "en": "The Brave",
+      "ar": "الشجاع"
+    },
+    {
+      "en": "The Grave",
+      "ar": "القبر"
+    },
+    {
+      "en": "The King",
+      "ar": "الملك"
+    },
+    {
+      "en": "The King of everything",
+      "ar": "المالك لكل شيء"
+    },
+    {
+      "en": "The Mosque",
+      "ar": "المسجد"
+    },
+    {
+      "en": "The Most Compassionate",
+      "ar": "الرحيم"
+    },
+    {
+      "en": "The Most Forgiving",
+      "ar": "كثير المغفرة"
+    },
+    {
+      "en": "The Most Holy",
+      "ar": "القدوس"
+    },
+    {
+      "en": "The Most Merciful",
+      "ar": "الرحيم جداً"
+    },
+    {
+      "en": "The Most Merciful",
+      "ar": "الرحمن"
+    },
+    {
+      "en": "The Negus",
+      "ar": "النجاشي"
+    },
+    {
+      "en": "The Night of Decree is better than a thousand months (97:3)",
+      "ar": "﴿لَيْلَةُ الْقَدْرِ خَيْرٌ مِّنْ أَلْفِ شَهْرٍ﴾"
+    },
+    {
+      "en": "The One who gives abundantly without limits",
+      "ar": "كثير العطاء بلا حدود"
+    },
+    {
+      "en": "The One who guides whom He wills to the straight path",
+      "ar": "الذي يهدي من يشاء إلى الصراط المستقيم"
+    },
+    {
+      "en": "The One who hears everything",
+      "ar": "الذي يسمع كل شيء"
+    },
+    {
+      "en": "The One who illuminates the hearts of believers",
+      "ar": "الذي ينير قلوب المؤمنين"
+    },
+    {
+      "en": "The One who knows everything — nothing is hidden from Him",
+      "ar": "الذي يعلم كل شيء — لا يخفى عليه شيء"
+    },
+    {
+      "en": "The One who provides for all creation",
+      "ar": "الذي يرزق جميع خلقه"
+    },
+    {
+      "en": "The Owner of everything",
+      "ar": "المالك لكل شيء"
+    },
+    {
+      "en": "The Prophet ﷺ and Abu Bakr hid in Cave Thawr for 3 days — Abu Bakr said: If they look down they'll see us — The Prophet ﷺ said: Don't grieve, Allah is with us",
+      "ar": "اختبأ النبي ﷺ وأبو بكر في غار ثور 3 أيام — قال أبو بكر: لو نظر أحدهم تحت قدميه لرآنا — فقال النبي ﷺ: لا تحزن إن الله معنا"
+    },
+    {
+      "en": "The Prophet ﷺ began calling people secretly for 3 years — he invited those closest — Abu Bakr, Ali, Khadijah and Zayd ibn Harithah believed",
+      "ar": "بدأ النبي ﷺ بالدعوة سراً لمدة 3 سنوات — دعا أقرب الناس إليه — فآمن أبو بكر وعلي وخديجة وزيد بن حارثة"
+    },
+    {
+      "en": "The Prophet ﷺ destroyed idols around Ka'bah reciting: 'Truth has come and falsehood has perished' — 360 idols",
+      "ar": "كسّر النبي ﷺ الأصنام حول الكعبة وقرأ: ﴿جَاءَ الْحَقُّ وَزَهَقَ الْبَاطِلُ﴾ — 360 صنماً حول الكعبة"
+    },
+    {
+      "en": "The Prophet ﷺ established a new society based on justice, equality and cooperation — the mosque was the center of education, worship and governance",
+      "ar": "أسس النبي ﷺ مجتمعاً جديداً قائماً على العدل والمساواة والتعاون — المسجد كان مركز التعليم والعبادة والحكم"
+    },
+    {
+      "en": "The Prophet ﷺ established brotherhood between Muhajirun and Ansar — the Ansar shared their homes and wealth — a beautiful example of solidarity",
+      "ar": "آخى النبي ﷺ بين المهاجرين والأنصار — قاسم الأنصار المهاجرين بيوتهم وأموالهم — مثال رائع للتكافل"
+    },
+    {
+      "en": "The Prophet ﷺ helped with household chores",
+      "ar": "كان النبي ﷺ يساعد في أعمال البيت"
+    },
+    {
+      "en": "The Prophet ﷺ made a treaty with Quraysh — seemingly against Muslims but was actually a clear victory — Allah called it a conquest",
+      "ar": "عقد النبي ﷺ صلحاً مع قريش — بدا ظاهره ضد المسلمين لكنه كان فتحاً مبيناً — سماه الله فتحاً"
+    },
+    {
+      "en": "The Prophet ﷺ married Khadijah bint Khuwaylid when he was 25 — she was the first to believe in him and supported his mission",
+      "ar": "تزوج النبي ﷺ من خديجة بنت خويلد وعمره 25 سنة — كانت أول من آمن به وأسندته في دعوته"
+    },
+    {
+      "en": "The Prophet ﷺ mended his own shoes",
+      "ar": "كان النبي ﷺ يخصف نعله بنفسه"
+    },
+    {
+      "en": "The Prophet ﷺ migrated with Allah's permission",
+      "ar": "هاجر النبي ﷺ بإذن الله"
+    },
+    {
+      "en": "The Prophet ﷺ never said no to anyone who asked",
+      "ar": "ما قال النبي ﷺ لا لأحد سأله شيئاً"
+    },
+    {
+      "en": "The Prophet ﷺ ordered Muslims to migrate to Abyssinia — where there was a just king — the Negus who later embraced Islam",
+      "ar": "أمر النبي ﷺ المسلمين بالهجرة إلى الحبشة — حيث ملك عادل لا يُظلم عنده أحد — النجاشي الذي أسلم لاحقاً"
+    },
+    {
+      "en": "The Prophet ﷺ participated in the Alliance of Al-Fudul — a pact to support every oppressed person in Makkah — he later said: 'If I were called to it in Islam, I would respond'",
+      "ar": "شارك النبي ﷺ في حلف الفضول — حلف لنصرة كل مظلوم في مكة — وقال بعد النبوة: لو دُعيت به في الإسلام لأجبت"
+    },
+    {
+      "en": "The Prophet ﷺ passed away on Monday 12 Rabi al-Awwal 11 AH — buried in Aisha's room — his last words: 'Prayer, prayer, and those whom your right hands possess'",
+      "ar": "توفي النبي ﷺ يوم الإثنين 12 ربيع الأول 11 هـ — ودُفن في حجرة عائشة رضي الله عنها — آخر كلماته: الصلاة الصلاة وما ملكت أيمانكم"
+    },
+    {
+      "en": "The Prophet ﷺ performed the Farewell Pilgrimage in 10 AH — gave his famous sermon: Every Muslim is sacred to another Muslim: their blood, wealth and honor",
+      "ar": "حج النبي ﷺ حجة الوداع في السنة 10 هـ — وخطب خطبته الشهيرة: كل المسلم على المسلم حرام: دمه وماله وعرضه"
+    },
+    {
+      "en": "The Prophet ﷺ prayed much at night",
+      "ar": "كان النبي ﷺ يقوم الليل كثيراً"
+    },
+    {
+      "en": "The Prophet ﷺ returned to Khadijah trembling and said: Cover me! Khadijah said: By Allah, He will never humiliate you",
+      "ar": "رجع النبي ﷺ إلى خديجة يرتجف وقال: زملوني زملوني — فقالت خديجة: كلا والله لا يُخزيك الله أبداً"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'An accepted Hajj has no reward except Paradise'",
+      "ar": "قال النبي ﷺ: «الحج المبرور ليس له جزاء إلا الجنة»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'Faith is to believe in Allah, His angels, His books, His messengers, the Last Day, and Divine Decree — its good and bad'",
+      "ar": "قال النبي ﷺ: «الإيمان أن تؤمن بالله وملائكته وكتبه ورسله واليوم الآخر وتؤمن بالقدر خيره وشره»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'Faith is to believe in Allah, His angels, His books, His messengers, the Last Day, and Divine Decree'",
+      "ar": "قال النبي ﷺ: «الإيمان: أن تؤمن بالله وملائكته وكتبه ورسله واليوم الآخر وتؤمن بالقدر خيره وشره»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'Five are from natural hygiene: circumcision, shaving pubic hair, trimming nails, removing armpit hair, and trimming the mustache'",
+      "ar": "قال النبي ﷺ: «خمس من الفطرة: الختان والاستحداد وتقليم الأظافر ونتف الإبط وقص الشارب»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'Islam is built on five pillars...'",
+      "ar": "قال النبي ﷺ: «بُني الإسلام على خمس...»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'No prayer is accepted without purification'",
+      "ar": "قال النبي ﷺ: «لا تُقبل صلاة بغير طهور»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'The covenant between us and them is prayer; whoever abandons it has disbelieved'",
+      "ar": "قال النبي ﷺ: «العهد الذي بيننا وبينهم الصلاة فمن تركها فقد كفر»"
+    },
+    {
+      "en": "The Prophet ﷺ said: 'Whoever stands in prayer during Ramadan with faith and seeking reward, his past sins will be forgiven'",
+      "ar": "قال النبي ﷺ: «من قام رمضان إيماناً واحتساباً غُفر له ما تقدم من ذنبه»"
+    },
+    {
+      "en": "The Prophet ﷺ sent letters to world leaders inviting them to Islam — Kisra, Caesar, Negus, Muqawqis",
+      "ar": "أرسل النبي ﷺ رسائل إلى ملوك العالم يدعوهم للإسلام — كسرى وقيصر والنجاشي والمقوقس"
+    },
+    {
+      "en": "The Prophet ﷺ sent military expeditions to protect Muslims and spread peace — aimed at defense not aggression",
+      "ar": "أرسل النبي ﷺ عدة سرايا لحماية المسلمين ونشر الأمان — كانت تهدف للدفاع وليس العدوان"
+    },
+    {
+      "en": "The Prophet ﷺ stood firm at Hunayn despite difficulties",
+      "ar": "ثبت النبي ﷺ في حنين رغم الصعوبات"
+    },
+    {
+      "en": "The Prophet ﷺ used to seclude himself in Cave Hira to contemplate and worship — away from his people's misguidance — until revelation came at age 40",
+      "ar": "كان النبي ﷺ يخلو بنفسه في غار حراء يتفكر ويتعبد — بعيداً عن ضلالات قومه — حتى جاءه الوحي وعمره 40 سنة"
+    },
+    {
+      "en": "The Prophet ﷺ was born in Makkah on Monday 12 Rabi al-Awwal, the Year of the Elephant — the same year Allah protected the Ka'bah from Abraha's army with birds",
+      "ar": "ولد النبي ﷺ في مكة يوم الإثنين 12 ربيع الأول عام الفيل — وفي نفس العام حمى الله الكعبة من جيش أبرهة بالطير الأبابيل"
+    },
+    {
+      "en": "The Prophet ﷺ was known among his people as the Truthful and Trustworthy — he worked as a shepherd then in trade with his uncle Abu Talib",
+      "ar": "عُرف النبي ﷺ بين قومه بالصادق الأمين — عمل في رعي الأغنام ثم في التجارة مع عمه أبي طالب"
+    },
+    {
+      "en": "The Prophet ﷺ was sent as mercy to all worlds",
+      "ar": "النبي ﷺ أُرسل رحمة للعالمين"
+    },
+    {
+      "en": "The Prophet ﷺ wrote the Constitution of Madinah — the first civil constitution in history — organizing relations between Muslims, Jews and other residents",
+      "ar": "كتب النبي ﷺ وثيقة المدينة — أول دستور مدني في التاريخ — نظّم العلاقة بين المسلمين واليهود وباقي سكان المدينة"
+    },
+    {
+      "en": "The Prophet ﷺ — filth placed on his back",
+      "ar": "النبي ﷺ — وُضعت الأقذار على ظهره"
+    },
+    {
+      "en": "The Prophet's Mosque",
+      "ar": "المسجد النبوي"
+    },
+    {
+      "en": "The Qibla was changed from Jerusalem to the Ka'bah in the 2nd year of Hijrah",
+      "ar": "حُوّلت القبلة من بيت المقدس إلى الكعبة المشرفة في السنة الثانية للهجرة"
+    },
+    {
+      "en": "The Quran is Allah's word revealed to Muhammad ﷺ — preserved from alteration until Judgment Day",
+      "ar": "القرآن كلام الله المنزل على محمد ﷺ — محفوظ من التحريف إلى يوم القيامة"
+    },
+    {
+      "en": "The Quran is preserved from alteration",
+      "ar": "القرآن محفوظ من التحريف"
+    },
+    {
+      "en": "The Quran is the last and most complete book, protected from alteration until Judgment Day",
+      "ar": "القرآن هو آخر الكتب وأكملها، محفوظ من التحريف إلى يوم القيامة"
+    },
+    {
+      "en": "The Rayyan gate — only fasting people enter through it",
+      "ar": "باب الريان يدخل منه الصائمون فقط"
+    },
+    {
+      "en": "The Source of Peace",
+      "ar": "السلام"
+    },
+    {
+      "en": "The Truthful and Trustworthy",
+      "ar": "الصادق الأمين"
+    },
+    {
+      "en": "The Wise",
+      "ar": "الحكيم"
+    },
+    {
+      "en": "The barrier between this life and Hereafter",
+      "ar": "البرزخ بين الدنيا والآخرة"
+    },
+    {
+      "en": "The believer combines fear and hope",
+      "ar": "المؤمن يجمع بين الخوف والرجاء"
+    },
+    {
+      "en": "The best of you are the best to their families, and I am the best to my family",
+      "ar": "خيركم خيركم لأهله وأنا خيركم لأهلي"
+    },
+    {
+      "en": "The best speech is Allah's speech",
+      "ar": "خير الكلام كلام الله"
+    },
+    {
+      "en": "The default state of things is purity",
+      "ar": "الأصل في الأشياء الطهارة"
+    },
+    {
+      "en": "The default state of things is purity until proven otherwise",
+      "ar": "الأصل في الأشياء الطهارة حتى يثبت العكس"
+    },
+    {
+      "en": "The fasting person has two joys: at iftar and when meeting their Lord",
+      "ar": "للصائم فرحتان: فرحة عند فطره وفرحة عند لقاء ربه"
+    },
+    {
+      "en": "The final preserved book",
+      "ar": "الكتاب الأخير المحفوظ"
+    },
+    {
+      "en": "The first major battle in Islam — 313 Muslims vs 1000 polytheists — Allah granted Muslims a great victory",
+      "ar": "أول معركة كبرى في الإسلام — 313 مسلماً ضد 1000 مشرك — نصر الله المسلمين نصراً عظيماً"
+    },
+    {
+      "en": "The last expedition — went to face the Romans but they didn't show — a difficult test for Muslims in extreme heat",
+      "ar": "آخر غزوات النبي ﷺ — خرج لمواجهة الروم لكنهم لم يحضروا — اختبار صعب للمسلمين في الحر الشديد"
+    },
+    {
+      "en": "The poor and needy",
+      "ar": "الفقراء والمساكين"
+    },
+    {
+      "en": "The sick person prays according to their ability: standing, if not then sitting, if not then on their side",
+      "ar": "يصلي المريض على حسب حاله: قائماً فإن لم يستطع فجالساً فإن لم يستطع فعلى جنبه"
+    },
+    {
+      "en": "The thirst has gone, the veins are moistened, and the reward is certain if Allah wills",
+      "ar": "ذهب الظمأ وابتلّت العروق وثبت الأجر إن شاء الله"
+    },
+    {
+      "en": "The traveler",
+      "ar": "ابن السبيل"
+    },
+    {
+      "en": "The traveler may shorten 4-rak'ah prayers to 2, and combine Dhuhr with Asr or Maghrib with Isha",
+      "ar": "يجوز للمسافر قصر الصلاة الرباعية إلى ركعتين، والجمع بين الظهر والعصر أو المغرب والعشاء"
+    },
+    {
+      "en": "The two testimonies are the foundation",
+      "ar": "الشهادتان أساس الدين — لا إله إلا الله محمد رسول الله"
+    },
+    {
+      "en": "There is no deity worthy of worship except Allah — we worship Allah alone",
+      "ar": "لا معبود بحق إلا الله — نعبد الله وحده ولا نشرك به شيئاً"
+    },
+    {
+      "en": "Those in debt",
+      "ar": "الغارمون"
+    },
+    {
+      "en": "Those whose hearts are to be reconciled",
+      "ar": "المؤلفة قلوبهم"
+    },
+    {
+      "en": "Three",
+      "ar": "ثلاث"
+    },
+    {
+      "en": "Three",
+      "ar": "ثلاثة"
+    },
+    {
+      "en": "Through faith and good deeds",
+      "ar": "بالإيمان والعمل الصالح"
+    },
+    {
+      "en": "Through faith, good deeds and Allah's mercy",
+      "ar": "بالإيمان والعمل الصالح ورحمة الله"
+    },
+    {
+      "en": "Time has entered",
+      "ar": "دخول الوقت"
+    },
+    {
+      "en": "Tip of tongue",
+      "ar": "طرف اللسان"
+    },
+    {
+      "en": "To whom did the Prophet ﷺ send letters?",
+      "ar": "إلى من أرسل النبي ﷺ رسائل؟"
+    },
+    {
+      "en": "Torah",
+      "ar": "التوراة"
+    },
+    {
+      "en": "Trade goods",
+      "ar": "عروض التجارة"
+    },
+    {
+      "en": "Traders",
+      "ar": "التجار"
+    },
+    {
+      "en": "Treaty of Hudaybiyyah was a clear victory",
+      "ar": "صلح الحديبية كان فتحاً مبيناً"
+    },
+    {
+      "en": "Trimming nails",
+      "ar": "قص الأظافر"
+    },
+    {
+      "en": "Trust in Allah",
+      "ar": "التوكل على الله"
+    },
+    {
+      "en": "Trustworthiness",
+      "ar": "الأمانة"
+    },
+    {
+      "en": "Truthful",
+      "ar": "الصادق الأمين"
+    },
+    {
+      "en": "Truthful/Trustworthy",
+      "ar": "الصادق الأمين"
+    },
+    {
+      "en": "Truthfulness",
+      "ar": "الصدق"
+    },
+    {
+      "en": "Twice",
+      "ar": "مرتين"
+    },
+    {
+      "en": "Two",
+      "ar": "اثنان"
+    },
+    {
+      "en": "Two Testimonies — Pillar of Faith",
+      "ar": "الشهادتان — ركن العقيدة"
+    },
+    {
+      "en": "Two testimonies",
+      "ar": "الشهادتان"
+    },
+    {
+      "en": "Two testimonies of faith",
+      "ar": "الشهادتان"
+    },
+    {
+      "en": "Types of Tawheed?",
+      "ar": "أنواع التوحيد كم؟"
+    },
+    {
+      "en": "Udhiyah is a confirmed Sunnah for those who can afford it on Eid al-Adha",
+      "ar": "الأضحية سنة مؤكدة عن القادر في عيد الأضحى"
+    },
+    {
+      "en": "Uhud",
+      "ar": "أحد"
+    },
+    {
+      "en": "Umar",
+      "ar": "عمر"
+    },
+    {
+      "en": "Umrah is the minor pilgrimage — recommended at any time of year",
+      "ar": "العمرة هي الحج الأصغر — تُسن في أي وقت من السنة"
+    },
+    {
+      "en": "Unintentional vomiting",
+      "ar": "القيء غير المتعمد"
+    },
+    {
+      "en": "Urine",
+      "ar": "البول"
+    },
+    {
+      "en": "Using Siwak",
+      "ar": "السواك"
+    },
+    {
+      "en": "Value of 85 grams gold",
+      "ar": "قيمة 85 غرام ذهب"
+    },
+    {
+      "en": "Victory comes from Allah",
+      "ar": "النصر من عند الله"
+    },
+    {
+      "en": "Victory comes from Allah alone",
+      "ar": "النصر من عند الله وحده"
+    },
+    {
+      "en": "Visual & Audio Learning",
+      "ar": "تعلّم بصري وسمعي"
+    },
+    {
+      "en": "Wars",
+      "ar": "الحروب"
+    },
+    {
+      "en": "Wash feet to ankles",
+      "ar": "غسل الرجلين إلى الكعبين"
+    },
+    {
+      "en": "Wash hands to elbows",
+      "ar": "غسل اليدين إلى المرفقين"
+    },
+    {
+      "en": "Wash the face",
+      "ar": "غسل الوجه"
+    },
+    {
+      "en": "Washed with cold water",
+      "ar": "يُغسل بالماء البارد"
+    },
+    {
+      "en": "Washed with water",
+      "ar": "يُغسل بالماء"
+    },
+    {
+      "en": "Water",
+      "ar": "ماء"
+    },
+    {
+      "en": "We believe in Qadar and work hard — belief in Qadar doesn't mean laziness",
+      "ar": "نؤمن بالقدر ونعمل بجد — الإيمان بالقدر لا يعني الكسل"
+    },
+    {
+      "en": "We believe in all prophets and don't differentiate between any of them",
+      "ar": "نؤمن بجميع الأنبياء، ولا نفرّق بين أحد منهم"
+    },
+    {
+      "en": "We believe that Allah is One and Unique, with no partners, He is the Creator, Provider and Manager",
+      "ar": "نؤمن أن الله واحد أحد، لا شريك له، هو الخالق الرازق المدبر"
+    },
+    {
+      "en": "We enter Paradise through faith, good deeds and Allah's mercy",
+      "ar": "ندخل الجنة بالإيمان والعمل الصالح ورحمة الله"
+    },
+    {
+      "en": "We fear Allah with love and reverence — so we don't disobey Him",
+      "ar": "نخاف الله خوف محبة وتعظيم — فلا نعصيه"
+    },
+    {
+      "en": "We follow the imam, don't precede him",
+      "ar": "نتابع الإمام ولا نسبقه"
+    },
+    {
+      "en": "We have not sent you except as a mercy to the worlds (21:107)",
+      "ar": "﴿وَمَا أَرْسَلْنَاكَ إِلَّا رَحْمَةً لِّلْعَالَمِينَ﴾"
+    },
+    {
+      "en": "We love Allah because He created us, provided for us, guided us — and we love what Allah loves",
+      "ar": "نحب الله لأنه خلقنا ورزقنا وهدانا — ونحب ما يحبه الله"
+    },
+    {
+      "en": "We need a new king",
+      "ar": "نحتاج ملكاً جديداً"
+    },
+    {
+      "en": "We protect ourselves from Hellfire through faith, good deeds and avoiding sins",
+      "ar": "نحمي أنفسنا من النار بالإيمان والعمل الصالح وترك المعاصي"
+    },
+    {
+      "en": "We repent and seek Allah's forgiveness",
+      "ar": "نتوب ونستغفر الله"
+    },
+    {
+      "en": "Weak weapons",
+      "ar": "ضعف الأسلحة"
+    },
+    {
+      "en": "What did Abu Bakr say when the Prophet ﷺ died?",
+      "ar": "ماذا قال أبو بكر عند وفاة النبي ﷺ؟"
+    },
+    {
+      "en": "What did Arabs worship before Islam?",
+      "ar": "ماذا كان يعبد العرب قبل الإسلام؟"
+    },
+    {
+      "en": "What did the Constitution organize?",
+      "ar": "ماذا نظّمت وثيقة المدينة؟"
+    },
+    {
+      "en": "What did the Prophet ﷺ say after conquest?",
+      "ar": "ماذا قال النبي ﷺ لأهل مكة بعد الفتح؟"
+    },
+    {
+      "en": "What did the Prophet ﷺ say when stoned at Ta'if?",
+      "ar": "ماذا قال النبي ﷺ عندما رُجم في الطائف؟"
+    },
+    {
+      "en": "What do we break fast with?",
+      "ar": "على ماذا نفطر؟"
+    },
+    {
+      "en": "What do we do when we make mistakes?",
+      "ar": "ماذا نفعل عندما نخطئ؟"
+    },
+    {
+      "en": "What do we say in bowing?",
+      "ar": "ماذا نقول في الركوع؟"
+    },
+    {
+      "en": "What does La Ilaha Illa Allah mean?",
+      "ar": "ما معنى لا إله إلا الله؟"
+    },
+    {
+      "en": "What is Ihsan?",
+      "ar": "ما الإحسان؟"
+    },
+    {
+      "en": "What is gold Nisab for Zakat?",
+      "ar": "ما نصاب الذهب للزكاة؟"
+    },
+    {
+      "en": "What is our duty toward the Prophet ﷺ?",
+      "ar": "ما واجبنا تجاه النبي ﷺ؟"
+    },
+    {
+      "en": "What is our most important duty toward the Prophet ﷺ?",
+      "ar": "ما أهم حق للنبي ﷺ علينا؟"
+    },
+    {
+      "en": "What is the Zakat rate on money?",
+      "ar": "ما نسبة الزكاة من المال؟"
+    },
+    {
+      "en": "What is the condition for valid prayer?",
+      "ar": "ما شرط صحة الصلاة؟"
+    },
+    {
+      "en": "What is the first pillar after standing?",
+      "ar": "ما أول ركن في الصلاة بعد القيام؟"
+    },
+    {
+      "en": "What is the greatest sin?",
+      "ar": "ما أعظم ذنب عند الله؟"
+    },
+    {
+      "en": "What is the most important pillar of Hajj?",
+      "ar": "ما أهم ركن في الحج؟"
+    },
+    {
+      "en": "What is the name of the gate fasting people enter Paradise through?",
+      "ar": "ما اسم الباب الذي يدخل منه الصائمون الجنة؟"
+    },
+    {
+      "en": "What was he called before prophethood?",
+      "ar": "بماذا لُقّب النبي ﷺ قبل النبوة؟"
+    },
+    {
+      "en": "What was ordained on the Night of Ascension?",
+      "ar": "ماذا فُرض في ليلة المعراج؟"
+    },
+    {
+      "en": "What was the Prophet ﷺ nicknamed?",
+      "ar": "بماذا لُقّب النبي ﷺ؟"
+    },
+    {
+      "en": "What was the Prophet's ﷺ last expedition?",
+      "ar": "ما آخر غزوات النبي ﷺ؟"
+    },
+    {
+      "en": "What was the center of Islamic society?",
+      "ar": "ما كان مركز المجتمع الإسلامي؟"
+    },
+    {
+      "en": "What was the first thing the Prophet ﷺ built?",
+      "ar": "ما أول ما بناه النبي ﷺ في المدينة؟"
+    },
+    {
+      "en": "What was the first word revealed from Quran?",
+      "ar": "ما أول كلمة نزلت من القرآن؟"
+    },
+    {
+      "en": "When Quraysh rebuilt the Ka'bah, they disputed who would place the Black Stone — they agreed the first to enter would judge — it was Muhammad ﷺ who placed it on a cloth and all tribes carried it together",
+      "ar": "عندما أعادت قريش بناء الكعبة اختلفوا على من يضع الحجر الأسود — فاتفقوا على حكم أول من يدخل — وكان محمد ﷺ فوضع الحجر على ثوب وحمله ممثلو القبائل معاً"
+    },
+    {
+      "en": "When adding or omitting in prayer",
+      "ar": "عند الزيادة أو النقص في الصلاة"
+    },
+    {
+      "en": "When battle intensified, they would seek shelter near him",
+      "ar": "كان إذا حمي الوطيس اتقوا برسول الله ﷺ"
+    },
+    {
+      "en": "When do we perform Sujud as-Sahw?",
+      "ar": "متى نسجد سجود السهو؟"
+    },
+    {
+      "en": "When do we perform Tayammum?",
+      "ar": "متى نتيمم؟"
+    },
+    {
+      "en": "When is Taraweeh prayed?",
+      "ar": "متى تُصلى التراويح؟"
+    },
+    {
+      "en": "When is Zakat al-Fitr paid?",
+      "ar": "متى تُخرج زكاة الفطر؟"
+    },
+    {
+      "en": "When is the intention for Ramadan fasting?",
+      "ar": "متى تكون نية صيام رمضان؟"
+    },
+    {
+      "en": "When is the sacrifice made?",
+      "ar": "متى تُذبح الأضحية؟"
+    },
+    {
+      "en": "When was the Farewell Pilgrimage?",
+      "ar": "متى كانت حجة الوداع؟"
+    },
+    {
+      "en": "When water is unavailable",
+      "ar": "عند عدم وجود الماء"
+    },
+    {
+      "en": "When water is unavailable or cannot be used",
+      "ar": "عند عدم وجود الماء أو عدم القدرة على استعماله"
+    },
+    {
+      "en": "Where did the Prophet ﷺ make the public call?",
+      "ar": "أين جهر النبي ﷺ بالدعوة؟"
+    },
+    {
+      "en": "Where was the Prophet ﷺ born?",
+      "ar": "أين ولد النبي ﷺ؟"
+    },
+    {
+      "en": "Where was the Qibla changed to?",
+      "ar": "إلى أين تحولت القبلة؟"
+    },
+    {
+      "en": "Which angel brings revelation?",
+      "ar": "من الملك الذي ينزل بالوحي؟"
+    },
+    {
+      "en": "Which book was revealed to Prophet Muhammad ﷺ?",
+      "ar": "أي كتاب أُنزل على النبي محمد ﷺ؟"
+    },
+    {
+      "en": "Which direction do we face in prayer?",
+      "ar": "أي اتجاه نستقبل في الصلاة؟"
+    },
+    {
+      "en": "Which foot do we enter restroom with?",
+      "ar": "بأي رجل ندخل الحمام؟"
+    },
+    {
+      "en": "Which invalidates prayer?",
+      "ar": "أي مما يلي يُبطل الصلاة؟"
+    },
+    {
+      "en": "Which is from natural hygiene?",
+      "ar": "أي مما يلي من سنن الفطرة؟"
+    },
+    {
+      "en": "Which month?",
+      "ar": "في أي شهر نصوم؟"
+    },
+    {
+      "en": "Which name means: The One who guides to the right path?",
+      "ar": "أي اسم يعني: الذي يهدي إلى الطريق الصحيح؟"
+    },
+    {
+      "en": "Which name means: never defeated?",
+      "ar": "أي اسم يعني: لا يُغلب أبداً؟"
+    },
+    {
+      "en": "Which of the following breaks wudu?",
+      "ar": "أي مما يلي ينقض الوضوء؟"
+    },
+    {
+      "en": "Which requires ghusl?",
+      "ar": "أي من التالي يوجب الغسل؟"
+    },
+    {
+      "en": "Which water is valid for wudu?",
+      "ar": "أي ماء يصح للوضوء؟"
+    },
+    {
+      "en": "Who accompanied the Prophet ﷺ in Hijrah?",
+      "ar": "من رافق النبي ﷺ في الهجرة؟"
+    },
+    {
+      "en": "Who came to ask the Prophet ﷺ about faith?",
+      "ar": "من الذي جاء يسأل النبي ﷺ عن الإيمان؟"
+    },
+    {
+      "en": "Who carried the banner at Khaybar?",
+      "ar": "من حمل الراية في خيبر؟"
+    },
+    {
+      "en": "Who created everything?",
+      "ar": "من خلق كل شيء؟"
+    },
+    {
+      "en": "Who did the Prophet ﷺ call the Sword of Allah?",
+      "ar": "من سمّاه النبي ﷺ سيف الله المسلول؟"
+    },
+    {
+      "en": "Who do we call upon?",
+      "ar": "من ندعو؟"
+    },
+    {
+      "en": "Who is the last Prophet and Messenger?",
+      "ar": "من آخر الأنبياء والمرسلين؟"
+    },
+    {
+      "en": "Who nursed the Prophet ﷺ?",
+      "ar": "من أرضعت النبي ﷺ؟"
+    },
+    {
+      "en": "Who passed away in the Year of Sorrow?",
+      "ar": "من توفي في عام الحزن؟"
+    },
+    {
+      "en": "Who pledged allegiance at Aqabah?",
+      "ar": "من بايع النبي ﷺ في العقبة؟"
+    },
+    {
+      "en": "Who slept in the Prophet's ﷺ bed?",
+      "ar": "من نام في فراش النبي ﷺ؟"
+    },
+    {
+      "en": "Who suggested digging the trench?",
+      "ar": "من اقترح حفر الخندق؟"
+    },
+    {
+      "en": "Who was the first female martyr in Islam?",
+      "ar": "من أول شهيدة في الإسلام؟"
+    },
+    {
+      "en": "Who was the first muezzin in Islam?",
+      "ar": "من أول مؤذن في الإسلام؟"
+    },
+    {
+      "en": "Who was the just king of Abyssinia?",
+      "ar": "من ملك الحبشة العادل؟"
+    },
+    {
+      "en": "Whoever worships Allah, He never dies",
+      "ar": "من كان يعبد الله فإن الله حي لا يموت"
+    },
+    {
+      "en": "Why did Muslims lose at Uhud?",
+      "ar": "لماذا خسر المسلمون في أحد؟"
+    },
+    {
+      "en": "Why was it called Year of Delegations?",
+      "ar": "لماذا سُمي عام الوفود؟"
+    },
+    {
+      "en": "Will",
+      "ar": "المشيئة"
+    },
+    {
+      "en": "Wipe the face",
+      "ar": "مسح الوجه"
+    },
+    {
+      "en": "Wipe the head",
+      "ar": "مسح الرأس"
+    },
+    {
+      "en": "Wipe the palms",
+      "ar": "مسح الكفين"
+    },
+    {
+      "en": "With water once",
+      "ar": "بالماء مرة واحدة"
+    },
+    {
+      "en": "World kings",
+      "ar": "ملوك العالم"
+    },
+    {
+      "en": "Worship Allah as if you see Him",
+      "ar": "أن تعبد الله كأنك تراه فإن لم تكن تراه فإنه يراك"
+    },
+    {
+      "en": "Worship as if you see Him",
+      "ar": "أن تعبد الله كأنك تراه"
+    },
+    {
+      "en": "Worship him",
+      "ar": "عبادته"
+    },
+    {
+      "en": "Writing",
+      "ar": "الكتابة"
+    },
+    {
+      "en": "Wudu (ablution)",
+      "ar": "الوضوء"
+    },
+    {
+      "en": "Wudu breaking",
+      "ar": "انتقاض الوضوء"
+    },
+    {
+      "en": "Yasir and Sumayyah — first martyrs",
+      "ar": "ياسر وسمية — أول شهداء الإسلام"
+    },
+    {
+      "en": "Yearly",
+      "ar": "كل سنة"
+    },
+    {
+      "en": "Yes",
+      "ar": "نعم"
+    },
+    {
+      "en": "You are free",
+      "ar": "اذهبوا فأنتم الطلقاء"
+    },
+    {
+      "en": "Zakat",
+      "ar": "الزكاة"
+    },
+    {
+      "en": "Zakat al-Fitr is obligatory on every Muslim who has food for the day and night",
+      "ar": "زكاة الفطر واجبة على كل مسلم يملك قوت يومه وليلته"
+    },
+    {
+      "en": "Zakat collectors",
+      "ar": "العاملون عليها"
+    },
+    {
+      "en": "Zakat is giving a specific amount of wealth to those entitled when it reaches the Nisab and a year passes",
+      "ar": "الزكاة هي إخراج قدر معلوم من المال لمستحقيه إذا بلغ النصاب وحال عليه الحول"
+    },
+    {
+      "en": "Zakat purifies wealth — 2.5%",
+      "ar": "الزكاة تطهير للمال — 2.5% من الأموال"
+    },
+    {
+      "en": "Zakat rate?",
+      "ar": "ما نسبة الزكاة؟"
+    },
+    {
+      "en": "Zakat — Right of the Poor",
+      "ar": "الزكاة — حق الفقراء"
+    },
+    {
+      "en": "Zayd — first freed slave",
+      "ar": "زيد بن حارثة — أول مولى"
+    },
+    {
+      "en": "books/wrote",
+      "ar": "كتب"
+    },
+    {
+      "en": "generous",
+      "ar": "كريم"
+    },
+    {
+      "en": "great",
+      "ar": "عظيم"
+    },
+    {
+      "en": "in our hearts",
+      "ar": "في قلوبنا"
+    },
+    {
+      "en": "knowledge/flag",
+      "ar": "علم"
+    },
+    {
+      "en": "light",
+      "ar": "نور"
+    },
+    {
+      "en": "merciful",
+      "ar": "رحيم"
+    },
+    {
+      "en": "messenger",
+      "ar": "رسول"
+    },
+    {
+      "en": "people",
+      "ar": "ناس"
+    },
+    {
+      "en": "said",
+      "ar": "قال"
+    },
+    {
+      "en": "says",
+      "ar": "يقول"
+    },
+    {
+      "en": "was",
+      "ar": "كان"
+    },
+    {
+      "en": "we shout",
+      "ar": "صرخنا"
+    },
+    {
+      "en": "we whisper",
+      "ar": "همسنا"
+    }
+  ]
+}
