@@ -1,6 +1,7 @@
 /**
- * Prayer Notification Scheduler using Adhan.js
- * Schedules real prayer time notifications and athan audio
+ * Prayer Notification Scheduler
+ * REAL notifications using Web Notification API + Service Worker
+ * Reads individual prayer notification settings from localStorage
  */
 import { Coordinates, PrayerTimes, CalculationMethod, Madhab, Prayer, Qibla } from 'adhan';
 import { stopAthan as stopAthanShared, playAthan as playAthanShared } from './athanAudio';
@@ -17,12 +18,17 @@ interface PrayerTimesResult {
 }
 
 const PRAYER_NAMES_AR: Record<string, string> = {
+  fajr: 'الفجر', sunrise: 'الشروق', dhuhr: 'الظهر',
+  asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء'
+};
+
+const PRAYER_NAMES_EN: Record<string, string> = {
   fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr',
   asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha'
 };
 
 const PRAYER_EMOJIS: Record<string, string> = {
-  fajr: '🌙', dhuhr: '☀️', asr: '🌤️', maghrib: '🌅', isha: '🌙'
+  fajr: '🌅', dhuhr: '☀️', asr: '🌤️', maghrib: '🌇', isha: '🌙'
 };
 
 export function calculatePrayerTimes(lat: number, lon: number, method: PrayerMethod = 'UmmAlQura', school: 'shafi' | 'hanafi' = 'shafi'): PrayerTimesResult {
@@ -113,17 +119,56 @@ interface PrayerTimeInput {
   name?: string;
 }
 
-export function schedulePrayerNotifications(prayers: PrayerTimeInput[], enabledPrayers?: string[], reminderMinutes = 0) {
+/**
+ * Read which prayers user has enabled from localStorage.
+ * Default: all 5 prayers enabled.
+ */
+function getEnabledPrayers(): string[] {
+  const masterEnabled = localStorage.getItem('athan-notifications');
+  if (masterEnabled === 'false') return [];
+  
+  // Check individual prayer toggles from NotificationSettings
+  const all = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+  
+  // If individual prayer settings exist, respect them
+  const individualKey = 'notif-enabled-prayers';
+  const saved = localStorage.getItem(individualKey);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+  }
+  
+  return all; // Default: all enabled
+}
+
+/**
+ * Check if reminders (10-min before) are enabled
+ */
+function isReminderEnabled(): boolean {
+  const saved = localStorage.getItem('notif-prayer-reminder');
+  return saved !== 'false'; // Default: enabled
+}
+
+/**
+ * Schedule real browser notifications for prayer times.
+ * Reads settings from localStorage for individual prayer control.
+ */
+export function schedulePrayerNotifications(prayers: PrayerTimeInput[], enabledPrayers?: string[], reminderMinutes = 10) {
   clearPrayerSchedule();
   
   try {
-    const enabled = enabledPrayers || ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    const enabled = enabledPrayers || getEnabledPrayers();
+    if (enabled.length === 0) return false;
+    
     const activePrayers = prayers.filter(p => enabled.includes(p.key) && p.key !== 'sunrise');
+    const showReminders = isReminderEnabled();
     
     // Send prayer times to service worker for persistent background notifications
     sendPrayerTimesToSW(activePrayers);
     
-    // Also schedule in main thread as backup (works while app is open)
+    // Also schedule in main thread (works while app is open)
     for (const prayer of activePrayers) {
       const [h, m] = prayer.time24.split(':').map(Number);
       const now = new Date();
@@ -131,15 +176,18 @@ export function schedulePrayerNotifications(prayers: PrayerTimeInput[], enabledP
       const diff = prayerDate.getTime() - now.getTime();
       
       if (diff > 0 && diff < 24 * 60 * 60 * 1000) {
+        // Schedule main prayer notification
         const timer = setTimeout(() => {
           showPrayerNotification(prayer.key);
+          // Trigger fullscreen alert in-app
           if (athanAlertCallback) {
             athanAlertCallback(prayer.key, prayer.time || prayer.time24);
           }
         }, diff);
         scheduledTimers.push(timer);
         
-        if (reminderMinutes > 0) {
+        // Schedule 10-minute reminder
+        if (showReminders && reminderMinutes > 0) {
           const reminderDiff = diff - reminderMinutes * 60 * 1000;
           if (reminderDiff > 0) {
             const reminderTimer = setTimeout(() => {
@@ -151,8 +199,11 @@ export function schedulePrayerNotifications(prayers: PrayerTimeInput[], enabledP
       }
     }
     
+    // Log scheduled count
+    console.log(`[Prayer Notif] Scheduled ${activePrayers.length} prayers, ${scheduledTimers.length} timers`);
     return true;
   } catch (_e) {
+    console.error('[Prayer Notif] Scheduling failed:', _e);
     return false;
   }
 }
@@ -163,9 +214,11 @@ async function sendPrayerTimesToSW(prayers: PrayerTimeInput[]) {
   try {
     const reg = await navigator.serviceWorker.ready;
     if (reg.active) {
+      const lang = localStorage.getItem('app-language') || 'ar';
       reg.active.postMessage({
         type: 'UPDATE_PRAYER_TIMES',
         prayers: prayers.map(p => ({ key: p.key, time24: p.time24, name: p.name })),
+        language: lang,
       });
     }
     
@@ -174,7 +227,7 @@ async function sendPrayerTimesToSW(prayers: PrayerTimeInput[]) {
       try {
         // @ts-ignore
         await reg.periodicSync.register('prayer-check', { minInterval: 60 * 1000 });
-      } catch (_e) { /* periodic sync not supported or permission denied */ }
+      } catch (_e) { /* periodic sync not supported */ }
     }
   } catch (_e) { /* Service worker not available */ }
 }
@@ -198,10 +251,21 @@ export async function sendTestNotification(): Promise<boolean> {
 
   // Fallback to regular notification
   new Notification('🕌 اختبار - أذان وحكاية', {
-    body: 'الإشعارات تعمل بنجاح!',
+    body: 'الإشعارات تعمل بنجاح! ✅ Notifications are working!',
     icon: '/pwa-icon-192.png',
   });
   return true;
+}
+
+/**
+ * Send a test fullscreen athan alert (for testing in-app)
+ */
+export function sendTestAthanAlert(): boolean {
+  if (athanAlertCallback) {
+    athanAlertCallback('dhuhr', new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }));
+    return true;
+  }
+  return false;
 }
 
 export function clearPrayerSchedule() {
@@ -212,10 +276,18 @@ export function clearPrayerSchedule() {
 function showPrayerNotification(prayer: string) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   
-  const title = `🕌 حان وقت صلاة ${PRAYER_NAMES_AR[prayer]}`;
-  const body = 'الصلاة خير من النوم • استعد بالوضوء';
+  const isAr = (localStorage.getItem('app-language') || 'ar') === 'ar';
+  const prayerName = isAr ? PRAYER_NAMES_AR[prayer] : PRAYER_NAMES_EN[prayer];
+  const emoji = PRAYER_EMOJIS[prayer] || '🕌';
   
-  // Try service worker notification first (works even with app closed)
+  const title = isAr 
+    ? `${emoji} حان وقت صلاة ${prayerName}` 
+    : `${emoji} Time for ${prayerName} prayer`;
+  const body = isAr 
+    ? 'حيّ على الصلاة • حيّ على الفلاح' 
+    : 'Come to prayer • Come to success';
+  
+  // Try service worker notification first (persists even after closing app)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(title, {
@@ -229,8 +301,8 @@ function showPrayerNotification(prayer: string) {
         renotify: true,
         data: { prayer, type: 'athan', url: '/' },
         actions: [
-          { action: 'open', title: 'فتح التطبيق' },
-          { action: 'dismiss', title: 'تجاهل' },
+          { action: 'open', title: isAr ? 'فتح التطبيق' : 'Open App' },
+          { action: 'dismiss', title: isAr ? 'تجاهل' : 'Dismiss' },
         ],
       });
     });
@@ -248,8 +320,15 @@ function showPrayerNotification(prayer: string) {
 function showPrayerReminder(prayer: string, minutes: number) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   
-  const title = `⏰ remaining ${minutes} min صلاة ${PRAYER_NAMES_AR[prayer]}`;
-  const body = 'استعد للصلاة - حي على الصلاة';
+  const isAr = (localStorage.getItem('app-language') || 'ar') === 'ar';
+  const prayerName = isAr ? PRAYER_NAMES_AR[prayer] : PRAYER_NAMES_EN[prayer];
+  
+  const title = isAr
+    ? `⏰ بعد ${minutes} دقيقة صلاة ${prayerName}`
+    : `⏰ ${prayerName} in ${minutes} minutes`;
+  const body = isAr 
+    ? 'استعد للصلاة بالوضوء' 
+    : 'Prepare for prayer with wudu';
   
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(reg => {
@@ -264,8 +343,7 @@ function showPrayerReminder(prayer: string, minutes: number) {
   }
 }
 
-// Athan audio player - uses shared stopAthan from athanAudio module
-
+// Athan audio player
 export function playAthan(prayer: string) {
   try {
     playAthanShared(prayer);
