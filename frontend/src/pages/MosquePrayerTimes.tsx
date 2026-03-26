@@ -157,9 +157,9 @@ export default function MosquePrayerTimesPage() {
       const nowSec = nowMin * 60 + now.getSeconds();
 
       for (const key of COUNTDOWN_KEYS) {
-        const t = times[key];
-        if (!t) continue;
-        const [h, m] = t.split(':').map(Number);
+        const timeStr = times[key];
+        if (!timeStr) continue;
+        const [h, m] = timeStr.split(':').map(Number);
         const prayerSec = h * 60 * 60 + m * 60;
         if (prayerSec > nowSec) {
           const diff = prayerSec - nowSec;
