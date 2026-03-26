@@ -2686,5 +2686,21 @@
   "revenueRule1": "Hediye gönderildiğinde: %50 yöneticiye ve %50 içerik üreticisine",
   "revenueRule2": "Kullanıcılar reklamlardan ve etkinliklerden puan kazanır",
   "revenueRule3": "Kanal sahipleri reklam yükler, yönetici fiyatı belirler",
-  "revenueRule4": "Pazar komisyonu her satıştan otomatik olarak düşülür"
+  "revenueRule4": "Pazar komisyonu her satıştan otomatik olarak düşülür",
+  "soundModeTitle": "Ezan Ses Modu",
+  "soundModeDesc": "Cihaz modunuza göre ezan sesini kontrol edin",
+  "soundModeSound": "Ses",
+  "soundModeSoundDesc": "Ezan sesini her zaman çal",
+  "soundModeVibrate": "Sadece Titreşim",
+  "soundModeVibrateDesc": "Sadece titreşim, ses yok",
+  "soundModeSilent": "Sessiz",
+  "soundModeSilentDesc": "Ses yok, titreşim yok — sadece görsel bildirim",
+  "soundModeAuto": "Cihazı Takip Et",
+  "soundModeAutoDesc": "Cihazınızın ses modunu otomatik takip eder",
+  "soundModeChanged": "Ses modu değiştirildi",
+  "soundModeSection": "Ses Modu",
+  "soundModeTip": "💡 İpucu: Camide veya kamuya açık yerlerde utanmamak için «Cihazı Takip Et» modunu etkinleştirin",
+  "soundModeCurrently": "Mevcut mod",
+  "athanSilentBecauseMode": "Ezan sessiz — mevcut mod: {mode}",
+  "athanVibrateBecauseMode": "Sadece titreşim — titreşim modu aktif"
 }

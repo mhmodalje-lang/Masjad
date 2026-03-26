@@ -19,6 +19,110 @@ export const ATHAN_OPTIONS: AthanOption[] = [
   { id: 'default', name: 'Simple Beep', nameAr: 'تنبيه بسيط', url: '' },
 ];
 
+// ==================== SOUND MODE ====================
+// Sound modes: 'sound' = always play, 'vibrate' = vibrate only, 'silent' = no sound/vibrate, 'auto' = follow device
+export type AthanSoundMode = 'sound' | 'vibrate' | 'silent' | 'auto';
+
+export function getAthanSoundMode(): AthanSoundMode {
+  return (localStorage.getItem('athan-sound-mode') as AthanSoundMode) || 'auto';
+}
+
+export function setAthanSoundMode(mode: AthanSoundMode) {
+  localStorage.setItem('athan-sound-mode', mode);
+}
+
+/**
+ * Detect if the device is effectively in a silent/muted state.
+ * Uses AudioContext to check if audio output is possible.
+ * This is a best-effort detection for web apps.
+ */
+export async function isDeviceEffectivelySilent(): Promise<boolean> {
+  try {
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return false;
+
+    const ctx = new AudioCtx();
+
+    // If AudioContext is suspended, audio won't play (no user gesture or blocked)
+    if (ctx.state === 'suspended') {
+      try { await ctx.resume(); } catch { /* ignore */ }
+      // If still suspended after resume attempt, consider it silent
+      if (ctx.state === 'suspended') {
+        ctx.close();
+        return true;
+      }
+    }
+
+    // iOS silent switch detection technique:
+    // Create a short oscillator and measure if it produces actual output
+    const osc = ctx.createOscillator();
+    const analyser = ctx.createAnalyser();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.001; // Near-inaudible
+    analyser.fftSize = 256;
+
+    osc.connect(gain);
+    gain.connect(analyser);
+    analyser.connect(ctx.destination);
+    osc.frequency.value = 200;
+    osc.start();
+
+    // Wait for audio pipeline to process
+    await new Promise(resolve => setTimeout(resolve, 150));
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteTimeDomainData(dataArray);
+
+    // Check if all values are at silence level (128 = silence in time domain)
+    const allSilent = dataArray.every(v => v >= 126 && v <= 130);
+
+    osc.stop();
+    ctx.close();
+
+    // If the analyser shows all silence, the device might be muted
+    // However, this is not 100% reliable - some devices still show data
+    return allSilent;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Determine if athan audio should play based on the sound mode setting.
+ * Returns true if audio should play, false if it should be skipped.
+ */
+export async function shouldPlayAthanAudio(): Promise<boolean> {
+  const mode = getAthanSoundMode();
+  if (mode === 'sound') return true;
+  if (mode === 'silent' || mode === 'vibrate') return false;
+
+  // Auto mode: try to detect device state
+  const isSilent = await isDeviceEffectivelySilent();
+  return !isSilent;
+}
+
+/**
+ * Determine if the device should vibrate for athan.
+ */
+export function shouldVibrateForAthan(): boolean {
+  const mode = getAthanSoundMode();
+  if (mode === 'silent') return false;
+  return true; // vibrate in 'sound', 'vibrate', and 'auto' modes
+}
+
+/**
+ * Vibrate the device for athan notification.
+ */
+export function vibrateForAthan() {
+  if (!shouldVibrateForAthan()) return;
+  try {
+    if ('vibrate' in navigator) {
+      // Long vibration pattern for prayer time
+      navigator.vibrate([400, 200, 400, 200, 400, 300, 600]);
+    }
+  } catch { /* vibration not supported */ }
+}
+
 export function getSelectedAthan(): AthanOption {
   const id = localStorage.getItem('athan-sound') || 'makkah';
   return ATHAN_OPTIONS.find(a => a.id === id) || ATHAN_OPTIONS[0];
@@ -106,14 +210,44 @@ function createAndPlayAudio(url: string): HTMLAudioElement {
 
 export function playAthan(prayerKey?: string): HTMLAudioElement | null {
   stopAthan();
+
+  const mode = getAthanSoundMode();
+
+  // If mode is silent - no audio, no vibration
+  if (mode === 'silent') {
+    console.log('[Athan] Silent mode — skipping audio');
+    return null;
+  }
+
+  // If mode is vibrate - vibrate only, no audio
+  if (mode === 'vibrate') {
+    console.log('[Athan] Vibrate mode — vibrating only');
+    vibrateForAthan();
+    return null;
+  }
+
+  // Auto mode: check device state asynchronously
+  if (mode === 'auto') {
+    // Start async detection, play immediately but stop if device is silent
+    shouldPlayAthanAudio().then(shouldPlay => {
+      if (!shouldPlay) {
+        console.log('[Athan] Auto mode detected silent device — stopping audio, vibrating');
+        stopAthan();
+        vibrateForAthan();
+      }
+    });
+  }
+
+  // Sound mode or auto mode (optimistically play) 
   const athan = getSelectedAthan();
   if (!athan.url) {
-    // Simple beep fallback
     playBeep();
+    vibrateForAthan();
     return null;
   }
   const url = prayerKey === 'fajr' && athan.fajrUrl ? athan.fajrUrl : athan.url;
   currentAudio = createAndPlayAudio(url);
+  vibrateForAthan();
   return currentAudio;
 }
 
@@ -132,6 +266,20 @@ export function previewAthan(id: string): HTMLAudioElement | null {
 /** Test athan playback - returns true if audio started */
 export function testAthanPlayback(): boolean {
   stopAthan();
+
+  const mode = getAthanSoundMode();
+  
+  // For test, if silent or vibrate mode, inform user
+  if (mode === 'silent') {
+    console.log('[Athan Test] Silent mode active — no audio');
+    return false;
+  }
+  if (mode === 'vibrate') {
+    vibrateForAthan();
+    console.log('[Athan Test] Vibrate mode — vibrating only');
+    return true;
+  }
+
   const athan = getSelectedAthan();
   if (!athan.url) {
     playBeep();

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Volume2 } from 'lucide-react';
-import { stopAthan } from '@/lib/athanAudio';
+import { X, Volume2, VolumeX, Vibrate } from 'lucide-react';
+import { stopAthan, getAthanSoundMode } from '@/lib/athanAudio';
 import { IslamicOccasion } from '@/data/islamicOccasions';
 import { useLocale } from '@/hooks/useLocale';
 import RamadanCannon from './RamadanCannon';
@@ -100,9 +100,17 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
   const prayerLabel = isIftar
     ? t('iftar')
     : (isAr ? `${t('prayerLabel')} ${info.nameAr}` : `${info.nameEn} ${t('prayerLabel')}`);
-  const audioText = isTakbirat
-    ? t('playingTakbirat')
-    : t('playingAthan');
+
+  // Get current sound mode to display appropriate indicator
+  const currentSoundMode = getAthanSoundMode();
+  const isAudioPlaying = currentSoundMode === 'sound' || currentSoundMode === 'auto';
+  const audioText = currentSoundMode === 'silent'
+    ? t('soundModeSilent')
+    : currentSoundMode === 'vibrate'
+      ? t('soundModeVibrate')
+      : isTakbirat
+        ? t('playingTakbirat')
+        : t('playingAthan');
   const dismissText = t('dismissBtn');
 
   // Generate stars
@@ -254,23 +262,29 @@ export default function OccasionAthanAlert({ prayerKey, prayerTime, occasion, on
                 </motion.div>
               )}
 
-              {/* Audio indicator with animated bars */}
+              {/* Audio indicator with animated bars or mode indicator */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 }}
                 className="flex items-center gap-3 bg-white/10 backdrop-blur-md rounded-full px-6 py-3.5 border border-white/20 mb-10"
               >
-                <div className="flex items-end gap-0.5 h-4">
-                  {[0, 0.1, 0.2, 0.15, 0.05].map((delay, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ height: ['40%', '100%', '40%'] }}
-                      transition={{ duration: 0.8, delay, repeat: Infinity }}
-                      className="w-0.5 bg-white/60 rounded-full"
-                    />
-                  ))}
-                </div>
+                {isAudioPlaying ? (
+                  <div className="flex items-end gap-0.5 h-4">
+                    {[0, 0.1, 0.2, 0.15, 0.05].map((delay, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ height: ['40%', '100%', '40%'] }}
+                        transition={{ duration: 0.8, delay, repeat: Infinity }}
+                        className="w-0.5 bg-white/60 rounded-full"
+                      />
+                    ))}
+                  </div>
+                ) : currentSoundMode === 'vibrate' ? (
+                  <Vibrate className="h-4 w-4 text-white/70 animate-pulse" />
+                ) : (
+                  <VolumeX className="h-4 w-4 text-white/70" />
+                )}
                 <span className="text-white/70 text-sm font-medium">{audioText}</span>
               </motion.div>
 

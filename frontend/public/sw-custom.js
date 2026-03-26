@@ -45,6 +45,7 @@ let storedPrayerTimes = [];
 let notifiedToday = {};
 let checkInterval = null;
 let userLanguage = 'ar';
+let athanSoundMode = 'auto'; // 'sound' | 'vibrate' | 'silent' | 'auto'
 
 function loadPrayerData() {
   // IndexedDB would be better, but for simplicity use global state + message passing
@@ -81,18 +82,20 @@ function checkAndNotify() {
       const name = names[prayer.key] || prayer.key;
       const isRTL = userLanguage === 'ar';
 
+      const isSilentOrVibrate = athanSoundMode === 'silent' || athanSoundMode === 'vibrate';
+
       self.registration.showNotification(`🕌 ${strings.timeFor} ${name}`, {
         body: strings.prepare,
         icon: '/pwa-icon-192.png',
         badge: '/pwa-icon-192.png',
         tag: `athan-${prayer.key}`,
         requireInteraction: true,
-        vibrate: [300, 100, 300, 100, 300, 100, 300],
+        vibrate: athanSoundMode === 'silent' ? [] : [300, 100, 300, 100, 300, 100, 300],
         renotify: true,
+        silent: isSilentOrVibrate,
         dir: isRTL ? 'rtl' : 'ltr',
         lang: userLanguage,
-        silent: false,
-        data: { prayer: prayer.key, type: 'athan', url: '/' },
+        data: { prayer: prayer.key, type: 'athan', url: '/', soundMode: athanSoundMode },
         actions: [
           { action: 'open', title: strings.open },
           { action: 'dismiss', title: strings.dismiss },
@@ -113,12 +116,14 @@ function checkAndNotify() {
       const strings = NOTIF_STRINGS[userLanguage] || NOTIF_STRINGS.ar;
       const name = names[prayer.key] || prayer.key;
       const isRTL = userLanguage === 'ar';
+      const isSilentOrVibrate = athanSoundMode === 'silent' || athanSoundMode === 'vibrate';
       self.registration.showNotification(`⏰ ${name} ${strings.inMinutes}`, {
         body: strings.prepareWudu,
         icon: '/pwa-icon-192.png',
         badge: '/pwa-icon-192.png',
         tag: `reminder-${prayer.key}`,
-        vibrate: [200, 100, 200],
+        vibrate: athanSoundMode === 'silent' ? [] : [200, 100, 200],
+        silent: isSilentOrVibrate,
         dir: isRTL ? 'rtl' : 'ltr',
         lang: userLanguage,
         data: { prayer: prayer.key, type: 'reminder', url: '/prayer-times' },
@@ -249,6 +254,7 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'UPDATE_PRAYER_TIMES') {
     storedPrayerTimes = event.data.prayers || [];
     if (event.data.language) userLanguage = event.data.language;
+    if (event.data.soundMode) athanSoundMode = event.data.soundMode;
     startPeriodicCheck();
 
     // Respond back
@@ -260,6 +266,11 @@ self.addEventListener('message', (event) => {
   // Update language preference
   if (event.data?.type === 'UPDATE_LANGUAGE') {
     userLanguage = event.data.language || 'ar';
+  }
+
+  // Update sound mode
+  if (event.data?.type === 'UPDATE_SOUND_MODE') {
+    athanSoundMode = event.data.soundMode || 'auto';
   }
 
   // Test notification

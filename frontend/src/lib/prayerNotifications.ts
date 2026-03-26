@@ -215,10 +215,12 @@ async function sendPrayerTimesToSW(prayers: PrayerTimeInput[]) {
     const reg = await navigator.serviceWorker.ready;
     if (reg.active) {
       const lang = localStorage.getItem('app-language') || 'ar';
+      const soundMode = localStorage.getItem('athan-sound-mode') || 'auto';
       reg.active.postMessage({
         type: 'UPDATE_PRAYER_TIMES',
         prayers: prayers.map(p => ({ key: p.key, time24: p.time24, name: p.name })),
         language: lang,
+        soundMode: soundMode,
       });
     }
     
@@ -230,6 +232,22 @@ async function sendPrayerTimesToSW(prayers: PrayerTimeInput[]) {
       } catch (_e) { /* periodic sync not supported */ }
     }
   } catch (_e) { /* Service worker not available */ }
+}
+
+/**
+ * Send updated sound mode to the service worker
+ */
+export function updateSoundModeInSW() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.ready.then(reg => {
+    if (reg.active) {
+      const soundMode = localStorage.getItem('athan-sound-mode') || 'auto';
+      reg.active.postMessage({
+        type: 'UPDATE_SOUND_MODE',
+        soundMode,
+      });
+    }
+  }).catch(() => {});
 }
 
 export async function sendTestNotification(): Promise<boolean> {
@@ -286,6 +304,10 @@ function showPrayerNotification(prayer: string) {
   const body = isAr 
     ? 'حيّ على الصلاة • حيّ على الفلاح' 
     : 'Come to prayer • Come to success';
+
+  // Check sound mode to determine notification sound behavior
+  const soundMode = localStorage.getItem('athan-sound-mode') || 'auto';
+  const isSilentOrVibrate = soundMode === 'silent' || soundMode === 'vibrate';
   
   // Try service worker notification first (persists even after closing app)
   if ('serviceWorker' in navigator) {
@@ -296,10 +318,11 @@ function showPrayerNotification(prayer: string) {
         badge: '/pwa-icon-192.png',
         tag: `prayer-${prayer}`,
         requireInteraction: true,
-        vibrate: [300, 100, 300, 100, 300],
+        vibrate: soundMode === 'silent' ? [] : [300, 100, 300, 100, 300],
         // @ts-ignore
         renotify: true,
-        data: { prayer, type: 'athan', url: '/' },
+        silent: isSilentOrVibrate,
+        data: { prayer, type: 'athan', url: '/', soundMode },
         actions: [
           { action: 'open', title: isAr ? 'فتح التطبيق' : 'Open App' },
           { action: 'dismiss', title: isAr ? 'تجاهل' : 'Dismiss' },
@@ -307,10 +330,10 @@ function showPrayerNotification(prayer: string) {
       });
     });
   } else {
-    new Notification(title, { body, icon: '/pwa-icon-192.png' });
+    new Notification(title, { body, icon: '/pwa-icon-192.png', silent: isSilentOrVibrate });
   }
   
-  // Play athan audio
+  // Play athan audio (respects sound mode internally)
   playAthan(prayer);
   
   // Store last notification time
@@ -322,6 +345,10 @@ function showPrayerReminder(prayer: string, minutes: number) {
   
   const isAr = (localStorage.getItem('app-language') || 'ar') === 'ar';
   const prayerName = isAr ? PRAYER_NAMES_AR[prayer] : PRAYER_NAMES_EN[prayer];
+
+  // Check sound mode for silent notifications
+  const soundMode = localStorage.getItem('athan-sound-mode') || 'auto';
+  const isSilentOrVibrate = soundMode === 'silent' || soundMode === 'vibrate';
   
   const title = isAr
     ? `⏰ بعد ${minutes} دقيقة صلاة ${prayerName}`
@@ -336,8 +363,9 @@ function showPrayerReminder(prayer: string, minutes: number) {
         body,
         icon: '/pwa-icon-192.png',
         tag: `reminder-${prayer}`,
-        vibrate: [200, 100, 200],
-        data: { prayer, type: 'reminder', url: '/prayer-times' },
+        vibrate: soundMode === 'silent' ? [] : [200, 100, 200],
+        silent: isSilentOrVibrate,
+        data: { prayer, type: 'reminder', url: '/prayer-times', soundMode },
       });
     });
   }

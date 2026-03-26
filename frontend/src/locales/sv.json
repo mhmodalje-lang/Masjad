@@ -2686,5 +2686,21 @@
   "revenueRule1": "Vid gåva: 50% för admin och 50% för innehållsskapare",
   "revenueRule2": "Användare tjänar poäng genom annonser och aktiviteter",
   "revenueRule3": "Kanalägare laddar upp annonser, admin sätter priset",
-  "revenueRule4": "Marknadsprovision dras automatiskt från varje försäljning"
+  "revenueRule4": "Marknadsprovision dras automatiskt från varje försäljning",
+  "soundModeTitle": "Adhan-ljudläge",
+  "soundModeDesc": "Styr adhan-ljud baserat på enhetens läge",
+  "soundModeSound": "Ljud",
+  "soundModeSoundDesc": "Spela alltid adhan-ljud",
+  "soundModeVibrate": "Bara vibration",
+  "soundModeVibrateDesc": "Bara vibration, inget ljud",
+  "soundModeSilent": "Tyst",
+  "soundModeSilentDesc": "Inget ljud, ingen vibration — bara visuell avisering",
+  "soundModeAuto": "Följ enheten",
+  "soundModeAutoDesc": "Följer automatiskt enhetens ljudläge",
+  "soundModeChanged": "Ljudläge ändrat",
+  "soundModeSection": "Ljudläge",
+  "soundModeTip": "💡 Tips: Aktivera läget «Följ enheten» för att undvika pinsamheter i moskén",
+  "soundModeCurrently": "Aktuellt läge",
+  "athanSilentBecauseMode": "Adhan tyst — aktuellt läge: {mode}",
+  "athanVibrateBecauseMode": "Bara vibration — vibrationsläge aktivt"
 }

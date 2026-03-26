@@ -2686,5 +2686,21 @@
   "revenueRule1": "Bei Geschenkversand: 50% für Admin und 50% für Inhaltsersteller",
   "revenueRule2": "Benutzer verdienen Punkte durch Werbung und Aktivitäten",
   "revenueRule3": "Kanalbesitzer laden Werbung hoch, Admin legt den Preis fest",
-  "revenueRule4": "Marktprovision wird automatisch von jedem Verkauf abgezogen"
+  "revenueRule4": "Marktprovision wird automatisch von jedem Verkauf abgezogen",
+  "soundModeTitle": "Athan-Tonmodus",
+  "soundModeDesc": "Steuere den Athan-Ton basierend auf deinem Gerätemodus",
+  "soundModeSound": "Ton",
+  "soundModeSoundDesc": "Athan-Audio immer abspielen",
+  "soundModeVibrate": "Nur Vibration",
+  "soundModeVibrateDesc": "Nur Vibration, kein Athan-Audio",
+  "soundModeSilent": "Lautlos",
+  "soundModeSilentDesc": "Kein Ton, keine Vibration — nur visuelle Benachrichtigung",
+  "soundModeAuto": "Gerät folgen",
+  "soundModeAutoDesc": "Folgt automatisch dem Tonmodus deines Geräts",
+  "soundModeChanged": "Tonmodus geändert",
+  "soundModeSection": "Tonmodus",
+  "soundModeTip": "💡 Tipp: Aktiviere den Modus «Gerät folgen», damit der Athan in Moscheen oder öffentlichen Orten nicht stört",
+  "soundModeCurrently": "Aktueller Modus",
+  "athanSilentBecauseMode": "Athan stumm — aktueller Modus: {mode}",
+  "athanVibrateBecauseMode": "Nur Vibration — Vibrationsmodus aktiv"
 }

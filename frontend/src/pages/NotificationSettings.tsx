@@ -1,14 +1,14 @@
 import { useLocale } from '@/hooks/useLocale';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bell, Volume2, Clock, BookOpen, Moon, MessageSquare, Sparkles, TestTube, ChevronDown, Smartphone, Zap } from 'lucide-react';
+import { ArrowRight, Bell, Volume2, Clock, BookOpen, Moon, MessageSquare, Sparkles, TestTube, ChevronDown, Smartphone, Zap, VolumeX, Vibrate, Volume1 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { requestNotificationPermission } from '@/hooks/useAthanNotifications';
-import { sendTestNotification, sendTestAthanAlert } from '@/lib/prayerNotifications';
-import { testAthanPlayback } from '@/lib/athanAudio';
+import { sendTestNotification, sendTestAthanAlert, updateSoundModeInSW } from '@/lib/prayerNotifications';
+import { testAthanPlayback, getAthanSoundMode, setAthanSoundMode, type AthanSoundMode } from '@/lib/athanAudio';
 import { subscribeToPush, isSubscribedToPush } from '@/lib/pushSubscription';
 import { toast } from 'sonner';
 import AthanSelector from '@/components/AthanSelector';
@@ -129,6 +129,9 @@ export default function NotificationSettings() {
   const [pushLoading, setPushLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<string>('default');
 
+  // Sound mode state
+  const [soundMode, setSoundMode] = useState<AthanSoundMode>(() => getAthanSoundMode());
+
   // Individual prayer notification toggles
   const [enabledPrayers, setEnabledPrayers] = useState<string[]>(() => {
     const saved = localStorage.getItem('notif-enabled-prayers');
@@ -142,6 +145,19 @@ export default function NotificationSettings() {
   const [masterEnabled, setMasterEnabled] = useState(() => {
     return localStorage.getItem('athan-notifications') !== 'false';
   });
+
+  const handleSoundModeChange = useCallback((mode: AthanSoundMode) => {
+    setSoundMode(mode);
+    setAthanSoundMode(mode);
+    updateSoundModeInSW();
+    const modeLabels: Record<AthanSoundMode, string> = {
+      sound: t('soundModeSound'),
+      vibrate: t('soundModeVibrate'),
+      silent: t('soundModeSilent'),
+      auto: t('soundModeAuto'),
+    };
+    toast.success(`${t('soundModeChanged')}: ${modeLabels[mode]}`);
+  }, [t]);
 
   const prayerSettings = useMemo(() => getPrayerSettings(t), [t]);
   const dailyGoalSettings = useMemo(() => getDailyGoalSettings(t), [t]);
@@ -355,6 +371,79 @@ export default function NotificationSettings() {
                 onToggle={() => togglePrayer(key)}
               />
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ===== SOUND MODE SECTION ===== */}
+      {masterEnabled && (
+        <div className="px-4 mt-5">
+          <p className="text-xs font-bold text-muted-foreground mb-2 me-1">
+            {t('soundModeSection')}
+          </p>
+          <div className="rounded-2xl neu-card p-4">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+                {soundMode === 'silent' ? <VolumeX className="h-5 w-5 text-amber-600" /> :
+                 soundMode === 'vibrate' ? <Vibrate className="h-5 w-5 text-amber-600" /> :
+                 soundMode === 'auto' ? <Smartphone className="h-5 w-5 text-amber-600" /> :
+                 <Volume2 className="h-5 w-5 text-amber-600" />}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-foreground">{t('soundModeTitle')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('soundModeDesc')}</p>
+              </div>
+            </div>
+
+            {/* Sound mode options */}
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                { mode: 'auto' as AthanSoundMode, icon: <Smartphone className="h-4 w-4" />, label: t('soundModeAuto'), desc: t('soundModeAutoDesc'), color: 'bg-blue-500/15 border-blue-500/30 text-blue-600' },
+                { mode: 'sound' as AthanSoundMode, icon: <Volume2 className="h-4 w-4" />, label: t('soundModeSound'), desc: t('soundModeSoundDesc'), color: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-600' },
+                { mode: 'vibrate' as AthanSoundMode, icon: <Vibrate className="h-4 w-4" />, label: t('soundModeVibrate'), desc: t('soundModeVibrateDesc'), color: 'bg-amber-500/15 border-amber-500/30 text-amber-600' },
+                { mode: 'silent' as AthanSoundMode, icon: <VolumeX className="h-4 w-4" />, label: t('soundModeSilent'), desc: t('soundModeSilentDesc'), color: 'bg-red-500/15 border-red-500/30 text-red-600' },
+              ]).map(opt => (
+                <button
+                  key={opt.mode}
+                  onClick={() => handleSoundModeChange(opt.mode)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all active:scale-95",
+                    soundMode === opt.mode
+                      ? `${opt.color} border-current shadow-sm`
+                      : "bg-muted/30 border-transparent text-muted-foreground hover:bg-muted/50"
+                  )}
+                >
+                  <div className={cn(
+                    "h-9 w-9 rounded-full flex items-center justify-center",
+                    soundMode === opt.mode ? "bg-current/10" : "bg-muted"
+                  )}>
+                    {opt.icon}
+                  </div>
+                  <span className="text-xs font-bold text-center leading-tight">{opt.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Current mode description */}
+            <div className={cn(
+              "mt-3 p-3 rounded-xl text-xs leading-relaxed",
+              soundMode === 'auto' ? "bg-blue-500/10 text-blue-700 dark:text-blue-300" :
+              soundMode === 'sound' ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" :
+              soundMode === 'vibrate' ? "bg-amber-500/10 text-amber-700 dark:text-amber-300" :
+              "bg-red-500/10 text-red-700 dark:text-red-300"
+            )}>
+              {soundMode === 'auto' && t('soundModeAutoDesc')}
+              {soundMode === 'sound' && t('soundModeSoundDesc')}
+              {soundMode === 'vibrate' && t('soundModeVibrateDesc')}
+              {soundMode === 'silent' && t('soundModeSilentDesc')}
+            </div>
+          </div>
+
+          {/* Tip about silent mode */}
+          <div className="mt-2 rounded-xl bg-amber-500/5 border border-amber-500/15 p-3">
+            <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+              {t('soundModeTip')}
+            </p>
           </div>
         </div>
       )}

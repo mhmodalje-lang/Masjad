@@ -2686,5 +2686,21 @@
   "revenueRule1": "Lors de l'envoi d'un cadeau : 50% pour l'admin et 50% pour le créateur",
   "revenueRule2": "Les utilisateurs gagnent des points grâce aux publicités et activités",
   "revenueRule3": "Les propriétaires de chaînes soumettent des publicités, l'admin fixe le prix",
-  "revenueRule4": "La commission est automatiquement déduite de chaque vente"
+  "revenueRule4": "La commission est automatiquement déduite de chaque vente",
+  "soundModeTitle": "Mode sonore de l'Adhan",
+  "soundModeDesc": "Contrôlez le son de l'Adhan selon le mode de votre appareil",
+  "soundModeSound": "Son",
+  "soundModeSoundDesc": "Toujours jouer l'audio de l'Adhan",
+  "soundModeVibrate": "Vibration uniquement",
+  "soundModeVibrateDesc": "Vibration uniquement, pas d'audio",
+  "soundModeSilent": "Silencieux",
+  "soundModeSilentDesc": "Pas de son, pas de vibration — notification visuelle uniquement",
+  "soundModeAuto": "Suivre l'appareil",
+  "soundModeAutoDesc": "Suit automatiquement le mode sonore de votre appareil",
+  "soundModeChanged": "Mode sonore modifié",
+  "soundModeSection": "Mode sonore",
+  "soundModeTip": "💡 Conseil: Activez le mode «Suivre l'appareil» pour éviter la gêne dans les mosquées",
+  "soundModeCurrently": "Mode actuel",
+  "athanSilentBecauseMode": "Adhan silencieux — mode actuel: {mode}",
+  "athanVibrateBecauseMode": "Vibration uniquement — mode vibration actif"
 }

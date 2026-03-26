@@ -2686,5 +2686,21 @@
   "revenueRule1": "Bij het sturen van een geschenk: 50% voor admin en 50% voor maker",
   "revenueRule2": "Gebruikers verdienen punten via advertenties en activiteiten",
   "revenueRule3": "Kanaaleigenaren uploaden advertenties, admin bepaalt de prijs",
-  "revenueRule4": "Marktcommissie wordt automatisch afgetrokken van elke verkoop"
+  "revenueRule4": "Marktcommissie wordt automatisch afgetrokken van elke verkoop",
+  "soundModeTitle": "Adhan-geluidsmodus",
+  "soundModeDesc": "Beheer adhan-geluid op basis van apparaatmodus",
+  "soundModeSound": "Geluid",
+  "soundModeSoundDesc": "Adhan-audio altijd afspelen",
+  "soundModeVibrate": "Alleen trillen",
+  "soundModeVibrateDesc": "Alleen trillen, geen geluid",
+  "soundModeSilent": "Stil",
+  "soundModeSilentDesc": "Geen geluid, geen trilling — alleen visuele melding",
+  "soundModeAuto": "Volg apparaat",
+  "soundModeAutoDesc": "Volgt automatisch de geluidsmodus van uw apparaat",
+  "soundModeChanged": "Geluidsmodus gewijzigd",
+  "soundModeSection": "Geluidsmodus",
+  "soundModeTip": "💡 Tip: Schakel «Volg apparaat» in om verlegenheid in de moskee te voorkomen",
+  "soundModeCurrently": "Huidige modus",
+  "athanSilentBecauseMode": "Adhan stil — huidige modus: {mode}",
+  "athanVibrateBecauseMode": "Alleen trillen — trilmodus actief"
 }
