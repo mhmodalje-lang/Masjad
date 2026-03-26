@@ -11,7 +11,7 @@ import re
 from typing import Dict, List, Any
 
 # Configuration
-BASE_URL = "https://fast-reload-app.preview.emergentagent.com"
+BASE_URL = "https://prayer-phone-mode.preview.emergentagent.com"
 TIMEOUT = 30
 
 class IslamicAppTester:

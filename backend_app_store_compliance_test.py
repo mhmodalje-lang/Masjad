@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com"
+BACKEND_URL = "https://prayer-phone-mode.preview.emergentagent.com"
 
 def test_delete_account_endpoint():
     """Test DELETE /api/auth/delete-account - Account deletion endpoint"""

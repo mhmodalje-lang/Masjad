@@ -7,7 +7,7 @@ import asyncio
 import aiohttp
 import json
 
-BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com"
+BACKEND_URL = "https://prayer-phone-mode.preview.emergentagent.com"
 
 async def check_tafsir_content():
     async with aiohttp.ClientSession() as session:

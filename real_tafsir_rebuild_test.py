@@ -12,7 +12,7 @@ import re
 from typing import Dict, Any, List
 
 # Base URL from review request
-BASE_URL = "https://fast-reload-app.preview.emergentagent.com"
+BASE_URL = "https://prayer-phone-mode.preview.emergentagent.com"
 
 # All 9 languages to test
 LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]

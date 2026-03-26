@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://fast-reload-app.preview.emergentagent.com/api"
+BACKEND_URL = "https://prayer-phone-mode.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'

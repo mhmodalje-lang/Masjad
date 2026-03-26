@@ -180,7 +180,7 @@ VERIFICATION: For endpoints 2-8, verify that the response does NOT contain keys 
 ### ✅ 100% SUCCESS - All Critical UI Features Working
 
 **Test Environment:**
-- URL: https://fast-reload-app.preview.emergentagent.com
+- URL: https://prayer-phone-mode.preview.emergentagent.com
 - Browser: Chromium (Playwright)
 - Viewport: 1920x1080 (Desktop)
 - Date: March 25, 2026
