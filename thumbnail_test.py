@@ -9,7 +9,7 @@ import json
 import sys
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://prayer-phone-mode.preview.emergentagent.com"
+BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
 
 def test_stories_list_translated_with_thumbnail_fix():
     """Test that thumbnail_url field is now present in all stories"""

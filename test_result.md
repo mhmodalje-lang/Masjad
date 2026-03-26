@@ -180,7 +180,7 @@ VERIFICATION: For endpoints 2-8, verify that the response does NOT contain keys 
 ### ✅ 100% SUCCESS - All Critical UI Features Working
 
 **Test Environment:**
-- URL: https://prayer-phone-mode.preview.emergentagent.com
+- URL: https://translate-hub-123.preview.emergentagent.com
 - Browser: Chromium (Playwright)
 - Viewport: 1920x1080 (Desktop)
 - Date: March 25, 2026
@@ -404,7 +404,7 @@ user_problem_statement: "Noor Academy (5 tracks, 240 lessons) has broken transla
 ### ✅ 100% SUCCESS (7/7 tests passed) - All Translation Requirements Met
 
 **Test Environment:**
-- Backend URL: https://prayer-phone-mode.preview.emergentagent.com
+- Backend URL: https://translate-hub-123.preview.emergentagent.com
 - Testing Agent: backend_test.py
 - Date: March 26, 2026
 

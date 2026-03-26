@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://prayer-phone-mode.preview.emergentagent.com"
+BASE_URL = "https://translate-hub-123.preview.emergentagent.com"
 
 def test_additional_endpoints():
     """Test additional endpoints for comprehensive verification"""

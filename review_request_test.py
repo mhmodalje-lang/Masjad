@@ -21,7 +21,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://prayer-phone-mode.preview.emergentagent.com"
+BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
 
 # Review request specific endpoints
 REVIEW_ENDPOINTS = [
