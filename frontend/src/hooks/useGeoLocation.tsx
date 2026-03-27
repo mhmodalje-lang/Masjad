@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import i18n from '@/lib/i18nConfig';
+import { saveLocation, getLastLocation } from '@/lib/offlineStorage';
 
 interface LocationData {
   latitude: number;
@@ -113,9 +114,33 @@ export function useGeoLocation() {
 
   const hasDetected = useRef(false);
 
+  // Also save to IndexedDB for offline access
+  const saveToIndexedDB = async (lat: number, lon: number, city?: string, country?: string) => {
+    try {
+      await saveLocation({ id: 'last_known', latitude: lat, longitude: lon, city, country, cached_at: Date.now() });
+    } catch {}
+  };
+
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
+      // Try IndexedDB for offline fallback
+      getLastLocation().then(cached => {
+        if (cached) {
+          setLocation(prev => ({
+            ...prev,
+            latitude: cached.latitude,
+            longitude: cached.longitude,
+            city: cached.city || prev.city,
+            country: cached.country || prev.country,
+            loading: false,
+            error: null,
+          }));
+        } else {
+          setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
+        }
+      }).catch(() => {
+        setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
+      });
       return;
     }
 
@@ -149,6 +174,7 @@ export function useGeoLocation() {
 
           setLocation(loc);
 
+          // Save to localStorage
           try {
             localStorage.setItem('cached-location', JSON.stringify({
               latitude: loc.latitude,
@@ -160,6 +186,9 @@ export function useGeoLocation() {
               school: loc.school,
             }));
           } catch {}
+
+          // Save to IndexedDB for offline
+          saveToIndexedDB(loc.latitude, loc.longitude, loc.city, loc.country);
         } catch {
           setLocation(prev => ({
             ...prev,

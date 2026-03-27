@@ -4,6 +4,7 @@ import { useSmartBack } from '@/hooks/useSmartBack';
 import { useLocale } from '@/hooks/useLocale';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AdBanner } from '@/components/AdBanner';
+import { saveRuqyah, getRuqyah as getCachedRuqyah } from '@/lib/offlineStorage';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -104,11 +105,42 @@ export default function Ruqyah() {
   }, [locale, t]);
 
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/ruqyah`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.items && d.items.length > 0) {
-          const items = d.items.map((item: any) => ({
+    const loadRuqyah = async () => {
+      // Try network first
+      if (navigator.onLine) {
+        try {
+          const r = await fetch(`${BACKEND_URL}/api/ruqyah`, { signal: AbortSignal.timeout(10000) });
+          const d = await r.json();
+          if (d.items && d.items.length > 0) {
+            // Save to IndexedDB for offline
+            try { await saveRuqyah(d.items); } catch {}
+            const items = d.items.map((item: any) => ({
+              id: item.id,
+              title: item.title,
+              subtitle: item.category,
+              icon: CATEGORY_ICONS[item.category] || '📿',
+              arabic: item.content,
+              reference: item.category,
+              category: item.category || 'general',
+              video_url: item.video_url || '',
+              embed_url: item.embed_url || '',
+              video_type: item.video_type || '',
+              audio_url: item.audio_url || '',
+              thumbnail_url: item.thumbnail_url || '',
+            }));
+            const staticIds = new Set(staticRuqyah.map(s => s.id));
+            const uniqueApiItems = items.filter((i: any) => !staticIds.has(i.id));
+            setAllContent([...getStaticRuqyah(t, locale), ...uniqueApiItems]);
+            return;
+          }
+        } catch {}
+      }
+      
+      // Fallback: Load from IndexedDB
+      try {
+        const cached = await getCachedRuqyah();
+        if (cached.length > 0) {
+          const items = cached.map((item: any) => ({
             id: item.id,
             title: item.title,
             subtitle: item.category,
@@ -126,7 +158,9 @@ export default function Ruqyah() {
           const uniqueApiItems = items.filter((i: any) => !staticIds.has(i.id));
           setAllContent([...getStaticRuqyah(t, locale), ...uniqueApiItems]);
         }
-      }).catch(() => {});
+      } catch {}
+    };
+    loadRuqyah();
   }, []);
 
   const filteredContent = activeCategory

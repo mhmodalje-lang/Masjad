@@ -27,6 +27,7 @@ import AgeGate, { hasPassedAgeGate } from "@/components/AgeGate";
 import OfflineNotice from "@/components/OfflineNotice";
 import RateApp from "@/components/RateApp";
 import AppTrackingTransparency from "@/components/AppTrackingTransparency";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
 import Index from "./pages/Index";
 
 const PrayerTimes = lazy(() => import("./pages/PrayerTimes"));
@@ -107,6 +108,7 @@ const queryClient = new QueryClient({
 function SEOWrapper({ children }: { children: React.ReactNode }) {
   useSEO();
   usePrefetch();
+  useOfflineSync(); // Auto-cache data for offline use
   return <>{children}</>;
 }
 

@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import i18n from '@/lib/i18nConfig';
+import {
+  savePrayerTimes,
+  getPrayerTimes as getCachedPrayerTimes,
+  getLatestPrayerTimes,
+  saveLocation,
+  type CachedPrayerTimes,
+} from '@/lib/offlineStorage';
 
 export interface PrayerTime {
   name: string;
@@ -19,26 +26,17 @@ interface PrayerTimesData {
   hijriMonth: string;
   loading: boolean;
   error: string | null;
+  isFromCache: boolean;
 }
 
-/**
- * Detect if user's device uses 12-hour format
- */
 function detectIs12Hour(): boolean {
   try {
     const testDate = new Date(2024, 0, 1, 14, 0);
-    const formatted = new Intl.DateTimeFormat(navigator.language, {
-      hour: 'numeric',
-    }).format(testDate);
+    const formatted = new Intl.DateTimeFormat(navigator.language, { hour: 'numeric' }).format(testDate);
     return !formatted.includes('14');
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
-/**
- * Convert 24h time string to 12h format
- */
 function to12Hour(time24: string): string {
   const [h, m] = time24.split(':').map(Number);
   const period = h >= 12 ? 'PM' : 'AM';
@@ -51,131 +49,166 @@ function formatTime(time24: string, is12h: boolean): string {
   return to12Hour(time24);
 }
 
-/**
- * Nordic/High-Latitude Fix:
- * For latitudes above 48°, standard prayer time calculations can fail
- * (Fajr/Isha may not occur in summer). This applies special methods:
- * - latitudeAdjustmentMethod: 1=Middle of Night, 2=One Seventh, 3=Angle Based
- * - method 3 (Muslim World League) works best for Nordic regions
- * 
- * Regions affected: Sweden, Netherlands, Norway, Finland, UK (Scotland), etc.
- */
-function getHighLatitudeParams(lat: number) {
+function getHighLatitudeParams(lat: number): { method?: number; latitudeAdjustmentMethod?: number } {
   const absLat = Math.abs(lat);
-  if (absLat >= 60) {
-    // Very high latitudes (Northern Sweden, Norway, Finland)
-    // Use angle-based method + MWL calculation
-    return { latitudeAdjustmentMethod: 3, method: 3 };
-  }
-  if (absLat >= 55) {
-    // High latitudes (Southern Sweden, Denmark, Scotland)
-    // Use one-seventh of night method
-    return { latitudeAdjustmentMethod: 2, method: 3 };
-  }
-  if (absLat >= 48) {
-    // Moderate high latitudes (Netherlands, Northern Germany, Poland)
-    // Use middle of night method
-    return { latitudeAdjustmentMethod: 1, method: 3 };
-  }
+  if (absLat > 60) return { method: 3, latitudeAdjustmentMethod: 2 };
+  if (absLat > 48) return { latitudeAdjustmentMethod: 1 };
   return {};
 }
 
-export function usePrayerTimes(latitude: number, longitude: number, method: number = 2, school: number = 0) {
-  const [data, setData] = useState<PrayerTimesData>({
-    prayers: [],
-    hijriDate: '',
-    hijriDay: '',
-    hijriMonthAr: '',
-    hijriMonthEn: '',
-    hijriMonthNumber: 0,
-    hijriYear: '',
-    hijriMonth: '',
-    loading: true,
-    error: null,
-  });
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
+export function usePrayerTimes(
+  latitude: number,
+  longitude: number,
+  method: number = 4,
+  school: number = 0
+): PrayerTimesData {
   const is12h = detectIs12Hour();
-  const lastFetchKey = useRef('');
-  const [todayStr, setTodayStr] = useState(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const [data, setData] = useState<PrayerTimesData>({
+    prayers: [], hijriDate: '', hijriDay: '', hijriMonthAr: '', hijriMonthEn: '',
+    hijriMonthNumber: 0, hijriYear: '', hijriMonth: '', loading: true, error: null, isFromCache: false,
   });
+  
+  const lastFetchKey = useRef('');
+  const [todayStr, setTodayStr] = useState(getTodayStr);
 
-  // Midnight refresh: check every 30s if date changed
+  // Midnight refresh
   useEffect(() => {
     const interval = setInterval(() => {
-      const d = new Date();
-      const now = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const now = getTodayStr();
       setTodayStr(prev => {
-        if (prev !== now) {
-          lastFetchKey.current = ''; // force re-fetch
-          return now;
-        }
+        if (prev !== now) { lastFetchKey.current = ''; return now; }
         return prev;
       });
     }, 30_000);
     return () => clearInterval(interval);
   }, []);
 
+  // Build prayer data from cached format
+  const buildPrayerData = (cached: CachedPrayerTimes, fromCache: boolean): PrayerTimesData => {
+    const isAr = i18n.language === 'ar';
+    const suffix = isAr ? 'هـ' : 'H';
+    const monthName = isAr ? cached.hijri.month_ar : cached.hijri.month_en;
+    
+    const prayerKeys = [
+      { key: 'fajr', field: 'fajr' },
+      { key: 'sunrise', field: 'sunrise' },
+      { key: 'dhuhr', field: 'dhuhr' },
+      { key: 'asr', field: 'asr' },
+      { key: 'maghrib', field: 'maghrib' },
+      { key: 'isha', field: 'isha' },
+    ];
+
+    const prayers: PrayerTime[] = prayerKeys
+      .filter(p => cached.times[p.field])
+      .map(p => ({
+        name: p.key,
+        time24: cached.times[p.field],
+        time: formatTime(cached.times[p.field], is12h),
+        key: p.key,
+      }));
+
+    return {
+      prayers,
+      hijriDate: `${cached.hijri.day} ${monthName} ${cached.hijri.year} ${suffix}`,
+      hijriDay: cached.hijri.day,
+      hijriMonthAr: cached.hijri.month_ar,
+      hijriMonthEn: cached.hijri.month_en,
+      hijriMonthNumber: cached.hijri.month_num,
+      hijriYear: cached.hijri.year,
+      hijriMonth: monthName,
+      loading: false,
+      error: null,
+      isFromCache: fromCache,
+    };
+  };
+
   useEffect(() => {
-    // Don't fetch with placeholder coordinates
     if (latitude === 0 && longitude === 0) return;
 
-    // Create a stable fetch key including today's date
     const fetchKey = `${latitude}-${longitude}-${method}-${school}-${todayStr}`;
     if (fetchKey === lastFetchKey.current) return;
     lastFetchKey.current = fetchKey;
 
     const fetchPrayers = async () => {
+      // Save location for offline use
       try {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
+        await saveLocation({ id: 'last_known', latitude, longitude, cached_at: Date.now() });
+      } catch {}
 
-        // Apply Nordic/high-latitude fix
-        const hlParams = getHighLatitudeParams(latitude);
-        const effectiveMethod = hlParams.method || method;
-        let apiUrl = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${effectiveMethod}&school=${school}&adjustment=0`;
-        if (hlParams.latitudeAdjustmentMethod) {
-          apiUrl += `&latitudeAdjustmentMethod=${hlParams.latitudeAdjustmentMethod}`;
+      // Try network first
+      if (navigator.onLine) {
+        try {
+          const today = new Date();
+          const dd = String(today.getDate()).padStart(2, '0');
+          const mm = String(today.getMonth() + 1).padStart(2, '0');
+          const yyyy = today.getFullYear();
+
+          const hlParams = getHighLatitudeParams(latitude);
+          const effectiveMethod = hlParams.method || method;
+          let apiUrl = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${latitude}&longitude=${longitude}&method=${effectiveMethod}&school=${school}&adjustment=0`;
+          if (hlParams.latitudeAdjustmentMethod) {
+            apiUrl += `&latitudeAdjustmentMethod=${hlParams.latitudeAdjustmentMethod}`;
+          }
+
+          const res = await fetch(apiUrl, { signal: AbortSignal.timeout(10000) });
+          const json = await res.json();
+          const timings = json.data.timings;
+          const hijri = json.data.date.hijri;
+
+          const cleanTime = (t: string) => t.replace(/\s*\(.*\)$/, '').trim();
+
+          // Save to IndexedDB
+          const cachedData: CachedPrayerTimes = {
+            date: todayStr,
+            locationKey: `${latitude.toFixed(2)}_${longitude.toFixed(2)}`,
+            times: {
+              fajr: cleanTime(timings.Fajr),
+              sunrise: cleanTime(timings.Sunrise),
+              dhuhr: cleanTime(timings.Dhuhr),
+              asr: cleanTime(timings.Asr),
+              maghrib: cleanTime(timings.Maghrib),
+              isha: cleanTime(timings.Isha),
+              midnight: cleanTime(timings.Midnight || ''),
+            },
+            hijri: {
+              date: `${hijri.day} ${hijri.month.ar} ${hijri.year}`,
+              day: hijri.day,
+              month_ar: hijri.month.ar,
+              month_en: hijri.month.en,
+              month_num: hijri.month.number,
+              year: hijri.year,
+            },
+            source: 'aladhan',
+            cached_at: Date.now(),
+          };
+
+          try { await savePrayerTimes(cachedData); } catch {}
+
+          setData(buildPrayerData(cachedData, false));
+          return;
+        } catch {
+          // Network failed, try cache
         }
-
-        const res = await fetch(apiUrl, { cache: 'no-store' });
-        const json = await res.json();
-        const timings = json.data.timings;
-        const hijri = json.data.date.hijri;
-
-        const cleanTime = (t: string) => t.replace(/\s*\(.*\)$/, '').trim();
-
-        const prayers: PrayerTime[] = [
-          { name: 'fajr', time24: cleanTime(timings.Fajr), time: formatTime(cleanTime(timings.Fajr), is12h), key: 'fajr' },
-          { name: 'sunrise', time24: cleanTime(timings.Sunrise), time: formatTime(cleanTime(timings.Sunrise), is12h), key: 'sunrise' },
-          { name: 'dhuhr', time24: cleanTime(timings.Dhuhr), time: formatTime(cleanTime(timings.Dhuhr), is12h), key: 'dhuhr' },
-          { name: 'asr', time24: cleanTime(timings.Asr), time: formatTime(cleanTime(timings.Asr), is12h), key: 'asr' },
-          { name: 'maghrib', time24: cleanTime(timings.Maghrib), time: formatTime(cleanTime(timings.Maghrib), is12h), key: 'maghrib' },
-          { name: 'isha', time24: cleanTime(timings.Isha), time: formatTime(cleanTime(timings.Isha), is12h), key: 'isha' },
-        ];
-
-        const isAr = i18n.language === 'ar';
-        const monthName = isAr ? hijri.month.ar : hijri.month.en;
-        const suffix = isAr ? 'هـ' : 'H';
-
-        setData({
-          prayers,
-          hijriDate: `${hijri.day} ${monthName} ${hijri.year} ${suffix}`,
-          hijriDay: hijri.day,
-          hijriMonthAr: hijri.month.ar,
-          hijriMonthEn: hijri.month.en,
-          hijriMonthNumber: hijri.month.number,
-          hijriYear: hijri.year,
-          hijriMonth: isAr ? hijri.month.ar : hijri.month.en,
-          loading: false,
-          error: null,
-        });
-      } catch {
-        setData(prev => ({ ...prev, loading: false, error: 'Failed to fetch prayer times' }));
       }
+
+      // Fallback: IndexedDB cache
+      try {
+        let cached = await getCachedPrayerTimes(todayStr);
+        if (!cached) {
+          cached = await getLatestPrayerTimes();
+        }
+        if (cached) {
+          setData(buildPrayerData(cached, true));
+          return;
+        }
+      } catch {}
+
+      setData(prev => ({ ...prev, loading: false, error: 'تعذر تحميل مواقيت الصلاة - تحقق من الاتصال' }));
     };
 
     fetchPrayers();
@@ -196,10 +229,7 @@ export function getNextPrayer(prayers: PrayerTime[]): { prayer: PrayerTime | nul
       const diff = prayerMinutes - currentMinutes;
       const hours = Math.floor(diff / 60);
       const mins = diff % 60;
-      return {
-        prayer,
-        remaining: hours > 0 ? `${hours}h ${mins}m` : `${mins}m`,
-      };
+      return { prayer, remaining: hours > 0 ? `${hours}h ${mins}m` : `${mins}m` };
     }
   }
 

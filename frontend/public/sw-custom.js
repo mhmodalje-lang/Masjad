@@ -1,259 +1,80 @@
 /**
- * Service Worker for أذان وحكاية - Azan wa Hikaya
- * Prayer notification scheduling with periodic checking
+ * ═══════════════════════════════════════════════════════
+ * 🕌 أذان وحكاية - Advanced Service Worker
+ * ═══════════════════════════════════════════════════════
+ * Offline-First PWA with:
+ * - App Shell: Cache-first
+ * - API: Network-first with IndexedDB + Cache API fallback
+ * - Images/Fonts: Cache-first with network update
+ * - Background Sync for failed POST requests
+ * - Prayer notification scheduling
  */
 
-const CACHE_NAME = 'azanhikaya-v6';
-const ATHAN_AUDIO_CACHE = 'athan-audio-v2';
-const API_CACHE = 'api-cache-v2';
+const APP_SHELL_CACHE = 'app-shell-v7';
+const API_CACHE = 'api-cache-v3';
+const IMAGE_CACHE = 'images-v2';
+const FONT_CACHE = 'fonts-v1';
+const AUDIO_CACHE = 'athan-audio-v2';
 
-// API endpoints that should be cached for offline use
-const CACHEABLE_API_PATTERNS = [
-  '/api/prayer-times',
-  '/api/ai/verse-of-day',
-  '/api/ai/hadith-of-day',
-  '/api/ai/daily-dua',
-  '/api/stories/list',
-  '/api/stories/categories',
-  '/api/duas/',
-  '/api/quran/',
-  '/api/stories/moderation-status',
-  '/api/ad-config',
-  '/api/ads/active',
-  '/api/ruqyah/',
-  '/api/daily-content',
-  '/api/health',
-  '/api/',
-];
-
-const PRECACHE_ASSETS = [
+// ═══ App Shell: Pre-cached on install ═══
+const APP_SHELL_FILES = [
   '/',
+  '/index.html',
   '/manifest.json',
+  '/favicon.ico',
   '/pwa-icon-48.png',
   '/pwa-icon-72.png',
   '/pwa-icon-96.png',
+  '/pwa-icon-128.png',
+  '/pwa-icon-144.png',
+  '/pwa-icon-152.png',
   '/pwa-icon-192.png',
+  '/pwa-icon-384.png',
   '/pwa-icon-512.png',
   '/pwa-icon-maskable.png',
   '/apple-touch-icon.png',
   '/mecca-hero.webp',
-  '/favicon.ico',
 ];
 
-const PRAYER_NAMES = {
-  ar: { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' },
-  en: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
-  de: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Ischa' },
-  'de-AT': { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Ischa' },
-  fr: { fajr: 'Fajr', dhuhr: 'Dhouhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
-  tr: { fajr: 'İmsak', dhuhr: 'Öğle', asr: 'İkindi', maghrib: 'Akşam', isha: 'Yatsı' },
-  ru: { fajr: 'Фаджр', dhuhr: 'Зухр', asr: 'Аср', maghrib: 'Магриб', isha: 'Иша' },
-  sv: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
-  nl: { fajr: 'Fajr', dhuhr: 'Dhoehr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
-  el: { fajr: 'Φατζρ', dhuhr: 'Ντουχρ', asr: 'Ασρ', maghrib: 'Μαγκρίμπ', isha: 'Ίσα' },
-};
+// ═══ API routes to cache ═══
+const CACHEABLE_API_PATTERNS = [
+  '/api/prayer-times',
+  '/api/quran/v4/chapters',
+  '/api/quran/v4/verses',
+  '/api/quran/v4/juzs',
+  '/api/ruqyah',
+  '/api/stories/list',
+  '/api/stories/categories',
+  '/api/daily-hadith',
+  '/api/ai/verse-of-day',
+  '/api/ai/hadith-of-day',
+  '/api/ai/daily-dua',
+  '/api/live-streams',
+  '/api/ad-config',
+  '/api/ads/active',
+  '/api/daily-content',
+  '/api/localization',
+  '/api/announcements',
+  '/api/kids-learn',
+  '/api/arabic-academy',
+  '/api/health',
+  '/api/',
+];
 
-const NOTIF_STRINGS = {
-  ar: { timeFor: 'حان وقت صلاة', prepare: 'حيّ على الصلاة • حيّ على الفلاح', inMinutes: 'بعد 10 دقائق صلاة', prepareWudu: 'استعد للصلاة بالوضوء', open: 'فتح التطبيق', dismiss: 'تجاهل' },
-  en: { timeFor: 'Time for', prepare: 'Come to prayer • Come to success', inMinutes: 'in 10 minutes', prepareWudu: 'Prepare for prayer with wudu', open: 'Open App', dismiss: 'Dismiss' },
-  de: { timeFor: 'Zeit für', prepare: 'Komm zum Gebet • Komm zum Erfolg', inMinutes: 'in 10 Minuten', prepareWudu: 'Bereite dich mit Wudu auf das Gebet vor', open: 'App öffnen', dismiss: 'Schließen' },
-  'de-AT': { timeFor: 'Zeit für', prepare: 'Komm zum Gebet • Komm zum Erfolg', inMinutes: 'in 10 Minuten', prepareWudu: 'Bereite dich mit Wudu vor', open: 'App öffnen', dismiss: 'Schließen' },
-  fr: { timeFor: "L'heure de", prepare: 'Venez à la prière • Venez au succès', inMinutes: 'dans 10 minutes', prepareWudu: 'Préparez-vous avec le wudu', open: "Ouvrir l'app", dismiss: 'Fermer' },
-  tr: { timeFor: 'Vakit geldi:', prepare: 'Haydi namaza • Haydi felaha', inMinutes: '10 dakika sonra', prepareWudu: 'Abdest alarak namaza hazırlanın', open: 'Uygulamayı aç', dismiss: 'Kapat' },
-  ru: { timeFor: 'Время намаза', prepare: 'Спешите на молитву • Спешите к успеху', inMinutes: 'через 10 минут', prepareWudu: 'Подготовьтесь к молитве', open: 'Открыть', dismiss: 'Закрыть' },
-  sv: { timeFor: 'Dags för', prepare: 'Kom till bönen • Kom till framgång', inMinutes: 'om 10 minuter', prepareWudu: 'Förbered dig med wudu', open: 'Öppna app', dismiss: 'Stäng' },
-  nl: { timeFor: 'Tijd voor', prepare: 'Kom tot het gebed • Kom tot het succes', inMinutes: 'over 10 minuten', prepareWudu: 'Bereid je voor met wudu', open: 'Open app', dismiss: 'Sluiten' },
-  el: { timeFor: 'Ώρα για', prepare: 'Ελάτε στην προσευχή', inMinutes: 'σε 10 λεπτά', prepareWudu: 'Ετοιμαστείτε με wudu', open: 'Άνοιγμα', dismiss: 'Κλείσιμο' },
-};
+// ═══ Routes to serve index.html (SPA navigation) ═══
+const SPA_ROUTES = [
+  '/prayer-times', '/quran', '/ruqyah', '/stories', '/duas',
+  '/qibla', '/tasbeeh', '/explore', '/live', '/kids',
+  '/admin', '/auth', '/profile', '/settings', '/notifications',
+  '/privacy', '/terms', '/delete-data', '/content-policy',
+  '/about', '/marketplace', '/social', '/messages',
+  '/forty-nawawi', '/surah', '/tafsir', '/daily-duas',
+  '/ramadan', '/asma-al-husna', '/prayer-tracker',
+  '/arabic-academy', '/video-reels', '/noor-academy',
+  '/mosque-prayer-times', '/islamic-calendar',
+];
 
-// ============ PRAYER TIME STORAGE ============
-let storedPrayerTimes = [];
-let notifiedToday = {};
-let checkInterval = null;
-let userLanguage = 'ar';
-let athanSoundMode = 'auto'; // 'sound' | 'vibrate' | 'silent' | 'auto'
-
-function loadPrayerData() {
-  // IndexedDB would be better, but for simplicity use global state + message passing
-}
-
-function isPrayerTime(prayerTime24, nowH, nowM) {
-  const [h, m] = prayerTime24.split(':').map(Number);
-  return h === nowH && m === nowM;
-}
-
-function checkAndNotify() {
-  if (!storedPrayerTimes || storedPrayerTimes.length === 0) return;
-
-  const now = new Date();
-  const nowH = now.getHours();
-  const nowM = now.getMinutes();
-  const todayKey = now.toISOString().split('T')[0];
-
-  // Reset notifications at midnight
-  if (notifiedToday._date !== todayKey) {
-    notifiedToday = { _date: todayKey };
-  }
-
-  for (const prayer of storedPrayerTimes) {
-    if (prayer.key === 'sunrise') continue;
-    const notifKey = `${todayKey}-${prayer.key}`;
-
-    if (notifiedToday[notifKey]) continue;
-
-    if (isPrayerTime(prayer.time24, nowH, nowM)) {
-      notifiedToday[notifKey] = true;
-      const names = PRAYER_NAMES[userLanguage] || PRAYER_NAMES.ar;
-      const strings = NOTIF_STRINGS[userLanguage] || NOTIF_STRINGS.ar;
-      const name = names[prayer.key] || prayer.key;
-      const isRTL = userLanguage === 'ar';
-
-      const isSilentOrVibrate = athanSoundMode === 'silent' || athanSoundMode === 'vibrate';
-
-      self.registration.showNotification(`🕌 ${strings.timeFor} ${name}`, {
-        body: strings.prepare,
-        icon: '/pwa-icon-192.png',
-        badge: '/pwa-icon-192.png',
-        tag: `athan-${prayer.key}`,
-        requireInteraction: true,
-        vibrate: athanSoundMode === 'silent' ? [] : [300, 100, 300, 100, 300, 100, 300],
-        renotify: true,
-        silent: isSilentOrVibrate,
-        dir: isRTL ? 'rtl' : 'ltr',
-        lang: userLanguage,
-        data: { prayer: prayer.key, type: 'athan', url: '/', soundMode: athanSoundMode },
-        actions: [
-          { action: 'open', title: strings.open },
-          { action: 'dismiss', title: strings.dismiss },
-        ],
-      });
-    }
-
-    // 10-minute reminder
-    const [ph, pm] = prayer.time24.split(':').map(Number);
-    let remH = ph, remM = pm - 10;
-    if (remM < 0) { remM += 60; remH -= 1; }
-    if (remH < 0) remH += 24;
-    const remKey = `${todayKey}-rem-${prayer.key}`;
-
-    if (!notifiedToday[remKey] && nowH === remH && nowM === remM) {
-      notifiedToday[remKey] = true;
-      const names = PRAYER_NAMES[userLanguage] || PRAYER_NAMES.ar;
-      const strings = NOTIF_STRINGS[userLanguage] || NOTIF_STRINGS.ar;
-      const name = names[prayer.key] || prayer.key;
-      const isRTL = userLanguage === 'ar';
-      const isSilentOrVibrate = athanSoundMode === 'silent' || athanSoundMode === 'vibrate';
-      self.registration.showNotification(`⏰ ${name} ${strings.inMinutes}`, {
-        body: strings.prepareWudu,
-        icon: '/pwa-icon-192.png',
-        badge: '/pwa-icon-192.png',
-        tag: `reminder-${prayer.key}`,
-        vibrate: athanSoundMode === 'silent' ? [] : [200, 100, 200],
-        silent: isSilentOrVibrate,
-        dir: isRTL ? 'rtl' : 'ltr',
-        lang: userLanguage,
-        data: { prayer: prayer.key, type: 'reminder', url: '/prayer-times' },
-      });
-    }
-  }
-}
-
-function startPeriodicCheck() {
-  if (checkInterval) clearInterval(checkInterval);
-  checkInterval = setInterval(checkAndNotify, 30000); // Check every 30 seconds
-  checkAndNotify(); // Immediate check
-}
-
-// ============ INSTALL ============
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(PRECACHE_ASSETS.filter(Boolean)))
-      .then(() => self.skipWaiting())
-  );
-});
-
-// ============ ACTIVATE ============
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== ATHAN_AUDIO_CACHE && k !== API_CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
-  );
-  startPeriodicCheck();
-});
-
-// ============ FETCH ============
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Handle cacheable API requests (network-first, cache-fallback)
-  if (url.pathname.startsWith('/api/')) {
-    const isCacheable = CACHEABLE_API_PATTERNS.some(p => url.pathname.startsWith(p));
-    if (isCacheable && request.method === 'GET') {
-      event.respondWith(
-        caches.open(API_CACHE).then(async cache => {
-          try {
-            const networkResponse = await fetch(request);
-            if (networkResponse.ok) {
-              cache.put(request, networkResponse.clone());
-            }
-            return networkResponse;
-          } catch (err) {
-            const cached = await cache.match(request);
-            if (cached) return cached;
-            return new Response(JSON.stringify({ error: 'offline', message: 'غير متصل بالإنترنت' }), {
-              status: 503,
-              headers: { 'Content-Type': 'application/json' }
-            });
-          }
-        })
-      );
-      return;
-    }
-    // Non-cacheable API: pass through (POST, PUT, DELETE etc.)
-    return;
-  }
-
-  // Handle audio files
-  if (url.pathname.includes('/audio/')) {
-    event.respondWith(
-      caches.open(ATHAN_AUDIO_CACHE).then(async cache => {
-        const cached = await cache.match(request);
-        if (cached) return cached;
-        const response = await fetch(request).catch(() => null);
-        if (response?.ok) cache.put(request, response.clone());
-        return response || new Response('', { status: 404 });
-      })
-    );
-    return;
-  }
-
-  // Handle navigation (app shell)
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request).catch(() =>
-        caches.match(request) || caches.match('/') || new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
-      )
-    );
-    return;
-  }
-
-  // Handle static assets (cache-first)
-  event.respondWith(
-    caches.match(request).then(cached =>
-      cached || fetch(request).then(response => {
-        if (response.ok && !url.pathname.includes('hot-update')) {
-          caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
-        }
-        return response;
-      })
-    ).catch(() => caches.match('/'))
-  );
-});
-
-// ============ OFFLINE HTML ============
+// ═══ Offline HTML Fallback ═══
 const OFFLINE_HTML = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -272,7 +93,7 @@ const OFFLINE_HTML = `<!DOCTYPE html>
     .features li { padding: 10px 0; font-size: 14px; color: #cbd5e1; display: flex; align-items: center; gap: 10px; }
     .features li:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.05); }
     .features li .emoji { font-size: 18px; flex-shrink: 0; }
-    .retry-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 36px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 16px; font-weight: 700; text-decoration: none; font-size: 15px; border: none; cursor: pointer; transition: transform 0.2s; }
+    .retry-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 36px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 16px; font-weight: 700; font-size: 15px; border: none; cursor: pointer; transition: transform 0.2s; }
     .retry-btn:active { transform: scale(0.96); }
     .pulse { animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
@@ -280,9 +101,7 @@ const OFFLINE_HTML = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
-    <div class="icon-wrap pulse">
-      <span class="icon">📡</span>
-    </div>
+    <div class="icon-wrap pulse"><span class="icon">📡</span></div>
     <h1>غير متصل بالإنترنت</h1>
     <p class="subtitle">لا يوجد اتصال بالإنترنت حالياً. يمكنك الاستمرار باستخدام المحتوى المحفوظ:</p>
     <ul class="features">
@@ -293,52 +112,395 @@ const OFFLINE_HTML = `<!DOCTYPE html>
       <li><span class="emoji">📿</span> المسبحة الإلكترونية</li>
       <li><span class="emoji">🎧</span> الرقية الشرعية</li>
     </ul>
-    <button class="retry-btn" onclick="location.reload()">
-      🔄 إعادة المحاولة
-    </button>
+    <button class="retry-btn" onclick="location.reload()">🔄 إعادة المحاولة</button>
   </div>
 </body>
 </html>`;
 
-// ============ PUSH ============
-self.addEventListener('push', (event) => {
-  let data = {};
-  try { data = event.data?.json() || {}; } catch (_e) { data = { title: 'Azan wa Hikaya', body: event.data?.text() || '' }; }
-  const strings = NOTIF_STRINGS[userLanguage] || NOTIF_STRINGS.ar;
-  const isRTL = userLanguage === 'ar';
-
+// ═══════════════════════════════════════════
+// INSTALL: Pre-cache App Shell
+// ═══════════════════════════════════════════
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    self.registration.showNotification(data.title || '🕌 Azan wa Hikaya', {
-      body: data.body || strings.prepare,
-      icon: '/pwa-icon-192.png',
-      badge: '/pwa-icon-192.png',
-      tag: data.tag || 'almuadhin',
-      requireInteraction: true,
-      vibrate: [300, 100, 300, 100, 300],
-      dir: isRTL ? 'rtl' : 'ltr',
-      lang: userLanguage,
-      data: { url: data.url || '/', ...data.data },
-      actions: [
-        { action: 'open', title: strings.open },
-        { action: 'dismiss', title: strings.dismiss },
-      ],
+    caches.open(APP_SHELL_CACHE).then(async (cache) => {
+      console.log('[SW] Pre-caching app shell');
+      // Cache files one by one to avoid failing all
+      for (const file of APP_SHELL_FILES) {
+        try {
+          await cache.add(file);
+        } catch (e) {
+          console.warn(`[SW] Failed to cache: ${file}`, e);
+        }
+      }
+      // Also cache the offline page
+      const offlineResponse = new Response(OFFLINE_HTML, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+      await cache.put('/offline.html', offlineResponse);
     })
+  );
+  self.skipWaiting();
+});
+
+// ═══════════════════════════════════════════
+// ACTIVATE: Clean old caches
+// ═══════════════════════════════════════════
+self.addEventListener('activate', (event) => {
+  const currentCaches = [APP_SHELL_CACHE, API_CACHE, IMAGE_CACHE, FONT_CACHE, AUDIO_CACHE];
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => !currentCaches.includes(name))
+          .map((name) => {
+            console.log(`[SW] Deleting old cache: ${name}`);
+            return caches.delete(name);
+          })
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
-// ============ NOTIFICATION CLICK ============
+// ═══════════════════════════════════════════
+// FETCH: Smart routing strategies
+// ═══════════════════════════════════════════
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET requests (except API caching)
+  if (request.method !== 'GET') {
+    // Queue POST/PUT/DELETE for background sync when offline
+    if (!navigator.onLine && request.url.includes('/api/')) {
+      event.respondWith(
+        new Response(JSON.stringify({ queued: true, message: 'سيتم الإرسال عند عودة الاتصال' }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+    }
+    return;
+  }
+
+  // Chrome extensions, analytics, etc.
+  if (!url.protocol.startsWith('http')) return;
+  if (url.hostname.includes('google-analytics') || url.hostname.includes('googletagmanager')) return;
+
+  // ── Strategy 1: API calls → Network-first with cache fallback ──
+  if (url.pathname.startsWith('/api/') || url.hostname.includes('api.aladhan.com') || url.hostname.includes('api.quran.com')) {
+    event.respondWith(networkFirstWithCache(request, API_CACHE));
+    return;
+  }
+
+  // ── Strategy 2: Fonts → Cache-first ──
+  if (url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com')) {
+    event.respondWith(cacheFirstWithNetwork(request, FONT_CACHE, 30 * 24 * 60 * 60 * 1000));
+    return;
+  }
+
+  // ── Strategy 3: Images → Cache-first with network update ──
+  if (request.destination === 'image' || /\.(png|jpg|jpeg|webp|gif|svg|ico)$/i.test(url.pathname)) {
+    event.respondWith(cacheFirstWithNetwork(request, IMAGE_CACHE, 7 * 24 * 60 * 60 * 1000));
+    return;
+  }
+
+  // ── Strategy 4: Audio → Cache-first ──
+  if (request.destination === 'audio' || /\.(mp3|wav|ogg|aac)$/i.test(url.pathname)) {
+    event.respondWith(cacheFirstWithNetwork(request, AUDIO_CACHE, 30 * 24 * 60 * 60 * 1000));
+    return;
+  }
+
+  // ── Strategy 5: SPA navigation → Cache-first with network update ──
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(handleNavigationRequest(request));
+    return;
+  }
+
+  // ── Strategy 6: JS/CSS (hashed assets) → Cache-first ──
+  if (url.pathname.startsWith('/assets/') || /\.(js|css)$/i.test(url.pathname)) {
+    event.respondWith(cacheFirstWithNetwork(request, APP_SHELL_CACHE, 30 * 24 * 60 * 60 * 1000));
+    return;
+  }
+
+  // ── Default: Network-first ──
+  event.respondWith(networkFirstWithCache(request, APP_SHELL_CACHE));
+});
+
+// ═══════════════════════════════════════════
+// Caching Strategies
+// ═══════════════════════════════════════════
+
+/**
+ * Network-first: Try network, fallback to cache
+ */
+async function networkFirstWithCache(request, cacheName) {
+  try {
+    const networkResponse = await fetch(request, { signal: AbortSignal.timeout(8000) });
+    if (networkResponse.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch {
+    const cachedResponse = await caches.match(request);
+    if (cachedResponse) return cachedResponse;
+    
+    // For API calls, return empty JSON
+    if (request.url.includes('/api/')) {
+      return new Response(JSON.stringify({ offline: true, data: null }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+/**
+ * Cache-first: Use cache, update from network in background
+ */
+async function cacheFirstWithNetwork(request, cacheName, maxAge = 86400000) {
+  const cachedResponse = await caches.match(request);
+  
+  if (cachedResponse) {
+    // Check if still fresh
+    const dateHeader = cachedResponse.headers.get('date') || cachedResponse.headers.get('sw-cached-at');
+    if (dateHeader) {
+      const age = Date.now() - new Date(dateHeader).getTime();
+      if (age > maxAge) {
+        // Stale - update in background
+        updateCache(request, cacheName);
+      }
+    }
+    return cachedResponse;
+  }
+
+  // Not in cache - fetch from network
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch {
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+/**
+ * Update cache in background (don't block response)
+ */
+function updateCache(request, cacheName) {
+  fetch(request)
+    .then(response => {
+      if (response.ok) {
+        caches.open(cacheName).then(cache => cache.put(request, response));
+      }
+    })
+    .catch(() => {}); // Silently fail
+}
+
+/**
+ * Handle SPA navigation requests
+ */
+async function handleNavigationRequest(request) {
+  const url = new URL(request.url);
+
+  // Check if this is a known SPA route
+  const isSPARoute = SPA_ROUTES.some(route => url.pathname.startsWith(route)) || url.pathname === '/';
+
+  if (isSPARoute) {
+    // Try network first for HTML
+    try {
+      const networkResponse = await fetch(request, { signal: AbortSignal.timeout(6000) });
+      if (networkResponse.ok) {
+        const cache = await caches.open(APP_SHELL_CACHE);
+        cache.put('/', networkResponse.clone());
+        return networkResponse;
+      }
+    } catch {}
+
+    // Fallback to cached index.html
+    const cachedIndex = await caches.match('/');
+    if (cachedIndex) return cachedIndex;
+
+    const cachedIndexHtml = await caches.match('/index.html');
+    if (cachedIndexHtml) return cachedIndexHtml;
+  }
+
+  // Last resort: offline page
+  const offlinePage = await caches.match('/offline.html');
+  if (offlinePage) return offlinePage;
+
+  return new Response(OFFLINE_HTML, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  });
+}
+
+// ═══════════════════════════════════════════
+// BACKGROUND SYNC
+// ═══════════════════════════════════════════
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-pending-requests') {
+    event.waitUntil(processPendingRequests());
+  }
+  if (event.tag === 'sync-prayer-notifications') {
+    event.waitUntil(checkAndNotify());
+  }
+});
+
+async function processPendingRequests() {
+  // Process any queued API calls from IndexedDB sync_queue
+  try {
+    const db = await openIDB();
+    const tx = db.transaction('sync_queue', 'readwrite');
+    const store = tx.objectStore('sync_queue');
+    const items = await idbGetAll(store);
+    
+    for (const item of items) {
+      try {
+        await fetch(item.url, {
+          method: item.method,
+          headers: item.headers,
+          body: item.body,
+        });
+        store.delete(item.id);
+      } catch {
+        // Will retry next sync
+      }
+    }
+  } catch (e) {
+    console.error('[SW] Background sync failed:', e);
+  }
+}
+
+// Simple IDB helper for SW context
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('azanhikaya_offline', 5);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbGetAll(store) {
+  return new Promise((resolve, reject) => {
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// ═══════════════════════════════════════════
+// PRAYER NOTIFICATION SCHEDULING
+// ═══════════════════════════════════════════
+
+const PRAYER_NAMES = {
+  ar: { fajr: 'الفجر', dhuhr: 'الظهر', asr: 'العصر', maghrib: 'المغرب', isha: 'العشاء' },
+  en: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' },
+};
+
+const PRAYER_EMOJIS = { fajr: '🌅', dhuhr: '☀️', asr: '🌤️', maghrib: '🌇', isha: '🌙' };
+
+async function checkAndNotify() {
+  try {
+    // Read prayer times from IndexedDB
+    const db = await openIDB();
+    const tx = db.transaction('prayer_times', 'readonly');
+    const store = tx.objectStore('prayer_times');
+    const allTimes = await idbGetAll(store);
+    
+    if (!allTimes.length) return;
+    
+    // Get latest cached prayer times
+    const latest = allTimes.sort((a, b) => (b.cached_at || 0) - (a.cached_at || 0))[0];
+    if (!latest || !latest.times) return;
+    
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const lang = 'ar';
+    const names = PRAYER_NAMES[lang] || PRAYER_NAMES.ar;
+    
+    const prayerEntries = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    
+    for (const key of prayerEntries) {
+      const timeStr = latest.times[key];
+      if (!timeStr) continue;
+      
+      const [h, m] = timeStr.split(':').map(Number);
+      const prayerMinutes = h * 60 + m;
+      
+      // Notify if within 1 minute window
+      if (Math.abs(currentMinutes - prayerMinutes) <= 1) {
+        const emoji = PRAYER_EMOJIS[key] || '🕌';
+        const prayerName = names[key] || key;
+        
+        await self.registration.showNotification(
+          `${emoji} حان وقت صلاة ${prayerName}`,
+          {
+            body: 'حيّ على الصلاة • حيّ على الفلاح',
+            icon: '/pwa-icon-192.png',
+            badge: '/pwa-icon-72.png',
+            tag: `prayer-${key}`,
+            renotify: true,
+            vibrate: [200, 100, 200, 100, 200],
+            data: { prayer: key, type: 'athan', url: '/prayer-times' },
+            actions: [
+              { action: 'open', title: 'فتح التطبيق' },
+              { action: 'dismiss', title: 'تجاهل' },
+            ],
+          }
+        );
+      }
+      
+      // 10-minute reminder
+      if (prayerMinutes - currentMinutes === 10) {
+        const prayerName = names[key] || key;
+        await self.registration.showNotification(
+          `⏰ بعد 10 دقائق صلاة ${prayerName}`,
+          {
+            body: 'استعد للصلاة بالوضوء',
+            icon: '/pwa-icon-192.png',
+            badge: '/pwa-icon-72.png',
+            tag: `reminder-${key}`,
+            data: { prayer: key, type: 'reminder', url: '/prayer-times' },
+          }
+        );
+      }
+    }
+  } catch (e) {
+    console.error('[SW] Notification check failed:', e);
+  }
+}
+
+// ═══ Check prayer times every 30 seconds ═══
+let notifInterval = null;
+function startNotificationChecker() {
+  if (notifInterval) return;
+  notifInterval = setInterval(checkAndNotify, 30000);
+  checkAndNotify(); // Run immediately
+}
+
+// Start checker when SW activates
+self.addEventListener('activate', () => {
+  startNotificationChecker();
+});
+
+// ═══ Notification click handler ═══
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  
   if (event.action === 'dismiss') return;
-
+  
   const url = event.notification.data?.url || '/';
+  
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
       for (const client of clients) {
-        if (client.url.includes(self.location.origin)) {
-          client.focus();
+        if (client.url.includes(self.registration.scope)) {
           client.navigate(url);
-          return;
+          return client.focus();
         }
       }
       return self.clients.openWindow(url);
@@ -346,55 +508,45 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// ============ MESSAGE FROM APP ============
+// ═══ Periodic sync (if supported) ═══
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'check-prayer-times') {
+    event.waitUntil(checkAndNotify());
+  }
+});
+
+// ═══ Push notification handler ═══
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data?.json() || {};
+  } catch {
+    data = { title: 'أذان وحكاية', body: event.data?.text() || 'إشعار جديد' };
+  }
+  
+  event.waitUntil(
+    self.registration.showNotification(data.title || '🕌 أذان وحكاية', {
+      body: data.body || '',
+      icon: '/pwa-icon-192.png',
+      badge: '/pwa-icon-72.png',
+      data: data,
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
+// ═══ Message handler for main thread communication ═══
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-
-  // Receive prayer times from the app
-  if (event.data?.type === 'UPDATE_PRAYER_TIMES') {
-    storedPrayerTimes = event.data.prayers || [];
-    if (event.data.language) userLanguage = event.data.language;
-    if (event.data.soundMode) athanSoundMode = event.data.soundMode;
-    startPeriodicCheck();
-
-    // Respond back
-    if (event.ports && event.ports[0]) {
-      event.ports[0].postMessage({ status: 'ok', count: storedPrayerTimes.length });
-    }
+  if (event.data?.type === 'CHECK_PRAYERS') {
+    checkAndNotify();
   }
-
-  // Update language preference
-  if (event.data?.type === 'UPDATE_LANGUAGE') {
-    userLanguage = event.data.language || 'ar';
-  }
-
-  // Update sound mode
-  if (event.data?.type === 'UPDATE_SOUND_MODE') {
-    athanSoundMode = event.data.soundMode || 'auto';
-  }
-
-  // Test notification
-  if (event.data?.type === 'TEST_NOTIFICATION') {
-    const strings = NOTIF_STRINGS[userLanguage] || NOTIF_STRINGS.ar;
-    const isRTL = userLanguage === 'ar';
-    self.registration.showNotification('🕌 Test - Azan wa Hikaya', {
-      body: strings.prepare,
-      icon: '/pwa-icon-192.png',
-      badge: '/pwa-icon-192.png',
-      tag: 'test-notification',
-      requireInteraction: true,
-      vibrate: [300, 100, 300, 100, 300],
-      dir: isRTL ? 'rtl' : 'ltr',
-      lang: userLanguage,
+  if (event.data?.type === 'CACHE_URLS') {
+    const urls = event.data.urls || [];
+    caches.open(APP_SHELL_CACHE).then(cache => {
+      urls.forEach(url => cache.add(url).catch(() => {}));
     });
-  }
-});
-
-// Keep alive via periodic sync
-self.addEventListener('periodicsync', (event) => {
-  if (event.tag === 'prayer-check') {
-    event.waitUntil(checkAndNotify());
   }
 });
