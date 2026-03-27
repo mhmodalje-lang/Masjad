@@ -104,12 +104,16 @@ class AdminAppSettings(BaseModel):
     ad_banner_enabled: Optional[bool] = None
     ad_interstitial_enabled: Optional[bool] = None
     ad_rewarded_enabled: Optional[bool] = None
+    # Moderation Settings
+    story_moderation_enabled: Optional[bool] = None
 
 class AdPlacement(BaseModel):
     id: Optional[str] = None
     name: str
     provider: str = "admob"
     code: str = ""
+    link_url: str = ""  # Click-through URL for image/banner ads
+    image_url: str = ""  # Image URL for display ads
     placement: str = "home"  # home, prayer, quran, duas, ruqyah, notifications, kids_zone, arabic_academy, all
     ad_type: str = "banner"  # banner, interstitial, native, video, rewarded
     enabled: bool = True
@@ -697,6 +701,7 @@ async def admin_get_settings(admin=Depends(get_admin_user)):
             "ad_rewarded_enabled": True,
             "admob_app_id": "",
             "adsense_publisher_id": "",
+            "story_moderation_enabled": True,
         }
     return settings
 

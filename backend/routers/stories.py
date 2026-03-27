@@ -33,6 +33,21 @@ STORY_CATEGORIES = [
 async def get_story_categories():
     return {"categories": STORY_CATEGORIES}
 
+@router.get("/stories/moderation-status")
+async def get_moderation_status():
+    """Public endpoint - check if story moderation is enabled"""
+    settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
+    return {"moderation_enabled": settings.get("story_moderation_enabled", True)}
+
+@router.get("/stories/my-pending")
+async def get_my_pending_stories(user: dict = Depends(get_user)):
+    """Get user's pending stories"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    stories = await db.posts.find({"author_id": user["id"], "status": "pending", "is_story": True}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"stories": stories, "total": len(stories)}
+
+
 class CreateStoryRequest(BaseModel):
     title: Optional[str] = None
     content: str = Field(default="", max_length=10000)
@@ -49,6 +64,15 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
         raise HTTPException(401, "يجب تسجيل الدخول للنشر")
     if not data.content.strip() and not data.image_url and not data.video_url and not data.embed_url:
         raise HTTPException(400, "يجب إضافة محتوى أو وسائط")
+    
+    # Check moderation setting
+    settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
+    moderation_enabled = settings.get("story_moderation_enabled", True)
+    
+    # Admin posts are auto-approved; others depend on moderation setting
+    is_admin = user.get("role") == "admin" or user.get("email") in ["admin@athani.app"]
+    story_status = "approved" if (is_admin or not moderation_enabled) else "pending"
+    
     post_id = str(uuid.uuid4())
     story = {
         "id": post_id,
@@ -68,6 +92,7 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
         "created_at": datetime.utcnow().isoformat(),
         "shares_count": 0,
         "is_story": True,
+        "status": story_status,
     }
     await db.posts.insert_one(story)
     story.pop("_id", None)
@@ -75,11 +100,13 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
     story["saved"] = False
     story["likes_count"] = 0
     story["comments_count"] = 0
-    return {"story": story}
+    return {"story": story, "moderation_required": story_status == "pending"}
 
 @router.get("/stories/list")
 async def list_stories(category: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
-    query = {"is_story": True}
+    query: dict = {"is_story": True}
+    # Only show approved stories (or stories without status for backwards compatibility)
+    query["$or"] = [{"status": "approved"}, {"status": {"$exists": False}}]
     if category != "all":
         query["category"] = category
     skip = (page - 1) * limit

@@ -23,8 +23,8 @@ const AD_PROVIDERS = [
   'Google AdSense', 'Google AdMob', 'ExoClick', 'PopAds', 'Clickadu',
   'HilltopAds', 'Monetag', 'Adsterra', 'ySense', 'YouTube', 'Custom'
 ];
-const AD_PLACEMENTS = ['home','prayer','quran','duas','ruqyah','notifications','all'];
-const AD_TYPES = ['banner','interstitial','native','video','popup'];
+const AD_PLACEMENTS = ['home','prayer','quran','duas','ruqyah','notifications','stories','kids_zone','arabic_academy','qibla','tasbeeh','profile','all'];
+const AD_TYPES = ['banner','interstitial','native','video','popup','image_link'];
 
 export default function AdminDashboard() {
   const { t, dir } = useLocale();
@@ -48,7 +48,7 @@ export default function AdminDashboard() {
   const [nBody, setNBody] = useState('');
   // Ad form
   const [showAdForm, setShowAdForm] = useState(false);
-  const [adForm, setAdForm] = useState({ name:'', provider:'Google AdSense', code:'', placement:'home', ad_type:'banner', enabled:true, priority:0 });
+  const [adForm, setAdForm] = useState({ name:'', provider:'Google AdSense', code:'', link_url:'', image_url:'', placement:'home', ad_type:'banner', enabled:true, priority:0 });
   // Page form
   const [showPageForm, setShowPageForm] = useState(false);
   const [pageForm, setPageForm] = useState({ title:'', category:'', content:'', enabled:true, order:0 });
@@ -90,8 +90,10 @@ export default function AdminDashboard() {
   const [adSettings, setAdSettings] = useState({
     ads_enabled: true, video_ads_muted: true, gdpr_consent_required: true,
     ad_banner_enabled: true, ad_interstitial_enabled: false, ad_rewarded_enabled: true,
-    admob_app_id: '', adsense_publisher_id: ''
+    admob_app_id: '', adsense_publisher_id: '', story_moderation_enabled: true
   });
+  // Pending Stories for moderation
+  const [pendingStories, setPendingStories] = useState<any[]>([]);
   // Analytics
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   // Social Management
@@ -117,7 +119,7 @@ export default function AdminDashboard() {
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
   useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
-  useEffect(() => { if (isAdmin && tab === 'stories-mgmt') fetchAdminStories(); }, [isAdmin, tab, storiesFilter]);
+  useEffect(() => { if (isAdmin && tab === 'stories-mgmt') { fetchAdminStories(); fetchPendingStories(); } }, [isAdmin, tab, storiesFilter]);
   useEffect(() => { if (isAdmin && tab === 'social-mgmt') { fetchSocialStats(); fetchSocialPosts(); fetchSocialComments(); fetchSocialUsers(); } }, [isAdmin, tab]);
   useEffect(() => { if (isAdmin && tab === 'donations-mgmt') fetchAdminDonations(); }, [isAdmin, tab, donationsFilter]);
   useEffect(() => { if (isAdmin && tab === 'ad-rules') fetchAdRules(); }, [isAdmin, tab]);
@@ -156,6 +158,7 @@ export default function AdminDashboard() {
         ad_rewarded_enabled: d.ad_rewarded_enabled ?? true,
         admob_app_id: d.admob_app_id || '',
         adsense_publisher_id: d.adsense_publisher_id || '',
+        story_moderation_enabled: d.story_moderation_enabled ?? true,
       });
     } catch {} 
   }
@@ -167,6 +170,16 @@ export default function AdminDashboard() {
   async function fetchBroadcasts() { try { const d = await api('/announcements', 'GET', null, false); setBroadcastList(d.announcements||[]); } catch {} }
   async function fetchVendors() { try { const d = await api('/admin/vendors'); setVendors(d.vendors||[]); } catch {} }
   async function fetchEmbedContent() { try { const d = await api('/admin/embed-content'); setEmbedContent(d.content||[]); } catch {} }
+  async function fetchPendingStories() { try { const d = await api('/admin/stories?status=pending'); setPendingStories(d.stories||[]); } catch {} }
+  async function approveStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {status:'approved'}); toast.success('✅ تمت الموافقة'); fetchPendingStories(); } catch {} }
+  async function rejectStory(id: string) { try { await api(`/admin/stories/${id}`, 'DELETE'); toast.success('❌ تم الرفض'); fetchPendingStories(); } catch {} }
+  async function toggleModeration(enabled: boolean) {
+    try {
+      await api('/admin/settings', 'PUT', { story_moderation_enabled: enabled });
+      setAdSettings(prev => ({ ...prev, story_moderation_enabled: enabled }));
+      toast.success(enabled ? '🔒 تفعيل الموافقة على النشر' : '🔓 إلغاء الموافقة - النشر حر للجميع');
+    } catch {}
+  }
   function extractYouTubeID(url: string): string | null {
     const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]+)/);
     return match ? match[1] : null;
@@ -783,7 +796,7 @@ export default function AdminDashboard() {
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <h2 className="text-base font-bold text-foreground">{t('adminPanel')} {t('adsManagement')}</h2>
-              <button onClick={()=>{setAdForm({name:'',provider:'Google AdSense',code:'',placement:'home',ad_type:'banner',enabled:true,priority:0}); setShowAdForm(true);}}
+              <button onClick={()=>{setAdForm({name:'',provider:'Google AdSense',code:'',link_url:'',image_url:'',placement:'home',ad_type:'banner',enabled:true,priority:0}); setShowAdForm(true);}}
                 className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"><Plus className="h-3 w-3"/>{t('add')}</button>
             </div>
 
@@ -791,11 +804,19 @@ export default function AdminDashboard() {
               <div className="rounded-xl bg-card border border-primary/30 p-3 space-y-2">
                 <InputField label={t('adName')} value={adForm.name} onChange={(v:string)=>setAdForm({...adForm,name:v})} placeholder={t('adName')} />
                 <SelectField label={t('settingsLabel')} value={adForm.provider} onChange={(v:string)=>setAdForm({...adForm,provider:v})} options={AD_PROVIDERS} />
-                <InputField label={t('adCode')} value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>...</script>" multiline />
+                <InputField label="🔗 رابط الإعلان (URL)" value={adForm.link_url} onChange={(v:string)=>setAdForm({...adForm,link_url:v})} placeholder="https://example.com/ad-click" />
+                <InputField label="🖼️ رابط صورة الإعلان" value={adForm.image_url} onChange={(v:string)=>setAdForm({...adForm,image_url:v})} placeholder="https://example.com/ad-banner.jpg" />
+                <InputField label={t('adCode')} value={adForm.code} onChange={(v:string)=>setAdForm({...adForm,code:v})} placeholder="<script>...</script> أو كود AdSense/AdMob" multiline />
                 <div className="grid grid-cols-2 gap-2">
-                  <SelectField label={t('adPosition')} value={adForm.placement} onChange={(v:string)=>setAdForm({...adForm,placement:v})} options={AD_PLACEMENTS} />
-                  <SelectField label={t('type')} value={adForm.ad_type} onChange={(v:string)=>setAdForm({...adForm,ad_type:v})} options={AD_TYPES} />
+                  <SelectField label="📍 مكان الظهور" value={adForm.placement} onChange={(v:string)=>setAdForm({...adForm,placement:v})} options={AD_PLACEMENTS} />
+                  <SelectField label="📐 نوع الإعلان" value={adForm.ad_type} onChange={(v:string)=>setAdForm({...adForm,ad_type:v})} options={AD_TYPES} />
                 </div>
+                {adForm.image_url && (
+                  <div className="rounded-lg border border-border/50 p-2">
+                    <p className="text-[10px] text-muted-foreground mb-1">معاينة:</p>
+                    <img src={adForm.image_url} alt="Ad preview" className="max-h-24 rounded-lg object-contain mx-auto" onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+                  </div>
+                )}
                 <div className="flex gap-2">
                   <Button onClick={saveAd} size="sm" className="flex-1 rounded-lg gap-1"><Check className="h-3 w-3"/>{t('save')}</Button>
                   <Button onClick={()=>setShowAdForm(false)} size="sm" variant="outline" className="rounded-lg"><X className="h-3 w-3"/></Button>
@@ -813,11 +834,14 @@ export default function AdminDashboard() {
                   </div>
                   <button onClick={()=>deleteAd(ad.id)} className="p-1 rounded-lg bg-destructive/10 text-destructive"><Trash2 className="h-3 w-3"/></button>
                 </div>
-                <div className="flex gap-2 text-[10px] text-muted-foreground flex-wrap">
+                <div className="flex gap-2 text-[10px] text-muted-foreground flex-wrap mb-1">
                   <span className="bg-muted px-2 py-0.5 rounded">{ad.provider}</span>
-                  <span className="bg-muted px-2 py-0.5 rounded">{ad.placement}</span>
+                  <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">📍 {ad.placement}</span>
                   <span className="bg-muted px-2 py-0.5 rounded">{ad.ad_type}</span>
                 </div>
+                {ad.link_url && <p className="text-[10px] text-blue-500 truncate">🔗 {ad.link_url}</p>}
+                {ad.image_url && <img src={ad.image_url} alt="" className="mt-1 max-h-12 rounded object-contain" />}
+                {ad.code && <p className="text-[10px] text-muted-foreground truncate mt-1">💻 {ad.code.substring(0,50)}...</p>}
               </div>
             ))}
 
