@@ -2780,5 +2780,15 @@
   "refFurqan74": "الفرقان: 74",
   "refAlImran8": "آل عمران: 8",
   "refNaml19": "النمل: 19",
-  "refIbrahim41": "إبراهيم: 41"
+  "refIbrahim41": "إبراهيم: 41",
+  "storyPendingApproval": "تم إرسال طلب النشر للمراجعة - سيتم نشره بعد موافقة المدير",
+  "pendingStoriesTitle": "قصصك قيد المراجعة",
+  "pendingStoriesDesc": "هذه القصص في انتظار موافقة المدير للنشر",
+  "pendingLabel": "قيد المراجعة",
+  "storyModerationToggle": "الإشراف على النشر",
+  "moderationOnDesc": "النشر يحتاج موافقة المدير",
+  "moderationOffDesc": "الجميع يستطيع النشر بحرية",
+  "openForAll": "فتح النشر للجميع بدون تقييد",
+  "enableModeration": "تفعيل الإشراف - النشر بموافقة المدير فقط",
+  "pendingApproval": "طلبات النشر المعلقة"
 }

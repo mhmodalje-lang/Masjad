@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
+import { AdBanner } from '@/components/AdBanner';
 
 const dhikrOptions = [
   { key: 'subhanAllah', arabic: 'سُبْحَانَ اللّهِ', target: 33, emoji: '📿' },
@@ -236,6 +237,7 @@ export default function Tasbeeh() {
           </div>
         </div>
       </div>
+      <AdBanner position="tasbeeh" />
     </div>
   );
 }

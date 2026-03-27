@@ -2780,5 +2780,15 @@
   "refFurqan74": "Al-Furqan: 74",
   "refAlImran8": "Aal Imran: 8",
   "refNaml19": "An-Naml: 19",
-  "refIbrahim41": "Ibrahim: 41"
+  "refIbrahim41": "Ibrahim: 41",
+  "storyPendingApproval": "Your story has been submitted for review - it will be published after admin approval",
+  "pendingStoriesTitle": "Your stories under review",
+  "pendingStoriesDesc": "These stories are waiting for admin approval to be published",
+  "pendingLabel": "Pending review",
+  "storyModerationToggle": "Publishing moderation",
+  "moderationOnDesc": "Publishing requires admin approval",
+  "moderationOffDesc": "Everyone can publish freely",
+  "openForAll": "Open publishing for everyone",
+  "enableModeration": "Enable moderation - admin approval required",
+  "pendingApproval": "Pending publish requests"
 }

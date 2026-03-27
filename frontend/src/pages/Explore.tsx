@@ -539,7 +539,7 @@ export default function Explore() {
           )}
 
           {/* Ad between sections */}
-          <AdBanner position="home" />
+          <AdBanner position="explore" />
 
           {/* Most Interacted */}
           {mostInteracted.length > 0 && (

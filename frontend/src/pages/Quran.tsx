@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { Book, Search, Star, BookOpen, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { AdBanner } from '@/components/AdBanner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -208,6 +209,7 @@ export default function Quran() {
           </div>
         )}
       </div>
+      <AdBanner position="quran" />
     </div>
   );
 }

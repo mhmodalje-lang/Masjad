@@ -70,7 +70,7 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
     moderation_enabled = settings.get("story_moderation_enabled", True)
     
     # Admin posts are auto-approved; others depend on moderation setting
-    is_admin = user.get("role") == "admin" or user.get("email") in ["admin@athani.app"]
+    is_admin = user.get("role") == "admin" or user.get("email") in ADMIN_EMAILS
     story_status = "approved" if (is_admin or not moderation_enabled) else "pending"
     
     post_id = str(uuid.uuid4())

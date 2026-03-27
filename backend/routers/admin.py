@@ -405,7 +405,7 @@ async def admin_stats(admin=Depends(get_admin_user)):
     kids_profiles = await db.kids_points.count_documents({})
     adult_profiles = await db.adult_points.count_documents({})
     total_ads_watched = await db.ad_watch_log.count_documents({})
-    stories_count = await db.stories.count_documents({})
+    stories_count = await db.posts.count_documents({"is_story": True})
     daily_content_count = await db.daily_content.count_documents({})
 
     # Today's activity
@@ -435,7 +435,10 @@ async def admin_stats(admin=Depends(get_admin_user)):
 @router.get("/admin/stories")
 async def admin_get_stories(admin=Depends(get_admin_user), status: str = "pending"):
     """List stories for moderation"""
-    stories = await db.stories.find({"status": status}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    query = {"is_story": True}
+    if status:
+        query["status"] = status
+    stories = await db.posts.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
     return {"stories": stories, "total": len(stories)}
 
 @router.put("/admin/stories/{story_id}")
@@ -450,7 +453,7 @@ async def admin_moderate_story(story_id: str, data: dict, admin=Depends(get_admi
         "moderated_by": admin.get("email", ""),
         "moderated_at": datetime.utcnow().isoformat(),
     }
-    result = await db.stories.update_one({"id": story_id}, {"$set": update})
+    result = await db.posts.update_one({"id": story_id}, {"$set": update})
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="القصة غير موجودة")
     return {"success": True, "status": update["status"]}
@@ -604,17 +607,17 @@ async def get_public_ruqyah(category: str = ""):
 # ===== ADMIN ALL STORIES (with status filter) =====
 @router.get("/admin/all-stories")
 async def admin_get_all_stories(admin=Depends(get_admin_user), status: str = "", page: int = 1, limit: int = 30):
-    query = {}
+    query = {"is_story": True}
     if status:
         query["status"] = status
     skip = (page - 1) * limit
-    stories = await db.stories.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    total = await db.stories.count_documents(query)
+    stories = await db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.posts.count_documents(query)
     return {"stories": stories, "total": total, "page": page}
 
 @router.delete("/admin/stories/{story_id}")
 async def admin_delete_story(story_id: str, admin=Depends(get_admin_user)):
-    await db.stories.delete_one({"id": story_id})
+    await db.posts.delete_one({"id": story_id})
     return {"success": True}
 
 # ===== DONATIONS ADMIN =====

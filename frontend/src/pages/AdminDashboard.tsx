@@ -519,6 +519,60 @@ export default function AdminDashboard() {
         {/* ===== STORIES MANAGEMENT ===== */}
         {tab==='stories-mgmt' && (
           <div className="space-y-4">
+            {/* Moderation Toggle - Prominent */}
+            <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 to-primary/5 border border-amber-500/20 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-amber-500" />
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{t('storyModerationToggle') || 'الإشراف على النشر'}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {adSettings.story_moderation_enabled 
+                        ? (t('moderationOnDesc') || 'النشر يحتاج موافقة المدير')
+                        : (t('moderationOffDesc') || 'الجميع يستطيع النشر بحرية')}
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={adSettings.story_moderation_enabled} onCheckedChange={(v) => toggleModeration(v)} />
+              </div>
+              <button 
+                onClick={() => toggleModeration(!adSettings.story_moderation_enabled)}
+                className={cn(
+                  "w-full py-2.5 rounded-xl text-xs font-bold transition-all",
+                  adSettings.story_moderation_enabled 
+                    ? "bg-green-600 text-white hover:bg-green-700" 
+                    : "bg-amber-500 text-white hover:bg-amber-600"
+                )}>
+                {adSettings.story_moderation_enabled 
+                  ? (t('openForAll') || 'فتح النشر للجميع بدون تقييد') 
+                  : (t('enableModeration') || 'تفعيل الإشراف - النشر بموافقة المدير فقط')}
+              </button>
+            </div>
+
+            {/* Pending Stories for Approval */}
+            {adSettings.story_moderation_enabled && pendingStories.length > 0 && (
+              <div className="rounded-2xl bg-amber-500/5 border border-amber-500/20 p-4">
+                <h3 className="text-sm font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4" /> {t('pendingApproval') || 'طلبات النشر المعلقة'} ({pendingStories.length})
+                </h3>
+                <div className="space-y-2">
+                  {pendingStories.map(ps => (
+                    <div key={ps.id} className="rounded-xl neu-card p-3 flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-foreground truncate">{ps.title || t('noData')}</p>
+                        <p className="text-[10px] text-muted-foreground line-clamp-1">{ps.content?.slice(0, 80)}</p>
+                        <p className="text-[9px] text-muted-foreground mt-1">{ps.author_name} · {ps.created_at?.slice(0, 10)}</p>
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <Button onClick={() => moderateStory(ps.id, 'approve')} size="sm" className="h-7 px-2 rounded-lg bg-green-600 hover:bg-green-700 text-[10px]"><Check className="h-3 w-3"/></Button>
+                        <Button onClick={() => moderateStory(ps.id, 'reject')} size="sm" variant="outline" className="h-7 px-2 rounded-lg border-red-500/30 text-red-500 text-[10px]"><X className="h-3 w-3"/></Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-foreground">{t('storiesManagement')} ({storiesTotal})</h2>
               <button onClick={fetchAdminStories} className="p-2 rounded-lg bg-muted"><RefreshCw className="h-4 w-4 text-muted-foreground" /></button>

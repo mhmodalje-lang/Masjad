@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronDown, Play, Video, Volume2, X } from 'lucide-react'
 import { useSmartBack } from '@/hooks/useSmartBack';
 import { useLocale } from '@/hooks/useLocale';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AdBanner } from '@/components/AdBanner';
 
 const BACKEND_URL = import.meta.env.REACT_APP_BACKEND_URL || '';
 
@@ -290,6 +291,7 @@ export default function Ruqyah() {
           </p>
         </div>
       </div>
+      <AdBanner position="ruqyah" />
     </div>
   );
 }

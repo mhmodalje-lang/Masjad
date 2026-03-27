@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/PageHeader';
 import SectionHeader from '@/components/SectionHeader';
 import { toast } from 'sonner';
+import { AdBanner } from '@/components/AdBanner';
 
 const prayerIcons: Record<string, React.ReactNode> = {
   fajr: <Sunrise className="h-5 w-5" />,
@@ -172,6 +173,7 @@ export default function PrayerTimes() {
           </div>
         </button>
       </div>
+      <AdBanner position="prayer" />
     </div>
   );
 }

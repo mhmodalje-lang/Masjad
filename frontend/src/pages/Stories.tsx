@@ -368,9 +368,15 @@ function CreateSheet({ categories, onClose, onCreated }: {
       const d = await r.json();
       if (d.story) {
         setUploadProgress(100);
-        onCreated(d.story);
-        onClose();
-        toast.success(t('publishSuccess'));
+        if (d.moderation_required) {
+          // Story sent for admin review
+          onClose();
+          toast.success(t('storyPendingApproval') || 'تم إرسال طلب النشر للمراجعة - سيتم نشره بعد موافقة المدير');
+        } else {
+          onCreated(d.story);
+          onClose();
+          toast.success(t('publishSuccess'));
+        }
       } else {
         toast.error(d.detail || t('publishFailed'));
       }
@@ -657,7 +663,7 @@ function StoryReader({ story, onBack, onOpenViewer, videoIdx }: {
       <div className="px-4">
         {contentWithAds.map((item, i) => (
           item.type === 'ad' ? (
-            <div key={`ad-${i}`} className="my-4"><AdBanner position="home" /></div>
+            <div key={`ad-${i}`} className="my-4"><AdBanner position="stories" /></div>
           ) : (
             <p key={i} className="text-[15px] text-foreground/80 leading-[2.4] mb-2"
               style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}>
@@ -938,6 +944,8 @@ export default function Stories() {
   const [showOptionsFor, setShowOptionsFor] = useState<string | null>(null);
   const [videoFeedPosts, setVideoFeedPosts] = useState<Story[]>([]);
   const [videoFeedLoading, setVideoFeedLoading] = useState(false);
+  const [pendingStories, setPendingStories] = useState<Story[]>([]);
+  const [moderationEnabled, setModerationEnabled] = useState(false);
 
   const selectedStoryId = searchParams.get('story');
 
@@ -959,7 +967,16 @@ export default function Stories() {
         .then(r => r.json()).then(d => {
           if (d.success) setUnlockedStoryIds(new Set(d.unlocked_story_ids || []));
         }).catch(() => {});
+      // Load user's pending stories
+      fetch(`${BACKEND_URL}/api/stories/my-pending`, { headers: authHeaders() })
+        .then(r => r.json()).then(d => {
+          setPendingStories((d.stories || []).map((s: any) => ({ ...s, liked: false, saved: false, likes_count: 0, comments_count: 0 })));
+        }).catch(() => {});
     }
+    // Check moderation status
+    fetch(`${BACKEND_URL}/api/stories/moderation-status`)
+      .then(r => r.json()).then(d => setModerationEnabled(d.moderation_enabled || false))
+      .catch(() => {});
     // Open create sheet from URL
     if (searchParams.get('create') === 'true' && user) {
       setShowCreate(true);
@@ -1252,6 +1269,34 @@ export default function Stories() {
 
       {/* === CONTENT === */}
       <div className="px-4 py-3">
+        {/* Moderation banner + Pending Stories */}
+        {user && moderationEnabled && pendingStories.length > 0 && (
+          <div className="mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-4 h-4 text-amber-500" />
+              <span className="text-[12px] font-bold text-amber-600 dark:text-amber-400">
+                {t('pendingStoriesTitle') || 'قصصك قيد المراجعة'} ({pendingStories.length})
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mb-2">
+              {t('pendingStoriesDesc') || 'هذه القصص في انتظار موافقة المدير للنشر'}
+            </p>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {pendingStories.map(ps => (
+                <div key={ps.id} className="flex items-center gap-2 bg-card/50 rounded-xl p-2">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-bold text-foreground truncate">{ps.title || ps.content}</p>
+                    <p className="text-[9px] text-muted-foreground">{timeAgo(ps.created_at)}</p>
+                  </div>
+                  <span className="text-[9px] bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold shrink-0">
+                    {t('pendingLabel') || 'قيد المراجعة'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {activeTab === 'video' ? (
           videoFeedLoading ? (
             <div className="flex justify-center py-24"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -1506,7 +1551,7 @@ export default function Stories() {
                           </button>
                         </div>
                       </div>
-                      {idx === 2 && <div className="mt-4"><AdBanner position="home" /></div>}
+                      {idx === 2 && <div className="mt-4"><AdBanner position="stories" /></div>}
                     </div>
                   ))}
                 </div>
