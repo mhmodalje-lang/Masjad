@@ -171,8 +171,8 @@ export default function AdminDashboard() {
   async function fetchVendors() { try { const d = await api('/admin/vendors'); setVendors(d.vendors||[]); } catch {} }
   async function fetchEmbedContent() { try { const d = await api('/admin/embed-content'); setEmbedContent(d.content||[]); } catch {} }
   async function fetchPendingStories() { try { const d = await api('/admin/stories?status=pending'); setPendingStories(d.stories||[]); } catch {} }
-  async function approveStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {status:'approved'}); toast.success('✅ تمت الموافقة'); fetchPendingStories(); } catch {} }
-  async function rejectStory(id: string) { try { await api(`/admin/stories/${id}`, 'DELETE'); toast.success('❌ تم الرفض'); fetchPendingStories(); } catch {} }
+  async function approveStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {action:'approve'}); toast.success('تمت الموافقة'); fetchPendingStories(); fetchAdminStories(); } catch {} }
+  async function rejectStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {action:'reject'}); toast.success('تم الرفض'); fetchPendingStories(); fetchAdminStories(); } catch {} }
   async function toggleModeration(enabled: boolean) {
     try {
       await api('/admin/settings', 'PUT', { story_moderation_enabled: enabled });
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
   async function updateVendorStatus(id: string, status: string) { await api(`/admin/vendors/${id}`,'PUT',{status}); toast.success(t('savedSuccess')); fetchVendors(); }
   // Stories management
   async function fetchAdminStories() { try { const d = await api(`/admin/all-stories?status=${storiesFilter}`); setAdminStories(d.stories||[]); setStoriesTotal(d.total||0); } catch {} }
-  async function moderateStory(id: string, action: string) { await api(`/admin/stories/${id}`,'PUT',{action}); toast.success(action === 'approve' ? t('approved') : t('rejected')); fetchAdminStories(); }
+  async function moderateStory(id: string, action: string) { await api(`/admin/stories/${id}`,'PUT',{action}); toast.success(action === 'approve' ? t('approved') : t('rejected')); fetchAdminStories(); fetchPendingStories(); }
   async function deleteStory(id: string) { if(!confirm(t('confirmDeleteStory'))) return; await api(`/admin/stories/${id}`,'DELETE'); toast.success(t('deletedSuccess')); fetchAdminStories(); }
   // Ruqyah management
   async function fetchRuqyah() { try { const d = await api('/admin/ruqyah'); setRuqyahItems(d.items||[]); } catch {} }
