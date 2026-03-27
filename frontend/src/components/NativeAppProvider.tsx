@@ -6,6 +6,7 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { isNativeApp, isAndroid, configureStatusBar, hapticFeedback, exitApp } from '@/lib/nativeBridge';
+import { registerNotificationListeners } from '@/lib/nativeNotifications';
 import { useTheme } from '@/components/ThemeProvider';
 
 // ═══ Track navigation for back button ═══
@@ -127,6 +128,11 @@ export function NativeAppProvider({ children }: { children: React.ReactNode }) {
         setTimeout(() => {
           SplashScreen.hide({ fadeOutDuration: 300 });
         }, 500);
+      } catch { /* not available */ }
+      
+      // Register native notification listeners
+      try {
+        await registerNotificationListeners();
       } catch { /* not available */ }
     })();
   }, []);

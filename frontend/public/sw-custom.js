@@ -3,9 +3,9 @@
  * Prayer notification scheduling with periodic checking
  */
 
-const CACHE_NAME = 'azanhikaya-v5';
+const CACHE_NAME = 'azanhikaya-v6';
 const ATHAN_AUDIO_CACHE = 'athan-audio-v2';
-const API_CACHE = 'api-cache-v1';
+const API_CACHE = 'api-cache-v2';
 
 // API endpoints that should be cached for offline use
 const CACHEABLE_API_PATTERNS = [
@@ -22,14 +22,22 @@ const CACHEABLE_API_PATTERNS = [
   '/api/ads/active',
   '/api/ruqyah/',
   '/api/daily-content',
+  '/api/health',
+  '/api/',
 ];
 
 const PRECACHE_ASSETS = [
   '/',
   '/manifest.json',
+  '/pwa-icon-48.png',
+  '/pwa-icon-72.png',
+  '/pwa-icon-96.png',
   '/pwa-icon-192.png',
   '/pwa-icon-512.png',
+  '/pwa-icon-maskable.png',
+  '/apple-touch-icon.png',
   '/mecca-hero.webp',
+  '/favicon.ico',
 ];
 
 const PRAYER_NAMES = {
@@ -250,34 +258,44 @@ const OFFLINE_HTML = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>أذان وحكاية - غير متصل</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; }
-    .container { max-width: 400px; }
-    .icon { font-size: 64px; margin-bottom: 20px; }
-    h1 { font-size: 24px; margin-bottom: 12px; color: #38bdf8; }
-    p { font-size: 14px; color: #94a3b8; line-height: 1.8; margin-bottom: 20px; }
-    .retry-btn { display: inline-block; padding: 12px 32px; background: #38bdf8; color: #0f172a; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 14px; border: none; cursor: pointer; }
-    .features { text-align: right; margin: 20px 0; }
-    .features li { padding: 8px 0; border-bottom: 1px solid #1e293b; font-size: 13px; color: #94a3b8; }
-    .features li::before { content: '✅ '; }
+    body { font-family: -apple-system, 'IBM Plex Sans Arabic', system-ui, sans-serif; background: linear-gradient(135deg, #071a12 0%, #0d2a1c 40%, #051410 100%); color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; padding-top: env(safe-area-inset-top, 20px); padding-bottom: env(safe-area-inset-bottom, 20px); }
+    .container { max-width: 380px; }
+    .icon-wrap { width: 80px; height: 80px; border-radius: 24px; background: rgba(16,185,129,0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .icon { font-size: 40px; }
+    h1 { font-size: 22px; margin-bottom: 8px; color: #10b981; font-weight: 700; }
+    .subtitle { font-size: 14px; color: #94a3b8; line-height: 1.8; margin-bottom: 24px; }
+    .features { list-style: none; text-align: right; margin: 0 0 24px; padding: 16px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); }
+    .features li { padding: 10px 0; font-size: 14px; color: #cbd5e1; display: flex; align-items: center; gap: 10px; }
+    .features li:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .features li .emoji { font-size: 18px; flex-shrink: 0; }
+    .retry-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 36px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 16px; font-weight: 700; text-decoration: none; font-size: 15px; border: none; cursor: pointer; transition: transform 0.2s; }
+    .retry-btn:active { transform: scale(0.96); }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="icon">🕌</div>
+    <div class="icon-wrap pulse">
+      <span class="icon">📡</span>
+    </div>
     <h1>غير متصل بالإنترنت</h1>
-    <p>لا يوجد اتصال بالإنترنت حالياً. يمكنك الاستمرار باستخدام المحتوى المحفوظ:</p>
+    <p class="subtitle">لا يوجد اتصال بالإنترنت حالياً. يمكنك الاستمرار باستخدام المحتوى المحفوظ:</p>
     <ul class="features">
-      <li>أوقات الصلاة المحفوظة</li>
-      <li>القصص والحكايات المحفوظة</li>
-      <li>الأدعية والأذكار</li>
-      <li>المسبحة الإلكترونية</li>
-      <li>الرقية الشرعية</li>
+      <li><span class="emoji">⏰</span> أوقات الصلاة المحفوظة</li>
+      <li><span class="emoji">📖</span> القرآن الكريم</li>
+      <li><span class="emoji">📚</span> القصص والحكايات المحفوظة</li>
+      <li><span class="emoji">🤲</span> الأدعية والأذكار</li>
+      <li><span class="emoji">📿</span> المسبحة الإلكترونية</li>
+      <li><span class="emoji">🎧</span> الرقية الشرعية</li>
     </ul>
-    <button class="retry-btn" onclick="location.reload()">إعادة المحاولة</button>
+    <button class="retry-btn" onclick="location.reload()">
+      🔄 إعادة المحاولة
+    </button>
   </div>
 </body>
 </html>`;

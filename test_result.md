@@ -10,7 +10,7 @@
 - Always ask user before making changes
 - Verify fixes match user expectations
 
-## Current Task - PWA to Native App Conversion Complete
+## Current Task - PWA to Native App Conversion Complete + Store Readiness Fixes
 
 ### PWA to Android/iOS Preparation ✅ (July 2025)
 
@@ -27,31 +27,46 @@
 - Shortcuts for Prayer, Quran, Qibla, Tasbeeh
 - Related applications (Google Play)
 
-#### 3. Service Worker - Complete ✅
-- Offline support with app shell caching
+#### 3. Service Worker - Enhanced ✅
+- Offline support with app shell caching (azanhikaya-v6)
 - API caching (network-first for prayer times, Quran APIs)
+- Pre-caches all PWA icons, manifest, essential assets
 - Prayer notification scheduling (30-second check interval)
 - 10-minute pre-prayer reminders
-- Offline HTML fallback page
+- Improved offline HTML page (matching app theme)
 - Multi-language notification support (10 languages)
 
 #### 4. Android Project - Ready for Build ✅
 - Capacitor synced with 12 native plugins
-- AndroidManifest.xml with all permissions (Internet, Location, Notifications, Alarms, Wake Lock)
+- AndroidManifest.xml with 10 permissions (Internet, Location, Notifications, Alarms, Wake Lock)
 - build.gradle with signing config template, minify, shrink resources
 - ProGuard rules configured
 - App icons in all mipmap densities
 - Splash screens in all drawable densities
 
-#### 5. Build Scripts Created ✅
+#### 5. Store Readiness Fixes ✅
+- **Centralized API Config** (src/lib/apiConfig.ts) - single source for backend URL
+- **Domain Update Script** (update-domain.sh) - easy production URL change
+- **Improved Offline Mode** - networkMode: 'offlineFirst', refetchOnReconnect: 'always'
+- **Enhanced Offline Notice** - animated, shows reconnection status
+- **Page Loader** - proper Suspense fallback instead of null
+- **Error Boundary** - Arabic error messages with retry
+- **Data Error Fallback** - retry mechanism for failed API calls
+- **Native Notifications** (nativeNotifications.ts) - Capacitor LocalNotifications for background prayer alerts
+- **Splash Screen Enhancement** - progress bar, better animations
+- **Service Worker Updates** - auto-update check every 30 minutes
+- **Persistent Storage** - requests storage.persist for offline data
+
+#### 6. Policy Pages - All Working ✅
+- /privacy - Privacy Policy (GDPR compliant, multi-language)
+- /terms - Terms of Service
+- /delete-data - Data Deletion page
+- /content-policy - Content Policy
+
+#### 7. Build Scripts Created ✅
 - build-android.sh - Automated Android build script
 - build-ios.sh - Automated iOS build script (requires Mac)
-
-#### 6. Store Deployment Guide Updated ✅
-- Complete step-by-step for Google Play
-- Complete step-by-step for Apple App Store
-- Store listing content (Arabic descriptions)
-- Policy compliance checklist
+- update-domain.sh - Update backend URL for production
 
 ## Changes Made
 

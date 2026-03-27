@@ -6,19 +6,35 @@ import { isNativeApp } from '@/lib/nativeBridge';
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [visible, setVisible] = useState(true);
+  const [progress, setProgress] = useState(0);
   const isDark = document.documentElement.classList.contains('dark');
   const currentLang = i18n.language || 'ar';
   const rtl = isRTL(currentLang);
   const isNative = isNativeApp();
 
   useEffect(() => {
-    // Much shorter splash - get user to content ASAP
-    const duration = isNative ? 200 : 350;
+    // Animate progress bar
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prev + 8;
+      });
+    }, 40);
+
+    // Show splash for enough time to feel polished but not slow
+    const duration = isNative ? 600 : 800;
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onComplete, 150);
+      setTimeout(onComplete, 250);
     }, duration);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressInterval);
+    };
   }, [onComplete, isNative]);
 
   return (
@@ -31,7 +47,6 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             background: isDark
               ? 'linear-gradient(135deg, #071a12 0%, #0d2a1c 40%, #051410 100%)'
               : 'linear-gradient(135deg, #F9FAFB 0%, #F0F5F0 40%, #F9FAFB 100%)',
-            // Ensure it covers safe areas on notched devices
             paddingTop: 'env(safe-area-inset-top, 0px)',
             paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           }}
@@ -60,18 +75,22 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           >
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-              <path
-                d="M40 4C22.3 4 8 18.3 8 36s14.3 32 32 32c6.2 0 12-1.8 16.9-4.8C50.4 67 42 72 32.5 72 16.2 72 3 58.8 3 42.5S16.2 13 32.5 13c3.5 0 6.8.5 10 1.5C39.8 8.5 35.5 4 40 4z"
-                fill="hsl(var(--mystic-moss))"
-              />
-              <circle cx="58" cy="18" r="4" fill="#D4AF37" />
-            </svg>
+            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center shadow-2xl ${
+              isDark ? 'bg-emerald-900/40 border border-emerald-700/30' : 'bg-emerald-100 border border-emerald-200'
+            }`}>
+              <svg width="56" height="56" viewBox="0 0 80 80" fill="none">
+                <path
+                  d="M40 4C22.3 4 8 18.3 8 36s14.3 32 32 32c6.2 0 12-1.8 16.9-4.8C50.4 67 42 72 32.5 72 16.2 72 3 58.8 3 42.5S16.2 13 32.5 13c3.5 0 6.8.5 10 1.5C39.8 8.5 35.5 4 40 4z"
+                  fill="hsl(var(--mystic-moss))"
+                />
+                <circle cx="58" cy="18" r="4" fill="#D4AF37" />
+              </svg>
+            </div>
           </motion.div>
 
-          {/* App Name with slide-up animation */}
+          {/* App Name */}
           <motion.h1 
-            className={`relative z-10 text-3xl font-bold mb-3 text-center px-8 ${isDark ? 'text-white' : 'text-gray-900'}`}
+            className={`relative z-10 text-3xl font-bold mb-2 text-center px-8 ${isDark ? 'text-white' : 'text-gray-900'}`}
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1, duration: 0.4 }}
@@ -81,7 +100,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
 
           {/* Subtitle */}
           <motion.p 
-            className={`relative z-10 text-sm text-center px-10 max-w-[320px] leading-relaxed ${isDark ? 'text-white/60' : 'text-gray-500'}`}
+            className={`relative z-10 text-sm text-center px-10 max-w-[320px] leading-relaxed mb-8 ${isDark ? 'text-white/60' : 'text-gray-500'}`}
             initial={{ y: 15, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.4 }}
@@ -89,7 +108,25 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             {i18n.t('appSubtitle')}
           </motion.p>
 
-          {/* Version number (native apps show this) */}
+          {/* Progress Bar */}
+          <motion.div
+            className="relative z-10 w-48"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <div className={`h-1 rounded-full overflow-hidden ${
+              isDark ? 'bg-white/10' : 'bg-gray-200'
+            }`}>
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                style={{ width: `${progress}%` }}
+                transition={{ duration: 0.1 }}
+              />
+            </div>
+          </motion.div>
+
+          {/* Version */}
           <motion.p
             className={`absolute bottom-8 text-xs ${isDark ? 'text-white/30' : 'text-gray-400'}`}
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}

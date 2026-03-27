@@ -17,6 +17,7 @@ import { usePrefetch } from "@/hooks/usePrefetch";
 import { NativeAppProvider } from "@/components/NativeAppProvider";
 import { isNativeApp } from "@/lib/nativeBridge";
 import SplashScreen from "@/components/SplashScreen";
+import PageLoader from "@/components/PageLoader";
 import ScrollToTop from "@/components/ScrollToTop";
 import CookieConsent from "@/components/CookieConsent";
 import GDPRAdConsent from "@/components/GDPRAdConsent";
@@ -86,10 +87,19 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 10 * 60 * 1000,     // 10 minutes — don't refetch if data is fresh
       gcTime: 60 * 60 * 1000,         // 60 minutes cache
-      retry: 1,                        // Only 1 retry on failure
+      retry: (failureCount, error: any) => {
+        // Don't retry if offline
+        if (!navigator.onLine) return false;
+        // Don't retry 4xx errors (client errors)
+        if (error?.status >= 400 && error?.status < 500) return false;
+        // Retry up to 2 times for server errors
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
       refetchOnWindowFocus: false,     // Don't refetch when user switches tabs
       refetchOnMount: false,           // Don't refetch if cached data exists
-      refetchOnReconnect: false,       // Don't refetch on reconnect
+      refetchOnReconnect: 'always',    // Refetch when connection is restored
+      networkMode: 'offlineFirst',     // Use cached data when offline
     },
   },
 });
@@ -159,7 +169,7 @@ const App = () => {
                           <PermissionManager />
                           <AppLayout>
                             <ErrorBoundary>
-                              <Suspense fallback={null}>
+                              <Suspense fallback={<PageLoader />}>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
                                     <Route path="/social-profile/:userId" element={<SocialProfile />} />
