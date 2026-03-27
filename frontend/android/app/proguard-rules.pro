@@ -1,21 +1,33 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ══════════════════════════════════════════════════════════
+# ProGuard Rules for أذان وحكاية - Azan wa Hikaya
+# ══════════════════════════════════════════════════════════
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep Capacitor classes
+-keep class com.getcapacitor.** { *; }
+-keep class com.azanwahikaya.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep Capacitor plugin classes
+-keep @com.getcapacitor.annotation.CapacitorPlugin class * { *; }
+-keep @com.getcapacitor.annotation.Permission class * { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep WebView JavaScript interface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Keep Google Play Services
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
+# Keep Firebase
+-keep class com.google.firebase.** { *; }
+-dontwarn com.google.firebase.**
+
+# General Android
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider

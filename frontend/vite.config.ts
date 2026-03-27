@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-icon-192.png", "pwa-icon-512.png"],
+      includeAssets: ["favicon.ico", "pwa-icon-48.png", "pwa-icon-72.png", "pwa-icon-96.png", "pwa-icon-128.png", "pwa-icon-144.png", "pwa-icon-152.png", "pwa-icon-192.png", "pwa-icon-384.png", "pwa-icon-512.png", "pwa-icon-maskable.png", "apple-touch-icon.png"],
       manifest: {
         name: "أذان وحكاية - رفيقك الروحي",
         short_name: "أذان وحكاية",
@@ -35,8 +35,33 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         icons: [
           {
+            src: "/pwa-icon-48.png",
+            sizes: "48x48",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-icon-72.png",
+            sizes: "72x72",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-icon-96.png",
+            sizes: "96x96",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-icon-144.png",
+            sizes: "144x144",
+            type: "image/png",
+          },
+          {
             src: "/pwa-icon-192.png",
             sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-icon-384.png",
+            sizes: "384x384",
             type: "image/png",
           },
           {

@@ -19,6 +19,8 @@ const config: CapacitorConfig = {
       'https://api.quran.com',
       'https://fonts.googleapis.com',
       'https://fonts.gstatic.com',
+      'https://*.preview.emergentagent.com',
+      'https://*.azanwahikaya.com',
     ],
   },
 
