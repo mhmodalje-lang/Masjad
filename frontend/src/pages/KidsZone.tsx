@@ -281,9 +281,9 @@ export default function KidsZone() {
         <div className="relative z-10 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">🕌</div>
           <div className="flex-1">
-            <p className="text-xs font-bold text-white/70 uppercase tracking-wider">{lang === 'ar' ? 'أكاديمية نور' : 'Noor Academy'}</p>
-            <h3 className="text-lg font-black mt-0.5">{lang === 'ar' ? '5 مسارات تعليمية' : '5 Learning Tracks'}</h3>
-            <p className="text-xs text-white/60 mt-0.5">{academyOverview?.total_lessons || 240}+ {t('lessons')} • {lang === 'ar' ? 'نورانية • عقيدة • فقه • سيرة • آداب' : 'Nooraniya • Aqeedah • Fiqh • Seerah • Adab'}</p>
+            <p className="text-xs font-bold text-white/70 uppercase tracking-wider">{t('noorAcademyTitle')}</p>
+            <h3 className="text-lg font-black mt-0.5">{t('fiveLearningTracks')}</h3>
+            <p className="text-xs text-white/60 mt-0.5">{academyOverview?.total_lessons || 240}+ {t('lessons')} • {t('trackNames')}</p>
           </div>
           <ChevronRight className="h-6 w-6 text-white/50" />
         </div>
@@ -614,9 +614,9 @@ export default function KidsZone() {
     <div className="space-y-4 px-4 pb-28 pt-4 max-w-lg mx-auto">
       <div className="text-center p-5 rounded-[24px] bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/10 border border-amber-200/30 dark:border-amber-800/30">
         <span className="text-4xl">🕌</span>
-        <h2 className="text-xl font-black mt-2">{lang === 'ar' ? 'أكاديمية نور' : 'Noor Academy'}</h2>
-        <p className="text-sm text-muted-foreground mt-1">{lang === 'ar' ? 'تعلّم دينك بطريقة ممتعة وتفاعلية' : 'Learn your religion in a fun, interactive way'}</p>
-        <p className="text-xs text-muted-foreground mt-1">{academyOverview?.total_lessons || 240}+ {lang === 'ar' ? 'درس' : 'lessons'}</p>
+        <h2 className="text-xl font-black mt-2">{t('noorAcademyTitle')}</h2>
+        <p className="text-sm text-muted-foreground mt-1">{t('learnReligionFun')}</p>
+        <p className="text-xs text-muted-foreground mt-1">{academyOverview?.total_lessons || 240}+ {t('lessonsLabel')}</p>
       </div>
       {academyOverview?.tracks.map((track, i) => (
         <motion.button key={track.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }} whileTap={{ scale: 0.98 }}
@@ -630,7 +630,7 @@ export default function KidsZone() {
             <div className="flex-1">
               <h3 className="text-base font-black text-foreground">{track.name}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{track.description}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{track.total_lessons} {lang === 'ar' ? 'درس' : 'lessons'} • {track.levels?.length || 0} {lang === 'ar' ? 'مستويات' : 'levels'}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{track.total_lessons} {t('lessonsLabel')} • {track.levels?.length || 0} {t('levelsLabel')}</p>
             </div>
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </div>
@@ -648,14 +648,14 @@ export default function KidsZone() {
           <span className="text-4xl">{selectedTrack.emoji}</span>
           <h2 className="text-xl font-black mt-2">{selectedTrack.name}</h2>
           <p className="text-sm text-muted-foreground mt-1">{selectedTrack.description}</p>
-          <p className="text-xs text-muted-foreground mt-1">{selectedTrack.total_lessons} {lang === 'ar' ? 'درس' : 'lessons'}</p>
+          <p className="text-xs text-muted-foreground mt-1">{selectedTrack.total_lessons} {t('lessonsLabel')}</p>
         </div>
         {selectedTrack.levels.map((level: any, li: number) => (
           <div key={level.level} className="space-y-2">
             <div className="flex items-center gap-2 px-1">
               <span className="text-lg">{level.emoji}</span>
               <h3 className="text-sm font-black text-foreground">{level.name}</h3>
-              <span className="text-[10px] text-muted-foreground">({level.lessons_count} {lang === 'ar' ? 'دروس' : 'lessons'})</span>
+              <span className="text-[10px] text-muted-foreground">({level.lessons_count} {t('lessonsLabel')})</span>
             </div>
             <div className="space-y-1.5">
               {level.lessons?.map((lesson: any, idx: number) => (
@@ -666,12 +666,12 @@ export default function KidsZone() {
                   <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-lg shrink-0">{lesson.emoji}</div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-bold text-foreground truncate">{lesson.title}</h4>
-                    <p className="text-[10px] text-muted-foreground">{lang === 'ar' ? `درس ${lesson.lesson}` : `Lesson ${lesson.lesson}`} • {lesson.xp} XP</p>
+                    <p className="text-[10px] text-muted-foreground">{t('lessonLabel')} {lesson.lesson} • {lesson.xp} XP</p>
                   </div>
                   {lesson.content?.placeholder || lesson.content?.status === 'placeholder' ? (
-                    <span className="text-[10px] text-muted-foreground/50 px-2 py-1 bg-muted rounded-lg">{lang === 'ar' ? 'قريباً' : 'Soon'}</span>
+                    <span className="text-[10px] text-muted-foreground/50 px-2 py-1 bg-muted rounded-lg">{t('comingSoon')}</span>
                   ) : (
-                    <div className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">{lang === 'ar' ? 'ابدأ' : 'Start'}</div>
+                    <div className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">{t('startLesson')}</div>
                   )}
                 </motion.button>
               ))}
@@ -695,7 +695,7 @@ export default function KidsZone() {
         return (
           <div className="p-6 rounded-[20px] bg-amber-50 dark:bg-amber-950/20 border border-amber-200/30 text-center">
             <span className="text-4xl">🚧</span>
-            <p className="text-sm font-bold mt-2 text-amber-700 dark:text-amber-300">{content?.message || (lang === 'ar' ? 'قريباً — المحتوى قيد الإعداد' : 'Coming Soon')}</p>
+            <p className="text-sm font-bold mt-2 text-amber-700 dark:text-amber-300">{content?.message || t('comingSoonContent')}</p>
           </div>
         );
       }
@@ -739,7 +739,7 @@ export default function KidsZone() {
         if (Array.isArray(list) && list.length > 0) {
           parts.push(
             <div key={key} className="space-y-2">
-              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">{key === 'names_intro' ? (lang === 'ar' ? 'أسماء' : 'Names') : key === 'first_muslims' ? (lang === 'ar' ? 'أوائل المسلمين' : 'First Muslims') : ''}</h4>
+              <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">{key === 'names_intro' ? t('namesSection') : key === 'first_muslims' ? t('firstMuslims') : ''}</h4>
               {list.map((item: any, idx: number) => {
                 const text = typeof item === 'string' ? item : item[lang] || item.ar || item.en || item.name?.[lang] || item.name?.ar || item.name?.en || item.action?.[lang] || item.action?.ar || item.action?.en || (typeof item.name === 'string' ? item.name : '') || (typeof item.action === 'string' ? item.action : '') || '';
                 const detail = item.meaning?.[lang] || item.meaning?.ar || item.meaning?.en || item.detail?.[lang] || item.detail?.ar || item.detail?.en || item.ruling?.[lang] || item.ruling?.ar || item.ruling?.en || item.method?.[lang] || item.method?.ar || item.method?.en || item.story?.[lang] || item.story?.ar || item.story?.en || item.task?.[lang] || item.task?.ar || item.task?.en || item.desc?.[lang] || item.desc?.ar || item.desc?.en || item.example?.[lang] || item.example?.ar || item.example?.en || item.removal?.[lang] || item.removal?.ar || item.removal?.en || item.virtue?.[lang] || item.virtue?.ar || item.virtue?.en || item.status?.[lang] || item.status?.ar || item.status?.en || item.prophet?.[lang] || item.prophet?.ar || item.prophet?.en || item.time?.[lang] || item.time?.ar || item.time?.en || item.nisab?.[lang] || item.nisab?.ar || item.nisab?.en || item.rate?.[lang] || item.rate?.ar || item.rate?.en || '';
@@ -798,12 +798,12 @@ export default function KidsZone() {
       if (!question) return null;
 
       if (quiz.type === 'true_false') {
-        const trueLabel = lang === 'ar' ? 'صحيح ✅' : 'True ✅';
-        const falseLabel = lang === 'ar' ? 'خطأ ❌' : 'False ❌';
+        const trueLabel = t('trueAnswer');
+        const falseLabel = t('falseAnswer');
         const correctVal = quiz.correct === true ? 'true' : 'false';
         return (
           <div className="p-5 rounded-[20px] bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200/30 space-y-3">
-            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{lang === 'ar' ? '❓ اختبر نفسك' : '❓ Quiz'}</h4>
+            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{t('testYourself')}</h4>
             <p className="text-sm font-bold">{question}</p>
             <div className="grid grid-cols-2 gap-2">
               {[{ val: 'true', label: trueLabel }, { val: 'false', label: falseLabel }].map(opt => (
@@ -818,7 +818,7 @@ export default function KidsZone() {
             </div>
             {quizSubmitted && (
               <p className={cn("text-sm font-bold text-center", quizAnswer === correctVal ? "text-emerald-600" : "text-red-600")}>
-                {quizAnswer === correctVal ? (lang === 'ar' ? '🎉 إجابة صحيحة!' : '🎉 Correct!') : (lang === 'ar' ? `❌ الإجابة الصحيحة: ${correctVal === 'true' ? 'صحيح' : 'خطأ'}` : `❌ Correct: ${correctVal === 'true' ? 'True' : 'False'}`)}
+                {quizAnswer === correctVal ? t('correctAnswer') : `${t('wrongAnswerPrefix')} ${correctVal === 'true' ? t('trueLabel') : t('falseLabel')}`}
               </p>
             )}
           </div>
@@ -830,7 +830,7 @@ export default function KidsZone() {
         const correctStr = typeof quiz.correct === 'string' ? quiz.correct : quiz.correct?.[lang] || quiz.correct?.ar || quiz.correct?.en || '';
         return (
           <div className="p-5 rounded-[20px] bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200/30 space-y-3">
-            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{lang === 'ar' ? '❓ اختبر نفسك' : '❓ Quiz'}</h4>
+            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{t('testYourself')}</h4>
             <p className="text-sm font-bold">{question}</p>
             <div className="space-y-2">
               {quiz.options.map((opt: any, i: number) => {
@@ -849,7 +849,7 @@ export default function KidsZone() {
             </div>
             {quizSubmitted && (
               <p className={cn("text-sm font-bold text-center", quizAnswer === correctStr ? "text-emerald-600" : "text-red-600")}>
-                {quizAnswer === correctStr ? (lang === 'ar' ? '🎉 إجابة صحيحة!' : '🎉 Correct!') : (lang === 'ar' ? `❌ الإجابة: ${correctStr}` : `❌ Correct: ${correctStr}`)}
+                {quizAnswer === correctStr ? t('correctAnswer') : `${t('wrongAnswerCorrect')} ${correctStr}`}
               </p>
             )}
           </div>
@@ -860,7 +860,7 @@ export default function KidsZone() {
       if (quiz.type === 'sequence' && quiz.correct_order) {
         return (
           <div className="p-5 rounded-[20px] bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200/30 space-y-3">
-            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{lang === 'ar' ? '🔢 رتّب' : '🔢 Arrange'}</h4>
+            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase">{t('arrangeQuiz')}</h4>
             <p className="text-sm font-bold">{question}</p>
             <div className="space-y-1.5">
               {quiz.correct_order.map((item: any, i: number) => {
@@ -884,7 +884,7 @@ export default function KidsZone() {
           <div className="flex items-center justify-center gap-2 mt-1">
             {ls.level_name && <span className="text-xs text-muted-foreground">{ls.level_name}</span>}
             <span className="text-xs text-muted-foreground">•</span>
-            <span className="text-xs text-muted-foreground">{lang === 'ar' ? `درس ${ls.lesson}` : `Lesson ${ls.lesson}`}</span>
+            <span className="text-xs text-muted-foreground">{t('lessonLabel')} {ls.lesson}</span>
             <span className="text-xs text-muted-foreground">•</span>
             <span className="text-xs font-bold text-emerald-500">{ls.xp} XP</span>
           </div>
@@ -902,14 +902,14 @@ export default function KidsZone() {
             disabled={!ls.has_prev}
             className="px-4 py-2.5 rounded-xl bg-muted text-sm font-bold disabled:opacity-30 transition-all"
           >
-            {isRTL ? '→' : '←'} {lang === 'ar' ? 'السابق' : 'Previous'}
+            {isRTL ? '→' : '←'} {t('previousLesson')}
           </button>
           <span className="text-xs font-bold text-muted-foreground">{ls.id}</span>
           <button onClick={() => { if (ls.has_next && selectedTrack) loadAcademyLesson(selectedTrack.id, ls.id + 1); }}
             disabled={!ls.has_next}
             className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-30 transition-all"
           >
-            {lang === 'ar' ? 'التالي' : 'Next'} {isRTL ? '←' : '→'}
+            {t('nextLesson')} {isRTL ? '←' : '→'}
           </button>
         </div>
       </div>

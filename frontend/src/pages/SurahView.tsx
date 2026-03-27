@@ -14,6 +14,7 @@ const L: Record<string, Record<string, string>> = {
   next: { ar: 'التالية', en: 'Next', de: 'Nächste', fr: 'Suivante', tr: 'Sonraki', ru: 'Далее', sv: 'Nästa', nl: 'Volgende', el: 'Επόμενη' },
   prev: { ar: 'السابقة', en: 'Previous', de: 'Vorherige', fr: 'Précédente', tr: 'Önceki', ru: 'Назад', sv: 'Föregående', nl: 'Vorige', el: 'Προηγούμενη' },
   listen: { ar: 'استمع', en: 'Listen', de: 'Anhören', fr: 'Écouter', tr: 'Dinle', ru: 'Слушать', sv: 'Lyssna', nl: 'Luisteren', el: 'Ακούστε' },
+  no_tafsir: { ar: 'لا يوجد تفسير', en: 'Tafsir not available', de: 'Kein Tafsir verfügbar', fr: 'Tafsir non disponible', tr: 'Tefsir mevcut değil', ru: 'Тафсир недоступен', sv: 'Tafsir ej tillgänglig', nl: 'Tafsir niet beschikbaar', el: 'Δεν υπάρχει Ταφσίρ' },
 };
 const l = (k: string, lang: string) => L[k]?.[lang] || L[k]?.en || k;
 
@@ -164,7 +165,7 @@ export default function SurahView() {
                   )}
                   {isOpen && !tf?.tafsir && !isLoadingTf && (
                     <div className="px-5 pb-4 text-sm text-gray-400 italic">
-                      {lang === 'ar' ? 'لا يوجد تفسير' : lang === 'tr' ? 'Tefsir mevcut değil' : lang === 'fr' ? 'Tafsir non disponible' : 'Tafsir not available'}
+                      {l('no_tafsir', lang)}
                     </div>
                   )}
                 </div>

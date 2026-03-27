@@ -13,8 +13,8 @@ function calculateQiblaDirection(lat: number, lng: number): number {
   const userLat = lat * (Math.PI / 180);
   const userLng = lng * (Math.PI / 180);
   const dLng = makkahLng - userLng;
-  const x = Math.sin(dLng);
-  const y = Math.cos(userLat) * Math.tan(makkahLat) - Math.sin(userLat) * Math.cos(dLng);
+  const x = Math.sin(dLng) * Math.cos(makkahLat);
+  const y = Math.cos(userLat) * Math.sin(makkahLat) - Math.sin(userLat) * Math.cos(makkahLat) * Math.cos(dLng);
   const qibla = Math.atan2(x, y) * (180 / Math.PI);
   return (qibla + 360) % 360;
 }

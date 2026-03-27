@@ -116,7 +116,7 @@ export default function Quran() {
           <BookOpen className="w-8 h-8 text-white/90" />
           <h1 className="text-3xl font-bold text-white">{QURAN_TITLE[lang] || QURAN_TITLE.ar}</h1>
         </div>
-        <p className="text-emerald-100 text-sm">114 {lang === 'ar' ? 'سورة' : lang === 'tr' ? 'sûre' : 'surahs'}</p>
+        <p className="text-emerald-100 text-sm">114 {t('surahCount')}</p>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 -mt-6">
@@ -139,7 +139,7 @@ export default function Quran() {
             className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${showFavorites ? 'bg-amber-500 text-white shadow-md' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'}`}
           >
             <Star className="w-4 h-4" fill={showFavorites ? 'currentColor' : 'none'} />
-            {lang === 'ar' ? 'المفضلة' : lang === 'tr' ? 'Favoriler' : 'Favorites'}
+            {t('favorites')}
           </button>
           {Object.keys(SURAH_TYPES).map(key => (
             <button
@@ -163,7 +163,7 @@ export default function Quran() {
             {filtered.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <Book className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>{lang === 'ar' ? 'لا توجد نتائج' : 'No results found'}</p>
+                <p>{t('noResults')}</p>
               </div>
             ) : (
               filtered.map(chapter => (
