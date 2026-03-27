@@ -39,6 +39,60 @@ async def get_moderation_status():
     settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
     return {"moderation_enabled": settings.get("story_moderation_enabled", True)}
 
+@router.get("/stories/my-publish-status")
+async def get_my_publish_status(user: dict = Depends(get_user)):
+    """Check if user is allowed to publish"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
+    moderation_enabled = settings.get("story_moderation_enabled", True)
+    is_admin = user.get("role") == "admin" or user.get("email") in ADMIN_EMAILS
+    
+    if is_admin or not moderation_enabled:
+        return {"can_publish": True, "is_admin": is_admin, "moderation_enabled": moderation_enabled, "request_status": None}
+    
+    # Check user's publish request
+    req = await db.publish_requests.find_one({"user_id": user["id"]}, {"_id": 0})
+    if req and req.get("status") == "approved":
+        return {"can_publish": True, "is_admin": False, "moderation_enabled": True, "request_status": "approved"}
+    elif req and req.get("status") == "pending":
+        return {"can_publish": False, "is_admin": False, "moderation_enabled": True, "request_status": "pending"}
+    elif req and req.get("status") == "revoked":
+        return {"can_publish": False, "is_admin": False, "moderation_enabled": True, "request_status": "revoked"}
+    else:
+        return {"can_publish": False, "is_admin": False, "moderation_enabled": True, "request_status": None}
+
+@router.post("/stories/request-publish")
+async def request_publish_permission(user: dict = Depends(get_user)):
+    """User requests permission to publish"""
+    if not user:
+        raise HTTPException(401, "يجب تسجيل الدخول")
+    
+    existing = await db.publish_requests.find_one({"user_id": user["id"]})
+    if existing:
+        if existing.get("status") == "approved":
+            return {"success": True, "message": "لديك صلاحية النشر بالفعل"}
+        if existing.get("status") == "pending":
+            return {"success": True, "message": "طلبك قيد المراجعة بالفعل"}
+        # If revoked or rejected, allow re-request
+        await db.publish_requests.update_one(
+            {"user_id": user["id"]},
+            {"$set": {"status": "pending", "requested_at": datetime.utcnow().isoformat()}}
+        )
+        return {"success": True, "message": "تم إرسال طلب النشر مجدداً"}
+    
+    req = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "user_name": user.get("name", "مستخدم"),
+        "user_email": user.get("email", ""),
+        "user_avatar": user.get("avatar"),
+        "status": "pending",
+        "requested_at": datetime.utcnow().isoformat(),
+    }
+    await db.publish_requests.insert_one(req)
+    return {"success": True, "message": "تم إرسال طلب النشر للمدير - سيتم إشعارك عند الموافقة"}
+
 @router.get("/stories/my-pending")
 async def get_my_pending_stories(user: dict = Depends(get_user)):
     """Get user's pending stories"""
@@ -65,13 +119,19 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
     if not data.content.strip() and not data.image_url and not data.video_url and not data.embed_url:
         raise HTTPException(400, "يجب إضافة محتوى أو وسائط")
     
-    # Check moderation setting
+    # Check user-level publish permission
     settings = await db.app_settings.find_one({"key": "global"}, {"_id": 0}) or {}
     moderation_enabled = settings.get("story_moderation_enabled", True)
-    
-    # Admin posts are auto-approved; others depend on moderation setting
     is_admin = user.get("role") == "admin" or user.get("email") in ADMIN_EMAILS
-    story_status = "approved" if (is_admin or not moderation_enabled) else "pending"
+    
+    if moderation_enabled and not is_admin:
+        # Check if user has publish permission
+        pub_req = await db.publish_requests.find_one({"user_id": user["id"], "status": "approved"})
+        if not pub_req:
+            raise HTTPException(403, "ليس لديك صلاحية النشر - يرجى طلب إذن النشر أولاً")
+    
+    # All stories are auto-approved (permission is at user level)
+    story_status = "approved"
     
     post_id = str(uuid.uuid4())
     story = {

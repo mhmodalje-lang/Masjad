@@ -946,6 +946,10 @@ export default function Stories() {
   const [videoFeedLoading, setVideoFeedLoading] = useState(false);
   const [pendingStories, setPendingStories] = useState<Story[]>([]);
   const [moderationEnabled, setModerationEnabled] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<{can_publish: boolean; is_admin: boolean; moderation_enabled: boolean; request_status: string|null}>({
+    can_publish: false, is_admin: false, moderation_enabled: false, request_status: null
+  });
+  const [requestingPublish, setRequestingPublish] = useState(false);
 
   const selectedStoryId = searchParams.get('story');
 
@@ -967,16 +971,18 @@ export default function Stories() {
         .then(r => r.json()).then(d => {
           if (d.success) setUnlockedStoryIds(new Set(d.unlocked_story_ids || []));
         }).catch(() => {});
-      // Load user's pending stories
-      fetch(`${BACKEND_URL}/api/stories/my-pending`, { headers: authHeaders() })
+      // Check user's publish permission
+      fetch(`${BACKEND_URL}/api/stories/my-publish-status`, { headers: authHeaders() })
         .then(r => r.json()).then(d => {
-          setPendingStories((d.stories || []).map((s: any) => ({ ...s, liked: false, saved: false, likes_count: 0, comments_count: 0 })));
+          setPublishStatus(d);
+          setModerationEnabled(d.moderation_enabled || false);
         }).catch(() => {});
+    } else {
+      // Check moderation status for non-logged-in users
+      fetch(`${BACKEND_URL}/api/stories/moderation-status`)
+        .then(r => r.json()).then(d => setModerationEnabled(d.moderation_enabled || false))
+        .catch(() => {});
     }
-    // Check moderation status
-    fetch(`${BACKEND_URL}/api/stories/moderation-status`)
-      .then(r => r.json()).then(d => setModerationEnabled(d.moderation_enabled || false))
-      .catch(() => {});
     // Open create sheet from URL
     if (searchParams.get('create') === 'true' && user) {
       setShowCreate(true);
@@ -1221,11 +1227,31 @@ export default function Stories() {
           {/* Centered Create Button */}
           <div className="flex justify-center pb-2">
             {user ? (
-              <button data-testid="create-post-btn" onClick={() => setShowCreate(true)}
-                className="flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-600 active:scale-95 transition-transform shadow-lg shadow-emerald-600/25">
-                <Plus className="w-4 h-4 text-white" />
-                <span className="text-white text-[12px] font-bold">{t('createPostOrVideo')}</span>
-              </button>
+              publishStatus.can_publish || !moderationEnabled ? (
+                <button data-testid="create-post-btn" onClick={() => setShowCreate(true)}
+                  className="flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-600 active:scale-95 transition-transform shadow-lg shadow-emerald-600/25">
+                  <Plus className="w-4 h-4 text-white" />
+                  <span className="text-white text-[12px] font-bold">{t('createPostOrVideo')}</span>
+                </button>
+              ) : (
+                <button onClick={async () => {
+                  if (publishStatus.request_status === 'pending') {
+                    toast.info(t('publishRequestPending') || 'طلبك قيد المراجعة بالفعل');
+                    return;
+                  }
+                  try {
+                    const r = await fetch(`${BACKEND_URL}/api/stories/request-publish`, { method: 'POST', headers: authHeaders() });
+                    const d = await r.json();
+                    if (d.success) { toast.success(d.message); setPublishStatus(prev => ({ ...prev, request_status: 'pending' })); }
+                  } catch { toast.error('حدث خطأ'); }
+                }}
+                  className="flex items-center gap-2 px-5 py-2 rounded-full bg-amber-500 active:scale-95 transition-transform shadow-lg shadow-amber-500/25">
+                  <Send className="w-4 h-4 text-white" />
+                  <span className="text-white text-[12px] font-bold">
+                    {publishStatus.request_status === 'pending' ? (t('publishRequestPending') || 'طلبك قيد المراجعة') : (t('requestPublish') || 'طلب إذن النشر')}
+                  </span>
+                </button>
+              )
             ) : (
               <button onClick={() => navigate('/auth')}
                 className="flex items-center gap-2 px-5 py-2 rounded-full bg-muted/30 border border-border/20 active:scale-95 transition-transform">
@@ -1269,32 +1295,43 @@ export default function Stories() {
 
       {/* === CONTENT === */}
       <div className="px-4 py-3">
-        {/* Moderation banner + Pending Stories */}
-        {user && moderationEnabled && pendingStories.length > 0 && (
+        {/* Publish permission banner */}
+        {user && moderationEnabled && !publishStatus.can_publish && (
           <div className="mb-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 p-3">
             <div className="flex items-center gap-2 mb-2">
               <Clock className="w-4 h-4 text-amber-500" />
               <span className="text-[12px] font-bold text-amber-600 dark:text-amber-400">
-                {t('pendingStoriesTitle') || 'قصصك قيد المراجعة'} ({pendingStories.length})
+                {publishStatus.request_status === 'pending' 
+                  ? (t('publishRequestPending') || 'طلب النشر قيد المراجعة')
+                  : publishStatus.request_status === 'revoked'
+                  ? (t('publishRevoked') || 'تم سحب صلاحية النشر')
+                  : (t('publishRequired') || 'تحتاج إذن المدير للنشر')}
               </span>
             </div>
             <p className="text-[11px] text-muted-foreground mb-2">
-              {t('pendingStoriesDesc') || 'هذه القصص في انتظار موافقة المدير للنشر'}
+              {publishStatus.request_status === 'pending'
+                ? (t('publishRequestPendingDesc') || 'تم إرسال طلبك - سيتم إشعارك عند الموافقة')
+                : (t('publishRequiredDesc') || 'اطلب إذن النشر من المدير لتتمكن من نشر القصص')}
             </p>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {pendingStories.map(ps => (
-                <div key={ps.id} className="flex items-center gap-2 bg-card/50 rounded-xl p-2">
-                  <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0 animate-pulse" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-bold text-foreground truncate">{ps.title || ps.content}</p>
-                    <p className="text-[9px] text-muted-foreground">{timeAgo(ps.created_at)}</p>
-                  </div>
-                  <span className="text-[9px] bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold shrink-0">
-                    {t('pendingLabel') || 'قيد المراجعة'}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {publishStatus.request_status !== 'pending' && (
+              <button
+                onClick={async () => {
+                  setRequestingPublish(true);
+                  try {
+                    const r = await fetch(`${BACKEND_URL}/api/stories/request-publish`, { method: 'POST', headers: authHeaders() });
+                    const d = await r.json();
+                    if (d.success) {
+                      toast.success(d.message);
+                      setPublishStatus(prev => ({ ...prev, request_status: 'pending' }));
+                    }
+                  } catch { toast.error('حدث خطأ'); }
+                  setRequestingPublish(false);
+                }}
+                disabled={requestingPublish}
+                className="w-full py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-all disabled:opacity-50">
+                {requestingPublish ? '...' : (t('requestPublish') || 'طلب إذن النشر')}
+              </button>
+            )}
           </div>
         )}
         {activeTab === 'video' ? (

@@ -2790,5 +2790,11 @@
   "moderationOffDesc": "الجميع يستطيع النشر بحرية",
   "openForAll": "فتح النشر للجميع بدون تقييد",
   "enableModeration": "تفعيل الإشراف - النشر بموافقة المدير فقط",
-  "pendingApproval": "طلبات النشر المعلقة"
+  "pendingApproval": "طلبات النشر المعلقة",
+  "publishRequestPending": "طلب النشر قيد المراجعة",
+  "publishRevoked": "تم سحب صلاحية النشر",
+  "publishRequired": "تحتاج إذن المدير للنشر",
+  "publishRequestPendingDesc": "تم إرسال طلبك - سيتم إشعارك عند الموافقة",
+  "publishRequiredDesc": "اطلب إذن النشر من المدير لتتمكن من نشر القصص",
+  "requestPublish": "طلب إذن النشر"
 }

@@ -47,6 +47,15 @@ Real ad management system + Story moderation system (حكاياتي)
 
 ## Test Status
 - TypeScript: ✅ Compiles without errors
-- Backend APIs: ✅ All public endpoints working (moderation-status, ads/active, ad-config)
-- Backend Admin: ✅ Properly secured with auth
+- Backend APIs: ✅ All public endpoints working (moderation-status, ads/active for all placements)
+- Backend Auth: ✅ Auth-protected endpoints properly secured (stories/request-publish, stories/my-publish-status)
+- Backend Admin: ✅ Admin endpoints properly secured (admin/publish-requests, admin/generate-stories, admin/generate-stories/progress)
 - HMR: ✅ Hot reload working
+
+## Latest Backend API Testing Results (2026-03-27 03:35:25)
+✅ **Moderation Status API** - GET /api/stories/moderation-status returns proper JSON with moderation_enabled flag
+✅ **Active Ads API** - GET /api/ads/active works for all placements (prayer, quran, duas, ruqyah, tasbeeh)
+✅ **Auth Protection** - POST /api/stories/request-publish and GET /api/stories/my-publish-status correctly return 401 without auth
+✅ **Admin Protection** - All admin endpoints (publish-requests, generate-stories) correctly return 401 without admin auth
+
+**All 4/4 backend API test categories passed successfully**

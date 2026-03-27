@@ -15,6 +15,7 @@ import re
 import httpx
 import os
 import json as json_module
+import asyncio
 
 router = APIRouter(tags=["Admin"])
 
@@ -458,6 +459,46 @@ async def admin_moderate_story(story_id: str, data: dict, admin=Depends(get_admi
         raise HTTPException(status_code=404, detail="القصة غير موجودة")
     return {"success": True, "status": update["status"]}
 
+
+# ===== PUBLISH REQUESTS MANAGEMENT =====
+@router.get("/admin/publish-requests")
+async def admin_get_publish_requests(admin=Depends(get_admin_user), status: str = ""):
+    """List user publish requests"""
+    query = {}
+    if status:
+        query["status"] = status
+    requests = await db.publish_requests.find(query, {"_id": 0}).sort("requested_at", -1).to_list(100)
+    return {"requests": requests, "total": len(requests)}
+
+@router.put("/admin/publish-requests/{user_id}")
+async def admin_handle_publish_request(user_id: str, data: dict, admin=Depends(get_admin_user)):
+    """Approve or revoke user publish permission"""
+    action = data.get("action", "")
+    if action not in ["approve", "revoke"]:
+        raise HTTPException(status_code=400, detail="إجراء غير صالح - استخدم approve أو revoke")
+    
+    new_status = "approved" if action == "approve" else "revoked"
+    result = await db.publish_requests.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "status": new_status,
+            "handled_by": admin.get("email", ""),
+            "handled_at": datetime.utcnow().isoformat(),
+        }}
+    )
+    if result.modified_count == 0:
+        # Create a record if it doesn't exist
+        await db.publish_requests.insert_one({
+            "id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "status": new_status,
+            "handled_by": admin.get("email", ""),
+            "handled_at": datetime.utcnow().isoformat(),
+            "requested_at": datetime.utcnow().isoformat(),
+        })
+    return {"success": True, "status": new_status}
+
+
 # Custom pages management  
 class CustomPage(BaseModel):
     id: Optional[str] = None
@@ -848,3 +889,163 @@ async def get_dhikr_audio(lang: str = "ar"):
         "dhikr_list": audio_config.get("dhikr_list", []),
     }
 
+
+
+# ===== AI STORY GENERATION =====
+STORY_CATEGORIES_INFO = {
+    "istighfar": {"label": "قصص الاستغفار", "prompt": "قصص حقيقية ومؤثرة عن الاستغفار وفضله وكيف غير حياة أشخاص حقيقيين. قصص عن أثر الاستغفار في تفريج الهموم وفتح أبواب الرزق والشفاء"},
+    "sahaba": {"label": "قصص الصحابة", "prompt": "قصص حقيقية من سيرة الصحابة رضي الله عنهم وبطولاتهم وتضحياتهم ومواقفهم المؤثرة في الإسلام"},
+    "quran": {"label": "قصص القرآن", "prompt": "قصص مذكورة في القرآن الكريم مع شرح العبر والدروس المستفادة منها بأسلوب قصصي شيق"},
+    "prophets": {"label": "قصص الأنبياء", "prompt": "قصص الأنبياء والرسل عليهم السلام ومعجزاتهم ودعوتهم ومواقفهم مع أقوامهم"},
+    "ruqyah": {"label": "قصص الرقية", "prompt": "قصص حقيقية عن الشفاء بالرقية الشرعية والقرآن الكريم والأذكار وتجارب أشخاص شفاهم الله"},
+    "rizq": {"label": "قصص الرزق", "prompt": "قصص حقيقية عن سعة الرزق والبركة فيه وكيف جاء الرزق من حيث لا يحتسب بفضل التوكل والدعاء"},
+    "tawba": {"label": "قصص التوبة", "prompt": "قصص حقيقية مؤثرة عن التوبة والرجوع إلى الله وكيف تغيرت حياة أشخاص بعد التوبة النصوحة"},
+    "miracles": {"label": "معجزات وعبر", "prompt": "قصص عن معجزات إلهية وعبر ومواقف عجيبة تدل على قدرة الله وحكمته"},
+    "general": {"label": "قصص عامة", "prompt": "قصص إسلامية متنوعة عن الإيمان والأخلاق والمعاملات والحياة اليومية بمنظور إسلامي"},
+}
+
+# Track generation progress
+generation_progress = {}
+
+async def generate_stories_batch(category: str, batch_num: int, count: int = 10):
+    """Generate a batch of stories using AI"""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    import json as json_lib
+    
+    cat_info = STORY_CATEGORIES_INFO.get(category)
+    if not cat_info:
+        return []
+    
+    llm_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not llm_key:
+        logger.error("EMERGENT_LLM_KEY not found")
+        return []
+    
+    chat = LlmChat(
+        api_key=llm_key,
+        session_id=f"story-gen-{category}-{batch_num}",
+        system_message="""أنت كاتب قصص إسلامية محترف. اكتب قصصاً واقعية مؤثرة وجذابة باللغة العربية الفصحى.
+القصص يجب أن تكون:
+- مبنية على أحداث واقعية أو مستوحاة من الواقع
+- مكتوبة بأسلوب أدبي جذاب ومشوق
+- تحتوي على عبرة ودرس مفيد
+- مناسبة لجميع الأعمار
+- متنوعة المواضيع ضمن الفئة المطلوبة
+- طول كل قصة بين 150-400 كلمة
+
+أرجع النتيجة كـ JSON array فقط بدون أي نص إضافي."""
+    )
+    chat.with_model("openai", "gpt-4.1-mini")
+    
+    prompt = f"""اكتب {count} قصص في فئة: {cat_info['label']}
+الموضوع: {cat_info['prompt']}
+
+الدفعة رقم {batch_num} - اجعل القصص فريدة ومختلفة عن بعضها.
+
+أرجع JSON array بالشكل التالي فقط:
+[
+  {{"title": "عنوان القصة", "content": "نص القصة الكامل"}}
+]"""
+    
+    try:
+        response = await chat.send_message(UserMessage(text=prompt))
+        # Parse the JSON from response
+        text = response.strip()
+        # Remove markdown code blocks if present
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+            if text.startswith("json"):
+                text = text[4:].strip()
+        
+        stories_data = json_lib.loads(text)
+        if isinstance(stories_data, list):
+            return stories_data
+        return []
+    except Exception as e:
+        logger.error(f"Story generation error for {category} batch {batch_num}: {e}")
+        return []
+
+async def run_story_generation(category: str, total: int, admin_email: str):
+    """Background task to generate stories for a category"""
+    global generation_progress
+    batch_size = 10
+    batches = (total + batch_size - 1) // batch_size
+    generated = 0
+    
+    generation_progress[category] = {"total": total, "generated": 0, "status": "running"}
+    
+    for batch_num in range(1, batches + 1):
+        count = min(batch_size, total - generated)
+        try:
+            stories = await generate_stories_batch(category, batch_num, count)
+            for s in stories:
+                post_id = str(uuid.uuid4())
+                story_doc = {
+                    "id": post_id,
+                    "author_id": "system",
+                    "author_name": "أثاني",
+                    "author_avatar": None,
+                    "title": s.get("title", ""),
+                    "content": s.get("content", ""),
+                    "category": category,
+                    "media_type": "text",
+                    "image_url": None,
+                    "video_url": None,
+                    "embed_url": None,
+                    "thumbnail_url": None,
+                    "is_embed": False,
+                    "views_count": random.randint(50, 500),
+                    "created_at": datetime.utcnow().isoformat(),
+                    "shares_count": random.randint(5, 50),
+                    "is_story": True,
+                    "status": "approved",
+                    "generated_by": "ai",
+                    "generated_for": admin_email,
+                }
+                await db.posts.insert_one(story_doc)
+                generated += 1
+            
+            generation_progress[category] = {"total": total, "generated": generated, "status": "running"}
+            # Small delay between batches to avoid rate limits
+            await asyncio.sleep(2)
+        except Exception as e:
+            logger.error(f"Batch {batch_num} error for {category}: {e}")
+            generation_progress[category] = {"total": total, "generated": generated, "status": "error", "error": str(e)}
+            return
+    
+    generation_progress[category] = {"total": total, "generated": generated, "status": "done"}
+
+@router.post("/admin/generate-stories")
+async def admin_generate_stories(data: dict, background_tasks: BackgroundTasks, admin=Depends(get_admin_user)):
+    """Generate AI stories for a category"""
+    category = data.get("category", "")
+    count = min(data.get("count", 10), 150)  # Max 150 per request
+    
+    if category not in STORY_CATEGORIES_INFO:
+        raise HTTPException(400, f"فئة غير صالحة: {category}")
+    
+    if category in generation_progress and generation_progress[category].get("status") == "running":
+        return {"success": False, "message": "جاري التوليد بالفعل لهذه الفئة", "progress": generation_progress[category]}
+    
+    background_tasks.add_task(run_story_generation, category, count, admin.get("email", ""))
+    return {"success": True, "message": f"بدأ توليد {count} قصة في فئة {STORY_CATEGORIES_INFO[category]['label']}", "category": category}
+
+@router.get("/admin/generate-stories/progress")
+async def admin_get_generation_progress(admin=Depends(get_admin_user)):
+    """Get story generation progress"""
+    return {"progress": generation_progress}
+
+@router.post("/admin/generate-stories/all")
+async def admin_generate_all_stories(data: dict, background_tasks: BackgroundTasks, admin=Depends(get_admin_user)):
+    """Generate stories for all categories"""
+    count_per_cat = min(data.get("count_per_category", 150), 150)
+    
+    for cat in STORY_CATEGORIES_INFO:
+        if cat in generation_progress and generation_progress[cat].get("status") == "running":
+            continue
+        background_tasks.add_task(run_story_generation, cat, count_per_cat, admin.get("email", ""))
+    
+    return {"success": True, "message": f"بدأ توليد {count_per_cat} قصة لكل فئة ({len(STORY_CATEGORIES_INFO)} فئات)"}

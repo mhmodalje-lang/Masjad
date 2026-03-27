@@ -2790,5 +2790,11 @@
   "moderationOffDesc": "Everyone can publish freely",
   "openForAll": "Open publishing for everyone",
   "enableModeration": "Enable moderation - admin approval required",
-  "pendingApproval": "Pending publish requests"
+  "pendingApproval": "Pending publish requests",
+  "publishRequestPending": "Publish request under review",
+  "publishRevoked": "Publishing permission revoked",
+  "publishRequired": "You need admin permission to publish",
+  "publishRequestPendingDesc": "Your request has been sent - you will be notified upon approval",
+  "publishRequiredDesc": "Request publishing permission from admin to publish stories",
+  "requestPublish": "Request publish permission"
 }

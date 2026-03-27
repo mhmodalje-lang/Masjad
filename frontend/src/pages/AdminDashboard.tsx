@@ -94,6 +94,8 @@ export default function AdminDashboard() {
   });
   // Pending Stories for moderation
   const [pendingStories, setPendingStories] = useState<any[]>([]);
+  // Publish Requests
+  const [publishRequests, setPublishRequests] = useState<any[]>([]);
   // Analytics
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   // Social Management
@@ -119,7 +121,7 @@ export default function AdminDashboard() {
   useEffect(() => { if (!adminLoading && !isAdmin && !user) navigate('/auth'); }, [isAdmin, adminLoading, user]);
   useEffect(() => { if (isAdmin) { fetchStats(); fetchSettings(); fetchAds(); fetchPages(); fetchNotifs(); fetchUserAds(); fetchBankInfo(); fetchBroadcasts(); fetchVendors(); fetchEmbedContent(); fetchRuqyah(); } }, [isAdmin]);
   useEffect(() => { if (isAdmin && tab === 'users') fetchUsers(usersPage); }, [isAdmin, tab, usersPage]);
-  useEffect(() => { if (isAdmin && tab === 'stories-mgmt') { fetchAdminStories(); fetchPendingStories(); } }, [isAdmin, tab, storiesFilter]);
+  useEffect(() => { if (isAdmin && tab === 'stories-mgmt') { fetchAdminStories(); fetchPendingStories(); fetchPublishRequests(); } }, [isAdmin, tab, storiesFilter]);
   useEffect(() => { if (isAdmin && tab === 'social-mgmt') { fetchSocialStats(); fetchSocialPosts(); fetchSocialComments(); fetchSocialUsers(); } }, [isAdmin, tab]);
   useEffect(() => { if (isAdmin && tab === 'donations-mgmt') fetchAdminDonations(); }, [isAdmin, tab, donationsFilter]);
   useEffect(() => { if (isAdmin && tab === 'ad-rules') fetchAdRules(); }, [isAdmin, tab]);
@@ -171,6 +173,14 @@ export default function AdminDashboard() {
   async function fetchVendors() { try { const d = await api('/admin/vendors'); setVendors(d.vendors||[]); } catch {} }
   async function fetchEmbedContent() { try { const d = await api('/admin/embed-content'); setEmbedContent(d.content||[]); } catch {} }
   async function fetchPendingStories() { try { const d = await api('/admin/stories?status=pending'); setPendingStories(d.stories||[]); } catch {} }
+  async function fetchPublishRequests() { try { const d = await api('/admin/publish-requests'); setPublishRequests(d.requests||[]); } catch {} }
+  async function handlePublishRequest(userId: string, action: string) {
+    try {
+      await api(`/admin/publish-requests/${userId}`, 'PUT', { action });
+      toast.success(action === 'approve' ? 'تم السماح بالنشر' : 'تم سحب صلاحية النشر');
+      fetchPublishRequests();
+    } catch {}
+  }
   async function approveStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {action:'approve'}); toast.success('تمت الموافقة'); fetchPendingStories(); fetchAdminStories(); } catch {} }
   async function rejectStory(id: string) { try { await api(`/admin/stories/${id}`, 'PUT', {action:'reject'}); toast.success('تم الرفض'); fetchPendingStories(); fetchAdminStories(); } catch {} }
   async function toggleModeration(enabled: boolean) {
@@ -300,6 +310,7 @@ export default function AdminDashboard() {
     { key:'overview', label:t('overview'), icon:BarChart3 },
     { key:'social-mgmt', label:t('socialManagement'), icon:MessageSquare },
     { key:'stories-mgmt', label:t('storiesManagement'), icon:BookOpen },
+    { key:'stories-gen', label:'توليد قصص AI', icon:Sparkles },
     { key:'ruqyah-mgmt', label:t('ruqyahManagement'), icon:Volume2 },
     { key:'donations-mgmt', label:t('donationsManagement'), icon:Heart },
     { key:'embed', label:t('embedContent'), icon:Film },
@@ -549,27 +560,52 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            {/* Pending Stories for Approval */}
-            {adSettings.story_moderation_enabled && pendingStories.length > 0 && (
-              <div className="rounded-2xl bg-amber-500/5 border border-amber-500/20 p-4">
-                <h3 className="text-sm font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">
-                  <Clock className="h-4 w-4" /> {t('pendingApproval') || 'طلبات النشر المعلقة'} ({pendingStories.length})
+            {/* Publish Permission Requests */}
+            {adSettings.story_moderation_enabled && (
+              <div className="rounded-2xl bg-blue-500/5 border border-blue-500/20 p-4">
+                <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4" /> طلبات صلاحية النشر ({publishRequests.filter(r => r.status === 'pending').length} معلق)
                 </h3>
-                <div className="space-y-2">
-                  {pendingStories.map(ps => (
-                    <div key={ps.id} className="rounded-xl neu-card p-3 flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-foreground truncate">{ps.title || t('noData')}</p>
-                        <p className="text-[10px] text-muted-foreground line-clamp-1">{ps.content?.slice(0, 80)}</p>
-                        <p className="text-[9px] text-muted-foreground mt-1">{ps.author_name} · {ps.created_at?.slice(0, 10)}</p>
+                {publishRequests.length === 0 ? (
+                  <p className="text-center py-3 text-muted-foreground text-xs">لا توجد طلبات</p>
+                ) : (
+                  <div className="space-y-2">
+                    {publishRequests.map(req => (
+                      <div key={req.id || req.user_id} className="rounded-xl neu-card p-3 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          {req.user_avatar ? (
+                            <img src={req.user_avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">{(req.user_name || '?')[0]}</div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-foreground truncate">{req.user_name || 'مستخدم'}</p>
+                            <p className="text-[9px] text-muted-foreground truncate">{req.user_email}</p>
+                          </div>
+                          <span className={cn('text-[9px] px-2 py-0.5 rounded-full font-bold shrink-0',
+                            req.status === 'approved' ? 'bg-green-500/10 text-green-500' :
+                            req.status === 'revoked' ? 'bg-red-500/10 text-red-500' :
+                            'bg-amber-500/10 text-amber-500'
+                          )}>
+                            {req.status === 'approved' ? 'مسموح' : req.status === 'revoked' ? 'محظور' : 'معلق'}
+                          </span>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          {req.status !== 'approved' && (
+                            <Button onClick={() => handlePublishRequest(req.user_id, 'approve')} size="sm" className="h-7 px-2 rounded-lg bg-green-600 hover:bg-green-700 text-[10px]">
+                              <Check className="h-3 w-3 mr-1"/>سماح
+                            </Button>
+                          )}
+                          {req.status !== 'revoked' && (
+                            <Button onClick={() => handlePublishRequest(req.user_id, 'revoke')} size="sm" variant="outline" className="h-7 px-2 rounded-lg border-red-500/30 text-red-500 text-[10px]">
+                              <X className="h-3 w-3 mr-1"/>حظر
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex gap-1 shrink-0">
-                        <Button onClick={() => moderateStory(ps.id, 'approve')} size="sm" className="h-7 px-2 rounded-lg bg-green-600 hover:bg-green-700 text-[10px]"><Check className="h-3 w-3"/></Button>
-                        <Button onClick={() => moderateStory(ps.id, 'reject')} size="sm" variant="outline" className="h-7 px-2 rounded-lg border-red-500/30 text-red-500 text-[10px]"><X className="h-3 w-3"/></Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -617,6 +653,10 @@ export default function AdminDashboard() {
             ))}
           </div>
         )}
+
+
+        {/* ===== AI STORY GENERATION ===== */}
+        {tab==='stories-gen' && <StoryGeneratorPanel api={api} t={t} />}
 
         {/* ===== RUQYAH MANAGEMENT ===== */}
         {tab==='ruqyah-mgmt' && (
@@ -1385,6 +1425,129 @@ export default function AdminDashboard() {
           </div>
         )}
 
+      </div>
+    </div>
+  );
+}
+
+
+function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string }) {
+  const [genProgress, setGenProgress] = useState<Record<string, any>>({});
+  const [generating, setGenerating] = useState<Set<string>>(new Set());
+  const [countPerCat, setCountPerCat] = useState(20);
+
+  const categories = [
+    { key: 'istighfar', label: 'قصص الاستغفار', emoji: '🤲', color: 'bg-emerald-500' },
+    { key: 'sahaba', label: 'قصص الصحابة', emoji: '⚔️', color: 'bg-amber-500' },
+    { key: 'quran', label: 'قصص القرآن', emoji: '📖', color: 'bg-green-600' },
+    { key: 'prophets', label: 'قصص الأنبياء', emoji: '🕌', color: 'bg-purple-500' },
+    { key: 'ruqyah', label: 'قصص الرقية', emoji: '🛡️', color: 'bg-blue-500' },
+    { key: 'rizq', label: 'قصص الرزق', emoji: '💎', color: 'bg-yellow-500' },
+    { key: 'tawba', label: 'قصص التوبة', emoji: '💧', color: 'bg-green-500' },
+    { key: 'miracles', label: 'معجزات وعبر', emoji: '✨', color: 'bg-indigo-500' },
+    { key: 'general', label: 'قصص عامة', emoji: '🌟', color: 'bg-gray-500' },
+  ];
+
+  const fetchProgress = async () => {
+    try {
+      const d = await api('/admin/generate-stories/progress');
+      setGenProgress(d.progress || {});
+    } catch {}
+  };
+
+  useEffect(() => {
+    fetchProgress();
+    const interval = setInterval(fetchProgress, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const generateForCategory = async (cat: string) => {
+    setGenerating(prev => new Set([...prev, cat]));
+    try {
+      const d = await api('/admin/generate-stories', 'POST', { category: cat, count: countPerCat });
+      if (d.success) {
+        toast.success(d.message);
+      } else {
+        toast.error(d.message || 'خطأ');
+      }
+    } catch { toast.error('حدث خطأ'); }
+  };
+
+  const generateAll = async () => {
+    try {
+      const d = await api('/admin/generate-stories/all', 'POST', { count_per_category: countPerCat });
+      if (d.success) {
+        toast.success(d.message);
+        setGenerating(new Set(categories.map(c => c.key)));
+      }
+    } catch { toast.error('حدث خطأ'); }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 p-4">
+        <h2 className="text-base font-bold text-foreground mb-1 flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-purple-500" /> توليد القصص بالذكاء الاصطناعي
+        </h2>
+        <p className="text-xs text-muted-foreground mb-3">
+          توليد قصص إسلامية واقعية ومؤثرة باستخدام AI لكل فئة
+        </p>
+        <div className="flex items-center gap-3 mb-3">
+          <label className="text-xs font-bold text-foreground">عدد القصص لكل فئة:</label>
+          <input type="number" min={5} max={150} value={countPerCat}
+            onChange={(e) => setCountPerCat(Math.min(150, Math.max(5, parseInt(e.target.value) || 10)))}
+            className="w-20 px-2 py-1 rounded-lg bg-input text-foreground text-xs border border-border" />
+        </div>
+        <Button onClick={generateAll} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90">
+          <Sparkles className="h-4 w-4 mr-2" /> توليد لجميع الفئات ({countPerCat} × {categories.length} = {countPerCat * categories.length} قصة)
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3">
+        {categories.map(cat => {
+          const prog = genProgress[cat.key];
+          const isRunning = prog?.status === 'running';
+          const isDone = prog?.status === 'done';
+          const hasError = prog?.status === 'error';
+          const pct = prog ? Math.round((prog.generated / prog.total) * 100) : 0;
+
+          return (
+            <div key={cat.key} className="rounded-2xl neu-card p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{cat.emoji}</span>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{cat.label}</p>
+                    {prog && (
+                      <p className="text-[10px] text-muted-foreground">
+                        {prog.generated}/{prog.total} قصة
+                        {isDone && ' ✅'}
+                        {hasError && ' ❌'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => generateForCategory(cat.key)}
+                  disabled={isRunning}
+                  size="sm" 
+                  className={cn("rounded-xl text-xs", isRunning ? "opacity-50" : "")}>
+                  {isRunning ? (
+                    <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> جاري التوليد...</>
+                  ) : (
+                    <><Plus className="h-3 w-3 mr-1" /> توليد {countPerCat} قصة</>
+                  )}
+                </Button>
+              </div>
+              {isRunning && (
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className={cn("h-full rounded-full transition-all duration-500", cat.color)} 
+                    style={{ width: `${pct}%` }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
