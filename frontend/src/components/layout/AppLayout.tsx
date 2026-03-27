@@ -5,6 +5,7 @@ import InstallBanner from '@/components/InstallBanner';
 import { PopUnderLoader } from '@/components/AdBanner';
 import { useDailyReminders } from '@/hooks/useDailyReminders';
 import { PWAUpdatePrompt } from '@/components/PWAUpdatePrompt';
+import OfflineIndicator from '@/components/OfflineIndicator';
 import { preloadSelectedAthan } from '@/lib/athanAudio';
 import { useLocation } from 'react-router-dom';
 import { isNativeApp } from '@/lib/nativeBridge';
@@ -41,6 +42,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {!isNative && <InstallBanner />}
       {!isNative && <PopUnderLoader />}
       {!isNative && <PWAUpdatePrompt />}
+      <OfflineIndicator />
     </div>
   );
 }

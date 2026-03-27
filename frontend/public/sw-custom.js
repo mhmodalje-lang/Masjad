@@ -3,8 +3,26 @@
  * Prayer notification scheduling with periodic checking
  */
 
-const CACHE_NAME = 'azanhikaya-v4';
+const CACHE_NAME = 'azanhikaya-v5';
 const ATHAN_AUDIO_CACHE = 'athan-audio-v2';
+const API_CACHE = 'api-cache-v1';
+
+// API endpoints that should be cached for offline use
+const CACHEABLE_API_PATTERNS = [
+  '/api/prayer-times',
+  '/api/ai/verse-of-day',
+  '/api/ai/hadith-of-day',
+  '/api/ai/daily-dua',
+  '/api/stories/list',
+  '/api/stories/categories',
+  '/api/duas/',
+  '/api/quran/',
+  '/api/stories/moderation-status',
+  '/api/ad-config',
+  '/api/ads/active',
+  '/api/ruqyah/',
+  '/api/daily-content',
+];
 
 const PRECACHE_ASSETS = [
   '/',
@@ -151,7 +169,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== ATHAN_AUDIO_CACHE).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE_NAME && k !== ATHAN_AUDIO_CACHE && k !== API_CACHE).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
   startPeriodicCheck();
@@ -162,8 +180,35 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  if (url.pathname.startsWith('/api/')) return;
+  // Handle cacheable API requests (network-first, cache-fallback)
+  if (url.pathname.startsWith('/api/')) {
+    const isCacheable = CACHEABLE_API_PATTERNS.some(p => url.pathname.startsWith(p));
+    if (isCacheable && request.method === 'GET') {
+      event.respondWith(
+        caches.open(API_CACHE).then(async cache => {
+          try {
+            const networkResponse = await fetch(request);
+            if (networkResponse.ok) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          } catch (err) {
+            const cached = await cache.match(request);
+            if (cached) return cached;
+            return new Response(JSON.stringify({ error: 'offline', message: 'غير متصل بالإنترنت' }), {
+              status: 503,
+              headers: { 'Content-Type': 'application/json' }
+            });
+          }
+        })
+      );
+      return;
+    }
+    // Non-cacheable API: pass through (POST, PUT, DELETE etc.)
+    return;
+  }
 
+  // Handle audio files
   if (url.pathname.includes('/audio/')) {
     event.respondWith(
       caches.open(ATHAN_AUDIO_CACHE).then(async cache => {
@@ -177,15 +222,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Handle navigation (app shell)
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
-        caches.match(request) || caches.match('/') || new Response('<h1 dir="rtl">غير متصل</h1>', { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
+        caches.match(request) || caches.match('/') || new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
       )
     );
     return;
   }
 
+  // Handle static assets (cache-first)
   event.respondWith(
     caches.match(request).then(cached =>
       cached || fetch(request).then(response => {
@@ -197,6 +244,43 @@ self.addEventListener('fetch', (event) => {
     ).catch(() => caches.match('/'))
   );
 });
+
+// ============ OFFLINE HTML ============
+const OFFLINE_HTML = `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>أذان وحكاية - غير متصل</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+    .container { max-width: 400px; }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { font-size: 24px; margin-bottom: 12px; color: #38bdf8; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.8; margin-bottom: 20px; }
+    .retry-btn { display: inline-block; padding: 12px 32px; background: #38bdf8; color: #0f172a; border-radius: 12px; font-weight: bold; text-decoration: none; font-size: 14px; border: none; cursor: pointer; }
+    .features { text-align: right; margin: 20px 0; }
+    .features li { padding: 8px 0; border-bottom: 1px solid #1e293b; font-size: 13px; color: #94a3b8; }
+    .features li::before { content: '✅ '; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🕌</div>
+    <h1>غير متصل بالإنترنت</h1>
+    <p>لا يوجد اتصال بالإنترنت حالياً. يمكنك الاستمرار باستخدام المحتوى المحفوظ:</p>
+    <ul class="features">
+      <li>أوقات الصلاة المحفوظة</li>
+      <li>القصص والحكايات المحفوظة</li>
+      <li>الأدعية والأذكار</li>
+      <li>المسبحة الإلكترونية</li>
+      <li>الرقية الشرعية</li>
+    </ul>
+    <button class="retry-btn" onclick="location.reload()">إعادة المحاولة</button>
+  </div>
+</body>
+</html>`;
 
 // ============ PUSH ============
 self.addEventListener('push', (event) => {

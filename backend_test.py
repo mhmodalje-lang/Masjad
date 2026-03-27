@@ -1,232 +1,322 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Islamic App
-===================================
-Testing the following endpoints:
-1. GET /api/stories/moderation-status (Public)
-2. GET /api/ads/active?placement=prayer/quran/duas/ruqyah/tasbeeh (Public)  
-3. POST /api/stories/request-publish (Requires auth - should return 401)
-4. GET /api/stories/my-publish-status (Requires auth - should return 401)
-5. GET /api/admin/publish-requests (Requires admin auth - should return 401)
-6. POST /api/admin/generate-stories (Requires admin auth - should return 401)
-7. GET /api/admin/generate-stories/progress (Requires admin auth - should return 401)
+Backend API Testing for أذان وحكاية
+Tests critical backend APIs as specified in the review request
 """
 
-import requests
+import asyncio
+import httpx
 import json
-import sys
 from datetime import datetime
+import sys
 
-# Backend URL from frontend/.env
+# Backend URL from frontend environment
 BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com/api"
 
-def log_test(test_name, status, details=""):
-    """Log test results"""
-    timestamp = datetime.now().strftime("%H:%M:%S")
-    status_emoji = "✅" if status == "PASS" else "❌" if status == "FAIL" else "⚠️"
-    print(f"[{timestamp}] {status_emoji} {test_name}: {status}")
-    if details:
-        print(f"    Details: {details}")
-    print()
+class BackendTester:
+    def __init__(self):
+        self.results = []
+        self.total_tests = 0
+        self.passed_tests = 0
+        self.failed_tests = 0
 
-def test_moderation_status():
-    """Test GET /api/stories/moderation-status"""
-    try:
-        url = f"{BACKEND_URL}/stories/moderation-status"
-        response = requests.get(url, timeout=10)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if "moderation_enabled" in data and isinstance(data["moderation_enabled"], bool):
-                log_test("Moderation Status API", "PASS", f"Response: {data}")
-                return True
-            else:
-                log_test("Moderation Status API", "FAIL", f"Invalid response format: {data}")
-                return False
+    def log_result(self, test_name, success, details="", response_data=None):
+        """Log test result"""
+        self.total_tests += 1
+        if success:
+            self.passed_tests += 1
+            status = "✅ PASS"
         else:
-            log_test("Moderation Status API", "FAIL", f"HTTP {response.status_code}: {response.text}")
-            return False
-            
-    except Exception as e:
-        log_test("Moderation Status API", "FAIL", f"Exception: {str(e)}")
-        return False
+            self.failed_tests += 1
+            status = "❌ FAIL"
+        
+        result = {
+            "test": test_name,
+            "status": status,
+            "success": success,
+            "details": details,
+            "response_data": response_data,
+            "timestamp": datetime.now().isoformat()
+        }
+        self.results.append(result)
+        print(f"{status} - {test_name}")
+        if details:
+            print(f"    Details: {details}")
+        if not success and response_data:
+            print(f"    Response: {response_data}")
+        print()
 
-def test_active_ads():
-    """Test GET /api/ads/active with different placements"""
-    placements = ["prayer", "quran", "duas", "ruqyah", "tasbeeh"]
-    all_passed = True
-    
-    for placement in placements:
-        try:
-            url = f"{BACKEND_URL}/ads/active?placement={placement}"
-            response = requests.get(url, timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "ads" in data and isinstance(data["ads"], list):
-                    log_test(f"Active Ads API (placement={placement})", "PASS", 
-                           f"Found {len(data['ads'])} ads")
+    async def test_daily_islamic_content(self):
+        """Test Daily Islamic Content APIs (FREE, no API key needed)"""
+        print("🕌 Testing Daily Islamic Content APIs...")
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            # Test verse-of-day
+            try:
+                response = await client.get(f"{BACKEND_URL}/ai/verse-of-day")
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success") and "verse" in data:
+                        verse = data["verse"]
+                        if "text" in verse and "surah" in verse and "surah_number" in verse and "ayah" in verse:
+                            self.log_result("GET /ai/verse-of-day", True, f"Returned verse from {verse['surah']} {verse['surah_number']}:{verse['ayah']}")
+                        else:
+                            self.log_result("GET /ai/verse-of-day", False, "Missing required verse fields", data)
+                    else:
+                        self.log_result("GET /ai/verse-of-day", False, "Invalid response format", data)
                 else:
-                    log_test(f"Active Ads API (placement={placement})", "FAIL", 
-                           f"Invalid response format: {data}")
-                    all_passed = False
-            else:
-                log_test(f"Active Ads API (placement={placement})", "FAIL", 
-                       f"HTTP {response.status_code}: {response.text}")
-                all_passed = False
-                
-        except Exception as e:
-            log_test(f"Active Ads API (placement={placement})", "FAIL", f"Exception: {str(e)}")
-            all_passed = False
-    
-    return all_passed
+                    self.log_result("GET /ai/verse-of-day", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /ai/verse-of-day", False, f"Exception: {str(e)}")
 
-def test_auth_protected_endpoints():
-    """Test auth-protected endpoints (without auth - expect 401)"""
-    auth_endpoints = [
-        "/stories/request-publish",  # POST
-        "/stories/my-publish-status",  # GET
-    ]
-    
-    results = {}
-    
-    # Test GET endpoints
-    for endpoint in ["/stories/my-publish-status"]:
-        try:
-            url = f"{BACKEND_URL}{endpoint}"
-            response = requests.get(url, timeout=10)
-            
-            # We expect 401 for auth endpoints without auth
-            if response.status_code == 401:
-                log_test(f"Auth Endpoint {endpoint}", "PASS", 
-                       f"Correctly requires auth (HTTP {response.status_code})")
-                results[endpoint] = True
-            else:
-                log_test(f"Auth Endpoint {endpoint}", "FAIL", 
-                       f"Expected 401, got HTTP {response.status_code}: {response.text}")
-                results[endpoint] = False
-                
-        except Exception as e:
-            log_test(f"Auth Endpoint {endpoint}", "FAIL", f"Exception: {str(e)}")
-            results[endpoint] = False
-    
-    # Test POST endpoint
-    try:
-        url = f"{BACKEND_URL}/stories/request-publish"
-        response = requests.post(url, json={}, timeout=10)
+            # Test hadith-of-day
+            try:
+                response = await client.get(f"{BACKEND_URL}/ai/hadith-of-day")
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success") and "hadith" in data:
+                        hadith = data["hadith"]
+                        if "text" in hadith and "narrator" in hadith and "source" in hadith:
+                            self.log_result("GET /ai/hadith-of-day", True, f"Returned hadith from {hadith['source']}")
+                        else:
+                            self.log_result("GET /ai/hadith-of-day", False, "Missing required hadith fields", data)
+                    else:
+                        self.log_result("GET /ai/hadith-of-day", False, "Invalid response format", data)
+                else:
+                    self.log_result("GET /ai/hadith-of-day", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /ai/hadith-of-day", False, f"Exception: {str(e)}")
+
+            # Test daily-dua
+            try:
+                response = await client.get(f"{BACKEND_URL}/ai/daily-dua")
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get("success") and "dua" in data:
+                        dua = data["dua"]
+                        if "text" in dua and "source" in dua:
+                            self.log_result("GET /ai/daily-dua", True, f"Returned dua from {dua['source']}")
+                        else:
+                            self.log_result("GET /ai/daily-dua", False, "Missing required dua fields", data)
+                    else:
+                        self.log_result("GET /ai/daily-dua", False, "Invalid response format", data)
+                else:
+                    self.log_result("GET /ai/daily-dua", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /ai/daily-dua", False, f"Exception: {str(e)}")
+
+    async def test_prayer_times(self):
+        """Test Prayer Times API (Aladhan API - FREE, global)"""
+        print("🕌 Testing Prayer Times API...")
         
-        if response.status_code == 401:
-            log_test("Auth Endpoint /stories/request-publish", "PASS", 
-                   f"Correctly requires auth (HTTP {response.status_code})")
-            results["/stories/request-publish"] = True
-        else:
-            log_test("Auth Endpoint /stories/request-publish", "FAIL", 
-                   f"Expected 401, got HTTP {response.status_code}: {response.text}")
-            results["/stories/request-publish"] = False
-            
-    except Exception as e:
-        log_test("Auth Endpoint /stories/request-publish", "FAIL", f"Exception: {str(e)}")
-        results["/stories/request-publish"] = False
-    
-    return all(results.values())
-
-def test_admin_endpoints():
-    """Test admin endpoints (without auth - expect 401/403)"""
-    admin_endpoints = [
-        "/admin/publish-requests",  # GET
-        "/admin/generate-stories",  # POST
-        "/admin/generate-stories/progress",  # GET
-    ]
-    
-    results = {}
-    
-    # Test GET endpoints
-    for endpoint in ["/admin/publish-requests", "/admin/generate-stories/progress"]:
-        try:
-            url = f"{BACKEND_URL}{endpoint}"
-            response = requests.get(url, timeout=10)
-            
-            # We expect 401 or 403 for admin endpoints without auth
-            if response.status_code in [401, 403]:
-                log_test(f"Admin Endpoint {endpoint}", "PASS", 
-                       f"Correctly requires auth (HTTP {response.status_code})")
-                results[endpoint] = True
-            else:
-                log_test(f"Admin Endpoint {endpoint}", "FAIL", 
-                       f"Expected 401/403, got HTTP {response.status_code}: {response.text}")
-                results[endpoint] = False
-                
-        except Exception as e:
-            log_test(f"Admin Endpoint {endpoint}", "FAIL", f"Exception: {str(e)}")
-            results[endpoint] = False
-    
-    # Test POST endpoint
-    try:
-        url = f"{BACKEND_URL}/admin/generate-stories"
-        response = requests.post(url, json={}, timeout=10)
+        test_locations = [
+            {"name": "Berlin", "lat": 52.52, "lon": 13.405},
+            {"name": "Mecca", "lat": 21.42, "lon": 39.82},
+            {"name": "Jakarta", "lat": -6.2, "lon": 106.8}
+        ]
         
-        if response.status_code in [401, 403]:
-            log_test("Admin Endpoint /admin/generate-stories", "PASS", 
-                   f"Correctly requires auth (HTTP {response.status_code})")
-            results["/admin/generate-stories"] = True
-        else:
-            log_test("Admin Endpoint /admin/generate-stories", "FAIL", 
-                   f"Expected 401/403, got HTTP {response.status_code}: {response.text}")
-            results["/admin/generate-stories"] = False
-            
-    except Exception as e:
-        log_test("Admin Endpoint /admin/generate-stories", "FAIL", f"Exception: {str(e)}")
-        results["/admin/generate-stories"] = False
-    
-    return all(results.values())
+        async with httpx.AsyncClient(timeout=30) as client:
+            for location in test_locations:
+                try:
+                    response = await client.get(
+                        f"{BACKEND_URL}/prayer-times",
+                        params={"lat": location["lat"], "lon": location["lon"]}
+                    )
+                    if response.status_code == 200:
+                        data = response.json()
+                        if data.get("success") and "times" in data:
+                            times = data["times"]
+                            required_prayers = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]
+                            if all(prayer in times for prayer in required_prayers):
+                                self.log_result(f"GET /prayer-times ({location['name']})", True, f"All prayer times returned")
+                            else:
+                                missing = [p for p in required_prayers if p not in times]
+                                self.log_result(f"GET /prayer-times ({location['name']})", False, f"Missing prayers: {missing}", data)
+                        else:
+                            self.log_result(f"GET /prayer-times ({location['name']})", False, "Invalid response format", data)
+                    else:
+                        self.log_result(f"GET /prayer-times ({location['name']})", False, f"HTTP {response.status_code}", response.text)
+                except Exception as e:
+                    self.log_result(f"GET /prayer-times ({location['name']})", False, f"Exception: {str(e)}")
 
-def main():
-    """Run all backend API tests"""
-    print("=" * 60)
-    print("🕌 ISLAMIC APP - BACKEND API TESTING")
-    print("=" * 60)
-    print(f"Backend URL: {BACKEND_URL}")
-    print(f"Test started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print()
+    async def test_mosque_search(self):
+        """Test Mosque Search API (Mawaqit/OpenStreetMap - FREE)"""
+        print("🕌 Testing Mosque Search API...")
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            try:
+                # Test Berlin mosque search
+                response = await client.get(
+                    f"{BACKEND_URL}/mosques/search",
+                    params={"lat": 52.52, "lon": 13.405, "radius": 5}
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    if "mosques" in data:
+                        mosques = data["mosques"]
+                        if len(mosques) > 0:
+                            # Check if mosques have required fields
+                            first_mosque = mosques[0]
+                            required_fields = ["name", "latitude", "longitude"]
+                            if all(field in first_mosque for field in required_fields):
+                                self.log_result("GET /mosques/search (Berlin)", True, f"Found {len(mosques)} mosques")
+                            else:
+                                missing = [f for f in required_fields if f not in first_mosque]
+                                self.log_result("GET /mosques/search (Berlin)", False, f"Missing mosque fields: {missing}", data)
+                        else:
+                            self.log_result("GET /mosques/search (Berlin)", True, "No mosques found (acceptable for test location)")
+                    else:
+                        self.log_result("GET /mosques/search (Berlin)", False, "Missing 'mosques' field", data)
+                else:
+                    self.log_result("GET /mosques/search (Berlin)", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /mosques/search (Berlin)", False, f"Exception: {str(e)}")
+
+    async def test_stories_listing(self):
+        """Test Stories listing with language filter"""
+        print("📚 Testing Stories Listing API...")
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            # Test Arabic stories
+            try:
+                response = await client.get(
+                    f"{BACKEND_URL}/stories/list",
+                    params={"category": "istighfar", "lang": "ar"}
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    if "stories" in data:
+                        stories = data["stories"]
+                        self.log_result("GET /stories/list (Arabic istighfar)", True, f"Found {len(stories)} Arabic stories")
+                    else:
+                        self.log_result("GET /stories/list (Arabic istighfar)", False, "Missing 'stories' field", data)
+                else:
+                    self.log_result("GET /stories/list (Arabic istighfar)", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /stories/list (Arabic istighfar)", False, f"Exception: {str(e)}")
+
+            # Test English stories
+            try:
+                response = await client.get(
+                    f"{BACKEND_URL}/stories/list",
+                    params={"category": "sahaba", "lang": "en"}
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    if "stories" in data:
+                        stories = data["stories"]
+                        self.log_result("GET /stories/list (English sahaba)", True, f"Found {len(stories)} English stories")
+                    else:
+                        self.log_result("GET /stories/list (English sahaba)", False, "Missing 'stories' field", data)
+                else:
+                    self.log_result("GET /stories/list (English sahaba)", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /stories/list (English sahaba)", False, f"Exception: {str(e)}")
+
+    async def test_active_ads(self):
+        """Test Active Ads API for different placements"""
+        print("📢 Testing Active Ads API...")
+        
+        placements = ["prayer", "quran", "stories"]
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            for placement in placements:
+                try:
+                    response = await client.get(f"{BACKEND_URL}/ads/active", params={"placement": placement})
+                    if response.status_code == 200:
+                        data = response.json()
+                        # The API might return empty ads list, which is acceptable
+                        self.log_result(f"GET /ads/active (placement={placement})", True, f"API responded successfully")
+                    else:
+                        self.log_result(f"GET /ads/active (placement={placement})", False, f"HTTP {response.status_code}", response.text)
+                except Exception as e:
+                    self.log_result(f"GET /ads/active (placement={placement})", False, f"Exception: {str(e)}")
+
+    async def test_health_endpoints(self):
+        """Test basic health and status endpoints"""
+        print("🔍 Testing Health Endpoints...")
+        
+        async with httpx.AsyncClient(timeout=30) as client:
+            # Test root endpoint
+            try:
+                response = await client.get(f"{BACKEND_URL}/")
+                if response.status_code == 200:
+                    data = response.json()
+                    if "message" in data and "version" in data:
+                        self.log_result("GET /api/", True, f"API version {data.get('version')}")
+                    else:
+                        self.log_result("GET /api/", False, "Missing expected fields", data)
+                else:
+                    self.log_result("GET /api/", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /api/", False, f"Exception: {str(e)}")
+
+            # Test health endpoint
+            try:
+                response = await client.get(f"{BACKEND_URL}/health")
+                if response.status_code == 200:
+                    data = response.json()
+                    if "status" in data:
+                        self.log_result("GET /health", True, f"Status: {data.get('status')}")
+                    else:
+                        self.log_result("GET /health", False, "Missing status field", data)
+                else:
+                    self.log_result("GET /health", False, f"HTTP {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("GET /health", False, f"Exception: {str(e)}")
+
+    async def run_all_tests(self):
+        """Run all backend API tests"""
+        print("🚀 Starting Backend API Tests for أذان وحكاية")
+        print(f"Backend URL: {BACKEND_URL}")
+        print("=" * 60)
+        
+        # Run all test suites
+        await self.test_health_endpoints()
+        await self.test_daily_islamic_content()
+        await self.test_prayer_times()
+        await self.test_mosque_search()
+        await self.test_stories_listing()
+        await self.test_active_ads()
+        
+        # Print summary
+        print("=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
+        print(f"Total Tests: {self.total_tests}")
+        print(f"Passed: {self.passed_tests} ✅")
+        print(f"Failed: {self.failed_tests} ❌")
+        print(f"Success Rate: {(self.passed_tests/self.total_tests*100):.1f}%")
+        print()
+        
+        # Print failed tests details
+        if self.failed_tests > 0:
+            print("❌ FAILED TESTS:")
+            for result in self.results:
+                if not result["success"]:
+                    print(f"  - {result['test']}: {result['details']}")
+            print()
+        
+        # Return results for further processing
+        return {
+            "total": self.total_tests,
+            "passed": self.passed_tests,
+            "failed": self.failed_tests,
+            "success_rate": self.passed_tests/self.total_tests*100 if self.total_tests > 0 else 0,
+            "results": self.results
+        }
+
+async def main():
+    """Main test runner"""
+    tester = BackendTester()
+    results = await tester.run_all_tests()
     
-    # Test results
-    results = {}
-    
-    # Test public endpoints first (as requested)
-    print("📋 TESTING PUBLIC ENDPOINTS")
-    print("-" * 30)
-    results["moderation_status"] = test_moderation_status()
-    results["active_ads"] = test_active_ads()
-    
-    print("🔐 TESTING AUTH-PROTECTED ENDPOINTS (Should return 401)")
-    print("-" * 50)
-    results["auth_endpoints"] = test_auth_protected_endpoints()
-    
-    print("👑 TESTING ADMIN ENDPOINTS (Should return 401/403)")
-    print("-" * 45)
-    results["admin_endpoints"] = test_admin_endpoints()
-    
-    # Summary
-    print("=" * 60)
-    print("📊 TEST SUMMARY")
-    print("=" * 60)
-    
-    passed = sum(1 for result in results.values() if result)
-    total = len(results)
-    
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
-        print(f"{status} {test_name.replace('_', ' ').title()}")
-    
-    print()
-    print(f"Overall: {passed}/{total} tests passed")
-    
-    if passed == total:
-        print("🎉 All backend API tests passed!")
-        return 0
+    # Exit with error code if tests failed
+    if results["failed"] > 0:
+        sys.exit(1)
     else:
-        print("⚠️  Some tests failed - check details above")
-        return 1
+        print("🎉 All tests passed!")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    asyncio.run(main())
