@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
+BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com"
 
 def test_endpoint(endpoint, description, expected_checks=None):
     """Test a single API endpoint"""

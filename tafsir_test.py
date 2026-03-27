@@ -10,7 +10,7 @@ import json
 from typing import Dict, Any, List
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
+BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com"
 
 class TafsirAPITester:
     def __init__(self):

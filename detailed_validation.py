@@ -6,7 +6,7 @@ Detailed Salah API Validation - Verify all requirements from review request
 import requests
 import json
 
-BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
+BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com"
 
 def detailed_validation():
     print("=" * 70)

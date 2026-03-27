@@ -7,7 +7,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://translate-hub-123.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://content-moderation-266.preview.emergentagent.com')
 ADMIN_EMAIL = 'mhmd321324t@gmail.com'
 ADMIN_PASSWORD = 'admin123'
 

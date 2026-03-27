@@ -9,7 +9,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://translate-hub-123.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://content-moderation-266.preview.emergentagent.com')
 
 # Admin credentials for testing
 ADMIN_EMAIL = "mhmd321324t@gmail.com"

@@ -34,7 +34,7 @@ from typing import Dict, List, Any
 from datetime import datetime
 
 # Backend URL from environment
-BACKEND_URL = "https://translate-hub-123.preview.emergentagent.com"
+BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com"
 
 # Test languages - all 9 as requested
 ALL_LANGUAGES = ["ar", "en", "de", "fr", "ru", "tr", "sv", "nl", "el"]
