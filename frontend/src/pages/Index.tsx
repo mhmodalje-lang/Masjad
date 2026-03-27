@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense, memo, useMemo } from 'react';
 import DuaOfDayDrawer from '@/components/DuaOfDayDrawer';
+import DailyInspiration from '@/components/DailyInspiration';
 import { dailyDuas } from '@/data/dhikrDetails';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
@@ -416,13 +417,12 @@ export default function Index() {
 
       <AdBanner position="home" />
 
+      {/* ===== DAILY INSPIRATION (Hadith + Verse + Dua) ===== */}
+      <DailyInspiration />
+
       {/* ===== DAILY HADITH (show BEFORE prayers when no location) ===== */}
       {prayers.length === 0 && (
         <>
-          <Suspense fallback={<div className="h-40" />}>
-            <DailyHadith />
-          </Suspense>
-          <VerseOfDay />
         </>
       )}
 
@@ -537,15 +537,6 @@ export default function Index() {
         </div>
       )}
 
-      {/* ===== DAILY HADITH (shown when prayers loaded) ===== */}
-      {prayers.length > 0 && (
-        <div className="content-auto">
-          <Suspense fallback={<div className="h-40" />}>
-            <DailyHadith />
-          </Suspense>
-        </div>
-      )}
-
       {/* ===== NATIVE SPONSORED CARD (blends with Hadith design) ===== */}
       <Suspense fallback={null}>
         <NativeAdCard placement="hadith_feed" />
@@ -560,9 +551,6 @@ export default function Index() {
 
       {/* ===== DAILY GOALS ===== */}
       <DailyGoals hijriMonthNumber={hijriMonthNumber} />
-
-      {/* ===== AI DAILY WIDGETS (shown when prayers loaded) ===== */}
-      {prayers.length > 0 && <VerseOfDay />}
 
       {/* ===== NOTIFICATION CARD ===== */}
       <NotificationCard />
@@ -614,31 +602,6 @@ export default function Index() {
           </div>
         </div>
         </Suspense>
-      </div>
-
-      {/* ===== DUA OF DAY ===== */}
-      <div className="px-4 mb-5">
-        <div
-          onClick={() => setDuaDrawerOpen(true)}
-          className="rounded-3xl neu-card p-6 shadow-card relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/5 to-transparent rounded-bl-full" />
-          <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-[11px] font-bold text-primary mb-3">
-            {t('duaOfDay')}
-          </span>
-          <p className="text-sm font-bold text-foreground mb-3">{t(todayDua.subtitleKey)}</p>
-          <p className="text-lg font-arabic text-foreground leading-[2.2] text-center mb-2 line-clamp-2" dir="rtl">
-            {todayDua.arabic}
-          </p>
-          {locale !== 'ar' && todayDua.translationKey && (
-            <p className="text-sm text-muted-foreground leading-relaxed text-center mb-3 line-clamp-2" dir="auto">
-              {t(todayDua.translationKey)}
-            </p>
-          )}
-          <span className="inline-block rounded-2xl border border-primary/30 bg-primary/5 px-5 py-2.5 text-xs font-bold text-primary transition-all hover:bg-primary/10">
-            {t('readWithTranslation')}
-          </span>
-        </div>
       </div>
 
       {/* ===== SUGGESTED GOALS ===== */}
