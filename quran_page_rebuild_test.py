@@ -2,7 +2,7 @@
 """
 Backend Test Suite: Quran Page Rebuild API Testing
 Testing all Quran API endpoints for the rebuilt Quran page
-Base URL: https://content-moderation-266.preview.emergentagent.com
+Base URL: https://mobile-deploy-23.preview.emergentagent.com
 """
 
 import requests
@@ -11,7 +11,7 @@ import sys
 from typing import Dict, List, Any
 
 # Base URL from the review request
-BASE_URL = "https://content-moderation-266.preview.emergentagent.com"
+BASE_URL = "https://mobile-deploy-23.preview.emergentagent.com"
 
 # Test languages
 TEST_LANGUAGES = ["ru", "ar", "fr", "tr", "en"]

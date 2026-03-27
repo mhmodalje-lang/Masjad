@@ -11,7 +11,7 @@ import re
 from typing import Dict, List, Any
 
 # Configuration
-BASE_URL = "https://content-moderation-266.preview.emergentagent.com"
+BASE_URL = "https://mobile-deploy-23.preview.emergentagent.com"
 TIMEOUT = 30
 
 class IslamicAppTester:

@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://content-moderation-266.preview.emergentagent.com/api"
+BACKEND_URL = "https://mobile-deploy-23.preview.emergentagent.com/api"
 
 class Colors:
     GREEN = '\033[92m'
