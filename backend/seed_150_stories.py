@@ -10,7 +10,7 @@ from uuid import uuid4
 import random
 
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-DB_NAME = os.environ.get('DB_NAME', 'almuadhin')
+DB_NAME = os.environ.get('DB_NAME', 'test_database')
 
 # قوالب للقصص الحقيقية
 STORY_TEMPLATES = {

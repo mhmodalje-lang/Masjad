@@ -306,27 +306,69 @@ export default function AdminDashboard() {
     </div>
   );
 
-  const tabs = [
-    { key:'overview', label:t('overview'), icon:BarChart3 },
-    { key:'social-mgmt', label:t('socialManagement'), icon:MessageSquare },
-    { key:'stories-mgmt', label:t('storiesManagement'), icon:BookOpen },
-    { key:'stories-gen', label:'توليد قصص AI', icon:Sparkles },
-    { key:'ruqyah-mgmt', label:t('ruqyahManagement'), icon:Volume2 },
-    { key:'donations-mgmt', label:t('donationsManagement'), icon:Heart },
-    { key:'embed', label:t('embedContent'), icon:Film },
-    { key:'broadcast', label:t('broadcast'), icon:Megaphone },
-    { key:'users', label:t('usersManagement'), icon:Users },
-    { key:'ads', label:t('adsManagement'), icon:Monitor },
-    { key:'user-ads', label:t('userAdsManagement'), icon:Film },
-    { key:'vendors', label:t('vendorRole'), icon:ShoppingBag },
-    { key:'notifications', label:t('scheduledNotifications'), icon:Bell },
-    { key:'multilingual-notif', label:'Multilingual Push', icon:Send },
-    { key:'ad-rules', label:'Ad Rules (God-Mode)', icon:Shield },
-    { key:'daily-content', label:'Daily Content', icon:Sparkles },
-    { key:'pages', label:t('pagesManagement'), icon:FileText },
-    { key:'revenue', label:t('commissionRate'), icon:CreditCard },
-    { key:'settings', label:t('settingsLabel'), icon:Settings },
+  const TAB_GROUPS = [
+    { 
+      group: '📊 ' + t('overview'),
+      tabs: [
+        { key:'overview', label:t('overview'), icon:BarChart3 },
+      ]
+    },
+    {
+      group: '📝 ' + t('storiesManagement'),
+      tabs: [
+        { key:'stories-mgmt', label:t('storiesManagement'), icon:BookOpen },
+        { key:'stories-gen', label:'توليد قصص AI', icon:Sparkles },
+      ]
+    },
+    {
+      group: '👥 ' + t('socialManagement'),
+      tabs: [
+        { key:'social-mgmt', label:t('socialManagement'), icon:MessageSquare },
+        { key:'embed', label:t('embedContent'), icon:Film },
+        { key:'broadcast', label:t('broadcast'), icon:Megaphone },
+      ]
+    },
+    {
+      group: '🕌 ' + t('ruqyahManagement'),
+      tabs: [
+        { key:'ruqyah-mgmt', label:t('ruqyahManagement'), icon:Volume2 },
+        { key:'daily-content', label:'المحتوى اليومي', icon:Sparkles },
+      ]
+    },
+    {
+      group: '💰 ' + t('adsManagement'),
+      tabs: [
+        { key:'ads', label:t('adsManagement'), icon:Monitor },
+        { key:'user-ads', label:t('userAdsManagement'), icon:Film },
+        { key:'ad-rules', label:'قواعد الإعلانات', icon:Shield },
+      ]
+    },
+    {
+      group: '👤 ' + t('usersManagement'),
+      tabs: [
+        { key:'users', label:t('usersManagement'), icon:Users },
+        { key:'vendors', label:t('vendorRole'), icon:ShoppingBag },
+        { key:'donations-mgmt', label:t('donationsManagement'), icon:Heart },
+      ]
+    },
+    {
+      group: '🔔 ' + t('scheduledNotifications'),
+      tabs: [
+        { key:'notifications', label:t('scheduledNotifications'), icon:Bell },
+        { key:'multilingual-notif', label:'إشعارات متعددة اللغات', icon:Send },
+      ]
+    },
+    {
+      group: '⚙️ ' + t('settingsLabel'),
+      tabs: [
+        { key:'pages', label:t('pagesManagement'), icon:FileText },
+        { key:'revenue', label:t('commissionRate'), icon:CreditCard },
+        { key:'settings', label:t('settingsLabel'), icon:Settings },
+      ]
+    },
   ];
+
+  const tabs = TAB_GROUPS.flatMap(g => g.tabs);
 
   const InputField = memo(({ label, value, onChange, placeholder, multiline=false }: any) => {
     const ref = useRef<any>(null);
@@ -365,38 +407,80 @@ export default function AdminDashboard() {
     </div>
   );
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen pb-28" dir={dir} data-testid="admin-dashboard">
-      <div className="bg-gradient-to-b from-primary/20 to-transparent px-5 pt-7 pb-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-6 w-6 text-primary" /></div>
-          <div><h1 className="text-xl font-bold text-foreground">{t('adminPanel')}</h1><p className="text-xs text-muted-foreground">{user?.email}</p></div>
+      {/* Header */}
+      <div className="bg-gradient-to-b from-primary/20 to-transparent px-5 pt-7 pb-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-primary/15 flex items-center justify-center"><Shield className="h-5 w-5 text-primary" /></div>
+            <div><h1 className="text-lg font-bold text-foreground">{t('adminPanel')}</h1><p className="text-[11px] text-muted-foreground">{user?.email}</p></div>
+          </div>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2.5 rounded-xl bg-muted/50 border border-border/10">
+            <Settings className="h-4 w-4 text-muted-foreground" />
+          </button>
         </div>
-        <div dir="ltr" className="w-full overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="flex gap-2" style={{ direction: 'rtl', minWidth: 'max-content' }}>
+
+        {/* Tab Navigation - Clean Grouped */}
+        <div className="w-full overflow-x-auto scrollbar-hide pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex gap-1.5" style={{ minWidth: 'max-content' }}>
             {tabs.map(t=>(
               <button key={t.key} onClick={()=>setTab(t.key)} data-testid={`admin-tab-${t.key}`}
-                className={cn('inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0',
-                  tab===t.key ? 'bg-primary text-primary-foreground shadow-lg' : 'neu-card text-muted-foreground hover:bg-muted')}
-                style={{ whiteSpace: 'nowrap' }}>
-                <t.icon className="h-4 w-4 shrink-0" /><span style={{ whiteSpace: 'nowrap' }}>{t.label}</span>
+                className={cn('inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all shrink-0',
+                  tab===t.key ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'bg-muted/30 text-muted-foreground hover:bg-muted border border-border/10')}>
+                <t.icon className="h-3.5 w-3.5 shrink-0" />{t.label}
               </button>
             ))}
           </div>
         </div>
       </div>
 
+      {/* Sidebar Menu (optional) */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 flex" onClick={() => setSidebarOpen(false)}>
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative mr-auto w-72 max-w-[80%] bg-card border-l border-border/10 shadow-2xl h-full overflow-y-auto py-6 px-4" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-base font-bold text-foreground">{t('adminPanel')}</h2>
+              <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-lg bg-muted"><X className="h-4 w-4" /></button>
+            </div>
+            {TAB_GROUPS.map(g => (
+              <div key={g.group} className="mb-4">
+                <p className="text-[10px] font-bold text-muted-foreground mb-1.5 px-1">{g.group}</p>
+                {g.tabs.map(t => (
+                  <button key={t.key} onClick={() => { setTab(t.key); setSidebarOpen(false); }}
+                    className={cn('w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition-all mb-0.5',
+                      tab === t.key ? 'bg-primary/10 text-primary' : 'text-foreground/70 hover:bg-muted')}>
+                    <t.icon className="h-4 w-4 shrink-0" />{t.label}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="px-5 mt-4">
         {/* ===== OVERVIEW ===== */}
         {tab==='overview' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              {[{l:t('totalUsers'),v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},{l:t('scheduledNotifications'),v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},{l:t('totalAds'),v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'}]
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                {l:t('totalUsers'),v:stats?.total_users??0,i:Users,c:'text-blue-500 bg-blue-500/10'},
+                {l:t('scheduledNotifications'),v:stats?.push_subscribers??0,i:Bell,c:'text-green-500 bg-green-500/10'},
+                {l:t('totalAds'),v:ads.length,i:Monitor,c:'text-amber-500 bg-amber-500/10'},
+                {l:'القصص',v:stats?.total_stories??0,i:BookOpen,c:'text-purple-500 bg-purple-500/10'},
+                {l:'المحتوى',v:stats?.daily_content_items??0,i:Sparkles,c:'text-indigo-500 bg-indigo-500/10'},
+                {l:'الأطفال',v:stats?.kids_profiles??0,i:Heart,c:'text-pink-500 bg-pink-500/10'},
+              ]
               .map(s=>(
-                <div key={s.l} className="rounded-2xl neu-card p-4 text-center">
-                  <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center mx-auto mb-2",s.c)}><s.i className="h-5 w-5"/></div>
-                  <p className="text-2xl font-bold text-foreground">{s.v}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{s.l}</p>
+                <div key={s.l} className="rounded-2xl neu-card p-3 text-center">
+                  <div className={cn("h-9 w-9 rounded-xl flex items-center justify-center mx-auto mb-1.5",s.c)}><s.i className="h-4 w-4"/></div>
+                  <p className="text-xl font-bold text-foreground">{s.v}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{s.l}</p>
                 </div>
               ))}
             </div>
@@ -404,8 +488,18 @@ export default function AdminDashboard() {
             {/* Admin Info Card */}
             <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-4">
               <h3 className="text-sm font-bold text-foreground mb-2 flex items-center gap-2"><Shield className="h-4 w-4 text-primary" />{t('settingsLabel')}</h3>
-              <p className="text-xs text-muted-foreground">{t('email')}: <span className="text-primary" dir="ltr">mohammadalrejab@gmail.com</span></p>
-              <p className="text-xs text-muted-foreground mt-1">{t('name')}: <span className="text-primary" dir="ltr">+4917684034961</span></p>
+              <p className="text-xs text-muted-foreground">{t('email')}: <span className="text-primary" dir="ltr">{user?.email}</span></p>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="grid grid-cols-2 gap-2">
+              {TAB_GROUPS.slice(1).map(g => (
+                <button key={g.group} onClick={() => setTab(g.tabs[0].key)}
+                  className="rounded-2xl neu-card p-3 text-right hover:bg-muted/50 transition-all active:scale-[0.98]">
+                  <p className="text-xs font-bold text-foreground mb-0.5">{g.group}</p>
+                  <p className="text-[10px] text-muted-foreground">{g.tabs.length} {g.tabs.length > 1 ? 'أقسام' : 'قسم'}</p>
+                </button>
+              ))}
             </div>
 
             {/* Category Stats */}
@@ -424,7 +518,7 @@ export default function AdminDashboard() {
                 onClick={async () => {
                   try {
                     const r = await api('/admin/seed-content', 'POST');
-                    toast.success(r.message || `تم {t('add')} ${r.created}`);
+                    toast.success(r.message || `تم ${t('add')} ${r.created}`);
                     fetchStats();
                   } catch { toast.error(t('loadingData')); }
                 }}

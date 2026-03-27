@@ -9,7 +9,7 @@ from datetime import datetime
 from uuid import uuid4
 
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-DB_NAME = os.environ.get('DB_NAME', 'almuadhin')
+DB_NAME = os.environ.get('DB_NAME', 'test_database')
 
 # قصص حقيقية وواقعية لكل قسم
 REAL_STORIES = {
