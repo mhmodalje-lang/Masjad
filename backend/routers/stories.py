@@ -163,12 +163,19 @@ async def create_story(data: CreateStoryRequest, user: dict = Depends(get_user))
     return {"story": story, "moderation_required": story_status == "pending"}
 
 @router.get("/stories/list")
-async def list_stories(category: str = "all", page: int = 1, limit: int = 20, user: dict = Depends(get_user)):
+async def list_stories(category: str = "all", page: int = 1, limit: int = 20, lang: str = "", user: dict = Depends(get_user)):
     query: dict = {"is_story": True}
     # Only show approved stories (or stories without status for backwards compatibility)
     query["$or"] = [{"status": "approved"}, {"status": {"$exists": False}}]
     if category != "all":
         query["category"] = category
+    # Language filter: show stories in user's language + stories without language field (user-generated)
+    if lang:
+        query["$or"] = [
+            {"status": "approved", "language": lang},
+            {"status": "approved", "language": {"$exists": False}},
+            {"status": {"$exists": False}},
+        ]
     skip = (page - 1) * limit
     cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     stories = await cursor.to_list(length=limit)
@@ -283,6 +290,12 @@ async def list_stories_translated(
     query = {"is_story": True}
     if category != "all":
         query["category"] = category
+    # Show stories in requested language OR stories without language field (user-generated in Arabic)
+    query["$or"] = [
+        {"status": "approved", "language": language},
+        {"status": "approved", "language": {"$exists": False}},
+        {"status": {"$exists": False}},
+    ]
     skip = (page - 1) * limit
     cursor = db.posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
     stories = await cursor.to_list(length=limit)

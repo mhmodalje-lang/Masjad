@@ -1435,6 +1435,19 @@ function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string })
   const [genProgress, setGenProgress] = useState<Record<string, any>>({});
   const [generating, setGenerating] = useState<Set<string>>(new Set());
   const [countPerCat, setCountPerCat] = useState(20);
+  const [selectedLangs, setSelectedLangs] = useState<string[]>(['ar','en','de','fr','tr','ru','sv','nl','el']);
+
+  const languages = [
+    { key: 'ar', label: 'العربية', flag: '🇸🇦' },
+    { key: 'en', label: 'English', flag: '🇬🇧' },
+    { key: 'de', label: 'Deutsch', flag: '🇩🇪' },
+    { key: 'fr', label: 'Français', flag: '🇫🇷' },
+    { key: 'tr', label: 'Türkçe', flag: '🇹🇷' },
+    { key: 'ru', label: 'Русский', flag: '🇷🇺' },
+    { key: 'sv', label: 'Svenska', flag: '🇸🇪' },
+    { key: 'nl', label: 'Nederlands', flag: '🇳🇱' },
+    { key: 'el', label: 'Ελληνικά', flag: '🇬🇷' },
+  ];
 
   const categories = [
     { key: 'istighfar', label: 'قصص الاستغفار', emoji: '🤲', color: 'bg-emerald-500' },
@@ -1461,27 +1474,33 @@ function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string })
     return () => clearInterval(interval);
   }, []);
 
+  const toggleLang = (lang: string) => {
+    setSelectedLangs(prev => prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]);
+  };
+
   const generateForCategory = async (cat: string) => {
     setGenerating(prev => new Set([...prev, cat]));
-    try {
-      const d = await api('/admin/generate-stories', 'POST', { category: cat, count: countPerCat });
-      if (d.success) {
-        toast.success(d.message);
-      } else {
-        toast.error(d.message || 'خطأ');
-      }
-    } catch { toast.error('حدث خطأ'); }
+    for (const lang of selectedLangs) {
+      try {
+        await api('/admin/generate-stories', 'POST', { category: cat, count: countPerCat, language: lang });
+      } catch {}
+    }
+    toast.success(`بدأ توليد القصص لفئة ${categories.find(c => c.key === cat)?.label} بـ ${selectedLangs.length} لغة`);
   };
 
   const generateAll = async () => {
     try {
-      const d = await api('/admin/generate-stories/all', 'POST', { count_per_category: countPerCat });
+      const d = await api('/admin/generate-stories/all', 'POST', { count_per_category: countPerCat, languages: selectedLangs });
       if (d.success) {
         toast.success(d.message);
         setGenerating(new Set(categories.map(c => c.key)));
       }
     } catch { toast.error('حدث خطأ'); }
   };
+
+  const anyRunning = Object.values(genProgress).some((p: any) => p.status === 'running');
+  const totalGenerated = Object.values(genProgress).reduce((sum: number, p: any) => sum + (p.generated || 0), 0);
+  const totalTarget = Object.values(genProgress).reduce((sum: number, p: any) => sum + (p.total || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -1490,26 +1509,52 @@ function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string })
           <Sparkles className="h-5 w-5 text-purple-500" /> توليد القصص بالذكاء الاصطناعي
         </h2>
         <p className="text-xs text-muted-foreground mb-3">
-          توليد قصص إسلامية واقعية ومؤثرة باستخدام AI لكل فئة
+          توليد قصص إسلامية باسم "أذان وحكاية" بجميع اللغات
         </p>
+
+        {/* Language Selection */}
+        <div className="mb-3">
+          <label className="text-xs font-bold text-foreground mb-1.5 block">اللغات:</label>
+          <div className="flex flex-wrap gap-1.5">
+            {languages.map(l => (
+              <button key={l.key} onClick={() => toggleLang(l.key)}
+                className={cn("px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all border",
+                  selectedLangs.includes(l.key) ? "bg-primary text-primary-foreground border-primary" : "bg-muted/50 text-muted-foreground border-border")}>
+                {l.flag} {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex items-center gap-3 mb-3">
-          <label className="text-xs font-bold text-foreground">عدد القصص لكل فئة:</label>
+          <label className="text-xs font-bold text-foreground">عدد القصص لكل فئة لكل لغة:</label>
           <input type="number" min={5} max={150} value={countPerCat}
             onChange={(e) => setCountPerCat(Math.min(150, Math.max(5, parseInt(e.target.value) || 10)))}
             className="w-20 px-2 py-1 rounded-lg bg-input text-foreground text-xs border border-border" />
         </div>
-        <Button onClick={generateAll} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90">
-          <Sparkles className="h-4 w-4 mr-2" /> توليد لجميع الفئات ({countPerCat} × {categories.length} = {countPerCat * categories.length} قصة)
+
+        {anyRunning && (
+          <div className="mb-3 p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+            <p className="text-xs text-blue-600 dark:text-blue-400 font-bold flex items-center gap-1">
+              <RefreshCw className="h-3 w-3 animate-spin" /> جاري التوليد: {totalGenerated}/{totalTarget} قصة
+            </p>
+          </div>
+        )}
+
+        <Button onClick={generateAll} disabled={anyRunning || selectedLangs.length === 0} className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:opacity-90 disabled:opacity-50">
+          <Sparkles className="h-4 w-4 mr-2" /> توليد لجميع الفئات ({countPerCat} × {categories.length} فئة × {selectedLangs.length} لغة)
         </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
         {categories.map(cat => {
-          const prog = genProgress[cat.key];
-          const isRunning = prog?.status === 'running';
-          const isDone = prog?.status === 'done';
-          const hasError = prog?.status === 'error';
-          const pct = prog ? Math.round((prog.generated / prog.total) * 100) : 0;
+          // Aggregate progress across all languages for this category
+          const catProgress = Object.entries(genProgress).filter(([k]) => k.startsWith(`${cat.key}_`));
+          const catGenerated = catProgress.reduce((s, [, p]) => s + (p.generated || 0), 0);
+          const catTotal = catProgress.reduce((s, [, p]) => s + (p.total || 0), 0);
+          const isRunning = catProgress.some(([, p]) => p.status === 'running');
+          const isDone = catProgress.length > 0 && catProgress.every(([, p]) => p.status === 'done');
+          const pct = catTotal > 0 ? Math.round((catGenerated / catTotal) * 100) : 0;
 
           return (
             <div key={cat.key} className="rounded-2xl neu-card p-4">
@@ -1518,13 +1563,24 @@ function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string })
                   <span className="text-lg">{cat.emoji}</span>
                   <div>
                     <p className="text-sm font-bold text-foreground">{cat.label}</p>
-                    {prog && (
+                    {catTotal > 0 && (
                       <p className="text-[10px] text-muted-foreground">
-                        {prog.generated}/{prog.total} قصة
+                        {catGenerated}/{catTotal} قصة
                         {isDone && ' ✅'}
-                        {hasError && ' ❌'}
                       </p>
                     )}
+                    {/* Per-language status */}
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {catProgress.map(([key, p]) => (
+                        <span key={key} className={cn("text-[8px] px-1.5 py-0.5 rounded-full font-bold",
+                          p.status === 'done' ? 'bg-green-500/10 text-green-500' :
+                          p.status === 'running' ? 'bg-blue-500/10 text-blue-500' :
+                          p.status === 'error' ? 'bg-red-500/10 text-red-500' : 'bg-muted text-muted-foreground'
+                        )}>
+                          {p.lang?.toUpperCase()} {p.generated}/{p.total}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 <Button 
@@ -1533,9 +1589,9 @@ function StoryGeneratorPanel({ api, t }: { api: any; t: (k: string) => string })
                   size="sm" 
                   className={cn("rounded-xl text-xs", isRunning ? "opacity-50" : "")}>
                   {isRunning ? (
-                    <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> جاري التوليد...</>
+                    <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> جاري...</>
                   ) : (
-                    <><Plus className="h-3 w-3 mr-1" /> توليد {countPerCat} قصة</>
+                    <><Plus className="h-3 w-3 mr-1" /> توليد</>
                   )}
                 </Button>
               </div>

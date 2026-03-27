@@ -907,7 +907,20 @@ STORY_CATEGORIES_INFO = {
 # Track generation progress
 generation_progress = {}
 
-async def generate_stories_batch(category: str, batch_num: int, count: int = 10):
+SUPPORTED_STORY_LANGS = {
+    "ar": {"name": "أذان وحكاية", "instruction": "اكتب القصص باللغة العربية الفصحى بأسلوب أدبي مشوق"},
+    "en": {"name": "Azan & Hikaya", "instruction": "Write the stories in fluent English with an engaging narrative style"},
+    "de": {"name": "Azan & Hikaya", "instruction": "Schreibe die Geschichten auf fließendem Deutsch mit einem fesselnden Erzählstil"},
+    "fr": {"name": "Azan & Hikaya", "instruction": "Écrivez les histoires en français courant avec un style narratif captivant"},
+    "tr": {"name": "Azan & Hikaya", "instruction": "Hikayeleri akıcı Türkçe ile ilgi çekici bir anlatım tarzıyla yazın"},
+    "ru": {"name": "Azan & Hikaya", "instruction": "Напишите истории на беглом русском языке с увлекательным повествовательным стилем"},
+    "sv": {"name": "Azan & Hikaya", "instruction": "Skriv berättelserna på flytande svenska med en engagerande berättarstil"},
+    "nl": {"name": "Azan & Hikaya", "instruction": "Schrijf de verhalen in vloeiend Nederlands met een boeiende vertelstijl"},
+    "el": {"name": "Azan & Hikaya", "instruction": "Γράψτε τις ιστορίες σε άπταιστα ελληνικά με ένα συναρπαστικό αφηγηματικό ύφος"},
+    "de-AT": {"name": "Azan & Hikaya", "instruction": "Schreibe die Geschichten auf fließendem österreichischem Deutsch mit einem fesselnden Erzählstil"},
+}
+
+async def generate_stories_batch(category: str, batch_num: int, count: int = 10, lang: str = "ar"):
     """Generate a batch of stories using AI"""
     from emergentintegrations.llm.chat import LlmChat, UserMessage
     import json as json_lib
@@ -916,15 +929,15 @@ async def generate_stories_batch(category: str, batch_num: int, count: int = 10)
     if not cat_info:
         return []
     
+    lang_info = SUPPORTED_STORY_LANGS.get(lang, SUPPORTED_STORY_LANGS["ar"])
+    
     llm_key = os.environ.get("EMERGENT_LLM_KEY", "")
     if not llm_key:
         logger.error("EMERGENT_LLM_KEY not found")
         return []
     
-    chat = LlmChat(
-        api_key=llm_key,
-        session_id=f"story-gen-{category}-{batch_num}",
-        system_message="""أنت كاتب قصص إسلامية محترف. اكتب قصصاً واقعية مؤثرة وجذابة باللغة العربية الفصحى.
+    system_msg = f"""{lang_info['instruction']}.
+أنت كاتب قصص إسلامية محترف.
 القصص يجب أن تكون:
 - مبنية على أحداث واقعية أو مستوحاة من الواقع
 - مكتوبة بأسلوب أدبي جذاب ومشوق
@@ -934,11 +947,17 @@ async def generate_stories_batch(category: str, batch_num: int, count: int = 10)
 - طول كل قصة بين 150-400 كلمة
 
 أرجع النتيجة كـ JSON array فقط بدون أي نص إضافي."""
+    
+    chat = LlmChat(
+        api_key=llm_key,
+        session_id=f"story-gen-{category}-{lang}-{batch_num}",
+        system_message=system_msg
     )
     chat.with_model("openai", "gpt-4.1-mini")
     
     prompt = f"""اكتب {count} قصص في فئة: {cat_info['label']}
 الموضوع: {cat_info['prompt']}
+اللغة المطلوبة: {lang_info['instruction']}
 
 الدفعة رقم {batch_num} - اجعل القصص فريدة ومختلفة عن بعضها.
 
@@ -968,25 +987,27 @@ async def generate_stories_batch(category: str, batch_num: int, count: int = 10)
         logger.error(f"Story generation error for {category} batch {batch_num}: {e}")
         return []
 
-async def run_story_generation(category: str, total: int, admin_email: str):
+async def run_story_generation(category: str, total: int, admin_email: str, lang: str = "ar"):
     """Background task to generate stories for a category"""
     global generation_progress
     batch_size = 10
     batches = (total + batch_size - 1) // batch_size
     generated = 0
     
-    generation_progress[category] = {"total": total, "generated": 0, "status": "running"}
+    progress_key = f"{category}_{lang}"
+    lang_info = SUPPORTED_STORY_LANGS.get(lang, SUPPORTED_STORY_LANGS["ar"])
+    generation_progress[progress_key] = {"total": total, "generated": 0, "status": "running", "lang": lang}
     
     for batch_num in range(1, batches + 1):
         count = min(batch_size, total - generated)
         try:
-            stories = await generate_stories_batch(category, batch_num, count)
+            stories = await generate_stories_batch(category, batch_num, count, lang)
             for s in stories:
                 post_id = str(uuid.uuid4())
                 story_doc = {
                     "id": post_id,
                     "author_id": "system",
-                    "author_name": "أثاني",
+                    "author_name": lang_info["name"],
                     "author_avatar": None,
                     "title": s.get("title", ""),
                     "content": s.get("content", ""),
@@ -1004,34 +1025,36 @@ async def run_story_generation(category: str, total: int, admin_email: str):
                     "status": "approved",
                     "generated_by": "ai",
                     "generated_for": admin_email,
+                    "language": lang,
                 }
                 await db.posts.insert_one(story_doc)
                 generated += 1
             
-            generation_progress[category] = {"total": total, "generated": generated, "status": "running"}
-            # Small delay between batches to avoid rate limits
+            generation_progress[progress_key] = {"total": total, "generated": generated, "status": "running", "lang": lang}
             await asyncio.sleep(2)
         except Exception as e:
-            logger.error(f"Batch {batch_num} error for {category}: {e}")
-            generation_progress[category] = {"total": total, "generated": generated, "status": "error", "error": str(e)}
+            logger.error(f"Batch {batch_num} error for {category}/{lang}: {e}")
+            generation_progress[progress_key] = {"total": total, "generated": generated, "status": "error", "error": str(e), "lang": lang}
             return
     
-    generation_progress[category] = {"total": total, "generated": generated, "status": "done"}
+    generation_progress[progress_key] = {"total": total, "generated": generated, "status": "done", "lang": lang}
 
 @router.post("/admin/generate-stories")
 async def admin_generate_stories(data: dict, background_tasks: BackgroundTasks, admin=Depends(get_admin_user)):
     """Generate AI stories for a category"""
     category = data.get("category", "")
-    count = min(data.get("count", 10), 150)  # Max 150 per request
+    count = min(data.get("count", 10), 150)
+    lang = data.get("language", "ar")
     
     if category not in STORY_CATEGORIES_INFO:
         raise HTTPException(400, f"فئة غير صالحة: {category}")
     
-    if category in generation_progress and generation_progress[category].get("status") == "running":
-        return {"success": False, "message": "جاري التوليد بالفعل لهذه الفئة", "progress": generation_progress[category]}
+    progress_key = f"{category}_{lang}"
+    if progress_key in generation_progress and generation_progress[progress_key].get("status") == "running":
+        return {"success": False, "message": "جاري التوليد بالفعل لهذه الفئة", "progress": generation_progress[progress_key]}
     
-    background_tasks.add_task(run_story_generation, category, count, admin.get("email", ""))
-    return {"success": True, "message": f"بدأ توليد {count} قصة في فئة {STORY_CATEGORIES_INFO[category]['label']}", "category": category}
+    background_tasks.add_task(run_story_generation, category, count, admin.get("email", ""), lang)
+    return {"success": True, "message": f"بدأ توليد {count} قصة في فئة {STORY_CATEGORIES_INFO[category]['label']} ({lang})", "category": category}
 
 @router.get("/admin/generate-stories/progress")
 async def admin_get_generation_progress(admin=Depends(get_admin_user)):
@@ -1040,12 +1063,19 @@ async def admin_get_generation_progress(admin=Depends(get_admin_user)):
 
 @router.post("/admin/generate-stories/all")
 async def admin_generate_all_stories(data: dict, background_tasks: BackgroundTasks, admin=Depends(get_admin_user)):
-    """Generate stories for all categories"""
+    """Generate stories for all categories in all languages"""
     count_per_cat = min(data.get("count_per_category", 150), 150)
+    languages = data.get("languages", ["ar"])
     
-    for cat in STORY_CATEGORIES_INFO:
-        if cat in generation_progress and generation_progress[cat].get("status") == "running":
+    total_tasks = 0
+    for lang in languages:
+        if lang not in SUPPORTED_STORY_LANGS:
             continue
-        background_tasks.add_task(run_story_generation, cat, count_per_cat, admin.get("email", ""))
+        for cat in STORY_CATEGORIES_INFO:
+            progress_key = f"{cat}_{lang}"
+            if progress_key in generation_progress and generation_progress[progress_key].get("status") == "running":
+                continue
+            background_tasks.add_task(run_story_generation, cat, count_per_cat, admin.get("email", ""), lang)
+            total_tasks += 1
     
-    return {"success": True, "message": f"بدأ توليد {count_per_cat} قصة لكل فئة ({len(STORY_CATEGORIES_INFO)} فئات)"}
+    return {"success": True, "message": f"بدأ توليد {count_per_cat} قصة × {len(languages)} لغة × {len(STORY_CATEGORIES_INFO)} فئة = {total_tasks} مهمة"}
