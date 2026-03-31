@@ -130,35 +130,34 @@ export function PermissionManager() {
   );
 
   useEffect(() => {
+    // Only show once ever - don't keep pestering users
     const dismissed = localStorage.getItem(PERMISSION_DISMISSED_KEY);
     if (dismissed === 'true') return;
 
     const checked = localStorage.getItem(PERMISSION_CHECK_KEY);
     if (checked) {
-      const lastCheck = parseInt(checked, 10);
-      // Don't re-check within 24 hours if user hasn't granted
-      if (Date.now() - lastCheck < 86400000) return;
+      // Don't re-check - user already handled this
+      return;
     }
 
     const checkAll = async () => {
-      const [loc, notif, stor] = await Promise.all([
+      const [loc, notif] = await Promise.all([
         checkPermissionStatus('location'),
         checkPermissionStatus('notifications'),
-        checkPermissionStatus('storage'),
       ]);
 
       const newState: PermissionState = {
         location: loc,
         notifications: notif,
-        storage: stor,
+        storage: 'granted', // Skip storage permission
       };
       setPermStates(newState);
 
       // Show UI only if there are permissions to request
       const hasPending = [loc, notif].some((s) => s === 'prompt');
       if (hasPending) {
-        // Show quickly after initial load
-        setTimeout(() => setVisible(true), 1500);
+        // Show after a longer delay
+        setTimeout(() => setVisible(true), 3000);
       }
 
       localStorage.setItem(PERMISSION_CHECK_KEY, String(Date.now()));
@@ -198,8 +197,8 @@ export function PermissionManager() {
       setCurrentStep((prev) => prev + 1);
     } else {
       setVisible(false);
-      // All permissions skipped — don't show again for 24h
-      localStorage.setItem(PERMISSION_CHECK_KEY, String(Date.now()));
+      // All permissions skipped — don't show again
+      localStorage.setItem(PERMISSION_DISMISSED_KEY, 'true');
     }
   }, [currentStep, pendingPermissions]);
 

@@ -1,9 +1,6 @@
 import { ReactNode, useEffect } from 'react';
 import { BottomNav } from './BottomNav';
 import { TopNav } from './TopNav';
-import InstallBanner from '@/components/InstallBanner';
-import { PopUnderLoader } from '@/components/AdBanner';
-import { useDailyReminders } from '@/hooks/useDailyReminders';
 import { PWAUpdatePrompt } from '@/components/PWAUpdatePrompt';
 import OfflineIndicator from '@/components/OfflineIndicator';
 import { preloadSelectedAthan } from '@/lib/athanAudio';
@@ -14,7 +11,6 @@ import { isNativeApp } from '@/lib/nativeBridge';
 const CUSTOM_HEADER_PAGES = ['/auth', '/admin', '/stories', '/explore', '/profile', '/more', '/about', '/privacy', '/contact', '/donations', '/social-profile', '/reels', '/create-post', '/terms', '/delete-data', '/content-policy'];
 
 export function AppLayout({ children }: { children: ReactNode }) {
-  useDailyReminders();
   const location = useLocation();
   const showTopNav = !CUSTOM_HEADER_PAGES.some(p => location.pathname.startsWith(p));
   const isNative = isNativeApp();
@@ -39,8 +35,6 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <main className="w-full overflow-x-hidden pb-20">{children}</main>
       <BottomNav />
       {/* Web-only components - hidden in native app mode */}
-      {!isNative && <InstallBanner />}
-      {!isNative && <PopUnderLoader />}
       {!isNative && <PWAUpdatePrompt />}
       <OfflineIndicator />
     </div>

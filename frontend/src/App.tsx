@@ -19,9 +19,6 @@ import { isNativeApp } from "@/lib/nativeBridge";
 import SplashScreen from "@/components/SplashScreen";
 import PageLoader from "@/components/PageLoader";
 import ScrollToTop from "@/components/ScrollToTop";
-import CookieConsent from "@/components/CookieConsent";
-import GDPRAdConsent from "@/components/GDPRAdConsent";
-import AnalyticsTracker from "@/components/AnalyticsTracker";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import AgeGate, { hasPassedAgeGate } from "@/components/AgeGate";
 import OfflineNotice from "@/components/OfflineNotice";
@@ -166,7 +163,6 @@ const App = () => {
                     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                       <NativeAppProvider>
                         <ScrollToTop />
-                        <AnalyticsTracker />
                         <SEOWrapper>
                           <PermissionManager />
                           <AppLayout>
@@ -231,9 +227,6 @@ const App = () => {
                               </Suspense>
                             </ErrorBoundary>
                           </AppLayout>
-                          {/* Web-only overlays */}
-                          {!isNative && <CookieConsent />}
-                          <GDPRAdConsent />
                           <OfflineNotice />
                           {/* Native-only components */}
                           {isNative && <RateApp />}

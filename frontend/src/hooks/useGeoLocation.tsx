@@ -100,12 +100,12 @@ export function useGeoLocation() {
     } catch {}
 
     return {
-      latitude: 0,
-      longitude: 0,
-      city: '',
-      country: '',
-      countryCode: '',
-      calculationMethod: 3,
+      latitude: 21.4225,
+      longitude: 39.8262,
+      city: 'مكة المكرمة',
+      country: 'السعودية',
+      countryCode: 'SA',
+      calculationMethod: 4,
       school: 0,
       loading: true,
       error: null,
@@ -136,10 +136,31 @@ export function useGeoLocation() {
             error: null,
           }));
         } else {
-          setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
+          // Fallback to Mecca
+          setLocation({
+            latitude: 21.4225,
+            longitude: 39.8262,
+            city: 'مكة المكرمة',
+            country: 'السعودية',
+            countryCode: 'SA',
+            calculationMethod: 4,
+            school: 0,
+            loading: false,
+            error: null,
+          });
         }
       }).catch(() => {
-        setLocation(prev => ({ ...prev, loading: false, error: '__LOCATION_ERROR__' }));
+        setLocation({
+          latitude: 21.4225,
+          longitude: 39.8262,
+          city: 'مكة المكرمة',
+          country: 'السعودية',
+          countryCode: 'SA',
+          calculationMethod: 4,
+          school: 0,
+          loading: false,
+          error: null,
+        });
       });
       return;
     }
@@ -200,12 +221,37 @@ export function useGeoLocation() {
         }
       },
       () => {
-        // If user denies location, use cached coordinates if available, otherwise show error
-        setLocation(prev => ({
-          ...prev,
-          loading: false,
-          error: (prev.latitude !== 0 || prev.longitude !== 0) ? null : '__LOCATION_ERROR__',
-        }));
+        // If user denies location, use Mecca as default fallback
+        setLocation(prev => {
+          if (prev.latitude !== 0 || prev.longitude !== 0) {
+            // Use cached location
+            return { ...prev, loading: false, error: null };
+          }
+          // Fallback to Mecca
+          const meccaLocation: LocationData = {
+            latitude: 21.4225,
+            longitude: 39.8262,
+            city: 'مكة المكرمة',
+            country: 'السعودية',
+            countryCode: 'SA',
+            calculationMethod: 4,
+            school: 0,
+            loading: false,
+            error: null,
+          };
+          try {
+            localStorage.setItem('cached-location', JSON.stringify({
+              latitude: meccaLocation.latitude,
+              longitude: meccaLocation.longitude,
+              city: meccaLocation.city,
+              country: meccaLocation.country,
+              countryCode: meccaLocation.countryCode,
+              calculationMethod: meccaLocation.calculationMethod,
+              school: meccaLocation.school,
+            }));
+          } catch {}
+          return meccaLocation;
+        });
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
     );

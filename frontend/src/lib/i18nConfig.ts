@@ -91,25 +91,17 @@ i18n
       el: { translation: elTranslations },
       'de-AT': { translation: deATTranslations },
     },
-    fallbackLng: 'en',
+    fallbackLng: 'ar',
     supportedLngs: SUPPORTED_LANGUAGE_CODES,
     interpolation: {
       escapeValue: false, // React already escapes
     },
     detection: {
-      // Detection order: check URL param first, then manual selection, then browser
-      order: ['querystring', 'localStorage', 'navigator', 'htmlTag'],
+      // Only use user's manual language selection, default to Arabic
+      order: ['localStorage', 'querystring'],
       lookupQuerystring: 'lang',
       lookupLocalStorage: 'user-selected-locale',
       caches: ['localStorage'],
-      // Map browser languages to supported codes
-      convertDetectedLanguage: (lng: string) => {
-        const full = lng.toLowerCase();
-        // Check for Austrian German specifically
-        if (full === 'de-at' || full.startsWith('de-at')) return 'de-AT';
-        const code = full.split('-')[0];
-        return SUPPORTED_LANGUAGE_CODES.includes(code) ? code : 'en';
-      },
     },
     react: {
       useSuspense: false, // Don't suspend - we have our own loading state
