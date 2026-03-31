@@ -6,7 +6,7 @@ Additional testing for report and block-user endpoints with proper request bodie
 import requests
 import json
 
-BACKEND_URL = "https://mobile-deploy-23.preview.emergentagent.com"
+BACKEND_URL = "https://quality-check-app-2.preview.emergentagent.com"
 
 def test_with_body():
     print("🔍 TESTING REPORT AND BLOCK-USER WITH PROPER REQUEST BODIES")

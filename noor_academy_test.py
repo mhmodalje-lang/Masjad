@@ -10,7 +10,7 @@ Test 3: Nooraniya Lessons
 Test 4: Adab (Islamic Manners)
 CRITICAL: Language purity check
 
-Backend URL: https://mobile-deploy-23.preview.emergentagent.com
+Backend URL: https://quality-check-app-2.preview.emergentagent.com
 All API routes have /api prefix
 """
 
@@ -22,7 +22,7 @@ import re
 from typing import Dict, List, Any
 
 # Backend URL from environment
-BACKEND_URL = "https://mobile-deploy-23.preview.emergentagent.com"
+BACKEND_URL = "https://quality-check-app-2.preview.emergentagent.com"
 
 class NoorAcademyTester:
     def __init__(self):

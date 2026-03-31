@@ -4,7 +4,7 @@ V2026 Architecture Update - COMPREHENSIVE API TESTING
 =====================================================
 Tests the COMPLETE Quran + Hadith API for the V2026 Architecture Update.
 
-Base URL: https://mobile-deploy-23.preview.emergentagent.com
+Base URL: https://quality-check-app-2.preview.emergentagent.com
 
 Test Coverage:
 1. CHAPTERS API (all 9 languages)
@@ -21,7 +21,7 @@ from typing import Dict, Any, List
 import time
 
 # Base URL from frontend/.env
-BASE_URL = "https://mobile-deploy-23.preview.emergentagent.com"
+BASE_URL = "https://quality-check-app-2.preview.emergentagent.com"
 
 # All 9 supported languages
 ALL_LANGUAGES = ["ar", "en", "fr", "de", "tr", "ru", "sv", "nl", "el"]
