@@ -10,11 +10,11 @@
  * - Prayer notification scheduling
  */
 
-const APP_SHELL_CACHE = 'app-shell-v7';
-const API_CACHE = 'api-cache-v3';
-const IMAGE_CACHE = 'images-v2';
-const FONT_CACHE = 'fonts-v1';
-const AUDIO_CACHE = 'athan-audio-v2';
+const APP_SHELL_CACHE = 'app-shell-v8';
+const API_CACHE = 'api-cache-v4';
+const IMAGE_CACHE = 'images-v3';
+const FONT_CACHE = 'fonts-v2';
+const AUDIO_CACHE = 'athan-audio-v3';
 
 // ═══ App Shell: Pre-cached on install ═══
 const APP_SHELL_FILES = [
@@ -186,6 +186,22 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) return;
   if (url.hostname.includes('google-analytics') || url.hostname.includes('googletagmanager')) return;
 
+  // ── Skip Vite dev server resources (HMR, source files, pre-bundled deps) ──
+  if (url.pathname.includes('node_modules/') ||
+      url.pathname.startsWith('/@') ||
+      url.pathname.startsWith('/src/') ||
+      url.pathname.includes('__vite') ||
+      url.pathname.includes('.vite/') ||
+      url.pathname.endsWith('.tsx') ||
+      url.pathname.endsWith('.ts') ||
+      url.pathname.endsWith('.jsx') ||
+      url.pathname.endsWith('.map') ||
+      url.search.includes('v=') ||
+      url.search.includes('import') ||
+      url.search.includes('t=')) {
+    return;
+  }
+
   // ── Strategy 1: API calls → Network-first with cache fallback ──
   if (url.pathname.startsWith('/api/') || url.hostname.includes('api.aladhan.com') || url.hostname.includes('api.quran.com')) {
     event.respondWith(networkFirstWithCache(request, API_CACHE));
@@ -303,31 +319,25 @@ function updateCache(request, cacheName) {
 
 /**
  * Handle SPA navigation requests
+ * All routes are treated as SPA routes (network-first with index.html fallback)
  */
 async function handleNavigationRequest(request) {
-  const url = new URL(request.url);
+  // Try network first for ALL navigation requests (SPA)
+  try {
+    const networkResponse = await fetch(request, { signal: AbortSignal.timeout(6000) });
+    if (networkResponse.ok) {
+      const cache = await caches.open(APP_SHELL_CACHE);
+      cache.put('/', networkResponse.clone());
+      return networkResponse;
+    }
+  } catch {}
 
-  // Check if this is a known SPA route
-  const isSPARoute = SPA_ROUTES.some(route => url.pathname.startsWith(route)) || url.pathname === '/';
+  // Fallback to cached index.html
+  const cachedIndex = await caches.match('/');
+  if (cachedIndex) return cachedIndex;
 
-  if (isSPARoute) {
-    // Try network first for HTML
-    try {
-      const networkResponse = await fetch(request, { signal: AbortSignal.timeout(6000) });
-      if (networkResponse.ok) {
-        const cache = await caches.open(APP_SHELL_CACHE);
-        cache.put('/', networkResponse.clone());
-        return networkResponse;
-      }
-    } catch {}
-
-    // Fallback to cached index.html
-    const cachedIndex = await caches.match('/');
-    if (cachedIndex) return cachedIndex;
-
-    const cachedIndexHtml = await caches.match('/index.html');
-    if (cachedIndexHtml) return cachedIndexHtml;
-  }
+  const cachedIndexHtml = await caches.match('/index.html');
+  if (cachedIndexHtml) return cachedIndexHtml;
 
   // Last resort: offline page
   const offlinePage = await caches.match('/offline.html');

@@ -17,7 +17,7 @@ import sys
 from typing import Dict, List, Any
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://quality-check-app-2.preview.emergentagent.com"
+BACKEND_URL = "https://bug-fix-tools.preview.emergentagent.com"
 
 # Languages to test (9 total)
 LANGUAGES = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]

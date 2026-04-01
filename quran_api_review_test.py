@@ -18,7 +18,7 @@ Testing 12 specific scenarios:
 11. Single verse SWEDISH - GET /api/quran/v4/global-verse/1/1?language=sv
 12. Single verse DUTCH - GET /api/quran/v4/global-verse/1/1?language=nl
 
-Backend URL: https://quality-check-app-2.preview.emergentagent.com
+Backend URL: https://bug-fix-tools.preview.emergentagent.com
 """
 
 import asyncio
@@ -29,7 +29,7 @@ import re
 from typing import Dict, List, Any
 
 # Backend URL from environment
-BACKEND_URL = "https://quality-check-app-2.preview.emergentagent.com"
+BACKEND_URL = "https://bug-fix-tools.preview.emergentagent.com"
 
 class QuranAPIReviewTester:
     def __init__(self):

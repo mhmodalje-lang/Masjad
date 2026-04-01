@@ -136,7 +136,7 @@
 - **Failed**: 0 ❌
 - **Critical Issues**: 0
 - **All APIs return valid JSON with no 500 errors**
-- **Backend URL**: https://quality-check-app-2.preview.emergentagent.com/api
+- **Backend URL**: https://bug-fix-tools.preview.emergentagent.com/api
 - **Server Status**: Running smoothly, no errors in logs
 
 ## Frontend Test: ✅ COMPLETED - All major features working

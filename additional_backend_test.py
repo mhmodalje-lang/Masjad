@@ -8,7 +8,7 @@ import requests
 import json
 import sys
 
-BASE_URL = "https://quality-check-app-2.preview.emergentagent.com"
+BASE_URL = "https://bug-fix-tools.preview.emergentagent.com"
 
 def test_additional_endpoints():
     """Test additional endpoints for comprehensive verification"""

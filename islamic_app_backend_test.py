@@ -11,7 +11,7 @@ import re
 from typing import Dict, List, Any
 
 # Configuration
-BASE_URL = "https://quality-check-app-2.preview.emergentagent.com"
+BASE_URL = "https://bug-fix-tools.preview.emergentagent.com"
 TIMEOUT = 30
 
 class IslamicAppTester:
