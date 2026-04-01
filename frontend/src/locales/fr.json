@@ -2780,5 +2780,21 @@
   "refFurqan74": "Al-Furqan: 74",
   "refAlImran8": "Aal Imran: 8",
   "refNaml19": "An-Naml: 19",
-  "refIbrahim41": "Ibrahim: 41"
+  "refIbrahim41": "Ibrahim: 41",
+  "pendingLabel": "En attente de révision",
+  "storyModerationToggle": "Modération des publications",
+  "enableModeration": "Activer la modération - approbation de l'administrateur requise",
+  "pendingStoriesTitle": "Vos histoires en cours de révision",
+  "moderationOffDesc": "Tout le monde peut publier librement",
+  "publishRequiredDesc": "Demandez la permission de publication à l'administrateur",
+  "publishRequestPendingDesc": "Votre demande a été envoyée - vous serez notifié lors de l'approbation",
+  "storyPendingApproval": "Votre histoire a été soumise pour révision - elle sera publiée après approbation",
+  "requestPublish": "Demander la permission de publier",
+  "publishRevoked": "Permission de publication révoquée",
+  "publishRequired": "Vous avez besoin de la permission de l'administrateur pour publier",
+  "pendingStoriesDesc": "Ces histoires attendent l'approbation de l'administrateur",
+  "openForAll": "Publication ouverte à tous",
+  "moderationOnDesc": "La publication nécessite l'approbation de l'administrateur",
+  "publishRequestPending": "Demande de publication en cours de révision",
+  "pendingApproval": "Demandes de publication en attente"
 }

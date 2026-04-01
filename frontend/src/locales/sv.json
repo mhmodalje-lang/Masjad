@@ -2780,5 +2780,21 @@
   "refFurqan74": "Al-Furqan: 74",
   "refAlImran8": "Aal Imran: 8",
   "refNaml19": "An-Naml: 19",
-  "refIbrahim41": "Ibrahim: 41"
+  "refIbrahim41": "Ibrahim: 41",
+  "pendingLabel": "Under granskning",
+  "storyModerationToggle": "Publiceringsgranskning",
+  "enableModeration": "Aktivera granskning - administratörsgodkännande krävs",
+  "pendingStoriesTitle": "Dina berättelser granskas",
+  "moderationOffDesc": "Alla kan publicera fritt",
+  "publishRequiredDesc": "Begär publiceringstillstånd från administratören",
+  "publishRequestPendingDesc": "Din begäran har skickats - du meddelas vid godkännande",
+  "storyPendingApproval": "Din berättelse har skickats för granskning - den publiceras efter godkännande",
+  "requestPublish": "Begär publiceringstillstånd",
+  "publishRevoked": "Publiceringstillstånd återkallat",
+  "publishRequired": "Du behöver administratörsbehörighet för att publicera",
+  "pendingStoriesDesc": "Dessa berättelser väntar på administratörsgodkännande",
+  "openForAll": "Öppen publicering för alla",
+  "moderationOnDesc": "Publicering kräver administratörsgodkännande",
+  "publishRequestPending": "Publiceringsbegäran granskas",
+  "pendingApproval": "Väntande publiceringsbegäranden"
 }

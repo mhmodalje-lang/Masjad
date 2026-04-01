@@ -2780,5 +2780,21 @@
   "refFurqan74": "Al-Furqan: 74",
   "refAlImran8": "Aal Imran: 8",
   "refNaml19": "An-Naml: 19",
-  "refIbrahim41": "Ibrahim: 41"
+  "refIbrahim41": "Ibrahim: 41",
+  "pendingLabel": "Σε αναμονή ελέγχου",
+  "storyModerationToggle": "Εποπτεία δημοσιεύσεων",
+  "enableModeration": "Ενεργοποίηση εποπτείας - απαιτείται έγκριση διαχειριστή",
+  "pendingStoriesTitle": "Οι ιστορίες σας υπό εξέταση",
+  "moderationOffDesc": "Όλοι μπορούν να δημοσιεύσουν ελεύθερα",
+  "publishRequiredDesc": "Ζητήστε άδεια δημοσίευσης από τον διαχειριστή",
+  "publishRequestPendingDesc": "Το αίτημά σας στάλθηκε - θα ειδοποιηθείτε κατά την έγκριση",
+  "storyPendingApproval": "Η ιστορία σας υποβλήθηκε για εξέταση - θα δημοσιευτεί μετά την έγκριση",
+  "requestPublish": "Αίτημα άδειας δημοσίευσης",
+  "publishRevoked": "Η άδεια δημοσίευσης ανακλήθηκε",
+  "publishRequired": "Χρειάζεστε άδεια διαχειριστή για δημοσίευση",
+  "pendingStoriesDesc": "Αυτές οι ιστορίες αναμένουν έγκριση διαχειριστή",
+  "openForAll": "Ανοιχτή δημοσίευση για όλους",
+  "moderationOnDesc": "Η δημοσίευση απαιτεί έγκριση διαχειριστή",
+  "publishRequestPending": "Αίτημα δημοσίευσης υπό εξέταση",
+  "pendingApproval": "Εκκρεμή αιτήματα δημοσίευσης"
 }
