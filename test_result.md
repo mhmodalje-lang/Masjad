@@ -139,57 +139,75 @@
 - **Backend URL**: https://bug-fix-tools.preview.emergentagent.com/api
 - **Server Status**: Running smoothly, no errors in logs
 
-## Frontend Test: ✅ COMPLETED - All major features working
+## Frontend Test: ❌ CRITICAL DEPLOYMENT ISSUE FOUND
 
-### Frontend Test Results (Tested on 2026-03-27)
+### Frontend Test Results (Tested on 2026-04-01)
 
-#### ✅ WORKING FEATURES:
-1. **Age Gate System** - Working correctly
-   - Shows age verification screen on first visit
-   - Stores preference in localStorage
-   - Allows access after selection
+#### 🚨 CRITICAL ISSUE: Frontend Running in DEV Mode in Production
 
-2. **Homepage** - Loads successfully
-   - Islamic content visible (Hadith, Quran verses)
-   - Navigation present and functional
-   - Location detection prompt working
-   - Daily inspiration section visible
+**Root Cause:**
+- Frontend is running Vite dev server (`yarn start`) instead of production build
+- Supervisor config uses `yarn start` which runs `vite --port 3000 --host 0.0.0.0`
+- No production build exists (no `/app/frontend/dist/` directory)
 
-3. **Stories/Hikayat Page** - Fully functional
-   - Successfully loads with 2000+ AI-generated stories
-   - Arabic content displayed correctly
-   - Categories visible (استغفار, صحابة, قرآن, أنبياء, etc.)
-   - Category filtering available
-   - 20+ story cards visible on page
-   - "Log in to post" button shown for non-authenticated users
+**Impact:**
+- 232+ console errors showing 403 Forbidden on Vite dev dependencies
+- 48 network 403 errors on critical JS files:
+  - `/node_modules/.vite/deps/framer-motion.js`
+  - `/node_modules/.vite/deps/lucide-react.js`
+  - `/node_modules/.vite/deps/@radix-ui_react-tooltip.js`
+  - `/src/hooks/usePrayerTimes.tsx`
+  - `/src/components/layout/BottomNav.tsx`
+  - And many more source files
 
-4. **Ad Banner System** - Working on all pages
-   - ✅ Home page: Ad elements present
-   - ✅ Stories page: Ad elements present
-   - ✅ Prayer Times page: Ad elements present
-   - ✅ Quran page: Ad elements present
-   - ✅ Duas page: Ad elements present
+**Test Results: 5/15 Pages Working (33% Pass Rate)**
 
-5. **Admin Dashboard Access Control** - Secure
-   - Redirects to /auth when accessed without authentication
-   - Proper access control in place
+#### ✅ WORKING PAGES (5/15):
+1. **Home** (/) - 1938 chars ✅
+   - Islamic content visible
+   - Navigation functional
+   - Initial bundle loads correctly
 
-6. **Authentication Flow** - Working
-   - Non-logged-in users see "Log in to post" on stories page
-   - Admin dashboard requires authentication
-   - Auth page loads correctly
+2. **More** (/more) - 1053 chars ✅
+   - Page loads with content
+   - Menu items visible
 
-#### ⚠️ MINOR OBSERVATIONS (Not blocking):
-1. **Age Gate Language**: Shows in English instead of Arabic (minor UX issue)
-2. **RTL Layout**: HTML dir attribute is 'ltr' but Arabic content displays correctly
-3. **Console Warnings**: 
-   - Firebase Analytics warnings (expected in dev environment)
-   - DOM nesting warning (minor, doesn't affect functionality)
+3. **Prayer Times** (/prayer-times) - 327 chars ✅
+   - Page loads
+   - Basic content visible
+
+4. **Quran** (/quran) - 3035 chars ✅
+   - Surah list loads
+   - Content displays correctly
+
+5. **Tasbeeh** (/tasbeeh) - 242 chars ✅
+   - Counter interface loads
+   - Basic functionality present
+
+#### ❌ FAILED PAGES (10/15) - All show BLANK SCREENS (0 chars):
+6. **Duas** (/duas) - 0 chars ❌
+7. **Ruqyah** (/ruqyah) - 0 chars ❌
+8. **Stories** (/stories) - 0 chars ❌
+9. **Auth/Login** (/auth) - 0 chars ❌
+10. **AI Assistant** (/ai-assistant) - 0 chars ❌
+11. **Kids Zone** (/kids-zone) - 0 chars ❌
+12. **Baraka Market** (/baraka-market) - 0 chars ❌
+13. **Sohba - Social** (/sohba) - 0 chars ❌
+14. **Donations** (/donations) - 0 chars ❌
+15. **Live Streams** (/live-streams) - 0 chars ❌
+
+**Why These Pages Fail:**
+- Pages use lazy-loaded components (React.lazy)
+- Lazy loading tries to fetch module files from Vite dev server
+- Kubernetes ingress/proxy blocks these paths with 403 Forbidden
+- Components fail to load → blank screen
 
 #### 📊 SUMMARY:
-- **Total Tests**: 7 major test scenarios
-- **Passed**: 7/7 (100%)
-- **Critical Issues**: 0
-- **Minor Issues**: 2 (non-blocking)
-- **Stories in Database**: 2115+ (as per requirements)
-- **Ad System**: Fully integrated and working
+- **Total Pages Tested**: 15
+- **Passed**: 5/15 (33%)
+- **Failed**: 10/15 (67%)
+- **Critical Issues**: 1 (DEV mode in production)
+- **Console Errors**: 232+ (403 Forbidden errors)
+- **Network 403 Errors**: 48 on JS/CSS files
+- **Service Worker**: Properly unregistered during test
+- **Age Gate Bypass**: Working correctly
