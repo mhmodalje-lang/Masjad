@@ -764,9 +764,16 @@ from data.noor_academy_extended import (
     FIQH_ALL_LESSONS,
     SEERAH_ALL_LESSONS
 )
+from data.nooraniya_complete import NOORANIYA_LESSONS_31_70
 
-# Combine Nooraniya lessons from both modules
-NOORANIYA_LESSONS = NOORANIYA_BASE_LESSONS + NOORANIYA_ALL_LESSONS_EXTENDED
+# Combine Nooraniya lessons: base (1-10) + extended (11-30) + complete (31-70)
+# Filter out placeholder lessons from base+extended that are now replaced
+_base_and_ext = NOORANIYA_BASE_LESSONS + NOORANIYA_ALL_LESSONS_EXTENDED
+_real_lessons = [l for l in _base_and_ext if l.get("content", {}).get("status") != "placeholder"]
+_real_ids = {l["id"] for l in _real_lessons}
+_new_lessons = [l for l in NOORANIYA_LESSONS_31_70 if l["id"] not in _real_ids]
+NOORANIYA_LESSONS = _real_lessons + _new_lessons
+NOORANIYA_LESSONS.sort(key=lambda x: x["id"])
 
 SUPPORTED_LANGS = ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"]
 
