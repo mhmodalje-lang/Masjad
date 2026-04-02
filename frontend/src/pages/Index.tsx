@@ -6,7 +6,6 @@ import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { useUnifiedPrayer } from '@/hooks/useUnifiedPrayer';
 import { useAthanNotifications, requestNotificationPermission } from '@/hooks/useAthanNotifications';
-import OccasionAthanAlert from '@/components/OccasionAthanAlert';
 import OccasionBanner from '@/components/OccasionBanner';
 import DailyGoals from '@/components/DailyGoals';
 import NotificationCard from '@/components/NotificationCard';
@@ -197,14 +196,6 @@ export default function Index() {
   return (
     <div className="min-h-screen pb-24" dir={isRTL ? 'rtl' : 'ltr'}>
       <DuaOfDayDrawer open={duaDrawerOpen} onOpenChange={setDuaDrawerOpen} />
-      {alertPrayer && (
-        <OccasionAthanAlert
-          prayerKey={alertPrayer.key}
-          prayerTime={alertPrayer.time}
-          occasion={currentOccasion}
-          onDismiss={() => setAlertPrayer(null)}
-        />
-      )}
 
       {/* ===== HERO — Mystic Minimalism ===== */}
       <div className="relative overflow-hidden h-[280px]">

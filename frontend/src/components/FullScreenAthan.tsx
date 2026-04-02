@@ -1,33 +1,40 @@
 /**
- * 🕌 Full-Screen Athan Experience
- * ================================
- * - Immersive full-screen overlay with beautiful mosque visuals
- * - Wake Lock to keep screen on during athan
- * - Alarm-like audio behavior (not media player)
- * - Works from ANY page (mounted in AppLayout)
- * - Auto-dismiss after full athan (5 min) or user interaction
+ * 🕌 Full-Screen Athan — Premium Immersive Experience
+ * ====================================================
+ * - Mecca image with slow cinematic zoom
+ * - Wake Lock + Fullscreen API
+ * - Alarm-like vibration & audio
+ * - "ادعو لوالدي بالرحمة" message
+ * - Works from ANY page
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Volume2, VolumeX, Moon, Sun } from 'lucide-react';
-import { stopAthan, playAthan, getSelectedAthan } from '@/lib/athanAudio';
+import { X, Volume2, VolumeX } from 'lucide-react';
+import { stopAthan, playAthan } from '@/lib/athanAudio';
 import { useLocale } from '@/hooks/useLocale';
-
-// Prayer-specific themes
-const PRAYER_THEMES: Record<string, { gradient: string; bg: string; icon: string; pattern: string }> = {
-  fajr:    { gradient: 'from-indigo-950 via-purple-950 to-blue-950', bg: '#1a0533', icon: '🌅', pattern: 'radial-gradient(circle at 50% 30%, rgba(99,102,241,0.15), transparent 70%)' },
-  dhuhr:   { gradient: 'from-amber-900 via-orange-950 to-yellow-950', bg: '#2d1800', icon: '☀️', pattern: 'radial-gradient(circle at 50% 30%, rgba(245,158,11,0.15), transparent 70%)' },
-  asr:     { gradient: 'from-sky-950 via-blue-950 to-indigo-950', bg: '#001233', icon: '🌤️', pattern: 'radial-gradient(circle at 50% 30%, rgba(14,165,233,0.12), transparent 70%)' },
-  maghrib: { gradient: 'from-orange-950 via-red-950 to-purple-950', bg: '#1a0a00', icon: '🌇', pattern: 'radial-gradient(circle at 50% 30%, rgba(234,88,12,0.15), transparent 70%)' },
-  isha:    { gradient: 'from-slate-950 via-gray-950 to-zinc-950', bg: '#0a0a0f', icon: '🌙', pattern: 'radial-gradient(circle at 50% 30%, rgba(99,102,241,0.1), transparent 70%)' },
-};
 
 const PRAYER_NAMES: Record<string, Record<string, string>> = {
   fajr:    { ar: 'الفجر', en: 'Fajr', tr: 'Sabah', fr: "L'Aube", de: 'Fajr', ru: 'Фаджр', sv: 'Fajr', nl: 'Fajr', el: 'Φάτζρ' },
-  dhuhr:   { ar: 'الظهر', en: 'Dhuhr', tr: 'Öğle', fr: 'Midi', de: 'Dhuhr', ru: 'Зухр', sv: 'Dhuhr', nl: 'Dhuhr', el: 'Ζουχρ' },
-  asr:     { ar: 'العصر', en: 'Asr', tr: 'İkindi', fr: "L'Après-midi", de: 'Asr', ru: 'Аср', sv: 'Asr', nl: 'Asr', el: 'Ασρ' },
-  maghrib: { ar: 'المغرب', en: 'Maghrib', tr: 'Akşam', fr: 'Coucher', de: 'Maghrib', ru: 'Магриб', sv: 'Maghrib', nl: 'Maghrib', el: 'Μαγκρίμπ' },
-  isha:    { ar: 'العشاء', en: 'Isha', tr: 'Yatsı', fr: 'Nuit', de: 'Isha', ru: 'Иша', sv: 'Isha', nl: 'Isha', el: 'Ίσα' },
+  dhuhr:   { ar: 'الظهر', en: 'Dhuhr', tr: 'Öğle', fr: 'Dhuhr', de: 'Dhuhr', ru: 'Зухр', sv: 'Dhuhr', nl: 'Dhuhr', el: 'Ζουχρ' },
+  asr:     { ar: 'العصر', en: 'Asr', tr: 'İkindi', fr: 'Asr', de: 'Asr', ru: 'Аср', sv: 'Asr', nl: 'Asr', el: 'Ασρ' },
+  maghrib: { ar: 'المغرب', en: 'Maghrib', tr: 'Akşam', fr: 'Maghrib', de: 'Maghrib', ru: 'Магриб', sv: 'Maghrib', nl: 'Maghrib', el: 'Μαγκρίμπ' },
+  isha:    { ar: 'العشاء', en: 'Isha', tr: 'Yatsı', fr: 'Isha', de: 'Isha', ru: 'Иша', sv: 'Isha', nl: 'Isha', el: 'Ίσα' },
+};
+
+const PRAYER_ICONS: Record<string, string> = {
+  fajr: '🌅', dhuhr: '☀️', asr: '🌤️', maghrib: '🌇', isha: '🌙',
+};
+
+const DUA_PARENTS: Record<string, string> = {
+  ar: 'اللهم ارحم والديّ كما ربياني صغيرًا 🤲',
+  en: 'O Allah, have mercy on my parents as they raised me when I was small 🤲',
+  tr: "Allah'ım, beni küçükken yetiştirdikleri gibi anne babama merhamet et 🤲",
+  fr: "Ô Allah, aie pitié de mes parents comme ils m'ont élevé petit 🤲",
+  de: 'O Allah, erbarme Dich meiner Eltern, wie sie mich als Kind großgezogen haben 🤲',
+  ru: 'О Аллах, помилуй моих родителей, как они растили меня в детстве 🤲',
+  sv: 'O Allah, förbarma dig över mina föräldrar som de uppfostrade mig som liten 🤲',
+  nl: 'O Allah, heb genade met mijn ouders zoals zij mij als kind hebben grootgebracht 🤲',
+  el: 'Ω Αλλάχ, ελέησε τους γονείς μου όπως με μεγάλωσαν μικρό 🤲',
 };
 
 interface FullScreenAthanProps {
@@ -42,93 +49,65 @@ export default function FullScreenAthan({ prayerKey, prayerTime, onDismiss }: Fu
   const [elapsed, setElapsed] = useState(0);
   const [muted, setMuted] = useState(false);
   const wakeLockRef = useRef<any>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const vibIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Activate full-screen athan
   useEffect(() => {
     if (prayerKey) {
       setVisible(true);
       setElapsed(0);
+      setMuted(false);
       acquireWakeLock();
       requestFullscreen();
-      // Start athan audio with alarm-like behavior
       startAthanAudio(prayerKey);
-      // Start elapsed timer
-      timerRef.current = setInterval(() => {
-        setElapsed(prev => prev + 1);
-      }, 1000);
+      timerRef.current = setInterval(() => setElapsed(prev => prev + 1), 1000);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [prayerKey]);
 
-  // Auto-dismiss after 5 minutes
   useEffect(() => {
     if (!visible) return;
     const timer = setTimeout(() => handleDismiss(), 5 * 60 * 1000);
     return () => clearTimeout(timer);
   }, [visible]);
 
-  // Wake Lock API - keeps screen on
   const acquireWakeLock = async () => {
     try {
       if ('wakeLock' in navigator) {
         wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
-        console.log('[Athan] Wake Lock acquired');
-      }
-    } catch (e) {
-      console.warn('[Athan] Wake Lock failed:', e);
-    }
-  };
-
-  const releaseWakeLock = () => {
-    if (wakeLockRef.current) {
-      wakeLockRef.current.release();
-      wakeLockRef.current = null;
-      console.log('[Athan] Wake Lock released');
-    }
-  };
-
-  // Fullscreen API
-  const requestFullscreen = async () => {
-    try {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        await elem.requestFullscreen();
-      } else if ((elem as any).webkitRequestFullscreen) {
-        await (elem as any).webkitRequestFullscreen();
-      }
-    } catch { /* Fullscreen not available */ }
-  };
-
-  const exitFullscreen = () => {
-    try {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen();
       }
     } catch {}
   };
 
-  // Start Athan audio with alarm behavior
+  const releaseWakeLock = () => {
+    try { wakeLockRef.current?.release(); } catch {}
+    wakeLockRef.current = null;
+  };
+
+  const requestFullscreen = async () => {
+    try {
+      const el = document.documentElement;
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if ((el as any).webkitRequestFullscreen) await (el as any).webkitRequestFullscreen();
+    } catch {}
+  };
+
+  const exitFullscreen = () => {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if ((document as any).webkitExitFullscreen) (document as any).webkitExitFullscreen();
+    } catch {}
+  };
+
   const startAthanAudio = (prayer: string) => {
     stopAthan();
-    const audio = playAthan(prayer);
-    audioRef.current = audio;
-    
-    // Vibrate in alarm pattern
+    playAthan(prayer);
     if ('vibrate' in navigator) {
-      // Continuous alarm-like vibration pattern
-      const vibratePattern = () => {
-        navigator.vibrate([500, 300, 500, 300, 800, 500, 500, 300, 500, 300, 800]);
-      };
-      vibratePattern();
-      // Repeat vibration every 5 seconds
-      const vibInterval = setInterval(vibratePattern, 5000);
-      setTimeout(() => clearInterval(vibInterval), 5 * 60 * 1000);
+      const vibrate = () => navigator.vibrate([500, 200, 500, 200, 800, 400, 500, 200, 500, 200, 800]);
+      vibrate();
+      vibIntervalRef.current = setInterval(vibrate, 6000);
     }
   };
 
@@ -138,27 +117,30 @@ export default function FullScreenAthan({ prayerKey, prayerTime, onDismiss }: Fu
     releaseWakeLock();
     exitFullscreen();
     if (timerRef.current) clearInterval(timerRef.current);
-    navigator.vibrate?.(0); // Stop vibration
-    setTimeout(onDismiss, 400);
+    if (vibIntervalRef.current) clearInterval(vibIntervalRef.current);
+    try { navigator.vibrate?.(0); } catch {}
+    setTimeout(onDismiss, 500);
   }, [onDismiss]);
 
   const toggleMute = () => {
     if (muted) {
-      // Unmute - replay
-      if (prayerKey) startAthanAudio(prayerKey);
+      if (prayerKey) { stopAthan(); playAthan(prayerKey); }
       setMuted(false);
     } else {
       stopAthan();
-      navigator.vibrate?.(0);
+      try { navigator.vibrate?.(0); } catch {}
+      if (vibIntervalRef.current) clearInterval(vibIntervalRef.current);
       setMuted(true);
     }
   };
 
   if (!prayerKey) return null;
-  const theme = PRAYER_THEMES[prayerKey] || PRAYER_THEMES.isha;
-  const prayerName = PRAYER_NAMES[prayerKey]?.[locale] || PRAYER_NAMES[prayerKey]?.ar || prayerKey;
+  const prayerName = PRAYER_NAMES[prayerKey]?.[locale] || PRAYER_NAMES[prayerKey]?.en || prayerKey;
   const arabicName = PRAYER_NAMES[prayerKey]?.ar || '';
-  const formatElapsed = `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, '0')}`;
+  const icon = PRAYER_ICONS[prayerKey] || '🕌';
+  const duaParents = DUA_PARENTS[locale] || DUA_PARENTS.ar;
+  const mm = Math.floor(elapsed / 60);
+  const ss = (elapsed % 60).toString().padStart(2, '0');
 
   return (
     <AnimatePresence>
@@ -167,142 +149,182 @@ export default function FullScreenAthan({ prayerKey, prayerTime, onDismiss }: Fu
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className={`fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-gradient-to-b ${theme.gradient}`}
+          transition={{ duration: 0.6 }}
+          className="fixed inset-0 z-[99999] overflow-hidden"
           dir={dir}
-          style={{ background: theme.bg }}
         >
-          {/* Ambient light effect */}
-          <div className="absolute inset-0" style={{ background: theme.pattern }} />
-          
-          {/* Islamic geometric pattern overlay */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
+          {/* === Mecca Background with Cinematic Slow Zoom === */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ scale: 1 }}
+            animate={{ scale: 1.15 }}
+            transition={{ duration: 60, ease: 'linear' }}
+          >
+            <img
+              src="/mecca-hero.webp"
+              alt="Mecca"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
 
-          {/* Top bar - mute & close */}
-          <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 z-20" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 16px)' }}>
-            <button onClick={toggleMute} className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-transform">
-              {muted ? <VolumeX className="h-5 w-5 text-white/70" /> : <Volume2 className="h-5 w-5 text-white/70" />}
-            </button>
-            <button onClick={handleDismiss} className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-transform">
-              <X className="h-5 w-5 text-white/70" />
-            </button>
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+
+          {/* Golden shimmer at top */}
+          <motion.div
+            className="absolute top-0 left-0 right-0 h-1"
+            style={{ background: 'linear-gradient(90deg, transparent, #d4a843, transparent)' }}
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity }}
+          />
+
+          {/* Top controls */}
+          <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-5 z-30" style={{ paddingTop: 'max(env(safe-area-inset-top, 12px), 16px)' }}>
+            <motion.button
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={toggleMute}
+              className="p-3.5 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 active:scale-90 transition-transform"
+            >
+              {muted ? <VolumeX className="h-5 w-5 text-white/80" /> : <Volume2 className="h-5 w-5 text-white/80" />}
+            </motion.button>
+            <motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={handleDismiss}
+              className="p-3.5 rounded-full bg-black/30 backdrop-blur-xl border border-white/10 active:scale-90 transition-transform"
+            >
+              <X className="h-5 w-5 text-white/80" />
+            </motion.button>
           </div>
 
-          {/* Main content */}
-          <div className="flex flex-col items-center text-center px-8 relative z-10 max-w-md">
-            
-            {/* Mosque silhouette animation */}
-            <motion.div 
-              initial={{ scale: 0.5, opacity: 0 }}
+          {/* === Center Content === */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-20 px-6">
+            {/* Prayer icon with golden glow */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, type: 'spring', damping: 15 }}
-              className="relative mb-8"
+              transition={{ delay: 0.2, type: 'spring', damping: 12 }}
+              className="relative mb-4"
             >
-              {/* Glowing orb behind icon */}
-              <motion.div 
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute inset-0 rounded-full bg-white/10 blur-3xl scale-150"
+              <motion.div
+                animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.5, 0.2] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-0 rounded-full blur-3xl scale-[2]"
+                style={{ background: 'radial-gradient(circle, rgba(212,168,67,0.4), transparent)' }}
               />
-              <span className="text-8xl relative z-10 block">{theme.icon}</span>
+              <span className="text-7xl relative z-10 block drop-shadow-2xl">{icon}</span>
             </motion.div>
 
-            {/* "حان وقت الصلاة" */}
+            {/* حان وقت الصلاة */}
             <motion.p
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 15, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-white/50 text-base font-medium mb-3 tracking-wide"
+              transition={{ delay: 0.4 }}
+              className="text-amber-200/70 text-sm font-medium tracking-[0.2em] uppercase mb-3"
             >
               {t('prayerTimeNow') || 'حان وقت الصلاة'}
             </motion.p>
 
-            {/* Prayer name - large */}
+            {/* Prayer Name — BIG */}
             <motion.h1
-              initial={{ y: 30, opacity: 0 }}
+              initial={{ y: 25, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4, type: 'spring' }}
-              className="text-white text-6xl font-bold mb-2 leading-tight"
+              transition={{ delay: 0.5, type: 'spring' }}
+              className="text-white text-7xl font-black mb-1 drop-shadow-2xl"
+              style={{ textShadow: '0 4px 30px rgba(212,168,67,0.3)' }}
             >
               {locale === 'ar' ? arabicName : prayerName}
             </motion.h1>
 
-            {/* Secondary name */}
+            {/* Arabic subtitle for non-Arabic users */}
             {locale !== 'ar' && (
               <motion.p
-                initial={{ y: 20, opacity: 0 }}
+                initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-white/40 text-2xl font-arabic mb-4"
+                transition={{ delay: 0.6 }}
+                className="text-white/35 text-3xl font-arabic mb-3"
                 dir="rtl"
               >
-                {arabicName}
+                صلاة {arabicName}
               </motion.p>
             )}
 
             {/* Time */}
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.55 }}
-              className="text-white/70 text-4xl font-light tabular-nums mb-8"
-            >
-              {prayerTime}
-            </motion.p>
-
-            {/* Audio indicator with pulse */}
             <motion.div
-              initial={{ y: 20, opacity: 0 }}
+              initial={{ y: 15, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center gap-3 mb-10"
+              transition={{ delay: 0.65 }}
+              className="bg-white/10 backdrop-blur-md rounded-2xl px-8 py-3 border border-white/10 mb-6"
             >
-              {!muted && (
-                <>
-                  {/* Sound wave animation */}
-                  <div className="flex items-end gap-0.5 h-5">
-                    {[0.3, 0.6, 1, 0.7, 0.4, 0.8, 0.5].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        animate={{ scaleY: [h, 1, h] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1 }}
-                        className="w-1 bg-white/40 rounded-full origin-bottom"
-                        style={{ height: '100%' }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-white/40 text-sm">{t('athanPlaying') || 'الأذان يُرفع'}</span>
-                  <span className="text-white/30 text-xs tabular-nums">{formatElapsed}</span>
-                </>
-              )}
-              {muted && (
-                <span className="text-white/30 text-sm">{t('athanMuted') || 'صامت'}</span>
-              )}
+              <span className="text-white/90 text-3xl font-light tabular-nums">{prayerTime}</span>
+            </motion.div>
+
+            {/* Sound wave + timer */}
+            {!muted && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+                className="flex items-center gap-3 mb-6"
+              >
+                <div className="flex items-end gap-[3px] h-6">
+                  {[0.3, 0.6, 1, 0.8, 0.5, 0.9, 0.4, 0.7, 0.6].map((h, i) => (
+                    <motion.div
+                      key={i}
+                      animate={{ scaleY: [h, 1, h] }}
+                      transition={{ duration: 0.6 + i * 0.08, repeat: Infinity, delay: i * 0.05 }}
+                      className="w-[3px] rounded-full origin-bottom"
+                      style={{ height: '100%', background: 'linear-gradient(to top, rgba(212,168,67,0.6), rgba(255,255,255,0.4))' }}
+                    />
+                  ))}
+                </div>
+                <span className="text-white/40 text-sm">{t('athanPlaying') || 'الأذان يُرفع'}</span>
+                <span className="text-white/25 text-xs tabular-nums font-mono">{mm}:{ss}</span>
+              </motion.div>
+            )}
+            {muted && (
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-white/25 text-sm mb-6">
+                {t('athanMuted') || 'صامت'}
+              </motion.p>
+            )}
+
+            {/* === ادعو لوالدي === */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="bg-amber-900/20 backdrop-blur-sm rounded-2xl px-6 py-3 border border-amber-500/15 max-w-sm"
+            >
+              <p className="text-amber-200/80 text-sm text-center leading-relaxed font-medium" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+                {duaParents}
+              </p>
             </motion.div>
           </div>
 
-          {/* Bottom section */}
-          <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-4 z-20" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 20px), 24px)' }}>
+          {/* === Bottom Section === */}
+          <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-3 z-30 px-6" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 16px), 20px)' }}>
             {/* Quranic verse */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="text-white/20 text-xs font-arabic leading-relaxed max-w-xs text-center px-8"
+              transition={{ delay: 1.5 }}
+              className="text-white/15 text-[11px] font-arabic text-center leading-relaxed max-w-xs"
               dir="rtl"
             >
               حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ
             </motion.p>
 
-            {/* Dismiss button */}
+            {/* Stop Athan Button */}
             <motion.button
               initial={{ y: 30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
+              transition={{ delay: 0.9, type: 'spring' }}
               onClick={handleDismiss}
-              className="w-72 bg-white/10 backdrop-blur-md border border-white/15 text-white font-bold rounded-2xl px-10 py-4 text-lg transition-all active:scale-95 hover:bg-white/15"
+              className="w-full max-w-xs py-4 rounded-2xl font-bold text-lg text-white transition-all active:scale-95"
+              style={{ background: 'linear-gradient(135deg, rgba(212,168,67,0.3), rgba(212,168,67,0.15))', border: '1px solid rgba(212,168,67,0.25)', backdropFilter: 'blur(12px)' }}
             >
               {t('stopAthan') || 'إيقاف الأذان'}
             </motion.button>
@@ -311,9 +333,4 @@ export default function FullScreenAthan({ prayerKey, prayerTime, onDismiss }: Fu
       )}
     </AnimatePresence>
   );
-}
-
-// Helper to get saved volume
-function getSavedVolume(): number {
-  return parseFloat(localStorage.getItem('athan-volume') || '0.8');
 }
