@@ -226,9 +226,17 @@ async def admin_list_users(page: int = 1, limit: int = 50, user: dict = Depends(
     cursor = db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit)
     users = await cursor.to_list(length=limit)
     total = await db.users.count_documents({})
+    # Bulk aggregation instead of N+1 queries
+    user_ids = [u["id"] for u in users]
+    post_counts: dict = {}
+    async for doc in db.posts.aggregate([{"$match": {"author_id": {"$in": user_ids}}}, {"$group": {"_id": "$author_id", "count": {"$sum": 1}}}]):
+        post_counts[doc["_id"]] = doc["count"]
+    follower_counts: dict = {}
+    async for doc in db.follows.aggregate([{"$match": {"following_id": {"$in": user_ids}}}, {"$group": {"_id": "$following_id", "count": {"$sum": 1}}}]):
+        follower_counts[doc["_id"]] = doc["count"]
     for u in users:
-        u["posts_count"] = await db.posts.count_documents({"author_id": u["id"]})
-        u["followers_count"] = await db.follows.count_documents({"following_id": u["id"]})
+        u["posts_count"] = post_counts.get(u["id"], 0)
+        u["followers_count"] = follower_counts.get(u["id"], 0)
     return {"users": users, "total": total}
 
 @router.get("/admin/social/stats")

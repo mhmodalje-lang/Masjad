@@ -79,176 +79,90 @@ agenthub/agents/youtube/db
 # Mobile development
 android-sdk/ -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 
 # Uploaded media files
 backend/uploads/
@@ -257,109 +171,55 @@ backend/uploads/
 __pycache__/
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
 -e 
 # Environment files
-*.env
-*.env.*
