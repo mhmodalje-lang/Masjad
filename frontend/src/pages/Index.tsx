@@ -76,33 +76,21 @@ export default function Index() {
   });
 
   const currentOccasion = getCurrentOccasion(hijriMonthNumber, parseInt(hijriDay) || 1);
-  const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const handleAthanAlert = useCallback((prayerKey: string, prayerTime: string) => {
-    setAlertPrayer({ key: prayerKey, time: prayerTime });
-  }, []);
+  // Athan alert is now handled globally in AppLayout via FullScreenAthan
+  // Keep the useAthanNotifications hook to schedule timers
+  useAthanNotifications(prayers, notificationsEnabled);
 
+  // Handle athan_prayer search params (from notification click)
   useEffect(() => {
     const prayer = searchParams.get('athan_prayer');
     const time = searchParams.get('athan_time');
     if (prayer && time) {
-      setAlertPrayer({ key: prayer, time });
       searchParams.delete('athan_prayer');
       searchParams.delete('athan_time');
       setSearchParams(searchParams, { replace: true });
     }
-  }, []);
-
-  useEffect(() => {
-    if (!('serviceWorker' in navigator)) return;
-    const handler = (event: MessageEvent) => {
-      if (event.data?.type === 'ATHAN_ALERT') {
-        setAlertPrayer({ key: event.data.prayer, time: event.data.time });
-      }
-    };
-    navigator.serviceWorker.addEventListener('message', handler);
-    return () => navigator.serviceWorker.removeEventListener('message', handler);
   }, []);
 
   const [prayersDone, setPrayersDone] = useState(0);
@@ -131,7 +119,7 @@ export default function Index() {
     setProgress(Math.max(0, Math.min(1, 1 - totalSecs / maxSecs)));
   }, [remaining, nextPrayer]);
 
-  useAthanNotifications(prayers, notificationsEnabled, handleAthanAlert);
+  // Athan notifications scheduling (alert callback handled in AppLayout)
 
   useEffect(() => {
     if (notificationsEnabled && latitude && longitude && !locationLoading) {

@@ -2796,5 +2796,7 @@
   "openForAll": "Herkese açık yayın",
   "moderationOnDesc": "Yayın yönetici onayı gerektirir",
   "publishRequestPending": "Yayın talebi inceleniyor",
-  "pendingApproval": "Bekleyen yayın talepleri"
+  "pendingApproval": "Bekleyen yayın talepleri",
+  "stopAthan": "Ezanı Durdur",
+  "athanMuted": "Sessiz"
 }

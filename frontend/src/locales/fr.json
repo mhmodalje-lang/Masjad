@@ -2796,5 +2796,7 @@
   "openForAll": "Publication ouverte à tous",
   "moderationOnDesc": "La publication nécessite l'approbation de l'administrateur",
   "publishRequestPending": "Demande de publication en cours de révision",
-  "pendingApproval": "Demandes de publication en attente"
+  "pendingApproval": "Demandes de publication en attente",
+  "stopAthan": "Arrêter l'Adhan",
+  "athanMuted": "Muet"
 }

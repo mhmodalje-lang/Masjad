@@ -2796,5 +2796,7 @@
   "openForAll": "Open publicatie voor iedereen",
   "moderationOnDesc": "Publicatie vereist goedkeuring van de beheerder",
   "publishRequestPending": "Publicatieverzoek wordt beoordeeld",
-  "pendingApproval": "Wachtende publicatieverzoeken"
+  "pendingApproval": "Wachtende publicatieverzoeken",
+  "stopAthan": "Athan stoppen",
+  "athanMuted": "Gedempt"
 }

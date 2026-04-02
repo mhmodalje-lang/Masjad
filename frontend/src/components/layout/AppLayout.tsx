@@ -1,9 +1,11 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState, useCallback } from 'react';
 import { BottomNav } from './BottomNav';
 import { TopNav } from './TopNav';
 import { PWAUpdatePrompt } from '@/components/PWAUpdatePrompt';
 import OfflineIndicator from '@/components/OfflineIndicator';
+import FullScreenAthan from '@/components/FullScreenAthan';
 import { preloadSelectedAthan } from '@/lib/athanAudio';
+import { setAthanAlertCallback } from '@/lib/prayerNotifications';
 import { useLocation } from 'react-router-dom';
 import { isNativeApp } from '@/lib/nativeBridge';
 
@@ -14,6 +16,35 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const showTopNav = !CUSTOM_HEADER_PAGES.some(p => location.pathname.startsWith(p));
   const isNative = isNativeApp();
+  const [alertPrayer, setAlertPrayer] = useState<{ key: string; time: string } | null>(null);
+
+  // Register global athan alert callback — works from ANY page
+  useEffect(() => {
+    const callback = (prayerKey: string, prayerTime: string) => {
+      setAlertPrayer({ key: prayerKey, time: prayerTime });
+    };
+    setAthanAlertCallback(callback);
+
+    // Also listen for SW messages
+    if ('serviceWorker' in navigator) {
+      const handler = (event: MessageEvent) => {
+        if (event.data?.type === 'ATHAN_ALERT') {
+          setAlertPrayer({ key: event.data.prayer, time: event.data.time });
+        }
+      };
+      navigator.serviceWorker.addEventListener('message', handler);
+      return () => {
+        setAthanAlertCallback(null);
+        navigator.serviceWorker.removeEventListener('message', handler);
+      };
+    }
+
+    return () => setAthanAlertCallback(null);
+  }, []);
+
+  const handleDismissAthan = useCallback(() => {
+    setAlertPrayer(null);
+  }, []);
 
   useEffect(() => {
     const handler = () => {
@@ -37,6 +68,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {/* Web-only components - hidden in native app mode */}
       {!isNative && <PWAUpdatePrompt />}
       <OfflineIndicator />
+      {/* Full-Screen Athan — works on ALL pages */}
+      <FullScreenAthan
+        prayerKey={alertPrayer?.key || null}
+        prayerTime={alertPrayer?.time || ''}
+        onDismiss={handleDismissAthan}
+      />
     </div>
   );
 }

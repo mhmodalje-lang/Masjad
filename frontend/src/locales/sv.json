@@ -2796,5 +2796,7 @@
   "openForAll": "Öppen publicering för alla",
   "moderationOnDesc": "Publicering kräver administratörsgodkännande",
   "publishRequestPending": "Publiceringsbegäran granskas",
-  "pendingApproval": "Väntande publiceringsbegäranden"
+  "pendingApproval": "Väntande publiceringsbegäranden",
+  "stopAthan": "Stoppa Athan",
+  "athanMuted": "Tyst"
 }

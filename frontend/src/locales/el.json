@@ -2796,5 +2796,7 @@
   "openForAll": "Ανοιχτή δημοσίευση για όλους",
   "moderationOnDesc": "Η δημοσίευση απαιτεί έγκριση διαχειριστή",
   "publishRequestPending": "Αίτημα δημοσίευσης υπό εξέταση",
-  "pendingApproval": "Εκκρεμή αιτήματα δημοσίευσης"
+  "pendingApproval": "Εκκρεμή αιτήματα δημοσίευσης",
+  "stopAthan": "Σταμάτα Αζάν",
+  "athanMuted": "Σίγαση"
 }

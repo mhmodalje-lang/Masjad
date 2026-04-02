@@ -2796,5 +2796,7 @@
   "publishRequired": "You need admin permission to publish",
   "publishRequestPendingDesc": "Your request has been sent - you will be notified upon approval",
   "publishRequiredDesc": "Request publishing permission from admin to publish stories",
-  "requestPublish": "Request publish permission"
+  "requestPublish": "Request publish permission",
+  "stopAthan": "Stop Athan",
+  "athanMuted": "Muted"
 }

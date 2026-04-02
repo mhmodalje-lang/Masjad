@@ -2796,5 +2796,7 @@
   "openForAll": "Veröffentlichung für alle öffnen",
   "moderationOnDesc": "Veröffentlichung erfordert Admin-Genehmigung",
   "publishRequestPending": "Veröffentlichungsanfrage wird überprüft",
-  "pendingApproval": "Ausstehende Veröffentlichungsanfragen"
+  "pendingApproval": "Ausstehende Veröffentlichungsanfragen",
+  "stopAthan": "Athan stoppen",
+  "athanMuted": "Stumm"
 }
