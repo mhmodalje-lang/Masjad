@@ -137,7 +137,7 @@ class TestSohbaAPIs:
             assert response.status_code == 200
             data = response.json()
             assert "comments" in data
-            print(f"✅ Post comments API working")
+            print("✅ Post comments API working")
         else:
             pytest.skip("No posts available to test comments")
     

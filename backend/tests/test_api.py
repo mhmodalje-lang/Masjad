@@ -232,7 +232,7 @@ class TestAuthEndpoints:
         assert "user" in data
         assert data["user"]["email"] == test_email.lower()
         
-        print(f"✅ User login successful")
+        print("✅ User login successful")
     
     def test_login_invalid_credentials(self):
         """Test login with wrong password returns 401"""

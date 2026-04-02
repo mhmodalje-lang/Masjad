@@ -422,7 +422,7 @@ for lid, ar_title, en_title, ar_desc in tajweed_topics:
                 {"type": "practice_verse", "instruction": {"ar": "طبّق القاعدة على آية", "en": "Apply the rule on a verse"}},
             ],
         },
-        "quiz": {"type": "select", "question": {"ar": f"ما حكم النون الساكنة في هذا المثال؟", "en": f"What is the rule for Noon Sakinah in this example?"}, "correct": {"ar": "إظهار", "en": "Izhar (clear)"}, "options": [{"ar": "إظهار", "en": "Izhar"}, {"ar": "إدغام", "en": "Idgham"}, {"ar": "إخفاء", "en": "Ikhfa"}]} if lid < 69 else {"type": "comprehensive", "sections": []},
+        "quiz": {"type": "select", "question": {"ar": "ما حكم النون الساكنة في هذا المثال؟", "en": "What is the rule for Noon Sakinah in this example?"}, "correct": {"ar": "إظهار", "en": "Izhar (clear)"}, "options": [{"ar": "إظهار", "en": "Izhar"}, {"ar": "إدغام", "en": "Idgham"}, {"ar": "إخفاء", "en": "Ikhfa"}]} if lid < 69 else {"type": "comprehensive", "sections": []},
     })
 
 # Combined export

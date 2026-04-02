@@ -254,7 +254,7 @@ class TestSohbaInteractions:
         comments = get_response.json()["comments"]
         comment_ids = [c["id"] for c in comments]
         assert data["comment"]["id"] in comment_ids
-        print(f"✅ Verified comment exists in comments list")
+        print("✅ Verified comment exists in comments list")
 
 
 class TestSohbaMyStats:

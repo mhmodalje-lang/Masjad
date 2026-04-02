@@ -54,7 +54,7 @@ class TestAuthEndpoints:
         assert "user" in data, "Missing user in response"
         assert data["token_type"] == "bearer"
         assert data["user"]["email"] == ADMIN_EMAIL
-        print(f"✅ Admin login successful, token received")
+        print("✅ Admin login successful, token received")
 
     def test_login_with_invalid_credentials(self):
         """Test login with wrong credentials returns 401"""
@@ -63,7 +63,7 @@ class TestAuthEndpoints:
             json={"email": "wrong@email.com", "password": "wrongpassword"}
         )
         assert response.status_code == 401
-        print(f"✅ Invalid login correctly rejected with 401")
+        print("✅ Invalid login correctly rejected with 401")
 
     def test_register_new_user(self):
         """Test POST /api/auth/register creates new user"""
@@ -96,7 +96,7 @@ class TestAuthEndpoints:
             json={"email": test_email, "password": "testpass123"}
         )
         assert response.status_code == 400
-        print(f"✅ Duplicate email registration correctly rejected")
+        print("✅ Duplicate email registration correctly rejected")
 
     def test_auth_me_with_valid_token(self):
         """Test GET /api/auth/me with valid token returns user info"""
@@ -123,7 +123,7 @@ class TestAuthEndpoints:
         """Test GET /api/auth/me without token returns 401"""
         response = requests.get(f"{BASE_URL}/api/auth/me")
         assert response.status_code == 401
-        print(f"✅ Auth/me without token correctly rejected")
+        print("✅ Auth/me without token correctly rejected")
 
 
 class TestAdminEndpoints:
@@ -177,13 +177,13 @@ class TestAdminEndpoints:
             headers={"Authorization": f"Bearer {token}"}
         )
         assert response.status_code == 403
-        print(f"✅ Non-admin correctly rejected from admin stats")
+        print("✅ Non-admin correctly rejected from admin stats")
 
     def test_admin_stats_without_token(self):
         """Test GET /api/admin/stats without token returns 401"""
         response = requests.get(f"{BASE_URL}/api/admin/stats")
         assert response.status_code == 401
-        print(f"✅ Admin stats without token correctly rejected")
+        print("✅ Admin stats without token correctly rejected")
 
 
 class TestPrayerTimesAPI:
@@ -216,7 +216,7 @@ class TestPrayerTimesAPI:
         """Test prayer times without required params returns error"""
         response = requests.get(f"{BASE_URL}/api/prayer-times")
         assert response.status_code == 422  # Validation error
-        print(f"✅ Missing params correctly rejected")
+        print("✅ Missing params correctly rejected")
 
 
 class TestHijriDateAPI:

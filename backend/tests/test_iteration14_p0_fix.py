@@ -237,7 +237,7 @@ class TestExistingCredentials:
         
         # If user doesn't exist, register them
         if response.status_code == 401:
-            reg_res = session.post(f"{BASE_URL}/api/auth/register", json={
+            session.post(f"{BASE_URL}/api/auth/register", json={
                 "email": "testpub123@test.com",
                 "password": "Test123!",
                 "name": "Test Publisher"
@@ -253,7 +253,7 @@ class TestExistingCredentials:
         
         data = response.json()
         assert "access_token" in data or "token" in data
-        print(f"✅ Login successful for testpub123@test.com")
+        print("✅ Login successful for testpub123@test.com")
         return data.get("access_token") or data.get("token")
     
     def test_create_story_with_test_user(self):
@@ -269,7 +269,7 @@ class TestExistingCredentials:
         
         if login_res.status_code != 200:
             # Register if needed
-            reg_res = session.post(f"{BASE_URL}/api/auth/register", json={
+            session.post(f"{BASE_URL}/api/auth/register", json={
                 "email": "testpub123@test.com",
                 "password": "Test123!",
                 "name": "Test Publisher"

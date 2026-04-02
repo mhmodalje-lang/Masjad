@@ -276,7 +276,7 @@ class TestAIAssistant:
         # AI may return error in test env, but endpoint should work
         assert "answer" in data or "error" in data
         if data.get("answer"):
-            print(f"✅ AI responded with answer")
+            print("✅ AI responded with answer")
         elif data.get("error"):
             print(f"✅ AI endpoint working (may have error in test env: {data.get('error')})")
         else:

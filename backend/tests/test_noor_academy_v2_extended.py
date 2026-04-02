@@ -36,7 +36,7 @@ class TestAcademyOverview:
         assert data["success"] == True
         assert "tracks" in data
         assert len(data["tracks"]) == 5
-        print(f"✓ Academy overview returns 5 tracks")
+        print("✓ Academy overview returns 5 tracks")
     
     def test_academy_overview_track_ids(self):
         """Verify all 5 track IDs are present"""
@@ -122,7 +122,7 @@ class TestAqeedahTrack:
         lesson = data["lesson"]
         assert lesson["level"] == 2
         # Level 2 lessons should have actual content (not placeholder)
-        content = lesson.get("content", {})
+        _ = lesson.get("content", {})
         # Check if it's not a placeholder
         is_placeholder = content.get("placeholder", False) or content.get("status") == "placeholder"
         print(f"✓ Aqeedah lesson 11: Level {lesson['level']}, placeholder={is_placeholder}")
@@ -173,14 +173,14 @@ class TestFiqhTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/fiqh/lesson/1?locale=en")
         data = response.json()
         lesson = data["lesson"]
-        content = lesson.get("content", {})
+        _ = lesson.get("content", {})
         
         # Check structure
         assert "title" in lesson
         assert "method" in lesson
         assert "xp" in lesson
         assert "quiz" in lesson
-        print(f"✓ Fiqh lesson structure correct: title, method, xp, quiz present")
+        print("✓ Fiqh lesson structure correct: title, method, xp, quiz present")
 
 
 class TestSeerahTrack:
@@ -233,12 +233,12 @@ class TestNooraniyaTrack:
         assert response.status_code == 200
         data = response.json()
         lesson = data["lesson"]
-        content = lesson.get("content", {})
+        _ = lesson.get("content", {})
         
         # Level 1-3 should have actual content
         is_placeholder = content.get("placeholder", False) or content.get("status") == "placeholder"
         assert is_placeholder == False, "Nooraniya L1 should have actual content"
-        print(f"✓ Nooraniya lesson 1 has rich content (not placeholder)")
+        print("✓ Nooraniya lesson 1 has rich content (not placeholder)")
     
     def test_nooraniya_extended_lesson_40(self):
         """Test Nooraniya extended lesson (Level 4+)"""
@@ -335,7 +335,7 @@ class TestLanguageSupport:
         data = response.json()
         # Should fallback to English
         assert data["language"] == "en"
-        print(f"✓ Unknown locale 'xyz' falls back to English")
+        print("✓ Unknown locale 'xyz' falls back to English")
     
     def test_de_AT_maps_to_de(self):
         """Test de-AT locale maps to de"""
@@ -343,7 +343,7 @@ class TestLanguageSupport:
         assert response.status_code == 200
         data = response.json()
         assert data["language"] == "de"
-        print(f"✓ de-AT maps to de correctly")
+        print("✓ de-AT maps to de correctly")
 
 
 class TestDigitalShield:
@@ -358,7 +358,7 @@ class TestDigitalShield:
         assert "modules" in data
         assert len(data["modules"]) == 3
         assert data["total_lessons"] == 30
-        print(f"✓ Digital Shield: 3 modules, 30 lessons total")
+        print("✓ Digital Shield: 3 modules, 30 lessons total")
     
     def test_digital_shield_module_lesson_counts(self):
         """Verify each module has correct lesson count"""
@@ -371,7 +371,7 @@ class TestDigitalShield:
             print(f"  Module {module['id']}: {module['total_lessons']} lessons")
         
         assert total_lessons == 30, f"Expected 30 total lessons, got {total_lessons}"
-        print(f"✓ Digital Shield modules sum to 30 lessons")
+        print("✓ Digital Shield modules sum to 30 lessons")
     
     def test_digital_shield_lesson_1(self):
         """Test Digital Shield lesson 1"""
@@ -400,7 +400,7 @@ class TestDigitalShield:
         data = response.json()
         assert data["has_prev"] == True
         assert data["has_next"] == False
-        print(f"✓ Digital Shield navigation: lesson 1 (prev=False), lesson 30 (next=False)")
+        print("✓ Digital Shield navigation: lesson 1 (prev=False), lesson 30 (next=False)")
     
     def test_digital_shield_module_detail(self):
         """Test Digital Shield module detail"""
@@ -427,9 +427,9 @@ class TestPlaceholderStructure:
         if content.get("placeholder") or content.get("status") == "placeholder":
             # Check message exists
             assert "message" in content
-            print(f"✓ Placeholder has message field")
+            print("✓ Placeholder has message field")
         else:
-            print(f"✓ Lesson 1 has actual content (not placeholder)")
+            print("✓ Lesson 1 has actual content (not placeholder)")
     
     def test_placeholder_quiz_type(self):
         """Placeholder lessons should have quiz type 'placeholder'"""
@@ -452,7 +452,7 @@ class TestEdgeCases:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] == False
-        print(f"✓ Invalid lesson ID returns success=False")
+        print("✓ Invalid lesson ID returns success=False")
     
     def test_invalid_track_id(self):
         """Test invalid track ID returns error"""
@@ -460,14 +460,14 @@ class TestEdgeCases:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] == False
-        print(f"✓ Invalid track ID returns success=False")
+        print("✓ Invalid track ID returns success=False")
     
     def test_lesson_0_invalid(self):
         """Test lesson 0 is invalid"""
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/0?locale=en")
         data = response.json()
         assert data["success"] == False
-        print(f"✓ Lesson 0 returns success=False")
+        print("✓ Lesson 0 returns success=False")
 
 
 if __name__ == "__main__":

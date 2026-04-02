@@ -25,7 +25,7 @@ class TestKidsZoneJourney:
         assert response.status_code == 200
         data = response.json()
         assert data.get("success") == True
-        print(f"✓ Journey endpoint returns success")
+        print("✓ Journey endpoint returns success")
     
     def test_journey_has_worlds_array(self):
         """Test that journey returns worlds array"""
@@ -63,7 +63,7 @@ class TestKidsZoneJourney:
             assert isinstance(world["stages"], list)
             assert len(world["stages"]) > 0, f"World {world['id']} should have stages"
         
-        print(f"✓ All 5 worlds exist with correct structure")
+        print("✓ All 5 worlds exist with correct structure")
     
     def test_journey_stages_have_correct_structure(self):
         """Test that stages have correct structure"""
@@ -82,7 +82,7 @@ class TestKidsZoneJourney:
                 assert "is_current" in stage
                 assert "is_boss" in stage
         
-        print(f"✓ All stages have correct structure")
+        print("✓ All stages have correct structure")
     
     def test_journey_first_stage_unlocked(self):
         """Test that first stage (w1s1) is unlocked for new user"""
@@ -95,7 +95,7 @@ class TestKidsZoneJourney:
         assert first_stage["id"] == "w1s1"
         assert first_stage["unlocked"] == True
         assert first_stage["is_current"] == True
-        print(f"✓ First stage w1s1 is unlocked and current")
+        print("✓ First stage w1s1 is unlocked and current")
     
     def test_journey_has_current_stage(self):
         """Test that journey returns current_stage"""
@@ -124,7 +124,7 @@ class TestKidsZoneJourney:
         
         assert "mosque" in data
         assert data["mosque"] is not None
-        print(f"✓ Mosque progress included")
+        print("✓ Mosque progress included")
 
 
 class TestKidsZoneStage:
@@ -136,7 +136,7 @@ class TestKidsZoneStage:
         assert response.status_code == 200
         data = response.json()
         assert data.get("success") == True
-        print(f"✓ Stage w1s1 returns success")
+        print("✓ Stage w1s1 returns success")
     
     def test_stage_has_activities_array(self):
         """Test that stage returns activities array"""
@@ -186,7 +186,7 @@ class TestKidsZoneStage:
         assert "target" in recognize
         assert "grid" in recognize
         assert "grid_size" in recognize
-        print(f"✓ Recognize phase has grid with target letter")
+        print("✓ Recognize phase has grid with target letter")
     
     def test_stage_say_has_targets(self):
         """Test that say phase has targets for pronunciation"""
@@ -221,7 +221,7 @@ class TestKidsZoneStage:
         """Test that invalid stage returns 404"""
         response = requests.get(f"{BASE_URL}/api/kids-zone/stage/invalid_stage?user_id={TEST_USER_ID}")
         assert response.status_code == 404
-        print(f"✓ Invalid stage returns 404")
+        print("✓ Invalid stage returns 404")
 
 
 class TestKidsZoneCompleteStage:
@@ -236,7 +236,7 @@ class TestKidsZoneCompleteStage:
         assert response.status_code == 200
         data = response.json()
         assert data.get("success") == True
-        print(f"✓ Complete stage returns success")
+        print("✓ Complete stage returns success")
     
     def test_complete_stage_returns_rewards(self):
         """Test that complete-stage returns XP and bricks earned"""
@@ -274,7 +274,7 @@ class TestKidsZoneCompleteStage:
         data = response.json()
         
         assert "mosque" in data
-        print(f"✓ Mosque progress included in response")
+        print("✓ Mosque progress included in response")
     
     def test_complete_stage_invalid_stage(self):
         """Test that invalid stage returns 404"""
@@ -283,7 +283,7 @@ class TestKidsZoneCompleteStage:
             json={"user_id": TEST_USER_ID, "stage_id": "invalid_stage", "stars": 3}
         )
         assert response.status_code == 404
-        print(f"✓ Invalid stage returns 404")
+        print("✓ Invalid stage returns 404")
 
 
 class TestKidsZoneProgression:
@@ -322,7 +322,7 @@ class TestKidsZoneProgression:
         assert w1s2["unlocked"] == True, "w1s2 should be unlocked"
         assert w1s2["is_current"] == True, "w1s2 should be current"
         
-        print(f"✓ Progression works: w1s1 completed, w1s2 unlocked and current")
+        print("✓ Progression works: w1s1 completed, w1s2 unlocked and current")
 
 
 class TestKidsZoneWorldTypes:
@@ -333,7 +333,7 @@ class TestKidsZoneWorldTypes:
         response = requests.get(f"{BASE_URL}/api/kids-zone/stage/w1s1?user_id={TEST_USER_ID}")
         data = response.json()
         assert data["stage"]["type"] == "letters"
-        print(f"✓ Letters stage type works")
+        print("✓ Letters stage type works")
     
     def test_harakat_stage_type(self):
         """Test harakat stage type (w2s1)"""
@@ -344,14 +344,14 @@ class TestKidsZoneWorldTypes:
         # Check harakat-specific content
         introduce = next((a for a in data["activities"] if a["phase"] == "introduce"), None)
         assert "haraka" in introduce or "examples" in introduce or "content" in introduce
-        print(f"✓ Harakat stage type works")
+        print("✓ Harakat stage type works")
     
     def test_reading_stage_type(self):
         """Test reading stage type (w3s1)"""
         response = requests.get(f"{BASE_URL}/api/kids-zone/stage/w3s1?user_id={TEST_USER_ID}")
         data = response.json()
         assert data["stage"]["type"] == "reading"
-        print(f"✓ Reading stage type works")
+        print("✓ Reading stage type works")
     
     def test_surah_stage_type(self):
         """Test surah stage type (w4s1)"""
@@ -362,14 +362,14 @@ class TestKidsZoneWorldTypes:
         # Check surah-specific content
         introduce = next((a for a in data["activities"] if a["phase"] == "introduce"), None)
         assert "ayahs" in introduce or "surah_name" in introduce
-        print(f"✓ Surah stage type works")
+        print("✓ Surah stage type works")
     
     def test_tajweed_stage_type(self):
         """Test tajweed stage type (w5s1)"""
         response = requests.get(f"{BASE_URL}/api/kids-zone/stage/w5s1?user_id={TEST_USER_ID}")
         data = response.json()
         assert data["stage"]["type"] == "tajweed"
-        print(f"✓ Tajweed stage type works")
+        print("✓ Tajweed stage type works")
     
     def test_boss_stage_type(self):
         """Test boss stage type (w1boss)"""
@@ -380,7 +380,7 @@ class TestKidsZoneWorldTypes:
         # Check boss-specific content
         boss_activity = next((a for a in data["activities"] if a["phase"] == "boss"), None)
         assert boss_activity is not None
-        print(f"✓ Boss stage type works")
+        print("✓ Boss stage type works")
 
 
 if __name__ == "__main__":
