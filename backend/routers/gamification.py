@@ -305,89 +305,77 @@ async def get_ad_config():
 
 
 @router.post("/rewards/ad-watched")
-async def reward_ad_watched(data: AdWatchedRequest):
-    """Process rewarded ad completion - triggers point earning."""
-    rewards = KIDS_REWARDS if data.mode == "kids" else ADULT_REWARDS
-    points = rewards.get("ad_watched", 15)
-
-    collection = "kids_points" if data.mode == "kids" else "adult_points"
-
-    # Rate limit: max 5 rewarded ads per day
+async def _validate_ad_rate_limit(user_id: str) -> dict | None:
+    """Check if user has exceeded daily ad limit. Returns error dict or None."""
     today = date.today().isoformat()
-    today_ads = await db.ad_watch_log.count_documents({
-        "user_id": data.user_id,
-        "date": today,
-    })
-
+    today_ads = await db.ad_watch_log.count_documents({"user_id": user_id, "date": today})
     if today_ads >= 5:
-        return {
-            "success": False,
-            "message": "daily_ad_limit_reached",
-            "max_daily": 5,
-            "watched_today": today_ads,
-        }
+        return {"success": False, "message": "daily_ad_limit_reached", "max_daily": 5, "watched_today": today_ads}
+    return None
 
-    # Log the ad watch
+
+async def _log_ad_watch(data: AdWatchedRequest, today: str) -> None:
+    """Log an ad watch event."""
     await db.ad_watch_log.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": data.user_id,
-        "mode": data.mode,
-        "ad_type": data.ad_type,
-        "ad_unit_id": data.ad_unit_id or "",
+        "id": str(uuid.uuid4()), "user_id": data.user_id, "mode": data.mode,
+        "ad_type": data.ad_type, "ad_unit_id": data.ad_unit_id or "",
         "content_unlocked": data.content_to_unlock or "",
         "duration_seconds": data.duration_seconds or 0,
-        "date": today,
-        "timestamp": datetime.utcnow().isoformat(),
+        "date": today, "timestamp": datetime.utcnow().isoformat(),
     })
 
-    # Award points
+
+async def _apply_ad_reward(data: AdWatchedRequest, points: int, collection: str) -> dict:
+    """Award points and unlock content for ad watch."""
     await db[collection].update_one(
         {"user_id": data.user_id},
-        {
-            "$inc": {"points": points, "total_earned": points, "ads_watched": 1},
-        },
+        {"$inc": {"points": points, "total_earned": points, "ads_watched": 1}},
         upsert=True,
     )
-
-    # Log transaction
     await db.points_transactions.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": data.user_id,
-        "mode": data.mode,
-        "type": "ad_watched",
-        "points": points,
+        "id": str(uuid.uuid4()), "user_id": data.user_id, "mode": data.mode,
+        "type": "ad_watched", "points": points,
         "metadata": {"ad_type": data.ad_type, "content_unlocked": data.content_to_unlock},
         "created_at": datetime.utcnow().isoformat(),
     })
-
-    # Unlock content if specified
     unlocked = None
     if data.content_to_unlock:
         await db[collection].update_one(
-            {"user_id": data.user_id},
-            {"$addToSet": {"unlocked_content": data.content_to_unlock}},
+            {"user_id": data.user_id}, {"$addToSet": {"unlocked_content": data.content_to_unlock}}
         )
         unlocked = data.content_to_unlock
+    return {"unlocked": unlocked}
+
+
+@router.post("/rewards/ad-watched")
+async def reward_ad_watched(data: AdWatchedRequest):
+    """Process rewarded ad completion — validates, logs, awards points."""
+    limit_error = await _validate_ad_rate_limit(data.user_id)
+    if limit_error:
+        return limit_error
+
+    rewards = KIDS_REWARDS if data.mode == "kids" else ADULT_REWARDS
+    points = rewards.get("ad_watched", 15)
+    collection = "kids_points" if data.mode == "kids" else "adult_points"
+    today = date.today().isoformat()
+    today_ads = await db.ad_watch_log.count_documents({"user_id": data.user_id, "date": today})
+
+    await _log_ad_watch(data, today)
+    reward_info = await _apply_ad_reward(data, points, collection)
 
     profile = await db[collection].find_one({"user_id": data.user_id}, {"_id": 0})
     new_total = profile.get("points", 0) if profile else points
-
-    result = {
-        "success": True,
-        "points_earned": points,
-        "new_total": new_total,
-        "ads_watched_today": today_ads + 1,
-        "max_daily": 5,
-        "content_unlocked": unlocked,
+    result: dict = {
+        "success": True, "points_earned": points, "new_total": new_total,
+        "ads_watched_today": today_ads + 1, "max_daily": 5,
+        "content_unlocked": reward_info["unlocked"],
     }
-
     if data.mode == "kids":
         result["golden_bricks"] = new_total
         result["mosque"] = get_mosque_stage(new_total)
     else:
         result["blessing_points"] = new_total
         result["rank"] = get_spiritual_rank(new_total)
-
     return result
 
 
@@ -437,6 +425,8 @@ async def get_parental_challenge(user_id: str):
     """Generate a math challenge for parental gate."""
     # Generate age-appropriate math problem
     challenge_type = random.choice(["addition", "subtraction", "multiplication"])
+    question: str = ""
+    answer: int = 0
 
     if challenge_type == "addition":
         a = random.randint(3, 15)

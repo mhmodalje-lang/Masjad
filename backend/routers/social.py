@@ -1,20 +1,13 @@
 """
 Router: social
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
+from fastapi import APIRouter, HTTPException, Query, Depends
+from deps import db, get_user
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from typing import Optional
+from datetime import datetime
 import uuid
-import random
-import math
-import re
-import httpx
-import os
-import json as json_module
-from deps import get_admin_user
 
 # Import SOHBA_CATEGORIES from auth router
 from .auth import SOHBA_CATEGORIES

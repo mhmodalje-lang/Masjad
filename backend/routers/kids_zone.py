@@ -1,19 +1,12 @@
 """
 Router: kids_zone
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from fastapi import APIRouter, HTTPException
+from deps import db
+from datetime import datetime
 import uuid
 import random
-import math
-import re
-import httpx
-import os
-import json as json_module
-from routers.arabic_academy import ARABIC_LETTERS, QURAN_VOCAB, VOCAB_CATEGORIES
+from routers.arabic_academy import ARABIC_LETTERS, QURAN_VOCAB
 
 router = APIRouter(tags=["Kids Zone"])
 
@@ -79,7 +72,6 @@ def get_mosque_progress(total_bricks: int) -> dict:
 @router.get("/kids-zone/generate-game")
 async def generate_game(user_id: str = "", game_type: str = "auto", locale: str = "ar"):
     """Procedural Content Generator: generates a game based on user skill gaps."""
-    import random
     
     # Get or create user skill profile
     skill = await db.kids_skills.find_one({"user_id": user_id}) if user_id else None
@@ -117,6 +109,7 @@ async def generate_game(user_id: str = "", game_type: str = "auto", locale: str 
             game_type = random.choice(game_types)
     
     # Procedurally generate game content
+    game_data: dict = {}
     if game_type == "letter_maze":
         game_data = _gen_letter_maze(tier, weak_letters)
     elif game_type == "word_match":
@@ -141,7 +134,6 @@ async def generate_game(user_id: str = "", game_type: str = "auto", locale: str 
 
 def _gen_letter_maze(tier: dict, weak_letters: list) -> dict:
     """Generate a letter identification maze game."""
-    import random
     # Pick target letters - prefer weak ones
     all_letters = list(ARABIC_LETTERS)
     if weak_letters:
@@ -202,7 +194,6 @@ def _gen_letter_maze(tier: dict, weak_letters: list) -> dict:
 
 def _gen_word_match(tier: dict) -> dict:
     """Generate a Quranic word matching game."""
-    import random
     pool = list(QURAN_VOCAB)
     count = min(tier["choices"], len(pool))
     selected = random.sample(pool, count)
@@ -220,7 +211,6 @@ def _gen_word_match(tier: dict) -> dict:
 
 def _gen_tajweed_puzzle(tier: dict, weak_letters: list) -> dict:
     """Generate a Tajweed pronunciation rule puzzle."""
-    import random
     
     tajweed_rules = [
         {"id": "idgham", "name_ar": "إدغام", "name_en": "Idgham (Merging)", "description": "When Noon Sakinah or Tanween is followed by ي ن م و ل ر", "example": "مَن يَعْمَلُ", "correct_rule": "merge"},
@@ -257,7 +247,6 @@ def _gen_tajweed_puzzle(tier: dict, weak_letters: list) -> dict:
 
 def _gen_pronunciation(tier: dict, weak_letters: list) -> dict:
     """Generate a pronunciation challenge targeting weak phonemes."""
-    import random
     
     # Pick words from Quran vocab + letter examples
     candidates = []
@@ -638,7 +627,6 @@ async def get_journey(user_id: str = ""):
 @router.get("/kids-zone/stage/{stage_id}")
 async def get_stage_content(stage_id: str, user_id: str = ""):
     """Get the IRS content for a specific stage."""
-    import random
     if stage_id not in STAGE_INDEX:
         raise HTTPException(status_code=404, detail="Stage not found")
 

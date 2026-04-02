@@ -447,9 +447,9 @@ async def get_curriculum_progress(user_id: str = "guest"):
 # DIGITAL SHIELD — AI Awareness, Privacy for Girls, Modern Ethics
 # ═══════════════════════════════════════════════════════════════
 
-_DIGITAL_SHIELD_CACHE = None
+_DIGITAL_SHIELD_CACHE: list | None = None
 
-def _load_digital_shield():
+def _load_digital_shield() -> list:
     global _DIGITAL_SHIELD_CACHE
     if _DIGITAL_SHIELD_CACHE is None:
         import os
@@ -618,14 +618,13 @@ async def save_game_result(payload: GameResultPayload):
     new_games = profile.get("games_completed", 0) + 1
     
     # Update streak
+    new_streak: int = 1
     last_date = profile.get("last_active_date", "")
     yesterday = (date.today() - timedelta(days=1)).isoformat()
     if last_date == today_str:
         new_streak = profile.get("streak_days", 0)
     elif last_date == yesterday:
         new_streak = profile.get("streak_days", 0) + 1
-    else:
-        new_streak = 1
     
     await profile_coll.update_one(
         {"user_id": payload.user_id},
@@ -1008,7 +1007,7 @@ async def academy_track_detail(track_id: str, locale: str = "ar"):
         "emoji": track["emoji"],
         "color": track["color"],
         "description": _t(track["desc"], lang),
-        "total_lessons": sum(lv.get("lessons_count", 0) for lv in levels),
+        "total_lessons": sum(lvl_item.get("lessons_count", 0) for lvl_item in levels),
         "levels": levels,
         "total_levels": len(levels),
         "language": lang,

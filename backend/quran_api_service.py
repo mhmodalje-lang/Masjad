@@ -38,9 +38,9 @@ API_BASE = "https://api.alquran.cloud/v1"
 CACHE_TTL_DAYS = 30  # Cache for 30 days
 
 # MongoDB connection
-_db = None
+_db: object | None = None
 
-def get_db():
+def get_db() -> object:
     global _db
     if _db is None:
         mongo_url = os.environ.get("MONGO_URL", "mongodb://localhost:27017")

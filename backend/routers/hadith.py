@@ -16,7 +16,7 @@ import httpx
 import random
 import re
 from fastapi import APIRouter, Query, HTTPException
-from datetime import datetime, timedelta
+from datetime import datetime
 from deps import db
 
 router = APIRouter(tags=["hadith"])
@@ -229,7 +229,8 @@ async def get_hadith_by_number(
 async def get_hadith_collections(language: str = Query("en")):
     """Get available hadith collections for a language."""
     base_lang = language.split("-")[0]
-    is_fallback = False
+    is_fallback: bool = False
+    colls: list = []
 
     if base_lang in HADITH_COLLECTIONS:
         colls = list(HADITH_COLLECTIONS[base_lang].keys())
