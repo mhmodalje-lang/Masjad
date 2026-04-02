@@ -2798,5 +2798,8 @@
   "publishRequestPending": "Yayın talebi inceleniyor",
   "pendingApproval": "Bekleyen yayın talepleri",
   "stopAthan": "Ezanı Durdur",
-  "athanMuted": "Sessiz"
+  "athanMuted": "Sessiz",
+  "dedicationTitle": "Sadaka-i Cariye — Sürekli Hayır",
+  "dedicationText": "Bu uygulama, sevgili anne ve babama ithaf edilen sürekli bir hayırdır (Sadaka-i Cariye). Allah, bu platform aracılığıyla edilen her duayı, okunan her ayeti ve öğrenilen her dersi onlar için bir bereket olarak kabul etsin. Allah'ım, beni küçükken yetiştirdikleri gibi onlara merhamet et.",
+  "quranVerseDedication": "De ki: Rabbim! Onlara merhamet et; beni küçükken yetiştirdikleri gibi — Kur'an 17:24"
 }

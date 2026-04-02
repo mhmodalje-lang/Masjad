@@ -14,6 +14,21 @@ export default function AboutUs() {
         <h1 className="text-lg font-bold text-foreground">{t('aboutUs')}</h1>
       </div>
       <div className="px-5 py-6 space-y-6 max-w-3xl mx-auto">
+        {/* ★ Dedication — Sadaqah Jariyah ★ */}
+        <div className="rounded-2xl bg-gradient-to-br from-amber-900/30 to-amber-800/10 border border-amber-500/20 p-6 text-center">
+          <div className="text-4xl mb-3">🕌</div>
+          <h3 className="text-lg font-black text-amber-400 mb-3">{t('dedicationTitle')}</h3>
+          <p className="text-sm text-amber-200/80 leading-[1.9] mb-4" style={{ fontFamily: 'IBM Plex Sans Arabic, sans-serif' }}>
+            {t('dedicationText')}
+          </p>
+          <div className="bg-black/20 rounded-xl px-4 py-3 border border-amber-500/10">
+            <p className="text-amber-300/70 text-xs leading-relaxed font-arabic" dir="rtl">
+              {t('quranVerseDedication')}
+            </p>
+          </div>
+          <p className="text-amber-500/40 text-[10px] mt-3">🤲</p>
+        </div>
+
         {/* App Identity */}
         <div className="text-center mb-8">
           <div className="h-20 w-20 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4">

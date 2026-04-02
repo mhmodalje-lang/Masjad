@@ -2798,5 +2798,8 @@
   "publishRequestPending": "Veröffentlichungsanfrage wird überprüft",
   "pendingApproval": "Ausstehende Veröffentlichungsanfragen",
   "stopAthan": "Athan stoppen",
-  "athanMuted": "Stumm"
+  "athanMuted": "Stumm",
+  "dedicationTitle": "Sadaqah Jariyah — Fortlaufende Wohltätigkeit",
+  "dedicationText": "Diese Anwendung ist eine fortlaufende Wohltätigkeit (Sadaqah Jariyah), die meinen geliebten Eltern gewidmet ist. Möge Allah jedes Gebet, jeden gelesenen Vers und jede Lektion, die über diese Plattform gelernt wird, als Segen für sie annehmen.",
+  "quranVerseDedication": "Und sprich: Mein Herr, erbarme Dich ihrer, wie sie mich aufzogen, als ich klein war — Koran 17:24"
 }

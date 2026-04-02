@@ -2798,5 +2798,8 @@
   "publishRequestPending": "Demande de publication en cours de révision",
   "pendingApproval": "Demandes de publication en attente",
   "stopAthan": "Arrêter l'Adhan",
-  "athanMuted": "Muet"
+  "athanMuted": "Muet",
+  "dedicationTitle": "Sadaqah Jariyah — Charité continue",
+  "dedicationText": "Cette application est une charité continue (Sadaqah Jariyah) dédiée à mes parents bien-aimés. Qu'Allah accepte chaque prière, chaque verset lu et chaque leçon apprise à travers cette plateforme comme une bénédiction pour eux. Ô Allah, aie pitié d'eux comme ils m'ont élevé quand j'étais petit.",
+  "quranVerseDedication": "Et dis: Seigneur, fais-leur miséricorde comme ils m'ont élevé tout petit — Coran 17:24"
 }

@@ -2798,5 +2798,8 @@
   "publishRequestPending": "Publicatieverzoek wordt beoordeeld",
   "pendingApproval": "Wachtende publicatieverzoeken",
   "stopAthan": "Athan stoppen",
-  "athanMuted": "Gedempt"
+  "athanMuted": "Gedempt",
+  "dedicationTitle": "Sadaqah Jariyah — Doorlopende liefdadigheid",
+  "dedicationText": "Deze applicatie is een doorlopende liefdadigheid (Sadaqah Jariyah) opgedragen aan mijn geliefde ouders. Moge Allah elk gebed, elk vers dat wordt gelezen en elke les die via dit platform wordt geleerd, als een zegen voor hen accepteren.",
+  "quranVerseDedication": "En zeg: Mijn Heer, ontferm U over hen zoals zij mij hebben grootgebracht toen ik klein was — Koran 17:24"
 }

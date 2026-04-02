@@ -2798,5 +2798,8 @@
   "publishRequestPending": "Publiceringsbegäran granskas",
   "pendingApproval": "Väntande publiceringsbegäranden",
   "stopAthan": "Stoppa Athan",
-  "athanMuted": "Tyst"
+  "athanMuted": "Tyst",
+  "dedicationTitle": "Sadaqah Jariyah — Fortlöpande välgörenhet",
+  "dedicationText": "Denna applikation är en fortlöpande välgörenhet (Sadaqah Jariyah) tillägnad mina älskade föräldrar. Må Allah acceptera varje bön, varje vers som läses och varje lektion som lärs genom denna plattform som en välsignelse för dem.",
+  "quranVerseDedication": "Och säg: Min Herre, förbarma Dig över dem så som de uppfostrade mig när jag var liten — Koranen 17:24"
 }

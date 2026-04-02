@@ -2798,5 +2798,8 @@
   "publishRequiredDesc": "Request publishing permission from admin to publish stories",
   "requestPublish": "Request publish permission",
   "stopAthan": "Stop Athan",
-  "athanMuted": "Muted"
+  "athanMuted": "Muted",
+  "dedicationTitle": "Sadaqah Jariyah — Continuous Charity",
+  "dedicationText": "This application is a continuous charity (Sadaqah Jariyah) dedicated to my beloved parents. May Allah accept every prayer, every verse read, and every lesson learned through this platform as a blessing for them. O Allah, have mercy on them as they raised me when I was small.",
+  "quranVerseDedication": "And say: My Lord, have mercy upon them as they brought me up when I was small — Quran 17:24"
 }
