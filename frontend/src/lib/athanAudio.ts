@@ -192,21 +192,11 @@ function createAndPlayAudio(url: string): HTMLAudioElement {
   const audio = new Audio(url);
   audio.volume = getSavedVolume();
 
-  // ══ CRITICAL: Override Media Session so Athan doesn't appear as "song" ══
+  // CRITICAL: Clear any Media Session so athan does NOT appear as a song
   if ('mediaSession' in navigator) {
     try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: '🕌 الأذان',
-        artist: 'أذان وحكاية',
-        album: 'صلاة',
-        artwork: [
-          { src: '/pwa-icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/pwa-icon-512.png', sizes: '512x512', type: 'image/png' },
-        ]
-      });
-      navigator.mediaSession.setActionHandler('play', () => { audio.play(); });
-      navigator.mediaSession.setActionHandler('pause', () => { stopAthan(); });
-      navigator.mediaSession.setActionHandler('stop', () => { stopAthan(); });
+      navigator.mediaSession.metadata = null;
+      navigator.mediaSession.playbackState = 'none';
     } catch {}
   }
 
@@ -216,9 +206,8 @@ function createAndPlayAudio(url: string): HTMLAudioElement {
   };
   audio.onended = () => {
     if (currentAudio === audio) currentAudio = null;
-    // Clear media session when done
     if ('mediaSession' in navigator) {
-      try { navigator.mediaSession.metadata = null; } catch {}
+      try { navigator.mediaSession.metadata = null; navigator.mediaSession.playbackState = 'none'; } catch {}
     }
   };
 
