@@ -122,7 +122,7 @@ class TestAqeedahTrack:
         lesson = data["lesson"]
         assert lesson["level"] == 2
         # Level 2 lessons should have actual content (not placeholder)
-        _ = lesson.get("content", {})
+        content = lesson.get("content", {})
         # Check if it's not a placeholder
         is_placeholder = content.get("placeholder", False) or content.get("status") == "placeholder"
         print(f"✓ Aqeedah lesson 11: Level {lesson['level']}, placeholder={is_placeholder}")
@@ -173,7 +173,7 @@ class TestFiqhTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/fiqh/lesson/1?locale=en")
         data = response.json()
         lesson = data["lesson"]
-        _ = lesson.get("content", {})
+        # content checked in specific test methods
         
         # Check structure
         assert "title" in lesson
@@ -233,7 +233,7 @@ class TestNooraniyaTrack:
         assert response.status_code == 200
         data = response.json()
         lesson = data["lesson"]
-        _ = lesson.get("content", {})
+        content = lesson.get("content", {})
         
         # Level 1-3 should have actual content
         is_placeholder = content.get("placeholder", False) or content.get("status") == "placeholder"

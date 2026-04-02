@@ -1,23 +1,18 @@
 """
 Router: economy
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, HTTPException, Query, Depends
+from deps import db, get_user, logger, STRIPE_API_KEY
+from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime, date, timedelta
 from data.asma_al_husna_data import get_asma_al_husna
 from data.multilingual_content import (
     STORE_ITEMS_TRANSLATED, STORE_PACKAGES_TRANSLATED, GOLD_PACKAGES_TRANSLATED,
-    CREDIT_PACKAGES_TRANSLATED, ISLAMIC_GIFTS_TRANSLATED, ERROR_MESSAGES, get_error, _t
+    CREDIT_PACKAGES_TRANSLATED, ISLAMIC_GIFTS_TRANSLATED, get_error, _t
 )
 import uuid
-import random
-import math
-import re
 import httpx
-import os
-import json as json_module
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
 from starlette.requests import Request
 
@@ -48,70 +43,60 @@ async def get_gold_balance(user: dict = Depends(get_user)):
     return {"gold": wallet.get("gold", 0), "total_earned": wallet.get("total_earned", 0), "streak": wallet.get("streak", 0)}
 
 @router.post("/rewards/claim")
+async def _process_daily_login(user_id: str, wallet: dict, gold_amount: int) -> dict:
+    """Process daily login reward with streak tracking."""
+    today = date.today().isoformat()
+    if wallet.get("last_daily") == today:
+        return {"gold": wallet.get("gold", 0), "earned": 0, "message": get_error("reward_already_claimed")}
+
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    streak = (wallet.get("streak", 0) + 1) if wallet.get("last_daily") == yesterday else 1
+    bonus = REWARD_VALUES["streak_bonus"] if streak > 0 and streak % 7 == 0 else 0
+    total_earn = gold_amount + bonus
+
+    await db.wallets.update_one(
+        {"user_id": user_id},
+        {"$inc": {"gold": total_earn, "total_earned": total_earn}, "$set": {"last_daily": today, "streak": streak}}
+    )
+    await db.gold_transactions.insert_one({
+        "user_id": user_id, "type": "daily_login", "amount": total_earn,
+        "created_at": datetime.utcnow().isoformat(), "description": f"مكافأة يومية (سلسلة {streak} يوم)"
+    })
+    new_gold = wallet.get("gold", 0) + total_earn
+    msg = f"حصلت على {total_earn} ذهب!" + (f" (مكافأة سلسلة {streak} يوم!)" if bonus else "")
+    return {"gold": new_gold, "earned": total_earn, "streak": streak, "message": msg}
+
+
+async def _process_generic_reward(user_id: str, wallet: dict, reward_type: str, gold_amount: int) -> dict:
+    """Process a generic (non-daily-login) reward claim."""
+    today = date.today().isoformat()
+    today_claims = await db.gold_transactions.count_documents({"user_id": user_id, "type": reward_type, "created_at": {"$regex": f"^{today}"}})
+    if today_claims >= 5:
+        return {"gold": wallet.get("gold", 0), "earned": 0, "message": "وصلت للحد الأقصى اليوم"}
+
+    await db.wallets.update_one({"user_id": user_id}, {"$inc": {"gold": gold_amount, "total_earned": gold_amount}}, upsert=True)
+    await db.gold_transactions.insert_one({"user_id": user_id, "type": reward_type, "amount": gold_amount, "created_at": datetime.utcnow().isoformat()})
+    return {"gold": wallet.get("gold", 0) + gold_amount, "earned": gold_amount, "message": f"حصلت على {gold_amount} ذهب!"}
+
+
+@router.post("/store/redeem")
 async def claim_reward(data: ClaimRewardRequest, user: dict = Depends(get_user)):
+    """Claim a gold reward. Dispatches to daily login or generic handler."""
     if not user:
         raise HTTPException(401, get_error("login_required"))
-    
-    reward_type = data.reward_type
-    gold_amount = REWARD_VALUES.get(reward_type, 0)
+
+    gold_amount = REWARD_VALUES.get(data.reward_type, 0)
     if gold_amount == 0:
         raise HTTPException(400, get_error("invalid_reward_type"))
-    
+
     wallet = await db.wallets.find_one({"user_id": user["id"]})
     if not wallet:
         wallet = {"user_id": user["id"], "gold": 0, "total_earned": 0, "streak": 0, "last_daily": None}
         await db.wallets.insert_one(wallet)
-    
-    today = date.today().isoformat()
-    
-    # Check daily login (once per day)
-    if reward_type == "daily_login":
-        if wallet.get("last_daily") == today:
-            return {"gold": wallet.get("gold", 0), "earned": 0, "message": get_error("reward_already_claimed")}
-        
-        # Calculate streak
-        yesterday = (date.today() - timedelta(days=1)).isoformat()
-        streak = wallet.get("streak", 0)
-        if wallet.get("last_daily") == yesterday:
-            streak += 1
-        else:
-            streak = 1
-        
-        # Streak bonus every 7 days
-        bonus = REWARD_VALUES["streak_bonus"] if streak > 0 and streak % 7 == 0 else 0
-        total_earn = gold_amount + bonus
-        
-        await db.wallets.update_one(
-            {"user_id": user["id"]},
-            {"$inc": {"gold": total_earn, "total_earned": total_earn}, "$set": {"last_daily": today, "streak": streak}}
-        )
-        
-        # Log transaction
-        await db.gold_transactions.insert_one({
-            "user_id": user["id"], "type": reward_type, "amount": total_earn,
-            "created_at": datetime.utcnow().isoformat(), "description": f"مكافأة يومية (سلسلة {streak} يوم)"
-        })
-        
-        new_gold = wallet.get("gold", 0) + total_earn
-        return {"gold": new_gold, "earned": total_earn, "streak": streak, "message": f"حصلت على {total_earn} ذهب!" + (f" (مكافأة سلسلة {streak} يوم!)" if bonus else "")}
-    
-    # Other rewards (max 5 per type per day)
-    today_claims = await db.gold_transactions.count_documents({"user_id": user["id"], "type": reward_type, "created_at": {"$regex": f"^{today}"}})
-    if today_claims >= 5:
-        return {"gold": wallet.get("gold", 0), "earned": 0, "message": "وصلت للحد الأقصى اليوم"}
-    
-    await db.wallets.update_one(
-        {"user_id": user["id"]},
-        {"$inc": {"gold": gold_amount, "total_earned": gold_amount}},
-        upsert=True
-    )
-    await db.gold_transactions.insert_one({
-        "user_id": user["id"], "type": reward_type, "amount": gold_amount,
-        "created_at": datetime.utcnow().isoformat()
-    })
-    
-    new_gold = wallet.get("gold", 0) + gold_amount
-    return {"gold": new_gold, "earned": gold_amount, "message": f"حصلت على {gold_amount} ذهب!"}
+
+    if data.reward_type == "daily_login":
+        return await _process_daily_login(user["id"], wallet, gold_amount)
+    return await _process_generic_reward(user["id"], wallet, data.reward_type, gold_amount)
 
 @router.get("/rewards/history")
 async def get_reward_history(user: dict = Depends(get_user), page: int = 1, limit: int = 20):
@@ -236,15 +221,12 @@ async def get_membership(user: dict = Depends(get_user)):
         return {"active": False, "plan": "free", "expires_at": None}
     # Check if expired
     if membership.get("expires_at"):
-        from datetime import timezone
         exp = datetime.fromisoformat(membership["expires_at"])
         if exp < datetime.utcnow():
             return {"active": False, "plan": "free", "expires_at": membership["expires_at"], "was": membership.get("plan")}
     return {"active": True, "plan": membership.get("plan", "premium"), "expires_at": membership.get("expires_at")}
 
 # ==================== STRIPE PAYMENTS ====================
-from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionRequest
-from starlette.requests import Request
 
 # Store packages (server-side defined prices - NEVER accept from frontend)
 STORE_PACKAGES = STORE_PACKAGES_TRANSLATED

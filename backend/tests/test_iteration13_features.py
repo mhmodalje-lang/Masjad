@@ -12,9 +12,9 @@ BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 
 # Test credentials
 TEST_USER1_EMAIL = f"test_full_flow_{uuid.uuid4().hex[:8]}@test.com"
-TEST_USER1_PASSWORD = "TestFlow123!"
+TEST_USER1_PASSWORD = os.getenv("TEST_PASSWORD", "TestFlow123!")
 TEST_USER2_EMAIL = f"test_creator_{uuid.uuid4().hex[:8]}@test.com"
-TEST_USER2_PASSWORD = "Creator123!"
+TEST_USER2_PASSWORD = os.getenv("TEST_PASSWORD", "Creator123!")
 
 
 class TestPublicEndpoints:

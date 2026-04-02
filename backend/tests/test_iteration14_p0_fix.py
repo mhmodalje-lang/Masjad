@@ -17,7 +17,7 @@ class TestStoryP0Fix:
     def setup(self):
         """Setup test user and get auth token"""
         self.test_email = f"test_p0_{uuid.uuid4().hex[:8]}@test.com"
-        self.test_password = "Test123!"
+        self.test_password = os.getenv("TEST_PASSWORD", "Test123!")
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
         
@@ -237,7 +237,7 @@ class TestExistingCredentials:
         
         # If user doesn't exist, register them
         if response.status_code == 401:
-            session.post(f"{BASE_URL}/api/auth/register", json={
+            reg_res = session.post(f"{BASE_URL}/api/auth/register", json={
                 "email": "testpub123@test.com",
                 "password": "Test123!",
                 "name": "Test Publisher"

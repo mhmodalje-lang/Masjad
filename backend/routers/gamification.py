@@ -4,14 +4,13 @@ Router: gamification
 Unified Points System: Golden Bricks (Kids) + Blessing Points (Adults)
 Rewarded Ads Engine + Parental Gate (Math Lock)
 """
-from fastapi import APIRouter, HTTPException, Query, Depends
-from deps import db, get_user, logger
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from fastapi import APIRouter, HTTPException
+from deps import db
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
 from datetime import datetime, date, timedelta
 import uuid
 import random
-import math
 
 router = APIRouter(tags=["Gamification"])
 
@@ -216,89 +215,65 @@ async def get_points_balance(user_id: str, mode: str = "adults"):
 # ======================== EARN POINTS ========================
 
 @router.post("/points/earn")
+def _calculate_streak(last_active: str, current_streak: int) -> int:
+    """Calculate updated streak based on last active date."""
+    today = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    if last_active == today:
+        return current_streak
+    if last_active == yesterday:
+        return current_streak + 1
+    return 1
+
+
+async def _ensure_points_profile(user_id: str, mode: str, collection: str) -> dict:
+    """Get or create a points profile for the user."""
+    profile = await db[collection].find_one({"user_id": user_id})
+    if not profile:
+        profile = {
+            "user_id": user_id, "mode": mode, "points": 0, "total_earned": 0,
+            "streak": 0, "last_active": None, "ads_watched": 0,
+            "unlocked_content": [], "created_at": datetime.utcnow().isoformat(),
+        }
+        await db[collection].insert_one({**profile})
+    return profile
+
+
+@router.post("/points/earn")
 async def earn_points(data: EarnPointsRequest):
     """Earn points for completing activities."""
     rewards = KIDS_REWARDS if data.mode == "kids" else ADULT_REWARDS
     points = rewards.get(data.reward_type, 0)
-
     if points == 0:
         raise HTTPException(status_code=400, detail="Invalid reward type")
 
     collection = "kids_points" if data.mode == "kids" else "adult_points"
-    profile = await db[collection].find_one({"user_id": data.user_id})
+    profile = await _ensure_points_profile(data.user_id, data.mode, collection)
 
-    if not profile:
-        profile = {
-            "user_id": data.user_id,
-            "mode": data.mode,
-            "points": 0,
-            "total_earned": 0,
-            "streak": 0,
-            "last_active": None,
-            "ads_watched": 0,
-            "unlocked_content": [],
-            "created_at": datetime.utcnow().isoformat(),
-        }
-        await db[collection].insert_one({**profile})
-
-    # Streak calculation
-    today = date.today().isoformat()
-    yesterday = (date.today() - timedelta(days=1)).isoformat()
-    last_active = profile.get("last_active", "")
-    streak = profile.get("streak", 0)
-
-    if last_active == today:
-        pass  # Already active today
-    elif last_active == yesterday:
-        streak += 1
-    else:
-        streak = 1
-
-    # Streak bonus
-    streak_bonus = 0
-    if streak > 0 and streak % 7 == 0:
-        streak_bonus = rewards.get("daily_streak", 5) * 3  # Triple bonus every 7 days
-
+    streak = _calculate_streak(profile.get("last_active", ""), profile.get("streak", 0))
+    streak_bonus = rewards.get("daily_streak", 5) * 3 if (streak > 0 and streak % 7 == 0) else 0
     total_earn = points + streak_bonus
 
     await db[collection].update_one(
         {"user_id": data.user_id},
-        {
-            "$inc": {"points": total_earn, "total_earned": total_earn},
-            "$set": {"last_active": today, "streak": streak},
-        },
+        {"$inc": {"points": total_earn, "total_earned": total_earn}, "$set": {"last_active": date.today().isoformat(), "streak": streak}},
         upsert=True,
     )
-
-    # Log transaction
     await db.points_transactions.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": data.user_id,
-        "mode": data.mode,
-        "type": data.reward_type,
-        "points": total_earn,
-        "streak": streak,
-        "streak_bonus": streak_bonus,
-        "metadata": data.metadata or {},
+        "id": str(uuid.uuid4()), "user_id": data.user_id, "mode": data.mode,
+        "type": data.reward_type, "points": total_earn, "streak": streak,
+        "streak_bonus": streak_bonus, "metadata": data.metadata or {},
         "created_at": datetime.utcnow().isoformat(),
     })
 
     new_total = profile.get("points", 0) + total_earn
-    result = {
-        "success": True,
-        "earned": total_earn,
-        "streak_bonus": streak_bonus,
-        "streak": streak,
-        "new_total": new_total,
-    }
-
+    result = {"success": True, "earned": total_earn, "streak_bonus": streak_bonus, "streak": streak, "new_total": new_total}
     if data.mode == "kids":
         result["golden_bricks"] = new_total
         result["mosque"] = get_mosque_stage(new_total)
     else:
         result["blessing_points"] = new_total
         result["rank"] = get_spiritual_rank(new_total)
-
     return result
 
 
