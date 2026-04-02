@@ -250,21 +250,20 @@ export default function NotificationSettings() {
   };
 
   const handleTestFullscreen = () => {
+    // Play the athan audio AND show full-screen alert together
     const sent = sendTestAthanAlert();
-    if (sent) {
-      toast.success(isAr ? 'تم إرسال تنبيه تجريبي فوق الشاشة' : 'Test fullscreen alert sent');
-    } else {
-      toast.error(isAr ? 'افتح الصفحة الرئيسية أولاً' : 'Go to home page first');
+    if (!sent) {
+      // If callback not registered yet, try direct approach
+      toast.info(isAr ? 'جاري تشغيل الأذان...' : 'Starting Athan...');
     }
+    // Always play audio too
+    testAthanPlayback();
+    toast.success(isAr ? '🕌 تم تشغيل تنبيه الأذان' : '🕌 Athan alert triggered');
   };
 
   const handleTestAthan = () => {
-    const played = testAthanPlayback();
-    if (played) {
-      toast.success(t('playingAthan'));
-    } else {
-      toast.error(t('playAthanFailed'));
-    }
+    // Same as fullscreen - test the full athan experience
+    handleTestFullscreen();
   };
 
   return (
@@ -483,22 +482,13 @@ export default function NotificationSettings() {
             <TestTube className="h-4 w-4" />
             {t('testNotif')}
           </Button>
-          <Button
-            onClick={handleTestAthan}
-            variant="outline"
-            className="flex-1 h-11 rounded-2xl gap-2 text-sm font-bold"
-          >
-            <Volume2 className="h-4 w-4" />
-            {t('testAthan')}
-          </Button>
         </div>
         <Button
           onClick={handleTestFullscreen}
-          variant="outline"
-          className="w-full h-11 rounded-2xl gap-2 text-sm font-bold"
+          className="w-full h-14 rounded-2xl gap-3 text-base font-bold bg-amber-600 hover:bg-amber-700 text-white"
         >
-          <Zap className="h-4 w-4" />
-          {isAr ? 'اختبار تنبيه فوق الشاشة' : 'Test Fullscreen Alert'}
+          <Volume2 className="h-5 w-5" />
+          {isAr ? '🕌 اختبار الأذان بملء الشاشة' : '🕌 Test Full-Screen Athan'}
         </Button>
       </div>
 
