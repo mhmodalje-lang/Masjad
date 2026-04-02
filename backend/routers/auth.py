@@ -1,20 +1,14 @@
 """
 Router: auth
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
+from fastapi import APIRouter, HTTPException, Depends
+from deps import db, get_user, logger, create_jwt, hash_password, check_password
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from typing import Optional
+from datetime import datetime
 from data.multilingual_content import SOHBA_CATEGORIES_TRANSLATED, get_error
 import uuid
-import random
-import math
-import re
 import httpx
-import os
-import json as json_module
-from fastapi.security import HTTPAuthorizationCredentials
 
 router = APIRouter(tags=["Authentication"])
 
@@ -159,91 +153,73 @@ async def logout():
     return {"message": "تم تسجيل الخروج"}
 
 @router.delete("/auth/delete-account")
+async def _cleanup_social_data(uid: str) -> None:
+    """Delete all social/content data for a user."""
+    await db.posts.delete_many({"author_id": uid})
+    await db.stories.delete_many({"author_id": uid})
+    await db.comments.delete_many({"author_id": uid})
+    await db.likes.delete_many({"user_id": uid})
+    await db.saves.delete_many({"user_id": uid})
+    await db.follows.delete_many({"$or": [{"follower_id": uid}, {"following_id": uid}]})
+    await db.reports.delete_many({"$or": [{"reporter_id": uid}, {"reported_user_id": uid}]})
+    await db.embed_content.delete_many({"author_id": uid})
+
+
+async def _cleanup_messaging_data(uid: str) -> None:
+    """Delete all messaging/notification data for a user."""
+    await db.notifications.delete_many({"$or": [{"user_id": uid}, {"from_user_id": uid}]})
+    await db.messages.delete_many({"$or": [{"sender_id": uid}, {"receiver_id": uid}]})
+    await db.push_subscriptions.delete_many({"user_id": uid})
+    await db.notification_log.delete_many({"user_id": uid})
+    await db.sent_notifications.delete_many({"user_id": uid})
+    await db.scheduled_notifications.delete_many({"user_id": uid})
+
+
+async def _cleanup_economy_data(uid: str) -> None:
+    """Delete all economy/wallet data for a user."""
+    for col_name in ["points", "points_transactions", "adult_points", "wallets",
+                     "gold_transactions", "baraka_wallets", "baraka_transactions",
+                     "purchases", "memberships", "redeemed_items", "payment_transactions",
+                     "unlocked_stories"]:
+        await db[col_name].delete_many({"user_id": uid})
+    await db.gift_transactions.delete_many({"$or": [{"sender_id": uid}, {"receiver_id": uid}]})
+
+
+async def _cleanup_kids_data(uid: str) -> None:
+    """Delete all kids zone/learning data for a user."""
+    for col_name in ["kids_curriculum_progress", "kids_journey", "kids_learn_progress",
+                     "kids_points", "kids_skills", "lesson_points_log",
+                     "parental_consents", "parental_passes", "arabic_progress", "ai_questions"]:
+        await db[col_name].delete_many({"user_id": uid})
+
+
+async def _cleanup_analytics_data(uid: str, email: str) -> None:
+    """Delete all analytics/tracking/misc data for a user (GDPR compliance)."""
+    for col_name in ["analytics_events", "ad_clicks", "ad_views", "ad_watch_log",
+                     "user_ads", "user_data", "prayer_tracking", "donations",
+                     "donation_requests", "bank_accounts"]:
+        await db[col_name].delete_many({"user_id": uid})
+    await db.vendors.delete_many({"user_id": uid})
+    await db.products.delete_many({"vendor_id": uid})
+    await db.contact_messages.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
+    await db.blocks.delete_many({"$or": [{"blocker_id": uid}, {"blocked_id": uid}]})
+
+
 async def delete_account(user: dict = Depends(get_user)):
-    """Delete user account and ALL associated data - required by App Store & Play Store policies.
-    Complies with Apple App Store Review Guideline 5.1.1(v) and Google Play Data Safety requirements.
+    """Delete user account and ALL associated data.
+    Complies with Apple App Store Guideline 5.1.1(v) and Google Play Data Safety.
     """
     if not user:
         raise HTTPException(401, "غير مصادق")
     uid = user["id"]
     email = user.get("email", "")
     try:
-        # ---- Social / Content Data ----
-        await db.posts.delete_many({"author_id": uid})
-        await db.stories.delete_many({"author_id": uid})
-        await db.comments.delete_many({"author_id": uid})
-        await db.likes.delete_many({"user_id": uid})
-        await db.saves.delete_many({"user_id": uid})
-        await db.follows.delete_many({"$or": [{"follower_id": uid}, {"following_id": uid}]})
-        await db.reports.delete_many({"$or": [{"reporter_id": uid}, {"reported_user_id": uid}]})
-        await db.embed_content.delete_many({"author_id": uid})
-
-        # ---- Messaging & Notifications ----
-        await db.notifications.delete_many({"$or": [{"user_id": uid}, {"from_user_id": uid}]})
-        await db.messages.delete_many({"$or": [{"sender_id": uid}, {"receiver_id": uid}]})
-        await db.push_subscriptions.delete_many({"user_id": uid})
-        await db.notification_log.delete_many({"user_id": uid})
-        await db.sent_notifications.delete_many({"user_id": uid})
-        await db.scheduled_notifications.delete_many({"user_id": uid})
-
-        # ---- Points / Economy / Wallet ----
-        await db.points.delete_many({"user_id": uid})
-        await db.points_transactions.delete_many({"user_id": uid})
-        await db.adult_points.delete_many({"user_id": uid})
-        await db.wallets.delete_many({"user_id": uid})
-        await db.gold_transactions.delete_many({"user_id": uid})
-        await db.gift_transactions.delete_many({"$or": [{"sender_id": uid}, {"receiver_id": uid}]})
-        await db.baraka_wallets.delete_many({"user_id": uid})
-        await db.baraka_transactions.delete_many({"user_id": uid})
-        await db.purchases.delete_many({"user_id": uid})
-        await db.memberships.delete_many({"user_id": uid})
-        await db.redeemed_items.delete_many({"user_id": uid})
-        await db.payment_transactions.delete_many({"user_id": uid})
-        await db.unlocked_stories.delete_many({"user_id": uid})
-
-        # ---- Prayer & Worship Tracking ----
-        await db.prayer_tracking.delete_many({"user_id": uid})
-
-        # ---- Kids Zone Data ----
-        await db.kids_curriculum_progress.delete_many({"user_id": uid})
-        await db.kids_journey.delete_many({"user_id": uid})
-        await db.kids_learn_progress.delete_many({"user_id": uid})
-        await db.kids_points.delete_many({"user_id": uid})
-        await db.kids_skills.delete_many({"user_id": uid})
-        await db.lesson_points_log.delete_many({"user_id": uid})
-        await db.parental_consents.delete_many({"user_id": uid})
-        await db.parental_passes.delete_many({"user_id": uid})
-
-        # ---- Learning / Arabic Academy ----
-        await db.arabic_progress.delete_many({"user_id": uid})
-        await db.ai_questions.delete_many({"user_id": uid})
-
-        # ---- Analytics & Tracking (GDPR compliance) ----
-        await db.analytics_events.delete_many({"user_id": uid})
-        await db.ad_clicks.delete_many({"user_id": uid})
-        await db.ad_views.delete_many({"user_id": uid})
-        await db.ad_watch_log.delete_many({"user_id": uid})
-        await db.user_ads.delete_many({"user_id": uid})
-        await db.user_data.delete_many({"user_id": uid})
-
-        # ---- Donations & Banking ----
-        await db.donations.delete_many({"user_id": uid})
-        await db.donation_requests.delete_many({"user_id": uid})
-        await db.bank_accounts.delete_many({"user_id": uid})
-
-        # ---- Marketplace / Vendor ----
-        await db.vendors.delete_many({"user_id": uid})
-        await db.products.delete_many({"vendor_id": uid})
-
-        # ---- Contact / Support ----
-        await db.contact_messages.delete_many({"$or": [{"user_id": uid}, {"email": email}]})
-
-        # ---- Blocks ----
-        await db.blocks.delete_many({"$or": [{"blocker_id": uid}, {"blocked_id": uid}]})
-
-        # ---- Finally delete user account ----
+        await _cleanup_social_data(uid)
+        await _cleanup_messaging_data(uid)
+        await _cleanup_economy_data(uid)
+        await _cleanup_kids_data(uid)
+        await _cleanup_analytics_data(uid, email)
         await db.users.delete_one({"id": uid})
-
         logger.info(f"Account fully deleted (all data purged): {uid}")
         return {"success": True, "message": "تم حذف الحساب وجميع البيانات بنجاح"}
     except Exception as e:

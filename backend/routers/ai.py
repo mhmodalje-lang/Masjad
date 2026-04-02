@@ -1,19 +1,16 @@
 """
 Router: ai
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from fastapi import APIRouter, HTTPException, Query, Depends
+from deps import db, get_user, logger, EMERGENT_LLM_KEY
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime, date
 import uuid
 import random
-import math
 import re
-import httpx
 import os
 import json as json_module
-import logging
 
 class DhikrAIRequest(BaseModel):
     time_of_day: str = "morning"
@@ -22,6 +19,34 @@ class DhikrAIRequest(BaseModel):
     count: int = 5
 
 router = APIRouter(tags=["AI Assistant"])
+
+async def _check_ai_rate_limit(user_id: str, today: str) -> dict | None:
+    """Check daily question limit and credit requirements. Returns error dict or None."""
+    today_count = await db.ai_questions.count_documents({"user_id": user_id, "date": today})
+    if today_count >= 20:
+        return {"answer": "", "error": "daily_limit", "message": "وصلت للحد الأقصى (20 سؤال). عُد غداً إن شاء الله.", "remaining": 0}
+    if today_count >= 5:
+        wallet = await db.wallets.find_one({"user_id": user_id})
+        credits = wallet.get("credits", 0) if wallet else 0
+        if credits < 5:
+            return {"answer": "", "error": "no_credits", "message": "انتهت أسئلتك المجانية. شاهد فيديوهات لكسب نقاط أو اشترِ نقاطاً.", "remaining": 0, "credits": credits}
+        await db.wallets.update_one({"user_id": user_id}, {"$inc": {"credits": -5}})
+    return None
+
+
+async def _call_ai_model(question: str, user_id: str, session_id: str) -> str:
+    """Call the AI model and return the answer text."""
+    from emergentintegrations.llm.chat import LlmChat, UserMessage as LlmUserMessage
+    system_prompt = """أنت مساعد إسلامي متخصص. تجيب فقط على الأسئلة المتعلقة بالإسلام والشريعة والقرآن والسنة والفقه والعقيدة والسيرة النبوية والأخلاق الإسلامية.
+إذا سُئلت عن موضوع غير إسلامي، أجب بلطف: "أنا مختص بالأسئلة الإسلامية فقط. كيف أساعدك في أمور دينك؟"
+أجب بالعربية دائماً. كن دقيقاً واذكر المصادر (القرآن، الحديث) كلما أمكن. لا تفتِ بدون دليل شرعي."""
+    chat = LlmChat(
+        api_key=os.environ.get("EMERGENT_LLM_KEY", ""),
+        session_id=f"islamic_assistant_{user_id}_{session_id}",
+        system_message=system_prompt,
+    ).with_model("openai", "gpt-5.2")
+    return await chat.send_message(LlmUserMessage(text=question))
+
 
 @router.post("/ai/ask")
 async def ai_ask(data: dict, user: dict = Depends(get_user)):
@@ -35,64 +60,34 @@ async def ai_ask(data: dict, user: dict = Depends(get_user)):
         raise HTTPException(400, "يجب كتابة السؤال")
     
     today = date.today().isoformat()
-    
-    # Count today's questions
     today_count = await db.ai_questions.count_documents({"user_id": user["id"], "date": today})
     
-    if today_count >= 20:
-        return {"answer": "", "error": "daily_limit", "message": "وصلت للحد الأقصى (20 سؤال). عُد غداً إن شاء الله.", "remaining": 0}
+    # Rate limit check
+    limit_error = await _check_ai_rate_limit(user["id"], today)
+    if limit_error:
+        return limit_error
     
-    # Check if needs credits (after 5 free)
     needs_credits = today_count >= 5
-    if needs_credits:
-        wallet = await db.wallets.find_one({"user_id": user["id"]})
-        user_credits = wallet.get("credits", 0) if wallet else 0
-        if user_credits < 5:
-            return {"answer": "", "error": "no_credits", "message": "انتهت أسئلتك المجانية. شاهد فيديوهات لكسب نقاط أو اشترِ نقاطاً.", "remaining": 0, "credits": user_credits}
-        # Deduct 5 credits per question
-        await db.wallets.update_one({"user_id": user["id"]}, {"$inc": {"credits": -5}})
     
-    # Call GPT-5.2 via emergent integrations
+    # Call AI
     try:
-        from emergentintegrations.llm.chat import LlmChat, UserMessage as LlmUserMessage
-        
-        system_prompt = """أنت مساعد إسلامي متخصص. تجيب فقط على الأسئلة المتعلقة بالإسلام والشريعة والقرآن والسنة والفقه والعقيدة والسيرة النبوية والأخلاق الإسلامية.
-إذا سُئلت عن موضوع غير إسلامي، أجب بلطف: "أنا مختص بالأسئلة الإسلامية فقط. كيف أساعدك في أمور دينك؟"
-أجب بالعربية دائماً. كن دقيقاً واذكر المصادر (القرآن، الحديث) كلما أمكن. لا تفتِ بدون دليل شرعي."""
-        
-        EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY", "")
-        
-        chat = LlmChat(
-            api_key=EMERGENT_KEY,
-            session_id=f"islamic_assistant_{user['id']}_{session_id}",
-            system_message=system_prompt,
-        ).with_model("openai", "gpt-5.2")
-        
-        user_msg = LlmUserMessage(text=question)
-        answer = await chat.send_message(user_msg)
-        
+        answer = await _call_ai_model(question, user["id"], session_id)
     except Exception as e:
         logger.error(f"AI error: {e}")
         answer = "عذراً، حدث خطأ في الاتصال بالمساعد. حاول مرة أخرى."
     
-    # Save question
+    # Save
     await db.ai_questions.insert_one({
-        "user_id": user["id"],
-        "session_id": session_id,
-        "question": question,
-        "answer": answer,
-        "date": today,
+        "user_id": user["id"], "session_id": session_id,
+        "question": question, "answer": answer, "date": today,
         "credits_used": 5 if needs_credits else 0,
         "created_at": datetime.utcnow().isoformat(),
     })
     
-    remaining = 20 - today_count - 1
-    free_remaining = max(0, 5 - today_count - 1)
-    
     return {
         "answer": answer,
-        "remaining": remaining,
-        "free_remaining": free_remaining,
+        "remaining": 20 - today_count - 1,
+        "free_remaining": max(0, 5 - today_count - 1),
         "credits_used": 5 if needs_credits else 0,
         "session_id": session_id,
     }
@@ -197,7 +192,6 @@ async def smart_reminder(data: dict):
         "الصلاة على وقتها من أحب الأعمال إلى الله",
         "لا تؤخر صلاتك، فإن الموت لا يستأذن",
     ]
-    import random
     return {"reminder": random.choice(reminders)}
 
 # ==================== HIJRI DATE ====================

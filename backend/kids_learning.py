@@ -10,10 +10,7 @@ Kids Learning Module - Comprehensive Educational System
 - Children's Library (categorized educational content)
 - All content supports 9 languages
 """
-import uuid
-import random
-from datetime import datetime, date
-from typing import Optional
+from datetime import date
 
 # ═══════════════════════════════════════════════════════════════
 # QURAN MEMORIZATION - JUZ AMMA SHORT SURAHS
@@ -593,92 +590,90 @@ KIDS_LIBRARY_ITEMS = [
 # DAILY COMPREHENSIVE LESSONS (School-like structure)
 # ═══════════════════════════════════════════════════════════════
 
+def _build_quran_section(surah: dict, today_ayah: dict, lang: str) -> dict:
+    """Build Quran memorization section."""
+    return {
+        "section_title": _ml("حفظ القرآن", "Quran Memorization", lang),
+        "section_emoji": "📖",
+        "surah_name": surah.get(f"name_{lang}", surah["name_en"]),
+        "surah_number": surah["number"],
+        "ayah": {
+            "number": today_ayah["num"],
+            "arabic": today_ayah["ar"],
+            "translation": today_ayah.get(lang, today_ayah["en"]),
+            "transliteration": "",
+        },
+        "full_surah_ayahs": len(surah["ayahs"]),
+        "tip": _ml("اقرأ الآية 3 مرات ثم أغلق عينيك وحاول تسميعها", "Read the ayah 3 times then close your eyes and try to recite it", lang),
+    }
+
+
+def _build_dua_section(dua: dict, lang: str) -> dict:
+    """Build daily dua section."""
+    return {
+        "section_title": _ml("دعاء اليوم", "Today's Dua", lang),
+        "section_emoji": dua["emoji"],
+        "title": dua["title"].get(lang, dua["title"]["en"]),
+        "arabic": dua["ar"],
+        "transliteration": dua["transliteration"],
+        "meaning": dua.get(lang, dua["en"]) if lang != "ar" else "",
+    }
+
+
+def _build_hadith_section(hadith: dict, lang: str) -> dict:
+    """Build daily hadith section."""
+    return {
+        "section_title": _ml("حديث اليوم", "Today's Hadith", lang),
+        "section_emoji": hadith["emoji"],
+        "arabic": hadith["ar"],
+        "translation": hadith.get(lang, hadith["en"]),
+        "source": hadith["source"],
+        "lesson": hadith["lesson"].get(lang, hadith["lesson"]["en"]),
+    }
+
+
+def _build_story_section(prophet: dict, lang: str) -> dict:
+    """Build prophet story section."""
+    return {
+        "section_title": _ml("قصة نبي", "Prophet Story", lang),
+        "section_emoji": prophet["emoji"],
+        "prophet_name": prophet["name"].get(lang, prophet["name"]["en"]),
+        "title": prophet["title"].get(lang, prophet["title"]["en"]),
+        "summary": prophet["summary"].get(lang, prophet["summary"]["en"]),
+        "lesson": prophet["lesson"].get(lang, prophet["lesson"]["en"]),
+        "quran_ref": prophet["quran_ref"],
+    }
+
+
 def build_daily_lesson(day_number: int, locale: str = "ar") -> dict:
-    """Build a comprehensive daily lesson for kids - like a school day."""
+    """Build a comprehensive daily lesson for kids — like a school day.
     
-    # Cycle through content based on day number
-    surah_idx = (day_number - 1) % len(QURAN_SURAHS_FOR_KIDS)
-    dua_idx = (day_number - 1) % len(KIDS_DUAS)
-    hadith_idx = (day_number - 1) % len(KIDS_HADITHS)
-    story_idx = (day_number - 1) % len(PROPHET_STORIES)
-    pillar_idx = (day_number - 1) % len(ISLAMIC_PILLARS)
-    library_idx = (day_number - 1) % len(KIDS_LIBRARY_ITEMS)
-    
-    surah = QURAN_SURAHS_FOR_KIDS[surah_idx]
-    dua = KIDS_DUAS[dua_idx]
-    hadith = KIDS_HADITHS[hadith_idx]
-    prophet = PROPHET_STORIES[story_idx]
-    pillar = ISLAMIC_PILLARS[pillar_idx]
-    library_item = KIDS_LIBRARY_ITEMS[library_idx]
-    
-    # Pick specific ayah for memorization (cycle through ayahs)
-    total_ayahs = len(surah["ayahs"])
-    ayah_idx = (day_number - 1) % total_ayahs
-    today_ayah = surah["ayahs"][ayah_idx]
-    
+    Each section is built by a focused helper function.
+    """
+    idx = day_number - 1
+    surah = QURAN_SURAHS_FOR_KIDS[idx % len(QURAN_SURAHS_FOR_KIDS)]
+    dua = KIDS_DUAS[idx % len(KIDS_DUAS)]
+    hadith = KIDS_HADITHS[idx % len(KIDS_HADITHS)]
+    prophet = PROPHET_STORIES[idx % len(PROPHET_STORIES)]
+    pillar = ISLAMIC_PILLARS[idx % len(ISLAMIC_PILLARS)]
+    library_item = KIDS_LIBRARY_ITEMS[idx % len(KIDS_LIBRARY_ITEMS)]
+    today_ayah = surah["ayahs"][idx % len(surah["ayahs"])]
     lang = locale if locale in ["ar", "en", "de", "fr", "tr", "ru", "sv", "nl", "el"] else "en"
-    
-    lesson = {
+
+    return {
         "day": day_number,
         "date": str(date.today()),
         "greeting": _get_greeting(lang),
-        
-        # Section 1: Quran Memorization
-        "quran": {
-            "section_title": _ml("حفظ القرآن", "Quran Memorization", lang),
-            "section_emoji": "📖",
-            "surah_name": surah[f"name_{lang}"] if f"name_{lang}" in surah else surah["name_en"],
-            "surah_number": surah["number"],
-            "ayah": {
-                "number": today_ayah["num"],
-                "arabic": today_ayah["ar"],
-                "translation": today_ayah.get(lang, today_ayah["en"]),
-                "transliteration": "",  # Can be added
-            },
-            "full_surah_ayahs": len(surah["ayahs"]),
-            "tip": _ml("اقرأ الآية 3 مرات ثم أغلق عينيك وحاول تسميعها", "Read the ayah 3 times then close your eyes and try to recite it", lang),
-        },
-        
-        # Section 2: Daily Dua
-        "dua": {
-            "section_title": _ml("دعاء اليوم", "Today's Dua", lang),
-            "section_emoji": dua["emoji"],
-            "title": dua["title"].get(lang, dua["title"]["en"]),
-            "arabic": dua["ar"],
-            "transliteration": dua["transliteration"],
-            "meaning": dua.get(lang, dua["en"]) if lang != "ar" else "",
-        },
-        
-        # Section 3: Hadith of the Day
-        "hadith": {
-            "section_title": _ml("حديث اليوم", "Today's Hadith", lang),
-            "section_emoji": hadith["emoji"],
-            "arabic": hadith["ar"],
-            "translation": hadith.get(lang, hadith["en"]),
-            "source": hadith["source"],
-            "lesson": hadith["lesson"].get(lang, hadith["lesson"]["en"]),
-        },
-        
-        # Section 4: Prophet Story
-        "story": {
-            "section_title": _ml("قصة نبي", "Prophet Story", lang),
-            "section_emoji": prophet["emoji"],
-            "prophet_name": prophet["name"].get(lang, prophet["name"]["en"]),
-            "title": prophet["title"].get(lang, prophet["title"]["en"]),
-            "summary": prophet["summary"].get(lang, prophet["summary"]["en"]),
-            "lesson": prophet["lesson"].get(lang, prophet["lesson"]["en"]),
-            "quran_ref": prophet["quran_ref"],
-        },
-        
-        # Section 5: Islamic Knowledge
+        "quran": _build_quran_section(surah, today_ayah, lang),
+        "dua": _build_dua_section(dua, lang),
+        "hadith": _build_hadith_section(hadith, lang),
+        "story": _build_story_section(prophet, lang),
         "islamic_knowledge": {
             "section_title": _ml("معلومة إسلامية", "Islamic Knowledge", lang),
             "section_emoji": pillar["emoji"],
             "topic": pillar["title"].get(lang, pillar["title"]["en"]),
             "description": pillar["desc"].get(lang, pillar["desc"]["en"]),
         },
-        
-        # Section 6: Library Pick of the Day
         "library_pick": {
             "section_title": _ml("من المكتبة", "From the Library", lang),
             "section_emoji": library_item["emoji"],
@@ -687,12 +682,8 @@ def build_daily_lesson(day_number: int, locale: str = "ar") -> dict:
             "category": library_item["category"],
             "age_range": library_item.get("age_range", "3-10"),
         },
-        
-        # Section 7: Activity / Exercise
         "activity": _build_daily_activity(day_number, lang),
     }
-    
-    return lesson
 
 
 def _ml(ar: str, en: str, lang: str) -> str:
