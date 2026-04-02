@@ -275,7 +275,7 @@ async def auto_categorize_story(data: dict, user: dict = Depends(get_user)):
             cat_key = "general"
         return {"category": cat_key}
     except Exception as e:
-        logging.error(f"AI categorize error: {e}")
+        logger.error(f"AI categorize error: {e}")
         return {"category": "general"}
 
 @router.get("/stories/list-translated")
@@ -492,7 +492,7 @@ async def voice_search_stories(data: dict, user: dict = Depends(get_user)):
                         search_terms = parsed.get("keywords", [query_text])
                         ai_response = parsed.get("response", "")
     except Exception as e:
-        logging.error(f"Voice search AI error: {e}")
+        logger.error(f"Voice search AI error: {e}")
     
     # Search stories using extracted keywords
     or_conditions = []

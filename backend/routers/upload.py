@@ -8,6 +8,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, date, timedelta
 import uuid
 import random
+import base64
 import math
 import re
 import httpx

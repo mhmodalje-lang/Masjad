@@ -4,9 +4,6 @@ Supports: Quiz, Memory, DragDrop, BubblePop, Scenario games.
 All content localized in 9 languages.
 """
 import random
-import json
-import os
-from datetime import datetime
 
 # ═══════ GAME CONTENT DATABASE ═══════
 
@@ -239,7 +236,7 @@ def generate_daily_games(day: int, locale: str = "en") -> dict:
     num_steps = min(5, len(steps))
     start = (day * 2) % max(1, len(steps) - num_steps)
     subset = steps[start:start + num_steps]
-    correct_order = list(range(len(subset)))
+    list(range(len(subset)))
     shuffled_items = list(enumerate(subset))
     random.shuffle(shuffled_items)
     games.append({

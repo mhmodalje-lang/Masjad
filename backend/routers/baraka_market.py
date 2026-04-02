@@ -3,11 +3,10 @@ Router: Baraka Market (مركز المكافآت) & Ad Configuration
 ========================================================
 Handles: Reward videos, blessing coins, golden bricks transfer, ad config
 """
-from fastapi import APIRouter, HTTPException, Depends
-from deps import db, get_user, logger
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime, timedelta
+from fastapi import APIRouter, HTTPException
+from deps import db
+from pydantic import BaseModel
+from datetime import datetime
 import uuid
 
 router = APIRouter(tags=["Baraka Market"])
@@ -240,7 +239,7 @@ async def get_ads_config():
 @router.post("/admin/ads_config")
 async def update_ads_config(updates: dict):
     """Update ad configuration. Admin only."""
-    config = await _get_ad_config()
+    await _get_ad_config()
 
     # NEVER allow kids zone ads
     if "kids_zone_ads" in updates:

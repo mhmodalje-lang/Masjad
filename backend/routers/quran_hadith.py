@@ -1,18 +1,12 @@
 """
 Router: quran_hadith
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, HTTPException, Query
+from deps import db
+from typing import Optional
 from datetime import datetime, date, timedelta
-import uuid
-import random
-import math
 import re
 import httpx
-import os
-import json as json_module
 
 from routers.prayer import STATIC_HADITHS, HADITH_TRANSLATIONS
 
@@ -134,6 +128,38 @@ TAFSIR_LABEL_BY_LANG = {
 }
 
 TAFSIR_CACHE_TTL_DAYS = 30
+
+# Fallback tafsir IDs for languages without native tafsir
+# Uses Ibn Kathir English (169) as scholarly fallback
+TAFSIR_TRANSLATION_FALLBACK_IDS: dict[str, int] = {
+    "de": 169,  # English Ibn Kathir fallback
+    "fr": 169,
+    "tr": 169,
+    "sv": 169,
+    "nl": 169,
+    "el": 169,
+}
+
+
+async def fetch_greek_translations(chapter_number: int) -> dict:
+    """Fetch Greek translations from QuranEnc API. Returns {ayah_num: text} or empty dict."""
+    try:
+        import httpx
+        url = f"https://quranenc.com/api/v1/translation/sura/greek_balgha/{chapter_number}"
+        async with httpx.AsyncClient(timeout=8) as client:
+            resp = await client.get(url)
+            if resp.status_code == 200:
+                data = resp.json()
+                result = {}
+                for verse in data.get("result", []):
+                    aya = verse.get("aya")
+                    text = verse.get("translation", "")
+                    if aya and text:
+                        result[int(aya)] = text
+                return result
+    except Exception:
+        pass
+    return {}
 
 # German surah name translations (KFGQPC-aligned)
 GERMAN_SURAH_NAMES = {
@@ -1048,7 +1074,6 @@ async def verify_hadith_dorar(hadith_number: str):
             raw = r.text
             
             # Parse HTML response from Dorar.net
-            import html as html_mod
             
             # Check for sahih indicators in the response
             is_sahih = False
@@ -1154,7 +1179,7 @@ async def audit_arabic_tashkeel():
     
     for hadith in STATIC_HADITHS:
         text = hadith["text"]
-        total_chars = len(text)
+        len(text)
         arabic_letters = sum(1 for c in text if '\u0600' <= c <= '\u06FF' and c not in TASHKEEL_MARKS and c != ' ')
         tashkeel_count = sum(1 for c in text if c in TASHKEEL_MARKS)
         tashkeel_ratio = tashkeel_count / max(arabic_letters, 1)

@@ -3,11 +3,11 @@
 Modular Architecture - All routes split into domain routers.
 """
 from fastapi import FastAPI, APIRouter
-from fastapi.responses import JSONResponse
 from starlette.middleware.cors import CORSMiddleware
 from datetime import datetime
+from typing import Any
 
-from deps import db, client_db, logger
+from deps import db, client_db
 
 # Import all routers
 from routers.auth import router as auth_router
@@ -49,11 +49,11 @@ app.add_middleware(
 api_router = APIRouter(prefix="/api")
 
 @api_router.get("/")
-async def root():
+async def root() -> dict[str, Any]:
     return {"message": "أذان وحكاية API", "version": "3.0", "status": "running", "architecture": "modular"}
 
 @api_router.get("/health")
-async def health():
+async def health() -> dict[str, Any]:
     return {"status": "healthy", "timestamp": datetime.utcnow().isoformat(), "app": "أذان وحكاية"}
 
 # Include all domain routers
@@ -84,8 +84,8 @@ api_router.include_router(hadith_router)
 app.include_router(api_router)
 
 @app.on_event("startup")
-async def create_indexes():
-    """Create MongoDB indexes for performance"""
+async def create_indexes() -> None:
+    """Create MongoDB indexes for performance."""
     try:
         await db.posts.create_index([("created_at", -1)])
         await db.posts.create_index([("category", 1), ("created_at", -1)])
@@ -180,5 +180,5 @@ async def create_indexes():
         print(f"Quran prefetch note: {e}")
 
 @app.on_event("shutdown")
-async def shutdown():
+async def shutdown() -> None:
     client_db.close()

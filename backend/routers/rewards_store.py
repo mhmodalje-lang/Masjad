@@ -7,13 +7,12 @@ Comprehensive rewards system with:
 - Kids level integration
 - Admin management for ads, items, and points
 """
-from fastapi import APIRouter, HTTPException, Query, Body
+from fastapi import APIRouter, HTTPException, Body
 from deps import db, logger
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime, timedelta
 import uuid
-import math
 
 router = APIRouter(tags=["Rewards Store"])
 
@@ -622,7 +621,7 @@ async def get_kids_level(user_id: str):
     
     # Also count lesson completions
     points_col = db["user_rewards"]
-    profile = await points_col.find_one({"user_id": user_id})
+    await points_col.find_one({"user_id": user_id})
     
     level_info = calc_level(xp, KIDS_LEVEL_THRESHOLDS)
     

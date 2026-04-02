@@ -4,8 +4,7 @@ Advanced Curriculum Content for Stages 6-15
 Comprehensive educational content for Noor Academy
 Each stage has deep, rich, multi-section daily lessons
 """
-from localization_engine import t, get_cat_name
-import random
+from localization_engine import t
 
 # ═══════════════════════════════════════════════════════════════
 # STAGE 6: READING PRACTICE (Days 267-308, 42 days)

@@ -1,39 +1,30 @@
 """
 Router: kids_learn
 """
-from fastapi import APIRouter, HTTPException, Query, Depends, BackgroundTasks
-from deps import db, get_user, logger, security, verify_jwt, create_jwt, hash_password, check_password, ADMIN_EMAILS, STRIPE_API_KEY, EMERGENT_LLM_KEY, haversine, query_overpass, clean_time, OVERPASS_ENDPOINTS, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_EMAIL, FIREBASE_PROJECT_ID, RESEND_API_KEY, GEMINI_API_KEY
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, HTTPException, BackgroundTasks
+from deps import db, logger
+from pydantic import BaseModel
 from datetime import datetime, date, timedelta
 import uuid
-import random
-import math
-import re
-import httpx
-import os
 import json as json_module
 from kids_learning import (
     build_daily_lesson, get_quran_memorization_plan, get_all_duas,
     get_all_hadiths, get_prophet_stories, get_islamic_pillars,
     get_library_categories, get_library_items,
-    QURAN_SURAHS_FOR_KIDS, KIDS_DUAS, KIDS_HADITHS, PROPHET_STORIES, 
-    ISLAMIC_PILLARS, KIDS_LIBRARY_CATEGORIES, KIDS_LIBRARY_ITEMS,
+    QURAN_SURAHS_FOR_KIDS, KIDS_DUAS, KIDS_HADITHS, PROPHET_STORIES,
 )
 from kids_learning_extended import (
-    ALL_PROPHETS, WUDU_STEPS, SALAH_STEPS, ARABIC_ALPHABET,
-    ACHIEVEMENT_BADGES, EXTENDED_LIBRARY, EXTENDED_DUAS, EXTENDED_HADITHS,
-    get_wudu_steps, get_salah_steps, get_alphabet, get_vocabulary as ext_get_vocabulary,
+    ACHIEVEMENT_BADGES, get_wudu_steps, get_salah_steps, get_alphabet, get_vocabulary as ext_get_vocabulary,
     get_achievements, get_all_prophets,
 )
 from kids_curriculum import (
-    get_curriculum_overview, generate_lesson, CURRICULUM_STAGES,
+    get_curriculum_overview, generate_lesson,
 )
 from kids_curriculum_advanced import ADDITIONAL_SURAHS
-from kids_tafsir import get_kids_tafsir, get_surah_kids_tafsir, KIDS_TAFSIR
+from kids_tafsir import get_kids_tafsir, KIDS_TAFSIR
 from quran_api_service import (
     get_kids_surahs_all, get_surah_arabic_and_translation,
-    QURAN_EDITIONS, KIDS_SURAH_NUMBERS, prefetch_kids_surahs
+    QURAN_EDITIONS
 )
 from kids_games_engine import generate_daily_games
 from arabic_course_engine import get_course_overview, get_alphabet_lesson, generate_letter_games, ARABIC_LETTERS
@@ -367,7 +358,6 @@ async def api_achievements(user_id: str = "guest"):
     prog = await db.kids_learn_progress.find_one({"user_id": user_id}, {"_id": 0})
     if not prog:
         prog = {"total_lessons": 0, "streak": 0, "memorized_ayahs": 0, "learned_duas": [], "learned_hadiths": [], "xp": 0}
-    lang = "en"
     earned = get_achievements(prog)
     all_badges = [{"id": b["id"], "emoji": b["emoji"],
                    "title_ar": b["title_ar"], "title_en": b["title_en"],
@@ -392,8 +382,8 @@ async def save_curriculum_progress(payload: dict):
     """Save curriculum progress for a specific day."""
     user_id = payload.get("user_id", "guest")
     day = payload.get("day", 0)
-    sections_done = payload.get("sections_done", 0)
-    total_sections = payload.get("total_sections", 1)
+    payload.get("sections_done", 0)
+    payload.get("total_sections", 1)
     xp_reward = payload.get("xp_reward", 10)
     
     prog = await db.kids_curriculum_progress.find_one({"user_id": user_id})
