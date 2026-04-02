@@ -233,7 +233,7 @@ class TestAdsAPI:
         
         assert response.status_code == 200
         data = response.json()
-        assert data.get("success") == True
+        assert data.get("success")
         assert "ad" in data
         assert data["ad"]["status"] == "pending"
         
@@ -278,7 +278,7 @@ class TestMarketplaceAPI:
         
         assert response.status_code == 200
         data = response.json()
-        assert data.get("success") == True
+        assert data.get("success")
         assert "product" in data
         assert data["product"]["name"] == "Islamic Prayer Beads"
         

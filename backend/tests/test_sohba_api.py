@@ -324,7 +324,7 @@ class TestSohbaDeletePost:
         delete_response = authenticated_client.delete(f"{BASE_URL}/api/sohba/posts/{post_id}")
         assert delete_response.status_code == 200
         data = delete_response.json()
-        assert data.get("deleted") == True
+        assert data.get("deleted")
         print(f"✅ Deleted post {post_id}")
         
         # Verify post no longer exists

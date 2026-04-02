@@ -114,7 +114,7 @@ class TestAdsManagement:
         )
         assert create_response.status_code == 200
         data = create_response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "ad" in data
         assert data["ad"]["name"] == "TEST_Ad_ExoClick"
         assert data["ad"]["provider"] == "ExoClick"
@@ -129,7 +129,7 @@ class TestAdsManagement:
         # Delete
         delete_response = requests.delete(f"{BASE_URL}/api/admin/ads/{ad_id}", headers=auth_headers(admin_token))
         assert delete_response.status_code == 200
-        assert delete_response.json()["success"] == True
+        assert delete_response.json()["success"]
         
         # Verify deleted
         verify_response = requests.get(f"{BASE_URL}/api/admin/ads", headers=auth_headers(admin_token))
@@ -175,7 +175,7 @@ class TestPagesManagement:
         )
         assert create_response.status_code == 200
         data = create_response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "page" in data
         assert data["page"]["title"] == "TEST_Page_Athkar"
         page_id = data["page"]["id"]
@@ -215,7 +215,7 @@ class TestScheduledNotifications:
         )
         assert create_response.status_code == 200
         data = create_response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "notification" in data
         assert data["notification"]["title"] == "TEST_Reminder"
         notif_id = data["notification"]["id"]
@@ -252,7 +252,7 @@ class TestAdminSettings:
         )
         assert update_response.status_code == 200
         data = update_response.json()
-        assert data["success"] == True
+        assert data["success"]
         
         # Verify update persisted
         get_response = requests.get(f"{BASE_URL}/api/admin/settings", headers=auth_headers(admin_token))

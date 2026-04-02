@@ -221,7 +221,7 @@ class TestPrayerTimesAPIs:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "times" in data
         times = data["times"]
         assert "fajr" in times
@@ -247,7 +247,7 @@ class TestPrayerTimesAPIs:
         response = requests.get(f"{BASE_URL}/api/daily-hadith")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "hadith" in data
         hadith = data["hadith"]
         assert "text" in hadith

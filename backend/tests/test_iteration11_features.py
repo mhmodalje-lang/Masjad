@@ -286,7 +286,7 @@ class TestMembershipAPI:
         assert "active" in data
         assert "plan" in data
         # New user should have free plan
-        assert data["plan"] == "free" or data["active"] == False
+        assert data["plan"] == "free" or not data["active"]
         print(f"✅ Membership status: plan={data['plan']}, active={data['active']}")
 
 

@@ -198,7 +198,7 @@ class TestPrayerTimesAPI:
         assert response.status_code == 200
         data = response.json()
         
-        assert data["success"] == True
+        assert data["success"]
         assert "times" in data
         times = data["times"]
         
@@ -247,7 +247,7 @@ class TestDailyHadith:
         assert response.status_code == 200
         data = response.json()
         
-        assert data["success"] == True
+        assert data["success"]
         assert "hadith" in data
         hadith = data["hadith"]
         assert "text" in hadith

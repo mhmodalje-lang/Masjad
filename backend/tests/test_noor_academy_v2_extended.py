@@ -33,7 +33,7 @@ class TestAcademyOverview:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/overview?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "tracks" in data
         assert len(data["tracks"]) == 5
         print("✓ Academy overview returns 5 tracks")
@@ -93,7 +93,7 @@ class TestAqeedahTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/track/aqeedah?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "track" in data
         assert data["track"]["id"] == "aqeedah"
         assert "levels" in data
@@ -104,7 +104,7 @@ class TestAqeedahTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "lesson" in data
         lesson = data["lesson"]
         assert lesson["id"] == 1
@@ -118,7 +118,7 @@ class TestAqeedahTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/11?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         lesson = data["lesson"]
         assert lesson["level"] == 2
         # Level 2 lessons should have actual content (not placeholder)
@@ -132,15 +132,15 @@ class TestAqeedahTrack:
         # First lesson
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/1?locale=en")
         data = response.json()
-        assert data["has_prev"] == False, "First lesson should have has_prev=False"
-        assert data["has_next"] == True, "First lesson should have has_next=True"
+        assert not data["has_prev"], "First lesson should have has_prev=False"
+        assert data["has_next"], "First lesson should have has_next=True"
         print(f"✓ Aqeedah lesson 1: has_prev={data['has_prev']}, has_next={data['has_next']}")
         
         # Middle lesson
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/25?locale=en")
         data = response.json()
-        assert data["has_prev"] == True, "Middle lesson should have has_prev=True"
-        assert data["has_next"] == True, "Middle lesson should have has_next=True"
+        assert data["has_prev"], "Middle lesson should have has_prev=True"
+        assert data["has_next"], "Middle lesson should have has_next=True"
         print(f"✓ Aqeedah lesson 25: has_prev={data['has_prev']}, has_next={data['has_next']}")
 
 
@@ -152,7 +152,7 @@ class TestFiqhTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/track/fiqh?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert data["track"]["id"] == "fiqh"
         print(f"✓ Fiqh track detail: {data['total_levels']} levels")
     
@@ -161,7 +161,7 @@ class TestFiqhTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/fiqh/lesson/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         lesson = data["lesson"]
         assert lesson["id"] == 1
         assert lesson["level"] == 1
@@ -191,7 +191,7 @@ class TestSeerahTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/track/seerah?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert data["track"]["id"] == "seerah"
         print(f"✓ Seerah track detail: {data['total_levels']} levels")
     
@@ -200,7 +200,7 @@ class TestSeerahTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/seerah/lesson/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         lesson = data["lesson"]
         assert lesson["id"] == 1
         assert lesson["level"] == 1
@@ -210,8 +210,8 @@ class TestSeerahTrack:
         """Test Seerah navigation flags"""
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/seerah/lesson/30?locale=en")
         data = response.json()
-        assert data["has_prev"] == True
-        assert data["has_next"] == True
+        assert data["has_prev"]
+        assert data["has_next"]
         print(f"✓ Seerah lesson 30: has_prev={data['has_prev']}, has_next={data['has_next']}")
 
 
@@ -223,7 +223,7 @@ class TestNooraniyaTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/track/nooraniya?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert data["track"]["id"] == "nooraniya"
         print(f"✓ Nooraniya track detail: {data['total_levels']} levels")
     
@@ -237,7 +237,7 @@ class TestNooraniyaTrack:
         
         # Level 1-3 should have actual content
         is_placeholder = content.get("placeholder", False) or content.get("status") == "placeholder"
-        assert is_placeholder == False, "Nooraniya L1 should have actual content"
+        assert not is_placeholder, "Nooraniya L1 should have actual content"
         print("✓ Nooraniya lesson 1 has rich content (not placeholder)")
     
     def test_nooraniya_extended_lesson_40(self):
@@ -258,7 +258,7 @@ class TestAdabTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/adab?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "lessons" in data
         # Adab has 10 main lessons (each with rules)
         assert data["total"] >= 10
@@ -269,7 +269,7 @@ class TestAdabTrack:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/adab/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         adab = data["adab"]
         assert adab["id"] == 1
         assert "title" in adab
@@ -287,7 +287,7 @@ class TestLanguageSupport:
             response = requests.get(f"{BASE_URL}/api/kids-learn/academy/overview?locale={lang}")
             assert response.status_code == 200
             data = response.json()
-            assert data["success"] == True
+            assert data["success"]
             assert data["language"] == lang
             # Verify title is translated (not empty)
             assert len(data["academy_name"]) > 0
@@ -354,7 +354,7 @@ class TestDigitalShield:
         response = requests.get(f"{BASE_URL}/api/digital-shield/overview?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "modules" in data
         assert len(data["modules"]) == 3
         assert data["total_lessons"] == 30
@@ -378,7 +378,7 @@ class TestDigitalShield:
         response = requests.get(f"{BASE_URL}/api/digital-shield/lesson/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         lesson = data["lesson"]
         assert lesson["id"] == 1
         assert "title" in lesson
@@ -392,14 +392,14 @@ class TestDigitalShield:
         # First lesson
         response = requests.get(f"{BASE_URL}/api/digital-shield/lesson/1?locale=en")
         data = response.json()
-        assert data["has_prev"] == False
-        assert data["has_next"] == True
+        assert not data["has_prev"]
+        assert data["has_next"]
         
         # Last lesson
         response = requests.get(f"{BASE_URL}/api/digital-shield/lesson/30?locale=en")
         data = response.json()
-        assert data["has_prev"] == True
-        assert data["has_next"] == False
+        assert data["has_prev"]
+        assert not data["has_next"]
         print("✓ Digital Shield navigation: lesson 1 (prev=False), lesson 30 (next=False)")
     
     def test_digital_shield_module_detail(self):
@@ -407,7 +407,7 @@ class TestDigitalShield:
         response = requests.get(f"{BASE_URL}/api/digital-shield/module/1?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "module" in data
         assert "lessons" in data
         assert len(data["lessons"]) == data["total"]
@@ -451,7 +451,7 @@ class TestEdgeCases:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/999?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == False
+        assert not data["success"]
         print("✓ Invalid lesson ID returns success=False")
     
     def test_invalid_track_id(self):
@@ -459,14 +459,14 @@ class TestEdgeCases:
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/track/invalid?locale=en")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == False
+        assert not data["success"]
         print("✓ Invalid track ID returns success=False")
     
     def test_lesson_0_invalid(self):
         """Test lesson 0 is invalid"""
         response = requests.get(f"{BASE_URL}/api/kids-learn/academy/aqeedah/lesson/0?locale=en")
         data = response.json()
-        assert data["success"] == False
+        assert not data["success"]
         print("✓ Lesson 0 returns success=False")
 
 

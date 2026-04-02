@@ -24,7 +24,7 @@ class TestKidsZoneJourney:
         response = requests.get(f"{BASE_URL}/api/kids-zone/journey?user_id={TEST_USER_ID}")
         assert response.status_code == 200
         data = response.json()
-        assert data.get("success") == True
+        assert data.get("success")
         print("✓ Journey endpoint returns success")
     
     def test_journey_has_worlds_array(self):
@@ -93,8 +93,8 @@ class TestKidsZoneJourney:
         first_stage = first_world["stages"][0]
         
         assert first_stage["id"] == "w1s1"
-        assert first_stage["unlocked"] == True
-        assert first_stage["is_current"] == True
+        assert first_stage["unlocked"]
+        assert first_stage["is_current"]
         print("✓ First stage w1s1 is unlocked and current")
     
     def test_journey_has_current_stage(self):
@@ -135,7 +135,7 @@ class TestKidsZoneStage:
         response = requests.get(f"{BASE_URL}/api/kids-zone/stage/w1s1?user_id={TEST_USER_ID}")
         assert response.status_code == 200
         data = response.json()
-        assert data.get("success") == True
+        assert data.get("success")
         print("✓ Stage w1s1 returns success")
     
     def test_stage_has_activities_array(self):
@@ -235,7 +235,7 @@ class TestKidsZoneCompleteStage:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data.get("success") == True
+        assert data.get("success")
         print("✓ Complete stage returns success")
     
     def test_complete_stage_returns_rewards(self):
@@ -317,10 +317,10 @@ class TestKidsZoneProgression:
         w1s1 = next((s for s in w1["stages"] if s["id"] == "w1s1"), None)
         w1s2 = next((s for s in w1["stages"] if s["id"] == "w1s2"), None)
         
-        assert w1s1["completed"] == True, "w1s1 should be completed"
+        assert w1s1["completed"], "w1s1 should be completed"
         assert w1s1["stars"] == 3, "w1s1 should have 3 stars"
-        assert w1s2["unlocked"] == True, "w1s2 should be unlocked"
-        assert w1s2["is_current"] == True, "w1s2 should be current"
+        assert w1s2["unlocked"], "w1s2 should be unlocked"
+        assert w1s2["is_current"], "w1s2 should be current"
         
         print("✓ Progression works: w1s1 completed, w1s2 unlocked and current")
 

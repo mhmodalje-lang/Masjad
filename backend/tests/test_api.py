@@ -39,7 +39,7 @@ class TestPrayerTimesEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert data["source"] == "aladhan"
         
         # Verify all prayer times are present
@@ -67,7 +67,7 @@ class TestPrayerTimesEndpoint:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "times" in data
         print("✅ Prayer times for Mecca working")
 
@@ -81,7 +81,7 @@ class TestDailyHadithEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "hadith" in data
         
         hadith = data["hadith"]
@@ -124,7 +124,7 @@ class TestAIFeatures:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "athkar" in data
         assert len(data["athkar"]) >= 1
         
@@ -149,7 +149,7 @@ class TestAIFeatures:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] == True
+        assert data["success"]
         assert "athkar" in data
         print("✅ Evening athkar working")
 
