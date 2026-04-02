@@ -14,12 +14,12 @@ import uuid
 from datetime import datetime
 
 # Use the public URL for testing
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bug-fix-tools.preview.emergentagent.com')
+BASE_URL = os.environ.get('TEST_BASE_URL', 'http://localhost:8001')
 
 # Test credentials
 TEST_EMAIL = f"test_iter12_{uuid.uuid4().hex[:6]}@test.com"
-TEST_PASSWORD = "TestPass123!"
-ADMIN_EMAIL = "mhmd321324t@gmail.com"
+TEST_PASSWORD = os.getenv('TEST_PASSWORD', 'TestPass123!')
+ADMIN_EMAIL = os.getenv('TEST_ADMIN_EMAIL', 'mhmd321324t@gmail.com')
 
 
 class TestHealthAndBasics:

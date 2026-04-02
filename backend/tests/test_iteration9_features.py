@@ -13,11 +13,11 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://bug-fix-tools.preview.emergentagent.com"
+    BASE_URL = os.getenv("TEST_BASE_URL", "http://localhost:8001")
 
 # Test credentials
-ADMIN_EMAIL = "mhmd321324t@gmail.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = os.getenv('TEST_ADMIN_EMAIL', 'mhmd321324t@gmail.com')
+ADMIN_PASSWORD = os.getenv('TEST_ADMIN_PASSWORD', 'admin123')
 
 
 class TestHealthAndBasics:

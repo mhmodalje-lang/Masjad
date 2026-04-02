@@ -7,7 +7,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bug-fix-tools.preview.emergentagent.com')
+BASE_URL = os.environ.get('TEST_BASE_URL', 'http://localhost:8001')
 
 
 class TestHealthEndpoint:
@@ -39,7 +39,7 @@ class TestPrayerTimesEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert data["source"] == "aladhan"
         
         # Verify all prayer times are present
@@ -67,7 +67,7 @@ class TestPrayerTimesEndpoint:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "times" in data
         print("✅ Prayer times for Mecca working")
 
@@ -81,7 +81,7 @@ class TestDailyHadithEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "hadith" in data
         
         hadith = data["hadith"]
@@ -124,7 +124,7 @@ class TestAIFeatures:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "athkar" in data
         assert len(data["athkar"]) >= 1
         
@@ -149,7 +149,7 @@ class TestAIFeatures:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "athkar" in data
         print("✅ Evening athkar working")
 

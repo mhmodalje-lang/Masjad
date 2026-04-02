@@ -10,8 +10,8 @@ import json
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
 # Test Credentials
-ADMIN_EMAIL = "mhmd321324t@gmail.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = os.getenv('TEST_ADMIN_EMAIL', 'mhmd321324t@gmail.com')
+ADMIN_PASSWORD = os.getenv('TEST_ADMIN_PASSWORD', 'admin123')
 
 
 class TestHealthAndStatus:

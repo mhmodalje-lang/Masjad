@@ -9,11 +9,11 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bug-fix-tools.preview.emergentagent.com')
+BASE_URL = os.environ.get('TEST_BASE_URL', 'http://localhost:8001')
 
 # Admin credentials for testing
-ADMIN_EMAIL = "mhmd321324t@gmail.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = os.getenv('TEST_ADMIN_EMAIL', 'mhmd321324t@gmail.com')
+ADMIN_PASSWORD = os.getenv('TEST_ADMIN_PASSWORD', 'admin123')
 
 
 class TestHealthAndStatus:
@@ -198,7 +198,7 @@ class TestPrayerTimesAPI:
         assert response.status_code == 200
         data = response.json()
         
-        assert data["success"] is True
+        assert data["success"] == True
         assert "times" in data
         times = data["times"]
         
@@ -247,7 +247,7 @@ class TestDailyHadith:
         assert response.status_code == 200
         data = response.json()
         
-        assert data["success"] is True
+        assert data["success"] == True
         assert "hadith" in data
         hadith = data["hadith"]
         assert "text" in hadith

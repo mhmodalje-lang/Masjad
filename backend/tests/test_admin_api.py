@@ -7,9 +7,9 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bug-fix-tools.preview.emergentagent.com')
-ADMIN_EMAIL = 'mhmd321324t@gmail.com'
-ADMIN_PASSWORD = 'admin123'
+BASE_URL = os.environ.get('TEST_BASE_URL', 'http://localhost:8001')
+ADMIN_EMAIL = os.getenv('TEST_ADMIN_EMAIL', 'mhmd321324t@gmail.com')
+ADMIN_PASSWORD = os.getenv('TEST_ADMIN_PASSWORD', 'admin123')
 
 
 @pytest.fixture(scope='module')
@@ -201,7 +201,7 @@ class TestAdminSettingsEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "message" in data
         
         # Verify update persisted
@@ -252,7 +252,7 @@ class TestAdminNotificationEndpoint:
         assert response.status_code == 200
         
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "message" in data
         assert "target_count" in data
         
@@ -278,7 +278,7 @@ class TestBasicEndpoints:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "times" in data
         assert "fajr" in data["times"]
         print(f"✅ Prayer times: Fajr={data['times']['fajr']}")
@@ -288,7 +288,7 @@ class TestBasicEndpoints:
         response = requests.get(f"{BASE_URL}/api/daily-hadith")
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert "hadith" in data
         assert "text" in data["hadith"]
         print("✅ Daily hadith working")
@@ -301,7 +301,7 @@ class TestBasicEndpoints:
         })
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
+        assert data["success"] == True
         assert data["source"] == "gemini", f"Expected gemini source but got {data['source']}"
         assert "athkar" in data
         print(f"✅ AI athkar working, source={data['source']}")

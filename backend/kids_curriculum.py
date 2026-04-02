@@ -641,8 +641,8 @@ def generate_lesson(day: int, locale: str = "en") -> dict:
 def _make_letter_options(correct: str, idx: int) -> list:
     """Make quiz options for letter identification."""
     options = [correct]
-    all_letters = [l["letter"] for l in LETTERS_28]
-    others = [l for l in all_letters if l != correct]
+    all_letters = [lt["letter"] for lt in LETTERS_28]
+    others = [ch for ch in all_letters if ch != correct]
     random.shuffle(others)
     options.extend(others[:3])
     random.shuffle(options)
@@ -650,127 +650,6 @@ def _make_letter_options(correct: str, idx: int) -> list:
 
 
 def _build_advanced_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
-    """Build sections for advanced stages (6-15)."""
-    sections = []
-    
-    if stage_id == "S06":  # Reading Practice
-        words = []
-        for cat in VOCAB_CATEGORIES.values():
-            words.extend(cat)
-        w = words[lesson_idx % len(words)]
-        w_translated = _tw(w["en"], lang, w["ar"])
-        sections = [
-            {"type": "read", "emoji": "📖", "title": t("read_word", lang),
-             "content": {"arabic": w["ar"], "translated": w_translated, "emoji": w.get("emoji","")}},
-            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-             "content": {"text": w["ar"]}},
-        ]
-    
-    elif stage_id == "S07":  # Islamic Foundations
-        topics = ["shahada","salah","zakat","sawm","hajj","wudu","iman","mosque","quran_intro","islamic_months"]
-        topic = topics[lesson_idx % len(topics)]
-        topic_content = {
-            "shahada": {"ar":"الشهادتان: أشهد أن لا إله إلا الله وأن محمداً رسول الله","en":"The Two Testimonies: I bear witness there is no god but Allah and Muhammad is His messenger","de":"Die zwei Bekenntnisse: Ich bezeuge, dass es keinen Gott gibt außer Allah und dass Muhammad Sein Gesandter ist","fr":"Les deux témoignages: J'atteste qu'il n'y a de dieu qu'Allah et que Muhammad est Son messager","tr":"İki Şehadet: Allah'tan başka ilah olmadığına ve Muhammed'in O'nun elçisi olduğuna şehadet ederim","ru":"Два свидетельства: Свидетельствую, что нет бога, кроме Аллаха, и что Мухаммад — Его посланник","sv":"De två vittnesbörden: Jag vittnar att det inte finns någon gud utom Allah och att Muhammad är Hans sändebud","nl":"De twee getuigenissen: Ik getuig dat er geen god is dan Allah en dat Mohammed Zijn boodschapper is","el":"Οι δύο μαρτυρίες: Μαρτυρώ ότι δεν υπάρχει θεός εκτός του Αλλάχ και ότι ο Μωχάμεντ είναι ο απεσταλμένος Του"},
-            "salah": {"ar":"الصلاة: خمس صلوات في اليوم - الفجر، الظهر، العصر، المغرب، العشاء","en":"Prayer: Five daily prayers - Fajr, Dhuhr, Asr, Maghrib, Isha","de":"Gebet: Fünf tägliche Gebete - Fajr, Dhuhr, Asr, Maghrib, Isha","fr":"Prière: Cinq prières quotidiennes - Fajr, Dhuhr, Asr, Maghrib, Isha","tr":"Namaz: Günde beş vakit namaz - Sabah, Öğle, İkindi, Akşam, Yatsı","ru":"Молитва: Пять ежедневных молитв - Фаджр, Зухр, Аср, Магриб, Иша","sv":"Bön: Fem dagliga böner - Fajr, Dhuhr, Asr, Maghrib, Isha","nl":"Gebed: Vijf dagelijkse gebeden - Fajr, Dhuhr, Asr, Maghrib, Isha","el":"Προσευχή: Πέντε καθημερινές προσευχές - Φατζρ, Ντουχρ, Ασρ, Μαγκρίμπ, Ίσα"},
-            "zakat": {"ar":"الزكاة: إعطاء جزء من المال للفقراء","en":"Zakat: Giving a portion of wealth to the poor","de":"Zakat: Einen Teil des Vermögens den Armen geben","fr":"Zakat: Donner une partie de ses richesses aux pauvres","tr":"Zekat: Malın bir kısmını fakirlere vermek","ru":"Закят: Отдать часть имущества бедным","sv":"Zakat: Ge en del av sin rikedom till de fattiga","nl":"Zakat: Een deel van het vermogen aan de armen geven","el":"Ζακάτ: Δίνοντας μέρος του πλούτου στους φτωχούς"},
-            "sawm": {"ar":"الصوم: الامتناع عن الطعام والشراب في رمضان من الفجر للمغرب","en":"Fasting: Abstaining from food and drink in Ramadan from dawn to sunset","de":"Fasten: Verzicht auf Essen und Trinken im Ramadan von der Morgendämmerung bis zum Sonnenuntergang","fr":"Jeûne: S'abstenir de manger et boire pendant le Ramadan de l'aube au coucher du soleil","tr":"Oruç: Ramazan'da fecirden akşama kadar yeme içmeden uzak durmak","ru":"Пост: Воздержание от еды и питья в Рамадан от рассвета до заката","sv":"Fasta: Avstå från mat och dryck under Ramadan från gryning till solnedgång","nl":"Vasten: Onthouding van eten en drinken in Ramadan van zonsopgang tot zonsondergang","el":"Νηστεία: Αποχή από φαγητό και ποτό στο Ραμαζάνι από την αυγή ως τη δύση"},
-            "hajj": {"ar":"الحج: زيارة مكة المكرمة مرة في العمر لمن استطاع","en":"Hajj: Visiting Makkah once in a lifetime for those who can","de":"Hadsch: Einmal im Leben Makkah besuchen, für diejenigen, die es können","fr":"Hajj: Visiter La Mecque une fois dans sa vie pour ceux qui le peuvent","tr":"Hac: Gücü yetenlerin ömürde bir kez Mekke'yi ziyaret etmesi","ru":"Хадж: Посещение Мекки раз в жизни для тех, кто может","sv":"Hajj: Besöka Mecka en gång i livet för de som kan","nl":"Hadj: Mekka eenmaal in het leven bezoeken voor wie het kan","el":"Χατζ: Επίσκεψη στη Μέκκα μία φορά στη ζωή για όσους μπορούν"},
-            "wudu": {"ar":"الوضوء: غسل أجزاء من الجسم استعداداً للصلاة","en":"Wudu: Washing parts of the body in preparation for prayer","de":"Wudu: Waschen von Körperteilen zur Vorbereitung auf das Gebet","fr":"Wudu: Laver certaines parties du corps en préparation de la prière","tr":"Abdest: Namaza hazırlık olarak vücudun bazı bölümlerini yıkamak","ru":"Вуду: Омовение частей тела перед молитвой","sv":"Wudu: Tvätta delar av kroppen som förberedelse för bön","nl":"Woedoe: Lichaamsdelen wassen ter voorbereiding op het gebed","el":"Γουντού: Πλύσιμο μερών του σώματος ως προετοιμασία για προσευχή"},
-            "iman": {"ar":"أركان الإيمان الستة: الإيمان بالله والملائكة والكتب والرسل واليوم الآخر والقدر","en":"Six Pillars of Faith: Belief in Allah, Angels, Books, Messengers, Last Day, and Divine Decree","de":"Sechs Säulen des Glaubens: Glaube an Allah, Engel, Bücher, Gesandte, den Jüngsten Tag und die göttliche Bestimmung","fr":"Six piliers de la foi: Croyance en Allah, les Anges, les Livres, les Messagers, le Jour dernier et le Décret divin","tr":"İmanın Altı Şartı: Allah'a, meleklere, kitaplara, peygamberlere, ahiret gününe ve kadere iman","ru":"Шесть столпов веры: Вера в Аллаха, ангелов, Писания, посланников, Судный день и предопределение","sv":"Sex trosartiklar: Tro på Allah, änglarna, Böckerna, Sändebuden, den Yttersta dagen och det gudomliga dekretet","nl":"Zes geloofsartikelen: Geloof in Allah, de engelen, de Boeken, de Boodschappers, de Laatste Dag en het goddelijk besluit","el":"Έξι πυλώνες πίστης: Πίστη στον Αλλάχ, τους αγγέλους, τα Βιβλία, τους Απεσταλμένους, την Τελευταία Ημέρα και τη θεία μοίρα"},
-            "mosque": {"ar":"المسجد: بيت الله حيث يصلي المسلمون ويتعلمون","en":"The Mosque: House of Allah where Muslims pray and learn","de":"Die Moschee: Haus Allahs, in dem Muslime beten und lernen","fr":"La Mosquée: Maison d'Allah où les musulmans prient et apprennent","tr":"Cami: Müslümanların namaz kıldığı ve öğrendiği Allah'ın evi","ru":"Мечеть: Дом Аллаха, где мусульмане молятся и учатся","sv":"Moskén: Allahs hus där muslimer ber och lär sig","nl":"De Moskee: Huis van Allah waar moslims bidden en leren","el":"Το Τζαμί: Οίκος του Αλλάχ όπου οι μουσουλμάνοι προσεύχονται και μαθαίνουν"},
-            "quran_intro": {"ar":"القرآن الكريم: كلام الله المنزل على محمد ﷺ فيه 114 سورة","en":"The Holy Quran: Allah's word revealed to Muhammad ﷺ, containing 114 surahs","de":"Der Heilige Koran: Allahs Wort, offenbart an Muhammad ﷺ, mit 114 Suren","fr":"Le Saint Coran: Parole d'Allah révélée à Muhammad ﷺ, contenant 114 sourates","tr":"Kur'an-ı Kerim: Hz. Muhammed'e ﷺ indirilen Allah'ın sözü, 114 sure içerir","ru":"Священный Коран: Слово Аллаха, ниспосланное Мухаммаду ﷺ, содержащее 114 сур","sv":"Den heliga Koranen: Allahs ord uppenbarade för Muhammad ﷺ, innehåller 114 suror","nl":"De Heilige Koran: Allahs woord geopenbaard aan Muhammad ﷺ, bevat 114 soera's","el":"Το Ιερό Κοράνι: Ο λόγος του Αλλάχ που αποκαλύφθηκε στον Μωχάμεντ ﷺ, περιέχει 114 σούρες"},
-            "islamic_months": {"ar":"الأشهر الهجرية: محرم، صفر، ربيع الأول... رمضان، شوال، ذو القعدة، ذو الحجة","en":"Islamic Months: Muharram, Safar, Rabi al-Awwal... Ramadan, Shawwal, Dhul-Qi'dah, Dhul-Hijjah","de":"Islamische Monate: Muharram, Safar, Rabi al-Awwal... Ramadan, Schawwal, Dhul-Qi'da, Dhul-Hiddscha","fr":"Mois islamiques: Muharram, Safar, Rabi al-Awwal... Ramadan, Chawwal, Dhul-Qi'da, Dhul-Hijja","tr":"Hicri Aylar: Muharrem, Safer, Rebiülevvel... Ramazan, Şevval, Zilkade, Zilhicce","ru":"Исламские месяцы: Мухаррам, Сафар, Раби аль-Авваль... Рамадан, Шавваль, Зуль-Каада, Зуль-Хиджа","sv":"Islamiska månader: Muharram, Safar, Rabi al-Awwal... Ramadan, Shawwal, Dhul-Qi'dah, Dhul-Hijjah","nl":"Islamitische maanden: Muharram, Safar, Rabi al-Awwal... Ramadan, Shawwal, Dhul-Qi'dah, Dhul-Hijjah","el":"Ισλαμικοί μήνες: Μουχάρραμ, Σαφάρ, Ράμπι αλ-Αουάλ... Ραμαζάνι, Σαουάλ, Ζουλ-Κίντα, Ζουλ-Χίτζα"},
-        }
-        tc = topic_content.get(topic, topic_content["shahada"])
-        sections = [
-            {"type": "learn", "emoji": "🤲", "title": t("learn", lang),
-             "content": {"arabic": tc["ar"], "translated": tc.get(lang, tc["ar"])}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
-             "content": {"text": tc["ar"], "tip": t("tip_read_3_memory", lang)}},
-        ]
-    
-    elif stage_id in ["S08","S14"]:  # Quran Memorization
-        from kids_learning import QURAN_SURAHS_FOR_KIDS
-        s_idx = lesson_idx // 7
-        a_idx = lesson_idx % 7
-        if s_idx < len(QURAN_SURAHS_FOR_KIDS):
-            surah = QURAN_SURAHS_FOR_KIDS[s_idx]
-            ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
-            sections = [
-                {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
-                 "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
-                             "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("ar", ayah["en"]))}},
-                {"type": "listen", "emoji": "🔊", "title": t("listen", lang),
-                 "content": {"text": ayah["ar"]}},
-                {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
-                 "content": {"tip": t("tip_close_eyes_recite", lang)}},
-            ]
-        else:
-            sections = [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {}}]
-    
-    elif stage_id == "S09":  # Duas
-        from kids_learning import KIDS_DUAS
-        d = KIDS_DUAS[lesson_idx % len(KIDS_DUAS)]
-        sections = [
-            {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["ar"]),
-             "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d.get("ar", d["en"]))}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize_dua", lang),
-             "content": {"tip": t("tip_repeat_dua_5", lang)}},
-        ]
-    
-    elif stage_id == "S10":  # Hadiths
-        from kids_learning import KIDS_HADITHS
-        h = KIDS_HADITHS[lesson_idx % len(KIDS_HADITHS)]
-        sections = [
-            {"type": "hadith", "emoji": h["emoji"], "title": t("todays_hadith", lang),
-             "content": {"arabic": h["ar"], "translation": h.get(lang, h.get("ar", h["en"])), "source": h["source"],
-                         "lesson": h["lesson"].get(lang, h["lesson"].get("ar", h["lesson"]["en"]))}},
-            {"type": "reflect", "emoji": "💭", "title": t("reflect", lang),
-             "content": {"tip": t("tip_apply_hadith", lang)}},
-        ]
-    
-    elif stage_id == "S11":  # Prophet Stories
-        from kids_learning_extended import ALL_PROPHETS, get_prophet_field
-        p = ALL_PROPHETS[lesson_idx % len(ALL_PROPHETS)]
-        p_name = get_prophet_field(p, "name", lang) or p["name"].get(lang, p["name"].get("ar", p["name"]["en"]))
-        p_title = get_prophet_field(p, "title", lang) or p["title"].get(lang, p["title"].get("ar", p["title"]["en"]))
-        p_summary = get_prophet_field(p, "summary", lang)
-        p_lesson = get_prophet_field(p, "lesson", lang)
-        sections = [
-            {"type": "story", "emoji": p["emoji"], "title": p_name,
-             "content": {"name": p_name, "title": p_title,
-                         "summary": p_summary,
-                         "lesson": p_lesson, "quran_ref": p["quran_ref"]}},
-        ]
-    
-    elif stage_id == "S12":  # Islamic Life
-        topics = [
-            {"emoji":"🌙","ar":"رمضان شهر الصيام والقرآن والعبادة. نصوم من الفجر إلى المغرب","en":"Ramadan is the month of fasting, Quran and worship. We fast from dawn to sunset","de":"Ramadan ist der Monat des Fastens, des Korans und der Anbetung. Wir fasten von der Morgendämmerung bis zum Sonnenuntergang","fr":"Le Ramadan est le mois du jeûne, du Coran et de l'adoration. Nous jeûnons de l'aube au coucher du soleil","tr":"Ramazan oruç, Kur'an ve ibadet ayıdır. Fecirden akşama kadar oruç tutarız","ru":"Рамадан — месяц поста, Корана и поклонения. Мы постимся от рассвета до заката","sv":"Ramadan är månaden för fasta, Koranen och tillbedjan. Vi fastar från gryning till solnedgång","nl":"Ramadan is de maand van vasten, Koran en aanbidding. We vasten van dageraad tot zonsondergang","el":"Το Ραμαζάνι είναι ο μήνας νηστείας, Κορανίου και λατρείας. Νηστεύουμε από την αυγή ως τη δύση"},
-            {"emoji":"🕋","ar":"الحج: ملايين المسلمين يزورون مكة كل عام لأداء مناسك الحج","en":"Hajj: Millions of Muslims visit Makkah every year to perform the pilgrimage","de":"Hadsch: Millionen Muslime besuchen jedes Jahr Mekka zur Pilgerfahrt","fr":"Hajj: Des millions de musulmans visitent La Mecque chaque année pour le pèlerinage","tr":"Hac: Her yıl milyonlarca Müslüman hac için Mekke'yi ziyaret eder","ru":"Хадж: Миллионы мусульман ежегодно посещают Мекку для паломничества","sv":"Hajj: Miljontals muslimer besöker Mecka varje år för pilgrimsfärden","nl":"Hadj: Miljoenen moslims bezoeken elk jaar Mekka voor de bedevaart","el":"Χατζ: Εκατομμύρια μουσουλμάνοι επισκέπτονται τη Μέκκα κάθε χρόνο για το προσκύνημα"},
-            {"emoji":"🎉","ar":"عيد الفطر: نفرح بعد رمضان، نصلي صلاة العيد ونزور الأهل","en":"Eid Al-Fitr: We celebrate after Ramadan, pray Eid prayer and visit family","de":"Eid Al-Fitr: Wir feiern nach dem Ramadan, beten das Eid-Gebet und besuchen die Familie","fr":"Aïd Al-Fitr: Nous célébrons après le Ramadan, prions la prière de l'Aïd et rendons visite à la famille","tr":"Ramazan Bayramı: Ramazan'dan sonra kutlarız, bayram namazı kılarız ve aileyi ziyaret ederiz","ru":"Ид аль-Фитр: Мы празднуем после Рамадана, совершаем праздничную молитву и навещаем семью","sv":"Eid Al-Fitr: Vi firar efter Ramadan, ber Eid-bönen och besöker familjen","nl":"Eid Al-Fitr: We vieren na Ramadan, bidden het Eid-gebed en bezoeken familie","el":"Εΐντ Αλ-Φιτρ: Γιορτάζουμε μετά το Ραμαζάνι, κάνουμε την προσευχή του Εΐντ και επισκεπτόμαστε την οικογένεια"},
-            {"emoji":"🐑","ar":"عيد الأضحى: نتذكر قصة إبراهيم وإسماعيل ونضحي","en":"Eid Al-Adha: We remember Ibrahim and Ismail's story and offer sacrifice","de":"Eid Al-Adha: Wir erinnern uns an die Geschichte von Ibrahim und Ismail und opfern","fr":"Aïd Al-Adha: Nous nous souvenons de l'histoire d'Ibrahim et Ismaïl et offrons un sacrifice","tr":"Kurban Bayramı: İbrahim ve İsmail'in kıssasını hatırlarız ve kurban keseriz","ru":"Ид аль-Адха: Мы вспоминаем историю Ибрахима и Исмаила и приносим жертву","sv":"Eid Al-Adha: Vi minns berättelsen om Ibrahim och Ismail och offrar","nl":"Eid Al-Adha: We herdenken het verhaal van Ibrahim en Ismail en brengen een offer","el":"Εΐντ Αλ-Άντχα: Θυμόμαστε την ιστορία του Ιμπραχίμ και του Ισμαήλ και προσφέρουμε θυσία"},
-            {"emoji":"🕌","ar":"يوم الجمعة: أفضل أيام الأسبوع، نصلي صلاة الجمعة في المسجد","en":"Friday: The best day of the week, we pray Jumu'ah prayer at the mosque","de":"Freitag: Der beste Tag der Woche, wir beten das Freitagsgebet in der Moschee","fr":"Vendredi: Le meilleur jour de la semaine, nous prions la prière du vendredi à la mosquée","tr":"Cuma: Haftanın en hayırlı günü, camide Cuma namazı kılarız","ru":"Пятница: Лучший день недели, мы совершаем пятничную молитву в мечети","sv":"Fredag: Veckans bästa dag, vi ber fredagsbönen i moskén","nl":"Vrijdag: De beste dag van de week, we bidden het vrijdaggebed in de moskee","el":"Παρασκευή: Η καλύτερη μέρα της εβδομάδας, κάνουμε την προσευχή Τζούμα στο τζαμί"},
-        ]
-        topic_item = topics[lesson_idx % len(topics)]
-        topic_translated = topic_item.get(lang, topic_item["ar"])
-        sections = [
-            {"type": "learn", "emoji": topic_item["emoji"], "title": t("learn", lang),
-             "content": {"arabic": topic_item["ar"], "translated": topic_translated}},
-        ]
-    
-    elif stage_id == "S13":  # Advanced Arabic
-        sections = [
-            {"type": "grammar", "emoji": "📚", "title": t("grammar", lang),
-             "content": {"tip": t("tip_learn_grammar", lang)}},
-        ]
-    
-    elif stage_id == "S15":  # Mastery
-        sections = [
-            {"type": "review", "emoji": "🎓", "title": t("comprehensive_review", lang),
-             "content": {"tip": t("tip_review_all", lang)}},
-        ]
-    
-    if not sections:
-        sections = [{"type": "learn", "emoji": "📝", "title": t("lesson", lang), "content": {}}]
-    
-    return sections
+    """Deprecated: Use build_rich_sections from kids_curriculum_advanced instead."""
+    from kids_curriculum_advanced import build_rich_sections
+    return build_rich_sections(stage_id, lesson_idx, lang)

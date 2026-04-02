@@ -16,7 +16,7 @@ BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
 # Test user credentials
 TEST_EMAIL = f"test_iter11_{uuid.uuid4().hex[:8]}@test.com"
-TEST_PASSWORD = "TestPass123!"
+TEST_PASSWORD = os.getenv('TEST_PASSWORD', 'TestPass123!')
 TEST_TOKEN = None
 
 

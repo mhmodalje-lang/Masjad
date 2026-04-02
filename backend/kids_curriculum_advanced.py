@@ -757,238 +757,239 @@ MASTERY_REVIEWS = [
 # MAIN BUILDER FUNCTION - Replaces the thin _build_advanced_sections
 # ═══════════════════════════════════════════════════════════════
 
-def build_rich_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
-    """Build comprehensive multi-section lessons for stages 6-15."""
-    sections = []
-    
-    # ═══ STAGE 6: Reading Practice ═══
-    if stage_id == "S06":
-        passage = READING_PASSAGES[lesson_idx % len(READING_PASSAGES)]
-        ar_text = passage["ar"]
-        en_text = passage["en"]
-        display_text = ar_text if lang == "ar" else en_text
-        
-        sections = [
-            {"type": "read", "emoji": "📖", "title": t("read_word", lang),
-             "content": {"arabic": ar_text, "translated": en_text if lang != "ar" else "", "emoji": passage["emoji"]}},
-            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-             "content": {"text": ar_text, "tip": t("tip_repeat_sentence", lang)}},
-            {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-             "content": {"question": passage.get(f"question_{lang}", passage.get("question_en", passage["question_ar"])),
-                         "correct": passage.get(f"answer_{lang}", passage.get("answer_en", passage["answer_ar"])),
-                         "options": passage.get(f"options_{lang}", passage.get("options_en", passage["options_ar"]))}},
-            {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
-             "content": {"sentence": ar_text, "tip": t("tip_write_sentence_3", lang)}},
-        ]
-    
-    # ═══ STAGE 7: Islamic Foundations ═══
-    elif stage_id == "S07":
-        topic = ISLAMIC_FOUNDATIONS_DETAILED[lesson_idx % len(ISLAMIC_FOUNDATIONS_DETAILED)]
-        title_text = topic["title"].get(lang, topic["title"].get("en", topic["title"]["ar"]))
-        content_text = topic["content"].get(lang, topic["content"].get("en", topic["content"]["ar"]))
-        memorize_text = topic["memorize"].get(lang, topic["memorize"].get("en", topic["memorize"]["ar"]))
-        
-        sections = [
-            {"type": "learn", "emoji": topic["emoji"], "title": title_text,
-             "content": {"arabic": topic["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
-             "content": {"text": topic["memorize"]["ar"], "tip": memorize_text if lang != "ar" else t("tip_read_3_memory", lang)}},
-            {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-             "content": {"question": topic["quiz_q"].get(lang, topic["quiz_q"].get("en", topic["quiz_q"]["ar"])),
-                         "correct": topic["quiz_a"].get(lang, topic["quiz_a"].get("en", topic["quiz_a"]["ar"])),
-                         "options": topic["quiz_opts"].get(lang, topic["quiz_opts"].get("en", topic["quiz_opts"]["ar"]))}},
-        ]
-    
-    # ═══ STAGE 8: Quran Memorization ═══
-    elif stage_id == "S08":
+def _build_stage_reading(lesson_idx: int, lang: str) -> list:
+    """Stage 6: Reading Practice sections."""
+    passage = READING_PASSAGES[lesson_idx % len(READING_PASSAGES)]
+    ar_text, en_text = passage["ar"], passage["en"]
+    return [
+        {"type": "read", "emoji": "📖", "title": t("read_word", lang),
+         "content": {"arabic": ar_text, "translated": en_text if lang != "ar" else "", "emoji": passage["emoji"]}},
+        {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+         "content": {"text": ar_text, "tip": t("tip_repeat_sentence", lang)}},
+        {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+         "content": {"question": passage.get(f"question_{lang}", passage.get("question_en", passage["question_ar"])),
+                     "correct": passage.get(f"answer_{lang}", passage.get("answer_en", passage["answer_ar"])),
+                     "options": passage.get(f"options_{lang}", passage.get("options_en", passage["options_ar"]))}},
+        {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
+         "content": {"sentence": ar_text, "tip": t("tip_write_sentence_3", lang)}},
+    ]
+
+
+def _build_stage_islamic(lesson_idx: int, lang: str) -> list:
+    """Stage 7: Islamic Foundations sections."""
+    topic = ISLAMIC_FOUNDATIONS_DETAILED[lesson_idx % len(ISLAMIC_FOUNDATIONS_DETAILED)]
+    title_text = topic["title"].get(lang, topic["title"].get("en", topic["title"]["ar"]))
+    content_text = topic["content"].get(lang, topic["content"].get("en", topic["content"]["ar"]))
+    memorize_text = topic["memorize"].get(lang, topic["memorize"].get("en", topic["memorize"]["ar"]))
+    return [
+        {"type": "learn", "emoji": topic["emoji"], "title": title_text,
+         "content": {"arabic": topic["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
+        {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
+         "content": {"text": topic["memorize"]["ar"], "tip": memorize_text if lang != "ar" else t("tip_read_3_memory", lang)}},
+        {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+         "content": {"question": topic["quiz_q"].get(lang, topic["quiz_q"].get("en", topic["quiz_q"]["ar"])),
+                     "correct": topic["quiz_a"].get(lang, topic["quiz_a"].get("en", topic["quiz_a"]["ar"])),
+                     "options": topic["quiz_opts"].get(lang, topic["quiz_opts"].get("en", topic["quiz_opts"]["ar"]))}},
+    ]
+
+
+def _build_stage_quran(lesson_idx: int, lang: str) -> list:
+    """Stage 8: Quran Memorization sections."""
+    from kids_learning import QURAN_SURAHS_FOR_KIDS
+    all_surahs = QURAN_SURAHS_FOR_KIDS + ADDITIONAL_SURAHS
+    s_idx, a_idx = lesson_idx // 7, lesson_idx % 7
+    if s_idx >= len(all_surahs):
+        return [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {"tip": t("tip_review_all", lang)}}]
+    surah = all_surahs[s_idx]
+    ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
+    return [
+        {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
+         "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
+                     "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("en", ""))}},
+        {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+         "content": {"text": ayah["ar"], "tip": t("tip_tap_letter", lang)}},
+        {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
+         "content": {"text": ayah["ar"], "tip": t("tip_close_eyes_recite", lang)}},
+        {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
+         "content": {"sentence": ayah["ar"], "tip": t("tip_write_sentence_3", lang)}},
+    ]
+
+
+def _build_stage_duas(lesson_idx: int, lang: str) -> list:
+    """Stage 9: Duas sections."""
+    from kids_learning import KIDS_DUAS
+    d = KIDS_DUAS[lesson_idx % len(KIDS_DUAS)]
+    quiz_q = t("quiz_complete_dua", lang)
+    if quiz_q == "quiz_complete_dua":
+        quiz_q = {"ar": "أكمل الدعاء", "en": "Complete the dua"}.get(lang, "أكمل الدعاء")
+    return [
+        {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["ar"]),
+         "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d.get("en", ""))}},
+        {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+         "content": {"text": d["ar"], "tip": t("tip_repeat_sentence", lang)}},
+        {"type": "memorize", "emoji": "🧠", "title": t("memorize_dua", lang),
+         "content": {"text": d["ar"], "tip": t("tip_repeat_dua_5", lang)}},
+        {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+         "content": {"question": quiz_q, "correct": d["ar"][:30],
+                     "options": [d["ar"][:30], KIDS_DUAS[(lesson_idx+1) % len(KIDS_DUAS)]["ar"][:30], KIDS_DUAS[(lesson_idx+2) % len(KIDS_DUAS)]["ar"][:30]]}},
+    ]
+
+
+def _build_stage_hadiths(lesson_idx: int, lang: str) -> list:
+    """Stage 10: Hadiths sections."""
+    from kids_learning import KIDS_HADITHS
+    h = KIDS_HADITHS[lesson_idx % len(KIDS_HADITHS)]
+    return [
+        {"type": "hadith", "emoji": h["emoji"], "title": t("todays_hadith", lang),
+         "content": {"arabic": h["ar"], "translation": h.get(lang, h.get("en", "")), "source": h["source"],
+                     "lesson": h["lesson"].get(lang, h["lesson"].get("en", ""))}},
+        {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
+         "content": {"text": h["ar"], "tip": t("tip_read_3_memory", lang)}},
+        {"type": "reflect", "emoji": "💭", "title": t("reflect", lang),
+         "content": {"tip": h["lesson"].get(lang, h["lesson"].get("en", ""))}},
+    ]
+
+
+def _build_stage_prophets(lesson_idx: int, lang: str) -> list:
+    """Stage 11: Prophet Stories sections."""
+    from kids_learning_extended import ALL_PROPHETS, get_prophet_field
+    p = ALL_PROPHETS[lesson_idx % len(ALL_PROPHETS)]
+    p_name = get_prophet_field(p, "name", lang) or p["name"].get(lang, p["name"].get("ar", ""))
+    p_title = get_prophet_field(p, "title", lang) or p["title"].get(lang, p["title"].get("ar", ""))
+    p_summary = get_prophet_field(p, "summary", lang)
+    p_lesson = get_prophet_field(p, "lesson", lang)
+    return [
+        {"type": "story", "emoji": p["emoji"], "title": p_name,
+         "content": {"name": p_name, "title": p_title, "summary": p_summary,
+                     "lesson": p_lesson, "quran_ref": p["quran_ref"]}},
+        {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
+         "content": {"text": p["quran_ref"], "tip": p_lesson}},
+        {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+         "content": {"question": {"ar": f"ما لقب النبي {p['name'].get('ar', '')}؟", "en": f"What is Prophet {p['name'].get('en', '')}'s title?"}.get(lang, f"ما لقب النبي {p['name'].get('ar', '')}؟"),
+                     "correct": p_title,
+                     "options": [p_title,
+                                 get_prophet_field(ALL_PROPHETS[(lesson_idx+1) % len(ALL_PROPHETS)], "title", lang),
+                                 get_prophet_field(ALL_PROPHETS[(lesson_idx+3) % len(ALL_PROPHETS)], "title", lang)]}},
+    ]
+
+
+def _build_stage_islamic_life(lesson_idx: int, lang: str) -> list:
+    """Stage 12: Islamic Life sections."""
+    topic = ISLAMIC_LIFE_TOPICS[lesson_idx % len(ISLAMIC_LIFE_TOPICS)]
+    content_text = topic["content"].get(lang, topic["content"].get("en", topic["content"]["ar"]))
+    return [
+        {"type": "learn", "emoji": topic["emoji"], "title": topic["title"].get(lang, topic["title"].get("en", topic["title"]["ar"])),
+         "content": {"arabic": topic["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
+        {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
+         "content": {"text": topic["content"]["ar"][:80], "tip": t("tip_repeat_sentence", lang)}},
+        {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
+         "content": {"text": topic["content"]["ar"][:80], "tip": t("tip_read_3_memory", lang)}},
+    ]
+
+
+def _build_stage_grammar(lesson_idx: int, lang: str) -> list:
+    """Stage 13: Advanced Arabic Grammar sections."""
+    grammar = ARABIC_GRAMMAR_LESSONS[lesson_idx % len(ARABIC_GRAMMAR_LESSONS)]
+    content_text = grammar["content"].get(lang, grammar["content"].get("en", grammar["content"]["ar"]))
+    sections = [
+        {"type": "learn", "emoji": grammar["emoji"],
+         "title": grammar["title"].get(lang, grammar["title"].get("en", grammar["title"]["ar"])),
+         "content": {"arabic": grammar["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
+    ]
+    if grammar.get("practice"):
+        items = _extract_practice_items(grammar["practice"])
+        if items:
+            sections.append({"type": "practice", "emoji": "🎯", "title": t("test", lang), "content": {"items": items, "tip": t("listen_repeat", lang)}})
+    sections.append({"type": "write", "emoji": "✍️", "title": t("practice_writing", lang), "content": {"tip": t("tip_write_sentence_3", lang)}})
+    return sections
+
+
+def _extract_practice_items(practice_list: list) -> list:
+    """Extract practice items from grammar practice data."""
+    items = []
+    for p in practice_list:
+        if "word" in p:
+            items.append(p.get("word", "") + " → " + p.get("plural", p.get("opposite", "")))
+        elif "past" in p:
+            items.append(p["past"] + " → " + p["present"] + " → " + p["command"])
+        elif "sentence" in p:
+            items.append(p["sentence"])
+        elif "question" in p:
+            items.append(p["question"] + " — " + p["answer"])
+        elif "pronoun" in p:
+            items.append(p["pronoun"] + ": " + p["example"])
+        elif "day" in p:
+            items.append(p["day"])
+    return items
+
+
+def _build_stage_advanced_quran(lesson_idx: int, lang: str) -> list:
+    """Stage 14: Advanced Quran + Tajweed sections."""
+    half = 30
+    if lesson_idx < half:
         from kids_learning import QURAN_SURAHS_FOR_KIDS
         all_surahs = QURAN_SURAHS_FOR_KIDS + ADDITIONAL_SURAHS
-        s_idx = lesson_idx // 7
-        a_idx = lesson_idx % 7
-        if s_idx < len(all_surahs):
-            surah = all_surahs[s_idx]
-            ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
-            sections = [
-                {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
-                 "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
-                             "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("en", ""))}},
-                {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-                 "content": {"text": ayah["ar"], "tip": t("tip_tap_letter", lang)}},
-                {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
-                 "content": {"text": ayah["ar"], "tip": t("tip_close_eyes_recite", lang)}},
-                {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
-                 "content": {"sentence": ayah["ar"], "tip": t("tip_write_sentence_3", lang)}},
-            ]
-        else:
-            sections = [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {"tip": t("tip_review_all", lang)}}]
-    
-    # ═══ STAGE 9: Duas ═══
-    elif stage_id == "S09":
-        from kids_learning import KIDS_DUAS
-        d = KIDS_DUAS[lesson_idx % len(KIDS_DUAS)]
-        sections = [
-            {"type": "dua", "emoji": d["emoji"], "title": d["title"].get(lang, d["title"]["ar"]),
-             "content": {"arabic": d["ar"], "transliteration": d["transliteration"], "meaning": d.get(lang, d.get("en", ""))}},
-            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-             "content": {"text": d["ar"], "tip": t("tip_repeat_sentence", lang)}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize_dua", lang),
-             "content": {"text": d["ar"], "tip": t("tip_repeat_dua_5", lang)}},
-            {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-             "content": {"question": t("quiz_complete_dua", lang) if t("quiz_complete_dua", lang) != "quiz_complete_dua" else ({"ar": "أكمل الدعاء", "en": "Complete the dua"}.get(lang, "أكمل الدعاء")),
-                         "correct": d["ar"][:30],
-                         "options": [d["ar"][:30], KIDS_DUAS[(lesson_idx+1) % len(KIDS_DUAS)]["ar"][:30], KIDS_DUAS[(lesson_idx+2) % len(KIDS_DUAS)]["ar"][:30]]}},
+        s_idx, a_idx = lesson_idx // 5, lesson_idx % 5
+        if s_idx >= len(all_surahs):
+            return [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {"tip": t("tip_review_all", lang)}}]
+        surah = all_surahs[s_idx % len(all_surahs)]
+        ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
+        return [
+            {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
+             "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
+                         "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("en", ""))}},
+            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang), "content": {"text": ayah["ar"]}},
+            {"type": "memorize", "emoji": "🧠", "title": t("recite", lang), "content": {"tip": t("tip_close_eyes_recite", lang)}},
         ]
-    
-    # ═══ STAGE 10: Hadiths ═══
-    elif stage_id == "S10":
-        from kids_learning import KIDS_HADITHS
-        h = KIDS_HADITHS[lesson_idx % len(KIDS_HADITHS)]
-        sections = [
-            {"type": "hadith", "emoji": h["emoji"], "title": t("todays_hadith", lang),
-             "content": {"arabic": h["ar"], "translation": h.get(lang, h.get("en", "")), "source": h["source"],
-                         "lesson": h["lesson"].get(lang, h["lesson"].get("en", ""))}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
-             "content": {"text": h["ar"], "tip": t("tip_read_3_memory", lang)}},
-            {"type": "reflect", "emoji": "💭", "title": t("reflect", lang),
-             "content": {"tip": h["lesson"].get(lang, h["lesson"].get("en", ""))}},
-        ]
-    
-    # ═══ STAGE 11: Prophet Stories ═══
-    elif stage_id == "S11":
-        from kids_learning_extended import ALL_PROPHETS, get_prophet_field
-        p = ALL_PROPHETS[lesson_idx % len(ALL_PROPHETS)]
-        p_name = get_prophet_field(p, "name", lang) or p["name"].get(lang, p["name"].get("ar", ""))
-        p_title = get_prophet_field(p, "title", lang) or p["title"].get(lang, p["title"].get("ar", ""))
-        p_summary = get_prophet_field(p, "summary", lang)
-        p_lesson = get_prophet_field(p, "lesson", lang)
-        sections = [
-            {"type": "story", "emoji": p["emoji"], "title": p_name,
-             "content": {"name": p_name, "title": p_title, "summary": p_summary,
-                         "lesson": p_lesson, "quran_ref": p["quran_ref"]}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
-             "content": {"text": p["quran_ref"], "tip": p_lesson}},
-            {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-             "content": {"question": {"ar": f"ما لقب النبي {p['name'].get('ar', '')}؟", "en": f"What is Prophet {p['name'].get('en', '')}'s title?"}.get(lang, f"ما لقب النبي {p['name'].get('ar', '')}؟"),
-                         "correct": p_title,
-                         "options": [p_title, 
-                                     get_prophet_field(ALL_PROPHETS[(lesson_idx+1) % len(ALL_PROPHETS)], "title", lang),
-                                     get_prophet_field(ALL_PROPHETS[(lesson_idx+3) % len(ALL_PROPHETS)], "title", lang)]}},
-        ]
-    
-    # ═══ STAGE 12: Islamic Life ═══
-    elif stage_id == "S12":
-        topic = ISLAMIC_LIFE_TOPICS[lesson_idx % len(ISLAMIC_LIFE_TOPICS)]
-        title_text = topic["title"].get(lang, topic["title"].get("en", topic["title"]["ar"]))
-        content_text = topic["content"].get(lang, topic["content"].get("en", topic["content"]["ar"]))
-        sections = [
-            {"type": "learn", "emoji": topic["emoji"], "title": title_text,
-             "content": {"arabic": topic["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
-            {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-             "content": {"text": topic["content"]["ar"][:80], "tip": t("tip_repeat_sentence", lang)}},
-            {"type": "memorize", "emoji": "🧠", "title": t("memorize", lang),
-             "content": {"text": topic["content"]["ar"][:80], "tip": t("tip_read_3_memory", lang)}},
-        ]
-    
-    # ═══ STAGE 13: Advanced Arabic ═══
-    elif stage_id == "S13":
-        grammar = ARABIC_GRAMMAR_LESSONS[lesson_idx % len(ARABIC_GRAMMAR_LESSONS)]
-        title_text = grammar["title"].get(lang, grammar["title"].get("en", grammar["title"]["ar"]))
-        content_text = grammar["content"].get(lang, grammar["content"].get("en", grammar["content"]["ar"]))
-        
-        section_list = [
-            {"type": "learn", "emoji": grammar["emoji"], "title": title_text,
-             "content": {"arabic": grammar["content"]["ar"], "translated": content_text if lang != "ar" else ""}},
-        ]
-        
-        # Add practice items if available
-        if grammar.get("practice"):
-            practice_items = []
-            for p in grammar["practice"]:
-                if "word" in p:
-                    practice_items.append(p.get("word", "") + " → " + p.get("plural", p.get("opposite", "")))
-                elif "past" in p:
-                    practice_items.append(p["past"] + " → " + p["present"] + " → " + p["command"])
-                elif "sentence" in p:
-                    practice_items.append(p["sentence"])
-                elif "question" in p:
-                    practice_items.append(p["question"] + " — " + p["answer"])
-                elif "pronoun" in p:
-                    practice_items.append(p["pronoun"] + ": " + p["example"])
-                elif "day" in p:
-                    practice_items.append(p["day"])
-            
-            if practice_items:
-                section_list.append(
-                    {"type": "practice", "emoji": "🎯", "title": t("test", lang),
-                     "content": {"items": practice_items, "tip": t("listen_repeat", lang)}}
-                )
-        
-        section_list.append(
-            {"type": "write", "emoji": "✍️", "title": t("practice_writing", lang),
-             "content": {"tip": t("tip_write_sentence_3", lang)}}
-        )
-        sections = section_list
-    
-    # ═══ STAGE 14: Advanced Quran + Tajweed ═══
-    elif stage_id == "S14":
-        # First half: More surahs, second half: tajweed
-        half = (960 - 901 + 1) // 2
-        if lesson_idx < half:
-            # Advanced surah memorization
-            from kids_learning import QURAN_SURAHS_FOR_KIDS
-            all_surahs = QURAN_SURAHS_FOR_KIDS + ADDITIONAL_SURAHS
-            s_idx = lesson_idx // 5
-            a_idx = lesson_idx % 5
-            if s_idx < len(all_surahs):
-                surah = all_surahs[s_idx % len(all_surahs)]
-                ayah = surah["ayahs"][a_idx % len(surah["ayahs"])]
-                sections = [
-                    {"type": "quran", "emoji": "📖", "title": t("memorize_prefix", lang, name=surah.get('name_ar', surah['name_en'])),
-                     "content": {"surah": surah.get("name_ar", surah["name_en"]), "ayah_num": ayah["num"],
-                                 "arabic": ayah["ar"], "translation": ayah.get(lang, ayah.get("en", ""))}},
-                    {"type": "listen", "emoji": "🔊", "title": t("listen_repeat", lang),
-                     "content": {"text": ayah["ar"]}},
-                    {"type": "memorize", "emoji": "🧠", "title": t("recite", lang),
-                     "content": {"tip": t("tip_close_eyes_recite", lang)}},
-                ]
-            else:
-                sections = [{"type": "review", "emoji": "🔄", "title": t("review", lang), "content": {"tip": t("tip_review_all", lang)}}]
-        else:
-            # Tajweed rules
-            rule = TAJWEED_RULES[(lesson_idx - half) % len(TAJWEED_RULES)]
-            sections = [
-                {"type": "learn", "emoji": rule["emoji"], "title": rule["title"].get(lang, rule["title"]["ar"]),
-                 "content": {"arabic": rule["content"]["ar"], "translated": rule["content"].get(lang, rule["content"]["ar"]) if lang != "ar" else ""}},
-                {"type": "practice", "emoji": "🎯", "title": t("test", lang),
-                 "content": {"tip": rule["content"].get(lang, rule["content"]["ar"])}},
-            ]
-    
-    # ═══ STAGE 15: Mastery & Graduation ═══
-    elif stage_id == "S15":
-        review = MASTERY_REVIEWS[lesson_idx % len(MASTERY_REVIEWS)]
-        quiz_items = review["quiz"]
-        quiz = quiz_items[lesson_idx % len(quiz_items)] if quiz_items else None
-        
-        section_list = [
-            {"type": "review", "emoji": review["emoji"], "title": review["title"].get(lang, review["title"]["ar"]),
-             "content": {"tip": t("tip_review_all", lang)}},
-        ]
-        
-        if quiz:
-            section_list.append(
-                {"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
-                 "content": {"question": quiz["q"].get(lang, quiz["q"]["ar"]),
-                             "correct": quiz["a"].get(lang, quiz["a"]["ar"]),
-                             "options": quiz["opts"].get(lang, quiz["opts"]["ar"])}}
-            )
-        
-        section_list.append(
-            {"type": "memorize", "emoji": "🎓", "title": t("comprehensive_review", lang),
-             "content": {"tip": t("tip_review_all", lang)}}
-        )
-        sections = section_list
-    
-    if not sections:
-        sections = [{"type": "learn", "emoji": "📝", "title": t("lesson", lang), "content": {"tip": t("learn", lang)}}]
-    
+    rule = TAJWEED_RULES[(lesson_idx - half) % len(TAJWEED_RULES)]
+    return [
+        {"type": "learn", "emoji": rule["emoji"], "title": rule["title"].get(lang, rule["title"]["ar"]),
+         "content": {"arabic": rule["content"]["ar"], "translated": rule["content"].get(lang, rule["content"]["ar"]) if lang != "ar" else ""}},
+        {"type": "practice", "emoji": "🎯", "title": t("test", lang),
+         "content": {"tip": rule["content"].get(lang, rule["content"]["ar"])}},
+    ]
+
+
+def _build_stage_mastery(lesson_idx: int, lang: str) -> list:
+    """Stage 15: Mastery & Graduation sections."""
+    review = MASTERY_REVIEWS[lesson_idx % len(MASTERY_REVIEWS)]
+    sections = [
+        {"type": "review", "emoji": review["emoji"], "title": review["title"].get(lang, review["title"]["ar"]),
+         "content": {"tip": t("tip_review_all", lang)}},
+    ]
+    quiz_items = review["quiz"]
+    if quiz_items:
+        quiz = quiz_items[lesson_idx % len(quiz_items)]
+        sections.append({"type": "quiz", "emoji": "❓", "title": t("test_yourself", lang),
+             "content": {"question": quiz["q"].get(lang, quiz["q"]["ar"]),
+                         "correct": quiz["a"].get(lang, quiz["a"]["ar"]),
+                         "options": quiz["opts"].get(lang, quiz["opts"]["ar"])}})
+    sections.append({"type": "memorize", "emoji": "🎓", "title": t("comprehensive_review", lang),
+         "content": {"tip": t("tip_review_all", lang)}})
     return sections
+
+
+# Stage builder dispatch table
+_STAGE_BUILDERS: dict = {
+    "S06": _build_stage_reading,
+    "S07": _build_stage_islamic,
+    "S08": _build_stage_quran,
+    "S09": _build_stage_duas,
+    "S10": _build_stage_hadiths,
+    "S11": _build_stage_prophets,
+    "S12": _build_stage_islamic_life,
+    "S13": _build_stage_grammar,
+    "S14": _build_stage_advanced_quran,
+    "S15": _build_stage_mastery,
+}
+
+
+def build_rich_sections(stage_id: str, lesson_idx: int, lang: str) -> list:
+    """Build comprehensive multi-section lessons for stages 6-15.
+    
+    Dispatches to stage-specific builder functions for maintainability.
+    """
+    builder = _STAGE_BUILDERS.get(stage_id)
+    if builder:
+        return builder(lesson_idx, lang)
+    return [{"type": "learn", "emoji": "📝", "title": t("lesson", lang), "content": {"tip": t("learn", lang)}}]
