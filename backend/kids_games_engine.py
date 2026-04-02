@@ -182,88 +182,79 @@ SHIELD_SCENARIOS = {
 }
 
 
-def generate_daily_games(day: int, locale: str = "en") -> dict:
-    """Generate a set of games for a given day, localized."""
-    lang = locale if locale in WUDU_STEPS else "en"
-    random.seed(day)  # Deterministic per day
-    
-    games = []
-    
-    # Game 1: Quiz (rotating categories)
+def _build_quiz_game(day: int, lang: str) -> dict:
+    """Build a quiz game for the given day."""
     categories = list(QUIZ_BANKS.keys())
     cat = categories[day % len(categories)]
     bank = QUIZ_BANKS[cat]
     q = bank["questions"][day % len(bank["questions"])]
-    games.append({
-        "type": "quiz",
-        "id": f"quiz_{day}",
-        "title": _get_game_title("quiz", lang),
+    return {
+        "type": "quiz", "id": f"quiz_{day}", "title": _get_game_title("quiz", lang),
         "question": q["q"].get(lang, q["q"]["en"]),
         "options": q["options"].get(lang, q["options"]["en"]),
-        "correct_index": q["answer"],
-        "xp": 10,
-        "emoji": "🧠",
-    })
-    
-    # Game 2: Memory Match (rotating themes)
-    theme = "islamic_symbols"
-    pairs = MEMORY_PAIRS[theme].get(lang, MEMORY_PAIRS[theme]["en"])
-    selected_pairs = random.sample(pairs, min(4, len(pairs)))
+        "correct_index": q["answer"], "xp": 10, "emoji": "🧠",
+    }
+
+
+def _build_memory_game(day: int, lang: str) -> dict:
+    """Build a memory match game."""
+    pairs = MEMORY_PAIRS["islamic_symbols"].get(lang, MEMORY_PAIRS["islamic_symbols"]["en"])
+    selected = random.sample(pairs, min(4, len(pairs)))
     cards = []
-    for i, (emoji, text) in enumerate(selected_pairs):
+    for i, (emoji, text) in enumerate(selected):
         cards.append({"id": f"e{i}", "content": emoji, "pair_id": f"p{i}", "type": "emoji"})
         cards.append({"id": f"t{i}", "content": text, "pair_id": f"p{i}", "type": "text"})
     random.shuffle(cards)
-    games.append({
-        "type": "memory",
-        "id": f"memory_{day}",
-        "title": _get_game_title("memory", lang),
-        "cards": cards,
-        "total_pairs": len(selected_pairs),
-        "xp": 15,
-        "emoji": "🎴",
-    })
-    
-    # Game 3: Drag & Drop (alternate between wudu and salah)
+    return {
+        "type": "memory", "id": f"memory_{day}", "title": _get_game_title("memory", lang),
+        "cards": cards, "total_pairs": len(selected), "xp": 15, "emoji": "🎴",
+    }
+
+
+def _build_drag_drop_game(day: int, lang: str) -> dict:
+    """Build a drag-and-drop ordering game (wudu/salah steps)."""
     if day % 2 == 0:
         steps = WUDU_STEPS.get(lang, WUDU_STEPS["en"])
-        drag_title = _get_game_title("wudu_order", lang)
+        title = _get_game_title("wudu_order", lang)
     else:
         steps = SALAH_STEPS.get(lang, SALAH_STEPS["en"])
-        drag_title = _get_game_title("salah_order", lang)
-    
-    # Show 4-5 steps to order
+        title = _get_game_title("salah_order", lang)
     num_steps = min(5, len(steps))
     start = (day * 2) % max(1, len(steps) - num_steps)
     subset = steps[start:start + num_steps]
-    list(range(len(subset)))
-    shuffled_items = list(enumerate(subset))
-    random.shuffle(shuffled_items)
-    games.append({
-        "type": "drag_drop",
-        "id": f"drag_{day}",
-        "title": drag_title,
-        "items": [{"id": idx, "text": text} for idx, text in shuffled_items],
-        "correct_order": [idx for idx, _ in enumerate(subset)],
-        "xp": 20,
-        "emoji": "🔀",
-    })
-    
-    # Game 4: Digital Shield Scenario
+    shuffled = list(enumerate(subset))
+    random.shuffle(shuffled)
+    return {
+        "type": "drag_drop", "id": f"drag_{day}", "title": title,
+        "items": [{"id": idx, "text": text} for idx, text in shuffled],
+        "correct_order": list(range(len(subset))), "xp": 20, "emoji": "🔀",
+    }
+
+
+def _build_scenario_game(day: int, lang: str) -> dict:
+    """Build a digital shield scenario game."""
     scenarios = SHIELD_SCENARIOS.get(lang, SHIELD_SCENARIOS["en"])
-    scenario = scenarios[day % len(scenarios)]
-    games.append({
-        "type": "scenario",
-        "id": f"scenario_{day}",
-        "title": _get_game_title("scenario", lang),
-        "scenario": scenario["scenario"],
-        "options": scenario["options"],
-        "correct_index": scenario["correct"],
-        "explanation": scenario["explanation"],
-        "xp": 15,
-        "emoji": "🛡️",
-    })
+    s = scenarios[day % len(scenarios)]
+    return {
+        "type": "scenario", "id": f"scenario_{day}", "title": _get_game_title("scenario", lang),
+        "scenario": s["scenario"], "options": s["options"],
+        "correct_index": s["correct"], "explanation": s["explanation"], "xp": 15, "emoji": "🛡️",
+    }
+
+
+def generate_daily_games(day: int, locale: str = "en") -> dict:
+    """Generate a set of 4 games for a given day, localized.
     
+    Each game type is built by a focused helper function.
+    """
+    lang = locale if locale in WUDU_STEPS else "en"
+    random.seed(day)  # Deterministic per day
+    games = [
+        _build_quiz_game(day, lang),
+        _build_memory_game(day, lang),
+        _build_drag_drop_game(day, lang),
+        _build_scenario_game(day, lang),
+    ]
     return {
         "day": day,
         "total_xp": sum(g["xp"] for g in games),

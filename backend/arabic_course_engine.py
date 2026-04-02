@@ -283,6 +283,54 @@ def get_alphabet_lesson(letter_index: int, locale: str = "en"):
     }
 
 
+def _build_letter_recognition_game(lt: dict, letter_index: int, letter_name: str, lang: str) -> dict:
+    """Build a letter recognition quiz game."""
+    other_indices = [i for i in range(len(ARABIC_LETTERS)) if i != letter_index]
+    wrong = random.sample(other_indices, 3)
+    options = [lt["letter"]] + [ARABIC_LETTERS[i]["letter"] for i in wrong]
+    random.shuffle(options)
+    q = {"ar": f"أين حرف {letter_name}؟", "en": f"Where is the letter {letter_name}?",
+         "fr": f"Où est la lettre {letter_name} ?", "de": f"Wo ist der Buchstabe {letter_name}?",
+         "tr": f"{letter_name} harfi nerede?", "ru": f"Где буква {letter_name}?",
+         "sv": f"Var är bokstaven {letter_name}?", "nl": f"Waar is de letter {letter_name}?",
+         "el": f"Πού είναι το γράμμα {letter_name};"}
+    return {"type": "quiz", "id": f"letter_quiz_{letter_index}", "title": q.get(lang, q["en"]),
+            "question": q.get(lang, q["en"]), "options": options,
+            "correct_index": options.index(lt["letter"]), "xp": 10, "emoji": "🔤"}
+
+
+def _build_letter_forms_game(lt: dict, letter_index: int, lang: str) -> dict:
+    """Build a letter forms memory match game."""
+    forms = list(lt["forms"].values())
+    labels = FORM_NAMES.get(lang, FORM_NAMES["en"])
+    cards = []
+    for i, (form, label) in enumerate(zip(forms, labels)):
+        cards.append({"id": f"f{i}", "content": form, "pair_id": f"p{i}", "type": "emoji"})
+        cards.append({"id": f"l{i}", "content": label, "pair_id": f"p{i}", "type": "text"})
+    random.shuffle(cards)
+    titles = {"ar": "طابق أشكال الحرف", "en": "Match Letter Forms", "fr": "Associer les formes",
+              "de": "Formen zuordnen", "tr": "Harf Formlarını Eşleştir", "ru": "Сопоставь формы",
+              "sv": "Matcha bokstavsformer", "nl": "Vormen matchen", "el": "Ταίριαξε τις μορφές"}
+    return {"type": "memory", "id": f"letter_memory_{letter_index}", "title": titles.get(lang, "Match Letter Forms"),
+            "cards": cards, "total_pairs": 4, "xp": 15, "emoji": "🎴"}
+
+
+def _build_word_recognition_game(lt: dict, letter_index: int, letter_name: str, lang: str) -> dict:
+    """Build a word recognition quiz game."""
+    other_indices = [i for i in range(len(ARABIC_LETTERS)) if i != letter_index]
+    q = {"ar": f"أي كلمة تبدأ بحرف {lt['letter']}؟", "en": f"Which word starts with {letter_name}?",
+         "fr": f"Quel mot commence par {letter_name} ?", "de": f"Welches Wort beginnt mit {letter_name}?",
+         "tr": f"Hangi kelime {letter_name} ile başlar?", "ru": f"Какое слово начинается на {letter_name}?",
+         "sv": f"Vilket ord börjar med {letter_name}?", "nl": f"Welk woord begint met {letter_name}?",
+         "el": f"Ποια λέξη ξεκινά με {letter_name};"}
+    opts = [lt["word"]["ar"]] + [ARABIC_LETTERS[i]["word"]["ar"] for i in random.sample(other_indices, 3)]
+    random.shuffle(opts)
+    return {"type": "quiz", "id": f"letter_word_{letter_index}", "title": q.get(lang, q["en"]),
+            "question": q.get(lang, q["en"]),
+            "options": [f"{w} {ARABIC_LETTERS[[x['word']['ar'] for x in ARABIC_LETTERS].index(w)]['emoji']}" for w in opts],
+            "correct_index": opts.index(lt["word"]["ar"]), "xp": 10, "emoji": "📝"}
+
+
 def generate_letter_games(letter_index: int, locale: str = "en"):
     """Generate interactive games for learning a specific Arabic letter."""
     if letter_index < 0 or letter_index >= len(ARABIC_LETTERS):
@@ -290,79 +338,9 @@ def generate_letter_games(letter_index: int, locale: str = "en"):
     lang = locale if locale != "de-AT" else "de"
     lt = ARABIC_LETTERS[letter_index]
     random.seed(letter_index)
-
-    games = []
     letter_name = lt["transliteration"].get(lang, lt["transliteration"].get("en", lt["name"]))
-
-    # Game 1: Letter Recognition Quiz
-    other_indices = [i for i in range(len(ARABIC_LETTERS)) if i != letter_index]
-    wrong = random.sample(other_indices, 3)
-    options = [lt["letter"]] + [ARABIC_LETTERS[i]["letter"] for i in wrong]
-    random.shuffle(options)
-    correct_idx = options.index(lt["letter"])
-    q_texts = {
-        "ar": f"أين حرف {letter_name}؟",
-        "en": f"Where is the letter {letter_name}?",
-        "fr": f"Où est la lettre {letter_name} ?",
-        "de": f"Wo ist der Buchstabe {letter_name}?",
-        "tr": f"{letter_name} harfi nerede?",
-        "ru": f"Где буква {letter_name}?",
-        "sv": f"Var är bokstaven {letter_name}?",
-        "nl": f"Waar is de letter {letter_name}?",
-        "el": f"Πού είναι το γράμμα {letter_name};",
-    }
-    games.append({
-        "type": "quiz",
-        "id": f"letter_quiz_{letter_index}",
-        "title": q_texts.get(lang, q_texts["en"]),
-        "question": q_texts.get(lang, q_texts["en"]),
-        "options": options,
-        "correct_index": correct_idx,
-        "xp": 10,
-        "emoji": "🔤",
-    })
-
-    # Game 2: Letter Forms Memory Match — all 9 languages
-    forms = list(lt["forms"].values())
-    cards = []
-    labels = FORM_NAMES.get(lang, FORM_NAMES["en"])
-    for i, (form, label) in enumerate(zip(forms, labels)):
-        cards.append({"id": f"f{i}", "content": form, "pair_id": f"p{i}", "type": "emoji"})
-        cards.append({"id": f"l{i}", "content": label, "pair_id": f"p{i}", "type": "text"})
-    random.shuffle(cards)
-    games.append({
-        "type": "memory",
-        "id": f"letter_memory_{letter_index}",
-        "title": {"ar": "طابق أشكال الحرف", "en": "Match Letter Forms", "fr": "Associer les formes", "de": "Formen zuordnen", "tr": "Harf Formlarını Eşleştir", "ru": "Сопоставь формы", "sv": "Matcha bokstavsformer", "nl": "Vormen matchen", "el": "Ταίριαξε τις μορφές"}.get(lang, "Match Letter Forms"),
-        "cards": cards,
-        "total_pairs": 4,
-        "xp": 15,
-        "emoji": "🎴",
-    })
-
-    # Game 3: Word Recognition
-    word_q = {
-        "ar": f"أي كلمة تبدأ بحرف {lt['letter']}؟",
-        "en": f"Which word starts with {letter_name}?",
-        "fr": f"Quel mot commence par {letter_name} ?",
-        "de": f"Welches Wort beginnt mit {letter_name}?",
-        "tr": f"Hangi kelime {letter_name} ile başlar?",
-        "ru": f"Какое слово начинается на {letter_name}?",
-        "sv": f"Vilket ord börjar med {letter_name}?",
-        "nl": f"Welk woord begint met {letter_name}?",
-        "el": f"Ποια λέξη ξεκινά με {letter_name};",
-    }
-    word_options = [lt["word"]["ar"]] + [ARABIC_LETTERS[i]["word"]["ar"] for i in random.sample(other_indices, 3)]
-    random.shuffle(word_options)
-    games.append({
-        "type": "quiz",
-        "id": f"letter_word_{letter_index}",
-        "title": word_q.get(lang, word_q["en"]),
-        "question": word_q.get(lang, word_q["en"]),
-        "options": [f"{w} {ARABIC_LETTERS[[x['word']['ar'] for x in ARABIC_LETTERS].index(w)]['emoji']}" for w in word_options],
-        "correct_index": word_options.index(lt["word"]["ar"]),
-        "xp": 10,
-        "emoji": "📝",
-    })
-
-    return games
+    return [
+        _build_letter_recognition_game(lt, letter_index, letter_name, lang),
+        _build_letter_forms_game(lt, letter_index, lang),
+        _build_word_recognition_game(lt, letter_index, letter_name, lang),
+    ]
