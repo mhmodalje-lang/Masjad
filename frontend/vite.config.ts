@@ -18,8 +18,9 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
-    mode === "production" && VitePWA({
+    VitePWA({
       registerType: "autoUpdate",
+      devOptions: { enabled: false },
       includeAssets: ["favicon.ico", "pwa-icon-48.png", "pwa-icon-72.png", "pwa-icon-96.png", "pwa-icon-128.png", "pwa-icon-144.png", "pwa-icon-152.png", "pwa-icon-192.png", "pwa-icon-384.png", "pwa-icon-512.png", "pwa-icon-maskable.png", "apple-touch-icon.png"],
       manifest: {
         name: "أذان وحكاية - رفيقك الروحي",

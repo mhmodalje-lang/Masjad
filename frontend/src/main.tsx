@@ -24,50 +24,9 @@ try {
   document.body.classList.add('platform-web', 'web-app');
 }
 
-// Register Service Worker (Web only - Capacitor handles its own)
-// Skip SW in development mode (Vite dev server) to avoid caching issues
-const isDevMode = import.meta.env.DEV || window.location.hostname === 'localhost';
-if ('serviceWorker' in navigator && !Capacitor.isNativePlatform()) {
-  if (isDevMode) {
-    // In dev mode, unregister any existing service workers to prevent caching issues
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      registrations.forEach(reg => {
-        reg.unregister();
-        console.log('[SW] Unregistered SW in dev mode');
-      });
-    });
-  } else {
-    window.addEventListener('load', () => {
-      // Register the custom SW for prayer notifications (production only)
-      navigator.serviceWorker.register('/sw-custom.js', { scope: '/' })
-        .then(reg => {
-          console.log('[SW] Custom SW registered:', reg.scope);
-          
-          // Check for updates periodically
-          setInterval(() => {
-            reg.update().catch(() => {});
-          }, 30 * 60 * 1000); // Every 30 minutes
-          
-          // Handle updates
-          reg.addEventListener('updatefound', () => {
-            const newWorker = reg.installing;
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'activated') {
-                  // New SW activated - refresh if user approves
-                  if (document.hidden) {
-                    // Auto-refresh if tab is not visible
-                    window.location.reload();
-                  }
-                }
-              });
-            }
-          });
-        })
-        .catch(err => console.error('[SW] Registration failed:', err));
-    });
-  }
-}
+// Service Worker is managed by VitePWA (registerSW.js) — no manual registration needed.
+// VitePWA handles: precaching, offline mode, updates.
+// sw-custom.js (imported by Workbox) handles: prayer notifications, push.
 
 // Request persistent storage for offline data
 if (navigator.storage && navigator.storage.persist) {

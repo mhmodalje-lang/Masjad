@@ -15,8 +15,9 @@ export const PWAUpdatePrompt = forwardRef<HTMLDivElement>(function PWAUpdateProm
     let refreshing = false;
 
     // When new SW takes control, reload once (only when user explicitly clicks update)
+    let userInitiatedUpdate = false;
     const onControllerChange = () => {
-      if (refreshing) return;
+      if (refreshing || !userInitiatedUpdate) return;
       refreshing = true;
       window.location.reload();
     };
@@ -75,6 +76,8 @@ export const PWAUpdatePrompt = forwardRef<HTMLDivElement>(function PWAUpdateProm
     try {
       const reg = await navigator.serviceWorker.getRegistration();
       if (reg?.waiting) {
+        // Mark as user-initiated before triggering SW
+        (window as any).__userInitiatedSWUpdate = true;
         reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
     } catch {
